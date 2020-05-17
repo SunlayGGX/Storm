@@ -38,5 +38,11 @@
     <ClInclude Include="..\include\IPhysicsManager.h">
       <Filter>Header Files\Singleton</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\IInputManager.h">
+      <Filter>Header Files\Singleton</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\IWindowsManager.h">
+      <Filter>Header Files\Singleton</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
