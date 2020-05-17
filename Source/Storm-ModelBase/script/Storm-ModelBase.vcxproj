@@ -17,6 +17,10 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\include\IConfigManager.h" />
+    <ClInclude Include="..\include\IGraphicsManager.h" />
+    <ClInclude Include="..\include\ILoggerManager.h" />
+    <ClInclude Include="..\include\IPhysicsManager.h" />
     <ClInclude Include="..\include\Storm-ModelBasePCH.h" />
   </ItemGroup>
   <ItemGroup>
