@@ -34,10 +34,19 @@
     <Filter Include="Header Files\Application">
       <UniqueIdentifier>{53198232-f2e9-43e3-8ad9-1a3768ea9eae}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\General">
+      <UniqueIdentifier>{92dd0ce4-e27d-41fb-8194-ed0d29b74b18}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\General\Singleton">
+      <UniqueIdentifier>{d9e5497f-a6b0-4fb2-99ee-f3010d6dce5e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-HelperPCH.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\SingletonHolder.cpp">
+      <Filter>Source Files\General\Singleton</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
