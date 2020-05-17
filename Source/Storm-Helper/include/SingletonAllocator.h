@@ -3,6 +3,8 @@
 
 #include "SizeCounter.h"
 #include "StaticAssertionsMacros.h"
+#include "Facets.h"
+#include "SingletonHeldInterfaceBase.h"
 
 
 namespace Storm
