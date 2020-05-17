@@ -19,6 +19,14 @@
   <ItemGroup>
     <ClInclude Include="..\include\Storm-GraphicsPCH.h" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Storm-Helper\script\Storm-Helper.vcxproj">
+      <Project>{30709355-d527-4faa-9c02-1f64129968e5}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Storm-ModelBase\script\Storm-ModelBase.vcxproj">
+      <Project>{bb52fd96-f795-463d-8ad1-392b37344a7d}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <ProjectGuid>{CC6DFC68-E28A-4C11-A168-FBE234335BC7}</ProjectGuid>

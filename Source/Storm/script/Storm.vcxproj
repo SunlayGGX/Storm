@@ -22,6 +22,26 @@
     <ClInclude Include="..\include\Application.h" />
     <ClInclude Include="..\include\StormPCH.h" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Storm-Config\script\Storm-Config.vcxproj">
+      <Project>{8004df4f-e94e-4c58-8c6b-1042a461ed62}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Storm-Graphics\script\Storm-Graphics.vcxproj">
+      <Project>{cc6dfc68-e28a-4c11-a168-fbe234335bc7}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Storm-Helper\script\Storm-Helper.vcxproj">
+      <Project>{30709355-d527-4faa-9c02-1f64129968e5}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Storm-Logger\script\Storm-Logger.vcxproj">
+      <Project>{da5ba977-37d5-4bd2-8269-e536b626decb}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Storm-ModelBase\script\Storm-ModelBase.vcxproj">
+      <Project>{bb52fd96-f795-463d-8ad1-392b37344a7d}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Storm-Physics\script\Storm-Physics.vcxproj">
+      <Project>{bc32bd4c-db35-4923-8b99-0219bf111eae}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <ProjectGuid>{867025DB-4673-449F-886A-519879864D68}</ProjectGuid>

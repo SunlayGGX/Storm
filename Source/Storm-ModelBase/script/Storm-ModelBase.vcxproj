@@ -19,6 +19,11 @@
   <ItemGroup>
     <ClInclude Include="..\include\Storm-ModelBasePCH.h" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Storm-Helper\script\Storm-Helper.vcxproj">
+      <Project>{30709355-d527-4faa-9c02-1f64129968e5}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <ProjectGuid>{BB52FD96-F795-463D-8AD1-392B37344A7D}</ProjectGuid>

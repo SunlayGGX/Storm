@@ -19,6 +19,14 @@
   <ItemGroup>
     <ClInclude Include="..\include\Storm-LoggerPCH.h" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Storm-Helper\script\Storm-Helper.vcxproj">
+      <Project>{30709355-d527-4faa-9c02-1f64129968e5}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Storm-ModelBase\script\Storm-ModelBase.vcxproj">
+      <Project>{bb52fd96-f795-463d-8ad1-392b37344a7d}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <ProjectGuid>{DA5BA977-37D5-4BD2-8269-E536B626DECB}</ProjectGuid>
