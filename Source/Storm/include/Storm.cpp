@@ -1,15 +1,16 @@
+#include "ExitCode.h"
 
 
 
 int main(int argc, const char* argv[]) try
 {
-    return 0;
+    return static_cast<int>(Storm::ExitCode::k_success);
 }
 catch (const std::exception &/*ex*/)
 {
-    return -99;
+    return static_cast<int>(Storm::ExitCode::k_stdException);
 }
 catch (...)
 {
-    return -100;
+    return static_cast<int>(Storm::ExitCode::k_unknownException);
 }
