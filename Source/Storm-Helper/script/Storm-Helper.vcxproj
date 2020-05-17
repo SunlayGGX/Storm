@@ -25,6 +25,7 @@
     <ClInclude Include="..\include\SingletonHolder.h" />
     <ClInclude Include="..\include\SizeCounter.h" />
     <ClInclude Include="..\include\Storm-HelperPCH.h" />
+    <ClInclude Include="..\include\StormStdPrerequisite.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

@@ -53,5 +53,8 @@
     <ClInclude Include="..\include\SizeCounter.h">
       <Filter>Header Files\MetaP</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\StormStdPrerequisite.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
