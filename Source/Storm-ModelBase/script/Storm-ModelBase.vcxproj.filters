@@ -15,15 +15,12 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\include\Storm.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\include\StormPCH.cpp">
+    <ClCompile Include="..\include\Storm-ModelBasePCH.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\include\StormPCH.h">
+    <ClInclude Include="..\include\Storm-ModelBasePCH.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

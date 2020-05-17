@@ -5,6 +5,10 @@ VisualStudioVersion = 16.0.30011.22
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Storm", "Source\Storm\script\Storm.vcxproj", "{867025DB-4673-449F-886A-519879864D68}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Storm-Helper", "Source\Storm-Helper\script\Storm-Helper.vcxproj", "{30709355-D527-4FAA-9C02-1F64129968E5}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Storm-ModelBase", "Source\Storm-ModelBase\script\Storm-ModelBase.vcxproj", "{BB52FD96-F795-463D-8AD1-392B37344A7D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -15,6 +19,14 @@ Global
 		{867025DB-4673-449F-886A-519879864D68}.Debug|x64.Build.0 = Debug|x64
 		{867025DB-4673-449F-886A-519879864D68}.Release|x64.ActiveCfg = Release|x64
 		{867025DB-4673-449F-886A-519879864D68}.Release|x64.Build.0 = Release|x64
+		{30709355-D527-4FAA-9C02-1F64129968E5}.Debug|x64.ActiveCfg = Debug|x64
+		{30709355-D527-4FAA-9C02-1F64129968E5}.Debug|x64.Build.0 = Debug|x64
+		{30709355-D527-4FAA-9C02-1F64129968E5}.Release|x64.ActiveCfg = Release|x64
+		{30709355-D527-4FAA-9C02-1F64129968E5}.Release|x64.Build.0 = Release|x64
+		{BB52FD96-F795-463D-8AD1-392B37344A7D}.Debug|x64.ActiveCfg = Debug|x64
+		{BB52FD96-F795-463D-8AD1-392B37344A7D}.Debug|x64.Build.0 = Debug|x64
+		{BB52FD96-F795-463D-8AD1-392B37344A7D}.Release|x64.ActiveCfg = Release|x64
+		{BB52FD96-F795-463D-8AD1-392B37344A7D}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
