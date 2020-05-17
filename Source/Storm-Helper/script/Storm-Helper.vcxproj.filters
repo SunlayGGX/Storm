@@ -71,5 +71,11 @@
     <ClInclude Include="..\include\ThrowException.h">
       <Filter>Header Files\General\Misc</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\SingletonDefaultImplementation.h">
+      <Filter>Header Files\General\Singleton</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SingletonHeldInterfaceBase.h">
+      <Filter>Header Files\General\Singleton</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

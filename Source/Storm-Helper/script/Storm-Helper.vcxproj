@@ -22,7 +22,9 @@
     <ClInclude Include="..\include\FacetsContainer.h" />
     <ClInclude Include="..\include\Singleton.h" />
     <ClInclude Include="..\include\SingletonAllocator.h" />
+    <ClInclude Include="..\include\SingletonDefaultImplementation.h" />
     <ClInclude Include="..\include\SingletonHolder.h" />
+    <ClInclude Include="..\include\SingletonHeldInterfaceBase.h" />
     <ClInclude Include="..\include\SizeCounter.h" />
     <ClInclude Include="..\include\StaticAssertionsMacros.h" />
     <ClInclude Include="..\include\Storm-HelperPCH.h" />
