@@ -11,21 +11,23 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\include\Source.cpp" />
     <ClCompile Include="..\include\Storm-HelperPCH.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\include\CRTPHierarchy.h" />
     <ClInclude Include="..\include\Facets.h" />
     <ClInclude Include="..\include\FacetsContainer.h" />
     <ClInclude Include="..\include\Singleton.h" />
     <ClInclude Include="..\include\SingletonAllocator.h" />
     <ClInclude Include="..\include\SingletonHolder.h" />
     <ClInclude Include="..\include\SizeCounter.h" />
+    <ClInclude Include="..\include\StaticAssertionsMacros.h" />
     <ClInclude Include="..\include\Storm-HelperPCH.h" />
     <ClInclude Include="..\include\StormStdPrerequisite.h" />
+    <ClInclude Include="..\include\ThrowException.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

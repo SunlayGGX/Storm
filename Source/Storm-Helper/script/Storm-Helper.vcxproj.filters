@@ -25,6 +25,12 @@
     <Filter Include="Header Files\MetaP">
       <UniqueIdentifier>{c80635df-c2d4-42b0-aaff-6c6a367d0df4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Macro">
+      <UniqueIdentifier>{10ee50ad-1512-4c3d-bb5e-f1fc6d6ac0e6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\General\Misc">
+      <UniqueIdentifier>{bd129c25-d975-4322-b90c-0c3e3f5ad3e9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-HelperPCH.cpp">
@@ -55,6 +61,15 @@
     </ClInclude>
     <ClInclude Include="..\include\StormStdPrerequisite.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\CRTPHierarchy.h">
+      <Filter>Header Files\MetaP</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\StaticAssertionsMacros.h">
+      <Filter>Header Files\Macro</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ThrowException.h">
+      <Filter>Header Files\General\Misc</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
