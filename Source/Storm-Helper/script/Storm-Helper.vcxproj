@@ -14,6 +14,12 @@
     <ClCompile Include="..\include\Storm-HelperPCH.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\include\Facets.h" />
+    <ClInclude Include="..\include\FacetsContainer.h" />
+    <ClInclude Include="..\include\Singleton.h" />
+    <ClInclude Include="..\include\SingletonAllocator.h" />
+    <ClInclude Include="..\include\SingletonHolder.h" />
+    <ClInclude Include="..\include\SizeCounter.h" />
     <ClInclude Include="..\include\Storm-HelperPCH.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

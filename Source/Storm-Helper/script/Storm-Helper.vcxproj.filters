@@ -13,6 +13,18 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\General">
+      <UniqueIdentifier>{3202d408-a7ac-41ca-bdfa-225c659737d8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\General\Singleton">
+      <UniqueIdentifier>{22998943-c312-465d-a2b0-9fa66c298125}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\General\Facets">
+      <UniqueIdentifier>{d4d966e9-307c-41cb-9614-bb239fba5519}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\MetaP">
+      <UniqueIdentifier>{c80635df-c2d4-42b0-aaff-6c6a367d0df4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-HelperPCH.cpp">
@@ -22,6 +34,24 @@
   <ItemGroup>
     <ClInclude Include="..\include\Storm-HelperPCH.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Singleton.h">
+      <Filter>Header Files\General\Singleton</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SingletonAllocator.h">
+      <Filter>Header Files\General\Singleton</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SingletonHolder.h">
+      <Filter>Header Files\General\Singleton</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Facets.h">
+      <Filter>Header Files\General\Facets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\FacetsContainer.h">
+      <Filter>Header Files\General\Facets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SizeCounter.h">
+      <Filter>Header Files\MetaP</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
