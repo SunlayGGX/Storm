@@ -31,6 +31,9 @@
     <Filter Include="Header Files\General\Misc">
       <UniqueIdentifier>{bd129c25-d975-4322-b90c-0c3e3f5ad3e9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Application">
+      <UniqueIdentifier>{53198232-f2e9-43e3-8ad9-1a3768ea9eae}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-HelperPCH.cpp">
@@ -76,6 +79,9 @@
     </ClInclude>
     <ClInclude Include="..\include\SingletonHeldInterfaceBase.h">
       <Filter>Header Files\General\Singleton</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ExitCode.h">
+      <Filter>Header Files\Application</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

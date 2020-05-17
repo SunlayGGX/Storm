@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\include\Application.cpp" />
     <ClCompile Include="..\include\Storm.cpp" />
     <ClCompile Include="..\include\StormPCH.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -18,6 +19,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\include\Application.h" />
     <ClInclude Include="..\include\StormPCH.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

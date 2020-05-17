@@ -18,6 +18,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\CRTPHierarchy.h" />
+    <ClInclude Include="..\include\ExitCode.h" />
     <ClInclude Include="..\include\Facets.h" />
     <ClInclude Include="..\include\FacetsContainer.h" />
     <ClInclude Include="..\include\Singleton.h" />
