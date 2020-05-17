@@ -39,3 +39,6 @@
 **/[Rr]elease/**
 **/[Dd]ebug/**
 **/[Bb]in/**
+
+# Custom
+**/[Dd]ependencies/**
