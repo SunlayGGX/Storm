@@ -16,5 +16,6 @@ namespace Storm
 
         // Logs
         virtual const std::string& getLogFileName() const = 0;
+        virtual bool noPopup() const = 0;
     };
 }
