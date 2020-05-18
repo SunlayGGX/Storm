@@ -16,10 +16,19 @@
     <Filter Include="Header Files\Singleton">
       <UniqueIdentifier>{085616b2-875d-4356-8323-774c4dfe2c2f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\LoggerBase">
+      <UniqueIdentifier>{495c644e-0a33-4cfc-8ff2-addabee5d543}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\LoggerBase">
+      <UniqueIdentifier>{8bcca7e2-f9b3-4c3e-afdd-a71dc92ed13f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-ModelBasePCH.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\Logging.cpp">
+      <Filter>Source Files\LoggerBase</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -43,6 +52,12 @@
     </ClInclude>
     <ClInclude Include="..\include\IWindowsManager.h">
       <Filter>Header Files\Singleton</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Logging.h">
+      <Filter>Header Files\LoggerBase</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\LogLevel.h">
+      <Filter>Header Files\LoggerBase</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
