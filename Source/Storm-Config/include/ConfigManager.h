@@ -20,9 +20,16 @@ namespace Storm
         const std::string& getLogFileName() const final override;
         bool noPopup() const final override;
 
+        bool shouldDisplayHelp() const;
+
     private:
+        std::string _sceneConfigFilePath;
+        std::string _inputBindingsConfigFilePath;
+
         std::string _temporaryPath;
         std::string _logFileName;
         bool _allowPopup;
+
+        bool _shouldDisplayHelp;
     };
 }

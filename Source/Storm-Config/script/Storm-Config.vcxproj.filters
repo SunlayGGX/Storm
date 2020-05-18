@@ -21,12 +21,18 @@
     <ClCompile Include="..\include\ConfigManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\CommandLineParser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-ConfigPCH.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\include\ConfigManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\CommandLineParser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
