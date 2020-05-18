@@ -13,7 +13,6 @@ namespace Storm
         bool shouldDisplayHelp() const;
 
         std::string getSceneFilePath() const;
-        std::string getInputConfigFilePath() const;
         std::string getTempPath() const;
 
     public:

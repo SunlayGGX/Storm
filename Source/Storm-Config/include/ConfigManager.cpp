@@ -38,9 +38,6 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
         _sceneConfigFilePath = parser.getSceneFilePath();
         checkFileExistence(_sceneConfigFilePath);
 
-        _inputBindingsConfigFilePath = parser.getInputConfigFilePath();
-        checkFileExistence(_inputBindingsConfigFilePath);
-
         _temporaryPath = parser.getTempPath();
         std::filesystem::path tempPath{ _temporaryPath };
         if (std::filesystem::exists(tempPath))

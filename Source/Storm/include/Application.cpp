@@ -5,13 +5,15 @@
 #include "LoggerManager.h"
 #include "ConfigManager.h"
 #include "WindowsManager.h"
+#include "InputManager.h"
 
 namespace
 {
     using SingletonAllocatorAlias = Storm::SingletonAllocator<
         Storm::SingletonHolder,
         Storm::ConfigManager,
-        Storm::LoggerManager,
+		Storm::LoggerManager,
+		Storm::InputManager,
         Storm::WindowsManager
     >;
 
@@ -27,6 +29,8 @@ Storm::Application::Application(int argc, const char* argv[])
     Storm::ConfigManager::instance().initialize(argc, argv);
 	Storm::LoggerManager::instance().initialize();
 
+	Storm::InputManager::instance().initialize();
+
     LOG_COMMENT << "Application Creation finished";
 }
 
@@ -34,6 +38,7 @@ Storm::Application::~Application()
 {
     LOG_COMMENT << "Application Cleanup";
 
+	Storm::InputManager::instance().cleanUp();
 	Storm::WindowsManager::instance().cleanUp();
 	Storm::ConfigManager::instance().cleanUp();
     Storm::LoggerManager::instance().cleanUp();

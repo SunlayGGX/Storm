@@ -24,7 +24,6 @@ namespace Storm
 
     private:
         std::string _sceneConfigFilePath;
-        std::string _inputBindingsConfigFilePath;
 
         std::string _temporaryPath;
         std::string _logFileName;

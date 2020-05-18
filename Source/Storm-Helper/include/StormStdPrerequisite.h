@@ -8,6 +8,7 @@
 #include <cassert>
 #include <sstream>
 #include <chrono>
+#include <functional>
 
 // Container
 #include <vector>

@@ -11,7 +11,6 @@ Storm::CommandLineParser::CommandLineParser(int argc, const char* argv[]) :
     desc.add_options()
         ("help,h", "Command line help")
         ("scene", boost::program_options::value<std::string>()->required(), "The scene config file to use.")
-        ("inputBindings", boost::program_options::value<std::string>()->required(), "The input key binding config file to use.")
         ("tempPath", boost::program_options::value<std::string>()->default_value((std::filesystem::current_path().parent_path() / "Intermediate").string()), "The temporary path to use.")
         ;
 
@@ -42,13 +41,6 @@ std::string Storm::CommandLineParser::getSceneFilePath() const
 {
     std::string result;
     this->extractIfExist("scene", result);
-    return result;
-}
-
-std::string Storm::CommandLineParser::getInputConfigFilePath() const
-{
-    std::string result;
-    this->extractIfExist("inputBindings", result);
     return result;
 }
 

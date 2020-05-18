@@ -25,6 +25,9 @@
     <Filter Include="Header Files\Windows">
       <UniqueIdentifier>{97fc4da2-8f55-4404-9bd0-377bcd86b70b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Input">
+      <UniqueIdentifier>{5fb650ab-a0a2-436d-9718-561c220b7710}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-ModelBasePCH.cpp">
@@ -64,6 +67,9 @@
     </ClInclude>
     <ClInclude Include="..\include\WindowsCallbacks.h">
       <Filter>Header Files\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\InputKeyState.h">
+      <Filter>Header Files\Input</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
