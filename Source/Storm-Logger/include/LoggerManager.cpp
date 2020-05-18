@@ -22,7 +22,7 @@ Storm::LoggerManager::~LoggerManager() = default;
 
 void Storm::LoggerManager::initialize_Implementation()
 {
-    std::lock_guard<std::mutex> lock{ _loggerMutex };
+    std::unique_lock<std::mutex> lock{ _loggerMutex };
 
     const Storm::IConfigManager* configMgr = Storm::SingletonHolder::instance().getFacet<Storm::IConfigManager>();
     assert(configMgr != nullptr && "Config Manager should be alive when we initialize the logger!");
@@ -36,12 +36,18 @@ void Storm::LoggerManager::initialize_Implementation()
         _logFilePath = logFilePath.string();
     }
 
+    bool canLeaveTmp = false;
+    std::condition_variable syncTmp;
+
     _isRunning = true;
-    _loggerThread = std::thread{ [this]() 
+    _loggerThread = std::thread{ [this, sync = &syncTmp, canLeave = &canLeaveTmp]()
     {
         Storm::LoggerManager::LogArray tmpBuffer;
 
         std::unique_lock<std::mutex> lock{ _loggerMutex };
+        *canLeave = true;
+        sync->notify_all();
+
         while (!_loggerCV.wait_for(lock, std::chrono::milliseconds{ 500 }, [this]() { return !_isRunning; }))
         {
             if (_buffer.empty())
@@ -61,14 +67,21 @@ void Storm::LoggerManager::initialize_Implementation()
 
         this->writeLogs(_buffer);
     } };
+
+    syncTmp.wait(lock, [&canLeaveTmp]()
+    {
+        return canLeaveTmp;
+    });
 }
 
 void Storm::LoggerManager::cleanUp_Implementation()
 {
-    std::lock_guard<std::mutex> lock{ _loggerMutex };
-    _isRunning = false;
+    {
+        std::lock_guard<std::mutex> lock{ _loggerMutex };
+        _isRunning = false;
 
-    _loggerCV.notify_all();
+        _loggerCV.notify_all();
+    }
 
     _loggerThread.join();
 }

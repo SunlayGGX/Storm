@@ -37,7 +37,7 @@ namespace
         result += '/';
         result += std::to_string(buf.tm_mday);
 
-        result += " - ";
+        result += '-';
 
         result += std::to_string(buf.tm_hour);
         result += ':';

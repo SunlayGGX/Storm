@@ -27,6 +27,6 @@ Storm::LoggerObject::~LoggerObject()
 {
     if (_enabled)
     {
-        retrieveLoggerManager()->log(_module, _level, _function, _line, this->str());
+        retrieveLoggerManager()->log(_module, _level, _function, _line, _stream.str());
     }
 }

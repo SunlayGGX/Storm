@@ -18,7 +18,7 @@ namespace Storm
     private:
         using LogArray = std::vector<Storm::LogItem>;
 
-    public:
+    private:
         void initialize_Implementation();
         void cleanUp_Implementation();
 

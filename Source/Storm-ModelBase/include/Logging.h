@@ -6,7 +6,7 @@
 
 namespace Storm
 {
-    class LoggerObject : protected std::stringstream
+    class LoggerObject
     {
     public:
         LoggerObject(const std::string_view &moduleName, Storm::LogLevel level, const std::string_view &function, const int line);
@@ -14,11 +14,11 @@ namespace Storm
 
     public:
         template<class ToWriteType>
-        LoggerObject& operator<<(ToWriteType &&toWrite)
+        LoggerObject& operator<<(const ToWriteType &toWrite)
         {
             if (_enabled)
             {
-                std::stringstream::operator <<(std::forward<ToWriteType>(toWrite));
+                _stream << toWrite;
             }
 
             return *this;
@@ -30,6 +30,7 @@ namespace Storm
         const std::string_view _function;
         const int _line;
         const bool _enabled;
+        std::stringstream _stream;
     };
 }
 
