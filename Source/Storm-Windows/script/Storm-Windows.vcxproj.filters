@@ -23,5 +23,21 @@
     <ClInclude Include="..\include\Storm-WindowsPCH.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\ressource\icon1.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\ressource\icon2.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\ressource\Storm-Windows.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

@@ -17,6 +17,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\include\resource.h" />
     <ClInclude Include="..\include\Storm-WindowsPCH.h" />
   </ItemGroup>
   <ItemGroup>
@@ -26,6 +27,13 @@
     <ProjectReference Include="..\..\Storm-ModelBase\script\Storm-ModelBase.vcxproj">
       <Project>{bb52fd96-f795-463d-8ad1-392b37344a7d}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\ressource\icon1.ico" />
+    <Image Include="..\ressource\icon2.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\ressource\Storm-Windows.rc" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
