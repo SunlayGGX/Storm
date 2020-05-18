@@ -21,6 +21,6 @@ namespace Storm
     template<class ExceptionType, class ... ArgType>
     [[noreturn]] void throwException(ArgType &&... arg)
     {
-        Storm::details::throwExceptionImpl<ExceptionType>(std::forward<ArgType>(arg)...);
+        Storm::details::throwExceptionImpl<ExceptionType>(0, std::forward<ArgType>(arg)...);
     }
 }
