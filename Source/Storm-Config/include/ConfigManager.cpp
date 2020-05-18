@@ -55,6 +55,10 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
             std::filesystem::create_directories(_temporaryPath);
         }
     }
+    else
+    {
+        LOG_COMMENT << "Command line help Requested:\n" << parser.getHelp();
+    }
 
     LOG_DEBUG << "Reading Config file ended";
 }
