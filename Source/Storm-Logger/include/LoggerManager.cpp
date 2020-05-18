@@ -18,7 +18,13 @@ Storm::LoggerManager::LoggerManager() :
     _buffer.reserve(16);
 }
 
-Storm::LoggerManager::~LoggerManager() = default;
+Storm::LoggerManager::~LoggerManager()
+{
+    this->cleanUp();
+
+    this->writeLogs(_buffer);
+    _buffer.clear();
+}
 
 void Storm::LoggerManager::initialize_Implementation()
 {
@@ -66,6 +72,7 @@ void Storm::LoggerManager::initialize_Implementation()
         }
 
         this->writeLogs(_buffer);
+        _buffer.clear();
     } };
 
     syncTmp.wait(lock, [&canLeaveTmp]()
