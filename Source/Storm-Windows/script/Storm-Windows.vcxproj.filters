@@ -18,9 +18,15 @@
     <ClCompile Include="..\include\Storm-WindowsPCH.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\WindowsManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-WindowsPCH.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\WindowsManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\include\resource.h">
