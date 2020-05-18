@@ -12,7 +12,6 @@ echo.
 
 
 call :CallBatch BaseStorm.bat
-call :CallBatch UserSettings.bat
 call :CallBatch SetupImpl.bat
 
 

@@ -2,14 +2,15 @@ echo off
 
 cd /D %~dp0
 
-set STORM_REPO_ROOT=%~dp0..\..
-set STORM_BUILD_SCRIPT_ROOT=%STORM_REPO_ROOT%\Build
+set STORM_REPO_ROOT=%~dp0..\..\..
+set STORM_BUILD_SCRIPT_ROOT=%STORM_REPO_ROOT%\Build\Script
 set STORM_DEPENDENCIES=%STORM_REPO_ROOT%\Dependencies
 
 set DevPropertiesSetterBaseFileName=UserSettings
 
 if not exist "%STORM_BUILD_SCRIPT_ROOT%\%DevPropertiesSetterBaseFileName%.bat" (
-	copy /y "%STORM_BUILD_SCRIPT_ROOT%\Internal/%DevPropertiesSetterBaseFileName%.bat.tmpl" "%STORM_BUILD_SCRIPT_ROOT%\%DevPropertiesSetterBaseFileName%.bat"
+	echo Copying %STORM_BUILD_SCRIPT_ROOT%\Internal\%DevPropertiesSetterBaseFileName%.bat.tmpl
+	copy /y "%STORM_BUILD_SCRIPT_ROOT%\Internal\%DevPropertiesSetterBaseFileName%.bat.tmpl" "%STORM_BUILD_SCRIPT_ROOT%\%DevPropertiesSetterBaseFileName%.bat"
 	if errorlevel 1 (
 		color 40
 		echo Failed to create %STORM_BUILD_SCRIPT_ROOT%\%DevPropertiesSetterBaseFileName%.bat and it doesn't exist. We cannot setup STORM dev root.
