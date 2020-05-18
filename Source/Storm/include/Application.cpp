@@ -4,13 +4,15 @@
 #include "SingletonHolder.h"
 #include "LoggerManager.h"
 #include "ConfigManager.h"
+#include "WindowsManager.h"
 
 namespace
 {
     using SingletonAllocatorAlias = Storm::SingletonAllocator<
         Storm::SingletonHolder,
         Storm::ConfigManager,
-        Storm::LoggerManager
+        Storm::LoggerManager,
+        Storm::WindowsManager
     >;
 
     std::unique_ptr<SingletonAllocatorAlias> g_singletonMaker;
@@ -23,7 +25,7 @@ Storm::Application::Application(int argc, const char* argv[])
     LOG_COMMENT << "Application Creation started";
 
     Storm::ConfigManager::instance().initialize(argc, argv);
-    Storm::LoggerManager::instance().initialize();
+	Storm::LoggerManager::instance().initialize();
 
     LOG_COMMENT << "Application Creation finished";
 }
@@ -32,7 +34,8 @@ Storm::Application::~Application()
 {
     LOG_COMMENT << "Application Cleanup";
 
-    Storm::ConfigManager::instance().cleanUp();
+	Storm::WindowsManager::instance().cleanUp();
+	Storm::ConfigManager::instance().cleanUp();
     Storm::LoggerManager::instance().cleanUp();
 
     g_singletonMaker.reset();
@@ -40,7 +43,14 @@ Storm::Application::~Application()
 
 Storm::ExitCode Storm::Application::run()
 {
-    LOG_COMMENT << "Application Run started";
+    if (!Storm::ConfigManager::instance().shouldDisplayHelp())
+	{
+		LOG_COMMENT << "Creating Application Windows";
+		Storm::WindowsManager::instance().initialize();
+
+		LOG_COMMENT << "Start Application Run";
+        // TODO
+    }
 
     return ExitCode::k_success;
 }

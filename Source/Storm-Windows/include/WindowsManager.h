@@ -1,12 +1,13 @@
 #pragma once
 #include "Singleton.h"
 #include "IWindowsManager.h"
+#include "WindowsCallbacks.h"
 
 
 namespace Storm
 {
     class WindowsManager :
-        private Storm::Singleton<WindowsManager>,
+        private Storm::Singleton<Storm::WindowsManager>,
         public Storm::IWindowsManager
     {
         STORM_DECLARE_SINGLETON(WindowsManager);
@@ -21,29 +22,37 @@ namespace Storm
         void initialize_Implementation();
         void cleanUp_Implementation();
 
-        void update();
+    public:
+        void update() final override;
 
     public:
         void setWantedWindowsSize(int width, int height) final override;
         void retrieveWindowsDimension(float& outX, float& outY) const final override;
 
     public:
-        HWND Storm::WindowsManager::getWindowHandle() const;
-        const TCHAR* Storm::WindowsManager::getWindowTitleName() const;
-        HACCEL Storm::WindowsManager::getWindowAccelerationTable() const;
+        void* getWindowHandle() const final override;
+        const std::wstring& getWindowTitleName() const;
+        void* getWindowAccelerationTable() const;
 
     public:
-        void callQuitCallback();
-        void callFinishInitializeCallback();
-        void unbindCallback();
+        void callQuitCallback() final override;
+        void callFinishInitializeCallback() final override;
+
+        void unbindCallback() final override;
+        void bindQuitCallback(Storm::QuitDelegate &&callback) final override;
+        void bindFinishInitializeCallback(Storm::FinishedInitializeDelegate &&callback, bool callNow) final override;
 
     private:
-        HWND _windowVisuHandle;
-        TCHAR _windowClass[Storm::WindowsManager::MAX_TITLE_COUNT];
-        HACCEL _accelerationTable;
+        void* /*HWND*/ _windowVisuHandle;
+        std::wstring _windowClass;
+        void* /*HACCEL*/ _accelerationTable;
 
         bool _hasOverridenWindowSize;
         int _wantedWidth;
         int _wantedHeight;
+
+        mutable std::mutex _callbackMutex;
+		Storm::QuitDelegate _quitCallback;
+		Storm::FinishedInitializeDelegate _finishedInitCallback;
     };
 }

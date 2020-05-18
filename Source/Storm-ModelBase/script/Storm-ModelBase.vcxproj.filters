@@ -22,6 +22,9 @@
     <Filter Include="Source Files\LoggerBase">
       <UniqueIdentifier>{8bcca7e2-f9b3-4c3e-afdd-a71dc92ed13f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Windows">
+      <UniqueIdentifier>{97fc4da2-8f55-4404-9bd0-377bcd86b70b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-ModelBasePCH.cpp">
@@ -58,6 +61,9 @@
     </ClInclude>
     <ClInclude Include="..\include\LogLevel.h">
       <Filter>Header Files\LoggerBase</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\WindowsCallbacks.h">
+      <Filter>Header Files\Windows</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

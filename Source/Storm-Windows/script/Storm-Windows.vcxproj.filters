@@ -29,8 +29,8 @@
     <ClInclude Include="..\include\WindowsManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\resource.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="..\ressource\resource.h">
+      <Filter>Resource Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

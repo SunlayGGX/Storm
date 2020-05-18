@@ -27,6 +27,7 @@
     <ClInclude Include="..\include\Logging.h" />
     <ClInclude Include="..\include\LogLevel.h" />
     <ClInclude Include="..\include\Storm-ModelBasePCH.h" />
+    <ClInclude Include="..\include\WindowsCallbacks.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Storm-Helper\script\Storm-Helper.vcxproj">

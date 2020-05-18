@@ -18,9 +18,9 @@
     <ClCompile Include="..\include\WindowsManager.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\include\resource.h" />
     <ClInclude Include="..\include\Storm-WindowsPCH.h" />
     <ClInclude Include="..\include\WindowsManager.h" />
+    <ClInclude Include="..\ressource\resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Storm-Helper\script\Storm-Helper.vcxproj">
@@ -91,7 +91,7 @@
       <PrecompiledHeaderFile>Storm-WindowsPCH.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <ForcedIncludeFiles>%(PrecompiledHeaderFile);%(ForcedIncludeFiles)</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>$(ProjectDir)../../Storm-ModelBase/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)../ressource;$(ProjectDir)../../Storm-ModelBase/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -110,7 +110,7 @@
       <PrecompiledHeaderFile>Storm-WindowsPCH.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <ForcedIncludeFiles>%(PrecompiledHeaderFile);%(ForcedIncludeFiles)</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>$(ProjectDir)../../Storm-ModelBase/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)../ressource;$(ProjectDir)../../Storm-ModelBase/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
