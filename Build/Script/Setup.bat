@@ -10,8 +10,8 @@ echo ***************************************************************
 echo.
 
 
-set STORM_REPO_ROOT=%~dp0..\..
 
+call :CallBatch BaseStorm.bat
 call :CallBatch UserSettings.bat
 call :CallBatch SetupImpl.bat
 
