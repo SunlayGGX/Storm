@@ -9,5 +9,12 @@ namespace Storm
     {
     public:
         virtual ~IConfigManager() = default;
+
+    public:
+        // Paths
+        virtual const std::string& getTemporaryPath() const = 0;
+
+        // Logs
+        virtual const std::string& getLogFileName() const = 0;
     };
 }
