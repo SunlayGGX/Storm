@@ -6,6 +6,7 @@
 #include "ConfigManager.h"
 #include "WindowsManager.h"
 #include "InputManager.h"
+#include "GraphicManager.h"
 
 namespace
 {
@@ -14,7 +15,8 @@ namespace
         Storm::ConfigManager,
 		Storm::LoggerManager,
 		Storm::InputManager,
-        Storm::WindowsManager
+        Storm::WindowsManager,
+        Storm::GraphicManager
     >;
 
     std::unique_ptr<SingletonAllocatorAlias> g_singletonMaker;
