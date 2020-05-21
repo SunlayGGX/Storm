@@ -18,9 +18,15 @@
     <ClCompile Include="..\include\Storm-GraphicsPCH.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\GraphicManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-GraphicsPCH.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\GraphicManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
