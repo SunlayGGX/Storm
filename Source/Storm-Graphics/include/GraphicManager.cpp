@@ -1,12 +1,15 @@
 #include "GraphicManager.h"
 
 
-Storm::GraphicManager::GraphicManager()
-{
+Storm::GraphicManager::GraphicManager() = default;
+Storm::GraphicManager::~GraphicManager() = default;
 
+void Storm::GraphicManager::initialize_Implementation()
+{
+	// TODO
 }
 
-Storm::GraphicManager::~GraphicManager()
+void Storm::GraphicManager::cleanUp_Implementation()
 {
-
+	// TODO
 }

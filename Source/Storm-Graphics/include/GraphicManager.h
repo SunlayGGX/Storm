@@ -11,5 +11,9 @@ namespace Storm
 		public Storm::IGraphicsManager
 	{
 		STORM_DECLARE_SINGLETON(GraphicManager);
+
+	private:
+		void initialize_Implementation();
+		void cleanUp_Implementation();
 	};
 }

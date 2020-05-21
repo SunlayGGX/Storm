@@ -33,6 +33,9 @@ Storm::Application::Application(int argc, const char* argv[])
 
 	Storm::InputManager::instance().initialize();
 
+	Storm::GraphicManager::instance().initialize();
+	Storm::WindowsManager::instance().initialize();
+
     LOG_COMMENT << "Application Creation finished";
 }
 
@@ -41,6 +44,7 @@ Storm::Application::~Application()
     LOG_COMMENT << "Application Cleanup";
 
 	Storm::InputManager::instance().cleanUp();
+	Storm::GraphicManager::instance().cleanUp();
 	Storm::WindowsManager::instance().cleanUp();
 	Storm::ConfigManager::instance().cleanUp();
     Storm::LoggerManager::instance().cleanUp();
