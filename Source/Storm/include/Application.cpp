@@ -7,6 +7,7 @@
 #include "WindowsManager.h"
 #include "InputManager.h"
 #include "GraphicManager.h"
+#include "OSManager.h"
 
 namespace
 {
@@ -14,6 +15,7 @@ namespace
         Storm::SingletonHolder,
         Storm::ConfigManager,
         Storm::LoggerManager,
+        Storm::OSManager,
         Storm::InputManager,
         Storm::WindowsManager,
         Storm::GraphicManager
@@ -29,6 +31,9 @@ Storm::Application::Application(int argc, const char* argv[])
     LOG_COMMENT << "Application Creation started";
 
     Storm::ConfigManager::instance().initialize(argc, argv);
+
+    Storm::OSManager::instance().initialize();
+
     Storm::LoggerManager::instance().initialize();
 
     Storm::InputManager::instance().initialize();
@@ -47,6 +52,7 @@ Storm::Application::~Application()
     Storm::GraphicManager::instance().cleanUp();
     Storm::WindowsManager::instance().cleanUp();
     Storm::ConfigManager::instance().cleanUp();
+    Storm::OSManager::instance().cleanUp();
     Storm::LoggerManager::instance().cleanUp();
 
     g_singletonMaker.reset();
