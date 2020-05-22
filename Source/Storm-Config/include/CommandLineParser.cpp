@@ -10,7 +10,7 @@ Storm::CommandLineParser::CommandLineParser(int argc, const char* argv[]) :
     boost::program_options::options_description desc{ "Options" };
     desc.add_options()
         ("help,h", "Command line help")
-        ("scene", boost::program_options::value<std::string>()->required(), "The scene config file to use.")
+        ("scene", boost::program_options::value<std::string>(), "The scene config file to use.")
         ("tempPath", boost::program_options::value<std::string>()->default_value((std::filesystem::current_path().parent_path() / "Intermediate").string()), "The temporary path to use.")
         ;
 

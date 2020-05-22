@@ -3,16 +3,20 @@
 
 #include "ThrowException.h"
 
+#include "SingletonHolder.h"
+#include "IOSManager.h"
+
 #include <filesystem>
+#include <boost/algorithm/string.hpp>
 
 
 namespace
 {
-    void checkFileExistence(const std::string &pathStr)
+    void checkFileExistence(const std::filesystem::path &pathStr)
     {
         if (!std::filesystem::is_regular_file(pathStr))
         {
-            Storm::throwException<std::exception>(pathStr + " should be pointing to a correct file.");
+            Storm::throwException<std::exception>(pathStr.string() + " should be pointing to a correct file.");
         }
     }
 }
@@ -36,7 +40,21 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
     if (!_shouldDisplayHelp)
     {
         _sceneConfigFilePath = parser.getSceneFilePath();
-        checkFileExistence(_sceneConfigFilePath);
+        if (_sceneConfigFilePath.empty())
+        {
+            const std::map<std::wstring, std::wstring> fileFilters{
+                { L"Xml file (*.xml)", L"*.xml" }
+            };
+
+            Storm::SingletonHolder::instance().getFacet<Storm::IOSManager>()->openFileExplorerDialog(L"Select a scene file", fileFilters);
+        }
+
+        const std::filesystem::path sceneConfigFilePath{ _sceneConfigFilePath };
+        checkFileExistence(sceneConfigFilePath);
+        if (boost::algorithm::to_lower_copy(sceneConfigFilePath.extension().string()) != ".xml")
+        {
+            Storm::throwException<std::exception>(_sceneConfigFilePath + " should be pointing to an xml file!");
+        }
 
         _temporaryPath = parser.getTempPath();
         std::filesystem::path tempPath{ _temporaryPath };
