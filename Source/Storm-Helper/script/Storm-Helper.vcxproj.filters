@@ -40,6 +40,12 @@
     <Filter Include="Source Files\General\Singleton">
       <UniqueIdentifier>{d9e5497f-a6b0-4fb2-99ee-f3010d6dce5e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\OS">
+      <UniqueIdentifier>{5a9f7b6f-a680-4267-8d45-c75c501b2916}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\OS">
+      <UniqueIdentifier>{8d2d1444-9da1-4b56-9f2f-e34eec07bcf2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-HelperPCH.cpp">
@@ -47,6 +53,9 @@
     </ClCompile>
     <ClCompile Include="..\include\SingletonHolder.cpp">
       <Filter>Source Files\General\Singleton</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\CoInitializerRAII.cpp">
+      <Filter>Source Files\OS</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -91,6 +100,9 @@
     </ClInclude>
     <ClInclude Include="..\include\ExitCode.h">
       <Filter>Header Files\Application</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\CoInitializerRAII.h">
+      <Filter>Header Files\OS</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

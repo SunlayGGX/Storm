@@ -1,6 +1,7 @@
 #include "OSManager.h"
 
 #include "CDialogEventHandler.h"
+#include "CoInitializerRAII.h"
 
 #include <atlbase.h>
 #include <comdef.h>
@@ -55,23 +56,23 @@ namespace
     {
     public:
         template<class EventType>
-        Advisor(Type* ptr, EventType &eventHandlerVal, DWORD &cookie) :
+        Advisor(Type &ptr, EventType &eventHandlerVal, DWORD &cookie) :
             _ptr{ ptr },
             _cookie{ cookie }
         {
-            (*ptr)->Advise(eventHandlerVal, &cookie);
+            ptr->Advise(eventHandlerVal, &cookie);
         }
 
         ~Advisor()
         {
             if (_ptr != nullptr)
             {
-                (*_ptr)->Unadvise(_cookie);
+                _ptr->Unadvise(_cookie);
             }
         }
 
     public:
-        Type* _ptr;
+        Type &_ptr;
         DWORD &_cookie;
     };
 }
@@ -87,6 +88,8 @@ std::wstring Storm::OSManager::openFileExplorerDialog(const std::wstring &explor
 
     std::size_t filterCount;
     auto filtersCom = makeFilters(filters, filterCount);
+
+    Storm::CoInitializerRAII coInitializer{ COINIT_MULTITHREADED };
 
     // CoCreate the File Open Dialog object.
     CComPtr<IFileDialog> fileDialog = nullptr;
@@ -107,7 +110,7 @@ std::wstring Storm::OSManager::openFileExplorerDialog(const std::wstring &explor
         {
             // Hook up the event handler.
             DWORD dwCookie;
-            Advisor fileDialogAdvisor{ &fileDialog, fileDialogEvent, dwCookie };
+            Advisor fileDialogAdvisor{ fileDialog, fileDialogEvent, dwCookie };
             if (SUCCEEDED(hr))
             {
                 // Set the options on the dialog.
