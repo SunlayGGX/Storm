@@ -11,6 +11,6 @@ namespace Storm
         virtual ~IOSManager() = default;
 
     public:
-
+        virtual std::wstring openFileExplorerDialog(const std::wstring &explorerWindowsTitle, const std::map<std::wstring, std::wstring> &filters) = 0;
     };
 }

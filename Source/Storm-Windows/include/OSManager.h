@@ -12,5 +12,8 @@ namespace Storm
         public Storm::IOSManager
     {
         STORM_DECLARE_SINGLETON(OSManager);
+
+    public:
+        std::wstring openFileExplorerDialog(const std::wstring &explorerWindowsTitle, const std::map<std::wstring, std::wstring> &filters) final override;
     };
 }
