@@ -3,7 +3,9 @@
 #include "CDialogEventHandler.h"
 
 #include <atlbase.h>
+#include <comdef.h>
 
+#include <filesystem>
 
 namespace
 {
@@ -41,6 +43,11 @@ namespace
         {
             return L"*.*";
         }
+    }
+
+    std::string generateComError(HRESULT result, const std::string_view &baseMessage)
+    {
+        return std::string{ baseMessage } + " Error was " + std::filesystem::path{ _com_error{ result }.ErrorMessage() }.string();
     }
 
     template<class Type>
@@ -117,7 +124,7 @@ std::wstring Storm::OSManager::openFileExplorerDialog(const std::wstring &explor
                     {
                         // Set the file types to display only. 
                         // Notice that this is a 1-based array.
-                        hr = fileDialog->SetFileTypes(filterCount, filtersCom.get());
+                        hr = fileDialog->SetFileTypes(static_cast<UINT>(filterCount), filtersCom.get());
                         if (SUCCEEDED(hr))
                         {
                             // Set the selected file type index to the first filter.
@@ -165,62 +172,62 @@ std::wstring Storm::OSManager::openFileExplorerDialog(const std::wstring &explor
                                                 }
                                                 else
                                                 {
-                                                    LOG_ERROR << "Cannot get the chosen filesystem path!";
+                                                    LOG_ERROR << generateComError(hr, "Cannot get the chosen filesystem path!");
                                                 }
                                             }
                                             else
                                             {
-                                                LOG_ERROR << "Cannot grab the file dialog explorer display name!";
+                                                LOG_ERROR << generateComError(hr, "Cannot grab the file dialog explorer display name!");
                                             }
                                         }
                                         else
                                         {
-                                            LOG_ERROR << "Cannot grab the file dialog result!";
+                                            LOG_ERROR << generateComError(hr, "Cannot grab the file dialog result!");
                                         }
                                     }
                                     else
                                     {
-                                        LOG_ERROR << "Cannot show the file dialog explorer!";
+                                        LOG_ERROR << generateComError(hr, "Cannot show the file dialog explorer!");
                                     }
                                 }
                                 else
                                 {
-                                    LOG_ERROR << "Cannot set the default file extension in file dialog!";
+                                    LOG_ERROR << generateComError(hr, "Cannot set the default file extension in file dialog!");
                                 }
                             }
                             else
                             {
-                                LOG_ERROR << "Cannot set the default file type index!";
+                                LOG_ERROR << generateComError(hr, "Cannot set the default file type index!");
                             }
                         }
                         else
                         {
-                            LOG_ERROR << "Cannot set file types for file dialog!";
+                            LOG_ERROR << generateComError(hr, "Cannot set file types for file dialog!");
                         }
                     }
                     else
                     {
-                        LOG_ERROR << "Cannot set file dialog option flags!";
+                        LOG_ERROR << generateComError(hr, "Cannot set file dialog option flags!");
                     }
                 }
                 else
                 {
-                    LOG_ERROR << "Cannot get file dialog option flags!";
+                    LOG_ERROR << generateComError(hr, "Cannot get file dialog option flags!");
                 }
             }
             else
             {
-                LOG_ERROR << "Cannot get file dialog option flags!";
+                LOG_ERROR << generateComError(hr, "Cannot get file dialog option flags!");
             }
         }
         else
         {
-            LOG_ERROR << "Cannot create dialog events!";
+            LOG_ERROR << generateComError(hr, "Cannot create dialog events!");
         }
     }
     else
     {
-        LOG_ERROR << "Cannot create a file open dialog instance!";
+        LOG_ERROR << generateComError(hr, "Cannot create a file open dialog instance!");
     }
 
     return resultSelectedFilePath;
