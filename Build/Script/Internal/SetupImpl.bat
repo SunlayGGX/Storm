@@ -17,6 +17,7 @@ set makeFolderLink=call :CreateFolderLink
 :: List here the junction to be made
 
 %makeFolderLink% "%STORM_DEPENDENCIES%\Boost" "%BOOST_DEPENDENCIES_PATH%"
+%makeFolderLink% "%STORM_DEPENDENCIES%\DirectX" "%DIRECTX_DEPENDENCIES_PATH%"
 
 
 
