@@ -71,5 +71,8 @@
     <ClInclude Include="..\include\InputKeyState.h">
       <Filter>Header Files\Input</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\IOSManager.h">
+      <Filter>Header Files\Singleton</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

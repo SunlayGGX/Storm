@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\include\OSManager.cpp" />
     <ClCompile Include="..\include\Storm-WindowsPCH.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
@@ -18,6 +19,7 @@
     <ClCompile Include="..\include\WindowsManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\include\OSManager.h" />
     <ClInclude Include="..\include\Storm-WindowsPCH.h" />
     <ClInclude Include="..\include\WindowsManager.h" />
     <ClInclude Include="..\ressource\resource.h" />

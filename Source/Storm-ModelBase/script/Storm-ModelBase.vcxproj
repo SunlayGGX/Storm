@@ -23,6 +23,7 @@
     <ClInclude Include="..\include\IInputManager.h" />
     <ClInclude Include="..\include\ILoggerManager.h" />
     <ClInclude Include="..\include\InputKeyState.h" />
+    <ClInclude Include="..\include\IOSManager.h" />
     <ClInclude Include="..\include\IPhysicsManager.h" />
     <ClInclude Include="..\include\IWindowsManager.h" />
     <ClInclude Include="..\include\Logging.h" />
