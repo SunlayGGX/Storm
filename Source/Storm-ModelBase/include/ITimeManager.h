@@ -5,6 +5,8 @@
 
 namespace Storm
 {
+	enum class TimeWaitResult;
+
 	class ITimeManager : public Storm::ISingletonHeldInterface<ITimeManager>
 	{
 	public:
@@ -16,12 +18,18 @@ namespace Storm
 		/************************************************************************/
 
 		// Ask the current thread to wait for the next frame.
-		// Return value is true if the TimeManager is still alive, false otherwise (and it is time to exit).
-		virtual bool waitNextFrame() = 0;
+		// Return value is : 
+		// - TimeWaitResult::Continue if the TimeManager is still alive and the simulation isn't paused,
+		// - TimeWaitResult::Pause if the TimeManager is still alive but the simulation is paused
+		// - TimeWaitResult::Exit if the TimeManager has exited (therefore it is time to exit).
+		virtual Storm::TimeWaitResult waitNextFrame() = 0;
 
 		// Ask the current thread to wait for the refresh specified by timeToWait.
-		// Return value is true if the TimeManager is still alive, false otherwise (and it is time to exit).
-		virtual bool waitForTime(std::chrono::milliseconds timeToWait) = 0;
+		// Return value is : 
+		// - TimeWaitResult::Continue if the TimeManager is still alive and the simulation isn't paused,
+		// - TimeWaitResult::Pause if the TimeManager is still alive but the simulation is paused
+		// - TimeWaitResult::Exit if the TimeManager has exited (therefore it is time to exit).
+		virtual Storm::TimeWaitResult waitForTime(std::chrono::milliseconds timeToWait) = 0;
 
 
 		/************************************************************************/
@@ -44,10 +52,13 @@ namespace Storm
 		/************************************************************************/
 
 		// Get the simulation physics time in seconds.
-		virtual float getCurrentSimulationDeltaTime() const = 0;
+		virtual float getCurrentPhysicsDeltaTime() const = 0;
 
 		// Set the simulation physics time in seconds.
-		virtual void setCurrentSimulationDeltaTime(float deltaTimeInSeconds) = 0;
+		virtual void setCurrentPhysicsDeltaTime(float deltaTimeInSeconds) = 0;
+
+		// Get the simulation physics time elapsed in seconds.
+		virtual float getCurrentPhysicsElapsedTime() const = 0;
 
 
 		/************************************************************************/

@@ -22,6 +22,9 @@
     <Filter Include="Header Files\Input">
       <UniqueIdentifier>{5fb650ab-a0a2-436d-9718-561c220b7710}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Time">
+      <UniqueIdentifier>{9c849229-55f2-4d20-b427-37d2361b3a7b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-ModelBasePCH.cpp">
@@ -61,6 +64,9 @@
     </ClInclude>
     <ClInclude Include="..\include\ITimeManager.h">
       <Filter>Header Files\Singleton</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\TimeWaitResult.h">
+      <Filter>Header Files\Time</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
