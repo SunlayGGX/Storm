@@ -42,6 +42,8 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
         _sceneConfigFilePath = parser.getSceneFilePath();
         if (_sceneConfigFilePath.empty())
         {
+            LOG_COMMENT << "No scene file passed from command line. Will ask user the config file with an explorer file dialog.";
+
             const std::map<std::wstring, std::wstring> fileFilters{
                 { L"Xml file (*.xml)", L"*.xml" }
             };

@@ -59,6 +59,8 @@ Storm::WindowsManager::~WindowsManager() = default;
 
 void Storm::WindowsManager::initialize_Implementation()
 {
+    LOG_COMMENT << "Starting creating the Windows for the application";
+
     TCHAR szTitle[Storm::WindowsManager::MAX_TITLE_COUNT];
 
     HINSTANCE dllInstance = GetModuleHandle(nullptr);
@@ -147,6 +149,8 @@ void Storm::WindowsManager::initialize_Implementation()
 
         _windowVisuHandle = windowVisuHandle;
         _windowClass = validator;
+
+        LOG_COMMENT << "Windows for the application initialized correctly";
     }
     else
     {

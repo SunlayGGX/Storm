@@ -9,6 +9,20 @@
 #include <fstream>
 #include <filesystem>
 
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
+#   include <Windows.h>
+#undef NOMINMAX
+#undef WIN32_LEAN_AND_MEAN
+
+
+namespace
+{
+    void logToVisualStudioOutput(const std::string &msg)
+    {
+        OutputDebugStringA(static_cast<LPCSTR>(msg.c_str()));
+    }
+}
 
 
 Storm::LoggerManager::LoggerManager() :
@@ -109,6 +123,8 @@ Storm::LogLevel Storm::LoggerManager::getLogLevel() const
 
 void Storm::LoggerManager::writeLogs(const LogArray &logArray) const
 {
+    const bool debuggerAttached = ::IsDebuggerPresent();
+
     if (!_logFilePath.empty())
     {
         std::ofstream logFile{ _logFilePath, std::ios_base::out | std::ios_base::app };
@@ -117,13 +133,23 @@ void Storm::LoggerManager::writeLogs(const LogArray &logArray) const
             const std::string fullLogMsg{ logItem };
             std::cout << fullLogMsg;
             logFile << fullLogMsg;
+
+            if (debuggerAttached)
+            {
+                logToVisualStudioOutput(fullLogMsg);
+            }
         }
     }
     else
     {
         for (const auto &logItem : logArray)
         {
-            std::cout << static_cast<std::string>(logItem);
+            const std::string fullLogMsg{ logItem };
+            std::cout << fullLogMsg;
+            if (debuggerAttached)
+            {
+                logToVisualStudioOutput(fullLogMsg);
+            }
         }
     }
 }
