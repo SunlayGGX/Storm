@@ -61,6 +61,9 @@
     <Filter Include="Source Files\LoggerBase">
       <UniqueIdentifier>{9e6235fe-d7e2-4a44-b508-5343064e4772}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\General\Chrono">
+      <UniqueIdentifier>{a0ffd766-7dfb-4ee6-8dcd-43d81d4b697c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-HelperPCH.cpp">
@@ -151,6 +154,9 @@
     </ClInclude>
     <ClInclude Include="..\include\VersionMacro.h">
       <Filter>Header Files\Application</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\InvertPeriod.h">
+      <Filter>Header Files\General\Chrono</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
