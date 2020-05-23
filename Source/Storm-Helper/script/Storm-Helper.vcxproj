@@ -32,6 +32,7 @@
     <ClInclude Include="..\include\Logging.h" />
     <ClInclude Include="..\include\LogLevel.h" />
     <ClInclude Include="..\include\MemoryHelper.h" />
+    <ClInclude Include="..\include\NonInstanciable.h" />
     <ClInclude Include="..\include\SerializePackage.h" />
     <ClInclude Include="..\include\Singleton.h" />
     <ClInclude Include="..\include\SingletonAllocator.h" />

@@ -158,5 +158,8 @@
     <ClInclude Include="..\include\InvertPeriod.h">
       <Filter>Header Files\General\Chrono</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\NonInstanciable.h">
+      <Filter>Header Files\MetaP</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
