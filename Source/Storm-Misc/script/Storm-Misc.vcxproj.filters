@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\Time">
+      <UniqueIdentifier>{30a5daf7-d9c5-4496-8afb-0b927c92a1d8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Time">
+      <UniqueIdentifier>{c623b86d-d066-415c-b103-0166e78ad4d0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-MiscPCH.cpp">
@@ -22,7 +28,10 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\include\TimeManager.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Time</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\FPSWatcher.cpp">
+      <Filter>Source Files\Time</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -33,7 +42,10 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\include\TimeManager.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Time</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\FPSWatcher.h">
+      <Filter>Header Files\Time</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
