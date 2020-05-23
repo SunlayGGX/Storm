@@ -6,7 +6,7 @@
 
 namespace
 {
-	const float g_defaultColor[4] = { 0.f, 1.f, 0.2, 1.f };
+	const float g_defaultColor[4] = { 0.f, 1.f, 0.2f, 1.f };
 }
 
 Storm::GraphicManager::GraphicManager() :
