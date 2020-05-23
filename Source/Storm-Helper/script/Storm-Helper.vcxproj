@@ -24,6 +24,7 @@
     <ClInclude Include="..\include\ExitCode.h" />
     <ClInclude Include="..\include\Facets.h" />
     <ClInclude Include="..\include\FacetsContainer.h" />
+    <ClInclude Include="..\include\MemoryHelper.h" />
     <ClInclude Include="..\include\Singleton.h" />
     <ClInclude Include="..\include\SingletonAllocator.h" />
     <ClInclude Include="..\include\SingletonDefaultImplementation.h" />

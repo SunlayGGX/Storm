@@ -104,5 +104,8 @@
     <ClInclude Include="..\include\CoInitializerRAII.h">
       <Filter>Header Files\OS</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\MemoryHelper.h">
+      <Filter>Header Files\General\Misc</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
