@@ -47,7 +47,7 @@ namespace
 
 Storm::WindowsManager::WindowsManager() :
     _quitCallback{ []() {} },
-	_finishedInitCallback{ [](void*) {} },
+    _finishedInitCallback{ [](void*, bool) {} },
     _hasOverridenWindowSize{ false },
 	_accelerationTable{ nullptr },
 	_windowVisuHandle{ nullptr }
@@ -240,12 +240,12 @@ void Storm::WindowsManager::bindFinishInitializeCallback(Storm::FinishedInitiali
 
         if (callNow && _windowVisuHandle != nullptr)
         {
-            _finishedInitCallback(_windowVisuHandle);
+            _finishedInitCallback(_windowVisuHandle, true);
         }
     }
     else
     {
-        _finishedInitCallback = [](void*) {};
+        _finishedInitCallback = [](void*, bool) {};
     }
 }
 
@@ -258,13 +258,13 @@ void Storm::WindowsManager::callQuitCallback()
 void Storm::WindowsManager::callFinishInitializeCallback()
 {
     std::lock_guard<std::mutex> autoLocker{ _callbackMutex };
-    _finishedInitCallback(_windowVisuHandle);
+    _finishedInitCallback(_windowVisuHandle, false);
 }
 
 void Storm::WindowsManager::unbindCallback()
 {
     std::lock_guard<std::mutex> autoLocker{ _callbackMutex };
     _quitCallback = []() {};
-    _finishedInitCallback = [](void*) {};
+    _finishedInitCallback = [](void*, bool) {};
 }
 
