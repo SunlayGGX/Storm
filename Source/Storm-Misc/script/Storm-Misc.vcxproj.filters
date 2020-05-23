@@ -18,9 +18,15 @@
     <ClCompile Include="..\include\Storm-MiscPCH.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\RandomManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-MiscPCH.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\RandomManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

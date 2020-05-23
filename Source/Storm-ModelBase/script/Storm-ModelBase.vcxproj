@@ -25,6 +25,7 @@
     <ClInclude Include="..\include\InputKeyState.h" />
     <ClInclude Include="..\include\IOSManager.h" />
     <ClInclude Include="..\include\IPhysicsManager.h" />
+    <ClInclude Include="..\include\IRandomManager.h" />
     <ClInclude Include="..\include\IWindowsManager.h" />
     <ClInclude Include="..\include\Logging.h" />
     <ClInclude Include="..\include\LogLevel.h" />
