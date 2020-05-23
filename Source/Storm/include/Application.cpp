@@ -10,6 +10,7 @@
 #include "OSManager.h"
 #include "RandomManager.h"
 #include "TimeManager.h"
+#include "SimulatorManager.h"
 
 #include "Version.h"
 
@@ -24,7 +25,8 @@ namespace
 		Storm::TimeManager,
 		Storm::InputManager,
 		Storm::WindowsManager,
-		Storm::GraphicManager
+		Storm::GraphicManager,
+		Storm::SimulatorManager
 	>;
 
 	std::unique_ptr<SingletonAllocatorAlias> g_singletonMaker;
@@ -48,7 +50,6 @@ namespace
 		Storm::InputManager::instance().initialize();
 
 		Storm::GraphicManager::instance().initialize();
-		Storm::WindowsManager::instance().initialize();
 
 		LOG_COMMENT << "Application Creation finished";
 	}
@@ -60,6 +61,7 @@ namespace
 			LOG_COMMENT << "Application Cleanup";
 
 			Storm::TimeManager::instance().cleanUp();
+			Storm::SimulatorManager::instance().cleanUp();
 			Storm::InputManager::instance().cleanUp();
 			Storm::GraphicManager::instance().cleanUp();
 			Storm::WindowsManager::instance().cleanUp();
@@ -90,8 +92,11 @@ Storm::ExitCode Storm::Application::run()
 		LOG_COMMENT << "Creating Application Windows";
 		Storm::WindowsManager::instance().initialize();
 
-		LOG_COMMENT << "Start Application Run";
-		// TODO
+		LOG_COMMENT << "Initializing the simulator";
+		Storm::SimulatorManager::instance().initialize();
+
+		LOG_COMMENT << "Start Application Run"; 
+
 	}
 
 	return ExitCode::k_success;
