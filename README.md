@@ -21,6 +21,7 @@ Note that you should have downloaded all dependencies beforehand.
 - Storm-Misc: This module is intended to gather module manager helper that shouldn't be made into helpers since they are Storm project implementation related but cannot be put into any other modules. Example are the RandomManager (that should be deterministic), the TimeManager (that should be compliant with Storm simulator), the AsyncManager (that is intended to be executed in the main Simulation loop like Unreal's Async method), ... .
 - Storm-ModelBase: This module is the base for each modules. It ontains everything that could be used to bind the modules together without the need to reference each other.
 - Storm-Physics: This module is responsible for initializing and managing Physics computations.
+- Storm-Simulator: This module is where the Simulation classes would be. It is responsible to handle SPH.
 - Storm-Windows: This module is responsible for managing the Windows and everything related to it.
 
 

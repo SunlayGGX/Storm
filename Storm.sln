@@ -29,6 +29,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Storm-Windows", "Source\Sto
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Storm-Misc", "Source\Storm-Misc\script\Storm-Misc.vcxproj", "{18A35B78-109A-4ABA-8658-AD746046A610}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Storm-Simulator", "Source\Storm-Simulator\script\Storm-Simulator.vcxproj", "{C115891C-7BDB-4A4C-B19C-24E39536A051}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -75,6 +77,10 @@ Global
 		{18A35B78-109A-4ABA-8658-AD746046A610}.Debug|x64.Build.0 = Debug|x64
 		{18A35B78-109A-4ABA-8658-AD746046A610}.Release|x64.ActiveCfg = Release|x64
 		{18A35B78-109A-4ABA-8658-AD746046A610}.Release|x64.Build.0 = Release|x64
+		{C115891C-7BDB-4A4C-B19C-24E39536A051}.Debug|x64.ActiveCfg = Debug|x64
+		{C115891C-7BDB-4A4C-B19C-24E39536A051}.Debug|x64.Build.0 = Debug|x64
+		{C115891C-7BDB-4A4C-B19C-24E39536A051}.Release|x64.ActiveCfg = Release|x64
+		{C115891C-7BDB-4A4C-B19C-24E39536A051}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -91,6 +97,7 @@ Global
 		{56149530-76D6-4940-A777-D7EFED353723} = {71FDD4FA-5CB7-4461-A3FD-A8818CF6C865}
 		{0CA7DF04-32A0-4200-9D32-4CB257E47D98} = {71FDD4FA-5CB7-4461-A3FD-A8818CF6C865}
 		{18A35B78-109A-4ABA-8658-AD746046A610} = {71FDD4FA-5CB7-4461-A3FD-A8818CF6C865}
+		{C115891C-7BDB-4A4C-B19C-24E39536A051} = {71FDD4FA-5CB7-4461-A3FD-A8818CF6C865}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {AC48B795-9776-4952-84E0-CE8AB938B72B}
