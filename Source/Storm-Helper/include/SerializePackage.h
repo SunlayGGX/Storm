@@ -76,6 +76,15 @@ namespace Storm
 			return *this;
 		}
 
+		template<class Type>
+		SerializePackage& operator<<(std::atomic<Type> &other)
+		{
+			Type val;
+			this->operator<<(val);
+			other = val;
+			return *this;
+		}
+
 		SerializePackage& operator<<(char &other);
 		SerializePackage& operator<<(int8_t &other);
 		SerializePackage& operator<<(int16_t &other);
