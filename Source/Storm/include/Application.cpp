@@ -9,6 +9,7 @@
 #include "GraphicManager.h"
 #include "OSManager.h"
 #include "RandomManager.h"
+#include "TimeManager.h"
 
 namespace
 {
@@ -18,6 +19,7 @@ namespace
 		Storm::LoggerManager,
 		Storm::RandomManager,
 		Storm::OSManager,
+		Storm::TimeManager,
 		Storm::InputManager,
 		Storm::WindowsManager,
 		Storm::GraphicManager
