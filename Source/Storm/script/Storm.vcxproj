@@ -38,6 +38,9 @@
     <ProjectReference Include="..\..\Storm-Logger\script\Storm-Logger.vcxproj">
       <Project>{da5ba977-37d5-4bd2-8269-e536b626decb}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\..\Storm-Misc\script\Storm-Misc.vcxproj">
+      <Project>{18a35b78-109a-4aba-8658-ad746046a610}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\..\Storm-ModelBase\script\Storm-ModelBase.vcxproj">
       <Project>{bb52fd96-f795-463d-8ad1-392b37344a7d}</Project>
     </ProjectReference>
@@ -102,7 +105,7 @@
       <PrecompiledHeaderFile>StormPCH.h</PrecompiledHeaderFile>
       <ForcedIncludeFiles>%(PrecompiledHeaderFile);%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)../../Storm-ModelBase/include;$(ProjectDir)../../Storm-Logger/include;$(ProjectDir)../../Storm-Config/include;$(ProjectDir)../../Storm-Windows/include;$(ProjectDir)../../Storm-Input/include;$(ProjectDir)../../Storm-Graphics/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)../../Storm-ModelBase/include;$(ProjectDir)../../Storm-Logger/include;$(ProjectDir)../../Storm-Config/include;$(ProjectDir)../../Storm-Windows/include;$(ProjectDir)../../Storm-Input/include;$(ProjectDir)../../Storm-Graphics/include;$(ProjectDir)../../Storm-Misc/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -121,7 +124,7 @@
       <PrecompiledHeaderFile>StormPCH.h</PrecompiledHeaderFile>
       <ForcedIncludeFiles>%(PrecompiledHeaderFile);%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)../../Storm-ModelBase/include;$(ProjectDir)../../Storm-Logger/include;$(ProjectDir)../../Storm-Config/include;$(ProjectDir)../../Storm-Windows/include;$(ProjectDir)../../Storm-Input/include;$(ProjectDir)../../Storm-Graphics/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)../../Storm-ModelBase/include;$(ProjectDir)../../Storm-Logger/include;$(ProjectDir)../../Storm-Config/include;$(ProjectDir)../../Storm-Windows/include;$(ProjectDir)../../Storm-Input/include;$(ProjectDir)../../Storm-Graphics/include;$(ProjectDir)../../Storm-Misc/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

@@ -8,6 +8,7 @@
 #include "InputManager.h"
 #include "GraphicManager.h"
 #include "OSManager.h"
+#include "RandomManager.h"
 
 namespace
 {
@@ -15,6 +16,7 @@ namespace
 		Storm::SingletonHolder,
 		Storm::ConfigManager,
 		Storm::LoggerManager,
+		Storm::RandomManager,
 		Storm::OSManager,
 		Storm::InputManager,
 		Storm::WindowsManager,
@@ -32,6 +34,7 @@ Storm::Application::Application(int argc, const char* argv[])
 
 	Storm::ConfigManager::instance().initialize(argc, argv);
 
+	Storm::RandomManager::instance().initialize();
 	Storm::OSManager::instance().initialize();
 
 	Storm::LoggerManager::instance().initialize();
@@ -53,6 +56,7 @@ Storm::Application::~Application()
 	Storm::WindowsManager::instance().cleanUp();
 	Storm::ConfigManager::instance().cleanUp();
 	Storm::OSManager::instance().cleanUp();
+	Storm::RandomManager::instance().cleanUp();
 	Storm::LoggerManager::instance().cleanUp();
 
 	g_singletonMaker.reset();
