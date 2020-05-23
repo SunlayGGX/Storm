@@ -5,6 +5,9 @@
 
 namespace Storm
 {
+	struct ExpectedFPSTag {};
+	struct RealTimeFPSTag {};
+
 	enum class TimeWaitResult;
 
 	class ITimeManager : public Storm::ISingletonHeldInterface<ITimeManager>
@@ -32,15 +35,29 @@ namespace Storm
 		virtual Storm::TimeWaitResult waitForTime(std::chrono::milliseconds timeToWait) = 0;
 
 
-		/************************************************************************/
-		/*							Simulation Time                             */
-		/************************************************************************/
+		/****************************************************************************/
+		/*							Simulation Time									*/
+		/*	NOTE : It is not the Physics time but the simulation loop update time.	*/
+		/****************************************************************************/
 
 		// Set the frame rate. This is not the physics frame rate but more like the simulation expected frame rate (the main thread run loop frame rate).
-		virtual void setCurrentFPS(float fps) const = 0;
+		virtual void setCurrentFPS(float fps) = 0;
 
-		// Get the frame rate. This is not the physics frame rate but more like the simulation expected frame rate (the main thread run loop frame rate).
-		virtual float getCurrentFPS() const = 0;
+		// Get the expected frame rate of the caller thread. This is not the physics frame rate but more like the simulation expected frame rate (the main thread run loop frame rate).
+		// Note that if the thread doesn't use the TimeManager to manage its loop, its fps would be equal to 0.
+		virtual float getCurrentFPS(ExpectedFPSTag) const = 0;
+
+		// Get the real time frame rate of the caller thread. This is not the physics frame rate but more like the simulation expected frame rate (the main thread run loop frame rate).
+		// Note that if the thread doesn't use the TimeManager to manage its loop, its fps would be equal to 0.
+		virtual float getCurrentFPS(RealTimeFPSTag) const = 0;
+
+		// Get the expected frame rate of the specified thread. This is not the physics frame rate but more like the simulation expected frame rate (the main thread run loop frame rate).
+		// Note that if the thread doesn't use the TimeManager to manage its loop, its fps would be equal to 0.
+		virtual float getFPS(const std::thread::id &threadId, ExpectedFPSTag) const = 0;
+
+		// Get the real time frame rate of the specified thread. This is not the physics frame rate but more like the simulation expected frame rate (the main thread run loop frame rate).
+		// Note that if the thread doesn't use the TimeManager to manage its loop, its fps would be equal to 0.
+		virtual float getFPS(const std::thread::id &threadId, RealTimeFPSTag) const = 0;
 
 		// Get the elapsed time since the application is running.
 		virtual std::chrono::milliseconds getCurrentSimulationElapsedTime() const = 0;
@@ -60,10 +77,23 @@ namespace Storm
 		// Get the simulation physics time elapsed in seconds.
 		virtual float getCurrentPhysicsElapsedTime() const = 0;
 
+		// Increase the simulation physics time elapsed by the passed value in seconds.
+		virtual void increaseCurrentPhysicsElapsedTime(float timeIncreaseInSeconds) = 0;
+
 
 		/************************************************************************/
 		/*							TimeManager controls                        */
 		/************************************************************************/
+
+		// Get if the simulation is paused.
+		virtual bool simulationIsPaused() const = 0;
+
+		// If the simulation is paused, unpause it. If it is unpaused, pause it..
+		// Note that it doesn't enforce the pause and it doesn't pause the TimeManager looping process. So the frame will still be fired at each
+		// framerate intervals...
+		// Return the new pause state...
+		virtual bool changeSimulationPauseState() = 0;
+
 
 		// Exit the TimeManager. This should put an end to the simulation by notifying all waiting threads that are waiting for the TimeManager to leave their loop processing.
 		// If everything is developed correctly, The main thread should exit too.

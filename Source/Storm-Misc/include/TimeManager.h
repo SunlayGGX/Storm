@@ -2,6 +2,7 @@
 
 #include "Singleton.h"
 #include "ITimeManager.h"
+#include "FPSWatcher.h"
 
 
 namespace Storm
@@ -24,29 +25,37 @@ namespace Storm
 	public:
 		Storm::TimeWaitResult waitNextFrame() final override;
 		Storm::TimeWaitResult waitForTime(std::chrono::milliseconds timeToWait) final override;
-		void setCurrentFPS(float fps) const final override;
-		float getCurrentFPS() const final override;
+		void setCurrentFPS(float fps) final override;
+		float getCurrentFPS(ExpectedFPSTag) const final override;
+		float getCurrentFPS(RealTimeFPSTag) const final override;
+		float getFPS(const std::thread::id &threadId, ExpectedFPSTag) const final override;
+		float getFPS(const std::thread::id &threadId, RealTimeFPSTag) const final override;
 
 		std::chrono::milliseconds getCurrentSimulationElapsedTime() const final override;
 		float getCurrentPhysicsDeltaTime() const override;
 		void setCurrentPhysicsDeltaTime(float deltaTimeInSeconds) override;
 		float getCurrentPhysicsElapsedTime() const override;
+		void increaseCurrentPhysicsElapsedTime(float timeIncreaseInSeconds) final override;
 
+		bool simulationIsPaused() const final override;
+		bool changeSimulationPauseState() final override;
 		void quit() final override;
+
+	private:
+		Storm::TimeWaitResult waitImpl(std::chrono::microseconds timeToWait);
 
 	private:
 		mutable std::mutex _mutex;
 		std::condition_variable _synchronizer;
 		bool _isRunning;
+		bool _isPaused;
 
-		float _physicsTimeInSeconds;
-		float _physicsElapsedTimeInSeconds;
-		std::thread::id _simulationThreadId;
+		mutable std::map<std::thread::id, Storm::FPSWatcher> _fpsWatcherPerThread;
+
+		std::atomic<float> _physicsTimeInSeconds;
+		std::atomic<float> _physicsElapsedTimeInSeconds;
 
 		std::chrono::microseconds _simulationFrameTime;
 		std::chrono::time_point<std::chrono::high_resolution_clock> _startTime;
-		std::chrono::time_point<std::chrono::high_resolution_clock> _currentTime;
-
-		std::thread _thread;
 	};
 }
