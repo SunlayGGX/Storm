@@ -26,7 +26,7 @@ void Storm::DirectXController::initialize(HWND hwnd)
 	creationFlags |= D3D11_CREATE_DEVICE_FLAG::D3D11_CREATE_DEVICE_DEBUG;
 #endif
 
-	const D3D_FEATURE_LEVEL featureLevels[] =
+	constexpr const D3D_FEATURE_LEVEL featureLevels[] =
 	{
 		D3D_FEATURE_LEVEL::D3D_FEATURE_LEVEL_11_1,
 		D3D_FEATURE_LEVEL::D3D_FEATURE_LEVEL_11_0,
