@@ -50,9 +50,14 @@ Storm::TimeWaitResult Storm::TimeManager::waitForTime(std::chrono::milliseconds 
 	return this->waitImpl(std::chrono::duration_cast<std::chrono::microseconds>(timeToWait));
 }
 
-void Storm::TimeManager::setCurrentFPS(float fps)
+void Storm::TimeManager::setExpectedFrameFPS(float fps)
 {
 	_simulationFrameTime = std::chrono::microseconds{ static_cast<std::chrono::microseconds::rep>(std::roundf(Storm::InvertPeriod<std::chrono::microseconds::period>::value / fps)) };
+}
+
+float Storm::TimeManager::getExpectedFrameFPS() const
+{
+	return Storm::ChronoHelper::toFps(_simulationFrameTime);
 }
 
 float Storm::TimeManager::getCurrentFPS(ExpectedFPSTag tag) const
