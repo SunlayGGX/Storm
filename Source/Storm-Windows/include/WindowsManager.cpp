@@ -141,8 +141,6 @@ void Storm::WindowsManager::initialize_Implementation()
     {
         _accelerationTable = LoadAccelerators(dllInstance, MAKEINTRESOURCE(IDR_ACCELERATOR1));
 
-        this->callFinishInitializeCallback();
-
         ShowCursor(true);
         ShowWindow(windowVisuHandle, SW_SHOWNORMAL);
         UpdateWindow(windowVisuHandle);
@@ -151,6 +149,8 @@ void Storm::WindowsManager::initialize_Implementation()
         _windowClass = validator;
 
         LOG_COMMENT << "Windows for the application initialized correctly";
+
+        this->callFinishInitializeCallback();
     }
     else
     {
