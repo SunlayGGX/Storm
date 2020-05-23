@@ -5,9 +5,12 @@
 
 namespace Storm
 {
-    class IGraphicsManager : public Storm::ISingletonHeldInterface<IGraphicsManager>
-    {
-    public:
-        virtual ~IGraphicsManager() = default;
-    };
+	class IGraphicsManager : public Storm::ISingletonHeldInterface<IGraphicsManager>
+	{
+	public:
+		virtual ~IGraphicsManager() = default;
+
+	public:
+		virtual void update() = 0;
+	};
 }

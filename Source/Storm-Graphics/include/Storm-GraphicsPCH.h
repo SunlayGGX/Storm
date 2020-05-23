@@ -1,6 +1,9 @@
 #pragma once
 
 
+#include <d3d11.h>
+#include <DirectXMath.h>
+#include <dxgi1_2.h>
 #include <wrl/client.h>
 
 #include "StormStdPrerequisite.h"

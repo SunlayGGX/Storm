@@ -12,6 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Camera.cpp" />
+    <ClCompile Include="..\include\DirectXController.cpp" />
     <ClCompile Include="..\include\GraphicManager.cpp" />
     <ClCompile Include="..\include\Storm-GraphicsPCH.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -20,6 +21,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Camera.h" />
+    <ClInclude Include="..\include\DirectXController.h" />
     <ClInclude Include="..\include\GraphicManager.h" />
     <ClInclude Include="..\include\Storm-GraphicsPCH.h" />
   </ItemGroup>
