@@ -12,11 +12,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\CoInitializerRAII.cpp" />
+    <ClCompile Include="..\include\Logging.cpp" />
+    <ClCompile Include="..\include\SerializePackage.cpp" />
     <ClCompile Include="..\include\SingletonHolder.cpp" />
     <ClCompile Include="..\include\Storm-HelperPCH.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\include\Version.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\CoInitializerRAII.h" />
@@ -24,7 +27,11 @@
     <ClInclude Include="..\include\ExitCode.h" />
     <ClInclude Include="..\include\Facets.h" />
     <ClInclude Include="..\include\FacetsContainer.h" />
+    <ClInclude Include="..\include\ILoggerManager.h" />
+    <ClInclude Include="..\include\Logging.h" />
+    <ClInclude Include="..\include\LogLevel.h" />
     <ClInclude Include="..\include\MemoryHelper.h" />
+    <ClInclude Include="..\include\SerializePackage.h" />
     <ClInclude Include="..\include\Singleton.h" />
     <ClInclude Include="..\include\SingletonAllocator.h" />
     <ClInclude Include="..\include\SingletonDefaultImplementation.h" />
@@ -35,6 +42,9 @@
     <ClInclude Include="..\include\Storm-HelperPCH.h" />
     <ClInclude Include="..\include\StormStdPrerequisite.h" />
     <ClInclude Include="..\include\ThrowException.h" />
+    <ClInclude Include="..\include\TraitsHelper.h" />
+    <ClInclude Include="..\include\Version.h" />
+    <ClInclude Include="..\include\VersionMacro.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

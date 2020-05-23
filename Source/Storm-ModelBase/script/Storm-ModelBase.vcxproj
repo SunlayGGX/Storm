@@ -11,7 +11,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\include\Logging.cpp" />
     <ClCompile Include="..\include\Storm-ModelBasePCH.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
@@ -21,14 +20,11 @@
     <ClInclude Include="..\include\IConfigManager.h" />
     <ClInclude Include="..\include\IGraphicsManager.h" />
     <ClInclude Include="..\include\IInputManager.h" />
-    <ClInclude Include="..\include\ILoggerManager.h" />
     <ClInclude Include="..\include\InputKeyState.h" />
     <ClInclude Include="..\include\IOSManager.h" />
     <ClInclude Include="..\include\IPhysicsManager.h" />
     <ClInclude Include="..\include\IRandomManager.h" />
     <ClInclude Include="..\include\IWindowsManager.h" />
-    <ClInclude Include="..\include\Logging.h" />
-    <ClInclude Include="..\include\LogLevel.h" />
     <ClInclude Include="..\include\Storm-ModelBasePCH.h" />
     <ClInclude Include="..\include\WindowsCallbacks.h" />
   </ItemGroup>

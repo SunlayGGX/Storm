@@ -46,6 +46,21 @@
     <Filter Include="Source Files\OS">
       <UniqueIdentifier>{8d2d1444-9da1-4b56-9f2f-e34eec07bcf2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Application">
+      <UniqueIdentifier>{12a040c2-064f-457d-90e9-ffc806fbc19d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Serialize">
+      <UniqueIdentifier>{15216f63-3213-4968-90e4-4745789e168b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Serialize">
+      <UniqueIdentifier>{636aa202-f364-4774-9e43-625fd43abf2b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\LoggerBase">
+      <UniqueIdentifier>{90f1a5c0-edf1-4093-b61d-6cf193ef6891}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\LoggerBase">
+      <UniqueIdentifier>{9e6235fe-d7e2-4a44-b508-5343064e4772}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-HelperPCH.cpp">
@@ -56,6 +71,15 @@
     </ClCompile>
     <ClCompile Include="..\include\CoInitializerRAII.cpp">
       <Filter>Source Files\OS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\Version.cpp">
+      <Filter>Source Files\Application</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\SerializePackage.cpp">
+      <Filter>Source Files\Serialize</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\Logging.cpp">
+      <Filter>Source Files\LoggerBase</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -106,6 +130,27 @@
     </ClInclude>
     <ClInclude Include="..\include\MemoryHelper.h">
       <Filter>Header Files\General\Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\TraitsHelper.h">
+      <Filter>Header Files\MetaP</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Version.h">
+      <Filter>Header Files\Application</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SerializePackage.h">
+      <Filter>Header Files\Serialize</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Logging.h">
+      <Filter>Header Files\LoggerBase</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\LogLevel.h">
+      <Filter>Header Files\LoggerBase</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ILoggerManager.h">
+      <Filter>Header Files\General\Singleton</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\VersionMacro.h">
+      <Filter>Header Files\Application</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

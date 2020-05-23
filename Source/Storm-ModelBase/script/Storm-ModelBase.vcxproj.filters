@@ -16,12 +16,6 @@
     <Filter Include="Header Files\Singleton">
       <UniqueIdentifier>{085616b2-875d-4356-8323-774c4dfe2c2f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\LoggerBase">
-      <UniqueIdentifier>{495c644e-0a33-4cfc-8ff2-addabee5d543}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\LoggerBase">
-      <UniqueIdentifier>{8bcca7e2-f9b3-4c3e-afdd-a71dc92ed13f}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Windows">
       <UniqueIdentifier>{97fc4da2-8f55-4404-9bd0-377bcd86b70b}</UniqueIdentifier>
     </Filter>
@@ -32,9 +26,6 @@
   <ItemGroup>
     <ClCompile Include="..\include\Storm-ModelBasePCH.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\include\Logging.cpp">
-      <Filter>Source Files\LoggerBase</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -47,9 +38,6 @@
     <ClInclude Include="..\include\IGraphicsManager.h">
       <Filter>Header Files\Singleton</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\ILoggerManager.h">
-      <Filter>Header Files\Singleton</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\IPhysicsManager.h">
       <Filter>Header Files\Singleton</Filter>
     </ClInclude>
@@ -58,12 +46,6 @@
     </ClInclude>
     <ClInclude Include="..\include\IWindowsManager.h">
       <Filter>Header Files\Singleton</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Logging.h">
-      <Filter>Header Files\LoggerBase</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\LogLevel.h">
-      <Filter>Header Files\LoggerBase</Filter>
     </ClInclude>
     <ClInclude Include="..\include\WindowsCallbacks.h">
       <Filter>Header Files\Windows</Filter>
