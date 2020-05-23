@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Application.h" />
+    <ClInclude Include="..\include\EarlyExitAnswer.h" />
     <ClInclude Include="..\include\StormPCH.h" />
   </ItemGroup>
   <ItemGroup>

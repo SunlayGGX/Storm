@@ -3,17 +3,28 @@
 #include <iostream>
 
 
+namespace
+{
+	int processEarlyExitAnswer(const Storm::EarlyExitAnswer &earlyExitAnswer)
+	{
+		for (const auto &unhandledErrorMsg : earlyExitAnswer._unconsumedErrorMsgs)
+		{
+			std::cerr << unhandledErrorMsg << std::endl;
+		}
+
+		return earlyExitAnswer._exitCode;
+	}
+}
+
 int main(int argc, const char* argv[]) try
 {
 	return static_cast<int>(Storm::Application{ argc, argv }.run());
 }
 catch (const std::exception &ex)
 {
-	std::cerr << "Fatal error (std::exception received) : " << ex.what() << '\n';
-	return static_cast<int>(Storm::ExitCode::k_stdException);
+	return processEarlyExitAnswer(Storm::Application::ensureCleanStateAfterException("Fatal error (std::exception received) : " + std::string{ ex.what() } +'\n', true));
 }
 catch (...)
 {
-	std::cerr << "Fatal error (unknown exception received)\n";
-	return static_cast<int>(Storm::ExitCode::k_unknownException);
+	return processEarlyExitAnswer(Storm::Application::ensureCleanStateAfterException("Fatal error (unknown exception received)\n", false));
 }

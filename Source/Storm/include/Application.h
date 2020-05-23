@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ExitCode.h"
+#include "EarlyExitAnswer.h"
 
 
 namespace Storm
@@ -12,5 +13,7 @@ namespace Storm
 		~Application();
 
 		Storm::ExitCode run();
+
+		static Storm::EarlyExitAnswer ensureCleanStateAfterException(const std::string &errorMsg, bool wasStdException);
 	};
 }

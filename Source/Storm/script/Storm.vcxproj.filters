@@ -32,5 +32,8 @@
     <ClInclude Include="..\include\Application.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\EarlyExitAnswer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
