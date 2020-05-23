@@ -24,6 +24,7 @@
     <ClInclude Include="..\include\IOSManager.h" />
     <ClInclude Include="..\include\IPhysicsManager.h" />
     <ClInclude Include="..\include\IRandomManager.h" />
+    <ClInclude Include="..\include\ISimulatorManager.h" />
     <ClInclude Include="..\include\ITimeManager.h" />
     <ClInclude Include="..\include\IWindowsManager.h" />
     <ClInclude Include="..\include\Storm-ModelBasePCH.h" />

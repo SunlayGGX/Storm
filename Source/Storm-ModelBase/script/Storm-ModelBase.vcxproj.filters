@@ -68,5 +68,8 @@
     <ClInclude Include="..\include\TimeWaitResult.h">
       <Filter>Header Files\Time</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\ISimulatorManager.h">
+      <Filter>Header Files\Singleton</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
