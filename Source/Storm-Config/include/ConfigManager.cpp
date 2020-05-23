@@ -10,18 +10,6 @@
 #include <boost/algorithm/string.hpp>
 
 
-namespace
-{
-    void checkFileExistence(const std::filesystem::path &pathStr)
-    {
-        if (!std::filesystem::is_regular_file(pathStr))
-        {
-            Storm::throwException<std::exception>(pathStr.string() + " should be pointing to a correct file.");
-        }
-    }
-}
-
-
 Storm::ConfigManager::ConfigManager() : 
     _shouldDisplayHelp{ false }
 {
@@ -39,6 +27,18 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
     _shouldDisplayHelp = parser.shouldDisplayHelp();
     if (!_shouldDisplayHelp)
     {
+        _exePath = argv[0];
+
+        std::filesystem::path configFolderPath = std::filesystem::path{ _exePath }.parent_path().parent_path() / "Config" / "Scenes";
+        if (std::filesystem::exists(configFolderPath))
+        {
+            _defaultConfigFolderPath = configFolderPath.wstring();
+        }
+        else
+        {
+            LOG_WARNING << "Storm file tree order isn't standard. Cannot grab the default config folder path... Therefore it will remain empty.";
+        }
+
         _sceneConfigFilePath = parser.getSceneFilePath();
         if (_sceneConfigFilePath.empty())
         {
@@ -48,14 +48,29 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
                 { L"Xml file (*.xml)", L"*.xml" }
             };
 
-            Storm::SingletonHolder::instance().getFacet<Storm::IOSManager>()->openFileExplorerDialog(L"Select a scene file", fileFilters);
+            _sceneConfigFilePath = std::filesystem::path{ Storm::SingletonHolder::instance().getFacet<Storm::IOSManager>()->openFileExplorerDialog(_defaultConfigFolderPath, fileFilters) }.string();
         }
 
+        std::string errorMsg;
+
         const std::filesystem::path sceneConfigFilePath{ _sceneConfigFilePath };
-        checkFileExistence(sceneConfigFilePath);
-        if (boost::algorithm::to_lower_copy(sceneConfigFilePath.extension().string()) != ".xml")
+        if (_sceneConfigFilePath.empty())
         {
-            Storm::throwException<std::exception>(_sceneConfigFilePath + " should be pointing to an xml file!");
+            errorMsg = "No scenes config file set. The application cannot run thus we will abort execution!";
+        }
+        else if (!std::filesystem::is_regular_file(sceneConfigFilePath))
+        {
+            errorMsg = _sceneConfigFilePath + " should be pointing to a correct file.";
+        }
+        else if (boost::algorithm::to_lower_copy(sceneConfigFilePath.extension().string()) != ".xml")
+        {
+            errorMsg = _sceneConfigFilePath + " should be pointing to an xml file!";
+        }
+
+        if (!errorMsg.empty())
+        {
+            LOG_FATAL << errorMsg;
+            Storm::throwException<std::exception>(errorMsg);
         }
 
         _temporaryPath = parser.getTempPath();
@@ -64,12 +79,18 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
         {
             if (!std::filesystem::is_directory(_temporaryPath))
             {
-                Storm::throwException<std::exception>(_temporaryPath + " should either be a folder, or shouldn't exists!");
+                errorMsg = _temporaryPath + " should either be a folder, or shouldn't exists!";
             }
         }
         else
         {
             std::filesystem::create_directories(_temporaryPath);
+        }
+
+        if (!errorMsg.empty())
+        {
+            LOG_FATAL << errorMsg;
+            Storm::throwException<std::exception>(errorMsg);
         }
     }
     else

@@ -13,6 +13,7 @@ echo.
 
 call :CallBatch BaseStorm.bat
 call :CallBatch SetupImpl.bat
+call :CallBatch ScenesCopy.bat
 
 
 

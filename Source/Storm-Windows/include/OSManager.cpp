@@ -80,11 +80,13 @@ namespace
 Storm::OSManager::OSManager() = default;
 Storm::OSManager::~OSManager() = default;
 
-std::wstring Storm::OSManager::openFileExplorerDialog(const std::wstring &explorerWindowsTitle, const std::map<std::wstring, std::wstring> &filters)
+std::wstring Storm::OSManager::openFileExplorerDialog(const std::wstring &defaultStartingPath, const std::map<std::wstring, std::wstring> &filters)
 {
     // https://docs.microsoft.com/en-us/previous-versions/windows/desktop/legacy/bb776913(v=vs.85)?redirectedfrom=MSDN
 
     std::wstring resultSelectedFilePath;
+
+    LOG_DEBUG << "Requesting to open file explorer dialog to select a file.";
 
     std::size_t filterCount;
     auto filtersCom = makeFilters(filters, filterCount);
@@ -138,6 +140,47 @@ std::wstring Storm::OSManager::openFileExplorerDialog(const std::wstring &explor
                                 hr = fileDialog->SetDefaultExtension(retrieveFirstFilter(filters).c_str());
                                 if (SUCCEEDED(hr))
                                 {
+                                    if (!defaultStartingPath.empty())
+                                    {
+                                        if (std::filesystem::is_directory(defaultStartingPath))
+                                        {
+                                            // Create the start folder command.
+                                            CComPtr<IShellItem> psiFolder;
+
+                                            hr = SHCreateItemFromParsingName(defaultStartingPath.c_str(), NULL, IID_PPV_ARGS(&psiFolder));
+                                            if (SUCCEEDED(hr))
+                                            {
+                                                hr = fileDialog->SetFolder(psiFolder);
+                                                if (SUCCEEDED(hr))
+                                                {
+                                                    LOG_DEBUG << "Successfully set the starting folder location to " << std::filesystem::path{ defaultStartingPath }.string();
+                                                }
+                                                else
+                                                {
+                                                    LOG_ERROR << generateComError(hr,
+                                                        std::filesystem::path{ defaultStartingPath }.string() + " failed to be set as starting folder! We will use the default instead."
+                                                    );
+                                                }
+                                            }
+                                            else
+                                            {
+                                                LOG_ERROR << generateComError(hr,
+                                                    "Cannot parse " + std::filesystem::path{ defaultStartingPath }.string() + " name to a IShellItem! Therefore we won't set it as the default folder."
+                                                );
+                                            }
+                                        }
+                                        else
+                                        {
+                                            LOG_ERROR << generateComError(hr,
+                                                std::filesystem::path{ defaultStartingPath }.string() + " is not a valid directory! Therefore we won't set it as the starting folder and use default instead."
+                                            );
+                                        }
+                                    }
+                                    else
+                                    {
+                                        LOG_DEBUG << "defaultStartingPath is empty, therefore we will remain with the default explorer location.";
+                                    }
+
                                     // Show the dialog
                                     hr = fileDialog->Show(NULL);
                                     if (SUCCEEDED(hr))
@@ -157,30 +200,11 @@ std::wstring Storm::OSManager::openFileExplorerDialog(const std::wstring &explor
                                             if (SUCCEEDED(hr))
                                             {
                                                 std::unique_ptr<WCHAR, decltype(&CoTaskMemFree)> pszFilePathHolder{ pszFilePath, &CoTaskMemFree };
-
-                                                hr = TaskDialog(
-                                                    nullptr,
-                                                    nullptr,
-                                                    explorerWindowsTitle.c_str(),
-                                                    pszFilePath,
-                                                    nullptr,
-                                                    TDCBF_OK_BUTTON,
-                                                    TD_INFORMATION_ICON,
-                                                    nullptr
-                                                );
-
-                                                if (SUCCEEDED(hr))
-                                                {
-                                                    resultSelectedFilePath = pszFilePath;
-                                                }
-                                                else
-                                                {
-                                                    LOG_ERROR << generateComError(hr, "Cannot get the chosen filesystem path!");
-                                                }
+                                                resultSelectedFilePath = pszFilePath;
                                             }
                                             else
                                             {
-                                                LOG_ERROR << generateComError(hr, "Cannot grab the file dialog explorer display name!");
+                                                LOG_ERROR << generateComError(hr, "Cannot grab the file dialog explorer result!");
                                             }
                                         }
                                         else

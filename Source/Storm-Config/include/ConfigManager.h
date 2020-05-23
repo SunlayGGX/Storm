@@ -27,6 +27,8 @@ namespace Storm
 
         std::string _temporaryPath;
         std::string _logFileName;
+        std::wstring _defaultConfigFolderPath;
+        std::string _exePath;
         bool _allowPopup;
 
         bool _shouldDisplayHelp;
