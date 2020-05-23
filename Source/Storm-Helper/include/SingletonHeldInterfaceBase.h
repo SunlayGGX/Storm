@@ -5,8 +5,8 @@
 
 namespace Storm
 {
-    class SingletonHeldInterfaceBase {};
+	class SingletonHeldInterfaceBase {};
 
-    template<class ChildType>
-    class ISingletonHeldInterface : public Storm::Facet<ISingletonHeldInterface<ChildType>, SingletonHeldInterfaceBase> {};
+	template<class ChildType>
+	class ISingletonHeldInterface : public Storm::Facet<ISingletonHeldInterface<ChildType>, SingletonHeldInterfaceBase> {};
 }

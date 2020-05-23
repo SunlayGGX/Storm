@@ -5,12 +5,12 @@
 
 namespace Storm
 {
-    class Application
-    {
-    public:
-        Application(int argc, const char* argv[]);
-        ~Application();
+	class Application
+	{
+	public:
+		Application(int argc, const char* argv[]);
+		~Application();
 
-        Storm::ExitCode run();
-    };
+		Storm::ExitCode run();
+	};
 }

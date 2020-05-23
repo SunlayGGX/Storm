@@ -5,9 +5,9 @@
 
 namespace Storm
 {
-    class IPhysicsManager : public Storm::ISingletonHeldInterface<IPhysicsManager>
-    {
-    public:
-        virtual ~IPhysicsManager() = default;
-    };
+	class IPhysicsManager : public Storm::ISingletonHeldInterface<IPhysicsManager>
+	{
+	public:
+		virtual ~IPhysicsManager() = default;
+	};
 }

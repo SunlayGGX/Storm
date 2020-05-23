@@ -8,12 +8,12 @@
 
 namespace Storm
 {
-    class SingletonHeldInterfaceBase;
+	class SingletonHeldInterfaceBase;
 
-    class SingletonHolder :
-        private Storm::Singleton<Storm::SingletonHolder, Storm::DefineDefaultInitAndCleanupImplementation>,
-        public Storm::FacetContainer<Storm::SingletonHeldInterfaceBase, Storm::FacetContainerIsNotOwner>
-    {
-        STORM_DECLARE_SINGLETON(SingletonHolder);
-    };
+	class SingletonHolder :
+		private Storm::Singleton<Storm::SingletonHolder, Storm::DefineDefaultInitAndCleanupImplementation>,
+		public Storm::FacetContainer<Storm::SingletonHeldInterfaceBase, Storm::FacetContainerIsNotOwner>
+	{
+		STORM_DECLARE_SINGLETON(SingletonHolder);
+	};
 }

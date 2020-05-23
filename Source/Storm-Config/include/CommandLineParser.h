@@ -4,34 +4,34 @@
 
 namespace Storm
 {
-    class CommandLineParser
-    {
-    public:
-        CommandLineParser(int argc, const char* argv[]);
+	class CommandLineParser
+	{
+	public:
+		CommandLineParser(int argc, const char* argv[]);
 
-        const std::string& getHelp() const;
-        bool shouldDisplayHelp() const;
+		const std::string& getHelp() const;
+		bool shouldDisplayHelp() const;
 
-        std::string getSceneFilePath() const;
-        std::string getTempPath() const;
+		std::string getSceneFilePath() const;
+		std::string getTempPath() const;
 
-    public:
-        template<class Type>
-        bool extractIfExist(const std::string &val, Type &outVar) const
-        {
-            if (_commandlineMap.count(val))
-            {
-                outVar = _commandlineMap[val].as<Type>();
-                return true;
-            }
+	public:
+		template<class Type>
+		bool extractIfExist(const std::string &val, Type &outVar) const
+		{
+			if (_commandlineMap.count(val))
+			{
+				outVar = _commandlineMap[val].as<Type>();
+				return true;
+			}
 
-            return false;
-        }
+			return false;
+		}
 
-    private:
-        boost::program_options::variables_map _commandlineMap;
+	private:
+		boost::program_options::variables_map _commandlineMap;
 
-        std::string _help;
-        bool _shouldDisplayHelp;
-    };
+		std::string _help;
+		bool _shouldDisplayHelp;
+	};
 }

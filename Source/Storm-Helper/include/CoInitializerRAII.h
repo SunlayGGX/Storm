@@ -8,20 +8,20 @@
 
 namespace Storm
 {
-    class CoInitializerRAII
-    {
-    public:
-        CoInitializerRAII();
-        CoInitializerRAII(DWORD flag);
-        ~CoInitializerRAII();
+	class CoInitializerRAII
+	{
+	public:
+		CoInitializerRAII();
+		CoInitializerRAII(DWORD flag);
+		~CoInitializerRAII();
 
-        HRESULT getCoInitializeCallResult() const;
+		HRESULT getCoInitializeCallResult() const;
 
-    public:
-        bool _shouldCoUninitialize;
+	public:
+		bool _shouldCoUninitialize;
 
-    private:
-        HRESULT _result;
-    };
+	private:
+		HRESULT _result;
+	};
 }
 

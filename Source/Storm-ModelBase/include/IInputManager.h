@@ -7,13 +7,13 @@ namespace Storm
 {
 	enum class InputKeyState;
 
-    class IInputManager : public Storm::ISingletonHeldInterface<IInputManager>
-    {
-    public:
-        virtual ~IInputManager() = default;
+	class IInputManager : public Storm::ISingletonHeldInterface<IInputManager>
+	{
+	public:
+		virtual ~IInputManager() = default;
 
-    public:
-        virtual void update() = 0;
+	public:
+		virtual void update() = 0;
 
 		virtual IInputManager* bindKey(unsigned char key, Storm::InputKeyState keyState, std::function<void()> &&binding) = 0;
 		virtual IInputManager* unbindKey(unsigned char key, Storm::InputKeyState keyState) = 0;
