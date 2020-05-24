@@ -6,7 +6,6 @@
 #include <atlbase.h>
 #include <comdef.h>
 
-#include <filesystem>
 
 namespace
 {

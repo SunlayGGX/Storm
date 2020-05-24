@@ -2,7 +2,6 @@
 #include "MemoryHelper.h"
 #include "ThrowException.h"
 
-#include <filesystem>
 #include <comdef.h>
 
 namespace

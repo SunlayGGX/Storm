@@ -2,7 +2,6 @@
 
 #include "ThrowException.h"
 
-#include <filesystem>
 #include "Version.h"
 
 

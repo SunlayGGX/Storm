@@ -1,8 +1,6 @@
 #include "CommandLineParser.h"
 #include "ThrowException.h"
 
-#include <filesystem>
-
 
 Storm::CommandLineParser::CommandLineParser(int argc, const char* argv[]) :
 	_shouldDisplayHelp{ false }
