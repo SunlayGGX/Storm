@@ -2,6 +2,7 @@
 #include "Singleton.h"
 #include "IWindowsManager.h"
 #include "WindowsCallbacks.h"
+#include "MultiCallback.h"
 
 
 namespace Storm
@@ -38,9 +39,12 @@ namespace Storm
 		void callQuitCallback() final override;
 		void callFinishInitializeCallback() final override;
 
-		void unbindCallback() final override;
-		void bindQuitCallback(Storm::QuitDelegate &&callback) final override;
-		void bindFinishInitializeCallback(Storm::FinishedInitializeDelegate &&callback, bool callNow) final override;
+		void unbindQuitCallback(unsigned short callbackId) final override;
+		unsigned short bindQuitCallback(Storm::QuitDelegate &&callback) final override;
+		void bindFinishInitializeCallback(Storm::FinishedInitializeDelegate &&callback) final override;
+
+	private:
+		void unbindCallbacks();
 
 	private:
 		void* /*HWND*/ _windowVisuHandle;
@@ -52,7 +56,7 @@ namespace Storm
 		int _wantedHeight;
 
 		mutable std::mutex _callbackMutex;
-		Storm::QuitDelegate _quitCallback;
-		Storm::FinishedInitializeDelegate _finishedInitCallback;
+		Storm::MultiCallback<Storm::QuitDelegate> _quitCallback;
+		Storm::MultiCallback<Storm::FinishedInitializeDelegate> _finishedInitCallback;
 	};
 }

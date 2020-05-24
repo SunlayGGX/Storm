@@ -46,8 +46,6 @@ namespace
 
 
 Storm::WindowsManager::WindowsManager() :
-	_quitCallback{ []() {} },
-	_finishedInitCallback{ [](void*, bool) {} },
 	_hasOverridenWindowSize{ false },
 	_accelerationTable{ nullptr },
 	_windowVisuHandle{ nullptr }
@@ -225,27 +223,22 @@ void* Storm::WindowsManager::getWindowAccelerationTable() const
 	return _accelerationTable;
 }
 
-void Storm::WindowsManager::bindQuitCallback(Storm::QuitDelegate &&callback)
+unsigned short Storm::WindowsManager::bindQuitCallback(Storm::QuitDelegate &&callback)
 {
 	std::lock_guard<std::mutex> autoLocker{ _callbackMutex };
-	_quitCallback = ((callback != nullptr) ? callback : []() {});
+	return _quitCallback.add(std::move(callback));
 }
 
-void Storm::WindowsManager::bindFinishInitializeCallback(Storm::FinishedInitializeDelegate &&callback, bool callNow)
+void Storm::WindowsManager::bindFinishInitializeCallback(Storm::FinishedInitializeDelegate &&callback)
 {
 	std::lock_guard<std::mutex> autoLocker{ _callbackMutex };
-	if (callback != nullptr)
+	if (_windowVisuHandle != nullptr)
 	{
-		_finishedInitCallback = callback;
-
-		if (callNow && _windowVisuHandle != nullptr)
-		{
-			_finishedInitCallback(_windowVisuHandle, true);
-		}
+		callback(_windowVisuHandle, true);
 	}
 	else
 	{
-		_finishedInitCallback = [](void*, bool) {};
+		_finishedInitCallback.add(std::move(callback));
 	}
 }
 
@@ -259,12 +252,17 @@ void Storm::WindowsManager::callFinishInitializeCallback()
 {
 	std::lock_guard<std::mutex> autoLocker{ _callbackMutex };
 	_finishedInitCallback(_windowVisuHandle, false);
+	_finishedInitCallback.clear();
 }
 
-void Storm::WindowsManager::unbindCallback()
+void Storm::WindowsManager::unbindQuitCallback(unsigned short callbackId)
+{
+	_quitCallback.remove(callbackId);
+}
+
+void Storm::WindowsManager::unbindCallbacks()
 {
 	std::lock_guard<std::mutex> autoLocker{ _callbackMutex };
-	_quitCallback = []() {};
-	_finishedInitCallback = [](void*, bool) {};
+	_quitCallback.clear();
+	_finishedInitCallback.clear();
 }
-

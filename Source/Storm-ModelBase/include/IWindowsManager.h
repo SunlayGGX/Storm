@@ -21,9 +21,9 @@ namespace Storm
 		virtual void callQuitCallback() = 0;
 		virtual void callFinishInitializeCallback() = 0;
 
-		virtual void unbindCallback() = 0;
-		virtual void bindQuitCallback(Storm::QuitDelegate &&callback) = 0;
-		virtual void bindFinishInitializeCallback(Storm::FinishedInitializeDelegate &&callback, bool callNow) = 0;
+		virtual void unbindQuitCallback(unsigned short callbackId) = 0;
+		virtual unsigned short bindQuitCallback(Storm::QuitDelegate &&callback) = 0;
+		virtual void bindFinishInitializeCallback(Storm::FinishedInitializeDelegate &&callback) = 0;
 
 	public:
 		virtual void update() = 0;
