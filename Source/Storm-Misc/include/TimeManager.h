@@ -56,6 +56,7 @@ namespace Storm
 		bool _isPaused;
 
 		mutable std::map<std::thread::id, Storm::FPSWatcher> _fpsWatcherPerThread;
+		unsigned char _timeToWatch;
 
 		std::atomic<float> _physicsTimeInSeconds;
 		std::atomic<float> _physicsElapsedTimeInSeconds;
