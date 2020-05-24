@@ -47,7 +47,6 @@ namespace
 		Storm::RandomManager::instance().initialize();
 		Storm::OSManager::instance().initialize();
 
-
 		Storm::InputManager::instance().initialize();
 
 		Storm::GraphicManager::instance().initialize();
@@ -88,16 +87,29 @@ Storm::Application::~Application()
 
 Storm::ExitCode Storm::Application::run()
 {
-	if (!Storm::ConfigManager::instance().shouldDisplayHelp())
+	try
 	{
-		LOG_COMMENT << "Creating Application Windows";
-		Storm::WindowsManager::instance().initialize();
+		if (!Storm::ConfigManager::instance().shouldDisplayHelp())
+		{
+			LOG_COMMENT << "Creating Application Windows";
+			Storm::WindowsManager::instance().initialize();
 
-		LOG_COMMENT << "Initializing the simulator";
-		Storm::SimulatorManager::instance().initialize();
+			LOG_COMMENT << "Initializing the simulator";
+			Storm::SimulatorManager::instance().initialize();
 
-		LOG_COMMENT << "Start Application Run"; 
-		Storm::SimulatorManager::instance().run();
+			LOG_COMMENT << "Start Application Run";
+			Storm::SimulatorManager::instance().run();
+		}
+	}
+	catch (const std::exception &ex)
+	{
+		LOG_FATAL << "Catched an unhandled std exception in the Application main loop (run). Process will exit " << ex.what();
+		throw;
+	}
+	catch (...)
+	{
+		LOG_FATAL << "Catched an unhandled '...' exception (unknown) in the Application main loop (run). Process will exit.";
+		throw;
 	}
 
 	return ExitCode::k_success;
