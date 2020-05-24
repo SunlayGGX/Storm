@@ -24,6 +24,9 @@
     <ClCompile Include="..\include\Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\DirectXValidator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\include\DirectXController.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -36,6 +39,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\DirectXValidator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\include\DirectXController.h">
