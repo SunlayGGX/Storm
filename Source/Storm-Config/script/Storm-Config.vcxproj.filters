@@ -33,6 +33,9 @@
     <ClCompile Include="..\include\MacroConfigReader.cpp">
       <Filter>Source Files\Reader</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\SceneFileReader.cpp">
+      <Filter>Source Files\Reader</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-ConfigPCH.h">
@@ -43,6 +46,9 @@
     </ClInclude>
     <ClInclude Include="..\include\CommandLineParser.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SceneFileReader.h">
+      <Filter>Header Files\Reader</Filter>
     </ClInclude>
     <ClInclude Include="..\include\MacroConfigReader.h">
       <Filter>Header Files\Reader</Filter>
