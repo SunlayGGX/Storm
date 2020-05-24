@@ -161,5 +161,8 @@
     <ClInclude Include="..\include\NonInstanciable.h">
       <Filter>Header Files\MetaP</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\ValueGuard.h">
+      <Filter>Header Files\General\Misc</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

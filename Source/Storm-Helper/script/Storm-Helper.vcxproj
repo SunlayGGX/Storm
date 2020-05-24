@@ -45,6 +45,7 @@
     <ClInclude Include="..\include\StormStdPrerequisite.h" />
     <ClInclude Include="..\include\ThrowException.h" />
     <ClInclude Include="..\include\TraitsHelper.h" />
+    <ClInclude Include="..\include\ValueGuard.h" />
     <ClInclude Include="..\include\Version.h" />
     <ClInclude Include="..\include\VersionMacro.h" />
   </ItemGroup>
