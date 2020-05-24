@@ -17,6 +17,6 @@ namespace Storm
 		void cleanUp_Implementation();
 
 	public:
-		int run();
+		void run();
 	};
 }

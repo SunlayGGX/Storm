@@ -18,7 +18,7 @@ void Storm::SimulatorManager::cleanUp_Implementation()
 	// TODO
 }
 
-int Storm::SimulatorManager::run()
+void Storm::SimulatorManager::run()
 {
 	Storm::ITimeManager* timeMgr = Storm::SingletonHolder::instance().getFacet<Storm::ITimeManager>();
 	
@@ -28,7 +28,7 @@ int Storm::SimulatorManager::run()
 		switch (simulationState)
 		{
 		case Storm::TimeWaitResult::Exit:
-			return 0;
+			return;
 
 		case TimeWaitResult::Pause:
 			continue;
