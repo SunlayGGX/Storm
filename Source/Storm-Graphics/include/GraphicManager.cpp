@@ -3,6 +3,9 @@
 
 #include "SingletonHolder.h"
 #include "IWindowsManager.h"
+#include "ITimeManager.h"
+
+#include "ThreadHelper.h"
 
 namespace
 {
@@ -45,7 +48,7 @@ bool Storm::GraphicManager::initialize_Implementation()
 			{
 				this->initialize(hwndOnceReady);
 			}
-		}, true);
+		});
 
 		LOG_WARNING << "HWND not valid, Graphic initialization will be suspended and done asynchronously later.";
 		return initRes;
@@ -56,11 +59,22 @@ void Storm::GraphicManager::initialize_Implementation(void* hwnd)
 {
 	LOG_COMMENT << "HWND is valid so Windows was created, we can pursue the graphic initialization.";
 	_directXController->initialize(static_cast<HWND>(hwnd));
+
+	_renderThread = std::thread([this]()
+	{
+		Storm::ITimeManager* timeMgr = Storm::SingletonHolder::instance().getFacet<Storm::ITimeManager>();
+		while (timeMgr->waitNextFrameOrExit())
+		{
+			this->update();
+		}
+	});
 }
 
 void Storm::GraphicManager::cleanUp_Implementation()
 {
 	LOG_COMMENT << "Starting to clean up the Graphic Manager.";
+	Storm::join(_renderThread);
+
 	_directXController->cleanUp();
 }
 

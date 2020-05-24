@@ -26,5 +26,7 @@ namespace Storm
 		unsigned char _renderCounter;
 
 		std::unique_ptr<Storm::DirectXController> _directXController;
+
+		std::thread _renderThread;
 	};
 }

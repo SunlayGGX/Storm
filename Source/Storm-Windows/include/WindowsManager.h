@@ -1,4 +1,5 @@
 #pragma once
+
 #include "Singleton.h"
 #include "IWindowsManager.h"
 #include "WindowsCallbacks.h"
@@ -22,6 +23,8 @@ namespace Storm
 	private:
 		void initialize_Implementation();
 		void cleanUp_Implementation();
+
+		void initializeInternal();
 
 	public:
 		void update() final override;
@@ -58,5 +61,7 @@ namespace Storm
 		mutable std::mutex _callbackMutex;
 		Storm::MultiCallback<Storm::QuitDelegate> _quitCallback;
 		Storm::MultiCallback<Storm::FinishedInitializeDelegate> _finishedInitCallback;
+
+		std::thread _windowsThread;
 	};
 }

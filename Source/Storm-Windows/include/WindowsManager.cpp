@@ -2,6 +2,11 @@
 
 #include "resource.h"
 #include "ThrowException.h"
+#include "ThreadHelper.h"
+
+#include "ITimeManager.h"
+#include "SingletonHolder.h"
+
 
 
 namespace
@@ -59,6 +64,29 @@ void Storm::WindowsManager::initialize_Implementation()
 {
 	LOG_COMMENT << "Starting creating the Windows for the application";
 
+	_windowsThread = std::thread{ [this]()
+	{
+		this->initializeInternal();
+
+		Storm::ITimeManager* timeMgr = Storm::SingletonHolder::instance().getFacet<Storm::ITimeManager>();
+		constexpr const std::chrono::milliseconds k_windowsThreadRefreshRate{ 333 };
+		while (timeMgr->waitForTimeOrExit(k_windowsThreadRefreshRate))
+		{
+			this->update();
+		}
+	} };
+}
+
+void Storm::WindowsManager::cleanUp_Implementation()
+{
+	this->unbindCallbacks();
+	DestroyWindow(static_cast<HWND>(_windowVisuHandle));
+	PostQuitMessage(0);
+	Storm::join(_windowsThread);
+}
+
+void Storm::WindowsManager::initializeInternal()
+{
 	TCHAR szTitle[Storm::WindowsManager::MAX_TITLE_COUNT];
 
 	HINSTANCE dllInstance = GetModuleHandle(nullptr);
@@ -152,15 +180,8 @@ void Storm::WindowsManager::initialize_Implementation()
 	}
 	else
 	{
-		Storm::throwException<std::exception>("Window not created correctly!");
+		Storm::throwException<std::exception>("Windows not created correctly!");
 	}
-}
-
-void Storm::WindowsManager::cleanUp_Implementation()
-{
-	this->unbindCallback();
-	DestroyWindow(static_cast<HWND>(_windowVisuHandle));
-	PostQuitMessage(0);
 }
 
 void Storm::WindowsManager::update()
