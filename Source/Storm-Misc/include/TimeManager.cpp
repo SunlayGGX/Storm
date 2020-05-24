@@ -16,7 +16,7 @@ Storm::TimeManager::TimeManager() :
 	_isRunning{ false },
 	_isPaused{ false }
 {
-
+	this->setExpectedFrameFPS(60.f);
 }
 
 Storm::TimeManager::~TimeManager()
