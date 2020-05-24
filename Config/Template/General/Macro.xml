@@ -1,0 +1,3 @@
+<macros>
+	<!-- <macro key="Toto" value="This is an example" />   Example of a macro tag. With this, each time we see $[Toto], we would replace in place by This is an example -->
+</macros>

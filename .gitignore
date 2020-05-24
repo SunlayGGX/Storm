@@ -43,4 +43,4 @@
 # Custom
 **/[Dd]ependencies/**
 UserSettings.bat
-Config/Scenes/Original/**
+Config/Custom/*/Original/**
