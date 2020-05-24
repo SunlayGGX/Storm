@@ -46,10 +46,11 @@ namespace Storm
 		void quit() final override;
 
 	private:
-		Storm::TimeWaitResult waitImpl(std::chrono::microseconds timeToWait);
+		Storm::TimeWaitResult waitImpl(std::condition_variable &usedSynchronizer, std::chrono::microseconds timeToWait);
 
 	private:
 		mutable std::mutex _mutex;
+		std::condition_variable _frameSynchronizer;
 		std::condition_variable _synchronizer;
 		bool _isRunning;
 		bool _isPaused;
@@ -61,5 +62,7 @@ namespace Storm
 
 		std::chrono::microseconds _simulationFrameTime;
 		std::chrono::time_point<std::chrono::high_resolution_clock> _startTime;
+
+		std::thread _timeThread;
 	};
 }

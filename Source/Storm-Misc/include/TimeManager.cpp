@@ -4,6 +4,11 @@
 #include "TimeWaitResult.h"
 #include "InvertPeriod.h"
 
+#include "SingletonHolder.h"
+#include "IWindowsManager.h"
+
+#include "ThreadHelper.h"
+
 
 Storm::TimeManager::TimeManager() :
 	_physicsTimeInSeconds{ 0.05f },
@@ -24,11 +29,26 @@ void Storm::TimeManager::initialize_Implementation()
 {
 	std::lock_guard<std::mutex> lock{ _mutex };
 	_isRunning = true;
+
+	_timeThread = std::thread{ [this]() 
+	{
+		while (this->waitNextFrameOrExit())
+		{
+			_frameSynchronizer.notify_all();
+		}
+	} };
+
+	Storm::IWindowsManager* windowMgr = Storm::SingletonHolder::instance().getFacet<Storm::IWindowsManager>();
+	windowMgr->bindQuitCallback([this]()
+	{
+		this->quit();
+	});
 }
 
 void Storm::TimeManager::cleanUp_Implementation()
 {
 	this->quit();
+	Storm::join(_timeThread);
 }
 
 void Storm::TimeManager::serialize(Storm::SerializePackage &packet)
@@ -42,12 +62,12 @@ void Storm::TimeManager::serialize(Storm::SerializePackage &packet)
 
 Storm::TimeWaitResult Storm::TimeManager::waitNextFrame()
 {
-	return this->waitImpl(_simulationFrameTime);
+	return this->waitImpl(_frameSynchronizer, _simulationFrameTime);
 }
 
 Storm::TimeWaitResult Storm::TimeManager::waitForTime(std::chrono::milliseconds timeToWait)
 {
-	return this->waitImpl(std::chrono::duration_cast<std::chrono::microseconds>(timeToWait));
+	return this->waitImpl(_synchronizer, std::chrono::duration_cast<std::chrono::microseconds>(timeToWait));
 }
 
 bool Storm::TimeManager::waitNextFrameOrExit()
@@ -124,6 +144,7 @@ void Storm::TimeManager::quit()
 		_isRunning = false;
 	}
 
+	_frameSynchronizer.notify_all();
 	_synchronizer.notify_all();
 }
 
@@ -140,14 +161,14 @@ bool Storm::TimeManager::changeSimulationPauseState()
 	return _isPaused;
 }
 
-Storm::TimeWaitResult Storm::TimeManager::waitImpl(std::chrono::microseconds timeToWait)
+Storm::TimeWaitResult Storm::TimeManager::waitImpl(std::condition_variable &usedSynchronizer, std::chrono::microseconds timeToWait)
 {
 	std::unique_lock<std::mutex> lock{ _mutex };
 	if (_isRunning)
 	{
 		_fpsWatcherPerThread[std::this_thread::get_id()].registerCurrent(timeToWait);
 
-		if (!_synchronizer.wait_for(lock, timeToWait, [running = &_isRunning]()
+		if (!usedSynchronizer.wait_for(lock, timeToWait, [running = &_isRunning]()
 		{
 			return !running;
 		}))
