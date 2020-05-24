@@ -25,6 +25,9 @@ namespace Storm
 	public:
 		Storm::TimeWaitResult waitNextFrame() final override;
 		Storm::TimeWaitResult waitForTime(std::chrono::milliseconds timeToWait) final override;
+		bool waitNextFrameOrExit() final override;
+		bool waitForTimeOrExit(std::chrono::milliseconds timeToWait) final override;
+
 		void setExpectedFrameFPS(float fps) final override;
 		float getExpectedFrameFPS() const final override;
 		float getCurrentFPS(ExpectedFPSTag) const final override;

@@ -35,6 +35,17 @@ namespace Storm
 		virtual Storm::TimeWaitResult waitForTime(std::chrono::milliseconds timeToWait) = 0;
 
 
+		// Ask the current thread to wait for the next frame. This is a handy function for simple loop iterations
+		// No need to parse TimeWaitResult.
+		// Return value is false if we should exit, true if we should continue.
+		virtual bool waitNextFrameOrExit() = 0;
+
+		// Ask the current thread to wait for the refresh specified by timeToWait. This is a handy function for simple loop iterations
+		// No need to parse TimeWaitResult.
+		// Return value is false if we should exit, true if we should continue.
+		virtual bool waitForTimeOrExit(std::chrono::milliseconds timeToWait) = 0;
+
+
 		/****************************************************************************/
 		/*							Simulation Time									*/
 		/*	NOTE : It is not the Physics time but the simulation loop update time.	*/
