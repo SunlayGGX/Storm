@@ -40,12 +40,13 @@ namespace
 
 		Storm::ConfigManager::instance().initialize(argc, argv);
 
+		Storm::LoggerManager::instance().initialize();
+
 		Storm::TimeManager::instance().initialize();
 
 		Storm::RandomManager::instance().initialize();
 		Storm::OSManager::instance().initialize();
 
-		Storm::LoggerManager::instance().initialize();
 
 		Storm::InputManager::instance().initialize();
 
