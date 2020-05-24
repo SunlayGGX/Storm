@@ -10,8 +10,9 @@ Storm::CommandLineParser::CommandLineParser(int argc, const char* argv[]) :
 	boost::program_options::options_description desc{ "Options" };
 	desc.add_options()
 		("help,h", "Command line help")
-		("scene", boost::program_options::value<std::string>(), "The scene config file to use.")
-		("tempPath", boost::program_options::value<std::string>()->default_value((std::filesystem::current_path().parent_path() / "Intermediate").string()), "The temporary path to use.")
+		("scene", boost::program_options::value<std::string>(), "The scene config file to use (path).")
+		("macroConfig", boost::program_options::value<std::string>(), "The macro config file to use (path).")
+		("tempPath", boost::program_options::value<std::string>()->default_value((std::filesystem::current_path().parent_path() / "Intermediate").string()), "The temporary path to use. (path)")
 		;
 
 	boost::program_options::store(
@@ -48,5 +49,12 @@ std::string Storm::CommandLineParser::getTempPath() const
 {
 	std::string result;
 	this->extractIfExist("tempPath", result);
+	return result;
+}
+
+std::string Storm::CommandLineParser::getMacroConfigFilePath() const
+{
+	std::string result;
+	this->extractIfExist("macroConfig", result);
 	return result;
 }
