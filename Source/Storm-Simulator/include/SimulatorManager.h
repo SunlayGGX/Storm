@@ -15,5 +15,8 @@ namespace Storm
 	private:
 		void initialize_Implementation();
 		void cleanUp_Implementation();
+
+	public:
+		int run();
 	};
 }

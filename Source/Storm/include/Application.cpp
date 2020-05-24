@@ -96,7 +96,7 @@ Storm::ExitCode Storm::Application::run()
 		Storm::SimulatorManager::instance().initialize();
 
 		LOG_COMMENT << "Start Application Run"; 
-
+		Storm::SimulatorManager::instance().run();
 	}
 
 	return ExitCode::k_success;
