@@ -29,17 +29,38 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 	{
 		_exePath = argv[0];
 
-		std::filesystem::path configFolderPath = std::filesystem::path{ _exePath }.parent_path().parent_path() / "Config" / "Scenes";
-		if (std::filesystem::exists(configFolderPath))
+		_macroConfig.initialize();
+
+		std::filesystem::path configFolderPath{ *_macroConfig.queryMacroValue("StormConfig") };
+		std::filesystem::path customConfigFolderPath = configFolderPath / "Custom";
+		std::filesystem::path defaultSceneConfigFolderPath = customConfigFolderPath / "Scenes";
+		std::filesystem::path defaultGeneralConfigFolderPath = customConfigFolderPath / "General";
+
+		if (std::filesystem::exists(defaultSceneConfigFolderPath))
 		{
-			_defaultConfigFolderPath = configFolderPath.wstring();
+			_defaultSceneConfigFolderPath = defaultSceneConfigFolderPath.wstring();
 		}
 		else
 		{
 			LOG_WARNING << "Storm file tree order isn't standard. Cannot grab the default config folder path... Therefore it will remain empty.";
 		}
 
-		_sceneConfigFilePath = parser.getSceneFilePath();
+		const std::filesystem::path k_macroConfigFileName{ "Macro.xml" };
+		std::filesystem::path defaultMacroConfigFolderPath = defaultGeneralConfigFolderPath / k_macroConfigFileName;
+		if (!std::filesystem::exists(defaultMacroConfigFolderPath))
+		{
+			defaultMacroConfigFolderPath = defaultGeneralConfigFolderPath / "Original" / k_macroConfigFileName;
+		}
+
+		std::filesystem::path macroConfigFolderPath;
+		// Here we would just use the built-in macros since we did not read the config yet. But it can be useful ;)
+		const std::string macroConfigFilePathStrFromCmdLine = _macroConfig(parser.getMacroConfigFilePath());
+		if (macroConfigFilePathStrFromCmdLine.empty() || !_macroConfig.read(macroConfigFilePathStrFromCmdLine))
+		{
+			_macroConfig.read(defaultMacroConfigFolderPath.string());
+		}
+
+		_sceneConfigFilePath = _macroConfig(parser.getSceneFilePath());
 		if (_sceneConfigFilePath.empty())
 		{
 			LOG_COMMENT << "No scene file passed from command line. Will ask user the config file with an explorer file dialog.";
@@ -48,7 +69,7 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 				{ L"Xml file (*.xml)", L"*.xml" }
 			};
 
-			_sceneConfigFilePath = std::filesystem::path{ Storm::SingletonHolder::instance().getFacet<Storm::IOSManager>()->openFileExplorerDialog(_defaultConfigFolderPath, fileFilters) }.string();
+			_sceneConfigFilePath = std::filesystem::path{ Storm::SingletonHolder::instance().getFacet<Storm::IOSManager>()->openFileExplorerDialog(_defaultSceneConfigFolderPath, fileFilters) }.string();
 		}
 
 		std::string errorMsg;
@@ -73,7 +94,7 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 			Storm::throwException<std::exception>(errorMsg);
 		}
 
-		_temporaryPath = parser.getTempPath();
+		_temporaryPath = _macroConfig(parser.getTempPath());
 		std::filesystem::path tempPath{ _temporaryPath };
 		if (std::filesystem::exists(tempPath))
 		{

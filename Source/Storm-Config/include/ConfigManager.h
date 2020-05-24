@@ -1,7 +1,10 @@
 #pragma once
+
 #include "Singleton.h"
 #include "IConfigManager.h"
 #include "SingletonDefaultImplementation.h"
+
+#include "MacroConfigReader.h"
 
 
 namespace Storm
@@ -28,10 +31,12 @@ namespace Storm
 
 		std::string _temporaryPath;
 		std::string _logFileName;
-		std::wstring _defaultConfigFolderPath;
+		std::wstring _defaultSceneConfigFolderPath;
 		std::string _exePath;
 		bool _allowPopup;
 
 		bool _shouldDisplayHelp;
+
+		Storm::MacroConfigFileReader _macroConfig;
 	};
 }
