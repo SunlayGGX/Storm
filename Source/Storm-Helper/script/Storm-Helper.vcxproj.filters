@@ -64,6 +64,9 @@
     <Filter Include="Header Files\General\Chrono">
       <UniqueIdentifier>{a0ffd766-7dfb-4ee6-8dcd-43d81d4b697c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\General\Events">
+      <UniqueIdentifier>{c3e83d95-70bf-4234-a625-414bfe765bc1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-HelperPCH.cpp">
@@ -160,6 +163,9 @@
     </ClInclude>
     <ClInclude Include="..\include\NonInstanciable.h">
       <Filter>Header Files\MetaP</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\MultiCallback.h">
+      <Filter>Header Files\General\Events</Filter>
     </ClInclude>
     <ClInclude Include="..\include\ValueGuard.h">
       <Filter>Header Files\General\Misc</Filter>
