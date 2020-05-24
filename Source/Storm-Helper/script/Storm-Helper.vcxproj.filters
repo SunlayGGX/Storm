@@ -170,5 +170,8 @@
     <ClInclude Include="..\include\ValueGuard.h">
       <Filter>Header Files\General\Misc</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\ThreadHelper.h">
+      <Filter>Header Files\General\Misc</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

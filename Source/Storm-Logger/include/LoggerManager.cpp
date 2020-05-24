@@ -5,6 +5,8 @@
 #include "SingletonHolder.h"
 #include "IConfigManager.h"
 
+#include "ThreadHelper.h"
+
 #include <iostream>
 #include <fstream>
 #include <filesystem>
@@ -104,7 +106,7 @@ void Storm::LoggerManager::cleanUp_Implementation()
 		_loggerCV.notify_all();
 	}
 
-	_loggerThread.join();
+	Storm::join(_loggerThread);
 }
 
 void Storm::LoggerManager::log(const std::string_view &moduleName, Storm::LogLevel level, const std::string_view &function, const int line, std::string &&msg)
