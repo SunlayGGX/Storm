@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\Reader">
+      <UniqueIdentifier>{76d416fc-2ea7-482f-bfae-1024ca95e41d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Reader">
+      <UniqueIdentifier>{9a685102-662c-46b9-ac0c-3645e9698384}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-ConfigPCH.cpp">
@@ -24,6 +30,9 @@
     <ClCompile Include="..\include\CommandLineParser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\MacroConfigReader.cpp">
+      <Filter>Source Files\Reader</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-ConfigPCH.h">
@@ -34,6 +43,9 @@
     </ClInclude>
     <ClInclude Include="..\include\CommandLineParser.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\MacroConfigReader.h">
+      <Filter>Header Files\Reader</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

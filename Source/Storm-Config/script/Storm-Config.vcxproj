@@ -13,6 +13,7 @@
   <ItemGroup>
     <ClCompile Include="..\include\CommandLineParser.cpp" />
     <ClCompile Include="..\include\ConfigManager.cpp" />
+    <ClCompile Include="..\include\MacroConfigReader.cpp" />
     <ClCompile Include="..\include\Storm-ConfigPCH.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
@@ -21,6 +22,7 @@
   <ItemGroup>
     <ClInclude Include="..\include\CommandLineParser.h" />
     <ClInclude Include="..\include\ConfigManager.h" />
+    <ClInclude Include="..\include\MacroConfigReader.h" />
     <ClInclude Include="..\include\Storm-ConfigPCH.h" />
   </ItemGroup>
   <ItemGroup>
