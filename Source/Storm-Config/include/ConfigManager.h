@@ -18,6 +18,7 @@ namespace Storm
 	public:
 		const std::string& getTemporaryPath() const final override;
 		const std::string& getLogFileName() const final override;
+		const std::string& getExePath() const final override;
 		bool noPopup() const final override;
 
 		bool shouldDisplayHelp() const;

@@ -111,6 +111,11 @@ const std::string& Storm::ConfigManager::getLogFileName() const
 	return _logFileName;
 }
 
+const std::string& Storm::ConfigManager::getExePath() const
+{
+	return _exePath;
+}
+
 bool Storm::ConfigManager::noPopup() const
 {
 	return _allowPopup;
