@@ -1,0 +1,8 @@
+<General>
+	<Log>
+		<logFilePath>$[StormTmp]\Logs</logFilePath>
+		<logLevel>Debug</logLevel>
+		<override>True</override>
+		<removeOlderThanDays>7</removeOlderThanDays>
+	</Log>
+</General>
