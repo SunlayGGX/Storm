@@ -67,6 +67,9 @@
     <Filter Include="Header Files\General\Events">
       <UniqueIdentifier>{c3e83d95-70bf-4234-a625-414bfe765bc1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\General\Chrono">
+      <UniqueIdentifier>{14d066d6-86db-425f-9457-460eeb7ceede}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-HelperPCH.cpp">
@@ -86,6 +89,9 @@
     </ClCompile>
     <ClCompile Include="..\include\Logging.cpp">
       <Filter>Source Files\LoggerBase</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\TimeHelper.cpp">
+      <Filter>Source Files\General\Chrono</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -172,6 +178,9 @@
     </ClInclude>
     <ClInclude Include="..\include\ThreadHelper.h">
       <Filter>Header Files\General\Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\TimeHelper.h">
+      <Filter>Header Files\General\Chrono</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

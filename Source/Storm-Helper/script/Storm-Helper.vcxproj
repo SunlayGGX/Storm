@@ -19,6 +19,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\include\TimeHelper.cpp" />
     <ClCompile Include="..\include\Version.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -46,6 +47,7 @@
     <ClInclude Include="..\include\StormStdPrerequisite.h" />
     <ClInclude Include="..\include\ThreadHelper.h" />
     <ClInclude Include="..\include\ThrowException.h" />
+    <ClInclude Include="..\include\TimeHelper.h" />
     <ClInclude Include="..\include\TraitsHelper.h" />
     <ClInclude Include="..\include\ValueGuard.h" />
     <ClInclude Include="..\include\Version.h" />
