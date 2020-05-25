@@ -4,8 +4,9 @@
 #include "ThrowException.h"
 #include "ThreadHelper.h"
 
-#include "ITimeManager.h"
 #include "SingletonHolder.h"
+#include "ITimeManager.h"
+#include "IInputManager.h"
 
 
 
@@ -69,10 +70,13 @@ void Storm::WindowsManager::initialize_Implementation()
 		this->initializeInternal();
 
 		Storm::ITimeManager* timeMgr = Storm::SingletonHolder::instance().getFacet<Storm::ITimeManager>();
-		constexpr const std::chrono::milliseconds k_windowsThreadRefreshRate{ 333 };
+		Storm::IInputManager* inputMgr = Storm::SingletonHolder::instance().getFacet<Storm::IInputManager>();
+
+		constexpr const std::chrono::milliseconds k_windowsThreadRefreshRate{ 100 };
 		while (timeMgr->waitForTimeOrExit(k_windowsThreadRefreshRate))
 		{
 			this->update();
+			inputMgr->update();
 		}
 	} };
 }
