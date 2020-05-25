@@ -175,3 +175,8 @@ int Storm::ConfigManager::getRemoveLogOlderThanDaysCount() const
 {
 	return _generalConfig._removeLogsOlderThanDays;
 }
+
+bool Storm::ConfigManager::getShouldOverrideOldLog() const
+{
+	return _generalConfig._overrideLogs;
+}

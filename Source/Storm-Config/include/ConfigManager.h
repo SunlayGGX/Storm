@@ -27,10 +27,10 @@ namespace Storm
 		const std::string& getLogFolderPath() const final override;
 		Storm::LogLevel getLogLevel() const final override;
 		int getRemoveLogOlderThanDaysCount() const final override;
+		bool getShouldOverrideOldLog() const override;
 		bool noPopup() const final override;
 
 		bool shouldDisplayHelp() const;
-
 
 	private:
 		std::string _sceneConfigFilePath;

@@ -20,6 +20,7 @@ namespace Storm
 		virtual const std::string& getLogFolderPath() const = 0;
 		virtual Storm::LogLevel getLogLevel() const = 0;
 		virtual int getRemoveLogOlderThanDaysCount() const = 0;
+		virtual bool getShouldOverrideOldLog() const = 0;
 		virtual bool noPopup() const = 0;
 	};
 }
