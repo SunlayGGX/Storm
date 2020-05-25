@@ -96,7 +96,7 @@ void Storm::InputManager::initialize_Implementation(void* vptrHwnd)
 	wnd << (std::size_t)hwnd;
 
 	oisParamsList.emplace("WINDOW", wnd.str());
-	//oisParamsList.emplace("w32_mouse", "DISCL_FOREGROUND");
+	oisParamsList.emplace("w32_mouse", "DISCL_FOREGROUND");
 	oisParamsList.emplace("w32_mouse", "DISCL_NONEXCLUSIVE");
 	/*oisParamsList.emplace("w32_keyboard", "DISCL_FOREGROUND");
 	oisParamsList.emplace("w32_keyboard", "DISCL_NONEXCLUSIVE");*/
