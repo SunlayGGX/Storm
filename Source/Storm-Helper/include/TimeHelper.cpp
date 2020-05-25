@@ -40,9 +40,9 @@ std::string Storm::TimeHelper::getCurrentDate()
 	SYSTEMTIME currentTm;
 	::GetSystemTime(&currentTm);
 
-	result += getWeekDay(currentTm.wDay);
+	result += getWeekDay(currentTm.wDayOfWeek);
 	result += '_';
-	result += std::to_string(currentTm.wYear + 1900);
+	result += std::to_string(currentTm.wYear);
 	result += '_';
 	result += makeATwoNumber(currentTm.wMonth);
 	result += '_';
@@ -59,9 +59,9 @@ std::string Storm::TimeHelper::getCurrentDateTime(bool considerMillisec)
 	SYSTEMTIME currentTm;
 	::GetSystemTime(&currentTm);
 
-	result += Storm::TimeHelper::getWeekDay(currentTm.wDay);
+	result += Storm::TimeHelper::getWeekDay(currentTm.wDayOfWeek);
 	result += '_';
-	result += std::to_string(currentTm.wYear + 1900);
+	result += std::to_string(currentTm.wYear);
 	result += '_';
 	result += makeATwoNumber(currentTm.wMonth);
 	result += '_';
