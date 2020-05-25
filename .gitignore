@@ -44,3 +44,4 @@
 **/[Dd]ependencies/**
 UserSettings.bat
 Config/Custom/*/Original/**
+**/Logs/**
