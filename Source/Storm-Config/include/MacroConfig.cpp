@@ -2,6 +2,7 @@
 #include "ConfigManager.h"
 
 #include "ThrowException.h"
+#include "TimeHelper.h"
 
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
@@ -14,6 +15,8 @@ namespace
 	{
 		return std::string{} + static_cast<char>(k_macroTag) + '[' + key + ']';
 	}
+
+	
 }
 
 
@@ -33,6 +36,8 @@ void Storm::MacroConfig::initialize()
 	_macros[makeFinalMacroKey("StormConfig")] = (rootPath / "Config").string();
 	_macros[makeFinalMacroKey("StormIntermediate")] = (rootPath / "Intermediate").string();
 	_macros[makeFinalMacroKey("StormTmp")] = (rootPath / "Intermediate").string();
+	_macros[makeFinalMacroKey("DateTime")] = Storm::TimeHelper::getCurrentDateTime(false);
+	_macros[makeFinalMacroKey("Date")] = Storm::TimeHelper::getCurrentDate();
 }
 
 bool Storm::MacroConfig::read(const std::string &macroConfigFilePathStr)
