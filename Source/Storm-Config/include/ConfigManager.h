@@ -5,6 +5,7 @@
 #include "SingletonDefaultImplementation.h"
 
 #include "MacroConfig.h"
+#include "GeneralConfig.h"
 
 
 namespace Storm
@@ -22,15 +23,19 @@ namespace Storm
 		const std::string& getTemporaryPath() const final override;
 		const std::string& getLogFileName() const final override;
 		const std::string& getExePath() const final override;
+
+		const std::string& getLogFolderPath() const final override;
+		Storm::LogLevel getLogLevel() const final override;
+		int getRemoveLogOlderThanDaysCount() const final override;
 		bool noPopup() const final override;
 
 		bool shouldDisplayHelp() const;
+
 
 	private:
 		std::string _sceneConfigFilePath;
 
 		std::string _temporaryPath;
-		std::string _logFileName;
 		std::wstring _defaultSceneConfigFolderPath;
 		std::string _exePath;
 		bool _allowPopup;
@@ -38,5 +43,6 @@ namespace Storm
 		bool _shouldDisplayHelp;
 
 		Storm::MacroConfig _macroConfig;
+		Storm::GeneralConfig _generalConfig;
 	};
 }

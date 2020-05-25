@@ -45,10 +45,17 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 		}
 
 		const std::filesystem::path k_macroConfigFileName{ "Macro.xml" };
-		std::filesystem::path defaultMacroConfigFolderPath = defaultGeneralConfigFolderPath / k_macroConfigFileName;
-		if (!std::filesystem::exists(defaultMacroConfigFolderPath))
+		std::filesystem::path defaultMacroConfigFilePath = defaultGeneralConfigFolderPath / k_macroConfigFileName;
+		if (!std::filesystem::exists(defaultMacroConfigFilePath))
 		{
-			defaultMacroConfigFolderPath = defaultGeneralConfigFolderPath / "Original" / k_macroConfigFileName;
+			defaultMacroConfigFilePath = defaultGeneralConfigFolderPath / "Original" / k_macroConfigFileName;
+		}
+
+		const std::filesystem::path k_generalConfigFileName{ "Global.xml" };
+		std::filesystem::path defaultGeneralConfigFilePath = defaultGeneralConfigFolderPath / k_generalConfigFileName;
+		if (!std::filesystem::exists(defaultGeneralConfigFilePath))
+		{
+			defaultGeneralConfigFilePath = defaultGeneralConfigFolderPath / "Original" / k_generalConfigFileName;
 		}
 
 		std::filesystem::path macroConfigFolderPath;
@@ -56,8 +63,16 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 		const std::string macroConfigFilePathStrFromCmdLine = _macroConfig(parser.getMacroConfigFilePath());
 		if (macroConfigFilePathStrFromCmdLine.empty() || !_macroConfig.read(macroConfigFilePathStrFromCmdLine))
 		{
-			_macroConfig.read(defaultMacroConfigFolderPath.string());
+			_macroConfig.read(defaultMacroConfigFilePath.string());
 		}
+
+		const std::string generalConfigFilePathStrFromCmdLine = _macroConfig(parser.getGeneralConfigFilePath());
+		if (generalConfigFilePathStrFromCmdLine.empty() || !_generalConfig.read(generalConfigFilePathStrFromCmdLine))
+		{
+			_generalConfig.read(defaultGeneralConfigFilePath.string());
+		}
+
+		_generalConfig.applyMacros(_macroConfig);
 
 		_sceneConfigFilePath = _macroConfig(parser.getSceneFilePath());
 		if (_sceneConfigFilePath.empty())
@@ -126,11 +141,6 @@ const std::string& Storm::ConfigManager::getTemporaryPath() const
 	return _temporaryPath;
 }
 
-const std::string& Storm::ConfigManager::getLogFileName() const
-{
-	return _logFileName;
-}
-
 const std::string& Storm::ConfigManager::getExePath() const
 {
 	return _exePath;
@@ -144,4 +154,24 @@ bool Storm::ConfigManager::noPopup() const
 bool Storm::ConfigManager::shouldDisplayHelp() const
 {
 	return _shouldDisplayHelp;
+}
+
+const std::string& Storm::ConfigManager::getLogFileName() const
+{
+	return _generalConfig._logFileName;
+}
+
+const std::string& Storm::ConfigManager::getLogFolderPath() const
+{
+	return _generalConfig._logFolderPath;
+}
+
+Storm::LogLevel Storm::ConfigManager::getLogLevel() const
+{
+	return _generalConfig._logLevel;
+}
+
+int Storm::ConfigManager::getRemoveLogOlderThanDaysCount() const
+{
+	return _generalConfig._removeLogsOlderThanDays;
 }

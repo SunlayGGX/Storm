@@ -17,6 +17,9 @@ namespace Storm
 
 		// Logs
 		virtual const std::string& getLogFileName() const = 0;
+		virtual const std::string& getLogFolderPath() const = 0;
+		virtual Storm::LogLevel getLogLevel() const = 0;
+		virtual int getRemoveLogOlderThanDaysCount() const = 0;
 		virtual bool noPopup() const = 0;
 	};
 }
