@@ -138,9 +138,12 @@ void Storm::InputManager::initialize_Implementation(void* vptrHwnd)
 	g_mouse = static_cast<OIS::Mouse*>(Storm::g_oisInputMgr->createInputObject(OIS::OISMouse, true));
 	g_mouse->setEventCallback(_inputHandler.get());
 
+	RECT rcWindow;
+	GetWindowRect(hwnd, &rcWindow);
+
 	const OIS::MouseState& mouseState = g_mouse->getMouseState();
-	mouseState.width = 1424;
-	mouseState.height = 728;
+	mouseState.width = std::abs(rcWindow.right - rcWindow.left);
+	mouseState.height = std::abs(rcWindow.top - rcWindow.bottom);
 }
 
 void Storm::InputManager::cleanUp_Implementation()
