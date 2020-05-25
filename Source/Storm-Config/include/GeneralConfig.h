@@ -21,6 +21,7 @@ namespace Storm
 		std::string _logFileName;
 		Storm::LogLevel _logLevel;
 		bool _overrideLogs;
+		int _shouldLogFPSWatching;
 		int _removeLogsOlderThanDays;
 	};
 }

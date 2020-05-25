@@ -6,6 +6,7 @@
 
 #include "SingletonHolder.h"
 #include "IWindowsManager.h"
+#include "IConfigManager.h"
 
 #include "ThreadHelper.h"
 
@@ -14,7 +15,8 @@ Storm::TimeManager::TimeManager() :
 	_physicsTimeInSeconds{ 0.05f },
 	_startTime{ std::chrono::high_resolution_clock::now() },
 	_isRunning{ false },
-	_isPaused{ false }
+	_isPaused{ false },
+	_shouldLogFPSWatching{ false }
 {
 	this->setExpectedFrameFPS(60.f);
 }
@@ -29,6 +31,9 @@ void Storm::TimeManager::initialize_Implementation()
 {
 	std::lock_guard<std::mutex> lock{ _mutex };
 	_isRunning = true;
+
+	Storm::IConfigManager* configMgr = Storm::SingletonHolder::instance().getFacet<Storm::IConfigManager>();
+	_shouldLogFPSWatching = configMgr->getShouldLogFpsWatching();
 
 	_timeThread = std::thread{ [this]() 
 	{
@@ -166,20 +171,23 @@ Storm::TimeWaitResult Storm::TimeManager::waitImpl(std::condition_variable &used
 	std::unique_lock<std::mutex> lock{ _mutex };
 	if (_isRunning)
 	{
-		Storm::FPSWatcher &currentWatcher = _fpsWatcherPerThread[std::this_thread::get_id()];
-		currentWatcher.registerCurrent(timeToWait);
-
-		if (_timeToWatch > 230 || timeToWait > std::chrono::microseconds{ 50000 })
+		if (_shouldLogFPSWatching)
 		{
-			const float currentRealtimeFps = currentWatcher.getFps();
-			const float expectedFps = currentWatcher.getExpectedFps();
-			if (currentRealtimeFps < (expectedFps / 5.f))
-			{
-				LOG_WARNING << "The current thread is below 20% of its expected fps (was " << currentRealtimeFps << " fps but we expected " << expectedFps << ')';
-			}
+			Storm::FPSWatcher &currentWatcher = _fpsWatcherPerThread[std::this_thread::get_id()];
+			currentWatcher.registerCurrent(timeToWait);
 
-			// I don't care if this is buggy (not as expected. I just don't want to watch every time and flood the logs so if we can skip some watching, it is good enough for me...
-			++_timeToWatch;
+			if (_timeToWatch > 230 || timeToWait > std::chrono::microseconds{ 50000 })
+			{
+				const float currentRealtimeFps = currentWatcher.getFps();
+				const float expectedFps = currentWatcher.getExpectedFps();
+				if (currentRealtimeFps < (expectedFps / 5.f))
+				{
+					LOG_WARNING << "The current thread is below 20% of its expected fps (was " << currentRealtimeFps << " fps but we expected " << expectedFps << ')';
+				}
+
+				// I don't care if this is buggy (not as expected. I just don't want to watch every time and flood the logs so if we can skip some watching, it is good enough for me...
+				++_timeToWatch;
+			}
 		}
 
 		if (!usedSynchronizer.wait_for(lock, timeToWait, [running = &_isRunning]()

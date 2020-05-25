@@ -180,3 +180,8 @@ bool Storm::ConfigManager::getShouldOverrideOldLog() const
 {
 	return _generalConfig._overrideLogs;
 }
+
+bool Storm::ConfigManager::getShouldLogFpsWatching() const
+{
+	return _generalConfig._shouldLogFPSWatching;
+}

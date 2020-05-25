@@ -36,7 +36,8 @@ namespace
 Storm::GeneralConfig::GeneralConfig() :
 	_logLevel{ Storm::LogLevel::Debug },
 	_overrideLogs{ true },
-	_removeLogsOlderThanDays{ -1 }
+	_removeLogsOlderThanDays{ -1 },
+	_shouldLogFPSWatching{ false }
 {
 
 }
@@ -65,6 +66,7 @@ bool Storm::GeneralConfig::read(const std::string &generalConfigFilePathStr)
 						!Storm::XmlReader::handleXml(logXmlElement, "logFileName", _logFileName) &&
 						!Storm::XmlReader::handleXml(logXmlElement, "logLevel", _logLevel, logLevelFromString) &&
 						!Storm::XmlReader::handleXml(logXmlElement, "override", _overrideLogs) &&
+						!Storm::XmlReader::handleXml(logXmlElement, "fpsWatching", _shouldLogFPSWatching) &&
 						!Storm::XmlReader::handleXml(logXmlElement, "removeOlderThanDays", _removeLogsOlderThanDays)
 						)
 					{

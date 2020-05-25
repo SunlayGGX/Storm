@@ -55,6 +55,7 @@ namespace Storm
 		bool _isRunning;
 		bool _isPaused;
 
+		bool _shouldLogFPSWatching;
 		mutable std::map<std::thread::id, Storm::FPSWatcher> _fpsWatcherPerThread;
 		unsigned char _timeToWatch;
 
