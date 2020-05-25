@@ -1,8 +1,9 @@
 <General>
 	<Log>
-		<logFilePath>$[StormTmp]\Logs</logFilePath>
+		<logFolderPath>$[StormTmp]\Logs</logFolderPath>
+		<logFileName>log_$[Date]</logFileName>
 		<logLevel>Debug</logLevel>
-		<override>True</override>
+		<override>true</override>
 		<removeOlderThanDays>7</removeOlderThanDays>
 	</Log>
 </General>
