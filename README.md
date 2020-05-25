@@ -4,11 +4,17 @@ SPH reimplementation for fluids simulation
 
 # Setup
 From the root folder containing this README. Modify the Build\Script\Internal\UserSettings.bat to match the path of each dependencies in your workstation.
-Note that you should have downloaded all dependencies beforehand.
+Note that : 
+- you should have downloaded all dependencies beforehand and have done all setup that was specified (see next section).
+- We rely on junctions. It means that all your dependencies folder and Storm project should be on compatible disks format (i.e. NTFS). But if junstion does not work, we advise to copy your dependencies under the Storm's root "Dependencies" folder after calling Setup (also change the way the batch file are executed or you will remove those dependencies each time).
 
 
 # Dependencies list
-- Boost 1.72 compiled for Visual Studio 2019 (link: https://www.boost.org/users/history/version_1_72_0.html )
+- Boost 1.72 compiled for Visual Studio 2019 (link: https://www.boost.org/users/history/version_1_72_0.html ). Follow the instructions on their site.
+- OIS v1.5 compiled for Visual Studio 2019 (link: https://github.com/wgois/OIS/tree/v1.5 ). Follow the instructions on their site. I used cmake_gui 3.15.0-rc1.
+	• Generate the Visual studio file inside a folder named "bin" at OIS root folder (i.e if OIS is installed like this : C:/dep/OIS, then generate the vs project file into C:/dep/OIS/bin).
+	• generate with default settings 
+	• build OIS into Debug and Release configurations.
 
 
 # Modules

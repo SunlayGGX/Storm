@@ -5,6 +5,7 @@ cd /D %~dp0
 set STORM_REPO_ROOT=%~dp0..\..\..
 set STORM_BUILD_SCRIPT_ROOT=%STORM_REPO_ROOT%\Build\Script
 set STORM_DEPENDENCIES=%STORM_REPO_ROOT%\Dependencies
+set STORM_EXECUTABLE_FOLDER=%STORM_REPO_ROOT%\bin
 
 set DevPropertiesSetterBaseFileName=UserSettings
 

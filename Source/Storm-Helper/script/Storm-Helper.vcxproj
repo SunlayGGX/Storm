@@ -44,6 +44,7 @@
     <ClInclude Include="..\include\SizeCounter.h" />
     <ClInclude Include="..\include\StaticAssertionsMacros.h" />
     <ClInclude Include="..\include\Storm-HelperPCH.h" />
+    <ClInclude Include="..\include\StormMacro.h" />
     <ClInclude Include="..\include\StormStdPrerequisite.h" />
     <ClInclude Include="..\include\ThreadHelper.h" />
     <ClInclude Include="..\include\ThrowException.h" />
