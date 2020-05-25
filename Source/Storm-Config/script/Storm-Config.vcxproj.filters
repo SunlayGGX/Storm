@@ -19,6 +19,9 @@
     <Filter Include="Source Files\Config">
       <UniqueIdentifier>{9a685102-662c-46b9-ac0c-3645e9698384}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Helpers">
+      <UniqueIdentifier>{7cf01c75-608e-47e5-8a15-8440fba4c9e1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-ConfigPCH.cpp">
@@ -58,6 +61,9 @@
     </ClInclude>
     <ClInclude Include="..\include\GeneralConfig.h">
       <Filter>Header Files\Config</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\XmlReader.h">
+      <Filter>Header Files\Helpers</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

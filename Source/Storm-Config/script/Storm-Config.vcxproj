@@ -28,6 +28,7 @@
     <ClInclude Include="..\include\MacroConfig.h" />
     <ClInclude Include="..\include\SceneConfig.h" />
     <ClInclude Include="..\include\Storm-ConfigPCH.h" />
+    <ClInclude Include="..\include\XmlReader.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Storm-Helper\script\Storm-Helper.vcxproj">
