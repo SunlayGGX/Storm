@@ -50,9 +50,6 @@
     <ClInclude Include="..\include\IWindowsManager.h">
       <Filter>Header Files\Singleton</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\InputKeyState.h">
-      <Filter>Header Files\Input</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\IOSManager.h">
       <Filter>Header Files\Singleton</Filter>
     </ClInclude>
@@ -70,6 +67,9 @@
     </ClInclude>
     <ClInclude Include="..\include\WindowsCallbacks.h">
       <Filter>Header Files\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\InputEvents.h">
+      <Filter>Header Files\Input</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

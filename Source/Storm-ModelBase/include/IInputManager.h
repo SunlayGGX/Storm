@@ -1,6 +1,8 @@
 #pragma once
 
 #include "SingletonHeldInterfaceBase.h"
+#include "CallbackIdType.h"
+#include "InputEvents.h"
 
 
 namespace Storm
@@ -15,14 +17,13 @@ namespace Storm
 	public:
 		virtual void update() = 0;
 
-		virtual IInputManager* bindKey(unsigned char key, Storm::InputKeyState keyState, std::function<void()> &&binding) = 0;
-		virtual IInputManager* unbindKey(unsigned char key, Storm::InputKeyState keyState) = 0;
-		virtual IInputManager* unbindKey(unsigned char key) = 0;
-		virtual IInputManager* bindMouseWheel(std::function<void(float)> &&binding) = 0;
-		virtual IInputManager* unbindMouseWheel() = 0;
-		virtual IInputManager* bindLeftMouseButton(std::function<void()> &&binding) = 0;
-		virtual IInputManager* unbindLeftMouseButton() = 0;
-		virtual IInputManager* bindRightMouseButton(std::function<void()> &&binding) = 0;
-		virtual IInputManager* unbindRightMouseButton() = 0;
+		virtual Storm::CallbackIdType bindKey(unsigned int key, Storm::KeyBinding &&binding) = 0;
+		virtual void unbindKey(unsigned int key, Storm::CallbackIdType callbackId) = 0;
+		virtual Storm::CallbackIdType bindMouseRightClick(Storm::KeyBinding &&binding) = 0;
+		virtual void unbindMouseRightClick(Storm::CallbackIdType callbackId) = 0;
+		virtual Storm::CallbackIdType bindMouseLeftClick(Storm::KeyBinding &&binding) = 0;
+		virtual void unbindMouseLeftClick(Storm::CallbackIdType callbackId) = 0;
+		virtual Storm::CallbackIdType bindMouseMiddleClick(Storm::KeyBinding &&binding) = 0;
+		virtual void unbindMouseMiddleClick(Storm::CallbackIdType callbackId) = 0;
 	};
 }
