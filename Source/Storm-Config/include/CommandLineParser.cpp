@@ -10,6 +10,7 @@ Storm::CommandLineParser::CommandLineParser(int argc, const char* argv[]) :
 		("help,h", "Command line help")
 		("scene", boost::program_options::value<std::string>(), "The scene config file to use (path).")
 		("macroConfig", boost::program_options::value<std::string>(), "The macro config file to use (path).")
+		("generalConfig", boost::program_options::value<std::string>(), "The general config file to use (path).")
 		("tempPath", boost::program_options::value<std::string>()->default_value((std::filesystem::current_path().parent_path() / "Intermediate").string()), "The temporary path to use. (path)")
 		;
 
@@ -54,5 +55,12 @@ std::string Storm::CommandLineParser::getMacroConfigFilePath() const
 {
 	std::string result;
 	this->extractIfExist("macroConfig", result);
+	return result;
+}
+
+std::string Storm::CommandLineParser::getGeneralConfigFilePath() const
+{
+	std::string result;
+	this->extractIfExist("generalConfig", result);
 	return result;
 }

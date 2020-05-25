@@ -15,6 +15,7 @@ namespace Storm
 		std::string getSceneFilePath() const;
 		std::string getTempPath() const;
 		std::string getMacroConfigFilePath() const;
+		std::string getGeneralConfigFilePath() const;
 
 	public:
 		template<class Type>
