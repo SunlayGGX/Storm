@@ -4,7 +4,7 @@
 #include "IConfigManager.h"
 #include "SingletonDefaultImplementation.h"
 
-#include "MacroConfigReader.h"
+#include "MacroConfig.h"
 
 
 namespace Storm
@@ -37,6 +37,6 @@ namespace Storm
 
 		bool _shouldDisplayHelp;
 
-		Storm::MacroConfigFileReader _macroConfig;
+		Storm::MacroConfig _macroConfig;
 	};
 }

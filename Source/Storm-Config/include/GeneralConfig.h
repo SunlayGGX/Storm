@@ -3,7 +3,7 @@
 
 namespace Storm
 {
-	class GeneralConfigReader
+	class GeneralConfig
 	{
 
 	};

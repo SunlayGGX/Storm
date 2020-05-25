@@ -1,9 +1,8 @@
-#include "SceneFileReader.h"
+#include "SceneConfig.h"
 
 
 
-
-bool Storm::SceneFileReader::read(const std::string &sceneConfigFilePathStr)
+bool Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr)
 {
 	const std::filesystem::path sceneConfigFilePath{ sceneConfigFilePathStr };
 	if (std::filesystem::is_regular_file(sceneConfigFilePath))

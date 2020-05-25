@@ -1,4 +1,4 @@
-#include "MacroConfigReader.h"
+#include "MacroConfig.h"
 #include "ConfigManager.h"
 
 #include "ThrowException.h"
@@ -17,13 +17,13 @@ namespace
 }
 
 
-Storm::MacroConfigFileReader::MacroConfigFileReader() :
+Storm::MacroConfig::MacroConfig() :
 	_lastHasResolved{ false }
 {
 
 }
 
-void Storm::MacroConfigFileReader::initialize()
+void Storm::MacroConfig::initialize()
 {
 	const Storm::ConfigManager &configMgr = Storm::ConfigManager::instance();
 	const std::filesystem::path rootPath = std::filesystem::path{ configMgr.getExePath() }.parent_path().parent_path();
@@ -34,7 +34,7 @@ void Storm::MacroConfigFileReader::initialize()
 	_macros[makeFinalMacroKey("StormIntermediate")] = (rootPath / "Intermediate").string();
 }
 
-bool Storm::MacroConfigFileReader::read(const std::string &macroConfigFilePathStr)
+bool Storm::MacroConfig::read(const std::string &macroConfigFilePathStr)
 {
 	const std::filesystem::path macroConfigFilePath{ macroConfigFilePathStr };
 	if (std::filesystem::is_regular_file(macroConfigFilePath))
@@ -110,7 +110,7 @@ bool Storm::MacroConfigFileReader::read(const std::string &macroConfigFilePathSt
 	return false;
 }
 
-const std::string*const Storm::MacroConfigFileReader::queryMacroValue(const std::string &key) const
+const std::string*const Storm::MacroConfig::queryMacroValue(const std::string &key) const
 {
 	if (const auto found = _macros.find(makeFinalMacroKey(key)); found != std::end(_macros))
 	{
@@ -120,7 +120,7 @@ const std::string*const Storm::MacroConfigFileReader::queryMacroValue(const std:
 	return nullptr;
 }
 
-void Storm::MacroConfigFileReader::operator()(std::string &inOutStr) const
+void Storm::MacroConfig::operator()(std::string &inOutStr) const
 {
 	_lastHasResolved = false;
 
@@ -158,7 +158,7 @@ void Storm::MacroConfigFileReader::operator()(std::string &inOutStr) const
 	}
 }
 
-std::string Storm::MacroConfigFileReader::operator()(const std::string &inStr) const
+std::string Storm::MacroConfig::operator()(const std::string &inStr) const
 {
 	std::string result = inStr;
 	this->operator ()(result);

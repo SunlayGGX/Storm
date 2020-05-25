@@ -3,7 +3,7 @@
 
 namespace Storm
 {
-	class SceneFileReader
+	class SceneConfig
 	{
 	public:
 		bool read(const std::string &sceneConfigFilePathStr);
