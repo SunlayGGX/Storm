@@ -1,12 +1,11 @@
 #pragma once
 
+#include "CallbackIdType.h"
 #include "ValueGuard.h"
 
 
 namespace Storm
 {
-	using CallbackIdType = unsigned short;
-
 	template<class ReturnType>
 	struct MultiCallbackCallResult
 	{
