@@ -19,7 +19,7 @@ namespace Storm
 		{
 			if (_srcValue != nullptr)
 			{
-				this->apply();
+				this->applyImpl<true>();
 			}
 		}
 
@@ -39,6 +39,24 @@ namespace Storm
 			return *this;
 		}
 
+	private:
+		template<bool destructive>
+		void applyImpl()
+		{
+			// No nullcheck on purpose... Don't do bad things because this class is straight forward, if it is null then this is because you called release before,
+			// So like std::unique_ptr, we don't care about dev mistakes.
+			if constexpr (destructive)
+			{
+				*_srcValue = std::move(_snapshot);
+			}
+			else
+			{
+				*_srcValue = _snapshot;
+			}
+		}
+
+
+	public:
 		// Once you've released, this object becomes useless!
 		void release()
 		{
@@ -47,9 +65,7 @@ namespace Storm
 
 		void apply()
 		{
-			// No nullcheck on purpose... Don't do bad things because this class is straight forward, if it is null then this is because you called release before,
-			// So like std::unique_ptr, we don't care about dev mistakes.
-			*_srcValue = _snapshot;
+			this->applyImpl<false>();
 		}
 
 		void redoSnapshot()
