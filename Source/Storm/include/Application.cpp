@@ -13,6 +13,7 @@
 #include "SimulatorManager.h"
 
 #include "Version.h"
+#include "TimeHelper.h"
 
 namespace
 {
@@ -35,7 +36,10 @@ namespace
 	{
 		g_singletonMaker = std::make_unique<SingletonAllocatorAlias>();
 
-		LOG_COMMENT << "Welcome to Storm executable (v" << static_cast<std::string>(Storm::Version::retrieveCurrentStormVersion()) << ") (a new SPH simulator).";
+		LOG_ALWAYS << 
+			"Welcome to Storm executable (v" << static_cast<std::string>(Storm::Version::retrieveCurrentStormVersion()) << ") (a new SPH simulator).\n"
+			"Current date is " << Storm::TimeHelper::getCurrentDateTime(true)
+			;
 		LOG_COMMENT << "Application Creation started";
 
 		Storm::ConfigManager::instance().initialize(argc, argv);

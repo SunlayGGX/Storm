@@ -22,6 +22,7 @@ namespace
 		STORM_RETURN_IF_LEVEL_IS(DebugError);
 		STORM_RETURN_IF_LEVEL_IS(Comment);
 		STORM_RETURN_IF_LEVEL_IS(Fatal);
+		//STORM_RETURN_IF_LEVEL_IS(Always); => We shouldn't remove Fatal logging! "Always" is greater than "Fatal" so it shouldn't be considered as a threshold.
 		STORM_RETURN_IF_LEVEL_IS(Warning);
 		STORM_RETURN_IF_LEVEL_IS(Error);
 

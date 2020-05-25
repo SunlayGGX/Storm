@@ -44,6 +44,7 @@ Storm::LoggerManager::~LoggerManager()
 void Storm::LoggerManager::initialize_Implementation()
 {
 	std::unique_lock<std::mutex> lock{ _loggerMutex };
+	_isRunning = true;
 
 	const Storm::IConfigManager* configMgr = Storm::SingletonHolder::instance().getFacet<Storm::IConfigManager>();
 	assert(configMgr != nullptr && "Config Manager should be alive when we initialize the logger!");
@@ -60,7 +61,6 @@ void Storm::LoggerManager::initialize_Implementation()
 	bool canLeaveTmp = false;
 	std::condition_variable syncTmp;
 
-	_isRunning = true;
 	_loggerThread = std::thread{ [this, sync = &syncTmp, canLeave = &canLeaveTmp]()
 	{
 		Storm::LoggerManager::LogArray tmpBuffer;
@@ -90,6 +90,12 @@ void Storm::LoggerManager::initialize_Implementation()
 		_buffer.clear();
 	} };
 
+	lock.unlock();
+
+	// Time to log everything we wanted inside this init method.
+	LOG_ALWAYS << "Set the log level to '" << Storm::LogItem::parseLogLevel(_level) << "'. It means we wont log message under this level.";
+	// Wait for the thread to start before continuing.
+	lock.lock();
 	syncTmp.wait(lock, [&canLeaveTmp]()
 	{
 		return canLeaveTmp;

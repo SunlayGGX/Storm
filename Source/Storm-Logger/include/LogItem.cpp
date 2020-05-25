@@ -5,23 +5,6 @@
 
 namespace
 {
-	const std::string_view logLevelToString(const Storm::LogLevel logLevel)
-	{
-#define STORM_SWITCH_CASE_STRINGIFY(CaseStatement) case Storm::LogLevel::CaseStatement: return #CaseStatement;
-		switch (logLevel)
-		{
-			STORM_SWITCH_CASE_STRINGIFY(Debug);
-			STORM_SWITCH_CASE_STRINGIFY(DebugError);
-			STORM_SWITCH_CASE_STRINGIFY(Comment);
-			STORM_SWITCH_CASE_STRINGIFY(Warning);
-			STORM_SWITCH_CASE_STRINGIFY(Error);
-			STORM_SWITCH_CASE_STRINGIFY(Fatal);
-		}
-#undef STORM_SWITCH_CASE_STRINGIFY
-
-		Storm::throwException<std::exception>("Unknown Level!");
-	}
-
 	const std::string timeStampToString(std::chrono::system_clock::time_point timeStamp)
 	{
 		std::string result;
@@ -70,11 +53,29 @@ Storm::LogItem::LogItem(const std::string_view &moduleName, const Storm::LogLeve
 
 }
 
+const std::string_view Storm::LogItem::parseLogLevel(const Storm::LogLevel logLevel)
+{
+#define STORM_SWITCH_CASE_STRINGIFY(CaseStatement) case Storm::LogLevel::CaseStatement: return #CaseStatement;
+	switch (logLevel)
+	{
+		STORM_SWITCH_CASE_STRINGIFY(Debug);
+		STORM_SWITCH_CASE_STRINGIFY(DebugError);
+		STORM_SWITCH_CASE_STRINGIFY(Comment);
+		STORM_SWITCH_CASE_STRINGIFY(Warning);
+		STORM_SWITCH_CASE_STRINGIFY(Error);
+		STORM_SWITCH_CASE_STRINGIFY(Fatal);
+		STORM_SWITCH_CASE_STRINGIFY(Always);
+	}
+#undef STORM_SWITCH_CASE_STRINGIFY
+
+	Storm::throwException<std::exception>("Unknown Level!");
+}
+
 Storm::LogItem::operator std::string() const
 {
 	std::string result;
 
-	const std::string_view levelStr = logLevelToString(_level);
+	const std::string_view levelStr = Storm::LogItem::parseLogLevel(_level);
 	const std::string timestampStr = timeStampToString(_timestamp);
 	const std::string lineStr = std::to_string(_line);
 	const std::string threadIdStr = threadIdToString(_threadId);

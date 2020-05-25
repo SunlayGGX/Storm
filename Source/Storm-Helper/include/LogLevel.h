@@ -11,5 +11,6 @@ namespace Storm
 		Warning,
 		Error,
 		Fatal,
+		Always,
 	};
 }

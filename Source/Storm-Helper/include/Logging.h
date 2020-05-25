@@ -42,3 +42,4 @@ namespace Storm
 #define LOG_WARNING         STORM_LOG_BASE_IMPL(Storm::LogLevel::Warning)
 #define LOG_ERROR           STORM_LOG_BASE_IMPL(Storm::LogLevel::Error)
 #define LOG_FATAL           STORM_LOG_BASE_IMPL(Storm::LogLevel::Fatal)
+#define LOG_ALWAYS          STORM_LOG_BASE_IMPL(Storm::LogLevel::Always)
