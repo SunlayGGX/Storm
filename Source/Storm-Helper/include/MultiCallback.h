@@ -184,4 +184,25 @@ namespace Storm
 		std::vector<CallbackIdType> _toBeRemoved;
 	};
 
+	template<class Fn, class ... Args>
+	auto prettyCallMultiCallback_Exec(const std::string_view &callbackName, const std::string_view &fromFunc, MultiCallback<Fn> &multiCallback, const Args &... args)
+	{
+		auto results = multiCallback(args...);
+
+		for (const auto &resultElement : results._bunkedResults)
+		{
+			if (!resultElement._error.empty())
+			{
+				LOG_ERROR <<
+					"Callback with id '" << resultElement._callbackId << 
+					"' from '" << callbackName << 
+					"' and called from '" << fromFunc << 
+					"' was aborted because it threw an error : \"" << resultElement._error << '"';
+			}
+		}
+
+		return results;
+	}
+
+#define prettyCallMultiCallback(multiCallback, ...) prettyCallMultiCallback_Exec(#multiCallback, __FUNCTION__, multiCallback, __VA_ARGS__)
 }

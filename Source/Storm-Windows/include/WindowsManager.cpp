@@ -270,13 +270,13 @@ void Storm::WindowsManager::bindFinishInitializeCallback(Storm::FinishedInitiali
 void Storm::WindowsManager::callQuitCallback()
 {
 	std::lock_guard<std::mutex> autoLocker{ _callbackMutex };
-	_quitCallback();
+	Storm::prettyCallMultiCallback(_quitCallback);
 }
 
 void Storm::WindowsManager::callFinishInitializeCallback()
 {
 	std::lock_guard<std::mutex> autoLocker{ _callbackMutex };
-	_finishedInitCallback(_windowVisuHandle, false);
+	Storm::prettyCallMultiCallback(_finishedInitCallback, _windowVisuHandle, false);
 	_finishedInitCallback.clear();
 }
 

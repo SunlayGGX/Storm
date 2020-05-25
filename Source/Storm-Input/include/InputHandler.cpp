@@ -23,7 +23,7 @@ bool Storm::InputHandler::keyPressed(const OIS::KeyEvent &arg)
 	if (arg.key != OIS::KeyCode::KC_ESCAPE)
 	{
 		std::lock_guard<std::mutex> lock{ _bindingMutex };
-		_keyBindings[arg.text]._onKeyPressed();
+		Storm::prettyCallMultiCallback(_keyBindings[arg.text]._onKeyPressed);
 	}
 	else
 	{
@@ -53,15 +53,15 @@ bool Storm::InputHandler::mousePressed(const OIS::MouseEvent &arg, OIS::MouseBut
 	switch (id)
 	{
 	case OIS::MB_Left:
-		_leftMouseButton._onClick();
+		Storm::prettyCallMultiCallback(_leftMouseButton._onClick);
 		break;
 
 	case OIS::MB_Right:
-		_rightMouseButton._onClick();
+		Storm::prettyCallMultiCallback(_rightMouseButton._onClick);
 		break;
 
 	case OIS::MB_Middle:
-		_middleMouseButton._onClick();
+		Storm::prettyCallMultiCallback(_middleMouseButton._onClick);
 		break;
 
 	case OIS::MB_Button3:
