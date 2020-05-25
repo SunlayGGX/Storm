@@ -32,6 +32,7 @@ void Storm::MacroConfig::initialize()
 	_macros[makeFinalMacroKey("StormRoot")] = rootPath.string();
 	_macros[makeFinalMacroKey("StormConfig")] = (rootPath / "Config").string();
 	_macros[makeFinalMacroKey("StormIntermediate")] = (rootPath / "Intermediate").string();
+	_macros[makeFinalMacroKey("StormTmp")] = (rootPath / "Intermediate").string();
 }
 
 bool Storm::MacroConfig::read(const std::string &macroConfigFilePathStr)
