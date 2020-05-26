@@ -8,7 +8,13 @@ Note that :
 - you should have downloaded all dependencies beforehand and have done all setup that was specified (see next section).
 - We rely on junctions. It means that all your dependencies folder and Storm project should be on compatible disks format (i.e. NTFS). But if junstion does not work, we advise to copy your dependencies under the Storm's root "Dependencies" folder after calling Setup (also change the way the batch file are executed or you will remove those dependencies each time).
 
-Note: I used Visual Studio Community 2019 v16.6.0 with C++20 (in fact the latest draft that was a preview of C++20).
+
+
+#Prerequisite
+- I used Visual Studio Community 2019 v16.6.0 with C++20 (in fact the latest draft that was a preview of C++20). Maybe it works for a later Visual Studio but I have never tested it.
+- Python 2.7.6 or later (needed to build PhysX, see "Dependencies list" section). To know what is the current version of your installed python (or if there is any), type python in a cmd console.
+- Visual Studio 2017 toolsets
+
 
 
 # Dependencies list
@@ -17,6 +23,10 @@ Note: I used Visual Studio Community 2019 v16.6.0 with C++20 (in fact the latest
 	• Generate the Visual studio file inside a folder named "bin" at OIS root folder (i.e if OIS is installed like this : C:/dep/OIS, then generate the vs project file into C:/dep/OIS/bin).
 	• generate with default settings 
 	• build OIS into Debug and Release configurations.
+- PhysX v4.0.0 build for Visual Studio 2019 (link: https://github.com/NVIDIAGameWorks/PhysX/tree/4.0.0 ). Follow instruction on their site. Note that it isn't said in their website, but the generated solution to build is under physx/compiler/[the setting you've chosen].
+Note that I chose 
+
+Build the library in "release" and "debug". 
 
 
 # Modules
