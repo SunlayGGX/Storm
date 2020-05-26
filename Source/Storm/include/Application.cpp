@@ -74,9 +74,9 @@ namespace
 			Storm::GraphicManager::instance().cleanUp();
 			Storm::PhysicsManager::instance().cleanUp();
 			Storm::WindowsManager::instance().cleanUp();
-			Storm::ConfigManager::instance().cleanUp();
 			Storm::OSManager::instance().cleanUp();
 			Storm::RandomManager::instance().cleanUp();
+			Storm::ConfigManager::instance().cleanUp();
 			Storm::LoggerManager::instance().cleanUp();
 
 			g_singletonMaker.reset();
