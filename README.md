@@ -8,6 +8,8 @@ Note that :
 - you should have downloaded all dependencies beforehand and have done all setup that was specified (see next section).
 - We rely on junctions. It means that all your dependencies folder and Storm project should be on compatible disks format (i.e. NTFS). But if junstion does not work, we advise to copy your dependencies under the Storm's root "Dependencies" folder after calling Setup (also change the way the batch file are executed or you will remove those dependencies each time).
 
+Note: I used Visual Studio Community 2019 v16.6.0 with C++20 (in fact the latest draft that was a preview of C++20).
+
 
 # Dependencies list
 - Boost 1.72 compiled for Visual Studio 2019 (link: https://www.boost.org/users/history/version_1_72_0.html ). Follow the instructions on their site.
@@ -37,6 +39,52 @@ Note that :
 
 
 ## Config file
+
+### Macro Configs
+
+Macro are runtime substituated text defined by the user. In some text, we try to find a key and substituate in place with a value. The key would be a text under $[...] (i.e a macro with a key named "toto" and a value "titi", if inside a text we see $[toto] then we will replace it by titi).
+It is useful to slimmer down a path or some texts.
+Macro configuration are stored inside an xml file named Macro.xml located inside "Config\Custom\General".
+
+It is shared by all Scenes and if there is no Macro.xml defined by the user, we will use the one inside the folder "Config\Custom\General\Original" that is a copy of the commited "Config\Template\General\Macro.xml". Note that we advise you to not make modification to this one and make your own Macro.xml at "Config\Custom\General" instead.
+Or you can specify the path to the Macro.xml from the command line (see the specific section)
+
+A Macro is defined by a tag "macro" inside "macros" and has 2 attributes :
+	• "key" (string, mandatory) : a text by which we identify a macro. Do not add the macro identifier $[].
+	• "value" (string, mandatory) : a text to substituate the key.
+	
+Besides, you can reference a macro into another macro, in any kind of order you want (define a macro after a macro that will use it). But beware, we solve the macro iteratively so do not make circular dependencies of macros or Storm.exe will exit after complaining.
+
+There are some pre-built-in macros that aren't defined inside the macro file and can be used anywhere (even in command line) :
+	• $[StormExe] will refer to the Storm executable.
+	• $[StormFolderExe] will refer to folder that contains Storm executable that is running.
+	• $[StormRoot] will refer, in case the executable location was never man-made changed, to the Storm root folder.
+	• $[StormConfig] will refer, in case StormRoot macro is valid, to where Config files are set.
+	• $[StormIntermediate] will refer, in case StormRoot macro is valid, to where the Output folder is.
+	• $[StormTmp] will refer to the StormIntermediate if StormRoot macro is valid, or to OS defined temporary location.
+	• $[DateTime] will refer to the current date when the Application is run (in filesystem compatible format : Weekday_Year_Month_Day_Hour_Minute_Second ).
+	• $[Date], like DateTime, will refer to a the current date when the Application is run but without hours and lesser time division (in filesystem compatible format : Weekday_Year_Month_Day ).
+	
+	
+Note that macros are applied to command line as well except for the path to the macro configuration were we will use only the built-in macros (it is kind of expected since we don't know about those macros unless we get to read the file specified by the path of the command line...). But you're safe to use the prebuilt macros.
+
+### General config
+
+General config (named Global.xml) is global configuration of the application. It is shared by all scenes.
+Like the Macro config, you can either specify one to use with command line, or it will search for one inside the default config folder ("Config\Custom\General" or "Config\Custom\General\Original" if it doesn't find it). We advise you to create and make your changes to the one inside "Config\Custom\General".
+
+
+Unless explicited, the following settings doesn't support Macros (see section Macro)
+
+Here the architecture of the config file (each section are a tag in xml where the subsection should be put into)
+
+#### Log (faculative)
+- logFolderPath (string, facultative, accept macro) : The folder where to gather the log files. The default is the temporary path (StormTmp macro). If it is empty, default is considered.
+- logFileName (string, facultative, accept macro) : The log file name of the current run. The default is empty. If it is empty, we won't log into a file (but the log will still be outputed to the console).
+- logLevel (string, facultative) : The threshold level under which we ignore the log. Accepted values are in that inmportance order : Debug, DebugError, Comment, Warning, Error, Fatal.
+Note that the maximum value you can set is Fatal, it means that no matter what level you set, we would still log "Fatal" and "Always" logs. The default is Debug.
+- override (boolean, facultative) : If the log file specified should have its content overriden each time. If "false", the content will be appended instead. Default is "true".
+- removeOlderThanDays (integer, faculative) : Specify the number of day Storm will keep the log file. Log files older than the current date minus this day count will be removed. Disable this feature by setting a number <= 0 (therefore, we will keep everything). Default is -1.  
 
 
 # Input bindings
