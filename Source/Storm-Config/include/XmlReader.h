@@ -65,6 +65,7 @@ namespace Storm
 
 			if (treePair.first == tag)
 			{
+				LOG_DEBUG << "Parsing xml tag " << tag;
 				val = converter(treePair.second.get_value<OverridenAutoType>());
 				return true;
 			}
