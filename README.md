@@ -10,7 +10,7 @@ Note that :
 
 
 
-#Prerequisite
+# Prerequisite
 - I used Visual Studio Community 2019 v16.6.0 with C++20 (in fact the latest draft that was a preview of C++20). Maybe it works for a later Visual Studio but I have never tested it.
 - Python 2.7.6 or later (needed to build PhysX, see "Dependencies list" section). To know what is the current version of your installed python (or if there is any), type python in a cmd console.
 - Visual Studio 2017 toolsets
@@ -20,13 +20,13 @@ Note that :
 # Dependencies list
 - Boost 1.72 compiled for Visual Studio 2019 (link: https://www.boost.org/users/history/version_1_72_0.html ). Follow the instructions on their site.
 - OIS v1.5 compiled for Visual Studio 2019 (link: https://github.com/wgois/OIS/tree/v1.5 ). Follow the instructions on their site. I used cmake_gui 3.15.0-rc1.
-	• Generate the Visual studio file inside a folder named "bin" at OIS root folder (i.e if OIS is installed like this : C:/dep/OIS, then generate the vs project file into C:/dep/OIS/bin).
-	• generate with default settings 
-	• build OIS into Debug and Release configurations.
+	+ Generate the Visual studio file inside a folder named "bin" at OIS root folder (i.e if OIS is installed like this : C:/dep/OIS, then generate the vs project file into C:/dep/OIS/bin).
+	+ generate with default settings 
+	+ build OIS into Debug and Release configurations.
 - PhysX v4.0.0 build for Visual Studio 2019 (link: https://github.com/NVIDIAGameWorks/PhysX/tree/4.0.0 ). 	• Follow instruction on their site. Note that it isn't said in their website, but the generated solution to build is under physx/compiler/[the setting you've chosen].
 Note that I chose "vc15win64" settings. If you use another Visual Studio, be aware of Binary compatibility (Visual Studio 2015, 2017 and 2019 are binary compatible, but I don't know about my future and they aren't with the past). Be also aware that the result file won't be in the same folder than what was expected by this readme so adapt a little.
-	• Build the library in "release" and "debug".
-	• Go to "physx/bin/win.x86_64.vc141.mt" (this name could change if you have chosen another build setting) and copy "debug" and "release" folder inside a new folder "physx/lib"
+	+ Build the library in "release" and "debug".
+	+ Go to "physx/bin/win.x86_64.vc141.mt" (this name could change if you have chosen another build setting) and copy "debug" and "release" folder inside a new folder "physx/lib"
 
 
 
@@ -61,20 +61,20 @@ It is shared by all Scenes and if there is no Macro.xml defined by the user, we 
 Or you can specify the path to the Macro.xml from the command line (see the specific section)
 
 A Macro is defined by a tag "macro" inside "macros" and has 2 attributes :
-	• "key" (string, mandatory) : a text by which we identify a macro. Do not add the macro identifier $[].
-	• "value" (string, mandatory) : a text to substituate the key.
+	+ "key" (string, mandatory) : a text by which we identify a macro. Do not add the macro identifier $[].
+	+ "value" (string, mandatory) : a text to substituate the key.
 	
 Besides, you can reference a macro into another macro, in any kind of order you want (define a macro after a macro that will use it). But beware, we solve the macro iteratively so do not make circular dependencies of macros or Storm.exe will exit after complaining.
 
 There are some pre-built-in macros that aren't defined inside the macro file and can be used anywhere (even in command line) :
-	• $[StormExe] will refer to the Storm executable.
-	• $[StormFolderExe] will refer to folder that contains Storm executable that is running.
-	• $[StormRoot] will refer, in case the executable location was never man-made changed, to the Storm root folder.
-	• $[StormConfig] will refer, in case StormRoot macro is valid, to where Config files are set.
-	• $[StormIntermediate] will refer, in case StormRoot macro is valid, to where the Output folder is.
-	• $[StormTmp] will refer to the StormIntermediate if StormRoot macro is valid, or to OS defined temporary location.
-	• $[DateTime] will refer to the current date when the Application is run (in filesystem compatible format : Weekday_Year_Month_Day_Hour_Minute_Second ).
-	• $[Date], like DateTime, will refer to a the current date when the Application is run but without hours and lesser time division (in filesystem compatible format : Weekday_Year_Month_Day ).
+	+ $[StormExe] will refer to the Storm executable.
+	+ $[StormFolderExe] will refer to folder that contains Storm executable that is running.
+	+ $[StormRoot] will refer, in case the executable location was never man-made changed, to the Storm root folder.
+	+ $[StormConfig] will refer, in case StormRoot macro is valid, to where Config files are set.
+	+ $[StormIntermediate] will refer, in case StormRoot macro is valid, to where the Output folder is.
+	+ $[StormTmp] will refer to the StormIntermediate if StormRoot macro is valid, or to OS defined temporary location.
+	+ $[DateTime] will refer to the current date when the Application is run (in filesystem compatible format : Weekday_Year_Month_Day_Hour_Minute_Second ).
+	+ $[Date], like DateTime, will refer to a the current date when the Application is run but without hours and lesser time division (in filesystem compatible format : Weekday_Year_Month_Day ).
 	
 	
 Note that macros are applied to command line as well except for the path to the macro configuration were we will use only the built-in macros (it is kind of expected since we don't know about those macros unless we get to read the file specified by the path of the command line...). But you're safe to use the prebuilt macros.
