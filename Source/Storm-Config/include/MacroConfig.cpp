@@ -29,15 +29,32 @@ Storm::MacroConfig::MacroConfig() :
 void Storm::MacroConfig::initialize()
 {
 	const Storm::ConfigManager &configMgr = Storm::ConfigManager::instance();
-	const std::filesystem::path rootPath = std::filesystem::path{ configMgr.getExePath() }.parent_path().parent_path();
+	const std::filesystem::path exePath = std::filesystem::path{ configMgr.getExePath() };
+	const std::filesystem::path exeFolderPath = exePath.parent_path();
+	const std::filesystem::path rootPath = exeFolderPath.parent_path();
+	const std::filesystem::path outputPath = rootPath / "Intermediate";
 
 	_macros[makeFinalMacroKey("StormExe")] = configMgr.getExePath();
+	_macros[makeFinalMacroKey("StormFolderExe")] = exeFolderPath.string();
 	_macros[makeFinalMacroKey("StormRoot")] = rootPath.string();
 	_macros[makeFinalMacroKey("StormConfig")] = (rootPath / "Config").string();
-	_macros[makeFinalMacroKey("StormIntermediate")] = (rootPath / "Intermediate").string();
-	_macros[makeFinalMacroKey("StormTmp")] = (rootPath / "Intermediate").string();
+	_macros[makeFinalMacroKey("StormIntermediate")] = outputPath.string();
 	_macros[makeFinalMacroKey("DateTime")] = Storm::TimeHelper::getCurrentDateTime(false);
 	_macros[makeFinalMacroKey("Date")] = Storm::TimeHelper::getCurrentDate();
+
+	if (std::filesystem::exists(outputPath))
+	{
+		_macros[makeFinalMacroKey("StormTmp")] = outputPath.string();
+	}
+	else
+	{
+		const std::filesystem::path tmpPath = std::filesystem::temp_directory_path() / "Storm";
+		if (!std::filesystem::exists(tmpPath))
+		{
+			std::filesystem::create_directories(tmpPath);
+		}
+		_macros[makeFinalMacroKey("StormTmp")] = tmpPath.string();
+	}
 }
 
 bool Storm::MacroConfig::read(const std::string &macroConfigFilePathStr)

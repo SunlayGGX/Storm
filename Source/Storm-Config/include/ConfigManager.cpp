@@ -112,14 +112,18 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 		std::filesystem::path tempPath{ _temporaryPath };
 		if (std::filesystem::exists(tempPath))
 		{
-			if (!std::filesystem::is_directory(_temporaryPath))
+			if (!std::filesystem::is_directory(tempPath))
 			{
 				errorMsg = _temporaryPath + " should either be a folder, or shouldn't exists!";
 			}
 		}
+		else if (_temporaryPath.empty())
+		{
+			tempPath = _macroConfig("$[StormTmp]");
+		}
 		else
 		{
-			std::filesystem::create_directories(_temporaryPath);
+			std::filesystem::create_directories(tempPath);
 		}
 
 		if (!errorMsg.empty())
