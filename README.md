@@ -74,7 +74,7 @@ There are some pre-built-in macros that aren't defined inside the macro file and
 + $[StormIntermediate] will refer, in case StormRoot macro is valid, to where the Output folder is.
 + $[StormTmp] will refer to the StormIntermediate if StormRoot macro is valid, or to OS defined temporary location.
 + $[DateTime] will refer to the current date when the Application is run (in filesystem compatible format : Weekday_Year_Month_Day_Hour_Minute_Second ).
-+ $[Date], like DateTime, will refer to a the current date when the Application is run but without hours and lesser time division (in filesystem compatible format : Weekday_Year_Month_Day ).
++ $[Date], like DateTime, will refer to the current date when the Application is run but without hours and lesser time division (in filesystem compatible format : Weekday_Year_Month_Day ).
 	
 	
 Note that macros are applied to command line as well except for the path to the macro configuration were we will use only the built-in macros (it is kind of expected since we don't know about those macros unless we get to read the file specified by the path of the command line...). But you're safe to use the prebuilt macros.
