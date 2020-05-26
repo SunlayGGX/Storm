@@ -23,10 +23,11 @@ Note that :
 	• Generate the Visual studio file inside a folder named "bin" at OIS root folder (i.e if OIS is installed like this : C:/dep/OIS, then generate the vs project file into C:/dep/OIS/bin).
 	• generate with default settings 
 	• build OIS into Debug and Release configurations.
-- PhysX v4.0.0 build for Visual Studio 2019 (link: https://github.com/NVIDIAGameWorks/PhysX/tree/4.0.0 ). Follow instruction on their site. Note that it isn't said in their website, but the generated solution to build is under physx/compiler/[the setting you've chosen].
-Note that I chose 
+- PhysX v4.0.0 build for Visual Studio 2019 (link: https://github.com/NVIDIAGameWorks/PhysX/tree/4.0.0 ). 	• Follow instruction on their site. Note that it isn't said in their website, but the generated solution to build is under physx/compiler/[the setting you've chosen].
+Note that I chose "vc15win64" settings. If you use another Visual Studio, be aware of Binary compatibility (Visual Studio 2015, 2017 and 2019 are binary compatible, but I don't know about my future and they aren't with the past). Be also aware that the result file won't be in the same folder than what was expected by this readme so adapt a little.
+	• Build the library in "release" and "debug".
+	• Go to "physx/bin/win.x86_64.vc141.mt" (this name could change if you have chosen another build setting) and copy "debug" and "release" folder inside a new folder "physx/lib"
 
-Build the library in "release" and "debug". 
 
 
 # Modules
