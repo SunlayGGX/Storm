@@ -157,22 +157,25 @@ void Storm::InputManager::cleanUp_Implementation()
 
 void Storm::InputManager::update()
 {
-	if (g_keyboard != nullptr)
+	this->callSequentialToInitCleanup([this]()
 	{
-		g_keyboard->capture();
-		if (!g_keyboard->buffered())
+		if (g_keyboard != nullptr)
 		{
-			this->handleNonBufferedKeys();
+			g_keyboard->capture();
+			if (!g_keyboard->buffered())
+			{
+				this->handleNonBufferedKeys();
+			}
 		}
-	}
-	if (g_mouse != nullptr)
-	{
-		g_mouse->capture();
-		if (!g_mouse->buffered())
+		if (g_mouse != nullptr)
 		{
-			this->handleNonBufferedMouse();
+			g_mouse->capture();
+			if (!g_mouse->buffered())
+			{
+				this->handleNonBufferedMouse();
+			}
 		}
-	}
+	});
 }
 
 Storm::CallbackIdType Storm::InputManager::bindKey(unsigned int key, Storm::KeyBinding &&binding)

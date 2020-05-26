@@ -80,6 +80,16 @@ namespace Storm
 			}
 		}
 
+		template<class Func, class ... Args>
+		void callSequentialToInitCleanup(Func &&fn, Args &&... args)
+		{
+			std::lock_guard<std::mutex> lock{ s_initMutex };
+			if (_initialized)
+			{
+				fn(std::forward<Args>(args)...);
+			}
+		}
+
 		bool isInitialized() const
 		{
 			return _initialized;
