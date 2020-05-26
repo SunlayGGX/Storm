@@ -83,7 +83,7 @@
       <PrecompiledHeaderFile>Storm-PhysicsPCH.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <ForcedIncludeFiles>%(PrecompiledHeaderFile);%(ForcedIncludeFiles)</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>$(ProjectDir)../../Storm-ModelBase/include;$(ProjectDir)../../../Dependencies\PhysX\physx\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)../../Storm-ModelBase/include;$(ProjectDir)../../../Dependencies\PhysX\physx\include;$(ProjectDir)../../../Dependencies\PhysX\pxshared\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -105,7 +105,7 @@
       <PrecompiledHeaderFile>Storm-PhysicsPCH.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <ForcedIncludeFiles>%(PrecompiledHeaderFile);%(ForcedIncludeFiles)</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>$(ProjectDir)../../Storm-ModelBase/include;$(ProjectDir)../../../Dependencies\PhysX\physx\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)../../Storm-ModelBase/include;$(ProjectDir)../../../Dependencies\PhysX\physx\include;$(ProjectDir)../../../Dependencies\PhysX\pxshared\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
