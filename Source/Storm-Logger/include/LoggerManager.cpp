@@ -159,6 +159,8 @@ void Storm::LoggerManager::initialize_Implementation()
 
 void Storm::LoggerManager::cleanUp_Implementation()
 {
+	LOG_COMMENT << "This is the logger end. No more log will be done afterwards";
+
 	{
 		std::lock_guard<std::mutex> lock{ _loggerMutex };
 		_isRunning = false;
