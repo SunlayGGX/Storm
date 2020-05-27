@@ -7,6 +7,8 @@
 
 namespace Storm
 {
+	class PhysXHandler;
+
 	class PhysicsManager :
 		private Storm::Singleton<PhysicsManager>,
 		public Storm::IPhysicsManager
@@ -16,5 +18,8 @@ namespace Storm
 	private:
 		void initialize_Implementation();
 		void cleanUp_Implementation();
+
+	private:
+		std::unique_ptr<Storm::PhysXHandler> _physXHandler;
 	};
 }
