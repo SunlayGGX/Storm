@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\PhysX">
+      <UniqueIdentifier>{6e9faeef-7d45-4c06-a08e-b0244ba01343}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\PhysX">
+      <UniqueIdentifier>{2de54443-5cbf-425e-99f2-54954d5cf560}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-PhysicsPCH.cpp">
@@ -21,6 +27,9 @@
     <ClCompile Include="..\include\PhysicsManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\CustomPhysXLogger.cpp">
+      <Filter>Source Files\PhysX</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-PhysicsPCH.h">
@@ -28,6 +37,9 @@
     </ClInclude>
     <ClInclude Include="..\include\PhysicsManager.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\CustomPhysXLogger.h">
+      <Filter>Header Files\PhysX</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
