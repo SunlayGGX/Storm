@@ -12,13 +12,26 @@ namespace Storm
 		LoggerObject(const std::string_view &moduleName, Storm::LogLevel level, const std::string_view &function, const int line);
 		~LoggerObject();
 
+	private:
+		template<class ToWriteType>
+		static auto addToStream(std::stringstream &stream, const ToWriteType &toWrite, int) -> decltype(stream << toWrite)
+		{
+			return stream << toWrite;
+		}
+
+		template<class ToWriteType>
+		static auto addToStream(std::stringstream &stream, const ToWriteType &toWrite, void*) -> decltype(stream << static_cast<std::string>(toWrite))
+		{
+			return stream << static_cast<std::string>(toWrite);
+		}
+
 	public:
 		template<class ToWriteType>
 		LoggerObject& operator<<(const ToWriteType &toWrite)
 		{
 			if (_enabled)
 			{
-				_stream << toWrite;
+				addToStream(_stream, toWrite, 0);
 			}
 
 			return *this;

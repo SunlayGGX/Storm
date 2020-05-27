@@ -113,7 +113,7 @@ void Storm::InputManager::initialize_Implementation(void* vptrHwnd)
 	};
 
 	LOG_COMMENT << "OIS Created to manage input :\n"
-		"OIS Version: " << static_cast<std::string>(oisVersion) << "\n"
+		"OIS Version: " << oisVersion << "\n"
 		"Release Name: " << Storm::g_oisInputMgr->getVersionName() << "\n"
 		"Manager: " << Storm::g_oisInputMgr->inputSystemName() << "\n"
 		"Total Keyboards: " << Storm::g_oisInputMgr->getNumberOfDevices(OIS::OISKeyboard) << "\n"
