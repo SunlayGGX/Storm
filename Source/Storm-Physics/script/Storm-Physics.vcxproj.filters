@@ -27,6 +27,9 @@
     <ClCompile Include="..\include\PhysicsManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\PhysXHandler.cpp">
+      <Filter>Source Files\PhysX</Filter>
+    </ClCompile>
     <ClCompile Include="..\include\CustomPhysXLogger.cpp">
       <Filter>Source Files\PhysX</Filter>
     </ClCompile>
@@ -37,6 +40,9 @@
     </ClInclude>
     <ClInclude Include="..\include\PhysicsManager.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\PhysXHandler.h">
+      <Filter>Header Files\PhysX</Filter>
     </ClInclude>
     <ClInclude Include="..\include\CustomPhysXLogger.h">
       <Filter>Header Files\PhysX</Filter>

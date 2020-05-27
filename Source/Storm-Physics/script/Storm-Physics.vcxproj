@@ -13,6 +13,7 @@
   <ItemGroup>
     <ClCompile Include="..\include\CustomPhysXLogger.cpp" />
     <ClCompile Include="..\include\PhysicsManager.cpp" />
+    <ClCompile Include="..\include\PhysXHandler.cpp" />
     <ClCompile Include="..\include\Storm-PhysicsPCH.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
@@ -21,6 +22,7 @@
   <ItemGroup>
     <ClInclude Include="..\include\CustomPhysXLogger.h" />
     <ClInclude Include="..\include\PhysicsManager.h" />
+    <ClInclude Include="..\include\PhysXHandler.h" />
     <ClInclude Include="..\include\Storm-PhysicsPCH.h" />
   </ItemGroup>
   <ItemGroup>
