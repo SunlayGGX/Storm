@@ -7,6 +7,8 @@ namespace Storm
 	{
 		k_success = 0,
 
+		k_termination = 100,
+
 		k_stdException = -99,
 		k_unknownException = -100,
 
