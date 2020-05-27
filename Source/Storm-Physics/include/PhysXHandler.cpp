@@ -15,7 +15,7 @@ namespace
 Storm::PhysXHandler::PhysXHandler() :
 	_foundationInstance{ PxCreateFoundation(PX_PHYSICS_VERSION, g_defaultAllocator, g_physXLogger) }
 {
-	if (!_foundationInstance)
+	if (_foundationInstance != nullptr)
 	{
 		Storm::throwException<std::exception>("PhysX foundation couldn't be created!");
 	}
