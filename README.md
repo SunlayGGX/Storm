@@ -92,7 +92,7 @@ Unless explicited, the following settings doesn't support Macros (see section Ma
 Here the architecture of the config file (each section are a tag in xml where the subsection should be put into)
 
 #### Log (faculative)
-- logFolderPath (string, facultative, accept macro) : The folder where to gather the log files. The default is the temporary path (StormTmp macro). If it is empty, default is considered.
+- <mark>logFolderPath (string, facultative, accept macro)</mark> : The folder where to gather the log files. The default is the temporary path (StormTmp macro). If it is empty, default is considered.
 - logFileName (string, facultative, accept macro) : The log file name of the current run. The default is empty. If it is empty, we won't log into a file (but the log will still be outputed to the console).
 - logLevel (string, facultative) : The threshold level under which we ignore the log. Accepted values are in that inmportance order : Debug, DebugError, Comment, Warning, Error, Fatal.
 Note that the maximum value you can set is Fatal, it means that no matter what level you set, we would still log "Fatal" and "Always" logs. The default is Debug.
