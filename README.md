@@ -69,14 +69,14 @@ A Macro is defined by a tag "macro" inside "macros" and has 2 attributes :
 Besides, you can reference a macro into another macro, in any kind of order you want (define a macro after a macro that will use it). But beware, we solve the macro iteratively so do not make circular dependencies of macros or Storm.exe will exit after complaining.
 
 There are some pre-built-in macros that aren't defined inside the macro file and can be used anywhere (even in command line) :
-+ $[StormExe] will refer to the Storm executable.
-+ $[StormFolderExe] will refer to folder that contains Storm executable that is running.
-+ $[StormRoot] will refer, in case the executable location was never man-made changed, to the Storm root folder.
-+ $[StormConfig] will refer, in case StormRoot macro is valid, to where Config files are set.
-+ $[StormIntermediate] will refer, in case StormRoot macro is valid, to where the Output folder is.
-+ $[StormTmp] will refer to the StormIntermediate if StormRoot macro is valid, or to OS defined temporary location.
-+ $[DateTime] will refer to the current date when the Application is run (in filesystem compatible format : Weekday_Year_Month_Day_Hour_Minute_Second ).
-+ $[Date], like DateTime, will refer to the current date when the Application is run but without hours and lesser time division (in filesystem compatible format : Weekday_Year_Month_Day ).
++ **$[StormExe]** will refer to the Storm executable.
++ **$[StormFolderExe]** will refer to folder that contains Storm executable that is running.
++ **$[StormRoot]** will refer, in case the executable location was never man-made changed, to the Storm root folder.
++ **$[StormConfig]** will refer, in case StormRoot macro is valid, to where Config files are set.
++ **$[StormIntermediate]** will refer, in case StormRoot macro is valid, to where the Output folder is.
++ **$[StormTmp]** will refer to the StormIntermediate if StormRoot macro is valid, or to OS defined temporary location.
++ **$[DateTime]** will refer to the current date when the Application is run (in filesystem compatible format : Weekday_Year_Month_Day_Hour_Minute_Second ).
++ **$[Date]**, like DateTime, will refer to the current date when the Application is run but without hours and lesser time division (in filesystem compatible format : Weekday_Year_Month_Day ).
 	
 	
 Note that macros are applied to command line as well except for the path to the macro configuration were we will use only the built-in macros (it is kind of expected since we don't know about those macros unless we get to read the file specified by the path of the command line...). But you're safe to use the prebuilt macros.
