@@ -70,6 +70,9 @@
     <Filter Include="Source Files\General\Chrono">
       <UniqueIdentifier>{14d066d6-86db-425f-9457-460eeb7ceede}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\General\SmartPointer">
+      <UniqueIdentifier>{29fa04f8-704d-4072-93ab-c8745d2334e8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-HelperPCH.cpp">
@@ -187,6 +190,9 @@
     </ClInclude>
     <ClInclude Include="..\include\StormMacro.h">
       <Filter>Header Files\Macro</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\UniquePointer.h">
+      <Filter>Header Files\General\SmartPointer</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
