@@ -9,11 +9,15 @@ namespace Storm
 	struct Vector3
 	{
 	public:
-		constexpr Vector3() = default;
+		constexpr Vector3(float x = 0.f, float y = 0.f, float z = 0.f) :
+			_x{ x },
+			_y{ y },
+			_z{ z }
+		{}
 
 	public:
-		float _x = 0.f;
-		float _y = 0.f;
-		float _z = 0.f;
+		float _x;
+		float _y;
+		float _z;
 	};
 }
