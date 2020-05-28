@@ -31,71 +31,75 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 {
 	_sceneData = std::make_unique<Storm::SceneData>();
 
-	const std::filesystem::path sceneConfigFilePath{ sceneConfigFilePathStr };
-	if (std::filesystem::is_regular_file(sceneConfigFilePath))
+	boost::property_tree::ptree xmlTree;
+	boost::property_tree::read_xml(sceneConfigFilePathStr, xmlTree, boost::property_tree::xml_parser::no_comments);
+
+	const auto &srcTree = xmlTree.get_child("Scene");
+
+
+	/* General */
+	// This is mandatory, so no optional
+	const auto &generalTree = srcTree.get_child("General");
+	for (const auto &generalXmlElement : generalTree)
 	{
-		if (sceneConfigFilePath.extension() == ".xml")
+		if (
+			!Storm::XmlReader::handleXml(generalXmlElement, "gravity", _sceneData->_gravity, parseVector3Element)
+			)
 		{
-			boost::property_tree::ptree xmlTree;
-			boost::property_tree::read_xml(sceneConfigFilePathStr, xmlTree, boost::property_tree::xml_parser::no_comments);
-
-			const auto &generalTree = xmlTree.get_child("Scene");
-
-			/* RigidBodies */
-			const auto &rigidBodiesTreeOpt = generalTree.get_child_optional("RigidBodies");
-			if (rigidBodiesTreeOpt.has_value())
-			{
-				const auto &rigidBodiesTree = rigidBodiesTreeOpt.value();
-				auto &rigidBodiesDataArray = _sceneData->_rigidBodiesData;
-
-				for (const auto &rigidBodyXmlElement : rigidBodiesTree)
-				{
-					if (rigidBodyXmlElement.first == "RigidBody")
-					{
-						Storm::RigidBodySceneData &rbData = rigidBodiesDataArray.emplace_back();
-						for (const auto &rigidBodyDataXml : rigidBodyXmlElement.second)
-						{
-							if (
-								!Storm::XmlReader::handleXml(rigidBodyDataXml, "id", rbData._rigidBodyID) &&
-								!Storm::XmlReader::handleXml(rigidBodyDataXml, "meshFile", rbData._meshFilePath) &&
-								!Storm::XmlReader::handleXml(rigidBodyDataXml, "isStatic", rbData._static) &&
-								!Storm::XmlReader::handleXml(rigidBodyDataXml, "translation", rbData._translation, parseVector3Element) &&
-								!Storm::XmlReader::handleXml(rigidBodyDataXml, "rotation", rbData._rotation, parseVector3Element) &&
-								!Storm::XmlReader::handleXml(rigidBodyDataXml, "scale", rbData._scale, parseVector3Element)
-								)
-							{
-								LOG_ERROR << rigidBodyDataXml.first << " (inside Scene.Rigidbodies.RigidBody) is unknown, therefore it cannot be handled";
-							}
-						}
-
-						macroConfig(rbData._meshFilePath);
-
-						// Minus 1 because of course, the rbData that we are currently filling has the same id than itself... 
-						const auto lastToCheck = std::end(rigidBodiesDataArray) - 1;
-						if (const auto found = std::find_if(std::begin(rigidBodiesDataArray), lastToCheck, [&rbData](const Storm::RigidBodySceneData &registeredRb)
-						{
-							return registeredRb._rigidBodyID == rbData._rigidBodyID;
-						}); found != lastToCheck)
-						{
-							Storm::throwException<std::exception>("RigidBody id " + std::to_string(rbData._rigidBodyID) + " is already used!");
-						}
-						else if (!std::filesystem::is_regular_file(rbData._meshFilePath))
-						{
-							Storm::throwException<std::exception>("'" + rbData._meshFilePath + "' is not a valid mesh file!");
-						}
-					}
-					else
-					{
-						LOG_ERROR << rigidBodyXmlElement.first + " is not a valid tag inside 'RigidBodies'. Only 'RigidBody' is accepted!";
-					}
-				}
-			}
-
-			return true;
+			LOG_ERROR << generalXmlElement.first << " (inside Scene.General) is unknown, therefore it cannot be handled";
 		}
 	}
 
-	return false;
+
+	/* RigidBodies */
+	const auto &rigidBodiesTreeOpt = srcTree.get_child_optional("RigidBodies");
+	if (rigidBodiesTreeOpt.has_value())
+	{
+		const auto &rigidBodiesTree = rigidBodiesTreeOpt.value();
+		auto &rigidBodiesDataArray = _sceneData->_rigidBodiesData;
+
+		for (const auto &rigidBodyXmlElement : rigidBodiesTree)
+		{
+			if (rigidBodyXmlElement.first == "RigidBody")
+			{
+				Storm::RigidBodySceneData &rbData = rigidBodiesDataArray.emplace_back();
+				for (const auto &rigidBodyDataXml : rigidBodyXmlElement.second)
+				{
+					if (
+						!Storm::XmlReader::handleXml(rigidBodyDataXml, "id", rbData._rigidBodyID) &&
+						!Storm::XmlReader::handleXml(rigidBodyDataXml, "meshFile", rbData._meshFilePath) &&
+						!Storm::XmlReader::handleXml(rigidBodyDataXml, "isStatic", rbData._static) &&
+						!Storm::XmlReader::handleXml(rigidBodyDataXml, "translation", rbData._translation, parseVector3Element) &&
+						!Storm::XmlReader::handleXml(rigidBodyDataXml, "rotation", rbData._rotation, parseVector3Element) &&
+						!Storm::XmlReader::handleXml(rigidBodyDataXml, "scale", rbData._scale, parseVector3Element)
+						)
+					{
+						LOG_ERROR << rigidBodyDataXml.first << " (inside Scene.Rigidbodies.RigidBody) is unknown, therefore it cannot be handled";
+					}
+				}
+
+				macroConfig(rbData._meshFilePath);
+
+				// Minus 1 because of course, the rbData that we are currently filling has the same id than itself... 
+				const auto lastToCheck = std::end(rigidBodiesDataArray) - 1;
+				if (const auto found = std::find_if(std::begin(rigidBodiesDataArray), lastToCheck, [&rbData](const Storm::RigidBodySceneData &registeredRb)
+				{
+					return registeredRb._rigidBodyID == rbData._rigidBodyID;
+				}); found != lastToCheck)
+				{
+					Storm::throwException<std::exception>("RigidBody id " + std::to_string(rbData._rigidBodyID) + " is already used!");
+				}
+				else if (!std::filesystem::is_regular_file(rbData._meshFilePath))
+				{
+					Storm::throwException<std::exception>("'" + rbData._meshFilePath + "' is not a valid mesh file!");
+				}
+			}
+			else
+			{
+				LOG_ERROR << rigidBodyXmlElement.first + " is not a valid tag inside 'RigidBodies'. Only 'RigidBody' is accepted!";
+			}
+		}
+	}
 }
 
 const Storm::SceneData& Storm::SceneConfig::getSceneData() const
