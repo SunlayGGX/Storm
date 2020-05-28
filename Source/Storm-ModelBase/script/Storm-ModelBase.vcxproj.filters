@@ -34,10 +34,16 @@
     <Filter Include="Header Files\Config\Includes">
       <UniqueIdentifier>{99538e86-e5c4-48b7-8aed-eae5c4a90863}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Config">
+      <UniqueIdentifier>{9a6ef5c9-1c47-495d-9141-da83b385ba0a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-ModelBasePCH.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\SceneData.cpp">
+      <Filter>Source Files\Config</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

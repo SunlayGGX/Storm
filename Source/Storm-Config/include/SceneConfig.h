@@ -9,7 +9,7 @@ namespace Storm
 	class SceneConfig
 	{
 	public:
-		bool read(const std::string &sceneConfigFilePathStr, const Storm::MacroConfig &macroConfig);
+		void read(const std::string &sceneConfigFilePathStr, const Storm::MacroConfig &macroConfig);
 
 	public:
 		const Storm::SceneData& getSceneData() const;

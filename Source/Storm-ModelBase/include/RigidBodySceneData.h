@@ -6,6 +6,9 @@ namespace Storm
 	struct RigidBodySceneData
 	{
 	public:
+		RigidBodySceneData();
+
+	public:
 		unsigned int _rigidBodyID;
 		std::string _meshFilePath;
 
