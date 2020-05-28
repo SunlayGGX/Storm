@@ -8,8 +8,12 @@ namespace Storm
 	// (i.e Physx would use its own transform data while DirectX would use its own matrixes and data structures)
 	struct Vector3
 	{
-		float _x;
-		float _y;
-		float _z;
+	public:
+		constexpr Vector3() = default;
+
+	public:
+		float _x = 0.f;
+		float _y = 0.f;
+		float _z = 0.f;
 	};
 }
