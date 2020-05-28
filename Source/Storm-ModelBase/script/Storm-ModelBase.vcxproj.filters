@@ -25,6 +25,9 @@
     <Filter Include="Header Files\Events">
       <UniqueIdentifier>{530b1741-32b1-4a2c-9d4a-0d2826540f53}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Config">
+      <UniqueIdentifier>{d00a5300-7080-48d9-8adc-77818e645a1f}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Header Files\General">
       <UniqueIdentifier>{ed75b67c-0355-4bad-9046-25694bb7d10a}</UniqueIdentifier>
     </Filter>
@@ -74,11 +77,17 @@
     <ClInclude Include="..\include\InputEvents.h">
       <Filter>Header Files\Input</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\RigidBodySceneData.h">
+      <Filter>Header Files\Config</Filter>
+    </ClInclude>
     <ClInclude Include="..\include\Vector3.h">
       <Filter>Header Files\General</Filter>
     </ClInclude>
     <ClInclude Include="..\include\StormPrerequisite.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SceneData.h">
+      <Filter>Header Files\Config</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
