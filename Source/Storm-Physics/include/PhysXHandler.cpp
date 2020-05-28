@@ -21,7 +21,7 @@ Storm::PhysXHandler::PhysXHandler() :
 		LOG_WARNING << "PhysX version mismatches with what we used in our development. What we use currently is PhysX version " << currentPhysXVersion << " and what we used was PhysX version 4.0.0...";
 	}
 
-	if (_foundationInstance != nullptr)
+	if (!_foundationInstance)
 	{
 		Storm::throwException<std::exception>("PhysX foundation couldn't be created!");
 	}
