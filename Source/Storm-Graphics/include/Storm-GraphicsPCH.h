@@ -6,7 +6,7 @@
 #include <dxgi1_2.h>
 #include <wrl/client.h>
 
-#include "StormStdPrerequisite.h"
+#include "StormPrerequisite.h"
 
 #include "Logging.h"
 #define STORM_MODULE_NAME "Graphics"
