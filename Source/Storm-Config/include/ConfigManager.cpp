@@ -6,6 +6,8 @@
 #include "SingletonHolder.h"
 #include "IOSManager.h"
 
+#include "DataIncludes.h"
+
 #include <boost/algorithm/string.hpp>
 
 
