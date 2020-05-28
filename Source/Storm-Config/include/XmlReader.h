@@ -49,6 +49,25 @@ namespace Storm
 			using FirstArg = typename FirstArgSelector<Args...>::Type;
 		};
 
+	private:
+		template<class OverridenAutoType, class ConverterFunc, class TreeItem>
+		static auto callConversion(const ConverterFunc &converter, const TreeItem &item, int) -> decltype(converter(item))
+		{
+			return converter(item);
+		}
+
+		template<class OverridenAutoType, class ConverterFunc, class TreeItem>
+		static auto callConversion(const ConverterFunc &converter, const TreeItem &item, void*) -> decltype(converter(item.template get_value<OverridenAutoType>()))
+		{
+			return converter(item.get_value<OverridenAutoType>());
+		}
+
+		template<class OverridenAutoType, class ConverterFunc, class TreeItem>
+		constexpr static void callConversion(const ConverterFunc &, const TreeItem &, ...)
+		{
+			STORM_COMPILE_ERROR("Converter not handled!");
+		}
+
 	public:
 		template<class ValueType>
 		static ValueType&& defaultValidator(ValueType&& val)
@@ -66,7 +85,7 @@ namespace Storm
 			if (treePair.first == tag)
 			{
 				LOG_DEBUG << "Parsing xml tag " << tag;
-				val = converter(treePair.second.get_value<OverridenAutoType>());
+				val = callConversion<OverridenAutoType>(converter, treePair.second, 0);
 				return true;
 			}
 
