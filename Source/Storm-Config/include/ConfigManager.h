@@ -6,6 +6,7 @@
 
 #include "MacroConfig.h"
 #include "GeneralConfig.h"
+#include "SceneConfig.h"
 
 
 namespace Storm
@@ -34,6 +35,7 @@ namespace Storm
 		bool shouldDisplayHelp() const;
 
 	private:
+		// Members that could be extracted from Command line.
 		std::string _sceneConfigFilePath;
 
 		std::string _temporaryPath;
@@ -43,7 +45,9 @@ namespace Storm
 
 		bool _shouldDisplayHelp;
 
+		// Configs
 		Storm::MacroConfig _macroConfig;
 		Storm::GeneralConfig _generalConfig;
+		Storm::SceneConfig _sceneConfig;
 	};
 }
