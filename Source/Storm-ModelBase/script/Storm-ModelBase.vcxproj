@@ -27,8 +27,10 @@
     <ClInclude Include="..\include\ISimulatorManager.h" />
     <ClInclude Include="..\include\ITimeManager.h" />
     <ClInclude Include="..\include\IWindowsManager.h" />
+    <ClInclude Include="..\include\StormPrerequisite.h" />
     <ClInclude Include="..\include\Storm-ModelBasePCH.h" />
     <ClInclude Include="..\include\TimeWaitResult.h" />
+    <ClInclude Include="..\include\Vector3.h" />
     <ClInclude Include="..\include\WindowsCallbacks.h" />
   </ItemGroup>
   <ItemGroup>

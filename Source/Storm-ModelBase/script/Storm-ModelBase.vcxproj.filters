@@ -25,6 +25,9 @@
     <Filter Include="Header Files\Events">
       <UniqueIdentifier>{530b1741-32b1-4a2c-9d4a-0d2826540f53}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\General">
+      <UniqueIdentifier>{ed75b67c-0355-4bad-9046-25694bb7d10a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-ModelBasePCH.cpp">
@@ -70,6 +73,12 @@
     </ClInclude>
     <ClInclude Include="..\include\InputEvents.h">
       <Filter>Header Files\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Vector3.h">
+      <Filter>Header Files\General</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\StormPrerequisite.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
