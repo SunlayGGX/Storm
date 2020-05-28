@@ -2,7 +2,7 @@
 
 
 
-bool Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr)
+bool Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const Storm::MacroConfig &macroConfig)
 {
 	const std::filesystem::path sceneConfigFilePath{ sceneConfigFilePathStr };
 	if (std::filesystem::is_regular_file(sceneConfigFilePath))
