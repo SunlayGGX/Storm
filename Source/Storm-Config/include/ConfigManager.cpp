@@ -104,7 +104,11 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 			errorMsg = _sceneConfigFilePath + " should be pointing to an xml file!";
 		}
 
-		if (!errorMsg.empty())
+		if (errorMsg.empty())
+		{
+			_sceneConfig.read(_sceneConfigFilePath, _macroConfig);
+		}
+		else
 		{
 			LOG_FATAL << errorMsg;
 			Storm::throwException<std::exception>(errorMsg);
