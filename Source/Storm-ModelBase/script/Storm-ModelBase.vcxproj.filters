@@ -31,6 +31,9 @@
     <Filter Include="Header Files\General">
       <UniqueIdentifier>{ed75b67c-0355-4bad-9046-25694bb7d10a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Config\Includes">
+      <UniqueIdentifier>{99538e86-e5c4-48b7-8aed-eae5c4a90863}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-ModelBasePCH.cpp">
@@ -88,6 +91,9 @@
     </ClInclude>
     <ClInclude Include="..\include\SceneData.h">
       <Filter>Header Files\Config</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\DataIncludes.h">
+      <Filter>Header Files\Config\Includes</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
