@@ -101,5 +101,8 @@
     <ClInclude Include="..\include\DataIncludes.h">
       <Filter>Header Files\Config\Includes</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\GraphicData.h">
+      <Filter>Header Files\Config</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

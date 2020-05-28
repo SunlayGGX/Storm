@@ -2,4 +2,11 @@
 	<General>
 		<gravity x="0.0" y="-9.81" z="0.0" />
 	</General>
+	<Graphic>
+		<toto x="0.0" y="0.0" z="-5.0" />
+		<cameraPosition x="0.0" y="0.0" z="-5.0" />
+		<cameraLookAt x="0.0" y="0.0" z="0.0" />
+		<zNear>0.01</zNear>
+		<zFar>20.0</zFar>
+	</Graphic>
 </Scene>

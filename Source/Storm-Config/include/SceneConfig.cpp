@@ -46,7 +46,23 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 			!Storm::XmlReader::handleXml(generalXmlElement, "gravity", _sceneData->_gravity, parseVector3Element)
 			)
 		{
-			LOG_ERROR << generalXmlElement.first << " (inside Scene.General) is unknown, therefore it cannot be handled";
+			LOG_ERROR << "tag '" << generalXmlElement.first << "' (inside Scene.General) is unknown, therefore it cannot be handled";
+		}
+	}
+
+
+	/* Graphic */
+	const auto &graphicTree = srcTree.get_child("Graphic");
+	for (const auto &graphicXmlElement : graphicTree)
+	{
+		if (
+			!Storm::XmlReader::handleXml(graphicXmlElement, "cameraPosition", _sceneData->_graphicData->_cameraPosition, parseVector3Element) &&
+			!Storm::XmlReader::handleXml(graphicXmlElement, "cameraLookAt", _sceneData->_graphicData->_cameraLookAt, parseVector3Element) &&
+			!Storm::XmlReader::handleXml(graphicXmlElement, "zNear", _sceneData->_graphicData->_zNear) &&
+			!Storm::XmlReader::handleXml(graphicXmlElement, "zFar", _sceneData->_graphicData->_zFar)
+			)
+		{
+			LOG_ERROR << "tag '" << graphicXmlElement.first << "' (inside Scene.Graphic) is unknown, therefore it cannot be handled";
 		}
 	}
 
@@ -74,7 +90,7 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 						!Storm::XmlReader::handleXml(rigidBodyDataXml, "scale", rbData._scale, parseVector3Element)
 						)
 					{
-						LOG_ERROR << rigidBodyDataXml.first << " (inside Scene.Rigidbodies.RigidBody) is unknown, therefore it cannot be handled";
+						LOG_ERROR << "tag '" << rigidBodyDataXml.first << "' (inside Scene.Rigidbodies.RigidBody) is unknown, therefore it cannot be handled";
 					}
 				}
 
