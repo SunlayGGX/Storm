@@ -12,5 +12,7 @@ namespace Storm
 		Storm::Vector3 _translation;
 		Storm::Vector3 _rotation;
 		Storm::Vector3 _scale;
+
+		bool _static;
 	};
 }
