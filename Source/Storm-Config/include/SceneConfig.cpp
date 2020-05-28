@@ -27,7 +27,7 @@ namespace
 }
 
 
-bool Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const Storm::MacroConfig &macroConfig)
+void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const Storm::MacroConfig &macroConfig)
 {
 	_sceneData = std::make_unique<Storm::SceneData>();
 
