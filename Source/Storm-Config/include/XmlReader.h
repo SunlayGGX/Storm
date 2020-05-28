@@ -70,9 +70,9 @@ namespace Storm
 
 	public:
 		template<class ValueType>
-		static ValueType&& defaultValidator(ValueType&& val)
+		static auto defaultValidator(ValueType&& val)
 		{
-			return std::forward<ValueType>(val);
+			return val;
 		}
 
 	public:
