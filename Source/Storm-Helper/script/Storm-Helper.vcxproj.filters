@@ -73,6 +73,9 @@
     <Filter Include="Header Files\General\SmartPointer">
       <UniqueIdentifier>{29fa04f8-704d-4072-93ab-c8745d2334e8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Prerequisite">
+      <UniqueIdentifier>{d31db43b-aff1-4e0d-b62e-86082147bc4a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-HelperPCH.cpp">
@@ -118,9 +121,6 @@
     </ClInclude>
     <ClInclude Include="..\include\SizeCounter.h">
       <Filter>Header Files\MetaP</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\StormStdPrerequisite.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\include\CRTPHierarchy.h">
       <Filter>Header Files\MetaP</Filter>
@@ -193,6 +193,12 @@
     </ClInclude>
     <ClInclude Include="..\include\UniquePointer.h">
       <Filter>Header Files\General\SmartPointer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\StormHelperPrerequisite.h">
+      <Filter>Header Files\Prerequisite</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\StormStdPrerequisite.h">
+      <Filter>Header Files\Prerequisite</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
