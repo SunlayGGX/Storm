@@ -17,3 +17,8 @@ bool Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr)
 
 	return false;
 }
+
+const Storm::SceneData& Storm::SceneConfig::getSceneData() const
+{
+	return *_sceneData;
+}
