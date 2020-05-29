@@ -13,7 +13,11 @@
 
 namespace
 {
+#if false
 	const float g_defaultColor[4] = { 0.f, 1.f, 0.2f, 1.f };
+#else
+	const float g_defaultColor[4] = { 0.f, 0.f, 0.f, 1.f };
+#endif
 }
 
 Storm::GraphicManager::GraphicManager() :
