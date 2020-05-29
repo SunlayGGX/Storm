@@ -31,6 +31,7 @@ Storm::Camera::Camera(float viewportWidth, float viewportHeight) :
 	DirectX::XMFLOAT3 upFloat3{ 0.f, 1.f, 0.f };
 	_up = DirectX::XMLoadFloat3(&upFloat3);
 
+	this->buildWorldMatrix();
 	this->buildProjectionMatrix();
 	this->buildOrthoMatrix();
 	this->buildViewMatrix();
@@ -76,6 +77,26 @@ const DirectX::XMMATRIX& Storm::Camera::getOrthoMatrix() const noexcept
 	return _orthoMatrix;
 }
 
+const DirectX::XMMATRIX& Storm::Camera::getTransposedWorldMatrix() const noexcept
+{
+	return _transposedWorldMatrix;
+}
+
+const DirectX::XMMATRIX& Storm::Camera::getTransposedProjectionMatrix() const noexcept
+{
+	return _transposedProjectionMatrix;
+}
+
+const DirectX::XMMATRIX& Storm::Camera::getTransposedViewMatrix() const noexcept
+{
+	return _transposedViewMatrix;
+}
+
+const DirectX::XMMATRIX& Storm::Camera::getTransposedOrthoMatrix() const noexcept
+{
+	return _transposedOrthoMatrix;
+}
+
 const DirectX::XMFLOAT3& Storm::Camera::getPosition() const noexcept
 {
 	return _position;
@@ -116,7 +137,6 @@ void Storm::Camera::setTarget(float x, float y, float z)
 	_target.z = z;
 
 	this->buildViewMatrix();
-
 }
 
 void Storm::Camera::moveXAxis(float dx)
@@ -134,17 +154,26 @@ void Storm::Camera::moveZAxis(float dz)
 	this->setPosition(_position.x, _position.y, _position.z + dz);
 }
 
+void Storm::Camera::buildWorldMatrix()
+{
+	// TODO : build worldMatrix
+	_transposedWorldMatrix = DirectX::XMMatrixTranspose(_worldMatrix);
+}
+
 void Storm::Camera::buildProjectionMatrix()
 {
 	_projectionMatrix = DirectX::XMMatrixPerspectiveFovLH(_fieldOfView, _screenRatio, _nearPlane, _farPlane);
+	_transposedProjectionMatrix = DirectX::XMMatrixTranspose(_projectionMatrix);
 }
 
 void Storm::Camera::buildOrthoMatrix()
 {
 	_orthoMatrix = DirectX::XMMatrixOrthographicLH(_screenWidth, _screenHeight, _nearPlane, _farPlane);
+	_transposedOrthoMatrix = DirectX::XMMatrixTranspose(_orthoMatrix);
 }
 
 void Storm::Camera::buildViewMatrix()
 {
 	_viewMatrix = DirectX::XMMatrixLookAtLH(DirectX::XMLoadFloat3(&_position), DirectX::XMLoadFloat3(&_target), _up);
+	_transposedViewMatrix = DirectX::XMMatrixTranspose(_viewMatrix);
 }

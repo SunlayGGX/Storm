@@ -18,6 +18,11 @@ namespace Storm
 		const DirectX::XMMATRIX& getViewMatrix() const noexcept;
 		const DirectX::XMMATRIX& getOrthoMatrix() const noexcept;
 
+		const DirectX::XMMATRIX& getTransposedWorldMatrix() const noexcept;
+		const DirectX::XMMATRIX& getTransposedProjectionMatrix() const noexcept;
+		const DirectX::XMMATRIX& getTransposedViewMatrix() const noexcept;
+		const DirectX::XMMATRIX& getTransposedOrthoMatrix() const noexcept;
+
 		const DirectX::XMFLOAT3& getPosition() const noexcept;
 		const DirectX::XMFLOAT3& getTarget() const noexcept;
 
@@ -32,6 +37,7 @@ namespace Storm
 		void moveZAxis(float dz);
 
 	public:
+		void buildWorldMatrix();
 		void buildProjectionMatrix();
 		void buildOrthoMatrix();
 		void buildViewMatrix();
@@ -41,6 +47,11 @@ namespace Storm
 		DirectX::XMMATRIX _projectionMatrix;
 		DirectX::XMMATRIX _viewMatrix;
 		DirectX::XMMATRIX _orthoMatrix; // For 2D HUD
+
+		DirectX::XMMATRIX _transposedWorldMatrix;
+		DirectX::XMMATRIX _transposedProjectionMatrix;
+		DirectX::XMMATRIX _transposedViewMatrix;
+		DirectX::XMMATRIX _transposedOrthoMatrix; // For 2D HUD
 
 		DirectX::XMFLOAT3 _position;
 		DirectX::XMFLOAT3 _target;
