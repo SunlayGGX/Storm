@@ -15,6 +15,7 @@
     <ClCompile Include="..\include\DirectXController.cpp" />
     <ClCompile Include="..\include\DirectXValidator.cpp" />
     <ClCompile Include="..\include\GraphicManager.cpp" />
+    <ClCompile Include="..\include\Grid.cpp" />
     <ClCompile Include="..\include\ShaderManager.cpp" />
     <ClCompile Include="..\include\Storm-GraphicsPCH.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -27,6 +28,7 @@
     <ClInclude Include="..\include\DirectXController.h" />
     <ClInclude Include="..\include\DirectXValidator.h" />
     <ClInclude Include="..\include\GraphicManager.h" />
+    <ClInclude Include="..\include\Grid.h" />
     <ClInclude Include="..\include\ShaderManager.h" />
     <ClInclude Include="..\include\VPShader.h" />
     <ClInclude Include="..\include\Storm-GraphicsPCH.h" />
