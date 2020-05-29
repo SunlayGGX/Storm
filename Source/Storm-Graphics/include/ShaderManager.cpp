@@ -17,7 +17,7 @@ namespace
 	{
 		std::string compileErrorMsg;
 
-		UINT flag1 = 0;
+		UINT flag1 = D3D10_SHADER_ENABLE_STRICTNESS;
 
 #if defined(DEBUG) || defined(_DEBUG)
 		flag1 |= D3DCOMPILE_DEBUG;
@@ -27,12 +27,25 @@ namespace
 #endif
 
 		ComPtr<ID3DBlob> errorMsg;
-		D3DCompileFromFile(shaderFilePath.wstring().c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, shaderFuncName.data(), target.data(), flag1, 0, &blobRes, &errorMsg);
-
-		const std::size_t errorBufferSize = errorMsg->GetBufferSize();
-		if (errorBufferSize > 0)
+		HRESULT res = D3DCompileFromFile(shaderFilePath.wstring().c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, shaderFuncName.data(), target.data(), flag1, 0, &blobRes, &errorMsg);
+		
+		if (FAILED(res))
 		{
-			compileErrorMsg.append(static_cast<const char*>(errorMsg->GetBufferPointer()), errorBufferSize);
+			compileErrorMsg += "Compilation failed! Reason : " + std::filesystem::path{ _com_error{ res }.ErrorMessage() }.string() + '\n';
+
+			if (errorMsg)
+			{
+				const std::size_t errorBufferSize = errorMsg->GetBufferSize();
+				if (errorBufferSize > 0)
+				{
+					compileErrorMsg += "Compile error are ";
+					compileErrorMsg.append(static_cast<const char*>(errorMsg->GetBufferPointer()), errorBufferSize);
+				}
+			}
+			else
+			{
+				compileErrorMsg += "Error blob null => Shader " + shaderFilePath.string() + " was missing!";
+			}
 		}
 
 		return compileErrorMsg;
@@ -195,7 +208,7 @@ void* Storm::ShaderManager::requestCompiledShaderBlobs(const std::string &shader
 		std::string outCompileErrorMsg = compileShader(shaderFilePath, shaderFuncName, target, shaderBlob);
 		if (!outCompileErrorMsg.empty())
 		{
-			std::string fullError = "Shader compilation errors detected for '" + shaderFilePath + "' (compiling method " + shaderFuncName + ") : " + outCompileErrorMsg;
+			std::string fullError = "Shader compilation failure for '" + shaderFilePath + "' (compiling method " + shaderFuncName + ") : " + outCompileErrorMsg;
 			LOG_ERROR << fullError;
 			Storm::throwException<std::exception>("Shader compilation errors detected for '" + shaderFilePath + "' (compiling method " + shaderFuncName + ") : " + outCompileErrorMsg);
 		}
