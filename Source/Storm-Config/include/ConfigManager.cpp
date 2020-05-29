@@ -164,6 +164,21 @@ bool Storm::ConfigManager::shouldDisplayHelp() const
 	return _shouldDisplayHelp;
 }
 
+const Storm::SceneData& Storm::ConfigManager::getSceneData() const
+{
+	return _sceneConfig.getSceneData();
+}
+
+const Storm::GraphicData& Storm::ConfigManager::getGraphicData() const
+{
+	return *_sceneConfig.getSceneData()._graphicData;
+}
+
+const std::vector<Storm::RigidBodySceneData>& Storm::ConfigManager::getRigidBodiesData() const
+{
+	return _sceneConfig.getSceneData()._rigidBodiesData;
+}
+
 const std::string& Storm::ConfigManager::getLogFileName() const
 {
 	return _generalConfig._logFileName;

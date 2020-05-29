@@ -34,6 +34,10 @@ namespace Storm
 
 		bool shouldDisplayHelp() const;
 
+		virtual const Storm::SceneData& getSceneData() const override;
+		virtual const Storm::GraphicData& getGraphicData() const override;
+		virtual const std::vector<Storm::RigidBodySceneData>& getRigidBodiesData() const override;
+
 	private:
 		// Members that could be extracted from Command line.
 		std::string _sceneConfigFilePath;
