@@ -32,6 +32,11 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 
 		_macroConfig.initialize();
 
+		// Set the current working directory path to the path of the executable to prevent mismatch depending on where we start the application.
+		// This can happen for example if we start the exe from VS, or start it from cmd line : We would like the same behavior in both cases.
+		const std::filesystem::path exeFolderPath = _macroConfig("$[StormFolderExe]");
+		std::filesystem::current_path(exeFolderPath);
+
 		std::filesystem::path configFolderPath{ *_macroConfig.queryMacroValue("StormConfig") };
 		std::filesystem::path customConfigFolderPath = configFolderPath / "Custom";
 		std::filesystem::path defaultSceneConfigFolderPath = customConfigFolderPath / "Scenes";
