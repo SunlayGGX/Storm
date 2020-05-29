@@ -189,6 +189,8 @@ void* Storm::ShaderManager::requestCompiledShaderBlobs(const std::string &shader
 	
 	if (hasCachedBlobs)
 	{
+		LOG_COMMENT << "Shader " << shaderFilePath << " (for function : " << shaderFuncName << ") has already been compiled and its cache is up to date. We will load the cached data instead of compiling it anew.";
+
 		std::size_t blobSize = std::filesystem::file_size(expectedShaderBlobFilePath);
 		
 		HRESULT res = D3DCreateBlob(blobSize, &shaderBlob);
@@ -204,6 +206,8 @@ void* Storm::ShaderManager::requestCompiledShaderBlobs(const std::string &shader
 	}
 	else
 	{
+		LOG_COMMENT << "We will now compile Shader " << shaderFilePath << " (for function : " << shaderFuncName << ") and generate its cache for a next reloading.";
+
 		std::string outCompileErrorMsg = compileShader(shaderFilePath, shaderFuncName, target, shaderBlob);
 		if (!outCompileErrorMsg.empty())
 		{
