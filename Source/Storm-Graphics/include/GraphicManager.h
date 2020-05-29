@@ -8,6 +8,7 @@ namespace Storm
 {
 	class DirectXController;
 	class Camera;
+	class IRenderedElement;
 
 	class GraphicManager :
 		private Storm::Singleton<GraphicManager>,
@@ -31,6 +32,8 @@ namespace Storm
 
 		std::unique_ptr<Storm::DirectXController> _directXController;
 		std::unique_ptr<Storm::Camera> _camera;
+
+		std::vector<std::unique_ptr<Storm::IRenderedElement>> _renderedElements;
 
 		std::thread _renderThread;
 	};

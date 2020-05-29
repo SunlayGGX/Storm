@@ -3,6 +3,8 @@
 #include "DirectXController.h"
 #include "Camera.h"
 
+#include "Grid.h"
+
 #include "SingletonHolder.h"
 #include "IWindowsManager.h"
 #include "ITimeManager.h"
@@ -63,6 +65,8 @@ void Storm::GraphicManager::initialize_Implementation(void* hwnd)
 	_directXController->initialize(static_cast<HWND>(hwnd));
 
 	_camera = std::make_unique<Storm::Camera>(_directXController->getViewportWidth(), _directXController->getViewportHeight());
+	_renderedElements.emplace_back(std::make_unique<Storm::Grid>(_directXController->getDirectXDevice(), Storm::Vector3{ 15.f, 0.f, 15.f }));
+
 	_renderThread = std::thread([this]()
 	{
 		Storm::ITimeManager* timeMgr = Storm::SingletonHolder::instance().getFacet<Storm::ITimeManager>();
@@ -88,6 +92,8 @@ void Storm::GraphicManager::update()
 		_directXController->clearRenderTarget(g_defaultColor);
 
 		// TODO
+
+		_directXController->renderElements(this->getCamera(), _renderedElements);
 
 		_directXController->drawRenderTarget();
 	}
