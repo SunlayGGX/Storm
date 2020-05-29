@@ -18,7 +18,7 @@ namespace Storm
 		void cleanUp_Implementation();
 
 	public:
-		virtual void* requestCompiledShaderBlobs(const std::string &shaderFilePath, const std::string_view &shaderFuncName, const std::string_view &target) override;
+		void* requestCompiledShaderBlobs(const std::string &shaderFilePath, const std::string_view &shaderFuncName, const std::string_view &target) final override;
 
 	private:
 		void flushCache() const;
