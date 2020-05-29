@@ -55,8 +55,21 @@ void Storm::DirectXController::clearRenderTarget(const float(&clearColor)[4])
 void Storm::DirectXController::drawRenderTarget()
 {
 	Storm::throwIfFailed(_swapChain->Present(1, 0));
+}
 	_deviceContext->OMSetRenderTargets(1, _renderTarget.GetAddressOf(), nullptr);
 
+const ComPtr<ID3D11Device>& Storm::DirectXController::getDirectXDevice() const noexcept
+{
+	return _device;
+}
+
+const ComPtr<ID3D11DeviceContext>& Storm::DirectXController::getDirectXDeviceContext() const noexcept
+{
+	return _deviceContext;
+}
+
+void Storm::DirectXController::renderElements(const Storm::Camera &currentCamera, const std::vector<std::unique_ptr<Storm::IRenderedElement>> &renderedElementArrays) const
+{
 }
 
 void Storm::DirectXController::setupSwapChain(HWND hwnd)
