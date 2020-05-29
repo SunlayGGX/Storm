@@ -42,6 +42,9 @@
     <ClCompile Include="..\include\DirectXValidator.cpp">
       <Filter>Source Files\DirectX</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\VPShader.cpp">
+      <Filter>Source Files\DirectX</Filter>
+    </ClCompile>
     <ClCompile Include="..\include\GraphicManager.cpp">
       <Filter>Source Files\GraphicComponent</Filter>
     </ClCompile>
@@ -68,6 +71,8 @@
     <ClInclude Include="..\include\Camera.h">
       <Filter>Header Files\GraphicComponent</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\VPShader.h">
+      <Filter>Header Files\Shaders</Filter>
     </ClInclude>
     <ClInclude Include="..\include\ShaderManager.h">
       <Filter>Header Files\Shaders</Filter>

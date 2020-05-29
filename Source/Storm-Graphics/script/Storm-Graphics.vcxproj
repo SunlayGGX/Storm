@@ -20,6 +20,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\include\VPShader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Camera.h" />
@@ -27,6 +28,7 @@
     <ClInclude Include="..\include\DirectXValidator.h" />
     <ClInclude Include="..\include\GraphicManager.h" />
     <ClInclude Include="..\include\ShaderManager.h" />
+    <ClInclude Include="..\include\VPShader.h" />
     <ClInclude Include="..\include\Storm-GraphicsPCH.h" />
   </ItemGroup>
   <ItemGroup>
