@@ -1,5 +1,6 @@
 #include "ThrowException.h"
 #include "Grid.h"
+#include "GridShader.h"
 
 
 namespace
@@ -85,10 +86,7 @@ Storm::Grid::Grid(const ComPtr<ID3D11Device> &device, Storm::Vector3 maxPt)
 		vertexData.SysMemPitch = 0;
 		vertexData.SysMemSlicePitch = 0;
 
-		if (FAILED(device->CreateBuffer(&vertexBufferDesc, &vertexData, &_vertexBuffer)))
-		{
-			Storm::throwException<std::exception>("Cannot create vertex buffer for grid object!");
-		}
+		Storm::throwIfFailed(device->CreateBuffer(&vertexBufferDesc, &vertexData, &_vertexBuffer));
 
 		// Create Indexes data
 		D3D11_BUFFER_DESC indexBufferDesc;
@@ -105,10 +103,9 @@ Storm::Grid::Grid(const ComPtr<ID3D11Device> &device, Storm::Vector3 maxPt)
 		indexData.SysMemPitch = 0;
 		indexData.SysMemSlicePitch = 0;
 
-		if (FAILED(device->CreateBuffer(&indexBufferDesc, &indexData, &_indexBuffer)))
-		{
-			Storm::throwException<std::exception>("Cannot create index buffer for grid object!");
-		}
+		Storm::throwIfFailed(device->CreateBuffer(&indexBufferDesc, &indexData, &_indexBuffer));
+
+		_gridShader = std::make_unique<Storm::GridShader>(device, totalIndexCount);
 	}
 	else
 	{
@@ -116,14 +113,21 @@ Storm::Grid::Grid(const ComPtr<ID3D11Device> &device, Storm::Vector3 maxPt)
 	}
 }
 
-void Storm::Grid::drawGrid(const ComPtr<ID3D11DeviceContext> &immediateContext)
+void Storm::Grid::render(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera)
+{
+	this->drawGrid(deviceContext);
+	_gridShader->render(device, deviceContext, currentCamera);
+}
+
+void Storm::Grid::drawGrid(const ComPtr<ID3D11DeviceContext> &deviceContext)
 {
 	constexpr UINT stride = sizeof(GridVertexType);
 	constexpr UINT offset = 0;
 
-	immediateContext->IASetVertexBuffers(0, 1, &_vertexBuffer, &stride, &offset);
+	ID3D11Buffer*const tmp = _vertexBuffer.Get();
+	deviceContext->IASetVertexBuffers(0, 1, &tmp, &stride, &offset);
 
-	immediateContext->IASetIndexBuffer(_indexBuffer.Get(), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
+	deviceContext->IASetIndexBuffer(_indexBuffer.Get(), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
 
-	immediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_LINELIST);
+	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_LINELIST);
 }
