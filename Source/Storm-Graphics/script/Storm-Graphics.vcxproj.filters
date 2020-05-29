@@ -57,6 +57,9 @@
     <ClCompile Include="..\include\ShaderManager.cpp">
       <Filter>Source Files\Shaders</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\GridShader.cpp">
+      <Filter>Source Files\Shaders</Filter>
+    </ClCompile>
     <ClCompile Include="..\include\VPShader.cpp">
       <Filter>Source Files\Shaders</Filter>
     </ClCompile>
@@ -85,6 +88,9 @@
     </ClInclude>
     <ClInclude Include="..\include\Grid.h">
       <Filter>Header Files\GraphicComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\GridShader.h">
+      <Filter>Header Files\Shaders</Filter>
     </ClInclude>
     <ClInclude Include="..\include\ThrowIfFailed.h">
       <Filter>Header Files\DirectX\Helper</Filter>
