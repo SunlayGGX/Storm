@@ -1,5 +1,6 @@
 #include "DirectXController.h"
 #include "MemoryHelper.h"
+#include "IRenderedElement.h"
 
 
 
@@ -72,6 +73,10 @@ const ComPtr<ID3D11DeviceContext>& Storm::DirectXController::getDirectXDeviceCon
 
 void Storm::DirectXController::renderElements(const Storm::Camera &currentCamera, const std::vector<std::unique_ptr<Storm::IRenderedElement>> &renderedElementArrays) const
 {
+	for (const auto &renderedElement : renderedElementArrays)
+	{
+		renderedElement->render(_device, _deviceContext, currentCamera);
+	}
 }
 
 void Storm::DirectXController::setupSwapChain(HWND hwnd)
