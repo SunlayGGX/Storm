@@ -13,39 +13,64 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Source Files\DirectX">
+      <UniqueIdentifier>{9bb66818-d7f1-4528-b065-1e6c605520b7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\DirectX">
+      <UniqueIdentifier>{4a94e626-1ff3-4635-9b8f-63d99a21caa8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\GraphicComponent">
+      <UniqueIdentifier>{ebb14b5a-d135-4b5e-bbc1-ce87e59a39bc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\GraphicComponent">
+      <UniqueIdentifier>{c5f4c702-6f26-4ab5-974b-80c1037db0f6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shaders">
+      <UniqueIdentifier>{0926fd92-833d-49bc-be2f-5bc62a6d2eb3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shaders">
+      <UniqueIdentifier>{5426c407-b8b6-426b-97ca-580959c2324a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-GraphicsPCH.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\include\GraphicManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\include\Camera.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="..\include\DirectXController.cpp">
+      <Filter>Source Files\DirectX</Filter>
     </ClCompile>
     <ClCompile Include="..\include\DirectXValidator.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\DirectX</Filter>
     </ClCompile>
-    <ClCompile Include="..\include\DirectXController.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="..\include\GraphicManager.cpp">
+      <Filter>Source Files\GraphicComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\Camera.cpp">
+      <Filter>Source Files\GraphicComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\ShaderManager.cpp">
+      <Filter>Source Files\Shaders</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-GraphicsPCH.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\GraphicManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Camera.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\DirectXValidator.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\DirectX</Filter>
     </ClInclude>
     <ClInclude Include="..\include\DirectXController.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\DirectX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\GraphicManager.h">
+      <Filter>Header Files\GraphicComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Camera.h">
+      <Filter>Header Files\GraphicComponent</Filter>
+    </ClInclude>
+    </ClInclude>
+    <ClInclude Include="..\include\ShaderManager.h">
+      <Filter>Header Files\Shaders</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

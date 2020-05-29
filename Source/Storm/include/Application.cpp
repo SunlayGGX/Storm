@@ -6,6 +6,7 @@
 #include "ConfigManager.h"
 #include "WindowsManager.h"
 #include "InputManager.h"
+#include "ShaderManager.h"
 #include "GraphicManager.h"
 #include "OSManager.h"
 #include "RandomManager.h"
@@ -27,6 +28,7 @@ namespace
 		Storm::TimeManager,
 		Storm::InputManager,
 		Storm::WindowsManager,
+		Storm::ShaderManager,
 		Storm::GraphicManager,
 		Storm::PhysicsManager,
 		Storm::SimulatorManager
@@ -57,6 +59,7 @@ namespace
 
 		Storm::PhysicsManager::instance().initialize();
 
+		Storm::ShaderManager::instance().initialize();
 		Storm::GraphicManager::instance().initialize();
 
 		LOG_COMMENT << "Application Creation finished";
@@ -72,6 +75,7 @@ namespace
 			Storm::SimulatorManager::instance().cleanUp();
 			Storm::InputManager::instance().cleanUp();
 			Storm::GraphicManager::instance().cleanUp();
+			Storm::ShaderManager::instance().cleanUp();
 			Storm::PhysicsManager::instance().cleanUp();
 			Storm::WindowsManager::instance().cleanUp();
 			Storm::OSManager::instance().cleanUp();

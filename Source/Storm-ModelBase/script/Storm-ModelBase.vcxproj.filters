@@ -104,5 +104,8 @@
     <ClInclude Include="..\include\GraphicData.h">
       <Filter>Header Files\Config</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\IShaderManager.h">
+      <Filter>Header Files\Singleton</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

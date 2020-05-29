@@ -27,6 +27,7 @@
     <ClInclude Include="..\include\IOSManager.h" />
     <ClInclude Include="..\include\IPhysicsManager.h" />
     <ClInclude Include="..\include\IRandomManager.h" />
+    <ClInclude Include="..\include\IShaderManager.h" />
     <ClInclude Include="..\include\RigidBodySceneData.h" />
     <ClInclude Include="..\include\ISimulatorManager.h" />
     <ClInclude Include="..\include\ITimeManager.h" />
