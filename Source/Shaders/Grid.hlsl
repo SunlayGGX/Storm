@@ -13,30 +13,30 @@ cbuffer ConstantBuffer
 
 struct VertexInputType
 {
-    float4 position : POSITION;
+    float4 _position : POSITION;
 };
 
 struct PixelInputType
 {
-    float4 position : SV_POSITION;
+    float4 _position : SV_POSITION;
 };
 
-PixelInputType ColorVertexShader(VertexInputType input)
+PixelInputType gridVertexShader(VertexInputType input)
 {
     PixelInputType output;
     
     // Change the position vector to be 4 units for proper matrix calculations.
-    input.position.w = 1.0f;
+    input._position.w = 1.0f;
 	
     // Calculate the position of the vertex against the world, view, and projection matrices.
-    output.position = mul(input.position, worldMatrix);
-    output.position = mul(output.position, viewMatrix);
-    output.position = mul(output.position, projectionMatrix);
+    output._position = mul(input._position, _worldMatrix);
+    output._position = mul(output._position, _viewMatrix);
+    output._position = mul(output._position, _projectionMatrix);
     
     return output;
 }
 
-float4 ColorPixelShader(PixelInputType input) : SV_TARGET
+float4 gridPixelShader(PixelInputType input) : SV_TARGET
 {
     return _gridColor;
 }
