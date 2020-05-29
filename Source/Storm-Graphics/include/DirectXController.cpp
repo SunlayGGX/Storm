@@ -47,16 +47,18 @@ void Storm::DirectXController::cleanUp()
 
 }
 
-void Storm::DirectXController::clearRenderTarget(const float(&clearColor)[4])
+void Storm::DirectXController::initializeDrawingFrame(const float(&clearColor)[4])
 {
 	_deviceContext->ClearRenderTargetView(_renderTarget.Get(), clearColor);
+	_deviceContext->ClearDepthStencilView(_depthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
+
+	_deviceContext->OMSetRenderTargets(1, _renderTarget.GetAddressOf(), nullptr);
 }
 
 void Storm::DirectXController::drawRenderTarget()
 {
 	Storm::throwIfFailed(_swapChain->Present(1, 0));
 }
-	_deviceContext->OMSetRenderTargets(1, _renderTarget.GetAddressOf(), nullptr);
 
 const ComPtr<ID3D11Device>& Storm::DirectXController::getDirectXDevice() const noexcept
 {

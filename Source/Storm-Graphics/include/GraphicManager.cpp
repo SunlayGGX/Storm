@@ -89,7 +89,7 @@ void Storm::GraphicManager::update()
 {
 	if (_renderCounter++ % 2 == 0)
 	{
-		_directXController->clearRenderTarget(g_defaultColor);
+		_directXController->initializeDrawingFrame(g_defaultColor);
 
 		// TODO
 

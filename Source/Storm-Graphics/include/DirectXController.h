@@ -13,7 +13,7 @@ namespace Storm
 		void cleanUp();
 
 	public:
-		void clearRenderTarget(const float(&clearColor)[4]);
+		void initializeDrawingFrame(const float(&clearColor)[4]);
 		void drawRenderTarget();
 
 	public:
