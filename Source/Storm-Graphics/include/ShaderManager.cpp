@@ -177,13 +177,19 @@ void* Storm::ShaderManager::requestCompiledShaderBlobs(const std::string &shader
 	const Storm::IConfigManager* configMgr = Storm::SingletonHolder::instance().getFacet<Storm::IConfigManager>();
 	const std::string &tmpPath = configMgr->getTemporaryPath();
 
+	const auto shaderFoundTimestamp = std::filesystem::last_write_time(shaderFilePath);
+
 	const std::filesystem::path expectedShaderBlobFilePath = getShaderBlobCacheFilePath(tmpPath, shaderFilePath, shaderFuncName);
 	if (std::filesystem::exists(expectedShaderBlobFilePath))
 	{
 		std::lock_guard<std::mutex> lock{ _mutex };
 		if (const auto cachedShaderIt = _compiledShaderMapCache.find(getShaderIdentifier(shaderFilePath, shaderFuncName)); cachedShaderIt != std::end(_compiledShaderMapCache))
 		{
-			hasCachedBlobs = cachedShaderIt->second == std::filesystem::last_write_time(expectedShaderBlobFilePath);
+			hasCachedBlobs = cachedShaderIt->second == shaderFoundTimestamp;
+			if (!hasCachedBlobs)
+			{
+				LOG_COMMENT << "Shader " << shaderFilePath << " (for function : " << shaderFuncName << ") cache is not up to date, therefore should be invalidated.";
+			}
 		}
 	}
 	
@@ -221,6 +227,8 @@ void* Storm::ShaderManager::requestCompiledShaderBlobs(const std::string &shader
 			static_cast<const char*>(shaderBlob->GetBufferPointer()),
 			shaderBlob->GetBufferSize()
 		);
+
+		std::filesystem::last_write_time(expectedShaderBlobFilePath, shaderFoundTimestamp);
 
 		std::lock_guard<std::mutex> lock{ _mutex };
 		_compiledShaderMapCache[getShaderIdentifier(shaderFilePath, shaderFuncName)] = std::filesystem::last_write_time(expectedShaderBlobFilePath);
