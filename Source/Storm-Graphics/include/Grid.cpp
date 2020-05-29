@@ -17,8 +17,8 @@ namespace
 		{}
 
 	public:
-		DirectX::XMFLOAT4 firstPt;
-		DirectX::XMFLOAT4 secondPt;
+		PointType firstPt;
+		PointType secondPt;
 	};
 }
 
@@ -76,7 +76,7 @@ Storm::Grid::Grid(const ComPtr<ID3D11Device> &device, Storm::Vector3 maxPt)
 		D3D11_SUBRESOURCE_DATA vertexData;
 
 		vertexBufferDesc.Usage = D3D11_USAGE::D3D11_USAGE_DEFAULT;
-		vertexBufferDesc.ByteWidth = sizeof(GridVertexType::PointType) * static_cast<UINT>(gridVertexData.size());
+		vertexBufferDesc.ByteWidth = sizeof(GridVertexType) * static_cast<UINT>(gridVertexData.size());
 		vertexBufferDesc.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_VERTEX_BUFFER;
 		vertexBufferDesc.CPUAccessFlags = 0;
 		vertexBufferDesc.MiscFlags = 0;
@@ -115,6 +115,7 @@ Storm::Grid::Grid(const ComPtr<ID3D11Device> &device, Storm::Vector3 maxPt)
 
 void Storm::Grid::render(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera)
 {
+	_gridShader->setup(device, deviceContext, currentCamera);
 	this->drawGrid(deviceContext);
 	_gridShader->render(device, deviceContext, currentCamera);
 }
@@ -124,10 +125,10 @@ void Storm::Grid::drawGrid(const ComPtr<ID3D11DeviceContext> &deviceContext)
 	constexpr UINT stride = sizeof(GridVertexType);
 	constexpr UINT offset = 0;
 
-	ID3D11Buffer*const tmp = _vertexBuffer.Get();
-	deviceContext->IASetVertexBuffers(0, 1, &tmp, &stride, &offset);
+	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 
 	deviceContext->IASetIndexBuffer(_indexBuffer.Get(), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
 
-	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_LINELIST);
+	ID3D11Buffer*const tmpVertexBuffer = _vertexBuffer.Get();
+	deviceContext->IASetVertexBuffers(0, 1, &tmpVertexBuffer, &stride, &offset);
 }

@@ -32,6 +32,9 @@ namespace Storm
 		bool getShouldLogFpsWatching() const final override;
 		bool noPopup() const final override;
 
+		unsigned int getWantedScreenWidth() const final override;
+		unsigned int getWantedScreenHeight() const final override;
+
 		bool shouldDisplayHelp() const;
 
 		virtual const Storm::SceneData& getSceneData() const override;

@@ -31,6 +31,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Storm-Misc", "Source\Storm-
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Storm-Simulator", "Source\Storm-Simulator\script\Storm-Simulator.vcxproj", "{C115891C-7BDB-4A4C-B19C-24E39536A051}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shaders", "Shaders", "{1C8BF644-7554-4E5E-96B0-D36429EA84F2}"
+	ProjectSection(SolutionItems) = preProject
+		Source\Shaders\Grid.hlsl = Source\Shaders\Grid.hlsl
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64

@@ -43,8 +43,10 @@ Storm::VPShaderBase::VPShaderBase(const ComPtr<ID3D11Device> &device, const std:
 
 void Storm::VPShaderBase::setupDeviceContext(const ComPtr<ID3D11DeviceContext> &deviceContext) const
 {
+	deviceContext->VSSetShader(_vertexShader.Get(), nullptr, 0);
+	deviceContext->GSSetShader(nullptr, nullptr, 0);
+
 	deviceContext->IASetInputLayout(_vertexShaderInputLayout.Get());
 
-	deviceContext->VSSetShader(_vertexShader.Get(), nullptr, 0);
 	deviceContext->PSSetShader(_pixelShader.Get(), nullptr, 0);
 }

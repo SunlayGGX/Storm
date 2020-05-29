@@ -14,10 +14,6 @@ namespace
 		DirectX::XMMATRIX _projectionMatrix;
 
 		DirectX::XMVECTOR _gridColor;
-
-		DirectX::XMVECTOR _padding1;
-		DirectX::XMVECTOR _padding2;
-		DirectX::XMVECTOR _padding3;
 	};
 
 	static const std::string k_gridShaderFilePath = "Shaders/Grid.hlsl";
@@ -64,25 +60,33 @@ Storm::GridShader::GridShader(const ComPtr<ID3D11Device> &device, unsigned int i
 
 void Storm::GridShader::render(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera)
 {
+	deviceContext->DrawIndexed(_gridIndexCount, 0, 0);
+}
+
+void Storm::GridShader::setup(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera)
+{
+	// Setup the device context
+	this->setupDeviceContext(deviceContext);
+
 	// Write shaders parameters
 
 	D3D11_MAPPED_SUBRESOURCE gridConstantBufferRessource;
 	Storm::throwIfFailed(deviceContext->Map(_constantBuffer.Get(), 0, D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, &gridConstantBufferRessource));
 
 	ConstantBuffer*const ressourceDataPtr = static_cast<ConstantBuffer*>(gridConstantBufferRessource.pData);
-	
+
 	ressourceDataPtr->_worldMatrix = currentCamera.getTransposedWorldMatrix();
 	ressourceDataPtr->_viewMatrix = currentCamera.getTransposedViewMatrix();
 	ressourceDataPtr->_projectionMatrix = currentCamera.getTransposedProjectionMatrix();
+
+	DirectX::XMFLOAT3 gridColor{ 0.7f, 0.7f, 0.7f };
+	ressourceDataPtr->_gridColor = DirectX::XMLoadFloat3(&gridColor);
+	ressourceDataPtr->_gridColor.m128_f32[3] = 1.f;
 
 	deviceContext->Unmap(_constantBuffer.Get(), 0);
 
 	ID3D11Buffer*const constantBufferTmp = _constantBuffer.Get();
 	deviceContext->VSSetConstantBuffers(0, 1, &constantBufferTmp);
-
-	// Setup the device context
-	this->setupDeviceContext(deviceContext);
-
-	deviceContext->DrawIndexed(_gridIndexCount, 0, 0);
+	deviceContext->PSSetConstantBuffers(0, 1, &constantBufferTmp);
 }
 

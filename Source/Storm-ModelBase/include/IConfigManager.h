@@ -28,6 +28,10 @@ namespace Storm
 		virtual bool getShouldLogFpsWatching() const = 0;
 		virtual bool noPopup() const = 0;
 
+		// General Graphics
+		virtual unsigned int getWantedScreenWidth() const = 0;
+		virtual unsigned int getWantedScreenHeight() const = 0;
+
 		// Scene data
 		virtual const Storm::SceneData& getSceneData() const = 0;
 		virtual const Storm::GraphicData& getGraphicData() const = 0;

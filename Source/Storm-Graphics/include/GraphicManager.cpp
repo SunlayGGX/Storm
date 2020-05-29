@@ -93,13 +93,15 @@ void Storm::GraphicManager::update()
 {
 	if (_renderCounter++ % 2 == 0)
 	{
-		_directXController->initializeDrawingFrame(g_defaultColor);
+		_directXController->clearView(g_defaultColor);
+		_directXController->initView();
 
 		// TODO
 
 		_directXController->renderElements(this->getCamera(), _renderedElements);
 
-		_directXController->drawRenderTarget();
+		_directXController->unbindTargetView();
+		_directXController->presentToDisplay();
 	}
 }
 

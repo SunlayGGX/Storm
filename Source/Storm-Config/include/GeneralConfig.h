@@ -23,5 +23,9 @@ namespace Storm
 		bool _overrideLogs;
 		bool _shouldLogFPSWatching;
 		int _removeLogsOlderThanDays;
+
+		// Graphics
+		unsigned int _wantedApplicationWidth;
+		unsigned int _wantedApplicationHeight;
 	};
 }

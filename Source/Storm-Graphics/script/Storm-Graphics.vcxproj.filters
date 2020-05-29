@@ -42,9 +42,6 @@
     <ClCompile Include="..\include\DirectXController.cpp">
       <Filter>Source Files\DirectX</Filter>
     </ClCompile>
-    <ClCompile Include="..\include\DirectXValidator.cpp">
-      <Filter>Source Files\DirectX</Filter>
-    </ClCompile>
     <ClCompile Include="..\include\Grid.cpp">
       <Filter>Source Files\GraphicComponent</Filter>
     </ClCompile>
@@ -63,13 +60,13 @@
     <ClCompile Include="..\include\VPShader.cpp">
       <Filter>Source Files\Shaders</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\DirectXHardwareInfo.cpp">
+      <Filter>Source Files\DirectX</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-GraphicsPCH.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\DirectXValidator.h">
-      <Filter>Header Files\DirectX</Filter>
     </ClInclude>
     <ClInclude Include="..\include\DirectXController.h">
       <Filter>Header Files\DirectX</Filter>
@@ -97,6 +94,9 @@
     </ClInclude>
     <ClInclude Include="..\include\IRenderedElement.h">
       <Filter>Header Files\GraphicComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\DirectXHardwareInfo.h">
+      <Filter>Header Files\DirectX</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -37,7 +37,9 @@ Storm::GeneralConfig::GeneralConfig() :
 	_logLevel{ Storm::LogLevel::Debug },
 	_overrideLogs{ true },
 	_removeLogsOlderThanDays{ -1 },
-	_shouldLogFPSWatching{ false }
+	_shouldLogFPSWatching{ false },
+	_wantedApplicationHeight{ 800 },
+	_wantedApplicationWidth{ 1200 }
 {
 
 }
@@ -71,6 +73,22 @@ bool Storm::GeneralConfig::read(const std::string &generalConfigFilePathStr)
 						)
 					{
 						LOG_ERROR << logXmlElement.first << " (inside General.Log) is unknown, therefore it cannot be handled";
+					}
+				}
+			}
+
+			const auto &graphicTreeOpt = generalTree.get_child_optional("Graphics");
+			if (graphicTreeOpt.has_value())
+			{
+				const auto &graphicTree = graphicTreeOpt.value();
+				for (const auto &graphicXmlElement : graphicTree)
+				{
+					if (
+						!Storm::XmlReader::handleXml(graphicXmlElement, "screenWidth", _wantedApplicationWidth) &&
+						!Storm::XmlReader::handleXml(graphicXmlElement, "screenHeight", _wantedApplicationHeight)
+						)
+					{
+						LOG_ERROR << graphicXmlElement.first << " (inside General.Graphics) is unknown, therefore it cannot be handled";
 					}
 				}
 			}

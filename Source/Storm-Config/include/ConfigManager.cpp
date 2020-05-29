@@ -164,6 +164,16 @@ bool Storm::ConfigManager::noPopup() const
 	return _allowPopup;
 }
 
+unsigned int Storm::ConfigManager::getWantedScreenWidth() const
+{
+	return _generalConfig._wantedApplicationWidth;
+}
+
+unsigned int Storm::ConfigManager::getWantedScreenHeight() const
+{
+	return _generalConfig._wantedApplicationHeight;
+}
+
 bool Storm::ConfigManager::shouldDisplayHelp() const
 {
 	return _shouldDisplayHelp;

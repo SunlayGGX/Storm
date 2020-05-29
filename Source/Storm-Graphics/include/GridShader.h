@@ -14,6 +14,8 @@ namespace Storm
 	public:
 		void render(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera) final override;
 
+		void setup(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera);
+
 	private:
 		ComPtr<ID3D11Buffer> _constantBuffer;
 		unsigned int _gridIndexCount;
