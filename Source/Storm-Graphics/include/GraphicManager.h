@@ -7,6 +7,7 @@
 namespace Storm
 {
 	class DirectXController;
+	class Camera;
 
 	class GraphicManager :
 		private Storm::Singleton<GraphicManager>,
@@ -22,10 +23,14 @@ namespace Storm
 	public:
 		void update() final override;
 
+	public:
+		const Storm::Camera& getCamera() const;
+
 	private:
 		unsigned char _renderCounter;
 
 		std::unique_ptr<Storm::DirectXController> _directXController;
+		std::unique_ptr<Storm::Camera> _camera;
 
 		std::thread _renderThread;
 	};

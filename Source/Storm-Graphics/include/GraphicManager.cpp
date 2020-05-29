@@ -1,5 +1,7 @@
 #include "GraphicManager.h"
+
 #include "DirectXController.h"
+#include "Camera.h"
 
 #include "SingletonHolder.h"
 #include "IWindowsManager.h"
@@ -60,6 +62,7 @@ void Storm::GraphicManager::initialize_Implementation(void* hwnd)
 	LOG_COMMENT << "HWND is valid so Windows was created, we can pursue the graphic initialization.";
 	_directXController->initialize(static_cast<HWND>(hwnd));
 
+	_camera = std::make_unique<Storm::Camera>(_directXController->getViewportWidth(), _directXController->getViewportHeight());
 	_renderThread = std::thread([this]()
 	{
 		Storm::ITimeManager* timeMgr = Storm::SingletonHolder::instance().getFacet<Storm::ITimeManager>();
@@ -88,4 +91,9 @@ void Storm::GraphicManager::update()
 
 		_directXController->drawRenderTarget();
 	}
+}
+
+const Storm::Camera& Storm::GraphicManager::getCamera() const
+{
+	return *_camera;
 }
