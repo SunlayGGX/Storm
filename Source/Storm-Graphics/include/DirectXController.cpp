@@ -120,11 +120,14 @@ void Storm::DirectXController::setupSwapChain(HWND hwnd)
 
 	backBuffer->GetDesc(&backBufferDesc);
 
+	_viewportWidth = static_cast<float>(backBufferDesc.Width);
+	_viewportHeight = static_cast<float>(backBufferDesc.Height);
+
 	D3D11_VIEWPORT viewport;
 	viewport.TopLeftX = 0.0f;
 	viewport.TopLeftY = 0.0f;
-	viewport.Width = static_cast<float>(backBufferDesc.Width);
-	viewport.Height = static_cast<float>(backBufferDesc.Height);
+	viewport.Width = _viewportWidth;
+	viewport.Height = _viewportHeight;
 	viewport.MinDepth = D3D11_MIN_DEPTH;
 	viewport.MaxDepth = D3D11_MAX_DEPTH;
 
@@ -199,4 +202,14 @@ void Storm::DirectXController::setupSwapChain(HWND hwnd)
 	_deviceContext->RSSetState(_rasterState.Get());
 
 	_deviceContext->RSSetViewports(1, &viewport);
+}
+
+float Storm::DirectXController::getViewportWidth() const noexcept
+{
+	return _viewportWidth;
+}
+
+float Storm::DirectXController::getViewportHeight() const noexcept
+{
+	return _viewportHeight;
 }
