@@ -56,9 +56,9 @@ namespace
 		return shaderFilePath + "<?>" + shaderFuncName;
 	}
 
-	std::filesystem::path getShaderBlobCacheFilePath(const std::string &shaderFilePath, const std::string_view &shaderFuncName)
+	std::filesystem::path getShaderBlobCacheFilePath(const std::filesystem::path &tmpPath, const std::string &shaderFilePath, const std::string_view &shaderFuncName)
 	{
-		return std::filesystem::path{ shaderFilePath }.replace_extension("").string() + '_' + shaderFuncName + ".stormShader";
+		return tmpPath / (std::filesystem::path{ shaderFilePath }.replace_extension("").string() + '_' + shaderFuncName + ".stormShader");
 	}
 
 	constexpr static std::string_view k_shaderCacheFileName = "shader.cache";
@@ -172,13 +172,12 @@ void* Storm::ShaderManager::requestCompiledShaderBlobs(const std::string &shader
 {
 	ComPtr<ID3DBlob> shaderBlob;
 
-	const std::filesystem::path expectedShaderBlobFilePath = getShaderBlobCacheFilePath(shaderFilePath, shaderFuncName);
-
 	bool hasCachedBlobs = false;
 
 	const Storm::IConfigManager* configMgr = Storm::SingletonHolder::instance().getFacet<Storm::IConfigManager>();
 	const std::string &tmpPath = configMgr->getTemporaryPath();
 
+	const std::filesystem::path expectedShaderBlobFilePath = getShaderBlobCacheFilePath(tmpPath, shaderFilePath, shaderFuncName);
 	if (std::filesystem::exists(expectedShaderBlobFilePath))
 	{
 		std::lock_guard<std::mutex> lock{ _mutex };
