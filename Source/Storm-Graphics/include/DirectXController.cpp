@@ -1,21 +1,7 @@
 #include "DirectXController.h"
 #include "MemoryHelper.h"
-#include "ThrowException.h"
 
-#include <comdef.h>
 
-namespace
-{
-	void throwIfFailedImpl(HRESULT res, const std::string &callExpression)
-	{
-		if (!SUCCEEDED(res))
-		{
-			Storm::throwException<std::exception>(callExpression + " failed! Error was " + std::filesystem::path{ _com_error{ res }.ErrorMessage() }.string());
-		}
-	}
-
-#define throwIfFailed(expression) throwIfFailedImpl(expression, #expression)
-}
 
 void Storm::DirectXController::initialize(HWND hwnd)
 {
@@ -37,7 +23,7 @@ void Storm::DirectXController::initialize(HWND hwnd)
 
 	ComPtr<ID3D11Device> d3dDevice;
 	ComPtr<ID3D11DeviceContext> d3dDeviceContext;
-	throwIfFailed(D3D11CreateDevice(
+	Storm::throwIfFailed(D3D11CreateDevice(
 		nullptr,
 		D3D_DRIVER_TYPE::D3D_DRIVER_TYPE_HARDWARE,
 		nullptr,
@@ -50,8 +36,8 @@ void Storm::DirectXController::initialize(HWND hwnd)
 		&d3dDeviceContext
 	));
 
-	throwIfFailed(d3dDevice.As(&_device));
-	throwIfFailed(d3dDeviceContext.As(&_deviceContext));
+	Storm::throwIfFailed(d3dDevice.As(&_device));
+	Storm::throwIfFailed(d3dDeviceContext.As(&_deviceContext));
 
 	this->setupSwapChain(hwnd);
 }
@@ -68,9 +54,9 @@ void Storm::DirectXController::clearRenderTarget(const float(&clearColor)[4])
 
 void Storm::DirectXController::drawRenderTarget()
 {
+	Storm::throwIfFailed(_swapChain->Present(1, 0));
 	_deviceContext->OMSetRenderTargets(1, _renderTarget.GetAddressOf(), nullptr);
 
-	throwIfFailed(_swapChain->Present(1, 0));
 }
 
 void Storm::DirectXController::setupSwapChain(HWND hwnd)
@@ -101,28 +87,28 @@ void Storm::DirectXController::setupSwapChain(HWND hwnd)
 	fullScreenSwapChainDesc.Windowed = true;
 
 	ComPtr<IDXGIDevice2> dxgiDevice;
-	throwIfFailed(_device.As(&dxgiDevice));
+	Storm::throwIfFailed(_device.As(&dxgiDevice));
 
-	throwIfFailed(dxgiDevice->SetMaximumFrameLatency(1));
+	Storm::throwIfFailed(dxgiDevice->SetMaximumFrameLatency(1));
 
 	ComPtr<IDXGIAdapter> dxgiAdapter;
-	throwIfFailed(
+	Storm::throwIfFailed(
 		dxgiDevice->GetAdapter(&dxgiAdapter)
 	);
 
 	ComPtr<IDXGIFactory2> dxgiFactory;
-	throwIfFailed(
+	Storm::throwIfFailed(
 		dxgiAdapter->GetParent(IID_PPV_ARGS(&dxgiFactory))
 	);
 
 	// Finally, create the swap chain.
-	throwIfFailed(dxgiFactory->CreateSwapChainForHwnd(_device.Get(), hwnd, &swapChainDesc, &fullScreenSwapChainDesc, nullptr, &_swapChain));
+	Storm::throwIfFailed(dxgiFactory->CreateSwapChainForHwnd(_device.Get(), hwnd, &swapChainDesc, &fullScreenSwapChainDesc, nullptr, &_swapChain));
 
 	// Once the swap chain is created, create a render target view. This will allow Direct3D to render graphics to the window.
 	ComPtr<ID3D11Texture2D> backBuffer;
-	throwIfFailed(_swapChain->GetBuffer(0, IID_PPV_ARGS(&backBuffer)));
+	Storm::throwIfFailed(_swapChain->GetBuffer(0, IID_PPV_ARGS(&backBuffer)));
 
-	throwIfFailed(_device->CreateRenderTargetView(backBuffer.Get(), nullptr, &_renderTarget));
+	Storm::throwIfFailed(_device->CreateRenderTargetView(backBuffer.Get(), nullptr, &_renderTarget));
 
 
 	// After the render target view is created, specify that the viewport,
@@ -157,7 +143,7 @@ void Storm::DirectXController::setupSwapChain(HWND hwnd)
 	depthBufferDesc.CPUAccessFlags = 0;
 	depthBufferDesc.MiscFlags = 0;
 
-	throwIfFailed(_device->CreateTexture2D(&depthBufferDesc, nullptr, &_depthStencilBuffer));
+	Storm::throwIfFailed(_device->CreateTexture2D(&depthBufferDesc, nullptr, &_depthStencilBuffer));
 
 	D3D11_DEPTH_STENCIL_DESC depthStencilDesc;
 	Storm::ZeroMemories(depthStencilDesc);
@@ -180,7 +166,7 @@ void Storm::DirectXController::setupSwapChain(HWND hwnd)
 	depthStencilDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP::D3D11_STENCIL_OP_KEEP;
 	depthStencilDesc.BackFace.StencilFunc = D3D11_COMPARISON_FUNC::D3D11_COMPARISON_ALWAYS;
 
-	throwIfFailed(_device->CreateDepthStencilState(&depthStencilDesc, &_depthStencilState));
+	Storm::throwIfFailed(_device->CreateDepthStencilState(&depthStencilDesc, &_depthStencilState));
 	_deviceContext->OMSetDepthStencilState(_depthStencilState.Get(), 1);
 
 
@@ -191,7 +177,7 @@ void Storm::DirectXController::setupSwapChain(HWND hwnd)
 	depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION::D3D11_DSV_DIMENSION_TEXTURE2D;
 	depthStencilViewDesc.Texture2D.MipSlice = 0;
 
-	throwIfFailed(_device->CreateDepthStencilView(_depthStencilBuffer.Get(), &depthStencilViewDesc, &_depthStencilView));
+	Storm::throwIfFailed(_device->CreateDepthStencilView(_depthStencilBuffer.Get(), &depthStencilViewDesc, &_depthStencilView));
 
 
 	D3D11_RASTERIZER_DESC rasterStateDesc;
@@ -208,7 +194,7 @@ void Storm::DirectXController::setupSwapChain(HWND hwnd)
 	rasterStateDesc.ScissorEnable = false;
 	rasterStateDesc.SlopeScaledDepthBias = 0.0f;
 
-	throwIfFailed(_device->CreateRasterizerState(&rasterStateDesc, &_rasterState));
+	Storm::throwIfFailed(_device->CreateRasterizerState(&rasterStateDesc, &_rasterState));
 
 	_deviceContext->RSSetState(_rasterState.Get());
 

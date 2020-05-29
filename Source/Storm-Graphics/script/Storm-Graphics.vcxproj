@@ -30,6 +30,7 @@
     <ClInclude Include="..\include\GraphicManager.h" />
     <ClInclude Include="..\include\Grid.h" />
     <ClInclude Include="..\include\ShaderManager.h" />
+    <ClInclude Include="..\include\ThrowIfFailed.h" />
     <ClInclude Include="..\include\VPShader.h" />
     <ClInclude Include="..\include\Storm-GraphicsPCH.h" />
   </ItemGroup>

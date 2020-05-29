@@ -31,6 +31,9 @@
     <Filter Include="Source Files\Shaders">
       <UniqueIdentifier>{5426c407-b8b6-426b-97ca-580959c2324a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\DirectX\Helper">
+      <UniqueIdentifier>{ad3b4304-0ec9-48bb-b157-805cb2e5e13d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-GraphicsPCH.cpp">
@@ -82,6 +85,9 @@
     </ClInclude>
     <ClInclude Include="..\include\Grid.h">
       <Filter>Header Files\GraphicComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ThrowIfFailed.h">
+      <Filter>Header Files\DirectX\Helper</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

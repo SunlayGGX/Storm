@@ -33,17 +33,11 @@ Storm::VPShaderBase::VPShaderBase(const ComPtr<ID3D11Device> device, const std::
 	vertexShaderBuffer.Attach(static_cast<ID3D10Blob*>(shaderMgr.requestCompiledShaderBlobs(vertexShaderFilePathStr, vertexShaderFunctionName, "vs_5_0")));
 
 	ComPtr<ID3D10Blob> pixelShaderBuffer;
-	pixelShaderBuffer.Attach(static_cast<ID3D10Blob*>(shaderMgr.requestCompiledShaderBlobs(pixelShaderFilePathStr, pixelShaderFunctionName, "vs_5_0")));
+	pixelShaderBuffer.Attach(static_cast<ID3D10Blob*>(shaderMgr.requestCompiledShaderBlobs(pixelShaderFilePathStr, pixelShaderFunctionName, "ps_5_0")));
 
-	HRESULT res = device->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), nullptr, &_vertexShader);
-	if (FAILED(res))
-	{
-		Storm::throwException<std::exception>("Vertex shaders creation failed! " + std::filesystem::path{ _com_error{ res }.ErrorMessage() }.string());
-	}
+	const void*const vertexShaderBlobData = vertexShaderBuffer->GetBufferPointer();
+	const std::size_t vertexShaderBufferSize = vertexShaderBuffer->GetBufferSize();
 
-	res = device->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), nullptr, &_pixelShader);
-	if (FAILED(res))
-	{
-		Storm::throwException<std::exception>("Pixel shaders creation failed! " + std::filesystem::path{ _com_error{ res }.ErrorMessage() }.string());
-	}
+	Storm::throwIfFailed(device->CreateVertexShader(vertexShaderBlobData, vertexShaderBufferSize, nullptr, &_vertexShader));
+	Storm::throwIfFailed(device->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), nullptr, &_pixelShader));
 }
