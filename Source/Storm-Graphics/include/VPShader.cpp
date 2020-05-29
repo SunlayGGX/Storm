@@ -2,13 +2,9 @@
 
 #include "ShaderManager.h"
 
-#include "ThrowException.h"
-
-#include <comdef.h>
 
 
-
-Storm::VPShaderBase::VPShaderBase(const ComPtr<ID3D11Device> device, const std::string &vertexShaderFilePathStr, const std::string_view &vertexShaderFunctionName, const std::string &pixelShaderFilePathStr, const std::string_view &pixelShaderFunctionName)
+Storm::VPShaderBase::VPShaderBase(const ComPtr<ID3D11Device> &device, const std::string &vertexShaderFilePathStr, const std::string_view &vertexShaderFunctionName, const std::string &pixelShaderFilePathStr, const std::string_view &pixelShaderFunctionName, const D3D11_INPUT_ELEMENT_DESC* inputLayoutElemDesc, const unsigned int inputLayoutElemDescCount)
 {
 	const std::filesystem::path vertexShaderFilePath{ vertexShaderFilePathStr };
 	if (!std::filesystem::is_regular_file(vertexShaderFilePath))
@@ -40,4 +36,15 @@ Storm::VPShaderBase::VPShaderBase(const ComPtr<ID3D11Device> device, const std::
 
 	Storm::throwIfFailed(device->CreateVertexShader(vertexShaderBlobData, vertexShaderBufferSize, nullptr, &_vertexShader));
 	Storm::throwIfFailed(device->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), nullptr, &_pixelShader));
+
+
+	Storm::throwIfFailed(device->CreateInputLayout(inputLayoutElemDesc, inputLayoutElemDescCount, vertexShaderBlobData, vertexShaderBufferSize, &_vertexShaderInputLayout));
+}
+
+void Storm::VPShaderBase::setupDeviceContext(const ComPtr<ID3D11DeviceContext> &deviceContext) const
+{
+	deviceContext->IASetInputLayout(_vertexShaderInputLayout.Get());
+
+	deviceContext->VSSetShader(_vertexShader.Get(), nullptr, 0);
+	deviceContext->PSSetShader(_pixelShader.Get(), nullptr, 0);
 }
