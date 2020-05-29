@@ -200,5 +200,8 @@
     <ClInclude Include="..\include\StormStdPrerequisite.h">
       <Filter>Header Files\Prerequisite</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\StringOperator.h">
+      <Filter>Header Files\Prerequisite</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

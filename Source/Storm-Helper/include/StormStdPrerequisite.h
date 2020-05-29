@@ -20,3 +20,7 @@
 #include <mutex>
 #include <thread>
 
+
+// Because std::string and std::string_view operator+ is really ankward, I'll add those operators to make the concat less strenuous. 
+#include "StringOperator.h"
+
