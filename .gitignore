@@ -45,3 +45,4 @@
 UserSettings.bat
 Config/Custom/*/Original/**
 **/Logs/**
+Intermediate/**
