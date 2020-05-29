@@ -142,6 +142,75 @@ void Storm::DirectXController::setupSwapChain(HWND hwnd)
 	viewport.MinDepth = D3D11_MIN_DEPTH;
 	viewport.MaxDepth = D3D11_MAX_DEPTH;
 
+	D3D11_TEXTURE2D_DESC depthBufferDesc;
+	Storm::ZeroMemories(depthBufferDesc);
+
+	depthBufferDesc.Width = static_cast<UINT>(viewport.Width);
+	depthBufferDesc.Height = static_cast<UINT>(viewport.Height);
+	depthBufferDesc.MipLevels = 1;
+	depthBufferDesc.ArraySize = 1;
+	depthBufferDesc.Format = DXGI_FORMAT::DXGI_FORMAT_D24_UNORM_S8_UINT;
+	depthBufferDesc.SampleDesc.Count = 1;
+	depthBufferDesc.SampleDesc.Quality = 0;
+	depthBufferDesc.Usage = D3D11_USAGE::D3D11_USAGE_DEFAULT;
+	depthBufferDesc.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_DEPTH_STENCIL;
+	depthBufferDesc.CPUAccessFlags = 0;
+	depthBufferDesc.MiscFlags = 0;
+
+	throwIfFailed(_device->CreateTexture2D(&depthBufferDesc, nullptr, &_depthStencilBuffer));
+
+	D3D11_DEPTH_STENCIL_DESC depthStencilDesc;
+	Storm::ZeroMemories(depthStencilDesc);
+
+	depthStencilDesc.DepthEnable = true;
+	depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK::D3D11_DEPTH_WRITE_MASK_ALL;
+	depthStencilDesc.DepthFunc = D3D11_COMPARISON_FUNC::D3D11_COMPARISON_LESS;
+
+	depthStencilDesc.StencilEnable = true;
+	depthStencilDesc.StencilReadMask = 0xFF;
+	depthStencilDesc.StencilWriteMask = 0xFF;
+
+	depthStencilDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP::D3D11_STENCIL_OP_KEEP;
+	depthStencilDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP::D3D11_STENCIL_OP_INCR;
+	depthStencilDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP::D3D11_STENCIL_OP_KEEP;
+	depthStencilDesc.FrontFace.StencilFunc = D3D11_COMPARISON_FUNC::D3D11_COMPARISON_ALWAYS;
+
+	depthStencilDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP::D3D11_STENCIL_OP_KEEP;
+	depthStencilDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP::D3D11_STENCIL_OP_DECR;
+	depthStencilDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP::D3D11_STENCIL_OP_KEEP;
+	depthStencilDesc.BackFace.StencilFunc = D3D11_COMPARISON_FUNC::D3D11_COMPARISON_ALWAYS;
+
+	throwIfFailed(_device->CreateDepthStencilState(&depthStencilDesc, &_depthStencilState));
+	_deviceContext->OMSetDepthStencilState(_depthStencilState.Get(), 1);
+
+
+	D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc;
+	Storm::ZeroMemories(depthStencilViewDesc);
+
+	depthStencilViewDesc.Format = DXGI_FORMAT::DXGI_FORMAT_D24_UNORM_S8_UINT;
+	depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION::D3D11_DSV_DIMENSION_TEXTURE2D;
+	depthStencilViewDesc.Texture2D.MipSlice = 0;
+
+	throwIfFailed(_device->CreateDepthStencilView(_depthStencilBuffer.Get(), &depthStencilViewDesc, &_depthStencilView));
+
+
+	D3D11_RASTERIZER_DESC rasterStateDesc;
+	Storm::ZeroMemories(rasterStateDesc);
+
+	rasterStateDesc.AntialiasedLineEnable = false;
+	rasterStateDesc.CullMode = D3D11_CULL_MODE::D3D11_CULL_BACK;
+	rasterStateDesc.DepthBias = 0;
+	rasterStateDesc.DepthBiasClamp = 0.0f;
+	rasterStateDesc.DepthClipEnable = true;
+	rasterStateDesc.FillMode = D3D11_FILL_MODE::D3D11_FILL_SOLID;
+	rasterStateDesc.FrontCounterClockwise = false;
+	rasterStateDesc.MultisampleEnable = false;
+	rasterStateDesc.ScissorEnable = false;
+	rasterStateDesc.SlopeScaledDepthBias = 0.0f;
+
+	throwIfFailed(_device->CreateRasterizerState(&rasterStateDesc, &_rasterState));
+
+	_deviceContext->RSSetState(_rasterState.Get());
+
 	_deviceContext->RSSetViewports(1, &viewport);
 }
-
