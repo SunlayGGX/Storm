@@ -139,7 +139,7 @@ void Storm::ShaderManager::initialize_Implementation()
 				if (shaderCacheSeparatorPos != std::string::npos)
 				{
 					std::string shaderCacheId = line.substr(0, shaderCacheSeparatorPos);
-					std::string shaderCacheTimestamp = line.substr(shaderCacheSeparatorPos);
+					std::string shaderCacheTimestamp = line.substr(shaderCacheSeparatorPos + k_shaderCacheSeparator.size());
 
 					if (!shaderCacheTimestamp.empty())
 					{
