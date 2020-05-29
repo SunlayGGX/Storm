@@ -42,9 +42,6 @@
     <ClCompile Include="..\include\DirectXValidator.cpp">
       <Filter>Source Files\DirectX</Filter>
     </ClCompile>
-    <ClCompile Include="..\include\VPShader.cpp">
-      <Filter>Source Files\DirectX</Filter>
-    </ClCompile>
     <ClCompile Include="..\include\Grid.cpp">
       <Filter>Source Files\GraphicComponent</Filter>
     </ClCompile>
@@ -55,6 +52,9 @@
       <Filter>Source Files\GraphicComponent</Filter>
     </ClCompile>
     <ClCompile Include="..\include\ShaderManager.cpp">
+      <Filter>Source Files\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\VPShader.cpp">
       <Filter>Source Files\Shaders</Filter>
     </ClCompile>
   </ItemGroup>
@@ -68,9 +68,6 @@
     <ClInclude Include="..\include\DirectXController.h">
       <Filter>Header Files\DirectX</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Grid.h">
-      <Filter>Header Files\GraphicComponent</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\GraphicManager.h">
       <Filter>Header Files\GraphicComponent</Filter>
     </ClInclude>
@@ -82,6 +79,9 @@
     </ClInclude>
     <ClInclude Include="..\include\ShaderManager.h">
       <Filter>Header Files\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Grid.h">
+      <Filter>Header Files\GraphicComponent</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
