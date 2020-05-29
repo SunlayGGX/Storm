@@ -125,12 +125,10 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 		}
 		else if (_temporaryPath.empty())
 		{
-			tempPath = _macroConfig("$[StormTmp]");
+			_temporaryPath = _macroConfig("$[StormTmp]");
 		}
-		else
-		{
-			std::filesystem::create_directories(tempPath);
-		}
+
+		std::filesystem::create_directories(_temporaryPath);
 
 		if (!errorMsg.empty())
 		{
