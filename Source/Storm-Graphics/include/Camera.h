@@ -27,6 +27,10 @@ namespace Storm
 		void setPosition(float x, float y, float z);
 		void setTarget(float x, float y, float z);
 
+		void moveXAxis(float dx);
+		void moveYAxis(float dy);
+		void moveZAxis(float dz);
+
 	public:
 		void buildProjectionMatrix();
 		void buildOrthoMatrix();

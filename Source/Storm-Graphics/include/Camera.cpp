@@ -119,6 +119,21 @@ void Storm::Camera::setTarget(float x, float y, float z)
 
 }
 
+void Storm::Camera::moveXAxis(float dx)
+{
+	this->setPosition(_position.x + dx, _position.y, _position.z);
+}
+
+void Storm::Camera::moveYAxis(float dy)
+{
+	this->setPosition(_position.x, _position.y + dy, _position.z);
+}
+
+void Storm::Camera::moveZAxis(float dz)
+{
+	this->setPosition(_position.x, _position.y, _position.z + dz);
+}
+
 void Storm::Camera::buildProjectionMatrix()
 {
 	_projectionMatrix = DirectX::XMMatrixPerspectiveFovLH(_fieldOfView, _screenRatio, _nearPlane, _farPlane);
