@@ -89,5 +89,8 @@
     <ClInclude Include="..\include\ThrowIfFailed.h">
       <Filter>Header Files\DirectX\Helper</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\IRenderedElement.h">
+      <Filter>Header Files\GraphicComponent</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

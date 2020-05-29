@@ -29,6 +29,7 @@
     <ClInclude Include="..\include\DirectXValidator.h" />
     <ClInclude Include="..\include\GraphicManager.h" />
     <ClInclude Include="..\include\Grid.h" />
+    <ClInclude Include="..\include\IRenderedElement.h" />
     <ClInclude Include="..\include\ShaderManager.h" />
     <ClInclude Include="..\include\ThrowIfFailed.h" />
     <ClInclude Include="..\include\VPShader.h" />
