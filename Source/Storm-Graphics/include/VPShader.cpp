@@ -25,11 +25,11 @@ Storm::VPShaderBase::VPShaderBase(const ComPtr<ID3D11Device> &device, const std:
 
 	Storm::ShaderManager &shaderMgr = Storm::ShaderManager::instance();
 
-	ComPtr<ID3D10Blob> vertexShaderBuffer;
-	vertexShaderBuffer.Attach(static_cast<ID3D10Blob*>(shaderMgr.requestCompiledShaderBlobs(vertexShaderFilePathStr, vertexShaderFunctionName, "vs_5_0")));
+	ComPtr<ID3DBlob> vertexShaderBuffer;
+	vertexShaderBuffer.Attach(static_cast<ID3DBlob*>(shaderMgr.requestCompiledShaderBlobs(vertexShaderFilePathStr, vertexShaderFunctionName, "vs_5_0")));
 
-	ComPtr<ID3D10Blob> pixelShaderBuffer;
-	pixelShaderBuffer.Attach(static_cast<ID3D10Blob*>(shaderMgr.requestCompiledShaderBlobs(pixelShaderFilePathStr, pixelShaderFunctionName, "ps_5_0")));
+	ComPtr<ID3DBlob> pixelShaderBuffer;
+	pixelShaderBuffer.Attach(static_cast<ID3DBlob*>(shaderMgr.requestCompiledShaderBlobs(pixelShaderFilePathStr, pixelShaderFunctionName, "ps_5_0")));
 
 	const void*const vertexShaderBlobData = vertexShaderBuffer->GetBufferPointer();
 	const std::size_t vertexShaderBufferSize = vertexShaderBuffer->GetBufferSize();
