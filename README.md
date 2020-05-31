@@ -39,6 +39,7 @@ Note that I chose "vc15win64" settings. If you use another Visual Studio, be awa
 - **Storm-Graphics**: This is the module responsible to display and render the simulation. We use DirectX.
 - **Storm-Helper**: This module contains all helpers that should be shared among all modules.
 - **Storm-Input**: This module is for managing inputs, bindings and their callback.
+- **Storm-Loader**: This module's purpose is to load external object like meshes.
 - **Storm-Logger**: This module is for logging.
 - **Storm-Misc**: This module is intended to gather module manager helper that shouldn't be made into helpers since they are Storm project implementation related but cannot be put into any other modules. Example are the RandomManager (that should be deterministic), the TimeManager (that should be compliant with Storm simulator), the AsyncManager (that is intended to be executed in the main Simulation loop like Unreal's Async method), ... .
 - **Storm-ModelBase**: This module is the base for each modules. It ontains everything that could be used to bind the modules together without the need to reference each other.

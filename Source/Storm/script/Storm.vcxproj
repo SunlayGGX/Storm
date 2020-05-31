@@ -36,6 +36,9 @@
     <ProjectReference Include="..\..\Storm-Input\script\Storm-Input.vcxproj">
       <Project>{56149530-76d6-4940-a777-d7efed353723}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\..\Storm-Loader\script\Storm-Loader.vcxproj">
+      <Project>{f6bc64c2-f8ca-4ba9-84da-69a4b78ccd09}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\..\Storm-Logger\script\Storm-Logger.vcxproj">
       <Project>{da5ba977-37d5-4bd2-8269-e536b626decb}</Project>
     </ProjectReference>

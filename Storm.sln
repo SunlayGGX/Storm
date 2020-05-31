@@ -36,6 +36,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shaders", "Shaders", "{1C8B
 		Source\Shaders\Grid.hlsl = Source\Shaders\Grid.hlsl
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Storm-Loader", "Source\Storm-Loader\script\Storm-Loader.vcxproj", "{F6BC64C2-F8CA-4BA9-84DA-69A4B78CCD09}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -86,6 +88,10 @@ Global
 		{C115891C-7BDB-4A4C-B19C-24E39536A051}.Debug|x64.Build.0 = Debug|x64
 		{C115891C-7BDB-4A4C-B19C-24E39536A051}.Release|x64.ActiveCfg = Release|x64
 		{C115891C-7BDB-4A4C-B19C-24E39536A051}.Release|x64.Build.0 = Release|x64
+		{F6BC64C2-F8CA-4BA9-84DA-69A4B78CCD09}.Debug|x64.ActiveCfg = Debug|x64
+		{F6BC64C2-F8CA-4BA9-84DA-69A4B78CCD09}.Debug|x64.Build.0 = Debug|x64
+		{F6BC64C2-F8CA-4BA9-84DA-69A4B78CCD09}.Release|x64.ActiveCfg = Release|x64
+		{F6BC64C2-F8CA-4BA9-84DA-69A4B78CCD09}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -103,6 +109,7 @@ Global
 		{0CA7DF04-32A0-4200-9D32-4CB257E47D98} = {71FDD4FA-5CB7-4461-A3FD-A8818CF6C865}
 		{18A35B78-109A-4ABA-8658-AD746046A610} = {71FDD4FA-5CB7-4461-A3FD-A8818CF6C865}
 		{C115891C-7BDB-4A4C-B19C-24E39536A051} = {71FDD4FA-5CB7-4461-A3FD-A8818CF6C865}
+		{F6BC64C2-F8CA-4BA9-84DA-69A4B78CCD09} = {71FDD4FA-5CB7-4461-A3FD-A8818CF6C865}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {AC48B795-9776-4952-84E0-CE8AB938B72B}
