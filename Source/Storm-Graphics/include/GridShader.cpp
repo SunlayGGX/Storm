@@ -69,7 +69,6 @@ void Storm::GridShader::setup(const ComPtr<ID3D11Device> &device, const ComPtr<I
 	this->setupDeviceContext(deviceContext);
 
 	// Write shaders parameters
-
 	D3D11_MAPPED_SUBRESOURCE gridConstantBufferRessource;
 	Storm::throwIfFailed(deviceContext->Map(_constantBuffer.Get(), 0, D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, &gridConstantBufferRessource));
 
@@ -79,9 +78,7 @@ void Storm::GridShader::setup(const ComPtr<ID3D11Device> &device, const ComPtr<I
 	ressourceDataPtr->_viewMatrix = currentCamera.getTransposedViewMatrix();
 	ressourceDataPtr->_projectionMatrix = currentCamera.getTransposedProjectionMatrix();
 
-	DirectX::XMFLOAT3 gridColor{ 0.7f, 0.7f, 0.7f };
-	ressourceDataPtr->_gridColor = DirectX::XMLoadFloat3(&gridColor);
-	ressourceDataPtr->_gridColor.m128_f32[3] = 1.f;
+	ressourceDataPtr->_gridColor = DirectX::XMVECTOR{ 0.7f, 0.7f, 0.7f, 1.f };
 
 	deviceContext->Unmap(_constantBuffer.Get(), 0);
 
