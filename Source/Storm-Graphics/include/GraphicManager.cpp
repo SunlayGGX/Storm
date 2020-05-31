@@ -14,7 +14,7 @@
 namespace
 {
 #if false
-	const float g_defaultColor[4] = { 0.f, 1.f, 0.2f, 1.f };
+	const float g_defaultColor[4] = { 0.f, 0.5f, 0.0f, 1.f };
 #else
 	const float g_defaultColor[4] = { 0.f, 0.f, 0.f, 1.f };
 #endif
