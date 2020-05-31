@@ -12,8 +12,8 @@ namespace
 
 	public:
 		GridVertexType(float x1, float y1, float z1, float x2, float y2, float z2) :
-			firstPt{ x1, y1, z1, 0.f },
-			secondPt{ x2, y2, z2, 0.f }
+			firstPt{ x1, y1, z1, 1.f },
+			secondPt{ x2, y2, z2, 1.f }
 		{}
 
 	public:
