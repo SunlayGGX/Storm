@@ -110,5 +110,8 @@
     <ClInclude Include="..\include\GraphicsAction.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\IAssetLoaderManager.h">
+      <Filter>Header Files\Singleton</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
