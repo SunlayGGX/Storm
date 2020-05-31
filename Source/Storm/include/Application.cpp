@@ -56,6 +56,7 @@ namespace
 
 		Storm::RandomManager::instance().initialize();
 		Storm::OSManager::instance().initialize();
+
 		Storm::AssetLoaderManager::instance().initialize();
 
 		Storm::InputManager::instance().initialize();

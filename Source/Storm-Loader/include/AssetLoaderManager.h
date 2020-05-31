@@ -9,7 +9,7 @@ namespace Storm
 {
 	class AssetLoaderManager :
 		private Storm::Singleton<AssetLoaderManager>,
-		private Storm::IAssetLoaderManager
+		public Storm::IAssetLoaderManager
 	{
 		STORM_DECLARE_SINGLETON(AssetLoaderManager);
 
