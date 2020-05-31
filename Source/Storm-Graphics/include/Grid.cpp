@@ -8,17 +8,15 @@ namespace
 	struct GridVertexType
 	{
 	public:
-		using PointType = DirectX::XMFLOAT4;
+		using PointType = DirectX::XMVECTOR;
 
 	public:
-		GridVertexType(float x1, float y1, float z1, float x2, float y2, float z2) :
-			firstPt{ x1, y1, z1, 1.f },
-			secondPt{ x2, y2, z2, 1.f }
+		GridVertexType(float x1, float y1, float z1) :
+			pt{ x1, y1, z1, 1.f }
 		{}
 
 	public:
-		PointType firstPt;
-		PointType secondPt;
+		PointType pt;
 	};
 }
 
@@ -32,39 +30,35 @@ Storm::Grid::Grid(const ComPtr<ID3D11Device> &device, Storm::Vector3 maxPt)
 	{
 		const Storm::Vector3 mirror{ -maxPt._x, maxPt._y, -maxPt._z };
 
-		const unsigned int xLineCount = static_cast<unsigned int>(maxPt._x - mirror._x);
-		const unsigned int zLineCount = static_cast<unsigned int>(maxPt._z - mirror._z);
+		const unsigned int xLineCount = static_cast<unsigned int>(maxPt._x - mirror._x + 1);
+		const unsigned int zLineCount = static_cast<unsigned int>(maxPt._z - mirror._z + 1);
 		const unsigned int totalLineCount = xLineCount + zLineCount;
+		const uint32_t totalIndexCount = totalLineCount * 2;
 
 		std::vector<GridVertexType> gridVertexData;
-		gridVertexData.reserve(totalLineCount);
+		gridVertexData.reserve(totalIndexCount);
 
 		float currentPtCoord;
-		float currentMirrorPtCoord;
 
 		// Fill x lines
-		const float xOffset = static_cast<float>(xLineCount) / 2.f;
 		for (unsigned int xIndex = 0; xIndex < xLineCount; ++xIndex)
 		{
-			currentPtCoord = static_cast<float>(xIndex) - xOffset;
-			currentMirrorPtCoord = -currentPtCoord;
+			currentPtCoord = static_cast<float>(xIndex) - maxPt._x;
 
-			gridVertexData.emplace_back(currentPtCoord, maxPt._y, mirror._z, currentMirrorPtCoord, maxPt._y, maxPt._z);
+			gridVertexData.emplace_back(currentPtCoord, maxPt._y, maxPt._z);
+			gridVertexData.emplace_back(currentPtCoord, maxPt._y, mirror._z);
 		}
 
 		// Fill z lines
-		const float zOffset = static_cast<float>(zLineCount) / 2.f;
 		for (unsigned int zIndex = 0; zIndex < zLineCount; ++zIndex)
 		{
-			currentPtCoord = static_cast<float>(zIndex) - zOffset;
-			currentMirrorPtCoord = -currentPtCoord;
+			currentPtCoord = static_cast<float>(zIndex) - maxPt._z;
 
-			gridVertexData.emplace_back(mirror._x, maxPt._y, currentPtCoord, maxPt._x, maxPt._y, currentMirrorPtCoord);
+			gridVertexData.emplace_back(maxPt._x, maxPt._y, currentPtCoord);
+			gridVertexData.emplace_back(mirror._x, maxPt._y, currentPtCoord);
 		}
 
-		assert(gridVertexData.size() == totalLineCount && "Line count mismatch what was expected!");
-
-		const uint32_t totalIndexCount = totalLineCount * 2;
+		assert(gridVertexData.size() == totalIndexCount && "Line count mismatch what was expected!");
 		std::unique_ptr<uint32_t[]> gridIndexData = std::make_unique<uint32_t[]>(totalIndexCount);
 		for (uint32_t index = 0; index < totalIndexCount; ++index)
 		{
