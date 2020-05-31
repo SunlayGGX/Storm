@@ -34,14 +34,8 @@ void Storm::DirectXController::clearView(const float(&clearColor)[4])
 
 void Storm::DirectXController::unbindTargetView()
 {
-	ID3D11RenderTargetView* voidTargetView = nullptr;
-
+	ComPtr<ID3D11RenderTargetView> voidTargetView;
 	_immediateContext->OMSetRenderTargets(1, &voidTargetView, nullptr);
-
-	if (voidTargetView != nullptr)
-	{
-		voidTargetView->Release();
-	}
 }
 
 void Storm::DirectXController::initView()
