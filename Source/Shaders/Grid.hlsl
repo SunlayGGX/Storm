@@ -5,10 +5,6 @@ cbuffer ConstantBuffer
     matrix _projectionMatrix;
 	
 	float4 _gridColor;
-	
-	float4 _padding1;
-	float4 _padding2;
-	float4 _padding3;
 };
 
 struct VertexInputType
