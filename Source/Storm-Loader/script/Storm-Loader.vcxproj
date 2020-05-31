@@ -12,6 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\AssetLoaderManager.cpp" />
+    <ClCompile Include="..\include\AssimpLoggingWrapper.cpp" />
     <ClCompile Include="..\include\Storm-LoaderPCH.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
@@ -19,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\AssetLoaderManager.h" />
+    <ClInclude Include="..\include\AssimpLoggingWrapper.h" />
     <ClInclude Include="..\include\Storm-LoaderPCH.h" />
   </ItemGroup>
   <ItemGroup>
