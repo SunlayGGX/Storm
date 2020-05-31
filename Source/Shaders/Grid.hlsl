@@ -25,10 +25,14 @@ PixelInputType gridVertexShader(VertexInputType input)
     input._position.w = 1.0f;
 	
     // Calculate the position of the vertex against the world, view, and projection matrices.
+#if false
+    output._position = input._position;
+#else
     output._position = mul(input._position, _worldMatrix);
     output._position = mul(output._position, _viewMatrix);
     output._position = mul(output._position, _projectionMatrix);
-    
+#endif
+
     return output;
 }
 
