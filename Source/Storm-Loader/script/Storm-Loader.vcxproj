@@ -83,7 +83,7 @@
       <PrecompiledHeaderFile>Storm-LoaderPCH.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <ForcedIncludeFiles>%(PrecompiledHeaderFile);%(ForcedIncludeFiles)</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>$(ProjectDir)../../Storm-ModelBase/include;$(ProjectDir)../../../Dependencies\Assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)../../Storm-ModelBase/include;$(ProjectDir)../../../Dependencies\Assimp\include;$(ProjectDir)../../../Dependencies\Assimp\bin\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -92,6 +92,10 @@
     <Lib>
       <AdditionalLibraryDirectories>$(ProjectDir)../../../Dependencies\Assimp\bin\code\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
+    <PostBuildEvent>
+      <Command>copy "$(ProjectDir)../../../Dependencies\Assimp\bin\code\$(Configuration)\assimpd.dll" "$(OutputPath)assimpd.dll"
+copy "$(ProjectDir)../../../Dependencies\Assimp\bin\code\$(Configuration)\assimpd.pdb" "$(OutputPath)assimpd.pdb"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -105,7 +109,7 @@
       <PrecompiledHeaderFile>Storm-LoaderPCH.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <ForcedIncludeFiles>%(PrecompiledHeaderFile);%(ForcedIncludeFiles)</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>$(ProjectDir)../../Storm-ModelBase/include;$(ProjectDir)../../../Dependencies\Assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)../../Storm-ModelBase/include;$(ProjectDir)../../../Dependencies\Assimp\include;$(ProjectDir)../../../Dependencies\Assimp\bin\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -116,6 +120,10 @@
     <Lib>
       <AdditionalLibraryDirectories>$(ProjectDir)../../../Dependencies\Assimp\bin\code\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
+    <PostBuildEvent>
+      <Command>copy "$(ProjectDir)../../../Dependencies\Assimp\bin\code\$(Configuration)\assimp.dll" "$(OutputPath)assimp.dll"
+copy "$(ProjectDir)../../../Dependencies\Assimp\bin\code\$(Configuration)\assimp.pdb" "$(OutputPath)assimp.pdb"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
