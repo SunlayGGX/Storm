@@ -10,6 +10,7 @@
 #include "DirectXHardwareInfo.h"
 
 
+
 void Storm::DirectXController::initialize(HWND hwnd)
 {
 	this->internalCreateDXDevices(hwnd);
@@ -23,7 +24,38 @@ void Storm::DirectXController::initialize(HWND hwnd)
 
 void Storm::DirectXController::cleanUp()
 {
+	_alphaBlendEnable.Reset();
+	_alphaBlendDisable.Reset();
 
+	_zBufferEnabled.Reset();
+	_zBufferDisabled.Reset();
+
+	_rasterAlphaBlendEnabled.Reset();
+	_rasterAlphaBlendDisabled.Reset();
+
+	_solidCullBackRS.Reset();
+	_solidCullNoneRS.Reset();
+	_wireframeCullNoneRS.Reset();
+
+	_zBufferEnable.Reset();
+	_zBufferDisable.Reset();
+
+	_depthTexture.Reset();
+	_depthStencilView.Reset();
+	
+	_renderTargetView.Reset();
+
+	_swapChain.Reset();
+	_immediateContext.Reset();
+	_device.Reset();
+
+#if defined(DEBUG) || defined(_DEBUG)
+	if (_debugDevice != nullptr)
+	{
+		Storm::throwIfFailed(_debugDevice->ReportLiveDeviceObjects(D3D11_RLDO_FLAGS::D3D11_RLDO_IGNORE_INTERNAL));
+		_debugDevice.Reset();
+	}
+#endif
 }
 
 void Storm::DirectXController::clearView(const float(&clearColor)[4])
