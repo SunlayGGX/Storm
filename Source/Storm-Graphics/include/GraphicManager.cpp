@@ -93,6 +93,8 @@ void Storm::GraphicManager::update()
 {
 	if (_renderCounter++ % 2 == 0)
 	{
+		this->internalExecuteActions();
+
 		_directXController->clearView(g_defaultColor);
 		_directXController->initView();
 
@@ -103,6 +105,36 @@ void Storm::GraphicManager::update()
 		_directXController->unbindTargetView();
 		_directXController->presentToDisplay();
 	}
+}
+
+void Storm::GraphicManager::executeActionAsync(Storm::GraphicsAction actionToExecute)
+{
+	std::lock_guard<std::mutex> lock{ _actionMutex };
+	_actionsToBeExecuted.emplace_back(actionToExecute);
+}
+
+void Storm::GraphicManager::internalExecuteActions()
+{
+	std::vector<Storm::GraphicsAction> backBuffer;
+	{
+		std::lock_guard<std::mutex> lock{ _actionMutex };
+		if (_actionsToBeExecuted.empty())
+		{
+			return;
+		}
+
+		std::swap(backBuffer, _actionsToBeExecuted);
+	}
+
+	for (Storm::GraphicsAction actionToExecute : backBuffer)
+	{
+		this->internalExecuteActionElement(actionToExecute);
+	}
+}
+
+void Storm::GraphicManager::internalExecuteActionElement(Storm::GraphicsAction action)
+{
+	_directXController->executeAction(action);
 }
 
 const Storm::Camera& Storm::GraphicManager::getCamera() const

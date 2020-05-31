@@ -25,6 +25,13 @@ namespace Storm
 		void update() final override;
 
 	public:
+		virtual void executeActionAsync(GraphicsAction actionToExecute) override;
+
+	private:
+		void internalExecuteActions();
+		void internalExecuteActionElement(Storm::GraphicsAction action);
+
+	public:
 		const Storm::Camera& getCamera() const;
 
 	private:
@@ -34,6 +41,9 @@ namespace Storm
 		std::unique_ptr<Storm::Camera> _camera;
 
 		std::vector<std::unique_ptr<Storm::IRenderedElement>> _renderedElements;
+
+		std::mutex _actionMutex;
+		std::vector<Storm::GraphicsAction> _actionsToBeExecuted;
 
 		std::thread _renderThread;
 	};

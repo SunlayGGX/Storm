@@ -20,6 +20,7 @@
   <ItemGroup>
     <ClInclude Include="..\include\DataIncludes.h" />
     <ClInclude Include="..\include\GraphicData.h" />
+    <ClInclude Include="..\include\GraphicsAction.h" />
     <ClInclude Include="..\include\IConfigManager.h" />
     <ClInclude Include="..\include\IGraphicsManager.h" />
     <ClInclude Include="..\include\IInputManager.h" />

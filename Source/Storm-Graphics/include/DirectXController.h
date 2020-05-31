@@ -6,6 +6,8 @@ namespace Storm
 	class Camera;
 	class IRenderedElement;
 
+	enum class GraphicsAction;
+
 	class DirectXController
 	{
 	public:
@@ -31,6 +33,9 @@ namespace Storm
 		float getViewportHeight() const noexcept;
 
 	public:
+		void executeAction(Storm::GraphicsAction action);
+
+	private:
 		void setWireFrameState();
 		void setSolidCullNoneState();
 		void setSolidCullBackState();
