@@ -37,9 +37,10 @@ namespace Storm
 
 		bool shouldDisplayHelp() const;
 
-		virtual const Storm::SceneData& getSceneData() const override;
-		virtual const Storm::GraphicData& getGraphicData() const override;
-		virtual const std::vector<Storm::RigidBodySceneData>& getRigidBodiesData() const override;
+		const std::string& getSceneName() const final override;
+		const Storm::SceneData& getSceneData() const final override;
+		const Storm::GraphicData& getGraphicData() const final override;
+		const std::vector<Storm::RigidBodySceneData>& getRigidBodiesData() const final override;
 
 	private:
 		// Members that could be extracted from Command line.
@@ -51,6 +52,9 @@ namespace Storm
 		bool _allowPopup;
 
 		bool _shouldDisplayHelp;
+
+		// Computed
+		std::string _sceneFileName;
 
 		// Configs
 		Storm::MacroConfig _macroConfig;

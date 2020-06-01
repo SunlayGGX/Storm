@@ -111,6 +111,7 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 
 		if (errorMsg.empty())
 		{
+			_sceneFileName = sceneConfigFilePath.stem().string();
 			_sceneConfig.read(_sceneConfigFilePath, _macroConfig);
 		}
 		else
@@ -177,6 +178,11 @@ unsigned int Storm::ConfigManager::getWantedScreenHeight() const
 bool Storm::ConfigManager::shouldDisplayHelp() const
 {
 	return _shouldDisplayHelp;
+}
+
+const std::string& Storm::ConfigManager::getSceneName() const
+{
+	return _sceneFileName;
 }
 
 const Storm::SceneData& Storm::ConfigManager::getSceneData() const
