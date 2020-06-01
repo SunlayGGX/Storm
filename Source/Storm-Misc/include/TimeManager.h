@@ -42,6 +42,7 @@ namespace Storm
 		void increaseCurrentPhysicsElapsedTime(float timeIncreaseInSeconds) final override;
 
 		bool simulationIsPaused() const final override;
+		bool isRunning() const final override;
 		bool changeSimulationPauseState() final override;
 		void quit() final override;
 

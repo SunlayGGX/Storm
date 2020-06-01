@@ -159,6 +159,12 @@ bool Storm::TimeManager::simulationIsPaused() const
 	return _isPaused;
 }
 
+bool Storm::TimeManager::isRunning() const
+{
+	std::lock_guard<std::mutex> lock{ _mutex };
+	return _isRunning;
+}
+
 bool Storm::TimeManager::changeSimulationPauseState()
 {
 	std::lock_guard<std::mutex> lock{ _mutex };

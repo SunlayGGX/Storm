@@ -103,6 +103,9 @@ namespace Storm
 		// Get if the simulation is paused.
 		virtual bool simulationIsPaused() const = 0;
 
+		// Get if the time manager is running. If it is false, then the TimeManager has exited and the application should quit
+		virtual bool isRunning() const = 0;
+
 		// If the simulation is paused, unpause it. If it is unpaused, pause it..
 		// Note that it doesn't enforce the pause and it doesn't pause the TimeManager looping process. So the frame will still be fired at each
 		// framerate intervals...
