@@ -37,6 +37,12 @@
     <Filter Include="Source Files\Config">
       <UniqueIdentifier>{9a6ef5c9-1c47-495d-9141-da83b385ba0a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Simulation">
+      <UniqueIdentifier>{f59f1462-4c13-491b-9f1e-a856e5df2683}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Simulation\RigidBodies">
+      <UniqueIdentifier>{1fc22d48-249a-463a-91bd-786a73e954c1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-ModelBasePCH.cpp">
@@ -112,6 +118,9 @@
     </ClInclude>
     <ClInclude Include="..\include\IAssetLoaderManager.h">
       <Filter>Header Files\Singleton</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\IRigidBody.h">
+      <Filter>Header Files\Simulation\RigidBodies</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
