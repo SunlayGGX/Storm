@@ -1,6 +1,7 @@
 #include "SerializePackage.h"
 
 #include "ThrowException.h"
+#include "MemoryHelper.h"
 
 #include "Version.h"
 
@@ -8,27 +9,15 @@
 namespace
 {
 	template<class Type>
-	void readBinaryPacket(std::fstream &inOutStream, Type &outVal)
-	{
-		inOutStream.read(reinterpret_cast<char*>(&outVal), sizeof(Type));
-	}
-
-	template<class Type>
-	void writeBinaryPacket(std::fstream &inOutStream, const Type &outVal)
-	{
-		inOutStream.write(reinterpret_cast<const char*>(&outVal), sizeof(Type));
-	}
-
-	template<class Type>
 	void handleBinaryPacket(const bool isSaving, std::fstream &inOutStream, Type &outVal)
 	{
 		if (isSaving)
 		{
-			writeBinaryPacket(inOutStream, outVal);
+			Storm::binaryWrite(inOutStream, outVal);
 		}
 		else
 		{
-			readBinaryPacket(inOutStream, outVal);
+			Storm::binaryRead(inOutStream, outVal);
 		}
 	}
 
@@ -187,13 +176,13 @@ Storm::SerializePackage& Storm::SerializePackage::operator<<(std::string &other)
 	if (_isSaving)
 	{
 		const uint64_t strSize = other.size();
-		writeBinaryPacket(_file, strSize);
+		Storm::binaryWrite(_file, strSize);
 		_file.write(other.c_str(), strSize);
 	}
 	else
 	{
 		uint64_t strSize;
-		readBinaryPacket(_file, strSize);
+		Storm::binaryRead(_file, strSize);
 
 		resize_hijack(other, strSize);
 		_file.read(other.data(), strSize);
