@@ -19,27 +19,39 @@
     <Filter Include="Source Files\Assimp">
       <UniqueIdentifier>{63a97c23-e365-4b2e-bfdd-27653e65e4d7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\General">
+      <UniqueIdentifier>{e4a90a80-b3f9-4604-819b-9084612dcae2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\General">
+      <UniqueIdentifier>{f06cc711-59aa-4da3-a405-4c1bc2f4b30d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-LoaderPCH.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\include\AssetLoaderManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\include\AssimpLoggingWrapper.cpp">
       <Filter>Source Files\Assimp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\AssetLoaderManager.cpp">
+      <Filter>Source Files\General</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\RigidBody.cpp">
+      <Filter>Source Files\General</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-LoaderPCH.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\AssetLoaderManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\AssimpLoggingWrapper.h">
       <Filter>Header Files\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\AssetLoaderManager.h">
+      <Filter>Header Files\General</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\RigidBody.h">
+      <Filter>Header Files\General</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

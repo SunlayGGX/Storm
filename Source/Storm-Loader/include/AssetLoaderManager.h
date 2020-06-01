@@ -7,6 +7,8 @@
 
 namespace Storm
 {
+	class IRigidBody;
+
 	class AssetLoaderManager :
 		private Storm::Singleton<AssetLoaderManager>,
 		public Storm::IAssetLoaderManager
@@ -16,5 +18,11 @@ namespace Storm
 	private:
 		void initialize_Implementation();
 		void cleanUp_Implementation();
+
+	public:
+		const std::vector<std::shared_ptr<Storm::IRigidBody>>& getRigidBodyArray() const final override;
+
+	private:
+		std::vector<std::shared_ptr<Storm::IRigidBody>> _rigidBodies;
 	};
 }

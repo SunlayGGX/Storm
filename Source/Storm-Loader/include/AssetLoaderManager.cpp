@@ -2,6 +2,14 @@
 
 #include "AssimpLoggingWrapper.h"
 
+#include "SingletonHolder.h"
+#include "ITimeManager.h"
+#include "IConfigManager.h"
+
+#include "SceneData.h"
+#include "RigidBodySceneData.h"
+#include "RigidBody.h"
+
 #include <Assimp\DefaultLogger.hpp>
 
 
@@ -40,9 +48,23 @@ Storm::AssetLoaderManager::~AssetLoaderManager() = default;
 void Storm::AssetLoaderManager::initialize_Implementation()
 {
 	initializeAssimpLogger();
+
+	const Storm::IConfigManager*const configMgr = Storm::SingletonHolder::instance().getFacet<Storm::IConfigManager>();
+	const auto &rigidBodiesDataToLoad = configMgr->getSceneData()._rigidBodiesData;
+
+	_rigidBodies.reserve(rigidBodiesDataToLoad.size());
+	for (const auto &rbToLoad : rigidBodiesDataToLoad)
+	{
+		_rigidBodies.emplace_back(std::static_pointer_cast<Storm::IRigidBody>(std::make_shared<Storm::RigidBody>(rbToLoad)));
+	}
 }
 
 void Storm::AssetLoaderManager::cleanUp_Implementation()
 {
 	Assimp::DefaultLogger::kill();
+}
+
+const std::vector<std::shared_ptr<Storm::IRigidBody>>& Storm::AssetLoaderManager::getRigidBodyArray() const
+{
+	return _rigidBodies;
 }
