@@ -43,6 +43,9 @@
     <Filter Include="Header Files\Simulation\RigidBodies">
       <UniqueIdentifier>{1fc22d48-249a-463a-91bd-786a73e954c1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Physics">
+      <UniqueIdentifier>{7dcf50cd-783d-4bed-aa55-40ea3f119cd7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-ModelBasePCH.cpp">
@@ -121,6 +124,9 @@
     </ClInclude>
     <ClInclude Include="..\include\IRigidBody.h">
       <Filter>Header Files\Simulation\RigidBodies</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\CollisionType.h">
+      <Filter>Header Files\Physics</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

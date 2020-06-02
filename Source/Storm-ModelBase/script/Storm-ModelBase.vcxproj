@@ -18,6 +18,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\include\CollisionType.h" />
     <ClInclude Include="..\include\DataIncludes.h" />
     <ClInclude Include="..\include\GraphicData.h" />
     <ClInclude Include="..\include\GraphicsAction.h" />

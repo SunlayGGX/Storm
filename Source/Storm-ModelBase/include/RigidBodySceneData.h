@@ -3,6 +3,8 @@
 
 namespace Storm
 {
+	enum class CollisionType;
+
 	struct RigidBodySceneData
 	{
 	public:
@@ -15,6 +17,8 @@ namespace Storm
 		Storm::Vector3 _translation;
 		Storm::Vector3 _rotation;
 		Storm::Vector3 _scale;
+
+		Storm::CollisionType _collisionShape;
 
 		bool _static;
 	};

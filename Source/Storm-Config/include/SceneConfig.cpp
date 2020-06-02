@@ -4,6 +4,8 @@
 
 #include "DataIncludes.h"
 
+#include "CollisionType.h"
+
 #include "ThrowException.h"
 #include "XmlReader.h"
 
@@ -23,6 +25,27 @@ namespace
 		Storm::XmlReader::sureReadXmlAttribute(tree, result._z, "z");
 
 		return result;
+	}
+
+	Storm::CollisionType parseCollisionType(std::string collisionTypeStr)
+	{
+		boost::algorithm::to_lower(collisionTypeStr);
+		if (collisionTypeStr == "cube")
+		{
+			return Storm::CollisionType::Cube;
+		}
+		else if (collisionTypeStr == "sphere")
+		{
+			return Storm::CollisionType::Sphere;
+		}
+		else if (collisionTypeStr == "none")
+		{
+			return Storm::CollisionType::None;
+		}
+		else
+		{
+			Storm::throwException<std::exception>("CollisionType value in rigidbody is unknown : '" + collisionTypeStr + "'");
+		}
 	}
 }
 
@@ -85,6 +108,7 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 						!Storm::XmlReader::handleXml(rigidBodyDataXml, "id", rbData._rigidBodyID) &&
 						!Storm::XmlReader::handleXml(rigidBodyDataXml, "meshFile", rbData._meshFilePath) &&
 						!Storm::XmlReader::handleXml(rigidBodyDataXml, "isStatic", rbData._static) &&
+						!Storm::XmlReader::handleXml(rigidBodyDataXml, "collisionType", rbData._collisionShape, parseCollisionType) &&
 						!Storm::XmlReader::handleXml(rigidBodyDataXml, "translation", rbData._translation, parseVector3Element) &&
 						!Storm::XmlReader::handleXml(rigidBodyDataXml, "rotation", rbData._rotation, parseVector3Element) &&
 						!Storm::XmlReader::handleXml(rigidBodyDataXml, "scale", rbData._scale, parseVector3Element)

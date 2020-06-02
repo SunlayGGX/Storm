@@ -1,9 +1,12 @@
 #include "DataIncludes.h"
 
+#include "CollisionType.h"
+
 
 Storm::RigidBodySceneData::RigidBodySceneData() :
 	_static{ true },
-	_scale{ Storm::Vector3{ 1.f, 1.f, 1.f } }
+	_scale{ Storm::Vector3{ 1.f, 1.f, 1.f } },
+	_collisionShape{ Storm::CollisionType::None }
 {
 
 }
