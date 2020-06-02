@@ -5,6 +5,7 @@
 #include "SingletonHolder.h"
 #include "ITimeManager.h"
 #include "IConfigManager.h"
+#include "IGraphicsManager.h"
 
 #include "SceneData.h"
 #include "RigidBodySceneData.h"
@@ -49,13 +50,18 @@ void Storm::AssetLoaderManager::initialize_Implementation()
 {
 	initializeAssimpLogger();
 
-	const Storm::IConfigManager*const configMgr = Storm::SingletonHolder::instance().getFacet<Storm::IConfigManager>();
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	
+	const Storm::IConfigManager*const configMgr = singletonHolder.getFacet<Storm::IConfigManager>();
 	const auto &rigidBodiesDataToLoad = configMgr->getSceneData()._rigidBodiesData;
+
+	Storm::IGraphicsManager*const graphicsMgr = singletonHolder.getFacet<Storm::IGraphicsManager>();
 
 	_rigidBodies.reserve(rigidBodiesDataToLoad.size());
 	for (const auto &rbToLoad : rigidBodiesDataToLoad)
 	{
-		_rigidBodies.emplace_back(std::static_pointer_cast<Storm::IRigidBody>(std::make_shared<Storm::RigidBody>(rbToLoad)));
+		auto &emplacedRb = _rigidBodies.emplace_back(std::static_pointer_cast<Storm::IRigidBody>(std::make_shared<Storm::RigidBody>(rbToLoad)));
+		graphicsMgr->bindMesh(emplacedRb->getRigidBodyID(), emplacedRb);
 	}
 }
 

@@ -4,6 +4,7 @@
 
 #include "SingletonHolder.h"
 #include "IConfigManager.h"
+#include "IGraphicsManager.h"
 
 #include "MemoryHelper.h"
 #include "Version.h"
@@ -79,6 +80,7 @@ void Storm::RigidBody::load()
 
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 	const Storm::IConfigManager*const configMgr = singletonHolder.getFacet<Storm::IConfigManager>();
+	Storm::IGraphicsManager*const graphicsMgr = singletonHolder.getFacet<Storm::IGraphicsManager>();
 	
 	const std::string meshPathLowerStr = boost::algorithm::to_lower_copy(_meshPath);
 	const std::filesystem::path meshPath = meshPathLowerStr;
@@ -156,7 +158,7 @@ void Storm::RigidBody::load()
 				}
 			}
 
-			// TODO : Pass the data to the Graphics module.
+			graphicsMgr->addMesh(_rbId, verticesPos, normalsPos);
 		}
 		else
 		{

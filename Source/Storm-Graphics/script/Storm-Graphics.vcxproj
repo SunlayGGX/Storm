@@ -15,6 +15,7 @@
     <ClCompile Include="..\include\DirectXController.cpp" />
     <ClCompile Include="..\include\DirectXHardwareInfo.cpp" />
     <ClCompile Include="..\include\GraphicManager.cpp" />
+    <ClCompile Include="..\include\GraphicRigidBody.cpp" />
     <ClCompile Include="..\include\Grid.cpp" />
     <ClCompile Include="..\include\GridShader.cpp" />
     <ClCompile Include="..\include\ShaderManager.cpp" />
@@ -29,6 +30,7 @@
     <ClInclude Include="..\include\DirectXController.h" />
     <ClInclude Include="..\include\DirectXHardwareInfo.h" />
     <ClInclude Include="..\include\GraphicManager.h" />
+    <ClInclude Include="..\include\GraphicRigidBody.h" />
     <ClInclude Include="..\include\Grid.h" />
     <ClInclude Include="..\include\GridShader.h" />
     <ClInclude Include="..\include\IRenderedElement.h" />

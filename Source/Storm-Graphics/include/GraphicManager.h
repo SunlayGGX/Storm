@@ -9,6 +9,7 @@ namespace Storm
 	class DirectXController;
 	class Camera;
 	class IRenderedElement;
+	class GraphicRigidBody;
 
 	class GraphicManager :
 		private Storm::Singleton<GraphicManager>,
@@ -32,6 +33,10 @@ namespace Storm
 		void internalExecuteActionElement(Storm::GraphicsAction action);
 
 	public:
+		void addMesh(unsigned int meshId, const std::vector<Storm::Vector3> &vertexes, const std::vector<Storm::Vector3> &normals) final override;
+		void bindMesh(unsigned int meshId, const std::shared_ptr<Storm::IRigidBody> &parentRb) final override;
+
+	public:
 		const Storm::Camera& getCamera() const;
 
 	private:
@@ -41,6 +46,7 @@ namespace Storm
 		std::unique_ptr<Storm::Camera> _camera;
 
 		std::vector<std::unique_ptr<Storm::IRenderedElement>> _renderedElements;
+		std::map<unsigned int, std::unique_ptr<Storm::GraphicRigidBody>> _meshesMap;
 
 		std::mutex _actionMutex;
 		std::vector<Storm::GraphicsAction> _actionsToBeExecuted;

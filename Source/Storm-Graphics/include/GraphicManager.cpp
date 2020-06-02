@@ -4,6 +4,7 @@
 #include "Camera.h"
 
 #include "Grid.h"
+#include "GraphicRigidBody.h"
 
 #include "SingletonHolder.h"
 #include "IWindowsManager.h"
@@ -135,6 +136,16 @@ void Storm::GraphicManager::internalExecuteActions()
 void Storm::GraphicManager::internalExecuteActionElement(Storm::GraphicsAction action)
 {
 	_directXController->executeAction(action);
+}
+
+void Storm::GraphicManager::addMesh(unsigned int meshId, const std::vector<Storm::Vector3> &vertexes, const std::vector<Storm::Vector3> &normals)
+{
+	_meshesMap[meshId] = std::make_unique<Storm::GraphicRigidBody>(vertexes, normals);
+}
+
+void Storm::GraphicManager::bindMesh(unsigned int meshId, const std::shared_ptr<Storm::IRigidBody> &parentRb)
+{
+	_meshesMap[meshId]->setRbParent(parentRb);
 }
 
 const Storm::Camera& Storm::GraphicManager::getCamera() const
