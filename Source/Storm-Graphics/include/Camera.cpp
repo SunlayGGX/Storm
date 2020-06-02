@@ -20,13 +20,13 @@ Storm::Camera::Camera(float viewportWidth, float viewportHeight) :
 	_nearPlane = currentGraphicData._zNear;
 	_farPlane = currentGraphicData._zFar;
 
-	_position.x = currentGraphicData._cameraPosition._x;
-	_position.y = currentGraphicData._cameraPosition._y;
-	_position.z = currentGraphicData._cameraPosition._z;
+	_position.x = currentGraphicData._cameraPosition.x();
+	_position.y = currentGraphicData._cameraPosition.y();
+	_position.z = currentGraphicData._cameraPosition.z();
 
-	_target.x = currentGraphicData._cameraLookAt._x;
-	_target.y = currentGraphicData._cameraLookAt._y;
-	_target.z = currentGraphicData._cameraLookAt._z;
+	_target.x = currentGraphicData._cameraLookAt.x();
+	_target.y = currentGraphicData._cameraLookAt.y();
+	_target.z = currentGraphicData._cameraLookAt.z();
 
 	DirectX::XMFLOAT3 upFloat3{ 0.f, 1.f, 0.f };
 	_up = DirectX::XMLoadFloat3(&upFloat3);

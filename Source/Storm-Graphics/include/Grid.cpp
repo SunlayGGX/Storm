@@ -23,15 +23,15 @@ namespace
 
 Storm::Grid::Grid(const ComPtr<ID3D11Device> &device, Storm::Vector3 maxPt)
 {
-	maxPt._x = static_cast<float>(fabs(static_cast<int>(maxPt._x)));
-	maxPt._z = static_cast<float>(fabs(static_cast<int>(maxPt._z)));
+	maxPt.x() = static_cast<float>(fabs(static_cast<int>(maxPt.x())));
+	maxPt.z() = static_cast<float>(fabs(static_cast<int>(maxPt.z())));
 
-	if (maxPt._x >= 1.f && maxPt._z >= 1.f)
+	if (maxPt.x() >= 1.f && maxPt.z() >= 1.f)
 	{
-		const Storm::Vector3 mirror{ -maxPt._x, maxPt._y, -maxPt._z };
+		const Storm::Vector3 mirror{ -maxPt.x(), maxPt.y(), -maxPt.z() };
 
-		const unsigned int xLineCount = static_cast<unsigned int>(maxPt._x - mirror._x + 1);
-		const unsigned int zLineCount = static_cast<unsigned int>(maxPt._z - mirror._z + 1);
+		const unsigned int xLineCount = static_cast<unsigned int>(maxPt.x() - mirror.x()) + 1;
+		const unsigned int zLineCount = static_cast<unsigned int>(maxPt.z() - mirror.z()) + 1;
 		const unsigned int totalLineCount = xLineCount + zLineCount;
 		const uint32_t totalIndexCount = totalLineCount * 2;
 
@@ -43,19 +43,19 @@ Storm::Grid::Grid(const ComPtr<ID3D11Device> &device, Storm::Vector3 maxPt)
 		// Fill x lines
 		for (unsigned int xIndex = 0; xIndex < xLineCount; ++xIndex)
 		{
-			currentPtCoord = static_cast<float>(xIndex) - maxPt._x;
+			currentPtCoord = static_cast<float>(xIndex) - maxPt.x();
 
-			gridVertexData.emplace_back(currentPtCoord, maxPt._y, maxPt._z);
-			gridVertexData.emplace_back(currentPtCoord, maxPt._y, mirror._z);
+			gridVertexData.emplace_back(currentPtCoord, maxPt.y(), maxPt.z());
+			gridVertexData.emplace_back(currentPtCoord, maxPt.y(), mirror.z());
 		}
 
 		// Fill z lines
 		for (unsigned int zIndex = 0; zIndex < zLineCount; ++zIndex)
 		{
-			currentPtCoord = static_cast<float>(zIndex) - maxPt._z;
+			currentPtCoord = static_cast<float>(zIndex) - maxPt.z();
 
-			gridVertexData.emplace_back(maxPt._x, maxPt._y, currentPtCoord);
-			gridVertexData.emplace_back(mirror._x, maxPt._y, currentPtCoord);
+			gridVertexData.emplace_back(maxPt.x(), maxPt.y(), currentPtCoord);
+			gridVertexData.emplace_back(mirror.x(), maxPt.y(), currentPtCoord);
 		}
 
 		assert(gridVertexData.size() == totalIndexCount && "Line count mismatch what was expected!");

@@ -20,9 +20,9 @@ namespace
 	{
 		Storm::Vector3 result;
 
-		Storm::XmlReader::sureReadXmlAttribute(tree, result._x, "x");
-		Storm::XmlReader::sureReadXmlAttribute(tree, result._y, "y");
-		Storm::XmlReader::sureReadXmlAttribute(tree, result._z, "z");
+		Storm::XmlReader::sureReadXmlAttribute(tree, result.x(), "x");
+		Storm::XmlReader::sureReadXmlAttribute(tree, result.y(), "y");
+		Storm::XmlReader::sureReadXmlAttribute(tree, result.z(), "z");
 
 		return result;
 	}

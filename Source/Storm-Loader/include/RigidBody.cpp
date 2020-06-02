@@ -207,9 +207,9 @@ void Storm::RigidBody::load()
 			{
 				Storm::Vector3 &currentVect = _objSpaceParticlePos.emplace_back();
 
-				Storm::binaryRead(cacheReadStream, currentVect._x);
-				Storm::binaryRead(cacheReadStream, currentVect._y);
-				Storm::binaryRead(cacheReadStream, currentVect._z);
+				Storm::binaryRead(cacheReadStream, currentVect.x());
+				Storm::binaryRead(cacheReadStream, currentVect.y());
+				Storm::binaryRead(cacheReadStream, currentVect.z());
 			}
 		}
 		else
@@ -237,9 +237,9 @@ void Storm::RigidBody::load()
 		Storm::binaryWrite(cacheFileStream, static_cast<uint64_t>(_objSpaceParticlePos.size()));
 		for (const Storm::Vector3 &particlePos : _objSpaceParticlePos)
 		{
-			Storm::binaryWrite(cacheFileStream, particlePos._x);
-			Storm::binaryWrite(cacheFileStream, particlePos._y);
-			Storm::binaryWrite(cacheFileStream, particlePos._z);
+			Storm::binaryWrite(cacheFileStream, particlePos.x());
+			Storm::binaryWrite(cacheFileStream, particlePos.y());
+			Storm::binaryWrite(cacheFileStream, particlePos.z());
 		}
 
 		// Replace the placeholder checksum by the right one to finalize the writing
