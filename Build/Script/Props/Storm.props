@@ -3,7 +3,7 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    <IncludePath>$(MSBuildThisFileDirectory)..\..\..\Dependencies\Boost\include\;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
+    <IncludePath>$(MSBuildThisFileDirectory)..\..\..\Dependencies\Boost\include\;$(MSBuildThisFileDirectory)..\..\..\Dependencies\Eigen\;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
     <LibraryPath>$(MSBuildThisFileDirectory)..\..\..\Dependencies\Boost\lib\;$(MSBuildThisFileDirectory)..\..\..\Dependencies\DirectX\lib\$(Platform);$(MSBuildThisFileDirectory)..\..\..\bin\$(Configuration)\;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup>

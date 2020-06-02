@@ -21,6 +21,7 @@ set makeFolderLink=call :CreateFolderLink
 %makeFolderLink% "%STORM_DEPENDENCIES%\OIS" "%OIS_DEPENDENCIES_PATH%"
 %makeFolderLink% "%STORM_DEPENDENCIES%\Assimp" "%ASSIMP_DEPENDENCIES_PATH%"
 %makeFolderLink% "%STORM_DEPENDENCIES%\PhysX" "%PHYSX_DEPENDENCIES_PATH%"
+%makeFolderLink% "%STORM_DEPENDENCIES%\Eigen" "%EIGEN_DEPENDENCIES_PATH%"
 
 
 
