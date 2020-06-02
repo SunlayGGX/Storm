@@ -1,0 +1,45 @@
+#pragma once
+
+#if defined(_WIN32)
+namespace
+{
+	// Hijacking is a huge optimization, but it is really dirty...
+	struct StdHijackerProxy
+	{
+		uint64_t _newAskedSize;
+	};
+}
+#endif
+
+#if defined(_WIN32)
+// We hijack std::string _Construct
+template<>
+template<>
+void std::string::_Construct<StdHijackerProxy>(StdHijackerProxy hijacker, const StdHijackerProxy, input_iterator_tag)
+{
+	this->reserve(hijacker._newAskedSize);
+	_Mypair._Myval2._Mysize = hijacker._newAskedSize;
+}
+
+#endif
+
+namespace Storm
+{
+	namespace
+	{
+		template<class Type>
+		void resize_hijack(Type &inOutStr, uint64_t newSize)
+		{
+#if defined(_WIN32)
+			StdHijackerProxy hijacker{ newSize };
+			inOutStr._Construct(hijacker, hijacker, std::input_iterator_tag{});
+#else
+			// Linux or any other platform could not have been developped their std::string the same way Windows did (variable naming, method naming, ...)
+			// Since I don't have the time to check on those platform how to hijack it, I use the old resize... But this could lead to a huge overhead since
+			// we're initializing the string to a value that would be overwritten just after 
+			// (a useless memset of a huge string that could have been avoided since we're providing the data afterwards)...
+			inOutStr.resize(newSize);
+#endif
+		}
+	}
+}

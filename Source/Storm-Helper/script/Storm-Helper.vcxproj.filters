@@ -203,5 +203,8 @@
     <ClInclude Include="..\include\StringOperator.h">
       <Filter>Header Files\Prerequisite</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\StringHijack.h">
+      <Filter>Header Files\General\Misc</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
