@@ -6,12 +6,14 @@
 #include "IConfigManager.h"
 
 #include "MemoryHelper.h"
+#include "Version.h"
 
 #include <Assimp\Importer.hpp>
 #include <Assimp\scene.h>
 
+#include <boost\algorithm\string.hpp>
+
 #include <fstream>
-#include "Version.h"
 
 
 Storm::RigidBody::RigidBody(const Storm::RigidBodySceneData &rbSceneData) :
@@ -75,11 +77,13 @@ void Storm::RigidBody::load()
 		k_cacheGoodChecksum = 0xABCDEF71,
 	};
 
-	const Storm::IConfigManager*const configMgr = Storm::SingletonHolder::instance().getFacet<Storm::IConfigManager>();
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	const Storm::IConfigManager*const configMgr = singletonHolder.getFacet<Storm::IConfigManager>();
 	
-	const std::filesystem::path meshPath = _meshPath;
+	const std::string meshPathLowerStr = boost::algorithm::to_lower_copy(_meshPath);
+	const std::filesystem::path meshPath = meshPathLowerStr;
 	const std::filesystem::path tmpPath = configMgr->getTemporaryPath();
-	const std::filesystem::path cachedPath = tmpPath / meshPath.stem().replace_extension(".cPartRigidBody");
+	const std::filesystem::path cachedPath = tmpPath / "ParticleData" / meshPath.stem().replace_extension(".cPartRigidBody");
 	const std::wstring cachedPathStr = cachedPath.wstring();
 	constexpr const Storm::Version currentVersion = Storm::Version::retrieveCurrentStormVersion();
 
@@ -174,13 +178,26 @@ void Storm::RigidBody::load()
 
 			if (std::filesystem::file_time_type{ std::filesystem::file_time_type::duration{ timestamp } } == srcMeshWriteTime)
 			{
-				std::string tmp;
-				Storm::binaryRead(cacheReadStream, tmp);
+				std::string srcUsedFilePath;
+				Storm::binaryRead(cacheReadStream, srcUsedFilePath);
 
-				Storm::Version cacheFileVersion{ tmp };
-				if (cacheFileVersion != currentVersion)
+				// I used meshPathLowerStr instead of _meshPath because _meshPath was set by the user on the scene file, therefore comparison depends on the case of each letters.
+				// meshPathLowerStr was constructed by the lowercase of _meshPath and is used to write to the binary file so it is suitable to use as a comparison (we know what we're expecting).
+				if (meshPathLowerStr == srcUsedFilePath)
 				{
-					LOG_WARNING << '"' << meshPath << "\" has a particle cached file but it is was made with a previous version of the application (no retro compatibility), therefore we will regenerate it anew.";
+					std::string versionTmp;
+					Storm::binaryRead(cacheReadStream, versionTmp);
+
+					Storm::Version cacheFileVersion{ versionTmp };
+					if (cacheFileVersion != currentVersion)
+					{
+						LOG_WARNING << '"' << meshPath << "\" has a particle cached file but it is was made with a previous version of the application (no retro compatibility), therefore we will regenerate it anew.";
+						hasCache = false;
+					}
+				}
+				else
+				{
+					LOG_WARNING << '"' << meshPath << "\" has no particle cached file since the one we found was generated for another file that has the same name, therefore we will regenerate it anew.";
 					hasCache = false;
 				}
 			}
@@ -232,6 +249,7 @@ void Storm::RigidBody::load()
 		Storm::binaryWrite(cacheFileStream, static_cast<uint64_t>(k_cachePlaceholderChecksum));
 
 		Storm::binaryWrite(cacheFileStream, static_cast<uint64_t>(srcMeshWriteTime.time_since_epoch().count()));
+		Storm::binaryWrite(cacheFileStream, meshPathLowerStr);
 		Storm::binaryWrite(cacheFileStream, static_cast<std::string>(currentVersion));
 
 		Storm::binaryWrite(cacheFileStream, static_cast<uint64_t>(_objSpaceParticlePos.size()));
