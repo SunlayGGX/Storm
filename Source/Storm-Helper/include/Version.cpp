@@ -12,6 +12,11 @@
 Storm::Version::Version(const std::string &versionStr) :
 	_value{ 0 }
 {
+	enum : Storm::Version::VersionNumber
+	{
+		k_parsingNumberOffset = static_cast<Storm::Version::VersionNumber>('0')
+	};
+
 	std::vector<std::string> splitted;
 	splitted.reserve(3);
 
@@ -19,9 +24,9 @@ Storm::Version::Version(const std::string &versionStr) :
 
 	switch (splitted.size())
 	{
-	case 3: _value._dividedInternals._subminor = boost::lexical_cast<Storm::Version::VersionNumber>(splitted[2]);
-	case 2: _value._dividedInternals._minor = boost::lexical_cast<Storm::Version::VersionNumber>(splitted[1]);
-	case 1: _value._dividedInternals._major = boost::lexical_cast<Storm::Version::VersionNumber>(splitted[0]);
+	case 3: _value._dividedInternals._subminor = boost::lexical_cast<Storm::Version::VersionNumber>(splitted[2]) - k_parsingNumberOffset;
+	case 2: _value._dividedInternals._minor = boost::lexical_cast<Storm::Version::VersionNumber>(splitted[1]) - k_parsingNumberOffset;
+	case 1: _value._dividedInternals._major = boost::lexical_cast<Storm::Version::VersionNumber>(splitted[0]) - k_parsingNumberOffset;
 	case 0:
 		break;
 

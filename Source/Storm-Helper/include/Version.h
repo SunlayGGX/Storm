@@ -12,7 +12,7 @@ namespace Storm
 		private Storm::FullHierarchisable<Version, std::string>
 	{
 	public:
-		using VersionNumber = unsigned char;
+		using VersionNumber = uint8_t;
 
 	public:
 		constexpr Version(VersionNumber major = 0, VersionNumber minor = 0, VersionNumber subminor = 0) :
