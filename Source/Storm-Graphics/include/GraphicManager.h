@@ -25,7 +25,7 @@ namespace Storm
 		void update() final override;
 
 	public:
-		virtual void executeActionAsync(GraphicsAction actionToExecute) override;
+		void executeActionAsync(GraphicsAction actionToExecute) final override;
 
 	private:
 		void internalExecuteActions();
