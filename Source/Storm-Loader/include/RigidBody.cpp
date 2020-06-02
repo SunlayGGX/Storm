@@ -1,5 +1,6 @@
 #include "RigidBody.h"
 
+#include "PoissonDiskSampler.h"
 #include "RigidBodySceneData.h"
 
 #include "SingletonHolder.h"
@@ -69,6 +70,12 @@ std::vector<Storm::Vector3> Storm::RigidBody::getRigidBodyObjectSpaceNormals() c
 	throw std::logic_error("The method or operation is not implemented.");
 }
 
+void Storm::RigidBody::sampleMesh(const std::vector<Storm::Vector3> &vertices)
+{
+	// Poisson Disk sampling
+	_objSpaceParticlePos = Storm::PoissonDiskSampler{}(vertices);
+}
+
 void Storm::RigidBody::load()
 {
 	enum : uint64_t
@@ -88,6 +95,8 @@ void Storm::RigidBody::load()
 	const std::filesystem::path cachedPath = tmpPath / "ParticleData" / meshPath.stem().replace_extension(".cPartRigidBody");
 	const std::wstring cachedPathStr = cachedPath.wstring();
 	constexpr const Storm::Version currentVersion = Storm::Version::retrieveCurrentStormVersion();
+
+	std::vector<Storm::Vector3> verticesPos;
 
 	{
 		// The mesh is a separate entity, therefore we will load it with Assimp.
@@ -135,7 +144,6 @@ void Storm::RigidBody::load()
 				LOG_WARNING << "'" << _meshPath << "' contains more than 10000 vertices. Low performance, frame drop and high memory consumptions are to be expected. Solution : reduce the number of vertices.";
 			}
 
-			std::vector<Storm::Vector3> verticesPos;
 			verticesPos.reserve(totalVertexCount);
 
 			std::vector<Storm::Vector3> normalsPos;
@@ -241,8 +249,9 @@ void Storm::RigidBody::load()
 
 	if(!hasCache)
 	{
-		// TODO : Generate the rb as if no cache data
-
+		/* Generate the rb as if no cache data */
+		
+		this->sampleMesh(verticesPos);
 		
 		/* Cache writing */
 

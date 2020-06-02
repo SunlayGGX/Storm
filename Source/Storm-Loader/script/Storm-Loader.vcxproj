@@ -13,6 +13,7 @@
   <ItemGroup>
     <ClCompile Include="..\include\AssetLoaderManager.cpp" />
     <ClCompile Include="..\include\AssimpLoggingWrapper.cpp" />
+    <ClCompile Include="..\include\PoissonDiskSampler.cpp" />
     <ClCompile Include="..\include\RigidBody.cpp" />
     <ClCompile Include="..\include\Storm-LoaderPCH.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -22,6 +23,7 @@
   <ItemGroup>
     <ClInclude Include="..\include\AssetLoaderManager.h" />
     <ClInclude Include="..\include\AssimpLoggingWrapper.h" />
+    <ClInclude Include="..\include\PoissonDiskSampler.h" />
     <ClInclude Include="..\include\RigidBody.h" />
     <ClInclude Include="..\include\Storm-LoaderPCH.h" />
   </ItemGroup>

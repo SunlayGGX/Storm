@@ -23,6 +23,9 @@ namespace Storm
 		std::vector<Storm::Vector3> getRigidBodyObjectSpaceNormals() const final override;
 
 	private:
+		void sampleMesh(const std::vector<Storm::Vector3> &vertices);
+
+	private:
 		void load();
 
 	private:

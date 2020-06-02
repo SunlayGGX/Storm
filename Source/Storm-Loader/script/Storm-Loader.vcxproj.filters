@@ -39,6 +39,9 @@
     <ClCompile Include="..\include\RigidBody.cpp">
       <Filter>Source Files\General</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\PoissonDiskSampler.cpp">
+      <Filter>Source Files\General</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-LoaderPCH.h">
@@ -51,6 +54,9 @@
       <Filter>Header Files\General</Filter>
     </ClInclude>
     <ClInclude Include="..\include\RigidBody.h">
+      <Filter>Header Files\General</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\PoissonDiskSampler.h">
       <Filter>Header Files\General</Filter>
     </ClInclude>
   </ItemGroup>
