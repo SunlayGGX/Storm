@@ -11,6 +11,7 @@
 #include <Assimp\scene.h>
 
 #include <fstream>
+#include "Version.h"
 
 
 Storm::RigidBody::RigidBody(const Storm::RigidBodySceneData &rbSceneData) :
@@ -69,7 +70,8 @@ void Storm::RigidBody::load()
 {
 	enum : uint64_t
 	{
-		k_cacheFirstChecksum = 0x00AA00BB,
+		// Those aren't really checksums but they'll do the same jobs and does it okay (no need to be extra secure, this is not confidential or running stuffs), so I would call them checksum.
+		k_cachePlaceholderChecksum = 0x00AA00BB,
 		k_cacheGoodChecksum = 0xABCDEF71,
 	};
 
@@ -78,6 +80,8 @@ void Storm::RigidBody::load()
 	const std::filesystem::path meshPath = _meshPath;
 	const std::filesystem::path tmpPath = configMgr->getTemporaryPath();
 	const std::filesystem::path cachedPath = tmpPath / meshPath.stem().replace_extension(".cPartRigidBody");
+	const std::wstring cachedPathStr = cachedPath.wstring();
+	constexpr const Storm::Version currentVersion = Storm::Version::retrieveCurrentStormVersion();
 
 	{
 		// The mesh is a separate entity, therefore we will load it with Assimp.
@@ -155,10 +159,11 @@ void Storm::RigidBody::load()
 		}
 	}
 
+	const auto srcMeshWriteTime = std::filesystem::last_write_time(meshPath);
 	bool hasCache = std::filesystem::exists(cachedPath);
 	if (hasCache)
 	{
-		std::ifstream cacheReadStream{ cachedPath.wstring(), std::ios_base::in | std::ios_base::binary };
+		std::ifstream cacheReadStream{ cachedPathStr, std::ios_base::in | std::ios_base::binary };
 
 		uint64_t checksum;
 		Storm::binaryRead(cacheReadStream, checksum);
@@ -167,26 +172,47 @@ void Storm::RigidBody::load()
 			int64_t timestamp;
 			Storm::binaryRead(cacheReadStream, timestamp);
 
-			if (std::filesystem::file_time_type{ std::filesystem::file_time_type::duration{ timestamp } } == std::filesystem::last_write_time(meshPath))
+			if (std::filesystem::file_time_type{ std::filesystem::file_time_type::duration{ timestamp } } == srcMeshWriteTime)
 			{
-				LOG_COMMENT << '"' << meshPath << "\" has a particle cached file, therefore we will load it instead.";
+				std::string tmp;
+				Storm::binaryRead(cacheReadStream, tmp);
 
-				// TODO : read the particle saved data
-
+				Storm::Version cacheFileVersion{ tmp };
+				if (cacheFileVersion != currentVersion)
+				{
+					LOG_WARNING << '"' << meshPath << "\" has a particle cached file but it is was made with a previous version of the application (no retro compatibility), therefore we will regenerate it anew.";
+					hasCache = false;
+				}
 			}
 			else
 			{
-				LOG_WARNING << '"' << meshPath << "\" has a particle cached file but it is outdated, therefore we will regenerate it.";
+				LOG_WARNING << '"' << meshPath << "\" has a particle cached file but it is outdated, therefore we will regenerate it anew.";
 				hasCache = false;
 			}
 		}
 		else
 		{
-			LOG_WARNING << '"' << meshPath << "\" has a particle cached file but it is corrupted (invalid), therefore we will regenerate it.";
+			LOG_WARNING << '"' << meshPath << "\" has a particle cached file but it is corrupted (invalid), therefore we will regenerate it anew.";
 			hasCache = false;
 		}
 
-		if(!hasCache)
+		if (hasCache)
+		{
+			LOG_COMMENT << '"' << meshPath << "\" has a right matching particle cached data file, therefore we will load it instead.";
+			
+			uint64_t particleCount;
+			Storm::binaryRead(cacheReadStream, particleCount);
+			_objSpaceParticlePos.reserve(particleCount);
+			for (uint64_t iter = 0; iter < particleCount; ++iter)
+			{
+				Storm::Vector3 &currentVect = _objSpaceParticlePos.emplace_back();
+
+				Storm::binaryRead(cacheReadStream, currentVect._x);
+				Storm::binaryRead(cacheReadStream, currentVect._y);
+				Storm::binaryRead(cacheReadStream, currentVect._z);
+			}
+		}
+		else
 		{
 			cacheReadStream.close();
 			std::filesystem::remove_all(cachedPath);
@@ -197,7 +223,28 @@ void Storm::RigidBody::load()
 	{
 		// TODO : Generate the rb as if no cache data
 
-		// TODO : save the particle cache file.
+		
+		/* Cache writing */
+
+		std::ofstream cacheFileStream{ cachedPathStr, std::ios_base::out | std::ios_base::binary };
+
+		// First write wrong checksum as a placeholder
+		Storm::binaryWrite(cacheFileStream, static_cast<uint64_t>(k_cachePlaceholderChecksum));
+
+		Storm::binaryWrite(cacheFileStream, static_cast<uint64_t>(srcMeshWriteTime.time_since_epoch().count()));
+		Storm::binaryWrite(cacheFileStream, static_cast<std::string>(currentVersion));
+
+		Storm::binaryWrite(cacheFileStream, static_cast<uint64_t>(_objSpaceParticlePos.size()));
+		for (const Storm::Vector3 &particlePos : _objSpaceParticlePos)
+		{
+			Storm::binaryWrite(cacheFileStream, particlePos._x);
+			Storm::binaryWrite(cacheFileStream, particlePos._y);
+			Storm::binaryWrite(cacheFileStream, particlePos._z);
+		}
+
+		// Replace the placeholder checksum by the right one to finalize the writing
+		cacheFileStream.seekp(0);
+		Storm::binaryWrite(cacheFileStream, static_cast<uint64_t>(k_cacheGoodChecksum));
 	}
 }
 
