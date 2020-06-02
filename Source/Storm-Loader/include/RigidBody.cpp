@@ -127,9 +127,10 @@ void Storm::RigidBody::load()
 				totalVertexCount += currentMesh->mNumVertices;
 			}
 
-			if (totalVertexCount > 50000)
+			// Oh my gosh... If you trigger this warning then your object will be awkward to render (I'm not optimizing anything (don't have time) so expect some lags)
+			if (totalVertexCount > 10000)
 			{
-				LOG_WARNING << "'" << _meshPath << "' contains more than 50000 vertices. Low performance, frame drop and high memory consumptions are to be expected. Solution : reduce the number of vertices.";
+				LOG_WARNING << "'" << _meshPath << "' contains more than 10000 vertices. Low performance, frame drop and high memory consumptions are to be expected. Solution : reduce the number of vertices.";
 			}
 
 			std::vector<Storm::Vector3> verticesPos;
