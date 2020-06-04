@@ -69,14 +69,14 @@ void Storm::WindowsManager::initialize_Implementation()
 	{
 		this->initializeInternal();
 
-		Storm::ITimeManager* timeMgr = Storm::SingletonHolder::instance().getFacet<Storm::ITimeManager>();
-		Storm::IInputManager* inputMgr = Storm::SingletonHolder::instance().getFacet<Storm::IInputManager>();
+		Storm::ITimeManager &timeMgr = Storm::SingletonHolder::instance().getSingleton<Storm::ITimeManager>();
+		Storm::IInputManager &inputMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IInputManager>();
 
 		constexpr const std::chrono::milliseconds k_windowsThreadRefreshRate{ 100 };
-		while (timeMgr->waitForTimeOrExit(k_windowsThreadRefreshRate))
+		while (timeMgr.waitForTimeOrExit(k_windowsThreadRefreshRate))
 		{
 			this->update();
-			inputMgr->update();
+			inputMgr.update();
 		}
 	} };
 }

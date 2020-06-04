@@ -86,12 +86,12 @@ void Storm::RigidBody::load()
 	};
 
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
-	const Storm::IConfigManager*const configMgr = singletonHolder.getFacet<Storm::IConfigManager>();
-	Storm::IGraphicsManager*const graphicsMgr = singletonHolder.getFacet<Storm::IGraphicsManager>();
+	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
+	Storm::IGraphicsManager &graphicsMgr = singletonHolder.getSingleton<Storm::IGraphicsManager>();
 	
 	const std::string meshPathLowerStr = boost::algorithm::to_lower_copy(_meshPath);
 	const std::filesystem::path meshPath = meshPathLowerStr;
-	const std::filesystem::path tmpPath = configMgr->getTemporaryPath();
+	const std::filesystem::path tmpPath = configMgr.getTemporaryPath();
 	const std::filesystem::path cachedPath = tmpPath / "ParticleData" / meshPath.stem().replace_extension(".cPartRigidBody");
 	const std::wstring cachedPathStr = cachedPath.wstring();
 	constexpr const Storm::Version currentVersion = Storm::Version::retrieveCurrentStormVersion();

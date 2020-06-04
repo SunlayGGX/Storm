@@ -12,7 +12,7 @@ namespace
 	{
 		return [srcCallback = std::move(callback)]()
 		{
-			Storm::SingletonHolder::instance().getFacet<Storm::ISimulatorManager>()->executeOnSimulationLoop(srcCallback);
+			Storm::SingletonHolder::instance().getSingleton<Storm::ISimulatorManager>().executeOnSimulationLoop(srcCallback);
 		};
 	}
 }
@@ -28,7 +28,7 @@ bool Storm::InputHandler::keyPressed(const OIS::KeyEvent &arg)
 	else
 	{
 		LOG_COMMENT << "Escape key was pressed, we will quit the application!";
-		Storm::SingletonHolder::instance().getFacet<Storm::ITimeManager>()->quit();
+		Storm::SingletonHolder::instance().getSingleton<Storm::ITimeManager>().quit();
 	}
 
 	return true;

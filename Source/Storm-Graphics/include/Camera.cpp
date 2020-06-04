@@ -14,8 +14,8 @@ Storm::Camera::Camera(float viewportWidth, float viewportHeight) :
 	_screenWidth{ viewportWidth },
 	_screenHeight{ viewportHeight }
 {
-	Storm::IConfigManager* configMgr = Storm::SingletonHolder::instance().getFacet<Storm::IConfigManager>();
-	const Storm::GraphicData &currentGraphicData = configMgr->getGraphicData();
+	Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
+	const Storm::GraphicData &currentGraphicData = configMgr.getGraphicData();
 
 	_nearPlane = currentGraphicData._zNear;
 	_farPlane = currentGraphicData._zFar;

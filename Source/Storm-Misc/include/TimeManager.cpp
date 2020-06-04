@@ -32,8 +32,8 @@ void Storm::TimeManager::initialize_Implementation()
 	std::lock_guard<std::mutex> lock{ _mutex };
 	_isRunning = true;
 
-	Storm::IConfigManager* configMgr = Storm::SingletonHolder::instance().getFacet<Storm::IConfigManager>();
-	_shouldLogFPSWatching = configMgr->getShouldLogFpsWatching();
+	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
+	_shouldLogFPSWatching = configMgr.getShouldLogFpsWatching();
 
 	_timeThread = std::thread{ [this]() 
 	{
@@ -43,8 +43,8 @@ void Storm::TimeManager::initialize_Implementation()
 		}
 	} };
 
-	Storm::IWindowsManager* windowMgr = Storm::SingletonHolder::instance().getFacet<Storm::IWindowsManager>();
-	windowMgr->bindQuitCallback([this]()
+	Storm::IWindowsManager &windowMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IWindowsManager>();
+	windowMgr.bindQuitCallback([this]()
 	{
 		this->quit();
 	});

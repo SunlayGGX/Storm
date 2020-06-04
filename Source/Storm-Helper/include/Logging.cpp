@@ -6,9 +6,9 @@
 
 namespace
 {
-	Storm::ILoggerManager* retrieveLoggerManager()
+	Storm::ILoggerManager& retrieveLoggerManager()
 	{
-		return Storm::SingletonHolder::instance().getFacet<Storm::ILoggerManager>();
+		return Storm::SingletonHolder::instance().getSingleton<Storm::ILoggerManager>();
 	}
 }
 
@@ -18,7 +18,7 @@ Storm::LoggerObject::LoggerObject(const std::string_view &moduleName, const Stor
 	_level{ level },
 	_function{ function },
 	_line{ line },
-	_enabled{ level >= retrieveLoggerManager()->getLogLevel() }
+	_enabled{ level >= retrieveLoggerManager().getLogLevel() }
 {
 
 }
@@ -27,6 +27,6 @@ Storm::LoggerObject::~LoggerObject()
 {
 	if (_enabled)
 	{
-		retrieveLoggerManager()->log(_module, _level, _function, _line, _stream.str());
+		retrieveLoggerManager().log(_module, _level, _function, _line, _stream.str());
 	}
 }

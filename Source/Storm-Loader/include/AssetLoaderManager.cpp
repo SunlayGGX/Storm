@@ -52,16 +52,16 @@ void Storm::AssetLoaderManager::initialize_Implementation()
 
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 	
-	const Storm::IConfigManager*const configMgr = singletonHolder.getFacet<Storm::IConfigManager>();
-	const auto &rigidBodiesDataToLoad = configMgr->getSceneData()._rigidBodiesData;
+	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
+	const auto &rigidBodiesDataToLoad = configMgr.getSceneData()._rigidBodiesData;
 
-	Storm::IGraphicsManager*const graphicsMgr = singletonHolder.getFacet<Storm::IGraphicsManager>();
+	Storm::IGraphicsManager &graphicsMgr = singletonHolder.getSingleton<Storm::IGraphicsManager>();
 
 	_rigidBodies.reserve(rigidBodiesDataToLoad.size());
 	for (const auto &rbToLoad : rigidBodiesDataToLoad)
 	{
 		auto &emplacedRb = _rigidBodies.emplace_back(std::static_pointer_cast<Storm::IRigidBody>(std::make_shared<Storm::RigidBody>(rbToLoad)));
-		graphicsMgr->bindMesh(emplacedRb->getRigidBodyID(), emplacedRb);
+		graphicsMgr.bindMesh(emplacedRb->getRigidBodyID(), emplacedRb);
 	}
 }
 

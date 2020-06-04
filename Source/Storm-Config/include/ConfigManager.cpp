@@ -90,7 +90,7 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 				{ L"Xml file (*.xml)", L"*.xml" }
 			};
 
-			_sceneConfigFilePath = std::filesystem::path{ Storm::SingletonHolder::instance().getFacet<Storm::IOSManager>()->openFileExplorerDialog(_defaultSceneConfigFolderPath, fileFilters) }.string();
+			_sceneConfigFilePath = std::filesystem::path{ Storm::SingletonHolder::instance().getSingleton<Storm::IOSManager>().openFileExplorerDialog(_defaultSceneConfigFolderPath, fileFilters) }.string();
 		}
 
 		std::string errorMsg;

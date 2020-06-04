@@ -15,5 +15,12 @@ namespace Storm
 		public Storm::FacetContainer<Storm::SingletonHeldInterfaceBase, Storm::FacetContainerIsNotOwner>
 	{
 		STORM_DECLARE_SINGLETON(SingletonHolder);
+
+	public:
+		template<class SingletonType>
+		SingletonType& getSingleton() const
+		{
+			return *this->getFacet<SingletonType>();
+		}
 	};
 }

@@ -34,9 +34,9 @@ bool Storm::GraphicManager::initialize_Implementation()
 {
 	LOG_COMMENT << "Starting to initialize the Graphic Manager. We would evaluate if Windows is created. If not, we will suspend initialization and come back later.";
 
-	Storm::IWindowsManager* windowsMgr = Storm::SingletonHolder::instance().getFacet<Storm::IWindowsManager>();
+	Storm::IWindowsManager &windowsMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IWindowsManager>();
 
-	HWND hwnd = static_cast<HWND>(windowsMgr->getWindowHandle());
+	HWND hwnd = static_cast<HWND>(windowsMgr.getWindowHandle());
 	if (hwnd != nullptr)
 	{
 		this->initialize_Implementation(hwnd);
@@ -45,7 +45,7 @@ bool Storm::GraphicManager::initialize_Implementation()
 	else
 	{
 		bool initRes = false;
-		windowsMgr->bindFinishInitializeCallback([this, res = &initRes](void* hwndOnceReady, bool calledAtBindingTime)
+		windowsMgr.bindFinishInitializeCallback([this, res = &initRes](void* hwndOnceReady, bool calledAtBindingTime)
 		{
 			if (calledAtBindingTime)
 			{
@@ -74,8 +74,8 @@ void Storm::GraphicManager::initialize_Implementation(void* hwnd)
 
 	_renderThread = std::thread([this]()
 	{
-		Storm::ITimeManager* timeMgr = Storm::SingletonHolder::instance().getFacet<Storm::ITimeManager>();
-		while (timeMgr->waitNextFrameOrExit())
+		Storm::ITimeManager &timeMgr = Storm::SingletonHolder::instance().getSingleton<Storm::ITimeManager>();
+		while (timeMgr.waitNextFrameOrExit())
 		{
 			this->update();
 		}

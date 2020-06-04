@@ -206,12 +206,12 @@ void Storm::DirectXController::internalCreateDXDevices(HWND hwnd)
 	Storm::ZeroMemories(swapChainDesc);
 
 	{
-		Storm::IConfigManager* configMgr = Storm::SingletonHolder::instance().getFacet<Storm::IConfigManager>();
+		Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
 
 		DXGI_MODE_DESC descModeWanted;
 		descModeWanted.Format = DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM;
-		descModeWanted.Height = configMgr->getWantedScreenHeight();
-		descModeWanted.Width = configMgr->getWantedScreenWidth();
+		descModeWanted.Height = configMgr.getWantedScreenHeight();
+		descModeWanted.Width = configMgr.getWantedScreenWidth();
 		descModeWanted.RefreshRate.Numerator = k_wantedFPS;
 		descModeWanted.RefreshRate.Denominator = 1;
 		descModeWanted.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER::DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;

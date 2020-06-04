@@ -87,8 +87,8 @@ Storm::ShaderManager::~ShaderManager() = default;
 
 void Storm::ShaderManager::initialize_Implementation()
 {
-	const Storm::IConfigManager* configMgr = Storm::SingletonHolder::instance().getFacet<Storm::IConfigManager>();
-	const std::filesystem::path tmpPath = configMgr->getTemporaryPath();
+	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
+	const std::filesystem::path tmpPath = configMgr.getTemporaryPath();
 
 	const std::filesystem::path shaderTmpPath = getShadersTemporaryPath(tmpPath);
 	std::filesystem::create_directories(shaderTmpPath);
@@ -174,8 +174,8 @@ void* Storm::ShaderManager::requestCompiledShaderBlobs(const std::string &shader
 
 	bool hasCachedBlobs = false;
 
-	const Storm::IConfigManager* configMgr = Storm::SingletonHolder::instance().getFacet<Storm::IConfigManager>();
-	const std::string &tmpPath = configMgr->getTemporaryPath();
+	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
+	const std::string &tmpPath = configMgr.getTemporaryPath();
 
 	const auto shaderFoundTimestamp = std::filesystem::last_write_time(shaderFilePath);
 
@@ -243,8 +243,8 @@ void* Storm::ShaderManager::requestCompiledShaderBlobs(const std::string &shader
 
 void Storm::ShaderManager::flushCache() const
 {
-	const Storm::IConfigManager* configMgr = Storm::SingletonHolder::instance().getFacet<Storm::IConfigManager>();
-	const std::filesystem::path tmpPath = configMgr->getTemporaryPath();
+	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
+	const std::filesystem::path tmpPath = configMgr.getTemporaryPath();
 
 	const std::filesystem::path finalShaderCache = getShadersTemporaryPath(tmpPath) / k_shaderCacheFileName;
 	const std::filesystem::path finalShaderCacheToRemove = getTemporaryFinalShaderCacheToRemovePath(finalShaderCache);

@@ -24,14 +24,14 @@ void Storm::SimulatorManager::cleanUp_Implementation()
 
 void Storm::SimulatorManager::run()
 {
-	Storm::ITimeManager* timeMgr = Storm::SingletonHolder::instance().getFacet<Storm::ITimeManager>();
+	Storm::ITimeManager &timeMgr = Storm::SingletonHolder::instance().getSingleton<Storm::ITimeManager>();
 	
 	std::vector<Storm::SimulationCallback> tmpSimulationCallback;
 	tmpSimulationCallback.reserve(8);
 
 	do
 	{
-		Storm::TimeWaitResult simulationState = timeMgr->waitNextFrame();
+		Storm::TimeWaitResult simulationState = timeMgr.waitNextFrame();
 		switch (simulationState)
 		{
 		case Storm::TimeWaitResult::Exit:
