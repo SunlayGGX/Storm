@@ -38,6 +38,7 @@ void Storm::MacroConfig::initialize()
 	_macros[makeFinalMacroKey("StormFolderExe")] = exeFolderPath.string();
 	_macros[makeFinalMacroKey("StormRoot")] = rootPath.string();
 	_macros[makeFinalMacroKey("StormConfig")] = (rootPath / "Config").string();
+	_macros[makeFinalMacroKey("StormResource")] = (rootPath / "Resource").string();
 	_macros[makeFinalMacroKey("StormIntermediate")] = outputPath.string();
 	_macros[makeFinalMacroKey("DateTime")] = Storm::TimeHelper::getCurrentDateTime(false);
 	_macros[makeFinalMacroKey("Date")] = Storm::TimeHelper::getCurrentDate();
