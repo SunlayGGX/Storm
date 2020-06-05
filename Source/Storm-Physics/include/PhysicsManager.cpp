@@ -24,6 +24,9 @@ void Storm::PhysicsManager::cleanUp_Implementation()
 {
 	LOG_COMMENT << "PhysX cleanup requested";
 	
+	_staticsRbMap.clear();
+	_dynamicsRbMap.clear();
+
 	_physXHandler.reset();
 
 	LOG_COMMENT << "PhysX cleanup finished successfully";
