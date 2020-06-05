@@ -49,6 +49,8 @@ Storm::AssetLoaderManager::~AssetLoaderManager() = default;
 
 void Storm::AssetLoaderManager::initialize_Implementation()
 {
+	LOG_COMMENT << "Asset loading started! Depending on the caching state of each assets, it could take some time...";
+
 	initializeAssimpLogger();
 
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
@@ -69,7 +71,11 @@ void Storm::AssetLoaderManager::initialize_Implementation()
 
 		graphicsMgr.bindParentRbToMesh(emplacedRbId, emplacedRb);
 		physicsMgr.bindParentRbToPhysicalBody(rbToLoad, emplacedRb);
+
+		LOG_DEBUG << "Rigid body " << emplacedRbId << " created and bound to the right modules.";
 	}
+
+	LOG_COMMENT << "Asset loading finished!";
 }
 
 void Storm::AssetLoaderManager::cleanUp_Implementation()
