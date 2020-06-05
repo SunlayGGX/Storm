@@ -23,6 +23,7 @@ namespace Storm
 	private:
 		Storm::UniquePointer<physx::PxFoundation> _foundationInstance;
 		Storm::UniquePointer<physx::PxPhysics> _physics;
+		Storm::UniquePointer<physx::PxDefaultCpuDispatcher> _cpuDispatcher;
 		Storm::UniquePointer<physx::PxScene> _scene;
 	};
 }

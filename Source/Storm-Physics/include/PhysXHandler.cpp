@@ -62,6 +62,18 @@ Storm::PhysXHandler::PhysXHandler() :
 
 	sceneDesc.flags |= physx::PxSceneFlag::eENABLE_PCM;
 	sceneDesc.gpuMaxNumPartitions = 8;
+	
+	sceneDesc.filterShader = physx::PxDefaultSimulationFilterShader;
+
+	if (!sceneDesc.cpuDispatcher)
+	{
+		_cpuDispatcher = physx::PxDefaultCpuDispatcherCreate(1);
+		if (!_cpuDispatcher) 
+		{
+			Storm::throwException<std::exception>("PhysX Cpu dispatcher creation failed!");
+		}
+		sceneDesc.cpuDispatcher = _cpuDispatcher.get();
+	}
 
 	_scene = _physics->createScene(sceneDesc);
 	if (!_scene)
