@@ -22,6 +22,9 @@ namespace Storm
 		std::vector<Storm::Vector3> getRigidBodyObjectSpaceVertexes() const final override;
 		std::vector<Storm::Vector3> getRigidBodyObjectSpaceNormals() const final override;
 
+	public:
+		static std::filesystem::path retrieveParticleDataCacheFolder();
+
 	private:
 		void sampleMesh(const std::vector<Storm::Vector3> &vertices);
 

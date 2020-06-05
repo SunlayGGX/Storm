@@ -55,6 +55,8 @@ void Storm::AssetLoaderManager::initialize_Implementation()
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
 	const auto &rigidBodiesDataToLoad = configMgr.getSceneData()._rigidBodiesData;
 
+	std::filesystem::create_directories(Storm::RigidBody::retrieveParticleDataCacheFolder());
+
 	Storm::IGraphicsManager &graphicsMgr = singletonHolder.getSingleton<Storm::IGraphicsManager>();
 
 	_rigidBodies.reserve(rigidBodiesDataToLoad.size());

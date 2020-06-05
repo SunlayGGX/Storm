@@ -70,6 +70,12 @@ std::vector<Storm::Vector3> Storm::RigidBody::getRigidBodyObjectSpaceNormals() c
 	throw std::logic_error("The method or operation is not implemented.");
 }
 
+std::filesystem::path Storm::RigidBody::retrieveParticleDataCacheFolder()
+{
+	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
+	return std::filesystem::path{ configMgr.getTemporaryPath() } / "ParticleData";
+}
+
 void Storm::RigidBody::sampleMesh(const std::vector<Storm::Vector3> &vertices)
 {
 	// Poisson Disk sampling
@@ -86,13 +92,11 @@ void Storm::RigidBody::load()
 	};
 
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
-	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
 	Storm::IGraphicsManager &graphicsMgr = singletonHolder.getSingleton<Storm::IGraphicsManager>();
 	
 	const std::string meshPathLowerStr = boost::algorithm::to_lower_copy(_meshPath);
 	const std::filesystem::path meshPath = meshPathLowerStr;
-	const std::filesystem::path tmpPath = configMgr.getTemporaryPath();
-	const std::filesystem::path cachedPath = tmpPath / "ParticleData" / meshPath.stem().replace_extension(".cPartRigidBody");
+	const std::filesystem::path cachedPath = Storm::RigidBody::retrieveParticleDataCacheFolder() / meshPath.stem().replace_extension(".cPartRigidBody");
 	const std::wstring cachedPathStr = cachedPath.wstring();
 	constexpr const Storm::Version currentVersion = Storm::Version::retrieveCurrentStormVersion();
 
