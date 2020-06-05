@@ -1,6 +1,9 @@
 #include "PhysicsManager.h"
 
 #include "PhysXHandler.h"
+#include "PhysicsRigidBody.h"
+
+#include "RigidBodySceneData.h"
 
 
 Storm::PhysicsManager::PhysicsManager() = default;
@@ -26,10 +29,10 @@ void Storm::PhysicsManager::cleanUp_Implementation()
 
 void Storm::PhysicsManager::addPhysicalBody(const Storm::RigidBodySceneData &rbSceneData, const std::vector<Storm::Vector3> &vertexes)
 {
-	throw std::logic_error("The method or operation is not implemented.");
+	_physicsRbMap[rbSceneData._rigidBodyID] = std::make_unique<Storm::PhysicsRigidBody>(rbSceneData, vertexes);
 }
 
 void Storm::PhysicsManager::bindParentRbToPhysicalBody(unsigned int meshId, const std::shared_ptr<Storm::IRigidBody> &parentRb)
 {
-	throw std::logic_error("The method or operation is not implemented.");
+	_physicsRbMap[meshId]->setRbParent(parentRb);
 }

@@ -8,6 +8,7 @@
 namespace Storm
 {
 	class PhysXHandler;
+	class PhysicsRigidBody;
 
 	class PhysicsManager :
 		private Storm::Singleton<PhysicsManager>,
@@ -26,5 +27,6 @@ namespace Storm
 	private:
 		std::unique_ptr<Storm::PhysXHandler> _physXHandler;
 
+		std::map<unsigned int, std::unique_ptr<Storm::PhysicsRigidBody>> _physicsRbMap;
 	};
 }
