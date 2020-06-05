@@ -10,6 +10,7 @@
 #include "IConfigManager.h"
 
 #include "GeneralSimulationData.h"
+#include "RigidBodySceneData.h"
 
 
 namespace
@@ -112,4 +113,24 @@ void Storm::PhysXHandler::setGravity(const Storm::Vector3 &newGravity)
 
 	physx::PxSceneWriteLock lock{ *_scene };
 	_scene->setGravity(physXGravity);
+}
+
+Storm::UniquePointer<physx::PxRigidStatic> Storm::PhysXHandler::createStaticRigidBody(const Storm::RigidBodySceneData &rbSceneData)
+{
+	const physx::PxTransform initialPose = Storm::convertToPx(rbSceneData._translation, rbSceneData._rotation);
+	
+	Storm::UniquePointer<physx::PxRigidStatic> result{ _physics->createRigidStatic(initialPose) };
+	_scene->addActor(*result);
+
+	return result;
+}
+
+Storm::UniquePointer<physx::PxRigidDynamic> Storm::PhysXHandler::createDynamicRigidBody(const Storm::RigidBodySceneData &rbSceneData)
+{
+	const physx::PxTransform initialPose = Storm::convertToPx(rbSceneData._translation, rbSceneData._rotation);
+
+	Storm::UniquePointer<physx::PxRigidDynamic> result{ _physics->createRigidDynamic(initialPose) };
+	_scene->addActor(*result);
+
+	return result;
 }

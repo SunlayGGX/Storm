@@ -5,6 +5,8 @@
 
 namespace Storm
 {
+	struct RigidBodySceneData;
+
 	class PhysXHandler : public physx::PxDeletionListener
 	{
 	public:
@@ -19,6 +21,10 @@ namespace Storm
 
 	public:
 		void setGravity(const Storm::Vector3 &newGravity);
+
+	public:
+		Storm::UniquePointer<physx::PxRigidStatic> createStaticRigidBody(const Storm::RigidBodySceneData &rbSceneData);
+		Storm::UniquePointer<physx::PxRigidDynamic> createDynamicRigidBody(const Storm::RigidBodySceneData &rbSceneData);
 
 	private:
 		Storm::UniquePointer<physx::PxFoundation> _foundationInstance;
