@@ -45,6 +45,9 @@
     <ClCompile Include="..\include\PhysicsStaticsRigidBody.cpp">
       <Filter>Source Files\PhysicsComponent</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\PhysicalShape.cpp">
+      <Filter>Source Files\PhysicsComponent</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-PhysicsPCH.h">
@@ -67,6 +70,9 @@
     </ClInclude>
     <ClInclude Include="..\include\PhysXCoordHelpers.h">
       <Filter>Header Files\PhysX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\PhysicalShape.h">
+      <Filter>Header Files\PhysicsComponent</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

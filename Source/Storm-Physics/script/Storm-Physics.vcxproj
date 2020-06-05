@@ -12,6 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\CustomPhysXLogger.cpp" />
+    <ClCompile Include="..\include\PhysicalShape.cpp" />
     <ClCompile Include="..\include\PhysicsManager.cpp" />
     <ClCompile Include="..\include\PhysicsDynamicRigidBody.cpp" />
     <ClCompile Include="..\include\PhysicsStaticsRigidBody.cpp" />
@@ -23,6 +24,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\CustomPhysXLogger.h" />
+    <ClInclude Include="..\include\PhysicalShape.h" />
     <ClInclude Include="..\include\PhysicsManager.h" />
     <ClInclude Include="..\include\PhysicsDynamicRigidBody.h" />
     <ClInclude Include="..\include\PhysicsStaticsRigidBody.h" />
