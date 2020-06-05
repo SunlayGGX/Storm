@@ -23,3 +23,13 @@ void Storm::PhysicsManager::cleanUp_Implementation()
 
 	LOG_COMMENT << "PhysX cleanup finished successfully";
 }
+
+void Storm::PhysicsManager::addPhysicalBody(const Storm::RigidBodySceneData &rbSceneData, const std::vector<Storm::Vector3> &vertexes)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
+void Storm::PhysicsManager::bindParentRbToPhysicalBody(unsigned int meshId, const std::shared_ptr<Storm::IRigidBody> &parentRb)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}

@@ -6,6 +6,7 @@
 #include "ITimeManager.h"
 #include "IConfigManager.h"
 #include "IGraphicsManager.h"
+#include "IPhysicsManager.h"
 
 #include "SceneData.h"
 #include "RigidBodySceneData.h"
@@ -58,6 +59,7 @@ void Storm::AssetLoaderManager::initialize_Implementation()
 	std::filesystem::create_directories(Storm::RigidBody::retrieveParticleDataCacheFolder());
 
 	Storm::IGraphicsManager &graphicsMgr = singletonHolder.getSingleton<Storm::IGraphicsManager>();
+	Storm::IPhysicsManager &physicsMgr = singletonHolder.getSingleton<Storm::IPhysicsManager>();
 
 	_rigidBodies.reserve(rigidBodiesDataToLoad.size());
 	for (const auto &rbToLoad : rigidBodiesDataToLoad)
@@ -66,6 +68,7 @@ void Storm::AssetLoaderManager::initialize_Implementation()
 		const unsigned int emplacedRbId = emplacedRb->getRigidBodyID();
 
 		graphicsMgr.bindParentRbToMesh(emplacedRbId, emplacedRb);
+		physicsMgr.bindParentRbToPhysicalBody(emplacedRbId, emplacedRb);
 	}
 }
 

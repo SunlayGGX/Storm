@@ -7,6 +7,7 @@
 #include "SingletonHolder.h"
 #include "IConfigManager.h"
 #include "IGraphicsManager.h"
+#include "IPhysicsManager.h"
 
 #include "MemoryHelper.h"
 #include "Version.h"
@@ -205,8 +206,10 @@ void Storm::RigidBody::load(const Storm::RigidBodySceneData &rbSceneData)
 			}
 
 			Storm::IGraphicsManager &graphicsMgr = singletonHolder.getSingleton<Storm::IGraphicsManager>();
+			Storm::IPhysicsManager &physicsMgr = singletonHolder.getSingleton<Storm::IPhysicsManager>();
 
 			graphicsMgr.addMesh(_rbId, verticesPos, normalsPos);
+			physicsMgr.addPhysicalBody(rbSceneData, verticesPos);
 		}
 		else
 		{
