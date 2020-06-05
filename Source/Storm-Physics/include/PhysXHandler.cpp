@@ -11,12 +11,76 @@
 
 #include "GeneralSimulationData.h"
 #include "RigidBodySceneData.h"
+#include "CollisionType.h"
 
 
 namespace
 {
 	physx::PxDefaultAllocator g_defaultAllocator;
 	Storm::CustomPhysXLogger g_physXLogger;
+
+	Storm::UniquePointer<physx::PxShape> createSphereShape(physx::PxPhysics &physics, const Storm::RigidBodySceneData &rbSceneData, const std::vector<Storm::Vector3> &vertices, physx::PxMaterial* rbMaterial)
+	{
+		std::mutex mutex;
+		float maxDistance = 0.f;
+
+		std::for_each(std::execution::par, std::begin(vertices), std::end(vertices), [&vertices, &mutex, &maxDistance](const Storm::Vector3 &vect)
+		{
+			float maxDistanceTmp = 0.f;
+			float val;
+			for (const Storm::Vector3 &vertex : vertices)
+			{
+				val = (vertex - vect).squaredNorm();
+				if (val > maxDistanceTmp)
+				{
+					maxDistanceTmp = val;
+				}
+			}
+
+			std::lock_guard<std::mutex> lock{ mutex };
+			if (maxDistanceTmp > maxDistance)
+			{
+				maxDistance = maxDistanceTmp;
+			}
+		});
+
+		return physics.createShape(physx::PxSphereGeometry{ std::sqrt(maxDistance) / 2.f }, &rbMaterial, 1, true);
+	}
+
+	Storm::UniquePointer<physx::PxShape> createBoxShape(physx::PxPhysics &physics, const Storm::RigidBodySceneData &rbSceneData, const std::vector<Storm::Vector3> &vertices, physx::PxMaterial* rbMaterial)
+	{
+		float maxX = 0.f;
+		float maxY = 0.f;
+		float maxZ = 0.f;
+
+		const std::size_t verticeCount = vertices.size();
+		for (std::size_t iter = 0; iter < verticeCount; ++iter)
+		{
+			const Storm::Vector3 &vertex = vertices[iter];
+			for (std::size_t jiter = iter + 1; jiter < verticeCount; ++jiter)
+			{
+				Storm::Vector3 diff = vertex - vertices[jiter];
+				diff.x() = std::abs(diff.x());
+				diff.y() = std::abs(diff.y());
+				diff.z() = std::abs(diff.z());
+
+				if (diff.x() > maxX)
+				{
+					maxX = diff.x();
+				}
+				if (diff.y() > maxY)
+				{
+					maxY = diff.y();
+				}
+				if (diff.z() > maxZ)
+				{
+					maxZ = diff.z();
+				}
+			}
+		}
+
+		return physics.createShape(physx::PxBoxGeometry{ maxX / 2.f, maxY / 2.f, maxZ / 2.f }, &rbMaterial, 1, true);
+	}
 }
 
 Storm::PhysXHandler::PhysXHandler() :
@@ -133,4 +197,25 @@ Storm::UniquePointer<physx::PxRigidDynamic> Storm::PhysXHandler::createDynamicRi
 	_scene->addActor(*result);
 
 	return result;
+}
+
+Storm::UniquePointer<physx::PxMaterial> Storm::PhysXHandler::createRigidBodyMaterial(const Storm::RigidBodySceneData &rbSceneData)
+{
+	return Storm::UniquePointer<physx::PxMaterial>{ _physics->createMaterial(rbSceneData._staticFrictionCoefficient, rbSceneData._dynamicFrictionCoefficient, rbSceneData._restitutionCoefficient) };
+}
+
+Storm::UniquePointer<physx::PxShape> Storm::PhysXHandler::createRigidBodyShape(const Storm::RigidBodySceneData &rbSceneData, const std::vector<Storm::Vector3> &vertices, physx::PxMaterial* rbMaterial)
+{
+	switch (rbSceneData._collisionShape)
+	{
+	case Storm::CollisionType::Sphere:
+		return createSphereShape(*_physics, rbSceneData, vertices, rbMaterial);
+
+	case Storm::CollisionType::Cube:
+		return createBoxShape(*_physics, rbSceneData, vertices, rbMaterial);
+
+	case Storm::CollisionType::None:
+	default:
+		return Storm::UniquePointer<physx::PxShape>{};
+	}
 }
