@@ -13,6 +13,10 @@
 #include <functional>
 #include <filesystem>
 
+// Algorithm
+#include <algorithm>
+#include <execution>
+
 // Container
 #include <vector>
 #include <map>
