@@ -19,12 +19,15 @@
     <Filter Include="Source Files\PhysX">
       <UniqueIdentifier>{2de54443-5cbf-425e-99f2-54954d5cf560}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\PhysicsComponent">
+      <UniqueIdentifier>{aa64726a-143c-4174-8852-936fdc08438a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\PhysicsComponent">
+      <UniqueIdentifier>{6a0cc625-eaf8-4efc-85a0-34ce2888f5ea}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-PhysicsPCH.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\include\PhysicsManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\include\PhysXHandler.cpp">
@@ -33,12 +36,15 @@
     <ClCompile Include="..\include\CustomPhysXLogger.cpp">
       <Filter>Source Files\PhysX</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\PhysicsManager.cpp">
+      <Filter>Source Files\PhysicsComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\PhysicsRigidBody.cpp">
+      <Filter>Source Files\PhysicsComponent</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-PhysicsPCH.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\PhysicsManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\include\PhysXHandler.h">
@@ -46,6 +52,12 @@
     </ClInclude>
     <ClInclude Include="..\include\CustomPhysXLogger.h">
       <Filter>Header Files\PhysX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\PhysicsManager.h">
+      <Filter>Header Files\PhysicsComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\PhysicsRigidBody.h">
+      <Filter>Header Files\PhysicsComponent</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
