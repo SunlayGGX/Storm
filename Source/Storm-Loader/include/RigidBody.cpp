@@ -116,7 +116,6 @@ void Storm::RigidBody::load(const Storm::RigidBodySceneData &rbSceneData)
 	};
 
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
-	Storm::IGraphicsManager &graphicsMgr = singletonHolder.getSingleton<Storm::IGraphicsManager>();
 
 	const std::string meshPathLowerStr = boost::algorithm::to_lower_copy(_meshPath);
 	const std::filesystem::path meshPath = meshPathLowerStr;
@@ -204,6 +203,8 @@ void Storm::RigidBody::load(const Storm::RigidBodySceneData &rbSceneData)
 					}
 				}
 			}
+
+			Storm::IGraphicsManager &graphicsMgr = singletonHolder.getSingleton<Storm::IGraphicsManager>();
 
 			graphicsMgr.addMesh(_rbId, verticesPos, normalsPos);
 		}

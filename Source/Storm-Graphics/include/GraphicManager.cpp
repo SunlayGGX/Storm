@@ -143,7 +143,7 @@ void Storm::GraphicManager::addMesh(unsigned int meshId, const std::vector<Storm
 	_meshesMap[meshId] = std::make_unique<Storm::GraphicRigidBody>(vertexes, normals);
 }
 
-void Storm::GraphicManager::bindMesh(unsigned int meshId, const std::shared_ptr<Storm::IRigidBody> &parentRb)
+void Storm::GraphicManager::bindParentRbToMesh(unsigned int meshId, const std::shared_ptr<Storm::IRigidBody> &parentRb)
 {
 	_meshesMap[meshId]->setRbParent(parentRb);
 }

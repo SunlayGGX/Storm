@@ -34,7 +34,7 @@ namespace Storm
 
 	public:
 		void addMesh(unsigned int meshId, const std::vector<Storm::Vector3> &vertexes, const std::vector<Storm::Vector3> &normals) final override;
-		void bindMesh(unsigned int meshId, const std::shared_ptr<Storm::IRigidBody> &parentRb) final override;
+		void bindParentRbToMesh(unsigned int meshId, const std::shared_ptr<Storm::IRigidBody> &parentRb) final override;
 
 	public:
 		const Storm::Camera& getCamera() const;

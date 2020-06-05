@@ -63,7 +63,9 @@ void Storm::AssetLoaderManager::initialize_Implementation()
 	for (const auto &rbToLoad : rigidBodiesDataToLoad)
 	{
 		auto &emplacedRb = _rigidBodies.emplace_back(std::static_pointer_cast<Storm::IRigidBody>(std::make_shared<Storm::RigidBody>(rbToLoad)));
-		graphicsMgr.bindMesh(emplacedRb->getRigidBodyID(), emplacedRb);
+		const unsigned int emplacedRbId = emplacedRb->getRigidBodyID();
+
+		graphicsMgr.bindParentRbToMesh(emplacedRbId, emplacedRb);
 	}
 }
 
