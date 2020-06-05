@@ -55,3 +55,13 @@ void Storm::PhysicsManager::bindParentRbToPhysicalBody(const Storm::RigidBodySce
 		_dynamicsRbMap[rbSceneData._rigidBodyID]->setRbParent(parentRb);
 	}
 }
+
+const Storm::PhysXHandler& Storm::PhysicsManager::getPhysXHandler() const
+{
+	return *_physXHandler;
+}
+
+Storm::PhysXHandler& Storm::PhysicsManager::getPhysXHandler()
+{
+	return *_physXHandler;
+}
