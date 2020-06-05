@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\include\RigidBodyHolder.cpp" />
     <ClCompile Include="..\include\SceneData.cpp" />
     <ClCompile Include="..\include\Storm-ModelBasePCH.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -33,6 +34,7 @@
     <ClInclude Include="..\include\IRandomManager.h" />
     <ClInclude Include="..\include\IRigidBody.h" />
     <ClInclude Include="..\include\IShaderManager.h" />
+    <ClInclude Include="..\include\RigidBodyHolder.h" />
     <ClInclude Include="..\include\RigidBodySceneData.h" />
     <ClInclude Include="..\include\ISimulatorManager.h" />
     <ClInclude Include="..\include\ITimeManager.h" />
