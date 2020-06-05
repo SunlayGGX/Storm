@@ -4,6 +4,7 @@
 
 #include "ThrowException.h"
 #include "Version.h"
+#include "PhysXCoordHelpers.h"
 
 #include "SingletonHolder.h"
 #include "IConfigManager.h"
@@ -58,7 +59,7 @@ Storm::PhysXHandler::PhysXHandler() :
 	const Storm::GeneralSimulationData &simulData = configMgr.getGeneralSimulationData();
 
 	physx::PxSceneDesc sceneDesc{ _physics->getTolerancesScale() };
-	sceneDesc.gravity = physx::PxVec3{ simulData._gravity.x(), simulData._gravity.y(), simulData._gravity.z() };
+	sceneDesc.gravity = Storm::convertToPx(simulData._gravity);
 
 	sceneDesc.flags |= physx::PxSceneFlag::eENABLE_PCM;
 	sceneDesc.gpuMaxNumPartitions = 8;
@@ -106,7 +107,8 @@ void Storm::PhysXHandler::onRelease(const physx::PxBase* observed, void* userDat
 
 void Storm::PhysXHandler::setGravity(const Storm::Vector3 &newGravity)
 {
-	physx::PxVec3 physXGravity{ newGravity.x(), newGravity.y(), newGravity.z() };
+	const physx::PxVec3 physXGravity = Storm::convertToPx(newGravity);
+	LOG_COMMENT << "Gravity set to { x=" << newGravity.x() << ", y=" << newGravity.y() << ", z=" << newGravity.z() << " }";
 
 	physx::PxSceneWriteLock lock{ *_scene };
 	_scene->setGravity(physXGravity);

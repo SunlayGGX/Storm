@@ -26,6 +26,7 @@
     <ClInclude Include="..\include\PhysicsManager.h" />
     <ClInclude Include="..\include\PhysicsDynamicRigidBody.h" />
     <ClInclude Include="..\include\PhysicsStaticsRigidBody.h" />
+    <ClInclude Include="..\include\PhysXCoordHelpers.h" />
     <ClInclude Include="..\include\PhysXHandler.h" />
     <ClInclude Include="..\include\Storm-PhysicsPCH.h" />
   </ItemGroup>
