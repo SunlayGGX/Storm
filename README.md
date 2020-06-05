@@ -60,6 +60,7 @@ Note that I chose "vc15win64" settings. If you use another Visual Studio, be awa
 
 ## Config file
 
+
 ### Macro Configs
 
 Macro are runtime substituated text defined by the user. In some text, we try to find a key and substituate in place with a value. The key would be a text under $[...] (i.e a macro with a key named "toto" and a value "titi", if inside a text we see $[toto] then we will replace it by titi).
@@ -80,6 +81,7 @@ There are some pre-built-in macros that aren't defined inside the macro file and
 + **$[StormFolderExe]** will refer to folder that contains Storm executable that is running.
 + **$[StormRoot]** will refer, in case the executable location was never man-made changed, to the Storm root folder.
 + **$[StormConfig]** will refer, in case StormRoot macro is valid, to where Config files are set.
++ **$[StormResource]** will refer, in case StormRoot macro is valid, to where the Resource folder is.
 + **$[StormIntermediate]** will refer, in case StormRoot macro is valid, to where the Output folder is.
 + **$[StormTmp]** will refer to the StormIntermediate if StormRoot macro is valid, or to OS defined temporary location.
 + **$[DateTime]** will refer to the current date when the Application is run (in filesystem compatible format : Weekday_Year_Month_Day_Hour_Minute_Second ).
@@ -87,6 +89,7 @@ There are some pre-built-in macros that aren't defined inside the macro file and
 	
 	
 Note that macros are applied to command line as well except for the path to the macro configuration were we will use only the built-in macros (it is kind of expected since we don't know about those macros unless we get to read the file specified by the path of the command line...). But you're safe to use the prebuilt macros.
+
 
 ### General config
 
@@ -106,6 +109,36 @@ Note that the maximum value you can set is Fatal, it means that no matter what l
 - **override (boolean, facultative)** : If the log file specified should have its content overriden each time. If "false", the content will be appended instead. Default is "true".
 - **removeOlderThanDays (integer, faculative)** : Specify the number of day Storm will keep the log file. Log files older than the current date minus this day count will be removed. Disable this feature by setting a number <= 0 (therefore, we will keep everything). Default is -1.
 - **fpsWatching (boolean, facultative)** : Our time keeper can watch fps and log if the fps of a thread is too low compared to what was expected. Setting it to "false" prevent it to watch the fps, and therefore to log if fps is under 20% of its expected frame rate. Default is "false".
+
+
+### Scene Config
+
+Scene configuration files contains all the data for running a simulation, therefore it is mandatory to specify one. If it was not set from the command line, Storm application will open an explorer windows to allow you to choose one.
+Unlike the others config files, it can be named as you want. Here the wml tags you can set :
+
+#### General
+- **gravity (vector3, facultative)**: This is the gravity vector, in meter per second squared. Default value is { x=0.0, y=-9.81, z=0.0 }
+- **particleRadius (float, falcultative)**: This is the particle radius in meter. It is also what is used for display but has also a physical value. Default value is 0.05.
+- **kernelCoeff (float, falcultative)**: This is the kernel multiplicator coefficient (without unit). If this value is equal to 1.0, then the kernel length would be equal to the particle radius. Default value is 4.0.
+
+#### Graphics
+- **cameraPosition (vector3, facultative)**: This is the camera (viewpoint) initial position. Each coordinate are meters. Default value is { x=0.0, y=0.0, z=-10.0 }.
+- **cameraLookAt (vector3, facultative)**: This is the initial position of the target the camera look at. Each coordinate are meters. Default value is { x=0.0, y=0.0, z=0.0 }.
+- **zNear (float, facultative)**: This is the initial distance in meter from the camera which everything that is nearer than this distance won't be rendered. Default value is 0.01.
+- **zFar (float, facultative)**: Same as zNear except that we skip displaying all objects farer than this distance value. Default value is 20.0.
+
+#### RigidBodies
+Inside this element should be put all rigidbodies. Each rigidbody should be specified under a tag named "RigidBody".
+
+##### RigidBody
+- **id (positive integer, mandatory)**: This is the unique id of the rigid body. It should be unique.
+- **meshFile (string, mandatory, accept macro)**: This is mesh file path this rigid body is bound to.
+- **isStatic (boolean, facultative)**: Specify this to tell the simulation that this object is fixed (won't move throughout the simulation). Default value is "true".
+- **collisionType (string, facultative)**: Specify what is the collision shape should be handled. This is not case sensitive. Possible values are "None" (Default value), "Sphere", "Cube".
+- **translation (vector3, facultative)**: The initial position in meters of the object. Default value is { x=0.0, y=0.0, z=0.0 }.
+- **rotation (vector3, facultative)**: The initial rotation in degrees of the object (this is euler angle : roll, pich, yaw). Default value is { x=0.0, y=0.0, z=0.0 }.
+- **scale (vector3, facultative)**: The initial scale of the object. Default value is { x=1.0, y=1.0, z=1.0 }.
+
 
 
 # Input bindings

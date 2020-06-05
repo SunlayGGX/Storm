@@ -13,7 +13,9 @@ Storm::GeneralSimulationData::GeneralSimulationData() :
 
 Storm::RigidBodySceneData::RigidBodySceneData() :
 	_static{ true },
-	_scale{ Storm::Vector3{ 1.f, 1.f, 1.f } },
+	_translation{ 0.f, 0.f, 0.f },
+	_rotation{ 0.f, 0.f, 0.f },
+	_scale{ 1.f, 1.f, 1.f },
 	_collisionShape{ Storm::CollisionType::None }
 {
 
