@@ -42,6 +42,9 @@
     <ClCompile Include="..\include\PhysicsDynamicRigidBody.cpp">
       <Filter>Source Files\PhysicsComponent</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\PhysicsStaticsRigidBody.cpp">
+      <Filter>Source Files\PhysicsComponent</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-PhysicsPCH.h">
@@ -57,6 +60,9 @@
       <Filter>Header Files\PhysicsComponent</Filter>
     </ClInclude>
     <ClInclude Include="..\include\PhysicsDynamicRigidBody.h">
+      <Filter>Header Files\PhysicsComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\PhysicsStaticsRigidBody.h">
       <Filter>Header Files\PhysicsComponent</Filter>
     </ClInclude>
   </ItemGroup>

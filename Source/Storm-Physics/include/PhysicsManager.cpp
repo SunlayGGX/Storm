@@ -1,7 +1,9 @@
 #include "PhysicsManager.h"
 
 #include "PhysXHandler.h"
+
 #include "PhysicsDynamicRigidBody.h"
+#include "PhysicsStaticsRigidBody.h"
 
 #include "RigidBodySceneData.h"
 
@@ -31,7 +33,7 @@ void Storm::PhysicsManager::addPhysicalBody(const Storm::RigidBodySceneData &rbS
 {
 	if (rbSceneData._static)
 	{
-		// TODO
+		_staticsRbMap[rbSceneData._rigidBodyID] = std::make_unique<Storm::PhysicsStaticsRigidBody>(rbSceneData, vertexes);
 	}
 	else
 	{
@@ -43,7 +45,7 @@ void Storm::PhysicsManager::bindParentRbToPhysicalBody(const Storm::RigidBodySce
 {
 	if (rbSceneData._static)
 	{
-		// TODO
+		_staticsRbMap[rbSceneData._rigidBodyID]->setRbParent(parentRb);
 	}
 	else
 	{
