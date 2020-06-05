@@ -2,6 +2,8 @@
 
 #include "RigidBodyHolder.h"
 
+#include "UniquePointer.h"
+
 
 namespace Storm
 {
@@ -11,5 +13,8 @@ namespace Storm
 	{
 	public:
 		PhysicsDynamicRigidBody(const Storm::RigidBodySceneData &rbSceneData, const std::vector<Storm::Vector3> &vertices);
+
+	private:
+		Storm::UniquePointer<physx::PxRigidDynamic> _internalRb;
 	};
 }
