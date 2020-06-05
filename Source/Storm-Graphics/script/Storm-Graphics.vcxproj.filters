@@ -66,6 +66,9 @@
     <ClCompile Include="..\include\GraphicRigidBody.cpp">
       <Filter>Source Files\GraphicComponent</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\MeshShader.cpp">
+      <Filter>Source Files\Shaders</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-GraphicsPCH.h">
@@ -103,6 +106,9 @@
     </ClInclude>
     <ClInclude Include="..\include\GraphicRigidBody.h">
       <Filter>Header Files\GraphicComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\MeshShader.h">
+      <Filter>Header Files\Shaders</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -18,7 +18,7 @@ namespace Storm
 		void render(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera) final override;
 
 	private:
-		void drawGrid(const ComPtr<ID3D11DeviceContext> &deviceContext);
+		void setupGrid(const ComPtr<ID3D11DeviceContext> &deviceContext);
 
 	private:
 		ComPtr<ID3D11Buffer> _vertexBuffer;

@@ -110,11 +110,11 @@ Storm::Grid::Grid(const ComPtr<ID3D11Device> &device, Storm::Vector3 maxPt)
 void Storm::Grid::render(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera)
 {
 	_gridShader->setup(device, deviceContext, currentCamera);
-	this->drawGrid(deviceContext);
-	_gridShader->render(device, deviceContext, currentCamera);
+	this->setupGrid(deviceContext);
+	_gridShader->draw(deviceContext);
 }
 
-void Storm::Grid::drawGrid(const ComPtr<ID3D11DeviceContext> &deviceContext)
+void Storm::Grid::setupGrid(const ComPtr<ID3D11DeviceContext> &deviceContext)
 {
 	constexpr UINT stride = sizeof(GridVertexType);
 	constexpr UINT offset = 0;

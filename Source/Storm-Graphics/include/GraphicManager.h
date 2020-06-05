@@ -33,7 +33,7 @@ namespace Storm
 		void internalExecuteActionElement(Storm::GraphicsAction action);
 
 	public:
-		void addMesh(unsigned int meshId, const std::vector<Storm::Vector3> &vertexes, const std::vector<Storm::Vector3> &normals) final override;
+		void addMesh(unsigned int meshId, const std::vector<Storm::Vector3> &vertexes, const std::vector<Storm::Vector3> &normals, const std::vector<unsigned int> &indexes) final override;
 		void bindParentRbToMesh(unsigned int meshId, const std::shared_ptr<Storm::IRigidBody> &parentRb) final override;
 
 	public:

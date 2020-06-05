@@ -1,6 +1,8 @@
 #include "DirectXController.h"
 
 #include "IRenderedElement.h"
+#include "GraphicRigidBody.h"
+
 #include "GraphicsAction.h"
 
 #include "SingletonHolder.h"
@@ -101,11 +103,16 @@ const ComPtr<ID3D11DeviceContext>& Storm::DirectXController::getImmediateContext
 	return _immediateContext;
 }
 
-void Storm::DirectXController::renderElements(const Storm::Camera &currentCamera, const std::vector<std::unique_ptr<Storm::IRenderedElement>> &renderedElementArrays) const
+void Storm::DirectXController::renderElements(const Storm::Camera &currentCamera, const std::vector<std::unique_ptr<Storm::IRenderedElement>> &renderedElementArrays, const std::map<unsigned int, std::unique_ptr<Storm::GraphicRigidBody>> &rbElementArrays) const
 {
 	for (const auto &renderedElement : renderedElementArrays)
 	{
 		renderedElement->render(_device, _immediateContext, currentCamera);
+	}
+
+	for (const auto &rbElementPair : rbElementArrays)
+	{
+		rbElementPair.second->render(_device, _immediateContext, currentCamera);
 	}
 }
 

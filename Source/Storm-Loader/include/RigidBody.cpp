@@ -14,6 +14,7 @@
 
 #include <Assimp\Importer.hpp>
 #include <Assimp\scene.h>
+#include <Assimp\mesh.h>
 
 #include <boost\algorithm\string.hpp>
 
@@ -125,6 +126,7 @@ void Storm::RigidBody::load(const Storm::RigidBodySceneData &rbSceneData)
 	constexpr const Storm::Version currentVersion = Storm::Version::retrieveCurrentStormVersion();
 
 	std::vector<Storm::Vector3> verticesPos;
+	std::vector<unsigned int> indexes;
 
 	{
 		// The mesh is a separate entity, therefore we will load it with Assimp.
@@ -156,6 +158,7 @@ void Storm::RigidBody::load(const Storm::RigidBodySceneData &rbSceneData)
 
 			std::size_t totalVertexCount = 0;
 			std::size_t totalNormalsCount = 0;
+			std::size_t totalIndexesCount = 0;
 			for (std::size_t iter = 0; iter < meshScene->mNumMeshes; ++iter)
 			{
 				const aiMesh* currentMesh = meshScene->mMeshes[iter];
@@ -163,8 +166,16 @@ void Storm::RigidBody::load(const Storm::RigidBodySceneData &rbSceneData)
 				{
 					Storm::throwException<std::exception>("The mesh '" + _meshPath + "' doesn't have vertices. This isn't allowed!");
 				}
+				if (!currentMesh->HasFaces())
+				{
+					Storm::throwException<std::exception>("The mesh '" + _meshPath + "' doesn't have any faces. This isn't allowed!");
+				}
 
 				totalVertexCount += currentMesh->mNumVertices;
+				for (std::size_t faceIter = 0; faceIter < currentMesh->mNumFaces; ++faceIter)
+				{
+					totalIndexesCount += currentMesh->mFaces[faceIter].mNumIndices;
+				}
 			}
 
 			// Oh my gosh... If you trigger this warning then your object will be awkward to render (I'm not optimizing anything (don't have time) so expect some lags)
@@ -177,6 +188,8 @@ void Storm::RigidBody::load(const Storm::RigidBodySceneData &rbSceneData)
 
 			std::vector<Storm::Vector3> normalsPos;
 			normalsPos.reserve(totalVertexCount);
+
+			indexes.reserve(totalIndexesCount);
 
 			for (std::size_t iter = 0; iter < meshScene->mNumMeshes; ++iter)
 			{
@@ -203,12 +216,21 @@ void Storm::RigidBody::load(const Storm::RigidBodySceneData &rbSceneData)
 						normalsPos.emplace_back(0.f, 0.f, 0.f);
 					}
 				}
+
+				for (std::size_t faceIter = 0; faceIter < currentMesh->mNumFaces; ++faceIter)
+				{
+					const aiFace &currentFace = currentMesh->mFaces[faceIter];
+					for (std::size_t indiceIter = 0; indiceIter < currentFace.mNumIndices; ++indiceIter)
+					{
+						indexes.emplace_back(currentFace.mIndices[indiceIter]);
+					}
+				}
 			}
 
 			Storm::IGraphicsManager &graphicsMgr = singletonHolder.getSingleton<Storm::IGraphicsManager>();
 			Storm::IPhysicsManager &physicsMgr = singletonHolder.getSingleton<Storm::IPhysicsManager>();
 
-			graphicsMgr.addMesh(_rbId, verticesPos, normalsPos);
+			graphicsMgr.addMesh(_rbId, verticesPos, normalsPos, indexes);
 			physicsMgr.addPhysicalBody(rbSceneData, verticesPos);
 		}
 		else

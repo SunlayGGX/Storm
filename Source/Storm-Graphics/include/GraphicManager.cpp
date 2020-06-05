@@ -70,7 +70,14 @@ void Storm::GraphicManager::initialize_Implementation(void* hwnd)
 	_directXController->initialize(static_cast<HWND>(hwnd));
 
 	_camera = std::make_unique<Storm::Camera>(_directXController->getViewportWidth(), _directXController->getViewportHeight());
-	_renderedElements.emplace_back(std::make_unique<Storm::Grid>(_directXController->getDirectXDevice(), Storm::Vector3{ 15.f, 0.f, 15.f }));
+
+	const auto &device = _directXController->getDirectXDevice();
+	_renderedElements.emplace_back(std::make_unique<Storm::Grid>(device, Storm::Vector3{ 15.f, 0.f, 15.f }));
+
+	for (auto &meshesPair : _meshesMap)
+	{
+		meshesPair.second->initializeRendering(device);
+	}
 
 	_renderThread = std::thread([this]()
 	{
@@ -99,9 +106,7 @@ void Storm::GraphicManager::update()
 		_directXController->clearView(g_defaultColor);
 		_directXController->initView();
 
-		// TODO
-
-		_directXController->renderElements(this->getCamera(), _renderedElements);
+		_directXController->renderElements(this->getCamera(), _renderedElements, _meshesMap);
 
 		_directXController->unbindTargetView();
 		_directXController->presentToDisplay();
@@ -138,9 +143,9 @@ void Storm::GraphicManager::internalExecuteActionElement(Storm::GraphicsAction a
 	_directXController->executeAction(action);
 }
 
-void Storm::GraphicManager::addMesh(unsigned int meshId, const std::vector<Storm::Vector3> &vertexes, const std::vector<Storm::Vector3> &normals)
+void Storm::GraphicManager::addMesh(unsigned int meshId, const std::vector<Storm::Vector3> &vertexes, const std::vector<Storm::Vector3> &normals, const std::vector<unsigned int> &indexes)
 {
-	_meshesMap[meshId] = std::make_unique<Storm::GraphicRigidBody>(vertexes, normals);
+	_meshesMap[meshId] = std::make_unique<Storm::GraphicRigidBody>(vertexes, normals, indexes);
 }
 
 void Storm::GraphicManager::bindParentRbToMesh(unsigned int meshId, const std::shared_ptr<Storm::IRigidBody> &parentRb)
