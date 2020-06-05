@@ -2,6 +2,7 @@
 
 #include "PoissonDiskSampler.h"
 #include "RigidBodySceneData.h"
+#include "GeneralSimulationData.h"
 
 #include "SingletonHolder.h"
 #include "IConfigManager.h"
@@ -78,8 +79,10 @@ std::filesystem::path Storm::RigidBody::retrieveParticleDataCacheFolder()
 
 void Storm::RigidBody::sampleMesh(const std::vector<Storm::Vector3> &vertices)
 {
+	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
+
 	// Poisson Disk sampling
-	_objSpaceParticlePos = Storm::PoissonDiskSampler{}(vertices);
+	_objSpaceParticlePos = Storm::PoissonDiskSampler{ configMgr.getGeneralSimulationData()._particleRadius, 25 }(vertices);
 }
 
 void Storm::RigidBody::load()
@@ -131,6 +134,7 @@ void Storm::RigidBody::load()
 			}
 
 			std::size_t totalVertexCount = 0;
+			std::size_t totalNormalsCount = 0;
 			for (std::size_t iter = 0; iter < meshScene->mNumMeshes; ++iter)
 			{
 				const aiMesh* currentMesh = meshScene->mMeshes[iter];
@@ -163,14 +167,24 @@ void Storm::RigidBody::load()
 					verticesPos.emplace_back(vertice.x, vertice.y, vertice.z);
 				}
 
-				for (std::size_t normalsIter = 0; normalsIter < currentMesh->mNumVertices; ++normalsIter)
+				if (currentMesh->mNormals != nullptr)
 				{
-					const aiVector3D &normals = currentMesh->mNormals[normalsIter];
-					normalsPos.emplace_back(normals.x, normals.y, normals.z);
+					for (std::size_t normalsIter = 0; normalsIter < currentMesh->mNumVertices; ++normalsIter)
+					{
+						const aiVector3D &normals = currentMesh->mNormals[normalsIter];
+						normalsPos.emplace_back(normals.x, normals.y, normals.z);
+					}
+				}
+				else
+				{
+					for (std::size_t normalsIter = 0; normalsIter < currentMesh->mNumVertices; ++normalsIter)
+					{
+						normalsPos.emplace_back(0.f, 0.f, 0.f);
+					}
 				}
 			}
 
-			graphicsMgr->addMesh(_rbId, verticesPos, normalsPos);
+			graphicsMgr.addMesh(_rbId, verticesPos, normalsPos);
 		}
 		else
 		{
@@ -279,6 +293,8 @@ void Storm::RigidBody::load()
 		// Replace the placeholder checksum by the right one to finalize the writing
 		cacheFileStream.seekp(0);
 		Storm::binaryWrite(cacheFileStream, static_cast<uint64_t>(k_cacheGoodChecksum));
+
+		cacheFileStream.flush();
 	}
 }
 
