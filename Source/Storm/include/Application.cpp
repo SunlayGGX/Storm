@@ -57,14 +57,14 @@ namespace
 		Storm::RandomManager::instance().initialize();
 		Storm::OSManager::instance().initialize();
 
-		Storm::AssetLoaderManager::instance().initialize();
-
 		Storm::InputManager::instance().initialize();
 
 		Storm::PhysicsManager::instance().initialize();
 
 		Storm::ShaderManager::instance().initialize();
 		Storm::GraphicManager::instance().initialize();
+
+		Storm::AssetLoaderManager::instance().initialize();
 
 		LOG_COMMENT << "Application Creation finished";
 	}
