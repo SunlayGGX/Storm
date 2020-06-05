@@ -1,6 +1,8 @@
 <Scene>
 	<General>
 		<gravity x="0.0" y="-9.81" z="0.0" />
+		<particleRadius>0.05</particleRadius>
+		<kernelCoeff>4.0</kernelCoeff>
 	</General>
 	<Graphic>
 		<cameraPosition x="0.0" y="1.0" z="-5.0" />
@@ -8,4 +10,11 @@
 		<zNear>0.01</zNear>
 		<zFar>20.0</zFar>
 	</Graphic>
+	<RigidBodies>
+		<RigidBody>
+			<id>0</id>
+			<meshFile>$[StormResource]\Meshes\cube.obj</meshFile>
+			<isStatic>true</isStatic>
+		</RigidBody>
+	</RigidBodies>
 </Scene>
