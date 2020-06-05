@@ -18,12 +18,33 @@
 
 #include <fstream>
 
+namespace
+{
+	std::filesystem::path computeRightCachedFilePath(const Storm::RigidBodySceneData &rbSceneData, const std::filesystem::path &meshPath)
+	{
+		std::string suffix;
+		suffix.reserve(32);
+		suffix += "_x";
+		suffix += std::to_string(rbSceneData._scale.x());
+		suffix += "_y";
+		suffix += std::to_string(rbSceneData._scale.y());
+		suffix += "_z";
+		suffix += std::to_string(rbSceneData._scale.z());
+
+		boost::algorithm::replace_all(suffix, ".", "_");
+
+		const std::filesystem::path meshFileName = std::filesystem::path{ meshPath.stem().string() + suffix }.replace_extension(".cPartRigidBody");
+
+		return Storm::RigidBody::retrieveParticleDataCacheFolder() / meshFileName;
+	}
+}
+
 
 Storm::RigidBody::RigidBody(const Storm::RigidBodySceneData &rbSceneData) :
 	_meshPath{ rbSceneData._meshFilePath },
 	_rbId{ rbSceneData._rigidBodyID }
 {
-	this->load();
+	this->load(rbSceneData);
 }
 
 const std::string& Storm::RigidBody::getRigidBodyName() const
@@ -85,7 +106,7 @@ void Storm::RigidBody::sampleMesh(const std::vector<Storm::Vector3> &vertices)
 	_objSpaceParticlePos = Storm::PoissonDiskSampler{ configMgr.getGeneralSimulationData()._particleRadius, 25 }(vertices);
 }
 
-void Storm::RigidBody::load()
+void Storm::RigidBody::load(const Storm::RigidBodySceneData &rbSceneData)
 {
 	enum : uint64_t
 	{
@@ -96,10 +117,10 @@ void Storm::RigidBody::load()
 
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 	Storm::IGraphicsManager &graphicsMgr = singletonHolder.getSingleton<Storm::IGraphicsManager>();
-	
+
 	const std::string meshPathLowerStr = boost::algorithm::to_lower_copy(_meshPath);
 	const std::filesystem::path meshPath = meshPathLowerStr;
-	const std::filesystem::path cachedPath = Storm::RigidBody::retrieveParticleDataCacheFolder() / meshPath.stem().replace_extension(".cPartRigidBody");
+	const std::filesystem::path cachedPath = computeRightCachedFilePath(rbSceneData, meshPath);
 	const std::wstring cachedPathStr = cachedPath.wstring();
 	constexpr const Storm::Version currentVersion = Storm::Version::retrieveCurrentStormVersion();
 
@@ -164,7 +185,7 @@ void Storm::RigidBody::load()
 				for (std::size_t verticeIter = 0; verticeIter < currentMesh->mNumVertices; ++verticeIter)
 				{
 					const aiVector3D &vertice = currentMesh->mVertices[verticeIter];
-					verticesPos.emplace_back(vertice.x, vertice.y, vertice.z);
+					verticesPos.emplace_back(vertice.x * rbSceneData._scale.x(), vertice.y * rbSceneData._scale.y(), vertice.z * rbSceneData._scale.z());
 				}
 
 				if (currentMesh->mNormals != nullptr)

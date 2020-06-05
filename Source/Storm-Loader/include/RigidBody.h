@@ -29,7 +29,7 @@ namespace Storm
 		void sampleMesh(const std::vector<Storm::Vector3> &vertices);
 
 	private:
-		void load();
+		void load(const Storm::RigidBodySceneData &rbSceneData);
 
 	private:
 		std::string _meshPath;
