@@ -39,7 +39,7 @@
     <ClCompile Include="..\include\PhysicsManager.cpp">
       <Filter>Source Files\PhysicsComponent</Filter>
     </ClCompile>
-    <ClCompile Include="..\include\PhysicsRigidBody.cpp">
+    <ClCompile Include="..\include\PhysicsDynamicRigidBody.cpp">
       <Filter>Source Files\PhysicsComponent</Filter>
     </ClCompile>
   </ItemGroup>
@@ -56,7 +56,7 @@
     <ClInclude Include="..\include\PhysicsManager.h">
       <Filter>Header Files\PhysicsComponent</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\PhysicsRigidBody.h">
+    <ClInclude Include="..\include\PhysicsDynamicRigidBody.h">
       <Filter>Header Files\PhysicsComponent</Filter>
     </ClInclude>
   </ItemGroup>

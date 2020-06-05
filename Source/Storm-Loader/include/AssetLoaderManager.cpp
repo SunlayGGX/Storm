@@ -68,7 +68,7 @@ void Storm::AssetLoaderManager::initialize_Implementation()
 		const unsigned int emplacedRbId = emplacedRb->getRigidBodyID();
 
 		graphicsMgr.bindParentRbToMesh(emplacedRbId, emplacedRb);
-		physicsMgr.bindParentRbToPhysicalBody(emplacedRbId, emplacedRb);
+		physicsMgr.bindParentRbToPhysicalBody(rbToLoad, emplacedRb);
 	}
 }
 

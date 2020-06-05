@@ -8,7 +8,7 @@
 namespace Storm
 {
 	class PhysXHandler;
-	class PhysicsRigidBody;
+	class PhysicsDynamicRigidBody;
 
 	class PhysicsManager :
 		private Storm::Singleton<PhysicsManager>,
@@ -22,11 +22,11 @@ namespace Storm
 
 	public:
 		void addPhysicalBody(const Storm::RigidBodySceneData &rbSceneData, const std::vector<Storm::Vector3> &vertexes) final override;
-		void bindParentRbToPhysicalBody(unsigned int meshId, const std::shared_ptr<Storm::IRigidBody> &parentRb) final override;
+		void bindParentRbToPhysicalBody(const Storm::RigidBodySceneData &rbSceneData, const std::shared_ptr<Storm::IRigidBody> &parentRb) final override;
 
 	private:
 		std::unique_ptr<Storm::PhysXHandler> _physXHandler;
 
-		std::map<unsigned int, std::unique_ptr<Storm::PhysicsRigidBody>> _physicsRbMap;
+		std::map<unsigned int, std::unique_ptr<Storm::PhysicsDynamicRigidBody>> _dynamicsRbMap;
 	};
 }

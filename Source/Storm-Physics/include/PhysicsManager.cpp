@@ -1,7 +1,7 @@
 #include "PhysicsManager.h"
 
 #include "PhysXHandler.h"
-#include "PhysicsRigidBody.h"
+#include "PhysicsDynamicRigidBody.h"
 
 #include "RigidBodySceneData.h"
 
@@ -29,10 +29,24 @@ void Storm::PhysicsManager::cleanUp_Implementation()
 
 void Storm::PhysicsManager::addPhysicalBody(const Storm::RigidBodySceneData &rbSceneData, const std::vector<Storm::Vector3> &vertexes)
 {
-	_physicsRbMap[rbSceneData._rigidBodyID] = std::make_unique<Storm::PhysicsRigidBody>(rbSceneData, vertexes);
+	if (rbSceneData._static)
+	{
+		// TODO
+	}
+	else
+	{
+		_dynamicsRbMap[rbSceneData._rigidBodyID] = std::make_unique<Storm::PhysicsDynamicRigidBody>(rbSceneData, vertexes);
+	}
 }
 
-void Storm::PhysicsManager::bindParentRbToPhysicalBody(unsigned int meshId, const std::shared_ptr<Storm::IRigidBody> &parentRb)
+void Storm::PhysicsManager::bindParentRbToPhysicalBody(const Storm::RigidBodySceneData &rbSceneData, const std::shared_ptr<Storm::IRigidBody> &parentRb)
 {
-	_physicsRbMap[meshId]->setRbParent(parentRb);
+	if (rbSceneData._static)
+	{
+		// TODO
+	}
+	else
+	{
+		_dynamicsRbMap[rbSceneData._rigidBodyID]->setRbParent(parentRb);
+	}
 }
