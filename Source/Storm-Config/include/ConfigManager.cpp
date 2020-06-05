@@ -195,6 +195,11 @@ const Storm::GraphicData& Storm::ConfigManager::getGraphicData() const
 	return *_sceneConfig.getSceneData()._graphicData;
 }
 
+const Storm::GeneralSimulationData& Storm::ConfigManager::getGeneralSimulationData() const
+{
+	return *_sceneConfig.getSceneData()._generalSimulationData;
+}
+
 const std::vector<Storm::RigidBodySceneData>& Storm::ConfigManager::getRigidBodiesData() const
 {
 	return _sceneConfig.getSceneData()._rigidBodiesData;

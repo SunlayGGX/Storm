@@ -3,8 +3,9 @@
 
 namespace Storm
 {
-	struct RigidBodySceneData;
+	struct GeneralSimulationData;
 	struct GraphicData;
+	struct RigidBodySceneData;
 
 	struct SceneData
 	{
@@ -12,8 +13,7 @@ namespace Storm
 		SceneData();
 
 	public:
-		Storm::Vector3 _gravity;
-
+		std::unique_ptr<Storm::GeneralSimulationData> _generalSimulationData;
 		std::unique_ptr<Storm::GraphicData> _graphicData;
 		std::vector<Storm::RigidBodySceneData> _rigidBodiesData;
 	};

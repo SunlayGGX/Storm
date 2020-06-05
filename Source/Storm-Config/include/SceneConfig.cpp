@@ -66,7 +66,9 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 	for (const auto &generalXmlElement : generalTree)
 	{
 		if (
-			!Storm::XmlReader::handleXml(generalXmlElement, "gravity", _sceneData->_gravity, parseVector3Element)
+			!Storm::XmlReader::handleXml(generalXmlElement, "gravity", _sceneData->_generalSimulationData->_gravity, parseVector3Element) &&
+			!Storm::XmlReader::handleXml(generalXmlElement, "kernelCoeff", _sceneData->_generalSimulationData->_kernelCoefficient) &&
+			!Storm::XmlReader::handleXml(generalXmlElement, "particleRadius", _sceneData->_generalSimulationData->_particleRadius)
 			)
 		{
 			LOG_ERROR << "tag '" << generalXmlElement.first << "' (inside Scene.General) is unknown, therefore it cannot be handled";

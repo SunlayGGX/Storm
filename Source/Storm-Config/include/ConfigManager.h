@@ -40,6 +40,7 @@ namespace Storm
 		const std::string& getSceneName() const final override;
 		const Storm::SceneData& getSceneData() const final override;
 		const Storm::GraphicData& getGraphicData() const final override;
+		const Storm::GeneralSimulationData& getGeneralSimulationData() const final override;
 		const std::vector<Storm::RigidBodySceneData>& getRigidBodiesData() const final override;
 
 	private:

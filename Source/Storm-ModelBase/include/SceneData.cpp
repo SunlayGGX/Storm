@@ -3,6 +3,14 @@
 #include "CollisionType.h"
 
 
+Storm::GeneralSimulationData::GeneralSimulationData() :
+	_gravity{ 0.f, -9.81f, 0.f },
+	_particleRadius{ 0.05f },
+	_kernelCoefficient{ 4.f }
+{
+
+}
+
 Storm::RigidBodySceneData::RigidBodySceneData() :
 	_static{ true },
 	_scale{ Storm::Vector3{ 1.f, 1.f, 1.f } },
@@ -21,7 +29,7 @@ Storm::GraphicData::GraphicData() :
 }
 
 Storm::SceneData::SceneData() :
-	_gravity{ 0.f, -9.81f, 0.f },
+	_generalSimulationData{ std::make_unique<Storm::GeneralSimulationData>() },
 	_graphicData{ std::make_unique<Storm::GraphicData>() }
 {
 	_rigidBodiesData.reserve(4);

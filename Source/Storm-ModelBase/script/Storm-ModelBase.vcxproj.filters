@@ -128,5 +128,8 @@
     <ClInclude Include="..\include\CollisionType.h">
       <Filter>Header Files\Physics</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\GeneralSimulationData.h">
+      <Filter>Header Files\Config</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
