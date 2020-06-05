@@ -85,7 +85,7 @@ namespace Storm
 		using typename UnderlyingPtrType::element_type;
 
 	public:
-		UniquePointer(ValueType* ptr) :
+		UniquePointer(ValueType* ptr = nullptr) :
 			UnderlyingPtrType{ ptr, Storm::details::Destroyer<ValueType>{} }
 		{}
 
@@ -123,6 +123,9 @@ namespace Storm
 	public:
 		operator UnderlyingPtrType&() { return *this; }
 		operator const UnderlyingPtrType&() const { return *this; }
+
+	public:
+		UniquePointer(ValueType* ptr = nullptr) : UnderlyingPtrType{ ptr } {}
 
 		bool operator==(const std::nullptr_t ptr) const
 		{
