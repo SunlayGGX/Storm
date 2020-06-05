@@ -15,6 +15,7 @@
 			<id>0</id>
 			<meshFile>$[StormResource]\Meshes\cube.obj</meshFile>
 			<isStatic>true</isStatic>
+			<collisionType>cube</collisionType>
 		</RigidBody>
 	</RigidBodies>
 </Scene>
