@@ -13,9 +13,7 @@ namespace Storm
 
 		virtual unsigned int getRigidBodyID() const = 0;
 
-		virtual Storm::Vector3 getRigidBodyWorldPosition() const = 0;
-		virtual Storm::Vector3 getRigidBodyWorldRotation() const = 0;
-		virtual Storm::Vector3 getRigidBodyWorldScale() const = 0;
+		virtual void getRigidBodyTransform(Storm::Vector3 &outTrans, Storm::Vector3 &outRot) const = 0;
 
 		virtual const std::vector<Storm::Vector3>& getRigidBodyParticlesObjectSpacePositions() const = 0;
 

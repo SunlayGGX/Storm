@@ -20,7 +20,9 @@ namespace
 
 Storm::PhysicsStaticsRigidBody::PhysicsStaticsRigidBody(const Storm::RigidBodySceneData &rbSceneData, const std::vector<Storm::Vector3> &vertices) :
 	Storm::PhysicalShape{ rbSceneData, vertices },
-	_internalRb{ createStaticRigidBody(rbSceneData) }
+	_internalRb{ createStaticRigidBody(rbSceneData) },
+	_trans{ rbSceneData._translation },
+	_rotation{ rbSceneData._rotation }
 {
 	if (!_internalRb)
 	{
@@ -33,3 +35,8 @@ Storm::PhysicsStaticsRigidBody::PhysicsStaticsRigidBody(const Storm::RigidBodySc
 	}
 }
 
+void Storm::PhysicsStaticsRigidBody::getMeshTransform(Storm::Vector3 &outTrans, Storm::Vector3 &outRot) const
+{
+	outTrans = _trans;
+	outRot = _rotation;
+}

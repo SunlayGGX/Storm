@@ -59,22 +59,11 @@ unsigned int Storm::RigidBody::getRigidBodyID() const
 	return _rbId;
 }
 
-Storm::Vector3 Storm::RigidBody::getRigidBodyWorldPosition() const
+void Storm::RigidBody::getRigidBodyTransform(Storm::Vector3 &outTrans, Storm::Vector3 &outRot) const
 {
 	// TODO : Physics module should have the ownership of this data.
-	throw std::logic_error("The method or operation is not implemented.");
-}
-
-Storm::Vector3 Storm::RigidBody::getRigidBodyWorldRotation() const
-{
-	// TODO : Physics module should have the ownership of this data.
-	throw std::logic_error("The method or operation is not implemented.");
-}
-
-Storm::Vector3 Storm::RigidBody::getRigidBodyWorldScale() const
-{
-	// TODO : Physics module should have the ownership of this data.
-	throw std::logic_error("The method or operation is not implemented.");
+	const Storm::IPhysicsManager &physicsMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IPhysicsManager>();
+	physicsMgr.getMeshTransform(_rbId, outTrans, outRot);
 }
 
 const std::vector<Storm::Vector3>& Storm::RigidBody::getRigidBodyParticlesObjectSpacePositions() const

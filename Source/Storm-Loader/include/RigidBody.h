@@ -15,9 +15,7 @@ namespace Storm
 	public:
 		const std::string& getRigidBodyName() const final override;
 		unsigned int getRigidBodyID() const final override;
-		Storm::Vector3 getRigidBodyWorldPosition() const final override;
-		Storm::Vector3 getRigidBodyWorldRotation() const final override;
-		Storm::Vector3 getRigidBodyWorldScale() const final override;
+		void getRigidBodyTransform(Storm::Vector3 &outTrans, Storm::Vector3 &outRot) const final override;
 		const std::vector<Storm::Vector3>& getRigidBodyParticlesObjectSpacePositions() const final override;
 		std::vector<Storm::Vector3> getRigidBodyObjectSpaceVertexes() const final override;
 		std::vector<Storm::Vector3> getRigidBodyObjectSpaceNormals() const final override;
