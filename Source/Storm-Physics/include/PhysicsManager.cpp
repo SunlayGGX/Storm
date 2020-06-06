@@ -7,6 +7,8 @@
 
 #include "RigidBodySceneData.h"
 
+#include "ThrowException.h"
+
 
 Storm::PhysicsManager::PhysicsManager() = default;
 Storm::PhysicsManager::~PhysicsManager() = default;
@@ -78,6 +80,7 @@ void Storm::PhysicsManager::getMeshTransform(unsigned int meshId, Storm::Vector3
 	}
 	else if (const auto dynamicFound = _dynamicsRbMap.find(meshId); dynamicFound != std::end(_dynamicsRbMap))
 	{
+		dynamicFound->second->getMeshTransform(outTrans, outRot);
 	}
 	else
 	{

@@ -1,6 +1,7 @@
 #include "PhysicsDynamicRigidBody.h"
 
 #include "ThrowException.h"
+#include "PhysXCoordHelpers.h"
 
 #include "PhysicsManager.h"
 #include "PhysXHandler.h"
@@ -31,4 +32,17 @@ Storm::PhysicsDynamicRigidBody::PhysicsDynamicRigidBody(const Storm::RigidBodySc
 	{
 		Storm::throwException<std::exception>("We failed to attach the created shape to the rigid body " + std::to_string(rbSceneData._rigidBodyID));
 	}
+}
+
+void Storm::PhysicsDynamicRigidBody::getMeshTransform(Storm::Vector3 &outTrans, Storm::Vector3 &outRot) const
+{
+	physx::PxTransform currentTransform;
+
+	{
+		std::lock_guard<std::mutex> lock{ Storm::PhysicsManager::instance()._simulationMutex };
+		currentTransform = _internalRb->getGlobalPose();
+	}
+
+	outTrans = Storm::convertToStorm(currentTransform.p);
+	outRot = Storm::convertToStorm(currentTransform.q);
 }

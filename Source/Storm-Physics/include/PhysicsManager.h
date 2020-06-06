@@ -31,6 +31,9 @@ namespace Storm
 		const Storm::PhysXHandler& getPhysXHandler() const;
 		Storm::PhysXHandler& getPhysXHandler();
 
+	public:
+		mutable std::mutex _simulationMutex;
+
 	private:
 		std::unique_ptr<Storm::PhysXHandler> _physXHandler;
 

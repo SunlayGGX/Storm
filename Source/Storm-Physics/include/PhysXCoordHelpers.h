@@ -39,6 +39,38 @@ namespace Storm
 		return result;
 	}
 
+	_forceinline Storm::Vector3 convertToStorm(const physx::PxQuat &q)
+	{
+		Storm::Vector3 result;
+
+		constexpr const float radToDegreeCoeff = static_cast<float>(180.0 / M_PI);
+
+		// https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
+
+		// roll (x-axis rotation)
+		float sinrCosp = 2.f * (q.w * q.x + q.y * q.z);
+		float cosrCosp = 1.f - 2.f * (q.x * q.x + q.y * q.y);
+		result.x() = radToDegreeCoeff * std::atan2(sinrCosp, cosrCosp);
+
+		// pitch (y-axis rotation)
+		float sinp = 2.f * (q.w * q.y - q.z * q.x);
+		if (std::abs(sinp) >= 1.f)
+		{
+			result.y() = radToDegreeCoeff * std::copysign(static_cast<float>(M_PI_2), sinp); // use 90 degrees if out of range
+		}
+		else
+		{
+			result.y() = radToDegreeCoeff * std::asin(sinp);
+		}
+
+		// yaw (z-axis rotation)
+		float sinyCosp = 2.f * (q.w * q.z + q.x * q.y);
+		float cosyCosp = 1.f - 2.f * (q.y * q.y + q.z * q.z);
+		result.z() = radToDegreeCoeff * std::atan2(sinyCosp, cosyCosp);
+
+		return result;
+	}
+
 	_forceinline physx::PxTransform convertToPx(const Storm::Vector3 &translation, const Storm::Vector3 &eulerRot)
 	{
 		physx::PxTransform result;

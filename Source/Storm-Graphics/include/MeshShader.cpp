@@ -61,7 +61,7 @@ void Storm::MeshShader::draw(int indexCount, const ComPtr<ID3D11DeviceContext> &
 	deviceContext->DrawIndexed(indexCount, 0, 0);
 }
 
-void Storm::MeshShader::setup(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera)
+void Storm::MeshShader::setup(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera, const DirectX::XMMATRIX &transposedTransform)
 {
 	// Setup the device context
 	this->setupDeviceContext(deviceContext);
@@ -72,7 +72,7 @@ void Storm::MeshShader::setup(const ComPtr<ID3D11Device> &device, const ComPtr<I
 
 	ConstantBuffer*const ressourceDataPtr = static_cast<ConstantBuffer*>(meshConstantBufferRessource.pData);
 
-	ressourceDataPtr->_worldMatrix = currentCamera.getTransposedWorldMatrix();
+	ressourceDataPtr->_worldMatrix = transposedTransform * currentCamera.getTransposedWorldMatrix();
 	ressourceDataPtr->_viewMatrix = currentCamera.getTransposedViewMatrix();
 	ressourceDataPtr->_projectionMatrix = currentCamera.getTransposedProjectionMatrix();
 
