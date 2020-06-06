@@ -148,9 +148,16 @@ void Storm::GraphicManager::addMesh(unsigned int meshId, const std::vector<Storm
 	_meshesMap[meshId] = std::make_unique<Storm::GraphicRigidBody>(vertexes, normals, indexes);
 }
 
-void Storm::GraphicManager::bindParentRbToMesh(unsigned int meshId, const std::shared_ptr<Storm::IRigidBody> &parentRb)
+void Storm::GraphicManager::bindParentRbToMesh(unsigned int meshId, const std::shared_ptr<Storm::IRigidBody> &parentRb) const
 {
-	_meshesMap[meshId]->setRbParent(parentRb);
+	if (const auto found = _meshesMap.find(meshId); found != std::end(_meshesMap))
+	{
+		found->second->setRbParent(parentRb);
+	}
+	else
+	{
+		Storm::throwException<std::exception>("Cannot find rb " + std::to_string(meshId) + " inside registered graphics meshes!");
+	}
 }
 
 const Storm::Camera& Storm::GraphicManager::getCamera() const
