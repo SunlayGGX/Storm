@@ -37,7 +37,7 @@ namespace Storm
 		bool mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id) final override;
 		bool mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id) final override;
 
-public:
+	public:
 		Storm::CallbackIdType bindKey(unsigned int key, Storm::KeyBinding &&binding);
 		void unbindKey(unsigned int key, Storm::CallbackIdType callbackId);
 		Storm::CallbackIdType bindMouseRightClick(Storm::KeyBinding &&binding);
