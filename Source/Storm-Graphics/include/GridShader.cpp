@@ -9,7 +9,6 @@ namespace
 {
 	struct ConstantBuffer
 	{
-		DirectX::XMMATRIX _worldMatrix;
 		DirectX::XMMATRIX _viewMatrix;
 		DirectX::XMMATRIX _projectionMatrix;
 
@@ -74,7 +73,6 @@ void Storm::GridShader::setup(const ComPtr<ID3D11Device> &device, const ComPtr<I
 
 	ConstantBuffer*const ressourceDataPtr = static_cast<ConstantBuffer*>(gridConstantBufferRessource.pData);
 
-	ressourceDataPtr->_worldMatrix = currentCamera.getTransposedWorldMatrix();
 	ressourceDataPtr->_viewMatrix = currentCamera.getTransposedViewMatrix();
 	ressourceDataPtr->_projectionMatrix = currentCamera.getTransposedProjectionMatrix();
 

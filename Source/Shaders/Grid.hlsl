@@ -1,6 +1,5 @@
 cbuffer ConstantBuffer
 {
-    matrix _worldMatrix;
     matrix _viewMatrix;
     matrix _projectionMatrix;
 	
@@ -24,9 +23,8 @@ PixelInputType gridVertexShader(VertexInputType input)
     // Change the position vector to be 4 units for proper matrix calculations.
     input._position.w = 1.0f;
 	
-    // Calculate the position of the vertex against the world, view, and projection matrices.
-    output._position = mul(input._position, _worldMatrix);
-    output._position = mul(output._position, _viewMatrix);
+    // Calculate the position of the vertex against the view and projection matrices. (world always being identity since the grid don't move from its object space, we don't care about it).
+    output._position = mul(input._position, _viewMatrix);
     output._position = mul(output._position, _projectionMatrix);
 
     return output;
