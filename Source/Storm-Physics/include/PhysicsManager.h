@@ -23,6 +23,9 @@ namespace Storm
 		void cleanUp_Implementation();
 
 	public:
+		void update(float deltaTime) final override;
+
+	public:
 		void addPhysicalBody(const Storm::RigidBodySceneData &rbSceneData, const std::vector<Storm::Vector3> &vertexes) final override;
 		void bindParentRbToPhysicalBody(const Storm::RigidBodySceneData &rbSceneData, const std::shared_ptr<Storm::IRigidBody> &parentRb) const final override;
 		void getMeshTransform(unsigned int meshId, Storm::Vector3 &outTrans, Storm::Vector3 &outRot) const final override;

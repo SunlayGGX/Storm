@@ -179,6 +179,22 @@ void Storm::PhysXHandler::setGravity(const Storm::Vector3 &newGravity)
 	_scene->setGravity(physXGravity);
 }
 
+void Storm::PhysXHandler::update(std::mutex &fetchingMutex, float deltaTime)
+{
+	_scene->simulate(deltaTime);
+
+	physx::PxU32 errorCode = 0;
+	{
+		std::lock_guard<std::mutex> lock{ fetchingMutex };
+		_scene->fetchResults(true, &errorCode);
+	}
+
+	if (errorCode != 0)
+	{
+		LOG_ERROR << "Error happened in Physics simulation. Error code was " << errorCode;
+	}
+}
+
 Storm::UniquePointer<physx::PxRigidStatic> Storm::PhysXHandler::createStaticRigidBody(const Storm::RigidBodySceneData &rbSceneData)
 {
 	const physx::PxTransform initialPose = Storm::convertToPx(rbSceneData._translation, rbSceneData._rotation);

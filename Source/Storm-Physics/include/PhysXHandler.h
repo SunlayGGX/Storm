@@ -23,6 +23,9 @@ namespace Storm
 		void setGravity(const Storm::Vector3 &newGravity);
 
 	public:
+		void update(std::mutex &fetchingMutex, float deltaTime);
+
+	public:
 		Storm::UniquePointer<physx::PxRigidStatic> createStaticRigidBody(const Storm::RigidBodySceneData &rbSceneData);
 		Storm::UniquePointer<physx::PxRigidDynamic> createDynamicRigidBody(const Storm::RigidBodySceneData &rbSceneData);
 		

@@ -1,6 +1,7 @@
 #include "SimulatorManager.h"
 
 #include "SingletonHolder.h"
+#include "IPhysicsManager.h"
 #include "ITimeManager.h"
 #include "TimeWaitResult.h"
 
@@ -25,6 +26,7 @@ void Storm::SimulatorManager::cleanUp_Implementation()
 void Storm::SimulatorManager::run()
 {
 	Storm::ITimeManager &timeMgr = Storm::SingletonHolder::instance().getSingleton<Storm::ITimeManager>();
+	Storm::IPhysicsManager &physicsMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IPhysicsManager>();
 	
 	std::vector<Storm::SimulationCallback> tmpSimulationCallback;
 	tmpSimulationCallback.reserve(8);
@@ -45,7 +47,11 @@ void Storm::SimulatorManager::run()
 			break;
 		}
 
-		// TODO : Run the physics simulation
+		const float physicsElapsedDeltaTime = timeMgr.getCurrentPhysicsDeltaTime();
+
+		// TODO : Run SPH
+
+		physicsMgr.update(physicsElapsedDeltaTime);
 
 		this->handleSimulationCallbacks(tmpSimulationCallback);
 	} while (true);

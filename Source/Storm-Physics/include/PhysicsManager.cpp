@@ -34,6 +34,11 @@ void Storm::PhysicsManager::cleanUp_Implementation()
 	LOG_COMMENT << "PhysX cleanup finished successfully";
 }
 
+void Storm::PhysicsManager::update(float deltaTime)
+{
+	_physXHandler->update(_simulationMutex, deltaTime);
+}
+
 void Storm::PhysicsManager::addPhysicalBody(const Storm::RigidBodySceneData &rbSceneData, const std::vector<Storm::Vector3> &vertexes)
 {
 	if (rbSceneData._static)
