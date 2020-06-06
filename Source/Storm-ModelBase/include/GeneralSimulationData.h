@@ -12,5 +12,7 @@ namespace Storm
 		Storm::Vector3 _gravity;
 		float _particleRadius;
 		float _kernelCoefficient;
+
+		bool _startPaused;
 	};
 }

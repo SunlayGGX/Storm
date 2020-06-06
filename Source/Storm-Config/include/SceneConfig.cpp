@@ -62,13 +62,15 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 
 	/* General */
 	// This is mandatory, so no optional
+	Storm::GeneralSimulationData &generalData = *_sceneData->_generalSimulationData;
 	const auto &generalTree = srcTree.get_child("General");
 	for (const auto &generalXmlElement : generalTree)
 	{
 		if (
-			!Storm::XmlReader::handleXml(generalXmlElement, "gravity", _sceneData->_generalSimulationData->_gravity, parseVector3Element) &&
-			!Storm::XmlReader::handleXml(generalXmlElement, "kernelCoeff", _sceneData->_generalSimulationData->_kernelCoefficient) &&
-			!Storm::XmlReader::handleXml(generalXmlElement, "particleRadius", _sceneData->_generalSimulationData->_particleRadius)
+			!Storm::XmlReader::handleXml(generalXmlElement, "startPaused", generalData._startPaused) &&
+			!Storm::XmlReader::handleXml(generalXmlElement, "gravity", generalData._gravity, parseVector3Element) &&
+			!Storm::XmlReader::handleXml(generalXmlElement, "kernelCoeff", generalData._kernelCoefficient) &&
+			!Storm::XmlReader::handleXml(generalXmlElement, "particleRadius", generalData._particleRadius)
 			)
 		{
 			LOG_ERROR << "tag '" << generalXmlElement.first << "' (inside Scene.General) is unknown, therefore it cannot be handled";
@@ -77,14 +79,15 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 
 
 	/* Graphic */
+	Storm::GraphicData &graphicData = *_sceneData->_graphicData;
 	const auto &graphicTree = srcTree.get_child("Graphic");
 	for (const auto &graphicXmlElement : graphicTree)
 	{
 		if (
-			!Storm::XmlReader::handleXml(graphicXmlElement, "cameraPosition", _sceneData->_graphicData->_cameraPosition, parseVector3Element) &&
-			!Storm::XmlReader::handleXml(graphicXmlElement, "cameraLookAt", _sceneData->_graphicData->_cameraLookAt, parseVector3Element) &&
-			!Storm::XmlReader::handleXml(graphicXmlElement, "zNear", _sceneData->_graphicData->_zNear) &&
-			!Storm::XmlReader::handleXml(graphicXmlElement, "zFar", _sceneData->_graphicData->_zFar)
+			!Storm::XmlReader::handleXml(graphicXmlElement, "cameraPosition", graphicData._cameraPosition, parseVector3Element) &&
+			!Storm::XmlReader::handleXml(graphicXmlElement, "cameraLookAt", graphicData._cameraLookAt, parseVector3Element) &&
+			!Storm::XmlReader::handleXml(graphicXmlElement, "zNear", graphicData._zNear) &&
+			!Storm::XmlReader::handleXml(graphicXmlElement, "zFar", graphicData._zFar)
 			)
 		{
 			LOG_ERROR << "tag '" << graphicXmlElement.first << "' (inside Scene.Graphic) is unknown, therefore it cannot be handled";
