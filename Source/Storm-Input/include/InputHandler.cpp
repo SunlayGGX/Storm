@@ -7,12 +7,12 @@
 
 namespace
 {
-	template<class FuncCallback>
+	template<class ... Args, class FuncCallback>
 	auto makeForwardToSimulationLoopCallback(FuncCallback &&callback)
 	{
-		return [srcCallback = std::move(callback)]()
+		return [srcCallback = std::move(callback)](Args &&... args)
 		{
-			Storm::SingletonHolder::instance().getSingleton<Storm::ISimulatorManager>().executeOnSimulationLoop(srcCallback);
+			Storm::SingletonHolder::instance().getSingleton<Storm::ISimulatorManager>().executeOnSimulationLoop(std::bind(srcCallback, std::forward<Args>(args)...));
 		};
 	}
 }
