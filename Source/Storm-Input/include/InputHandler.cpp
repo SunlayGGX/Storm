@@ -40,9 +40,14 @@ bool Storm::InputHandler::keyReleased(const OIS::KeyEvent &)
 	return true;
 }
 
-bool Storm::InputHandler::mouseMoved(const OIS::MouseEvent &)
+bool Storm::InputHandler::mouseMoved(const OIS::MouseEvent &arg)
 {
-	// Unhandled
+	// x and y are unhandled. z is the mouse wheel and this is this one we want to handle.
+	if (arg.state.Z.rel != 0)
+	{
+		Storm::prettyCallMultiCallback(_mouseWheel._onWheelValueChanged, arg.state.Z.rel);
+	}
+
 	return true;
 }
 
@@ -130,6 +135,18 @@ void Storm::InputHandler::unbindMouseMiddleClick(Storm::CallbackIdType callbackI
 	_middleMouseButton._onClick.remove(callbackId);
 }
 
+Storm::CallbackIdType Storm::InputHandler::bindMouseWheelMoved(Storm::WheelBinding &&binding)
+{
+	std::lock_guard<std::mutex> lock{ _bindingMutex };
+	return _mouseWheel._onWheelValueChanged.add(makeForwardToSimulationLoopCallback<int>(std::move(binding)));
+}
+
+void Storm::InputHandler::unbindMouseWheelMoved(Storm::CallbackIdType callbackId)
+{
+	std::lock_guard<std::mutex> lock{ _bindingMutex };
+	_mouseWheel._onWheelValueChanged.remove(callbackId);
+}
+
 void Storm::InputHandler::clear()
 {
 	Storm::ISimulatorManager& simulMgr = Storm::SingletonHolder::instance().getSingleton<Storm::ISimulatorManager>();
@@ -142,6 +159,7 @@ void Storm::InputHandler::clear()
 	_middleMouseButton._onClick.clear();
 	_leftMouseButton._onClick.clear();
 	_rightMouseButton._onClick.clear();
+	_mouseWheel._onWheelValueChanged.clear();
 
 	// In case inputs where already registered...
 	simulMgr.clearSimulationLoopCallback();

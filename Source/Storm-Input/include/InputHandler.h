@@ -30,6 +30,11 @@ namespace Storm
 			Storm::MultiCallback<Storm::MouseBinding> _onClick;
 		};
 
+		struct WheelBindings
+		{
+			Storm::MultiCallback<Storm::WheelBinding> _onWheelValueChanged;
+		};
+
 	public:
 		bool keyPressed(const OIS::KeyEvent &arg) final override;
 		bool keyReleased(const OIS::KeyEvent &arg) final override;
@@ -46,6 +51,8 @@ namespace Storm
 		void unbindMouseLeftClick(Storm::CallbackIdType callbackId);
 		Storm::CallbackIdType bindMouseMiddleClick(Storm::KeyBinding &&binding);
 		void unbindMouseMiddleClick(Storm::CallbackIdType callbackId);
+		Storm::CallbackIdType bindMouseWheelMoved(Storm::WheelBinding &&binding);
+		void unbindMouseWheelMoved(Storm::CallbackIdType callbackId);
 
 	public:
 		void clear();
@@ -57,5 +64,6 @@ namespace Storm
 		MouseBindings _leftMouseButton;
 		MouseBindings _rightMouseButton;
 		MouseBindings _middleMouseButton;
+		WheelBindings _mouseWheel;
 	};
 }
