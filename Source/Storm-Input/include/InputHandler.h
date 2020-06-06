@@ -47,6 +47,9 @@ namespace Storm
 		Storm::CallbackIdType bindMouseMiddleClick(Storm::KeyBinding &&binding);
 		void unbindMouseMiddleClick(Storm::CallbackIdType callbackId);
 
+	public:
+		void clear();
+
 	private:
 		std::mutex _bindingMutex;
 

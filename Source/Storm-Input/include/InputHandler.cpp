@@ -129,3 +129,20 @@ void Storm::InputHandler::unbindMouseMiddleClick(Storm::CallbackIdType callbackI
 	std::lock_guard<std::mutex> lock{ _bindingMutex };
 	_middleMouseButton._onClick.remove(callbackId);
 }
+
+void Storm::InputHandler::clear()
+{
+	Storm::ISimulatorManager& simulMgr = Storm::SingletonHolder::instance().getSingleton<Storm::ISimulatorManager>();
+
+	std::lock_guard<std::mutex> lock{ _bindingMutex };
+	for (auto &binding : _keyBindings)
+	{
+		binding.second._onKeyPressed.clear();
+	}
+	_middleMouseButton._onClick.clear();
+	_leftMouseButton._onClick.clear();
+	_rightMouseButton._onClick.clear();
+
+	// In case inputs where already registered...
+	simulMgr.clearSimulationLoopCallback();
+}

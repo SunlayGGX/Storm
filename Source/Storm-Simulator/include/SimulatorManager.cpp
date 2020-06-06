@@ -63,6 +63,12 @@ void Storm::SimulatorManager::executeOnSimulationLoop(Storm::SimulationCallback 
 	_simulationCallbacks.emplace_back(std::move(func));
 }
 
+void Storm::SimulatorManager::clearSimulationLoopCallback()
+{
+	std::lock_guard<std::mutex> lock{ _callbackMutex };
+	_simulationCallbacks.clear();
+}
+
 void Storm::SimulatorManager::handleSimulationCallbacks(std::vector<Storm::SimulationCallback> &tmpBuffer)
 {
 	{

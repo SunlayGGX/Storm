@@ -150,6 +150,7 @@ void Storm::InputManager::cleanUp_Implementation()
 {
 	LOG_COMMENT << "Starting OIS destruction.";
 
+	_inputHandler->clear();
 	OIS::InputManager::destroyInputSystem(Storm::g_oisInputMgr);
 	
 	LOG_COMMENT << "OIS destruction completed.";

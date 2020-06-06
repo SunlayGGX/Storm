@@ -22,6 +22,7 @@ namespace Storm
 
 	public:
 		void executeOnSimulationLoop(Storm::SimulationCallback func) final override;
+		void clearSimulationLoopCallback() final override;
 
 	private:
 		void handleSimulationCallbacks(std::vector<Storm::SimulationCallback> &tmpBuffer);
