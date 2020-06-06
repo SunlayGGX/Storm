@@ -7,6 +7,7 @@
 #include "SingletonHolder.h"
 #include "IWindowsManager.h"
 #include "IConfigManager.h"
+#include "IInputManager.h"
 
 #include "ThreadHelper.h"
 
@@ -33,6 +34,8 @@ void Storm::TimeManager::initialize_Implementation()
 
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
 	Storm::IWindowsManager &windowMgr = singletonHolder.getSingleton<Storm::IWindowsManager>();
+	Storm::IInputManager &inputMgr = singletonHolder.getSingleton<Storm::IInputManager>();
+
 	std::lock_guard<std::mutex> lock{ _mutex };
 	_isRunning = true;
 
@@ -49,6 +52,11 @@ void Storm::TimeManager::initialize_Implementation()
 	windowMgr.bindQuitCallback([this]()
 	{
 		this->quit();
+	});
+
+	inputMgr.bindKey(32 /*Space bar*/, [this]() 
+	{
+		this->changeSimulationPauseState();
 	});
 }
 

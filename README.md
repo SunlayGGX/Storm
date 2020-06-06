@@ -146,5 +146,6 @@ Inside this element should be put all rigidbodies. Each rigidbody should be spec
 
 
 # Input bindings
-
+- **Escape key (ESC)**: Leave the application.
+- **Space bar**: Pause application if it is running. Unpause if it is paused.
 
