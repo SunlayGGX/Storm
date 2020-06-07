@@ -149,10 +149,10 @@ Inside this element should be put all rigidbodies. Each rigidbody should be spec
 # Input bindings
 - **Escape key (ESC)**: Leave the application.
 - **Space bar**: Pause application if it is running. Unpause if it is paused.
-- **+ (Numpad) **: Move near clipping plane forward.
-- **- (Numpad) **: Move near clipping plane backward.
-- **/ (Numpad) **: Move far clipping plane backward.
-- ** star (Numpad) **: Move far clipping plane forward.
+- **+ (Numpad)**: Move near clipping plane forward.
+- **- (Numpad)**: Move near clipping plane backward.
+- **/ (Numpad)**: Move far clipping plane backward.
+- **Star (Numpad)**: Move far clipping plane forward.
 - **Up Arrow**: Move camera up.
 - **Down Arrow**: Move camera down.
 - **Left Arrow**: Move camera left.
