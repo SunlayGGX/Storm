@@ -32,6 +32,8 @@ namespace Storm
 		void unbindMouseLeftClick(Storm::CallbackIdType callbackId);
 		Storm::CallbackIdType bindMouseMiddleClick(Storm::KeyBinding &&binding) final override;
 		void unbindMouseMiddleClick(Storm::CallbackIdType callbackId) final override;
+		Storm::CallbackIdType bindMouseWheel(Storm::WheelBinding &&binding) final override;
+		void unbindMouseWheel(Storm::CallbackIdType callbackId) final override;
 
 	private:
 		void handleNonBufferedKeys();

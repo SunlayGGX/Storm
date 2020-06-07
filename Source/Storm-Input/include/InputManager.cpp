@@ -359,6 +359,16 @@ void Storm::InputManager::unbindMouseMiddleClick(Storm::CallbackIdType callbackI
 	_inputHandler->unbindMouseMiddleClick(callbackId);
 }
 
+Storm::CallbackIdType Storm::InputManager::bindMouseWheel(Storm::WheelBinding &&binding)
+{
+	return _inputHandler->bindMouseWheelMoved(std::move(binding));
+}
+
+void Storm::InputManager::unbindMouseWheel(Storm::CallbackIdType callbackId)
+{
+	_inputHandler->unbindMouseWheelMoved(callbackId);
+}
+
 void Storm::InputManager::handleNonBufferedKeys()
 {
 	// TODO
