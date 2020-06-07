@@ -8,9 +8,7 @@
 
 
 Storm::Camera::Camera(float viewportWidth, float viewportHeight) :
-	_screenRatio{ viewportWidth / viewportHeight },
 	_fieldOfView{ DirectX::XM_PI / 4.f },
-	_worldMatrix{ DirectX::XMMatrixIdentity() },
 	_screenWidth{ viewportWidth },
 	_screenHeight{ viewportHeight }
 {
@@ -31,7 +29,6 @@ Storm::Camera::Camera(float viewportWidth, float viewportHeight) :
 	DirectX::XMFLOAT3 upFloat3{ 0.f, 1.f, 0.f };
 	_up = DirectX::XMLoadFloat3(&upFloat3);
 
-	this->buildWorldMatrix();
 	this->buildProjectionMatrix();
 	this->buildOrthoMatrix();
 	this->buildViewMatrix();
@@ -52,16 +49,6 @@ float Storm::Camera::getFieldOfView() const noexcept
 	return _fieldOfView;
 }
 
-float Storm::Camera::getScreenRatio() const noexcept
-{
-	return _screenRatio;
-}
-
-const DirectX::XMMATRIX& Storm::Camera::getWorldMatrix() const noexcept
-{
-	return _worldMatrix;
-}
-
 const DirectX::XMMATRIX& Storm::Camera::getProjectionMatrix() const noexcept
 {
 	return _projectionMatrix;
@@ -75,11 +62,6 @@ const DirectX::XMMATRIX& Storm::Camera::getViewMatrix() const noexcept
 const DirectX::XMMATRIX& Storm::Camera::getOrthoMatrix() const noexcept
 {
 	return _orthoMatrix;
-}
-
-const DirectX::XMMATRIX& Storm::Camera::getTransposedWorldMatrix() const noexcept
-{
-	return _transposedWorldMatrix;
 }
 
 const DirectX::XMMATRIX& Storm::Camera::getTransposedProjectionMatrix() const noexcept

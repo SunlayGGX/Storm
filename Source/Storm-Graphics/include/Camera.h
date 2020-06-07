@@ -11,14 +11,11 @@ namespace Storm
 		float getNearPlane() const noexcept;
 		float getFarPlane() const noexcept;
 		float getFieldOfView() const noexcept;
-		float getScreenRatio() const noexcept;
 
-		const DirectX::XMMATRIX& getWorldMatrix() const noexcept;
 		const DirectX::XMMATRIX& getProjectionMatrix() const noexcept;
 		const DirectX::XMMATRIX& getViewMatrix() const noexcept;
 		const DirectX::XMMATRIX& getOrthoMatrix() const noexcept;
 
-		const DirectX::XMMATRIX& getTransposedWorldMatrix() const noexcept;
 		const DirectX::XMMATRIX& getTransposedProjectionMatrix() const noexcept;
 		const DirectX::XMMATRIX& getTransposedViewMatrix() const noexcept;
 		const DirectX::XMMATRIX& getTransposedOrthoMatrix() const noexcept;
@@ -36,19 +33,15 @@ namespace Storm
 		void moveYAxis(float dy);
 		void moveZAxis(float dz);
 
-	public:
-		void buildWorldMatrix();
 		void buildProjectionMatrix();
 		void buildOrthoMatrix();
 		void buildViewMatrix();
 
 	private:
-		DirectX::XMMATRIX _worldMatrix;
 		DirectX::XMMATRIX _projectionMatrix;
 		DirectX::XMMATRIX _viewMatrix;
 		DirectX::XMMATRIX _orthoMatrix; // For 2D HUD
 
-		DirectX::XMMATRIX _transposedWorldMatrix;
 		DirectX::XMMATRIX _transposedProjectionMatrix;
 		DirectX::XMMATRIX _transposedViewMatrix;
 		DirectX::XMMATRIX _transposedOrthoMatrix; // For 2D HUD
@@ -60,7 +53,6 @@ namespace Storm
 		float _nearPlane;
 		float _farPlane;
 		float _fieldOfView;
-		float _screenRatio;
 		float _screenWidth;
 		float _screenHeight;
 	};
