@@ -14,5 +14,28 @@ namespace Storm
 
 		EnableBlendAlpha,
 		DisableBlendAlpha,
+
+		IncreaseCameraX,
+		IncreaseCameraY,
+		IncreaseCameraZ,
+		DecreaseCameraX,
+		DecreaseCameraY,
+		DecreaseCameraZ,
+
+		RotatePosCameraX,
+		RotatePosCameraY,
+		RotateNegCameraX,
+		RotateNegCameraY,
+		// No roll !
+
+		NearPlaneMoveUp,
+		NearPlaneMoveBack,
+		FarPlaneMoveUp,
+		FarPlaneMoveBack,
+
+		IncreaseCameraSpeed,
+		DecreaseCameraSpeed,
+
+		ResetCamera,
 	};
 }
