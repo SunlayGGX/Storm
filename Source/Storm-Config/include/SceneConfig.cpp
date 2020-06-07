@@ -107,20 +107,20 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 			for (const auto &fluidBlockDataXml : fluidXmlElement.second)
 			{
 				if (
-					!Storm::XmlReader::handleXml(fluidBlockDataXml, "boxMin", fluidBlockGenerator._minBox, parseVector3Element) &&
-					!Storm::XmlReader::handleXml(fluidBlockDataXml, "boxMax", fluidBlockGenerator._maxBox, parseVector3Element)
+					!Storm::XmlReader::handleXml(fluidBlockDataXml, "firstPoint", fluidBlockGenerator._firstPoint, parseVector3Element) &&
+					!Storm::XmlReader::handleXml(fluidBlockDataXml, "secondPoint", fluidBlockGenerator._secondPoint, parseVector3Element)
 					)
 				{
 					LOG_ERROR << "tag '" << fluidBlockDataXml.first << "' (inside Scene.Fluid.fluidBlock) is unknown, therefore it cannot be handled";
 				}
 			}
 
-			if (fluidBlockGenerator._minBox == fluidBlockGenerator._maxBox)
+			if (fluidBlockGenerator._firstPoint == fluidBlockGenerator._secondPoint)
 			{
 				Storm::throwException<std::exception>("Generator min block value cannot be equal to the max value!");
 			}
 		}
-		else
+		else if (!Storm::XmlReader::handleXml(fluidXmlElement, "id", fluidData._fluidId))
 		{
 			LOG_ERROR << "tag '" << fluidXmlElement.first << "' (inside Scene.Fluid) is unknown, therefore it cannot be handled";
 		}
@@ -173,6 +173,10 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 				}); found != lastToCheck)
 				{
 					Storm::throwException<std::exception>("RigidBody id " + std::to_string(rbData._rigidBodyID) + " is already used!");
+				}
+				else if (rbData._rigidBodyID == fluidData._fluidId)
+				{
+					Storm::throwException<std::exception>("RigidBody id " + std::to_string(rbData._rigidBodyID) + " is already being used by fluid data!");
 				}
 				else if (!std::filesystem::is_regular_file(rbData._meshFilePath))
 				{

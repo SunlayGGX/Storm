@@ -35,6 +35,13 @@ Storm::GraphicData::GraphicData() :
 
 }
 
+Storm::FluidBlockData::FluidBlockData() :
+	_firstPoint{ Vector3::Zero() },
+	_secondPoint{ Vector3::Zero() }
+{
+
+}
+
 Storm::FluidData::FluidData()
 {
 

@@ -5,8 +5,12 @@ namespace Storm
 {
 	struct FluidBlockData
 	{
-		Storm::Vector3 _minBox;
-		Storm::Vector3 _maxBox;
+	public:
+		FluidBlockData();
+
+	public:
+		Storm::Vector3 _firstPoint;
+		Storm::Vector3 _secondPoint;
 	};
 
 	struct FluidData
@@ -15,6 +19,7 @@ namespace Storm
 		FluidData();
 
 	public:
+		unsigned int _fluidId;
 		std::vector<Storm::FluidBlockData> _fluidGenData;
 	};
 }

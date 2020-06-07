@@ -11,9 +11,16 @@
 		<zNear>0.01</zNear>
 		<zFar>20.0</zFar>
 	</Graphic>
+	<Fluid>
+		<id>0</id>
+		<fluidBlock>
+			<firstPoint x="-1.0" y="-1.0" z="-1.0" />
+			<secondPoint x="1.0" y="1.0" z="1.0" />
+		</fluidBlock>
+	</Fluid>
 	<RigidBodies>
 		<RigidBody>
-			<id>0</id>
+			<id>1</id>
 			<meshFile>$[StormResource]\Meshes\cube.obj</meshFile>
 			<isStatic>true</isStatic>
 			<collisionType>cube</collisionType>

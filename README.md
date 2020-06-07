@@ -129,11 +129,19 @@ Unlike the others config files, it can be named as you want. Here the wml tags y
 - **zFar (float, facultative)**: Same as zNear except that we skip displaying all objects farer than this distance value. Default value is 20.0.
 - **grid (vector3, facultative)**: Set the grid dimension. X coord will be the grid width, Z its depth and Y will be the height where the grid will be drawn. Note that X and Z will be ceiled. Default value is { x=10.0, y=0.0, z=10.0 }
 
+#### Fluid
+This element is all setting appartaining to a fluid. Here the tag you can set inside :
+- **id (positive integer, mandatory)**: This is the unique id of the fluid. It should be unique (Note that it should not be equal to any rigid body id too).
+- **fluidBlock (tag, at least one)**: This is the fluid generator settings. There should be at least one.
+	+ **firstPoint (vector3, facultative)**: This is one of the corner of the box where fluid particle should be generated. It cannot have the same value than secondPoint, default value is { x=0.0, y=0.0, z=0.0 }.
+	+ **secondPoint (vector3, facultative)**: This is the opposite corner from firstPoint where fluid particle should be generated. It cannot have the same value than firstPoint, default value is { x=0.0, y=0.0, z=0.0 }.
+
+
 #### RigidBodies
 Inside this element should be put all rigidbodies. Each rigidbody should be specified under a tag named "RigidBody".
 
 ##### RigidBody
-- **id (positive integer, mandatory)**: This is the unique id of the rigid body. It should be unique.
+- **id (positive integer, mandatory)**: This is the unique id of the rigid body.  It should be unique (Note that it should not be equal to any fluid id too).
 - **meshFile (string, mandatory, accept macro)**: This is mesh file path this rigid body is bound to.
 - **isStatic (boolean, facultative)**: Specify this to tell the simulation that this object is fixed (won't move throughout the simulation). Default value is "true".
 - **collisionType (string, facultative)**: Specify what is the collision shape should be handled. This is not case sensitive. Possible values are "None" (Default value), "Sphere", "Cube".
