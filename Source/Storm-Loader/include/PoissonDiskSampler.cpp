@@ -163,45 +163,6 @@ std::vector<Storm::Vector3> Storm::PoissonDiskSampler::operator()(const std::vec
 	{
 		std::size_t activeBeginPointIndex = samplingResult.size();
 
-#if false
-		const std::size_t expectedPCountAfterCurrentTriangleProcessing = activeBeginPointIndex + static_cast<std::size_t>(floorf(currentTriangle._area / personalParticleSpace + 0.001f));
-
-		std::size_t watchdog = 0;
-		bool shouldAddPoint;
-
-		do 
-		{
-			const Storm::Vector3 pt = randMgr.randomizeFloat() * currentTriangle._vect12 + randMgr.randomizeFloat() * currentTriangle._vect13;
-			if (currentTriangle.isPointInside(pt))
-			{
-				shouldAddPoint = true;
-				for (const auto &alreadyMadePoint : samplingResult)
-				{
-					if ((pt - alreadyMadePoint).squaredNorm() < minDistSquared)
-					{
-						shouldAddPoint = false;
-						break;
-					}
-				}
-			}
-			else
-			{
-				shouldAddPoint = false;
-			}
-
-			if (shouldAddPoint)
-			{
-				samplingResult.emplace_back(pt);
-				watchdog = 0;
-			}
-			else
-			{
-				++watchdog;
-			}
-
-		} while (watchdog < 200 && samplingResult.size() < expectedPCountAfterCurrentTriangleProcessing);
-#else
-
 		// The first point to begin populating the triangle
 		currentTriangle.producePoint(randMgr, samplingResult.emplace_back());
 
@@ -218,8 +179,6 @@ std::vector<Storm::Vector3> Storm::PoissonDiskSampler::operator()(const std::vec
 			}
 
 		} while (samplingResult.size() != activeBeginPointIndex);
-
-#endif
 	}
 
 	return samplingResult;
