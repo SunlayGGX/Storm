@@ -19,12 +19,15 @@
     <Filter Include="Source Files\Time">
       <UniqueIdentifier>{c623b86d-d066-415c-b103-0166e78ad4d0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Random">
+      <UniqueIdentifier>{0b8040e7-ff8a-4dd1-b6bb-e78425221e04}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Random">
+      <UniqueIdentifier>{02ec1bbb-0016-40cf-9d97-32a4b3dcc77d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-MiscPCH.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\include\RandomManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\include\TimeManager.cpp">
@@ -33,12 +36,12 @@
     <ClCompile Include="..\include\FPSWatcher.cpp">
       <Filter>Source Files\Time</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\RandomManager.cpp">
+      <Filter>Source Files\Random</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-MiscPCH.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\RandomManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\include\TimeManager.h">
@@ -46,6 +49,9 @@
     </ClInclude>
     <ClInclude Include="..\include\FPSWatcher.h">
       <Filter>Header Files\Time</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\RandomManager.h">
+      <Filter>Header Files\Random</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
