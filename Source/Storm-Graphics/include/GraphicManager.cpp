@@ -179,6 +179,14 @@ void Storm::GraphicManager::bindParentRbToMesh(unsigned int meshId, const std::s
 	}
 }
 
+void Storm::GraphicManager::pushParticlesData(unsigned int particleSystemId, const std::vector<Storm::Vector3> &particlePosData)
+{
+	Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(ThreadEnumeration::GraphicsThread,
+		[this, particleSystemId, particlePosDataCopy = particlePosData]() mutable
+	{
+	});
+}
+
 const Storm::Camera& Storm::GraphicManager::getCamera() const
 {
 	return *_camera;
