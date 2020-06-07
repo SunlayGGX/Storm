@@ -14,6 +14,7 @@
 #include "TimeManager.h"
 #include "SimulatorManager.h"
 #include "PhysicsManager.h"
+#include "ThreadManager.h"
 
 #include "Version.h"
 #include "TimeHelper.h"
@@ -24,6 +25,7 @@ namespace
 		Storm::SingletonHolder,
 		Storm::ConfigManager,
 		Storm::LoggerManager,
+		Storm::ThreadManager,
 		Storm::RandomManager,
 		Storm::OSManager,
 		Storm::TimeManager,
@@ -48,9 +50,13 @@ namespace
 			;
 		LOG_COMMENT << "Application Creation started";
 
+		Storm::ThreadManager::instance().nameCurrentThread(L"Main Thread (Physics & Simul)");
+
 		Storm::ConfigManager::instance().initialize(argc, argv);
 
 		Storm::LoggerManager::instance().initialize();
+
+		Storm::ThreadManager::instance().initialize();
 
 		Storm::TimeManager::instance().initialize();
 
@@ -77,6 +83,7 @@ namespace
 
 			Storm::TimeManager::instance().cleanUp();
 			Storm::SimulatorManager::instance().cleanUp();
+			Storm::ThreadManager::instance().cleanUp();
 			Storm::InputManager::instance().cleanUp();
 			Storm::GraphicManager::instance().cleanUp();
 			Storm::AssetLoaderManager::instance().cleanUp();

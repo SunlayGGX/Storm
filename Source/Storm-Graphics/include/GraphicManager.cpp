@@ -13,6 +13,7 @@
 #include "ITimeManager.h"
 #include "IInputManager.h"
 #include "IConfigManager.h"
+#include "IThreadManager.h"
 
 #include "ThreadHelper.h"
 
@@ -120,7 +121,11 @@ void Storm::GraphicManager::initialize_Implementation(void* hwnd)
 
 	_renderThread = std::thread([this]()
 	{
-		Storm::ITimeManager &timeMgr = Storm::SingletonHolder::instance().getSingleton<Storm::ITimeManager>();
+		const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+		
+		singletonHolder.getSingleton<Storm::IThreadManager>().nameCurrentThread(L"GraphicThread");
+
+		Storm::ITimeManager &timeMgr = singletonHolder.getSingleton<Storm::ITimeManager>();
 		while (timeMgr.waitNextFrameOrExit())
 		{
 			this->update();

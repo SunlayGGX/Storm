@@ -8,6 +8,7 @@
 #include "IWindowsManager.h"
 #include "IConfigManager.h"
 #include "IInputManager.h"
+#include "IThreadManager.h"
 
 #include "ThreadHelper.h"
 
@@ -45,6 +46,7 @@ void Storm::TimeManager::initialize_Implementation()
 
 	_timeThread = std::thread{ [this]() 
 	{
+		Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().nameCurrentThread(L"TimeThread");
 		while (this->waitNextFrameOrExit())
 		{
 			_frameSynchronizer.notify_all();

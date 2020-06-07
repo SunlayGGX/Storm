@@ -9,5 +9,8 @@ namespace Storm
 	{
 	public:
 		virtual ~IThreadManager() = default;
+
+	public:
+		virtual void nameCurrentThread(const std::wstring &newName) = 0;
 	};
 }

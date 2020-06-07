@@ -4,6 +4,7 @@
 
 #include "SingletonHolder.h"
 #include "IConfigManager.h"
+#include "IThreadManager.h"
 
 #include "ThreadHelper.h"
 
@@ -100,6 +101,8 @@ void Storm::LoggerManager::initialize_Implementation()
 
 	_loggerThread = std::thread{ [this, sync = &syncTmp, canLeave = &canLeaveTmp]()
 	{
+		Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().nameCurrentThread(L"LoggerThread");
+
 		Storm::LoggerManager::LogArray tmpBuffer;
 
 		std::unique_lock<std::mutex> lock{ _loggerMutex };
