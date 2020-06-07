@@ -365,6 +365,7 @@ void Storm::DirectXController::internalConfigureStates()
 		rsDesc.FillMode = D3D11_FILL_MODE::D3D11_FILL_SOLID;
 		rsDesc.CullMode = D3D11_CULL_MODE::D3D11_CULL_BACK;
 		rsDesc.FrontCounterClockwise = FALSE;
+		rsDesc.DepthClipEnable = TRUE;
 		Storm::throwIfFailed(_device->CreateRasterizerState(&rsDesc, &_solidCullBackRS));
 
 		rsDesc.CullMode = D3D11_CULL_MODE::D3D11_CULL_NONE;
