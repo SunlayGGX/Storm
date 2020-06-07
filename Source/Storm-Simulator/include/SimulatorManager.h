@@ -7,7 +7,7 @@
 
 namespace Storm
 {
-	class FluidParticleSystem;
+	class ParticleSystem;
 
 	class SimulatorManager :
 		private Storm::Singleton<SimulatorManager>,
@@ -24,6 +24,9 @@ namespace Storm
 
 	public:
 		void addParticleSystem(unsigned int id, std::vector<Storm::Vector3> particlePositions) final override;
+
+	private:
+		void pushParticlesToGraphicModule() const;
 
 	private:
 		std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> _particleSystem;

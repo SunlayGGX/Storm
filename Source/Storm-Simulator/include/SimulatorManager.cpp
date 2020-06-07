@@ -3,6 +3,7 @@
 #include "SingletonHolder.h"
 #include "IPhysicsManager.h"
 #include "IThreadManager.h"
+#include "IGraphicsManager.h"
 #include "ITimeManager.h"
 #include "TimeWaitResult.h"
 
@@ -55,6 +56,8 @@ void Storm::SimulatorManager::run()
 
 		physicsMgr.update(physicsElapsedDeltaTime);
 
+		this->pushParticlesToGraphicModule();
+
 		threadMgr.processCurrentThreadActions();
 
 	} while (true);
@@ -64,4 +67,13 @@ void Storm::SimulatorManager::addParticleSystem(unsigned int id, std::vector<Sto
 {
 	auto fluidParticleSystemPtr = std::make_unique<Storm::ParticleSystem>(std::move(particlePositions));
 	_particleSystem[id] = std::move(fluidParticleSystemPtr);
+}
+
+void Storm::SimulatorManager::pushParticlesToGraphicModule() const
+{
+	Storm::IGraphicsManager &graphicMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IGraphicsManager>();
+	std::for_each(std::execution::par, std::begin(_particleSystem), std::end(_particleSystem), [&graphicMgr](const auto &particleSystemPair)
+	{
+		graphicMgr.pushParticlesData(particleSystemPair.first, particleSystemPair.second->getPositions());
+	});
 }
