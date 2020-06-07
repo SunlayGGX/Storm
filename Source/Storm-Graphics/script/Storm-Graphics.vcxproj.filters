@@ -66,13 +66,16 @@
     <ClCompile Include="..\include\DirectXHardwareInfo.cpp">
       <Filter>Source Files\DirectX</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\MeshShader.cpp">
+      <Filter>Source Files\Shaders</Filter>
+    </ClCompile>
     <ClCompile Include="..\include\Grid.cpp">
       <Filter>Source Files\Rendered</Filter>
     </ClCompile>
     <ClCompile Include="..\include\GraphicRigidBody.cpp">
       <Filter>Source Files\Rendered</Filter>
     </ClCompile>
-    <ClCompile Include="..\include\MeshShader.cpp">
+    <ClCompile Include="..\include\GraphicParticleSystem.cpp">
       <Filter>Source Files\Shaders</Filter>
     </ClCompile>
   </ItemGroup>
@@ -114,6 +117,9 @@
       <Filter>Header Files\Rendered</Filter>
     </ClInclude>
     <ClInclude Include="..\include\GraphicRigidBody.h">
+      <Filter>Header Files\Rendered</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\GraphicParticleSystem.h">
       <Filter>Header Files\Rendered</Filter>
     </ClInclude>
     <ClInclude Include="..\include\IRenderedElement.h">
