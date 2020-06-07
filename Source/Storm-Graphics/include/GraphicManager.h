@@ -10,6 +10,7 @@ namespace Storm
 	class Camera;
 	class IRenderedElement;
 	class GraphicRigidBody;
+	class GraphicParticleSystem;
 
 	class GraphicManager :
 		private Storm::Singleton<GraphicManager>,
@@ -43,6 +44,7 @@ namespace Storm
 
 		std::vector<std::unique_ptr<Storm::IRenderedElement>> _renderedElements;
 		std::map<unsigned int, std::unique_ptr<Storm::GraphicRigidBody>> _meshesMap;
+		std::unique_ptr<Storm::GraphicParticleSystem> _graphicParticlesSystem;
 
 		std::thread _renderThread;
 	};

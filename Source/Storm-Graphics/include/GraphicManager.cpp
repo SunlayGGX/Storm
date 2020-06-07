@@ -6,6 +6,7 @@
 #include "Grid.h"
 #include "GraphicRigidBody.h"
 #include "GraphicData.h"
+#include "GraphicParticleSystem.h"
 
 #include "SingletonHolder.h"
 #include "IWindowsManager.h"
@@ -84,6 +85,8 @@ void Storm::GraphicManager::initialize_Implementation(void* hwnd)
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
 	const Storm::GraphicData &graphicData = configMgr.getGraphicData();
 	_renderedElements.emplace_back(std::make_unique<Storm::Grid>(device, graphicData._grid));
+
+	_graphicParticlesSystem = std::make_unique<Storm::GraphicParticleSystem>();
 
 	for (auto &meshesPair : _meshesMap)
 	{
@@ -184,6 +187,7 @@ void Storm::GraphicManager::pushParticlesData(unsigned int particleSystemId, con
 	Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(ThreadEnumeration::GraphicsThread,
 		[this, particleSystemId, particlePosDataCopy = particlePosData]() mutable
 	{
+		_graphicParticlesSystem->refreshParticleSystemData(particleSystemId, std::move(particlePosDataCopy));
 	});
 }
 
