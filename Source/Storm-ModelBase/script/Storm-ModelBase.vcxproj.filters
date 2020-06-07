@@ -155,5 +155,8 @@
     <ClInclude Include="..\include\ThreadEnumeration.h">
       <Filter>Header Files\Threading</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\FluidData.h">
+      <Filter>Header Files\Config</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

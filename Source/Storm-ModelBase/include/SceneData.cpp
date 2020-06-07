@@ -35,9 +35,15 @@ Storm::GraphicData::GraphicData() :
 
 }
 
+Storm::FluidData::FluidData()
+{
+
+}
+
 Storm::SceneData::SceneData() :
 	_generalSimulationData{ std::make_unique<Storm::GeneralSimulationData>() },
-	_graphicData{ std::make_unique<Storm::GraphicData>() }
+	_graphicData{ std::make_unique<Storm::GraphicData>() },
+	_fluidData{ std::make_unique<Storm::FluidData>() }
 {
 	_rigidBodiesData.reserve(4);
 }

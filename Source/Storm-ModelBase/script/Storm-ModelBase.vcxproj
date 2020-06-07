@@ -35,6 +35,7 @@
     <ClInclude Include="..\include\IRigidBody.h" />
     <ClInclude Include="..\include\IShaderManager.h" />
     <ClInclude Include="..\include\IThreadManager.h" />
+    <ClInclude Include="..\include\FluidData.h" />
     <ClInclude Include="..\include\RigidBodyHolder.h" />
     <ClInclude Include="..\include\RigidBodySceneData.h" />
     <ClInclude Include="..\include\ISimulatorManager.h" />

@@ -96,6 +96,41 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 	}
 
 
+	/* Fluids */
+	Storm::FluidData &fluidData = *_sceneData->_fluidData;
+	const auto &fluidTree = srcTree.get_child("Fluid");
+	for (const auto &fluidXmlElement : fluidTree)
+	{
+		if (fluidXmlElement.first == "fluidBlock")
+		{
+			auto &fluidBlockGenerator = fluidData._fluidGenData.emplace_back();
+			for (const auto &fluidBlockDataXml : fluidXmlElement.second)
+			{
+				if (
+					!Storm::XmlReader::handleXml(fluidBlockDataXml, "boxMin", fluidBlockGenerator._minBox, parseVector3Element) &&
+					!Storm::XmlReader::handleXml(fluidBlockDataXml, "boxMax", fluidBlockGenerator._maxBox, parseVector3Element)
+					)
+				{
+					LOG_ERROR << "tag '" << fluidBlockDataXml.first << "' (inside Scene.Fluid.fluidBlock) is unknown, therefore it cannot be handled";
+				}
+			}
+
+			if (fluidBlockGenerator._minBox == fluidBlockGenerator._maxBox)
+			{
+				Storm::throwException<std::exception>("Generator min block value cannot be equal to the max value!");
+			}
+		}
+		else
+		{
+			LOG_ERROR << "tag '" << fluidXmlElement.first << "' (inside Scene.Fluid) is unknown, therefore it cannot be handled";
+		}
+	}
+	if (fluidData._fluidGenData.empty())
+	{
+		Storm::throwException<std::exception>("Fluid should have at least one block (an empty fluid is forbidden)!");
+	}
+
+
 	/* RigidBodies */
 	const auto &rigidBodiesTreeOpt = srcTree.get_child_optional("RigidBodies");
 	if (rigidBodiesTreeOpt.has_value())
