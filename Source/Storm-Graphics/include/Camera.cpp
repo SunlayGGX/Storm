@@ -150,6 +150,11 @@ namespace
 
 		return Storm::Vector3::Zero();
 	}
+
+	constexpr float getMinimalNearPlaneValue()
+	{
+		return 0.001f;
+	}
 }
 
 
@@ -261,8 +266,8 @@ void Storm::Camera::increaseCameraSpeed()
 
 void Storm::Camera::decreaseCameraSpeed()
 {
-	_cameraMoveSpeed /= 2.f;
-	_cameraPlaneSpeed /= 2.f;
+	_cameraMoveSpeed = std::max(_cameraMoveSpeed / 2.f, getMinimalNearPlaneValue());
+	_cameraPlaneSpeed = std::max(_cameraPlaneSpeed / 2.f, getMinimalNearPlaneValue());
 }
 
 void Storm::Camera::setNearPlane(float nearPlane)
@@ -282,9 +287,10 @@ void Storm::Camera::setFarPlane(float farPlane)
 void Storm::Camera::increaseNearPlane()
 {
 	float expected = _nearPlane + _cameraPlaneSpeed;
-	if (expected >= _farPlane)
+	constexpr float nearPlaneEpsilon = getMinimalNearPlaneValue();
+	if (expected >= (_farPlane - nearPlaneEpsilon))
 	{
-		float newExpected = std::min(_farPlane - _cameraPlaneSpeed, 0.f);
+		const float newExpected = std::max(_farPlane - _cameraPlaneSpeed, nearPlaneEpsilon);
 		LOG_ERROR << 
 			"Cannot set near plane to a value equal or greater than far plane. Therefore we will set it to " << newExpected << ".\n"
 			"Expected : " << expected << ".\n"
@@ -302,28 +308,30 @@ void Storm::Camera::increaseNearPlane()
 	this->setNearPlane(expected);
 }
 
-void Storm::Camera::increaseFarPlane()
-{
-	this->setNearPlane(_farPlane + _cameraPlaneSpeed);
-}
-
 void Storm::Camera::decreaseNearPlane()
 {
 	float expected = _nearPlane - _cameraPlaneSpeed;
-	if (expected < 0.f)
+	constexpr float minimalNearPlaneValue = getMinimalNearPlaneValue();
+	if (expected < minimalNearPlaneValue)
 	{
-		LOG_WARNING << "Cannot set the near plane distance under 0.";
-		expected = 0.f;
+		LOG_WARNING << "Cannot set the near plane distance under " << minimalNearPlaneValue << '.';
+		expected = minimalNearPlaneValue;
 	}
 	this->setNearPlane(expected);
+}
+
+void Storm::Camera::increaseFarPlane()
+{
+	this->setFarPlane(_farPlane + _cameraPlaneSpeed);
 }
 
 void Storm::Camera::decreaseFarPlane()
 {
 	float expected = _farPlane - _cameraPlaneSpeed;
-	if (expected < _nearPlane)
+	constexpr float nearPlaneEpsilon = getMinimalNearPlaneValue();
+	if (expected <= (_nearPlane + nearPlaneEpsilon))
 	{
-		float newExpected = _nearPlane + _cameraPlaneSpeed;
+		const float newExpected = _nearPlane + _cameraPlaneSpeed;
 		LOG_ERROR <<
 			"Cannot set near plane to a value equal or greater than far plane. Therefore we will set it to " << newExpected << ".\n"
 			"Expected : " << expected << ".\n"

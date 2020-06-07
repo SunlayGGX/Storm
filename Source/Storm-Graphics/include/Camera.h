@@ -35,8 +35,8 @@ namespace Storm
 		void setFarPlane(float farPlane);
 
 		void increaseNearPlane();
-		void increaseFarPlane();
 		void decreaseNearPlane();
+		void increaseFarPlane();
 		void decreaseFarPlane();
 
 		void setPosition(float x, float y, float z);

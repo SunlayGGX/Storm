@@ -100,6 +100,10 @@ void Storm::GraphicManager::initialize_Implementation(void* hwnd)
 	inputMgr.bindKey(Storm::SpecialKey::KC_W, [this]() { this->executeActionAsync(Storm::GraphicsAction::RotateNegCameraX); });
 	inputMgr.bindKey(Storm::SpecialKey::KC_D, [this]() { this->executeActionAsync(Storm::GraphicsAction::RotatePosCameraY); });
 	inputMgr.bindKey(Storm::SpecialKey::KC_A, [this]() { this->executeActionAsync(Storm::GraphicsAction::RotateNegCameraY); });
+	inputMgr.bindKey(Storm::SpecialKey::KC_ADD, [this]() { this->executeActionAsync(Storm::GraphicsAction::NearPlaneMoveUp); });
+	inputMgr.bindKey(Storm::SpecialKey::KC_SUBTRACT, [this]() { this->executeActionAsync(Storm::GraphicsAction::NearPlaneMoveBack); });
+	inputMgr.bindKey(Storm::SpecialKey::KC_MULTIPLY, [this]() { this->executeActionAsync(Storm::GraphicsAction::FarPlaneMoveUp); });
+	inputMgr.bindKey(Storm::SpecialKey::KC_DIVIDE, [this]() { this->executeActionAsync(Storm::GraphicsAction::FarPlaneMoveBack); });
 
 	_renderThread = std::thread([this]()
 	{
