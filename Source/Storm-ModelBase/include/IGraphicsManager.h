@@ -5,7 +5,6 @@
 
 namespace Storm
 {
-	enum class GraphicsAction;
 	class IRigidBody;
 
 	class IGraphicsManager : public Storm::ISingletonHeldInterface<IGraphicsManager>

@@ -41,9 +41,6 @@ namespace Storm
 		std::vector<std::unique_ptr<Storm::IRenderedElement>> _renderedElements;
 		std::map<unsigned int, std::unique_ptr<Storm::GraphicRigidBody>> _meshesMap;
 
-		std::mutex _actionMutex;
-		std::vector<Storm::GraphicsAction> _actionsToBeExecuted;
-
 		std::thread _renderThread;
 	};
 }
