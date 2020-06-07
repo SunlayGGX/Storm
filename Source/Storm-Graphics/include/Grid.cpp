@@ -23,8 +23,9 @@ namespace
 
 Storm::Grid::Grid(const ComPtr<ID3D11Device> &device, Storm::Vector3 maxPt)
 {
-	maxPt.x() = static_cast<float>(fabs(static_cast<int>(maxPt.x())));
-	maxPt.z() = static_cast<float>(fabs(static_cast<int>(maxPt.z())));
+	constexpr float epsilon = 0.0001f;
+	maxPt.x() = static_cast<float>(fabs(static_cast<int>(ceilf(maxPt.x()) + epsilon)));
+	maxPt.z() = static_cast<float>(fabs(static_cast<int>(ceilf(maxPt.z()) + epsilon)));
 
 	if (maxPt.x() >= 1.f && maxPt.z() >= 1.f)
 	{
