@@ -76,6 +76,9 @@
       <Filter>Source Files\Rendered</Filter>
     </ClCompile>
     <ClCompile Include="..\include\GraphicParticleSystem.cpp">
+      <Filter>Source Files\Rendered</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\ParticleShader.cpp">
       <Filter>Source Files\Shaders</Filter>
     </ClCompile>
   </ItemGroup>
@@ -124,6 +127,9 @@
     </ClInclude>
     <ClInclude Include="..\include\IRenderedElement.h">
       <Filter>Header Files\GraphicComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ParticleShader.h">
+      <Filter>Header Files\Shaders</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
