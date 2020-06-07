@@ -158,7 +158,8 @@ std::vector<Storm::Vector3> Storm::PoissonDiskSampler::operator()(const std::vec
 	const float personalParticleSpace = static_cast<float>(M_PI) * minDistSquared;
 
 	// No optimization for now... I'll think about it later.
-	samplingResult.reserve(static_cast<std::size_t>(floorf(totalArea / personalParticleSpace + 0.001f)));
+	constexpr float epsilon = 0.0001f;
+	samplingResult.reserve(static_cast<std::size_t>(ceilf(totalArea / personalParticleSpace) + epsilon));
 	for (const Triangle &currentTriangle : triangles)
 	{
 		std::size_t activeBeginPointIndex = samplingResult.size();
