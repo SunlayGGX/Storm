@@ -87,7 +87,8 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 			!Storm::XmlReader::handleXml(graphicXmlElement, "cameraPosition", graphicData._cameraPosition, parseVector3Element) &&
 			!Storm::XmlReader::handleXml(graphicXmlElement, "cameraLookAt", graphicData._cameraLookAt, parseVector3Element) &&
 			!Storm::XmlReader::handleXml(graphicXmlElement, "zNear", graphicData._zNear) &&
-			!Storm::XmlReader::handleXml(graphicXmlElement, "zFar", graphicData._zFar)
+			!Storm::XmlReader::handleXml(graphicXmlElement, "zFar", graphicData._zFar) &&
+			!Storm::XmlReader::handleXml(graphicXmlElement, "grid", graphicData._grid, parseVector3Element)
 			)
 		{
 			LOG_ERROR << "tag '" << graphicXmlElement.first << "' (inside Scene.Graphic) is unknown, therefore it cannot be handled";

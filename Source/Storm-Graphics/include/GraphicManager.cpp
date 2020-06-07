@@ -5,10 +5,12 @@
 
 #include "Grid.h"
 #include "GraphicRigidBody.h"
+#include "GraphicData.h"
 
 #include "SingletonHolder.h"
 #include "IWindowsManager.h"
 #include "ITimeManager.h"
+#include "IConfigManager.h"
 
 #include "ThreadHelper.h"
 
@@ -66,13 +68,17 @@ bool Storm::GraphicManager::initialize_Implementation()
 
 void Storm::GraphicManager::initialize_Implementation(void* hwnd)
 {
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+
 	LOG_COMMENT << "HWND is valid so Windows was created, we can pursue the graphic initialization.";
 	_directXController->initialize(static_cast<HWND>(hwnd));
 
 	_camera = std::make_unique<Storm::Camera>(_directXController->getViewportWidth(), _directXController->getViewportHeight());
 
 	const auto &device = _directXController->getDirectXDevice();
-	_renderedElements.emplace_back(std::make_unique<Storm::Grid>(device, Storm::Vector3{ 15.f, 0.f, 15.f }));
+	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
+	const Storm::GraphicData &graphicData = configMgr.getGraphicData();
+	_renderedElements.emplace_back(std::make_unique<Storm::Grid>(device, graphicData._grid));
 
 	for (auto &meshesPair : _meshesMap)
 	{
