@@ -8,6 +8,8 @@ namespace Storm
 		Camera(float viewportWidth, float viewportHeight);
 
 	public:
+		void reset();
+
 		float getNearPlane() const noexcept;
 		float getFarPlane() const noexcept;
 		float getFieldOfView() const noexcept;
@@ -23,15 +25,40 @@ namespace Storm
 		const DirectX::XMFLOAT3& getPosition() const noexcept;
 		const DirectX::XMFLOAT3& getTarget() const noexcept;
 
+		float getCameraMoveSpeed() const noexcept;
+		float getCameraPlaneSpeed() const noexcept;
+
+		void increaseCameraSpeed();
+		void decreaseCameraSpeed();
+
 		void setNearPlane(float nearPlane);
 		void setFarPlane(float farPlane);
+
+		void increaseNearPlane();
+		void increaseFarPlane();
+		void decreaseNearPlane();
+		void decreaseFarPlane();
 
 		void setPosition(float x, float y, float z);
 		void setTarget(float x, float y, float z);
 
-		void moveXAxis(float dx);
-		void moveYAxis(float dy);
-		void moveZAxis(float dz);
+		void positiveMoveXAxis();
+		void positiveMoveYAxis();
+		void positiveMoveZAxis();
+		void negativeMoveXAxis();
+		void negativeMoveYAxis();
+		void negativeMoveZAxis();
+
+		void positiveRotateXAxis();
+		void positiveRotateYAxis();
+		void negativeRotateXAxis();
+		void negativeRotateYAxis();
+
+	private:
+		void setPositionInternal(float x, float y, float z);
+		void setTargetInternal(float x, float y, float z);
+
+		void translateRelative(const Storm::Vector3 &deltaTranslation);
 
 		void buildProjectionMatrix();
 		void buildOrthoMatrix();
@@ -45,6 +72,9 @@ namespace Storm
 		DirectX::XMMATRIX _transposedProjectionMatrix;
 		DirectX::XMMATRIX _transposedViewMatrix;
 		DirectX::XMMATRIX _transposedOrthoMatrix; // For 2D HUD
+
+		float _cameraMoveSpeed;
+		float _cameraPlaneSpeed;
 
 		DirectX::XMFLOAT3 _position;
 		DirectX::XMFLOAT3 _target;
