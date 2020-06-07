@@ -149,4 +149,24 @@ Inside this element should be put all rigidbodies. Each rigidbody should be spec
 # Input bindings
 - **Escape key (ESC)**: Leave the application.
 - **Space bar**: Pause application if it is running. Unpause if it is paused.
+- **+ (Numpad) **: Move near clipping plane forward.
+- **- (Numpad) **: Move near clipping plane backward.
+- **/ (Numpad) **: Move far clipping plane backward.
+- ** star (Numpad) **: Move far clipping plane forward.
+- **Up Arrow**: Move camera up.
+- **Down Arrow**: Move camera down.
+- **Left Arrow**: Move camera left.
+- **Right Arrow**: Move camera right.
+- **8 (Numpad)**: Move camera forward.
+- **2 (Numpad)**: Move camera backward.
+- **Q**: Rotate the camera around the target on Y axis (negative).
+- **Z**: Rotate the camera around the target on X axis (positive).
+- **D**: Rotate the camera around the target on Y axis (positive).
+- **S**: Rotate the camera around the target on X axis (negative).
+- **0 (Numpad Zero)**: Reset camera position.
+- **Mouse wheel up**: Increase camera and clipping plane motion speed.
+- **Mouse wheel down**: Decrease camera and clipping plane motion speed.
+- **B**: Set solid state with back face culling.
+- **N**: Set solid state without back face culling.
+- **V**: Set wireframe.
 
