@@ -27,6 +27,63 @@ namespace
 #else
 	const float g_defaultColor[4] = { 0.f, 0.f, 0.f, 1.f };
 #endif
+
+#if _WIN32
+	struct VectorHijacker
+	{
+		std::size_t _newSize;
+	};
+
+	using VectorHijackerMakeBelieve = const VectorHijacker &;
+#endif
+}
+
+#if _WIN32
+// (   - _ - |||)
+// Ugly but super efficient...
+template<>
+template<>
+decltype(auto) std::vector<DirectX::XMFLOAT3, std::allocator<DirectX::XMFLOAT3>>::emplace_back<VectorHijackerMakeBelieve>(VectorHijackerMakeBelieve first)
+{
+	// We're modifying directly the size of the vector without passing by the extra initialization.
+	_Mypair._Myval2._Mylast = _Mypair._Myval2._Myfirst + first._newSize;
+}
+#endif
+
+namespace
+{
+#if _WIN32
+	void setNumUninitialized_hijack(std::vector<DirectX::XMFLOAT3> &hijackedVector, VectorHijackerMakeBelieve hijacker)
+	{
+		hijackedVector.emplace_back<VectorHijackerMakeBelieve>(hijacker);
+	}
+#endif
+
+	std::vector<DirectX::XMFLOAT3> fastOptimizedTransCopy(const std::vector<Storm::Vector3> &particlePosData)
+	{
+#if _WIN32
+		// This is a truly custom algorithm. It works only because we made those assumptions :
+		// - DirectX::XMFLOAT3 and Storm::Vector3 have both the same memory layout (memcpy works)
+		// - We're constructing a new array (so we made a lean algorithm compared to "std::vector<DirectX::XMFLOAT3> dxParticlePosDataTmp = *reinterpret_cast<const std::vector<DirectX::XMFLOAT3>*>(&particlePosData);" (the second part of the #if). On Win32, this copy makes a lot of security check, but also uses memmove that is less efficient than memcpy because it allow the arrays to overlap (bufferize in a temporary the copy to be done, before doing it for real)...
+
+		std::vector<DirectX::XMFLOAT3> dxParticlePosDataTmp;
+
+		const VectorHijackerMakeBelieve hijacker{ particlePosData.size() };
+		dxParticlePosDataTmp.reserve(hijacker._newSize);
+
+		// Huge optimization that completely destroys resize method... Cannot be much faster than this, it is like Unreal technology (TArray provides a SetNumUninitialized).
+		// (Except that Unreal implemented their own TArray instead of using std::vector. Since I'm stuck with this, I didn't have much choice than to hijack... Note that this code isn't portable because it relies heavily on how Microsoft implemented std::vector (to find out the breach in the armor, we must know whose armor it is ;) )).
+		setNumUninitialized_hijack(dxParticlePosDataTmp, hijacker);
+		memcpy(dxParticlePosDataTmp.data(), particlePosData.data(), hijacker._newSize * sizeof(DirectX::XMFLOAT3));
+
+#else
+		// A little less efficient than hijacking, but way more than resize and copy afterwards... Or reserve and emplace in a loop.
+		std::vector<DirectX::XMFLOAT3> dxParticlePosDataTmp = *reinterpret_cast<const std::vector<DirectX::XMFLOAT3>*>(&particlePosData);
+
+#endif
+
+		return dxParticlePosDataTmp;
+	}
 }
 
 Storm::GraphicManager::GraphicManager() :
@@ -185,7 +242,7 @@ void Storm::GraphicManager::bindParentRbToMesh(unsigned int meshId, const std::s
 void Storm::GraphicManager::pushParticlesData(unsigned int particleSystemId, const std::vector<Storm::Vector3> &particlePosData)
 {
 	Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(ThreadEnumeration::GraphicsThread,
-		[this, particleSystemId, particlePosDataCopy = particlePosData]() mutable
+		[this, particleSystemId, particlePosDataCopy = fastOptimizedTransCopy(particlePosData)]() mutable
 	{
 		_graphicParticlesSystem->refreshParticleSystemData(particleSystemId, std::move(particlePosDataCopy));
 	});

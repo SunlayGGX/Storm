@@ -11,9 +11,9 @@ namespace Storm
 		GraphicParticleSystem();
 
 	public:
-		void refreshParticleSystemData(unsigned int particleSystemId, std::vector<Storm::Vector3> &&particlePosition);
+		void refreshParticleSystemData(unsigned int particleSystemId, std::vector<DirectX::XMFLOAT3> &&particlePosition);
 
 	private:
-		std::map<unsigned int, std::vector<Storm::Vector3>> _particleSystemPositions;
+		std::map<unsigned int, std::vector<DirectX::XMFLOAT3>> _particleSystemPositions;
 	};
 }

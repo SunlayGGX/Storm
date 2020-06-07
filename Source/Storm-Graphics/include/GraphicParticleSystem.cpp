@@ -6,7 +6,7 @@ Storm::GraphicParticleSystem::GraphicParticleSystem()
 
 }
 
-void Storm::GraphicParticleSystem::refreshParticleSystemData(unsigned int particleSystemId, std::vector<Storm::Vector3> &&particlePosition)
+void Storm::GraphicParticleSystem::refreshParticleSystemData(unsigned int particleSystemId, std::vector<DirectX::XMFLOAT3> &&particlePosition)
 {
 	_particleSystemPositions[particleSystemId] = std::move(particlePosition);
 }
