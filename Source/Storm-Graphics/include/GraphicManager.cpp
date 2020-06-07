@@ -105,6 +105,18 @@ void Storm::GraphicManager::initialize_Implementation(void* hwnd)
 	inputMgr.bindKey(Storm::SpecialKey::KC_MULTIPLY, [this]() { this->executeActionAsync(Storm::GraphicsAction::FarPlaneMoveUp); });
 	inputMgr.bindKey(Storm::SpecialKey::KC_DIVIDE, [this]() { this->executeActionAsync(Storm::GraphicsAction::FarPlaneMoveBack); });
 
+	inputMgr.bindMouseWheel([this](int axisRelativeIncrement)
+	{
+		if (axisRelativeIncrement > 0)
+		{
+			this->executeActionAsync(Storm::GraphicsAction::IncreaseCameraSpeed);
+		}
+		else if (axisRelativeIncrement < 0)
+		{
+			this->executeActionAsync(Storm::GraphicsAction::DecreaseCameraSpeed);
+		}
+	});
+
 	_renderThread = std::thread([this]()
 	{
 		Storm::ITimeManager &timeMgr = Storm::SingletonHolder::instance().getSingleton<Storm::ITimeManager>();
