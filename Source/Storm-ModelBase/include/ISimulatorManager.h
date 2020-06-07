@@ -11,5 +11,8 @@ namespace Storm
 	{
 	public:
 		virtual ~ISimulatorManager() = default;
+
+	public:
+		virtual void addParticleSystem(unsigned int id, std::vector<Storm::Vector3> particlePositions) = 0;
 	};
 }
