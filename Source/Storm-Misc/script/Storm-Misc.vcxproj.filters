@@ -48,6 +48,9 @@
     <ClCompile Include="..\include\RandomManager.cpp">
       <Filter>Source Files\Random</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\AsyncActionHolder.cpp">
+      <Filter>Source Files\Threading</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-MiscPCH.h">
@@ -63,6 +66,9 @@
       <Filter>Header Files\Random</Filter>
     </ClInclude>
     <ClInclude Include="..\include\ThreadManager.h">
+      <Filter>Header Files\Threading</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\AsyncActionHolder.h">
       <Filter>Header Files\Threading</Filter>
     </ClInclude>
   </ItemGroup>
