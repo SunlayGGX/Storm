@@ -149,5 +149,8 @@
     <ClInclude Include="..\include\SpecialKey.h">
       <Filter>Header Files\Input</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\IThreadManager.h">
+      <Filter>Header Files\Singleton</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
