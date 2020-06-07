@@ -40,6 +40,7 @@
     <ClInclude Include="..\include\ITimeManager.h" />
     <ClInclude Include="..\include\IWindowsManager.h" />
     <ClInclude Include="..\include\SceneData.h" />
+    <ClInclude Include="..\include\SpecialKey.h" />
     <ClInclude Include="..\include\StormPrerequisite.h" />
     <ClInclude Include="..\include\Storm-ModelBasePCH.h" />
     <ClInclude Include="..\include\TimeWaitResult.h" />

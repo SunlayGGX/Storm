@@ -24,8 +24,8 @@ namespace Storm
 		void update() override;
 
 	public:
-		Storm::CallbackIdType bindKey(unsigned int key, Storm::KeyBinding &&binding) final override;
-		void unbindKey(unsigned int key, Storm::CallbackIdType callbackId) final override;
+		Storm::CallbackIdType bindKey(Storm::SpecialKey key, Storm::KeyBinding &&binding) final override;
+		void unbindKey(Storm::SpecialKey key, Storm::CallbackIdType callbackId) final override;
 		Storm::CallbackIdType bindMouseRightClick(Storm::KeyBinding &&binding) final override;
 		void unbindMouseRightClick(Storm::CallbackIdType callbackId) final override;
 		Storm::CallbackIdType bindMouseLeftClick(Storm::KeyBinding &&binding) final override;

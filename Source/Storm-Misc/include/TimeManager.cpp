@@ -11,6 +11,8 @@
 
 #include "ThreadHelper.h"
 
+#include "SpecialKey.h"
+
 
 Storm::TimeManager::TimeManager() :
 	_physicsTimeInSeconds{ 0.05f },
@@ -54,7 +56,7 @@ void Storm::TimeManager::initialize_Implementation()
 		this->quit();
 	});
 
-	inputMgr.bindKey(32 /*Space bar*/, [this]() 
+	inputMgr.bindKey(Storm::SpecialKey::KC_SPACE, [this]() 
 	{
 		this->changeSimulationPauseState();
 	});

@@ -23,7 +23,7 @@ bool Storm::InputHandler::keyPressed(const OIS::KeyEvent &arg)
 	if (arg.key != OIS::KeyCode::KC_ESCAPE)
 	{
 		std::lock_guard<std::mutex> lock{ _bindingMutex };
-		Storm::prettyCallMultiCallback(_keyBindings[arg.text]._onKeyPressed);
+		Storm::prettyCallMultiCallback(_keyBindings[arg.key]._onKeyPressed);
 	}
 	else
 	{
@@ -87,13 +87,13 @@ bool Storm::InputHandler::mouseReleased(const OIS::MouseEvent &, OIS::MouseButto
 	return true;
 }
 
-Storm::CallbackIdType Storm::InputHandler::bindKey(unsigned int key, Storm::KeyBinding &&binding)
+Storm::CallbackIdType Storm::InputHandler::bindKey(OIS::KeyCode key, Storm::KeyBinding &&binding)
 {
 	std::lock_guard<std::mutex> lock{ _bindingMutex };
 	return _keyBindings[key]._onKeyPressed.add(makeForwardToSimulationLoopCallback(std::move(binding)));
 }
 
-void Storm::InputHandler::unbindKey(unsigned int key, Storm::CallbackIdType callbackId)
+void Storm::InputHandler::unbindKey(OIS::KeyCode key, Storm::CallbackIdType callbackId)
 {
 	std::lock_guard<std::mutex> lock{ _bindingMutex };
 	_keyBindings[key]._onKeyPressed.remove(callbackId);
