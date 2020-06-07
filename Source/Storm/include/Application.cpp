@@ -18,6 +18,7 @@
 
 #include "Version.h"
 #include "TimeHelper.h"
+#include "ThreadEnumeration.h"
 
 namespace
 {
@@ -49,8 +50,8 @@ namespace
 			"Current date is " << Storm::TimeHelper::getCurrentDateTime(true)
 			;
 		LOG_COMMENT << "Application Creation started";
-
-		Storm::ThreadManager::instance().nameCurrentThread(L"Main Thread (Physics & Simul)");
+	
+		STORM_REGISTER_THREAD(MainThread);
 
 		Storm::ConfigManager::instance().initialize(argc, argv);
 

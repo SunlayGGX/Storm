@@ -3,12 +3,12 @@
 #include "resource.h"
 #include "ThrowException.h"
 #include "ThreadHelper.h"
+#include "ThreadEnumeration.h"
 
 #include "SingletonHolder.h"
 #include "ITimeManager.h"
 #include "IInputManager.h"
 #include "IThreadManager.h"
-
 
 
 namespace
@@ -68,19 +68,21 @@ void Storm::WindowsManager::initialize_Implementation()
 
 	_windowsThread = std::thread{ [this]()
 	{
-		const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
-		singletonHolder.getSingleton<Storm::IThreadManager>().nameCurrentThread(L"Windows & Input Thread");
+		STORM_REGISTER_THREAD(TimeThread);
 
 		this->initializeInternal();
 
+		const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 		Storm::ITimeManager &timeMgr = singletonHolder.getSingleton<Storm::ITimeManager>();
 		Storm::IInputManager &inputMgr = singletonHolder.getSingleton<Storm::IInputManager>();
+		Storm::IThreadManager &threadMgr = singletonHolder.getSingleton<Storm::IThreadManager>();
 
 		constexpr const std::chrono::milliseconds k_windowsThreadRefreshRate{ 100 };
 		while (timeMgr.waitForTimeOrExit(k_windowsThreadRefreshRate))
 		{
 			this->update();
 			inputMgr.update();
+			threadMgr.processCurrentThreadActions();
 		}
 	} };
 }

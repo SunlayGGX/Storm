@@ -2,15 +2,12 @@
 
 #include "SingletonHolder.h"
 #include "IPhysicsManager.h"
+#include "IThreadManager.h"
 #include "ITimeManager.h"
 #include "TimeWaitResult.h"
 
 
-Storm::SimulatorManager::SimulatorManager()
-{
-	_simulationCallbacks.reserve(8);
-}
-
+Storm::SimulatorManager::SimulatorManager() = default;
 Storm::SimulatorManager::~SimulatorManager() = default;
 
 void Storm::SimulatorManager::initialize_Implementation()
@@ -25,8 +22,11 @@ void Storm::SimulatorManager::cleanUp_Implementation()
 
 void Storm::SimulatorManager::run()
 {
-	Storm::ITimeManager &timeMgr = Storm::SingletonHolder::instance().getSingleton<Storm::ITimeManager>();
-	Storm::IPhysicsManager &physicsMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IPhysicsManager>();
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+
+	Storm::ITimeManager &timeMgr = singletonHolder.getSingleton<Storm::ITimeManager>();
+	Storm::IPhysicsManager &physicsMgr = singletonHolder.getSingleton<Storm::IPhysicsManager>();
+	Storm::IThreadManager &threadMgr = singletonHolder.getSingleton<Storm::IThreadManager>();
 	
 	std::vector<Storm::SimulationCallback> tmpSimulationCallback;
 	tmpSimulationCallback.reserve(8);
@@ -53,44 +53,7 @@ void Storm::SimulatorManager::run()
 
 		physicsMgr.update(physicsElapsedDeltaTime);
 
-		this->handleSimulationCallbacks(tmpSimulationCallback);
+		threadMgr.processCurrentThreadActions();
+
 	} while (true);
-}
-
-void Storm::SimulatorManager::executeOnSimulationLoop(Storm::SimulationCallback func)
-{
-	std::lock_guard<std::mutex> lock{ _callbackMutex };
-	_simulationCallbacks.emplace_back(std::move(func));
-}
-
-void Storm::SimulatorManager::clearSimulationLoopCallback()
-{
-	std::lock_guard<std::mutex> lock{ _callbackMutex };
-	_simulationCallbacks.clear();
-}
-
-void Storm::SimulatorManager::handleSimulationCallbacks(std::vector<Storm::SimulationCallback> &tmpBuffer)
-{
-	{
-		std::lock_guard<std::mutex> lock{ _callbackMutex };
-		std::swap(_simulationCallbacks, tmpBuffer);
-	}
-
-	for (auto &callback : tmpBuffer)
-	{
-		try
-		{
-			callback();
-		}
-		catch (const std::exception &e)
-		{
-			LOG_ERROR << "Callback call in simulation loop triggered an exception : " << e.what();
-		}
-		catch (...)
-		{
-			LOG_ERROR << "Callback call in simulation loop triggered an unknown exception!";
-		}
-	}
-
-	tmpBuffer.clear();
 }

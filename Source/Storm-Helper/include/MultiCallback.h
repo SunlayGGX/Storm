@@ -175,6 +175,26 @@ namespace Storm
 			_toBeRemoved.clear();
 		}
 
+		bool empty() const
+		{
+			return _callbacks.empty();
+		}
+
+		void transfertTo(Storm::MultiCallback<Fn> &other)
+		{
+			std::swap(_callbacks, other._callbacks);
+			std::swap(_ids, other._ids);
+			std::swap(_toBeRemoved, other._toBeRemoved);
+
+			if (_generator > other._generator)
+			{
+				other._generator = _generator;
+			}
+			else
+			{
+				_generator = other._generator;
+			}
+		}
 
 	private:
 		bool _isExecuting;

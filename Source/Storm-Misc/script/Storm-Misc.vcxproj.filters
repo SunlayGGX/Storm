@@ -48,7 +48,7 @@
     <ClCompile Include="..\include\RandomManager.cpp">
       <Filter>Source Files\Random</Filter>
     </ClCompile>
-    <ClCompile Include="..\include\AsyncActionHolder.cpp">
+    <ClCompile Include="..\include\AsyncActionExecutor.cpp">
       <Filter>Source Files\Threading</Filter>
     </ClCompile>
   </ItemGroup>
@@ -68,7 +68,7 @@
     <ClInclude Include="..\include\ThreadManager.h">
       <Filter>Header Files\Threading</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\AsyncActionHolder.h">
+    <ClInclude Include="..\include\AsyncActionExecutor.h">
       <Filter>Header Files\Threading</Filter>
     </ClInclude>
   </ItemGroup>

@@ -11,10 +11,5 @@ namespace Storm
 	{
 	public:
 		virtual ~ISimulatorManager() = default;
-
-	public:
-		// Add a method to be executed at the end of the current simulation loop iteration.
-		virtual void executeOnSimulationLoop(Storm::SimulationCallback func) = 0;
-		virtual void clearSimulationLoopCallback() = 0;
 	};
 }

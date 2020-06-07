@@ -1,8 +1,8 @@
 #include "InputHandler.h"
 
 #include "SingletonHolder.h"
-#include "ISimulatorManager.h"
 #include "ITimeManager.h"
+#include "IThreadManager.h"
 
 
 namespace
@@ -10,9 +10,9 @@ namespace
 	template<class ... Args, class FuncCallback>
 	auto makeForwardToSimulationLoopCallback(FuncCallback &&callback)
 	{
-		return [srcCallback = std::move(callback)](Args &&... args)
+		return [binderID = std::this_thread::get_id(), srcCallback = std::move(callback)](Args &&... args)
 		{
-			Storm::SingletonHolder::instance().getSingleton<Storm::ISimulatorManager>().executeOnSimulationLoop(std::bind(srcCallback, std::forward<Args>(args)...));
+			Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(binderID, std::bind(srcCallback, std::forward<Args>(args)...));
 		};
 	}
 }
@@ -149,8 +149,6 @@ void Storm::InputHandler::unbindMouseWheelMoved(Storm::CallbackIdType callbackId
 
 void Storm::InputHandler::clear()
 {
-	Storm::ISimulatorManager& simulMgr = Storm::SingletonHolder::instance().getSingleton<Storm::ISimulatorManager>();
-
 	std::lock_guard<std::mutex> lock{ _bindingMutex };
 	for (auto &binding : _keyBindings)
 	{
@@ -160,7 +158,4 @@ void Storm::InputHandler::clear()
 	_leftMouseButton._onClick.clear();
 	_rightMouseButton._onClick.clear();
 	_mouseWheel._onWheelValueChanged.clear();
-
-	// In case inputs where already registered...
-	simulMgr.clearSimulationLoopCallback();
 }

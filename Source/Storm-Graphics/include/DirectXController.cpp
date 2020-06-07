@@ -3,8 +3,6 @@
 #include "IRenderedElement.h"
 #include "GraphicRigidBody.h"
 
-#include "GraphicsAction.h"
-
 #include "SingletonHolder.h"
 #include "IConfigManager.h"
 
@@ -124,43 +122,6 @@ float Storm::DirectXController::getViewportWidth() const noexcept
 float Storm::DirectXController::getViewportHeight() const noexcept
 {
 	return _viewportHeight;
-}
-
-void Storm::DirectXController::executeAction(Storm::GraphicsAction action)
-{
-	switch (action)
-	{
-	case Storm::GraphicsAction::ShowWireframe:
-		this->setWireFrameState();
-		break;
-
-	case Storm::GraphicsAction::ShowSolidFrameWithCulling:
-		this->setSolidCullBackState();
-		break;
-	
-	case Storm::GraphicsAction::ShowSolidFrameNoCulling:
-		this->setSolidCullNoneState();
-		break;
-
-	case Storm::GraphicsAction::EnableZBuffer:
-		this->setEnableZBuffer(true);
-		break;
-
-	case Storm::GraphicsAction::DisableZBuffer:
-		this->setEnableZBuffer(false);
-		break;
-
-	case Storm::GraphicsAction::EnableBlendAlpha:
-		this->setEnableBlendAlpha(true);
-		break;
-
-	case Storm::GraphicsAction::DisableBlendAlpha:
-		this->setEnableBlendAlpha(false);
-		break;
-
-	default:
-		LOG_ERROR << "Graphics action " << std::to_string(static_cast<int>(action)) << " is unknown!";
-	}
 }
 
 void Storm::DirectXController::setWireFrameState()

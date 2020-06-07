@@ -1,7 +1,6 @@
 #include "GraphicManager.h"
 
 #include "DirectXController.h"
-#include "GraphicsAction.h"
 #include "Camera.h"
 
 #include "Grid.h"
@@ -16,6 +15,7 @@
 #include "IThreadManager.h"
 
 #include "ThreadHelper.h"
+#include "ThreadEnumeration.h"
 
 #include "SpecialKey.h"
 
@@ -90,40 +90,42 @@ void Storm::GraphicManager::initialize_Implementation(void* hwnd)
 		meshesPair.second->initializeRendering(device);
 	}
 
-	Storm::IInputManager &inputMgr = singletonHolder.getSingleton<Storm::IInputManager>();
-	inputMgr.bindKey(Storm::SpecialKey::KC_UP, [this]() { this->executeActionAsync(Storm::GraphicsAction::IncreaseCameraY); });
-	inputMgr.bindKey(Storm::SpecialKey::KC_DOWN, [this]() { this->executeActionAsync(Storm::GraphicsAction::DecreaseCameraY); });
-	inputMgr.bindKey(Storm::SpecialKey::KC_LEFT, [this]() { this->executeActionAsync(Storm::GraphicsAction::IncreaseCameraX); });
-	inputMgr.bindKey(Storm::SpecialKey::KC_RIGHT, [this]() { this->executeActionAsync(Storm::GraphicsAction::DecreaseCameraX); });
-	inputMgr.bindKey(Storm::SpecialKey::KC_NUMPAD8, [this]() { this->executeActionAsync(Storm::GraphicsAction::IncreaseCameraZ); });
-	inputMgr.bindKey(Storm::SpecialKey::KC_NUMPAD2, [this]() { this->executeActionAsync(Storm::GraphicsAction::DecreaseCameraZ); });
-	inputMgr.bindKey(Storm::SpecialKey::KC_S, [this]() { this->executeActionAsync(Storm::GraphicsAction::RotatePosCameraX); });
-	inputMgr.bindKey(Storm::SpecialKey::KC_W, [this]() { this->executeActionAsync(Storm::GraphicsAction::RotateNegCameraX); });
-	inputMgr.bindKey(Storm::SpecialKey::KC_D, [this]() { this->executeActionAsync(Storm::GraphicsAction::RotatePosCameraY); });
-	inputMgr.bindKey(Storm::SpecialKey::KC_A, [this]() { this->executeActionAsync(Storm::GraphicsAction::RotateNegCameraY); });
-	inputMgr.bindKey(Storm::SpecialKey::KC_NUMPAD0, [this]() { this->executeActionAsync(Storm::GraphicsAction::ResetCamera); });
-	inputMgr.bindKey(Storm::SpecialKey::KC_ADD, [this]() { this->executeActionAsync(Storm::GraphicsAction::NearPlaneMoveUp); });
-	inputMgr.bindKey(Storm::SpecialKey::KC_SUBTRACT, [this]() { this->executeActionAsync(Storm::GraphicsAction::NearPlaneMoveBack); });
-	inputMgr.bindKey(Storm::SpecialKey::KC_MULTIPLY, [this]() { this->executeActionAsync(Storm::GraphicsAction::FarPlaneMoveUp); });
-	inputMgr.bindKey(Storm::SpecialKey::KC_DIVIDE, [this]() { this->executeActionAsync(Storm::GraphicsAction::FarPlaneMoveBack); });
-
-	inputMgr.bindMouseWheel([this](int axisRelativeIncrement)
-	{
-		if (axisRelativeIncrement > 0)
-		{
-			this->executeActionAsync(Storm::GraphicsAction::IncreaseCameraSpeed);
-		}
-		else if (axisRelativeIncrement < 0)
-		{
-			this->executeActionAsync(Storm::GraphicsAction::DecreaseCameraSpeed);
-		}
-	});
-
 	_renderThread = std::thread([this]()
 	{
 		const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
-		
-		singletonHolder.getSingleton<Storm::IThreadManager>().nameCurrentThread(L"GraphicThread");
+
+		STORM_REGISTER_THREAD(GraphicsThread);
+
+		{
+			Storm::IInputManager &inputMgr = singletonHolder.getSingleton<Storm::IInputManager>();
+			inputMgr.bindKey(Storm::SpecialKey::KC_UP, [this]() { _camera->positiveMoveYAxis(); });
+			inputMgr.bindKey(Storm::SpecialKey::KC_LEFT, [this]() { _camera->positiveMoveXAxis(); });
+			inputMgr.bindKey(Storm::SpecialKey::KC_NUMPAD8, [this]() { _camera->positiveMoveZAxis(); });
+			inputMgr.bindKey(Storm::SpecialKey::KC_RIGHT, [this]() { _camera->negativeMoveXAxis(); });
+			inputMgr.bindKey(Storm::SpecialKey::KC_DOWN, [this]() { _camera->negativeMoveYAxis(); });
+			inputMgr.bindKey(Storm::SpecialKey::KC_NUMPAD2, [this]() { _camera->negativeMoveZAxis(); });
+			inputMgr.bindKey(Storm::SpecialKey::KC_S, [this]() { _camera->positiveRotateXAxis(); });
+			inputMgr.bindKey(Storm::SpecialKey::KC_D, [this]() { _camera->positiveRotateYAxis(); });
+			inputMgr.bindKey(Storm::SpecialKey::KC_W, [this]() { _camera->negativeRotateXAxis(); });
+			inputMgr.bindKey(Storm::SpecialKey::KC_A, [this]() { _camera->negativeRotateYAxis(); });
+			inputMgr.bindKey(Storm::SpecialKey::KC_NUMPAD0, [this]() { _camera->reset(); });
+			inputMgr.bindKey(Storm::SpecialKey::KC_ADD, [this]() { _camera->increaseNearPlane(); });
+			inputMgr.bindKey(Storm::SpecialKey::KC_SUBTRACT, [this]() { _camera->decreaseNearPlane(); });
+			inputMgr.bindKey(Storm::SpecialKey::KC_MULTIPLY, [this]() { _camera->increaseFarPlane(); });
+			inputMgr.bindKey(Storm::SpecialKey::KC_DIVIDE, [this]() { _camera->decreaseFarPlane(); });
+
+			inputMgr.bindMouseWheel([this](int axisRelativeIncrement)
+			{
+				if (axisRelativeIncrement > 0)
+				{
+					_camera->increaseCameraSpeed();
+				}
+				else if (axisRelativeIncrement < 0)
+				{
+					_camera->decreaseCameraSpeed();
+				}
+			});
+		}
 
 		Storm::ITimeManager &timeMgr = singletonHolder.getSingleton<Storm::ITimeManager>();
 		while (timeMgr.waitNextFrameOrExit())
@@ -145,7 +147,7 @@ void Storm::GraphicManager::update()
 {
 	if (_renderCounter++ % 2 == 0)
 	{
-		this->internalExecuteActions();
+		SingletonHolder::instance().getSingleton<Storm::IThreadManager>().processCurrentThreadActions();
 
 		_directXController->clearView(g_defaultColor);
 		_directXController->initView();
@@ -154,69 +156,6 @@ void Storm::GraphicManager::update()
 
 		_directXController->unbindTargetView();
 		_directXController->presentToDisplay();
-	}
-}
-
-void Storm::GraphicManager::executeActionAsync(Storm::GraphicsAction actionToExecute)
-{
-	std::lock_guard<std::mutex> lock{ _actionMutex };
-	_actionsToBeExecuted.emplace_back(actionToExecute);
-}
-
-void Storm::GraphicManager::internalExecuteActions()
-{
-	std::vector<Storm::GraphicsAction> backBuffer;
-	{
-		std::lock_guard<std::mutex> lock{ _actionMutex };
-		if (_actionsToBeExecuted.empty())
-		{
-			return;
-		}
-
-		std::swap(backBuffer, _actionsToBeExecuted);
-	}
-
-	for (Storm::GraphicsAction actionToExecute : backBuffer)
-	{
-		this->internalExecuteActionElement(actionToExecute);
-	}
-}
-
-void Storm::GraphicManager::internalExecuteActionElement(Storm::GraphicsAction action)
-{
-	switch (action)
-	{
-	case Storm::GraphicsAction::IncreaseCameraX: _camera->positiveMoveXAxis(); break;
-	case Storm::GraphicsAction::IncreaseCameraY: _camera->positiveMoveYAxis(); break;
-	case Storm::GraphicsAction::IncreaseCameraZ: _camera->positiveMoveZAxis(); break;
-	case Storm::GraphicsAction::DecreaseCameraX: _camera->negativeMoveXAxis(); break;
-	case Storm::GraphicsAction::DecreaseCameraY: _camera->negativeMoveYAxis(); break;
-	case Storm::GraphicsAction::DecreaseCameraZ: _camera->negativeMoveZAxis(); break;
-	case Storm::GraphicsAction::RotatePosCameraX: _camera->positiveRotateXAxis(); break;
-	case Storm::GraphicsAction::RotatePosCameraY: _camera->positiveRotateYAxis(); break;
-	case Storm::GraphicsAction::RotateNegCameraX: _camera->negativeRotateXAxis(); break;
-	case Storm::GraphicsAction::RotateNegCameraY: _camera->negativeRotateYAxis(); break;
-
-	case Storm::GraphicsAction::NearPlaneMoveUp: _camera->increaseNearPlane(); break;
-	case Storm::GraphicsAction::NearPlaneMoveBack: _camera->decreaseNearPlane(); break;
-	case Storm::GraphicsAction::FarPlaneMoveUp: _camera->increaseFarPlane(); break;
-	case Storm::GraphicsAction::FarPlaneMoveBack: _camera->decreaseFarPlane(); break;
-
-	case Storm::GraphicsAction::IncreaseCameraSpeed: _camera->increaseCameraSpeed(); break;
-	case Storm::GraphicsAction::DecreaseCameraSpeed: _camera->decreaseCameraSpeed(); break;
-	case Storm::GraphicsAction::ResetCamera: _camera->reset(); break;
-
-
-	// Those are controller actions.
-	case Storm::GraphicsAction::ShowWireframe:
-	case Storm::GraphicsAction::ShowSolidFrameWithCulling:
-	case Storm::GraphicsAction::ShowSolidFrameNoCulling:
-	case Storm::GraphicsAction::EnableZBuffer:
-	case Storm::GraphicsAction::DisableZBuffer:
-	case Storm::GraphicsAction::EnableBlendAlpha:
-	case Storm::GraphicsAction::DisableBlendAlpha:
-	default:
-		_directXController->executeAction(action);
 	}
 }
 

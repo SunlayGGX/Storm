@@ -11,6 +11,7 @@
 #include "IThreadManager.h"
 
 #include "ThreadHelper.h"
+#include "ThreadEnumeration.h"
 
 #include "SpecialKey.h"
 
@@ -46,7 +47,8 @@ void Storm::TimeManager::initialize_Implementation()
 
 	_timeThread = std::thread{ [this]() 
 	{
-		Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().nameCurrentThread(L"TimeThread");
+		STORM_REGISTER_THREAD(TimeThread);
+
 		while (this->waitNextFrameOrExit())
 		{
 			_frameSynchronizer.notify_all();

@@ -19,16 +19,5 @@ namespace Storm
 
 	public:
 		void run();
-
-	public:
-		void executeOnSimulationLoop(Storm::SimulationCallback func) final override;
-		void clearSimulationLoopCallback() final override;
-
-	private:
-		void handleSimulationCallbacks(std::vector<Storm::SimulationCallback> &tmpBuffer);
-
-	private:
-		mutable std::mutex _callbackMutex;
-		std::vector<Storm::SimulationCallback> _simulationCallbacks;
 	};
 }

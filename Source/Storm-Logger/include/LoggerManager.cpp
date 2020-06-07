@@ -7,6 +7,7 @@
 #include "IThreadManager.h"
 
 #include "ThreadHelper.h"
+#include "ThreadEnumeration.h"
 
 #include <iostream>
 #include <fstream>
@@ -101,7 +102,7 @@ void Storm::LoggerManager::initialize_Implementation()
 
 	_loggerThread = std::thread{ [this, sync = &syncTmp, canLeave = &canLeaveTmp]()
 	{
-		Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().nameCurrentThread(L"LoggerThread");
+		STORM_REGISTER_THREAD(LoggerThread);
 
 		Storm::LoggerManager::LogArray tmpBuffer;
 

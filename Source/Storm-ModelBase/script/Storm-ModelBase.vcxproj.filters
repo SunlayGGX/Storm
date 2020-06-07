@@ -52,8 +52,8 @@
     <Filter Include="Source Files\Simulation\RigidBodies">
       <UniqueIdentifier>{3de21183-a2e9-40db-a556-038d2b3cbf9b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Graphics">
-      <UniqueIdentifier>{ff4d49ae-1fea-4b81-aa94-b4166b56611c}</UniqueIdentifier>
+    <Filter Include="Header Files\Threading">
+      <UniqueIdentifier>{c259ba52-6040-4e3a-9aeb-b63b130a7c16}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -143,14 +143,17 @@
     <ClInclude Include="..\include\RigidBodyHolder.h">
       <Filter>Header Files\Simulation\RigidBodies</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\GraphicsAction.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\SpecialKey.h">
       <Filter>Header Files\Input</Filter>
     </ClInclude>
     <ClInclude Include="..\include\IThreadManager.h">
       <Filter>Header Files\Singleton</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\AsyncAction.h">
+      <Filter>Header Files\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ThreadEnumeration.h">
+      <Filter>Header Files\Threading</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

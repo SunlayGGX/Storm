@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\include\AsyncActionHolder.cpp" />
+    <ClCompile Include="..\include\AsyncActionExecutor.cpp" />
     <ClCompile Include="..\include\FPSWatcher.cpp" />
     <ClCompile Include="..\include\RandomManager.cpp" />
     <ClCompile Include="..\include\Storm-MiscPCH.cpp">
@@ -22,7 +22,7 @@
     <ClCompile Include="..\include\TimeManager.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\include\AsyncActionHolder.h" />
+    <ClInclude Include="..\include\AsyncActionExecutor.h" />
     <ClInclude Include="..\include\ThreadManager.h" />
     <ClInclude Include="..\include\FPSWatcher.h" />
     <ClInclude Include="..\include\RandomManager.h" />

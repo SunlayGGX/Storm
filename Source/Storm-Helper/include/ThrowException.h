@@ -16,6 +16,12 @@ namespace Storm
 		{
 			throw ExceptionType{ msg.c_str() };
 		}
+
+		template<class ExceptionType, class StringType>
+		[[noreturn]] auto throwExceptionImpl(void*, const StringType &msg) -> decltype(Storm::details::throwExceptionImpl<ExceptionType>(0, msg.str()), void())
+		{
+			Storm::details::throwExceptionImpl<ExceptionType>(0, msg.str());
+		}
 	}
 
 	template<class ExceptionType, class ... ArgType>

@@ -19,11 +19,11 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\include\AsyncAction.h" />
     <ClInclude Include="..\include\CollisionType.h" />
     <ClInclude Include="..\include\DataIncludes.h" />
     <ClInclude Include="..\include\GeneralSimulationData.h" />
     <ClInclude Include="..\include\GraphicData.h" />
-    <ClInclude Include="..\include\GraphicsAction.h" />
     <ClInclude Include="..\include\IAssetLoaderManager.h" />
     <ClInclude Include="..\include\IConfigManager.h" />
     <ClInclude Include="..\include\IGraphicsManager.h" />
@@ -44,6 +44,7 @@
     <ClInclude Include="..\include\SpecialKey.h" />
     <ClInclude Include="..\include\StormPrerequisite.h" />
     <ClInclude Include="..\include\Storm-ModelBasePCH.h" />
+    <ClInclude Include="..\include\ThreadEnumeration.h" />
     <ClInclude Include="..\include\TimeWaitResult.h" />
     <ClInclude Include="..\include\Vector3.h" />
     <ClInclude Include="..\include\WindowsCallbacks.h" />
