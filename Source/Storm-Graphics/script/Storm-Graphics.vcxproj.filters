@@ -34,6 +34,12 @@
     <Filter Include="Header Files\DirectX\Helper">
       <UniqueIdentifier>{ad3b4304-0ec9-48bb-b157-805cb2e5e13d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Rendered">
+      <UniqueIdentifier>{e03fab55-dde3-4532-b132-60a73ba6d1ea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Rendered">
+      <UniqueIdentifier>{9fe267cf-73fb-4c73-8dc6-abd951b2d618}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-GraphicsPCH.cpp">
@@ -41,9 +47,6 @@
     </ClCompile>
     <ClCompile Include="..\include\DirectXController.cpp">
       <Filter>Source Files\DirectX</Filter>
-    </ClCompile>
-    <ClCompile Include="..\include\Grid.cpp">
-      <Filter>Source Files\GraphicComponent</Filter>
     </ClCompile>
     <ClCompile Include="..\include\GraphicManager.cpp">
       <Filter>Source Files\GraphicComponent</Filter>
@@ -63,8 +66,11 @@
     <ClCompile Include="..\include\DirectXHardwareInfo.cpp">
       <Filter>Source Files\DirectX</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\Grid.cpp">
+      <Filter>Source Files\Rendered</Filter>
+    </ClCompile>
     <ClCompile Include="..\include\GraphicRigidBody.cpp">
-      <Filter>Source Files\GraphicComponent</Filter>
+      <Filter>Source Files\Rendered</Filter>
     </ClCompile>
     <ClCompile Include="..\include\MeshShader.cpp">
       <Filter>Source Files\Shaders</Filter>
@@ -89,29 +95,29 @@
     <ClInclude Include="..\include\ShaderManager.h">
       <Filter>Header Files\Shaders</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Grid.h">
-      <Filter>Header Files\GraphicComponent</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\GridShader.h">
       <Filter>Header Files\Shaders</Filter>
     </ClInclude>
     <ClInclude Include="..\include\ThrowIfFailed.h">
       <Filter>Header Files\DirectX\Helper</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\IRenderedElement.h">
-      <Filter>Header Files\GraphicComponent</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\DirectXHardwareInfo.h">
       <Filter>Header Files\DirectX</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\GraphicRigidBody.h">
-      <Filter>Header Files\GraphicComponent</Filter>
     </ClInclude>
     <ClInclude Include="..\include\MeshShader.h">
       <Filter>Header Files\Shaders</Filter>
     </ClInclude>
     <ClInclude Include="..\include\XMStormHelpers.h">
       <Filter>Header Files\DirectX\Helper</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Grid.h">
+      <Filter>Header Files\Rendered</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\GraphicRigidBody.h">
+      <Filter>Header Files\Rendered</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\IRenderedElement.h">
+      <Filter>Header Files\GraphicComponent</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
