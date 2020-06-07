@@ -90,16 +90,16 @@ void Storm::GraphicManager::initialize_Implementation(void* hwnd)
 	}
 
 	Storm::IInputManager &inputMgr = singletonHolder.getSingleton<Storm::IInputManager>();
-	inputMgr.bindKey(Storm::SpecialKey::KC_UP, [this]() { this->executeActionAsync(GraphicsAction::IncreaseCameraY); });
-	inputMgr.bindKey(Storm::SpecialKey::KC_DOWN, [this]() { this->executeActionAsync(GraphicsAction::DecreaseCameraY); });
-	inputMgr.bindKey(Storm::SpecialKey::KC_LEFT, [this]() { this->executeActionAsync(GraphicsAction::IncreaseCameraX); });
-	inputMgr.bindKey(Storm::SpecialKey::KC_RIGHT, [this]() { this->executeActionAsync(GraphicsAction::DecreaseCameraX); });
-	inputMgr.bindKey(Storm::SpecialKey::KC_8, [this]() { this->executeActionAsync(GraphicsAction::IncreaseCameraZ); });
-	inputMgr.bindKey(Storm::SpecialKey::KC_2, [this]() { this->executeActionAsync(GraphicsAction::DecreaseCameraZ); });
-	inputMgr.bindKey(Storm::SpecialKey::KC_S, [this]() { this->executeActionAsync(GraphicsAction::RotatePosCameraX); });
-	inputMgr.bindKey(Storm::SpecialKey::KC_W, [this]() { this->executeActionAsync(GraphicsAction::RotateNegCameraX); });
-	inputMgr.bindKey(Storm::SpecialKey::KC_D, [this]() { this->executeActionAsync(GraphicsAction::RotatePosCameraY); });
-	inputMgr.bindKey(Storm::SpecialKey::KC_A, [this]() { this->executeActionAsync(GraphicsAction::RotateNegCameraY); });
+	inputMgr.bindKey(Storm::SpecialKey::KC_UP, [this]() { this->executeActionAsync(Storm::GraphicsAction::IncreaseCameraY); });
+	inputMgr.bindKey(Storm::SpecialKey::KC_DOWN, [this]() { this->executeActionAsync(Storm::GraphicsAction::DecreaseCameraY); });
+	inputMgr.bindKey(Storm::SpecialKey::KC_LEFT, [this]() { this->executeActionAsync(Storm::GraphicsAction::IncreaseCameraX); });
+	inputMgr.bindKey(Storm::SpecialKey::KC_RIGHT, [this]() { this->executeActionAsync(Storm::GraphicsAction::DecreaseCameraX); });
+	inputMgr.bindKey(Storm::SpecialKey::KC_NUMPAD8, [this]() { this->executeActionAsync(Storm::GraphicsAction::IncreaseCameraZ); });
+	inputMgr.bindKey(Storm::SpecialKey::KC_NUMPAD2, [this]() { this->executeActionAsync(Storm::GraphicsAction::DecreaseCameraZ); });
+	inputMgr.bindKey(Storm::SpecialKey::KC_S, [this]() { this->executeActionAsync(Storm::GraphicsAction::RotatePosCameraX); });
+	inputMgr.bindKey(Storm::SpecialKey::KC_W, [this]() { this->executeActionAsync(Storm::GraphicsAction::RotateNegCameraX); });
+	inputMgr.bindKey(Storm::SpecialKey::KC_D, [this]() { this->executeActionAsync(Storm::GraphicsAction::RotatePosCameraY); });
+	inputMgr.bindKey(Storm::SpecialKey::KC_A, [this]() { this->executeActionAsync(Storm::GraphicsAction::RotateNegCameraY); });
 
 	_renderThread = std::thread([this]()
 	{
