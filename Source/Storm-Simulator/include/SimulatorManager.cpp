@@ -6,7 +6,7 @@
 #include "ITimeManager.h"
 #include "TimeWaitResult.h"
 
-#include "FluidParticleSystem.h"
+#include "ParticleSystem.h"
 
 
 Storm::SimulatorManager::SimulatorManager() = default;
@@ -62,6 +62,6 @@ void Storm::SimulatorManager::run()
 
 void Storm::SimulatorManager::addParticleSystem(unsigned int id, std::vector<Storm::Vector3> particlePositions)
 {
-	auto fluidParticleSystemPtr = std::make_unique<Storm::FluidParticleSystem>(std::move(particlePositions));
-	_fluidParticles[id] = std::move(fluidParticleSystemPtr);
+	auto fluidParticleSystemPtr = std::make_unique<Storm::ParticleSystem>(std::move(particlePositions));
+	_particleSystem[id] = std::move(fluidParticleSystemPtr);
 }

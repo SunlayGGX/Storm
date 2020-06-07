@@ -26,6 +26,6 @@ namespace Storm
 		void addParticleSystem(unsigned int id, std::vector<Storm::Vector3> particlePositions) final override;
 
 	private:
-		std::map<unsigned int, std::unique_ptr<Storm::FluidParticleSystem>> _fluidParticles;
+		std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> _particleSystem;
 	};
 }

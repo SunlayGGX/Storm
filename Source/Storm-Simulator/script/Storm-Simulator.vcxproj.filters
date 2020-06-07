@@ -27,7 +27,7 @@
     <ClCompile Include="..\include\SimulatorManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\include\FluidParticleSystem.cpp">
+    <ClCompile Include="..\include\ParticleSystem.cpp">
       <Filter>Source Files\System</Filter>
     </ClCompile>
   </ItemGroup>
@@ -38,7 +38,7 @@
     <ClInclude Include="..\include\SimulatorManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\FluidParticleSystem.h">
+    <ClInclude Include="..\include\ParticleSystem.h">
       <Filter>Header Files\System</Filter>
     </ClInclude>
   </ItemGroup>

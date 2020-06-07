@@ -3,10 +3,10 @@
 
 namespace Storm
 {
-	class FluidParticleSystem
+	class ParticleSystem
 	{
 	public:
-		FluidParticleSystem(std::vector<Storm::Vector3> &&worldPositions);
+		ParticleSystem(std::vector<Storm::Vector3> &&worldPositions);
 
 	public:
 		const std::vector<Storm::Vector3>& getPositions() const;
