@@ -22,8 +22,14 @@
     <Filter Include="Header Files\Random">
       <UniqueIdentifier>{0b8040e7-ff8a-4dd1-b6bb-e78425221e04}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Threading">
+      <UniqueIdentifier>{9173d04e-1fd2-4e2d-9eb8-898b342bad6d}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source Files\Random">
       <UniqueIdentifier>{02ec1bbb-0016-40cf-9d97-32a4b3dcc77d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Threading">
+      <UniqueIdentifier>{227f47b5-1b86-4d55-9329-a91e23c22cdd}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -35,6 +41,9 @@
     </ClCompile>
     <ClCompile Include="..\include\FPSWatcher.cpp">
       <Filter>Source Files\Time</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\ThreadManager.cpp">
+      <Filter>Source Files\Threading</Filter>
     </ClCompile>
     <ClCompile Include="..\include\RandomManager.cpp">
       <Filter>Source Files\Random</Filter>
@@ -52,6 +61,9 @@
     </ClInclude>
     <ClInclude Include="..\include\RandomManager.h">
       <Filter>Header Files\Random</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ThreadManager.h">
+      <Filter>Header Files\Threading</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

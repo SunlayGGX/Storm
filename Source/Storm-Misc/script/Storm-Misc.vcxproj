@@ -17,9 +17,11 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\include\ThreadManager.cpp" />
     <ClCompile Include="..\include\TimeManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\include\ThreadManager.h" />
     <ClInclude Include="..\include\FPSWatcher.h" />
     <ClInclude Include="..\include\RandomManager.h" />
     <ClInclude Include="..\include\Storm-MiscPCH.h" />
