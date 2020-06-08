@@ -22,6 +22,10 @@ void Storm::GraphicParticleSystem::refreshParticleSystemData(unsigned int partic
 	auto &currentPBuffer = _particleSystemVBuffer[particleSystemId];
 
 	const std::size_t newParticleCount = particlePosition.size();
+	if (newParticleCount == 0)
+	{
+		return;
+	}
 
 	const bool shouldRegenIndexBuffer = currentPBuffer._indexBuffer == nullptr || currentPBuffer._vertexCount != newParticleCount;
 	currentPBuffer._vertexCount = newParticleCount;
