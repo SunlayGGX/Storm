@@ -64,7 +64,7 @@ namespace
 	}
 #endif
 
-	std::vector<Storm::GraphicParticleData> fastOptimizedTransCopy(const std::vector<Storm::Vector3> &particlePosData, const float particleRadius)
+	std::vector<Storm::GraphicParticleData> fastOptimizedTransCopy(const std::vector<Storm::Vector3> &particlePosData, const DirectX::XMVECTOR &color)
 	{
 		std::vector<Storm::GraphicParticleData> dxParticlePosDataTmp;
 
@@ -83,7 +83,7 @@ namespace
 			memcpy(&current._pos, &particlePosData[iter], sizeof(Storm::Vector3));
 			reinterpret_cast<float*>(&current._pos)[3] = 1.f;
 
-			current._pointSize = particleRadius;
+			current._color = color;
 		}
 
 #else
@@ -262,7 +262,7 @@ void Storm::GraphicManager::pushParticlesData(unsigned int particleSystemId, con
 		const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
 
 		singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(ThreadEnumeration::GraphicsThread,
-			[this, particleSystemId, particlePosDataCopy = fastOptimizedTransCopy(particlePosData, configMgr.getGeneralSimulationData()._particleRadius)]() mutable
+			[this, particleSystemId, particlePosDataCopy = fastOptimizedTransCopy(particlePosData, DirectX::XMVECTOR{ 1.f, 1.f, 1.f, 1.f })]() mutable
 		{
 			_graphicParticlesSystem->refreshParticleSystemData(particleSystemId, std::move(particlePosDataCopy));
 		});

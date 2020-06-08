@@ -7,12 +7,13 @@ namespace Storm
 	{
 	public:
 		using PointType = DirectX::XMVECTOR;
+		using ColorType = DirectX::XMVECTOR;
 
 	public:
-		GraphicParticleData(const Storm::Vector3 &position, const float particleSize);
+		GraphicParticleData(const Storm::Vector3 &position, const ColorType &color);
 
 	public:
 		PointType _pos;
-		float _pointSize;
+		ColorType _color;
 	};
 }

@@ -41,9 +41,9 @@ namespace
 		}
 		{
 			D3D11_INPUT_ELEMENT_DESC &currentVertexDataLayoutDesc = particleVertexDataLayoutDesc[1];
-			currentVertexDataLayoutDesc.SemanticName = "PSIZE";
+			currentVertexDataLayoutDesc.SemanticName = "COLOR";
 			currentVertexDataLayoutDesc.SemanticIndex = 0;
-			currentVertexDataLayoutDesc.Format = DXGI_FORMAT::DXGI_FORMAT_R32_FLOAT;
+			currentVertexDataLayoutDesc.Format = DXGI_FORMAT::DXGI_FORMAT_R32G32B32A32_FLOAT;
 			currentVertexDataLayoutDesc.InputSlot = 0;
 			currentVertexDataLayoutDesc.AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
 			currentVertexDataLayoutDesc.InputSlotClass = D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA;
@@ -73,7 +73,6 @@ void Storm::ParticleShader::setup(const ComPtr<ID3D11Device> &device, const ComP
 	ConstantBuffer*const ressourceDataPtr = static_cast<ConstantBuffer*>(meshConstantBufferRessource.pData);
 
 	ressourceDataPtr->_viewProjMatrix = currentCamera.getTransposedViewMatrix() * currentCamera.getTransposedProjectionMatrix();
-
 	ressourceDataPtr->_pointSize = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().getGeneralSimulationData()._particleRadius;
 
 	deviceContext->Unmap(_constantBuffer.Get(), 0);

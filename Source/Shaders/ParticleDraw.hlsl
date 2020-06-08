@@ -9,12 +9,14 @@ cbuffer ConstantBuffer
 struct VertexInputType
 {
     float4 _position : POSITION;
-    float _ptSize : PSIZE;
+    float4 _color : COLOR;
 };
 
 struct PixelInputType
 {
     float4 _position : SV_POSITION;
+
+    float4 _color : COLOR;
 
     // 1st elem is the distance to the center. The other are just junks ;)
     float4 _miscData : TEXCOORD0;
@@ -29,8 +31,10 @@ PixelInputType particleVertexShader(VertexInputType input)
     // Change the position vector to be 4 units for proper matrix calculations.
     //output._position = input._position;
     output._position = mul(input._position, _viewProjMatrix);
+    
+    output._color = input._color;
 
-    output._miscData.x = input._ptSize;
+    output._miscData.x = 0.f;
 
     return output;
 }
@@ -38,5 +42,11 @@ PixelInputType particleVertexShader(VertexInputType input)
 // Pixel shader
 float4 particlePixelShader(PixelInputType input) : SV_TARGET
 {
-    return float4(1.f, 1.f, 1.f, 1.f);
+    const float threshold = 1.f / sqrt(2);
+    if (input._miscData.x < threshold)
+    {
+        return input._color;
+    }
+
+    return float4(0.f, 0.f, 0.f, 0.f);
 }
