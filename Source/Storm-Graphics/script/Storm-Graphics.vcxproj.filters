@@ -93,6 +93,9 @@
     <ClCompile Include="..\include\MeshShader.cpp">
       <Filter>Source Files\Shaders\Component</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\GraphicParticleData.cpp">
+      <Filter>Source Files\GraphicComponent</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-GraphicsPCH.h">
@@ -145,6 +148,9 @@
     </ClInclude>
     <ClInclude Include="..\include\ConstantBufferHolder.h">
       <Filter>Header Files\Shaders\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\GraphicParticleData.h">
+      <Filter>Header Files\GraphicComponent</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

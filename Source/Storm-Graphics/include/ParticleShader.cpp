@@ -1,6 +1,11 @@
 #include "ParticleShader.h"
 
 #include "MemoryHelper.h"
+#include "Camera.h"
+
+#include "SingletonHolder.h"
+#include "IConfigManager.h"
+#include "GeneralSimulationData.h"
 
 
 namespace
@@ -58,5 +63,22 @@ Storm::ParticleShader::ParticleShader(const ComPtr<ID3D11Device> &device) :
 
 void Storm::ParticleShader::setup(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera)
 {
+	// Setup the device context
+	this->setupDeviceContext(deviceContext);
 
+	// Write shaders parameters
+	D3D11_MAPPED_SUBRESOURCE meshConstantBufferRessource;
+	Storm::throwIfFailed(deviceContext->Map(_constantBuffer.Get(), 0, D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, &meshConstantBufferRessource));
+
+	ConstantBuffer*const ressourceDataPtr = static_cast<ConstantBuffer*>(meshConstantBufferRessource.pData);
+
+	ressourceDataPtr->_viewProjMatrix = currentCamera.getTransposedViewMatrix() * currentCamera.getTransposedProjectionMatrix();
+
+	ressourceDataPtr->_pointSize = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().getGeneralSimulationData()._particleRadius;
+
+	deviceContext->Unmap(_constantBuffer.Get(), 0);
+
+	ID3D11Buffer*const constantBufferTmp = _constantBuffer.Get();
+	deviceContext->VSSetConstantBuffers(0, 1, &constantBufferTmp);
+	deviceContext->PSSetConstantBuffers(0, 1, &constantBufferTmp);
 }

@@ -5,8 +5,11 @@
 
 #include "Grid.h"
 #include "GraphicRigidBody.h"
-#include "GraphicData.h"
 #include "GraphicParticleSystem.h"
+#include "GraphicParticleData.h"
+
+#include "GraphicData.h"
+#include "GeneralSimulationData.h"
 
 #include "SingletonHolder.h"
 #include "IWindowsManager.h"
@@ -35,6 +38,8 @@ namespace
 	};
 
 	using VectorHijackerMakeBelieve = const VectorHijacker &;
+
+	using HijackedType = Storm::GraphicParticleData;
 #endif
 }
 
@@ -43,7 +48,7 @@ namespace
 // Ugly but super efficient...
 template<>
 template<>
-decltype(auto) std::vector<DirectX::XMFLOAT3, std::allocator<DirectX::XMFLOAT3>>::emplace_back<VectorHijackerMakeBelieve>(VectorHijackerMakeBelieve first)
+decltype(auto) std::vector<HijackedType, std::allocator<HijackedType>>::emplace_back<VectorHijackerMakeBelieve>(VectorHijackerMakeBelieve first)
 {
 	// We're modifying directly the size of the vector without passing by the extra initialization.
 	_Mypair._Myval2._Mylast = _Mypair._Myval2._Myfirst + first._newSize;
@@ -53,20 +58,17 @@ decltype(auto) std::vector<DirectX::XMFLOAT3, std::allocator<DirectX::XMFLOAT3>>
 namespace
 {
 #if _WIN32
-	void setNumUninitialized_hijack(std::vector<DirectX::XMFLOAT3> &hijackedVector, VectorHijackerMakeBelieve hijacker)
+	void setNumUninitialized_hijack(std::vector<HijackedType> &hijackedVector, VectorHijackerMakeBelieve hijacker)
 	{
 		hijackedVector.emplace_back<VectorHijackerMakeBelieve>(hijacker);
 	}
 #endif
 
-	std::vector<DirectX::XMFLOAT3> fastOptimizedTransCopy(const std::vector<Storm::Vector3> &particlePosData)
+	std::vector<Storm::GraphicParticleData> fastOptimizedTransCopy(const std::vector<Storm::Vector3> &particlePosData, const float particleRadius)
 	{
-#if _WIN32
-		// This is a truly custom algorithm. It works only because we made those assumptions :
-		// - DirectX::XMFLOAT3 and Storm::Vector3 have both the same memory layout (memcpy works)
-		// - We're constructing a new array (so we made a lean algorithm compared to "std::vector<DirectX::XMFLOAT3> dxParticlePosDataTmp = *reinterpret_cast<const std::vector<DirectX::XMFLOAT3>*>(&particlePosData);" (the second part of the #if). On Win32, this copy makes a lot of security check, but also uses memmove that is less efficient than memcpy because it allow the arrays to overlap (bufferize in a temporary the copy to be done, before doing it for real)...
+		std::vector<Storm::GraphicParticleData> dxParticlePosDataTmp;
 
-		std::vector<DirectX::XMFLOAT3> dxParticlePosDataTmp;
+#if _WIN32
 
 		const VectorHijackerMakeBelieve hijacker{ particlePosData.size() };
 		dxParticlePosDataTmp.reserve(hijacker._newSize);
@@ -74,11 +76,24 @@ namespace
 		// Huge optimization that completely destroys resize method... Cannot be much faster than this, it is like Unreal technology (TArray provides a SetNumUninitialized).
 		// (Except that Unreal implemented their own TArray instead of using std::vector. Since I'm stuck with this, I didn't have much choice than to hijack... Note that this code isn't portable because it relies heavily on how Microsoft implemented std::vector (to find out the breach in the armor, we must know whose armor it is ;) )).
 		setNumUninitialized_hijack(dxParticlePosDataTmp, hijacker);
-		memcpy(dxParticlePosDataTmp.data(), particlePosData.data(), hijacker._newSize * sizeof(DirectX::XMFLOAT3));
+
+		for (std::size_t iter = 0; iter < hijacker._newSize; ++iter)
+		{
+			Storm::GraphicParticleData &current = dxParticlePosDataTmp[iter];
+			memcpy(&current._pos, &particlePosData[iter], sizeof(Storm::Vector3));
+			reinterpret_cast<float*>(&current._pos)[3] = 1.f;
+
+			current._pointSize = particleRadius;
+		}
 
 #else
-		// A little less efficient than hijacking, but way more than resize and copy afterwards... Or reserve and emplace in a loop.
-		std::vector<DirectX::XMFLOAT3> dxParticlePosDataTmp = *reinterpret_cast<const std::vector<DirectX::XMFLOAT3>*>(&particlePosData);
+
+		dxParticlePosDataTmp.reserve(hijacker._newSize);
+
+		for (const Storm::Vector3 &pos : particlePosData)
+		{
+			dxParticlePosDataTmp.emplace_back(pos, particleRadius);
+		}
 
 #endif
 
@@ -143,7 +158,7 @@ void Storm::GraphicManager::initialize_Implementation(void* hwnd)
 	const Storm::GraphicData &graphicData = configMgr.getGraphicData();
 	_renderedElements.emplace_back(std::make_unique<Storm::Grid>(device, graphicData._grid));
 
-	_graphicParticlesSystem = std::make_unique<Storm::GraphicParticleSystem>();
+	_graphicParticlesSystem = std::make_unique<Storm::GraphicParticleSystem>(device);
 
 	for (auto &meshesPair : _meshesMap)
 	{
@@ -243,8 +258,11 @@ void Storm::GraphicManager::pushParticlesData(unsigned int particleSystemId, con
 {
 	this->callSequentialToInitCleanup([this, particleSystemId, &particlePosData]()
 	{
-		Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(ThreadEnumeration::GraphicsThread,
-			[this, particleSystemId, particlePosDataCopy = fastOptimizedTransCopy(particlePosData)]() mutable
+		const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+		const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
+
+		singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(ThreadEnumeration::GraphicsThread,
+			[this, particleSystemId, particlePosDataCopy = fastOptimizedTransCopy(particlePosData, configMgr.getGeneralSimulationData()._particleRadius)]() mutable
 		{
 			_graphicParticlesSystem->refreshParticleSystemData(particleSystemId, std::move(particlePosDataCopy));
 		});

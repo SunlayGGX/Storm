@@ -15,6 +15,7 @@
     <ClCompile Include="..\include\DirectXController.cpp" />
     <ClCompile Include="..\include\DirectXHardwareInfo.cpp" />
     <ClCompile Include="..\include\GraphicManager.cpp" />
+    <ClCompile Include="..\include\GraphicParticleData.cpp" />
     <ClCompile Include="..\include\GraphicParticleSystem.cpp" />
     <ClCompile Include="..\include\GraphicRigidBody.cpp" />
     <ClCompile Include="..\include\Grid.cpp" />
@@ -34,6 +35,7 @@
     <ClInclude Include="..\include\DirectXController.h" />
     <ClInclude Include="..\include\DirectXHardwareInfo.h" />
     <ClInclude Include="..\include\GraphicManager.h" />
+    <ClInclude Include="..\include\GraphicParticleData.h" />
     <ClInclude Include="..\include\GraphicParticleSystem.h" />
     <ClInclude Include="..\include\GraphicRigidBody.h" />
     <ClInclude Include="..\include\Grid.h" />
