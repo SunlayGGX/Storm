@@ -3,7 +3,6 @@
 #include "AssimpLoggingWrapper.h"
 
 #include "SingletonHolder.h"
-#include "ITimeManager.h"
 #include "IConfigManager.h"
 #include "IGraphicsManager.h"
 #include "IPhysicsManager.h"
