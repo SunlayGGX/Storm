@@ -23,16 +23,18 @@
 
 namespace
 {
-	std::filesystem::path computeRightCachedFilePath(const Storm::RigidBodySceneData &rbSceneData, const std::filesystem::path &meshPath)
+	std::filesystem::path computeRightCachedFilePath(const Storm::RigidBodySceneData &rbSceneData, const std::filesystem::path &meshPath, float particleRadius)
 	{
 		std::string suffix;
-		suffix.reserve(32);
+		suffix.reserve(40);
 		suffix += "_x";
 		suffix += std::to_string(rbSceneData._scale.x());
 		suffix += "_y";
 		suffix += std::to_string(rbSceneData._scale.y());
 		suffix += "_z";
 		suffix += std::to_string(rbSceneData._scale.z());
+		suffix += "_rad";
+		suffix += std::to_string(particleRadius);
 
 		boost::algorithm::replace_all(suffix, ".", "_");
 
@@ -103,9 +105,12 @@ void Storm::RigidBody::load(const Storm::RigidBodySceneData &rbSceneData)
 
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 
+	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
+	const float currentParticleRadius = configMgr.getGeneralSimulationData()._particleRadius;
+
 	const std::string meshPathLowerStr = boost::algorithm::to_lower_copy(_meshPath);
 	const std::filesystem::path meshPath = meshPathLowerStr;
-	const std::filesystem::path cachedPath = computeRightCachedFilePath(rbSceneData, meshPath);
+	const std::filesystem::path cachedPath = computeRightCachedFilePath(rbSceneData, meshPath, currentParticleRadius);
 	const std::wstring cachedPathStr = cachedPath.wstring();
 	constexpr const Storm::Version currentVersion = Storm::Version::retrieveCurrentStormVersion();
 
@@ -299,12 +304,10 @@ void Storm::RigidBody::load(const Storm::RigidBodySceneData &rbSceneData)
 
 	if(!hasCache)
 	{
-		const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
-
 		/* Generate the rb as if no cache data */
 
 		// Poisson Disk sampling
-		particlePos = Storm::PoissonDiskSampler::process(configMgr.getGeneralSimulationData()._particleRadius, 25, verticesPos);
+		particlePos = Storm::PoissonDiskSampler::process(30, currentParticleRadius, verticesPos);
 		
 		/* Cache writing */
 
