@@ -126,8 +126,7 @@ copy "$(ProjectDir)../../../Dependencies\OIS\bin\$(Configuration)\OIS_d.pdb" "$(
     </Lib>
     <ProjectReference />
     <PostBuildEvent>
-      <Command>copy "$(ProjectDir)../../../Dependencies\OIS\bin\$(Configuration)\OIS.dll" "$(OutputPath)OIS.dll"
-copy "$(ProjectDir)../../../Dependencies\OIS\bin\$(Configuration)\OIS.pdb" "$(OutputPath)OIS.pdb"</Command>
+      <Command>copy "$(ProjectDir)../../../Dependencies\OIS\bin\$(Configuration)\OIS.dll" "$(OutputPath)OIS.dll"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -128,8 +128,7 @@ copy "$(ProjectDir)../../../Dependencies\Assimp\bin\code\$(Configuration)\assimp
       <AdditionalLibraryDirectories>$(ProjectDir)../../../Dependencies\Assimp\bin\code\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
     <PostBuildEvent>
-      <Command>copy "$(ProjectDir)../../../Dependencies\Assimp\bin\code\$(Configuration)\assimp.dll" "$(OutputPath)assimp.dll"
-copy "$(ProjectDir)../../../Dependencies\Assimp\bin\code\$(Configuration)\assimp.pdb" "$(OutputPath)assimp.pdb"</Command>
+      <Command>copy "$(ProjectDir)../../../Dependencies\Assimp\bin\code\$(Configuration)\assimp.dll" "$(OutputPath)assimp.dll"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
