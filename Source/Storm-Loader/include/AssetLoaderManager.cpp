@@ -6,7 +6,10 @@
 #include "IConfigManager.h"
 #include "IGraphicsManager.h"
 #include "IPhysicsManager.h"
+#include "ISimulatorManager.h"
 
+#include "GeneralSimulationData.h"
+#include "FluidData.h"
 #include "RigidBodySceneData.h"
 #include "RigidBody.h"
 
@@ -37,6 +40,13 @@ namespace
 		{
 			LOG_WARNING << "Assimp Logger Error stream failed to attach";
 		}
+	}
+
+	void computeParticleCountBoxExtents(const Storm::FluidBlockData &fluidBlock, const float particleDiameter, std::size_t &outParticleXCount, std::size_t &outParticleYCount, std::size_t &outParticleZCount)
+	{
+		outParticleXCount = static_cast<std::size_t>(fabs(fluidBlock._firstPoint.x() - fluidBlock._secondPoint.x()) / particleDiameter);
+		outParticleYCount = static_cast<std::size_t>(fabs(fluidBlock._firstPoint.y() - fluidBlock._secondPoint.y()) / particleDiameter);
+		outParticleZCount = static_cast<std::size_t>(fabs(fluidBlock._firstPoint.z() - fluidBlock._secondPoint.z()) / particleDiameter);
 	}
 }
 
@@ -74,6 +84,55 @@ void Storm::AssetLoaderManager::initialize_Implementation()
 
 		LOG_DEBUG << "Rigid body " << emplacedRbId << " created and bound to the right modules.";
 	}
+
+
+	/* Load fluid particles */
+
+	const float particleRadius = configMgr.getGeneralSimulationData()._particleRadius;
+	const float particleDiameter = particleRadius * 2.f;
+	const auto &fluidsDataToLoad = configMgr.getFluidData();
+	std::vector<Storm::Vector3> fluidParticlePos;
+
+	// First, evaluate the particle total count we need to have (to avoid unneeded reallocations along the way)...
+	fluidParticlePos.reserve(std::accumulate(std::begin(fluidsDataToLoad._fluidGenData), std::end(fluidsDataToLoad._fluidGenData), static_cast<std::size_t>(0), 
+		[particleDiameter](const std::size_t accumulatedVal, const Storm::FluidBlockData &fluidBlockGenerated)
+	{
+		std::size_t particleXCount;
+		std::size_t particleYCount;
+		std::size_t particleZCount;
+		computeParticleCountBoxExtents(fluidBlockGenerated, particleDiameter, particleXCount, particleYCount, particleZCount);
+
+		return accumulatedVal + particleXCount * particleYCount * particleZCount;
+	}));
+
+	for (const Storm::FluidBlockData &fluidBlockGenerated : fluidsDataToLoad._fluidGenData)
+	{
+		std::size_t particleXCount;
+		std::size_t particleYCount;
+		std::size_t particleZCount;
+		computeParticleCountBoxExtents(fluidBlockGenerated, particleDiameter, particleXCount, particleYCount, particleZCount);
+
+		const float xPosBegin = std::min(fluidBlockGenerated._firstPoint.x(), fluidBlockGenerated._secondPoint.x());
+		const float yPosBegin = std::min(fluidBlockGenerated._firstPoint.y(), fluidBlockGenerated._secondPoint.y());
+		const float zPosBegin = std::min(fluidBlockGenerated._firstPoint.z(), fluidBlockGenerated._secondPoint.z());
+
+		Storm::Vector3 currentParticlePos;
+		for (std::size_t xIter = 0; xIter < particleXCount; ++xIter)
+		{
+			currentParticlePos.x() = xPosBegin + static_cast<float>(xIter) * particleDiameter;
+			for (std::size_t yIter = 0; yIter < particleYCount; ++yIter)
+			{
+				currentParticlePos.y() = yPosBegin + static_cast<float>(yIter) * particleDiameter;
+				for (std::size_t zIter = 0; zIter < particleZCount; ++zIter)
+				{
+					currentParticlePos.z() = zPosBegin + static_cast<float>(zIter) * particleDiameter;
+					fluidParticlePos.push_back(currentParticlePos);
+				}
+			}
+		}
+	}
+
+	simulMgr.addFluidParticleSystem(fluidsDataToLoad._fluidId, std::move(fluidParticlePos));
 
 	LOG_COMMENT << "Asset loading finished!";
 }
