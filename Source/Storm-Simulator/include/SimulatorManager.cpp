@@ -8,6 +8,19 @@
 #include "TimeWaitResult.h"
 
 #include "ParticleSystem.h"
+#include "FluidParticleSystem.h"
+#include "RigidBodyParticleSystem.h"
+
+
+namespace
+{
+	template<class ParticleSystemType, class MapType, class ... Args>
+	void addParticleSystemToMap(MapType &map, unsigned int particleSystemId, Args &&... args)
+	{
+		std::unique_ptr<Storm::ParticleSystem> particleSystemPtr = std::make_unique<ParticleSystemType>(std::forward<Args>(args)...);
+		map[particleSystemId] = std::move(particleSystemPtr);
+	}
+}
 
 
 Storm::SimulatorManager::SimulatorManager() = default;
@@ -63,10 +76,22 @@ void Storm::SimulatorManager::run()
 	} while (true);
 }
 
-void Storm::SimulatorManager::addParticleSystem(unsigned int id, std::vector<Storm::Vector3> particlePositions)
+void Storm::SimulatorManager::addFluidParticleSystem(unsigned int id, std::vector<Storm::Vector3> particlePositions)
 {
-	auto fluidParticleSystemPtr = std::make_unique<Storm::ParticleSystem>(std::move(particlePositions));
-	_particleSystem[id] = std::move(fluidParticleSystemPtr);
+	LOG_COMMENT << "Creating fluid particle system with " << particlePositions.size() << " particles.";
+
+	addParticleSystemToMap<Storm::FluidParticleSystem>(_particleSystem, id, std::move(particlePositions));
+
+	LOG_DEBUG << "Fluid particle system " << id << " was created and successfully registered in simulator!";
+}
+
+void Storm::SimulatorManager::addRigidBodyParticleSystem(unsigned int id, std::vector<Storm::Vector3> particlePositions)
+{
+	LOG_COMMENT << "Creating rigid body particle system with " << particlePositions.size() << " particles.";
+
+	addParticleSystemToMap<Storm::RigidBodyParticleSystem>(_particleSystem, id, std::move(particlePositions));
+
+	LOG_DEBUG << "Rigid body particle system " << id << " was created and successfully registered in simulator!";
 }
 
 void Storm::SimulatorManager::pushParticlesToGraphicModule() const

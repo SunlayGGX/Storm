@@ -7,6 +7,7 @@ namespace Storm
 	{
 	public:
 		ParticleSystem(std::vector<Storm::Vector3> &&worldPositions);
+		virtual ~ParticleSystem() = default;
 
 	public:
 		const std::vector<Storm::Vector3>& getPositions() const;
