@@ -14,6 +14,9 @@ namespace Storm
 	protected:
 		virtual void setupDeviceContext(const ComPtr<ID3D11DeviceContext> &deviceContext) const;
 
+	public:
+		void draw(unsigned int indexCount, const ComPtr<ID3D11DeviceContext> &deviceContext) const;
+
 	protected:
 		ComPtr<ID3D11InputLayout> _vertexShaderInputLayout;
 		ComPtr<ID3D11VertexShader> _vertexShader;

@@ -56,11 +56,6 @@ Storm::MeshShader::MeshShader(const ComPtr<ID3D11Device> &device) :
 	Storm::throwIfFailed(device->CreateBuffer(&constantBufferDesc, nullptr, &_constantBuffer));
 }
 
-void Storm::MeshShader::draw(int indexCount, const ComPtr<ID3D11DeviceContext> &deviceContext)
-{
-	deviceContext->DrawIndexed(indexCount, 0, 0);
-}
-
 void Storm::MeshShader::setup(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera, const DirectX::XMMATRIX &transposedTransform)
 {
 	// Setup the device context

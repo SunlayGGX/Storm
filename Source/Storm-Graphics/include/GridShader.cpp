@@ -59,7 +59,7 @@ Storm::GridShader::GridShader(const ComPtr<ID3D11Device> &device, unsigned int i
 
 void Storm::GridShader::draw(const ComPtr<ID3D11DeviceContext> &deviceContext)
 {
-	deviceContext->DrawIndexed(_gridIndexCount, 0, 0);
+	Storm::VPShaderBase::draw(_gridIndexCount, deviceContext);
 }
 
 void Storm::GridShader::setup(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera)

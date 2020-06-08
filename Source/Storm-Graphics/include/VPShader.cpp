@@ -50,3 +50,8 @@ void Storm::VPShaderBase::setupDeviceContext(const ComPtr<ID3D11DeviceContext> &
 
 	deviceContext->PSSetShader(_pixelShader.Get(), nullptr, 0);
 }
+
+void Storm::VPShaderBase::draw(unsigned int indexCount, const ComPtr<ID3D11DeviceContext> &deviceContext) const
+{
+	deviceContext->DrawIndexed(indexCount, 0, 0);
+}
