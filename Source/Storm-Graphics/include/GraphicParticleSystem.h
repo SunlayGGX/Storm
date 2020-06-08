@@ -15,6 +15,7 @@ namespace Storm
 		struct InternalParticleSystemBuffer
 		{
 		public:
+			bool _isFluids;
 			std::size_t _vertexCount;
 			ComPtr<ID3D11Buffer> _vertexBuffer;
 			ComPtr<ID3D11Buffer> _indexBuffer;
@@ -25,7 +26,7 @@ namespace Storm
 		~GraphicParticleSystem();
 
 	public:
-		void refreshParticleSystemData(unsigned int particleSystemId, std::vector<Storm::GraphicParticleData> &&particlePosition);
+		void refreshParticleSystemData(unsigned int particleSystemId, std::vector<Storm::GraphicParticleData> &&particlePosition, bool isFluids);
 
 	public:
 		void render(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera);

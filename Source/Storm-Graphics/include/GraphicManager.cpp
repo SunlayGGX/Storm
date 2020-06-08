@@ -269,17 +269,17 @@ void Storm::GraphicManager::bindParentRbToMesh(unsigned int meshId, const std::s
 	}
 }
 
-void Storm::GraphicManager::pushParticlesData(unsigned int particleSystemId, const std::vector<Storm::Vector3> &particlePosData)
+void Storm::GraphicManager::pushParticlesData(unsigned int particleSystemId, const std::vector<Storm::Vector3> &particlePosData, bool isFluids)
 {
-	this->callSequentialToInitCleanup([this, particleSystemId, &particlePosData]()
+	this->callSequentialToInitCleanup([this, particleSystemId, &particlePosData, isFluids]()
 	{
 		const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 		const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
 
 		singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(ThreadEnumeration::GraphicsThread,
-			[this, particleSystemId, particlePosDataCopy = fastOptimizedTransCopy(particlePosData)]() mutable
+			[this, particleSystemId, particlePosDataCopy = fastOptimizedTransCopy(particlePosData), isFluids]() mutable
 		{
-			_graphicParticlesSystem->refreshParticleSystemData(particleSystemId, std::move(particlePosDataCopy));
+			_graphicParticlesSystem->refreshParticleSystemData(particleSystemId, std::move(particlePosDataCopy), isFluids);
 		});
 	});
 }

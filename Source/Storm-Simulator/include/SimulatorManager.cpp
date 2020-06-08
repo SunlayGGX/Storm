@@ -111,6 +111,7 @@ void Storm::SimulatorManager::pushParticlesToGraphicModule() const
 	Storm::IGraphicsManager &graphicMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IGraphicsManager>();
 	std::for_each(std::execution::par, std::begin(_particleSystem), std::end(_particleSystem), [&graphicMgr](const auto &particleSystemPair)
 	{
-		graphicMgr.pushParticlesData(particleSystemPair.first, particleSystemPair.second->getPositions());
+		const Storm::ParticleSystem &currentParticleSystem = *particleSystemPair.second;
+		graphicMgr.pushParticlesData(particleSystemPair.first, currentParticleSystem.getPositions(), currentParticleSystem.isFluids());
 	});
 }

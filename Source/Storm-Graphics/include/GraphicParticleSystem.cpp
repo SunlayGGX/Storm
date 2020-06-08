@@ -17,10 +17,11 @@ Storm::GraphicParticleSystem::GraphicParticleSystem(const ComPtr<ID3D11Device> &
 
 Storm::GraphicParticleSystem::~GraphicParticleSystem() = default;
 
-void Storm::GraphicParticleSystem::refreshParticleSystemData(unsigned int particleSystemId, std::vector<Storm::GraphicParticleData> &&particlePosition)
+void Storm::GraphicParticleSystem::refreshParticleSystemData(unsigned int particleSystemId, std::vector<Storm::GraphicParticleData> &&particlePosition, bool isFluids)
 {
 	auto &currentPBuffer = _particleSystemVBuffer[particleSystemId];
 
+	currentPBuffer._isFluids = isFluids;
 	const std::size_t newParticleCount = particlePosition.size();
 	if (newParticleCount == 0)
 	{
