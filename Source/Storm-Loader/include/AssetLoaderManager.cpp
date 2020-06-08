@@ -7,7 +7,6 @@
 #include "IGraphicsManager.h"
 #include "IPhysicsManager.h"
 
-#include "SceneData.h"
 #include "RigidBodySceneData.h"
 #include "RigidBody.h"
 
@@ -54,14 +53,16 @@ void Storm::AssetLoaderManager::initialize_Implementation()
 
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 	
-	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
-	const auto &rigidBodiesDataToLoad = configMgr.getSceneData()._rigidBodiesData;
-
 	std::filesystem::create_directories(Storm::RigidBody::retrieveParticleDataCacheFolder());
 
 	Storm::IGraphicsManager &graphicsMgr = singletonHolder.getSingleton<Storm::IGraphicsManager>();
 	Storm::IPhysicsManager &physicsMgr = singletonHolder.getSingleton<Storm::IPhysicsManager>();
+	Storm::ISimulatorManager &simulMgr = singletonHolder.getSingleton<Storm::ISimulatorManager>();
+	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
 
+
+	/* Load rigid bodies */
+	const auto &rigidBodiesDataToLoad = configMgr.getRigidBodiesData();
 	_rigidBodies.reserve(rigidBodiesDataToLoad.size());
 	for (const auto &rbToLoad : rigidBodiesDataToLoad)
 	{
