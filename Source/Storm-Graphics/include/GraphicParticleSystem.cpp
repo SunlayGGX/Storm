@@ -6,6 +6,7 @@
 
 #include "GraphicManager.h"
 #include "DirectXController.h"
+#include "RenderModeState.h"
 
 
 
@@ -22,6 +23,7 @@ void Storm::GraphicParticleSystem::refreshParticleSystemData(unsigned int partic
 	auto &currentPBuffer = _particleSystemVBuffer[particleSystemId];
 
 	currentPBuffer._isFluids = isFluids;
+
 	const std::size_t newParticleCount = particlePosition.size();
 	if (newParticleCount == 0)
 	{
@@ -80,7 +82,7 @@ void Storm::GraphicParticleSystem::refreshParticleSystemData(unsigned int partic
 	}
 }
 
-void Storm::GraphicParticleSystem::render(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera)
+void Storm::GraphicParticleSystem::render(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera, Storm::RenderModeState currentRenderModeState)
 {
 	_shader->setup(device, deviceContext, currentCamera);
 
@@ -88,8 +90,11 @@ void Storm::GraphicParticleSystem::render(const ComPtr<ID3D11Device> &device, co
 
 	for (const auto &particleSystemBuffer : _particleSystemVBuffer)
 	{
-		this->setupForRender(deviceContext, particleSystemBuffer.second);
-		_shader->draw(static_cast<unsigned int>(particleSystemBuffer.second._vertexCount), deviceContext);
+		if (particleSystemBuffer.second._isFluids || currentRenderModeState == Storm::RenderModeState::AllParticle)
+		{
+			this->setupForRender(deviceContext, particleSystemBuffer.second);
+			_shader->draw(static_cast<unsigned int>(particleSystemBuffer.second._vertexCount), deviceContext);
+		}
 	}
 }
 

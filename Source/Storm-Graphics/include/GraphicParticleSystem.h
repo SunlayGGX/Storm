@@ -6,6 +6,7 @@ namespace Storm
 	class Camera;
 	class ParticleShader;
 	struct GraphicParticleData;
+	enum class RenderModeState;
 
 	// No need to lock. GraphicParticleSystem should and must only be exposed to the graphics thread...
 	// The moment it refresh its data is controlled and the data is already part of the graphic thread.
@@ -29,7 +30,7 @@ namespace Storm
 		void refreshParticleSystemData(unsigned int particleSystemId, std::vector<Storm::GraphicParticleData> &&particlePosition, bool isFluids);
 
 	public:
-		void render(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera);
+		void render(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera, Storm::RenderModeState currentRenderModeState);
 
 		void setupForRender(const ComPtr<ID3D11DeviceContext> &deviceContext, const InternalParticleSystemBuffer &sysBufferToRender);
 

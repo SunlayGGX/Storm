@@ -185,6 +185,8 @@ void Storm::GraphicManager::initialize_Implementation(void* hwnd)
 		}
 
 		{
+			// I have an Azerty keyboard, so if you have a Qwerty keyboard, you'll surely need to change those.
+
 			Storm::IInputManager &inputMgr = singletonHolder.getSingleton<Storm::IInputManager>();
 			inputMgr.bindKey(Storm::SpecialKey::KC_UP, [this]() { _camera->positiveMoveYAxis(); });
 			inputMgr.bindKey(Storm::SpecialKey::KC_LEFT, [this]() { _camera->positiveMoveXAxis(); });
@@ -204,6 +206,7 @@ void Storm::GraphicManager::initialize_Implementation(void* hwnd)
 			inputMgr.bindKey(Storm::SpecialKey::KC_V, [this]() { _directXController->setWireFrameState(); });
 			inputMgr.bindKey(Storm::SpecialKey::KC_B, [this]() { _directXController->setSolidCullBackState(); });
 			inputMgr.bindKey(Storm::SpecialKey::KC_N, [this]() { _directXController->setSolidCullNoneState(); });
+			inputMgr.bindKey(Storm::SpecialKey::KC_C, [this]() { _directXController->setAllParticleState(); });
 
 			inputMgr.bindMouseWheel([this](int axisRelativeIncrement)
 			{

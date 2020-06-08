@@ -10,6 +10,8 @@
 #include "MemoryHelper.h"
 #include "DirectXHardwareInfo.h"
 
+#include "RenderModeState.h"
+
 
 
 void Storm::DirectXController::initialize(HWND hwnd)
@@ -109,12 +111,15 @@ void Storm::DirectXController::renderElements(const Storm::Camera &currentCamera
 		renderedElement->render(_device, _immediateContext, currentCamera);
 	}
 
-	for (const auto &rbElementPair : rbElementArrays)
+	if (_currentRenderModeState != Storm::RenderModeState::AllParticle)
 	{
-		rbElementPair.second->render(_device, _immediateContext, currentCamera);
+		for (const auto &rbElementPair : rbElementArrays)
+		{
+			rbElementPair.second->render(_device, _immediateContext, currentCamera);
+		}
 	}
 
-	particleSystem.render(_device, _immediateContext, currentCamera);
+	particleSystem.render(_device, _immediateContext, currentCamera, _currentRenderModeState);
 }
 
 float Storm::DirectXController::getViewportWidth() const noexcept
@@ -130,16 +135,24 @@ float Storm::DirectXController::getViewportHeight() const noexcept
 void Storm::DirectXController::setWireFrameState()
 {
 	_immediateContext->RSSetState(_wireframeCullNoneRS.Get());
+	_currentRenderModeState = Storm::RenderModeState::Wireframe;
 }
 
 void Storm::DirectXController::setSolidCullNoneState()
 {
 	_immediateContext->RSSetState(_solidCullNoneRS.Get());
+	_currentRenderModeState = Storm::RenderModeState::SolidCullNone;
 }
 
 void Storm::DirectXController::setSolidCullBackState()
 {
 	_immediateContext->RSSetState(_solidCullBackRS.Get());
+	_currentRenderModeState = Storm::RenderModeState::Solid;
+}
+
+void Storm::DirectXController::setAllParticleState()
+{
+	_currentRenderModeState = Storm::RenderModeState::AllParticle;
 }
 
 void Storm::DirectXController::setEnableZBuffer(bool enable)

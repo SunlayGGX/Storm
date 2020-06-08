@@ -7,6 +7,7 @@ namespace Storm
 	class IRenderedElement;
 	class GraphicRigidBody;
 	class GraphicParticleSystem;
+	enum class RenderModeState;
 
 	class DirectXController
 	{
@@ -36,6 +37,7 @@ namespace Storm
 		void setWireFrameState();
 		void setSolidCullNoneState();
 		void setSolidCullBackState();
+		void setAllParticleState();
 
 		void setEnableZBuffer(bool enable);
 		void setEnableBlendAlpha(bool enable);
@@ -73,6 +75,8 @@ namespace Storm
 
 		ComPtr<ID3D11BlendState> _alphaBlendEnable;
 		ComPtr<ID3D11BlendState> _alphaBlendDisable;
+
+		Storm::RenderModeState _currentRenderModeState;
 
 		float _viewportWidth;
 		float _viewportHeight;
