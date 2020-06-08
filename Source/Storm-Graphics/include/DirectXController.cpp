@@ -113,6 +113,8 @@ void Storm::DirectXController::renderElements(const Storm::Camera &currentCamera
 	{
 		rbElementPair.second->render(_device, _immediateContext, currentCamera);
 	}
+
+	particleSystem.render(_device, _immediateContext, currentCamera);
 }
 
 float Storm::DirectXController::getViewportWidth() const noexcept
