@@ -38,7 +38,7 @@ namespace
 			D3D11_INPUT_ELEMENT_DESC &currentVertexDataLayoutDesc = particleVertexDataLayoutDesc[1];
 			currentVertexDataLayoutDesc.SemanticName = "PSIZE";
 			currentVertexDataLayoutDesc.SemanticIndex = 0;
-			currentVertexDataLayoutDesc.Format = DXGI_FORMAT::DXGI_FORMAT_D32_FLOAT;
+			currentVertexDataLayoutDesc.Format = DXGI_FORMAT::DXGI_FORMAT_R32_FLOAT;
 			currentVertexDataLayoutDesc.InputSlot = 0;
 			currentVertexDataLayoutDesc.AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
 			currentVertexDataLayoutDesc.InputSlotClass = D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA;
