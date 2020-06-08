@@ -12,6 +12,8 @@ namespace Storm
 	public:
 		const std::vector<Storm::Vector3>& getPositions() const;
 
+		virtual bool isFluids() const noexcept = 0;
+
 	private:
 		std::vector<Storm::Vector3> _positions;
 	};

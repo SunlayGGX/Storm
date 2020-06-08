@@ -9,5 +9,8 @@ namespace Storm
 	{
 	public:
 		using Storm::ParticleSystem::ParticleSystem;
+
+	public:
+		virtual bool isFluids() const noexcept override;
 	};
 }
