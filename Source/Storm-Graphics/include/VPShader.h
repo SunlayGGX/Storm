@@ -9,6 +9,7 @@ namespace Storm
 	{
 	public:
 		VPShaderBase(const ComPtr<ID3D11Device> &device, const std::string &vertexShaderFilePathStr, const std::string_view &vertexShaderFunctionName, const std::string &pixelShaderFilePathStr, const std::string_view &pixelShaderFunctionName, const D3D11_INPUT_ELEMENT_DESC* inputLayoutElemDesc, const unsigned int inputLayoutElemDescCount);
+		VPShaderBase(const ComPtr<ID3D11Device> &device, const std::string &vertexShaderFilePathStr, const std::string_view &vertexShaderFunctionName, const std::string &geometryShaderFilePathStr, const std::string_view &geometryShaderFunctionName, const std::string &pixelShaderFilePathStr, const std::string_view &pixelShaderFunctionName, const D3D11_INPUT_ELEMENT_DESC* inputLayoutElemDesc, const unsigned int inputLayoutElemDescCount);
 		virtual ~VPShaderBase() = default;
 
 	protected:
@@ -20,6 +21,7 @@ namespace Storm
 	protected:
 		ComPtr<ID3D11InputLayout> _vertexShaderInputLayout;
 		ComPtr<ID3D11VertexShader> _vertexShader;
+		ComPtr<ID3D11GeometryShader> _geometryShader;
 		ComPtr<ID3D11PixelShader> _pixelShader;
 	};
 }
