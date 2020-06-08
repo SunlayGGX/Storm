@@ -42,6 +42,7 @@ namespace Storm
 		const Storm::GraphicData& getGraphicData() const final override;
 		const Storm::GeneralSimulationData& getGeneralSimulationData() const final override;
 		const std::vector<Storm::RigidBodySceneData>& getRigidBodiesData() const final override;
+		const Storm::FluidData& getFluidData() const final override;
 
 	private:
 		// Members that could be extracted from Command line.

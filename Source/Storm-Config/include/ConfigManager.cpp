@@ -205,6 +205,11 @@ const std::vector<Storm::RigidBodySceneData>& Storm::ConfigManager::getRigidBodi
 	return _sceneConfig.getSceneData()._rigidBodiesData;
 }
 
+const Storm::FluidData& Storm::ConfigManager::getFluidData() const
+{
+	return *_sceneConfig.getSceneData()._fluidData;
+}
+
 const std::string& Storm::ConfigManager::getLogFileName() const
 {
 	return _generalConfig._logFileName;
