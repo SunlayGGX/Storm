@@ -303,18 +303,19 @@ void Storm::DirectXController::internalConfigureStates()
 
 		blendDesc.IndependentBlendEnable = FALSE;
 
-		blendDesc.RenderTarget[0].BlendEnable = TRUE;
-		blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
-		blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
-		blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
-		blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
-		blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
-		blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
-		blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+		auto &currentRTSetup = blendDesc.RenderTarget[0];
+		currentRTSetup.BlendEnable = TRUE;
+		currentRTSetup.SrcBlend = D3D11_BLEND::D3D11_BLEND_SRC_ALPHA;
+		currentRTSetup.DestBlend = D3D11_BLEND::D3D11_BLEND_INV_SRC_ALPHA;
+		currentRTSetup.BlendOp = D3D11_BLEND_OP::D3D11_BLEND_OP_ADD;
+		currentRTSetup.SrcBlendAlpha = D3D11_BLEND::D3D11_BLEND_ONE;
+		currentRTSetup.DestBlendAlpha = D3D11_BLEND::D3D11_BLEND_ZERO;
+		currentRTSetup.BlendOpAlpha = D3D11_BLEND_OP::D3D11_BLEND_OP_ADD;
+		currentRTSetup.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE::D3D11_COLOR_WRITE_ENABLE_ALL;
 
 		Storm::throwIfFailed(_device->CreateBlendState(&blendDesc, &_alphaBlendEnable));
 
-		blendDesc.RenderTarget[0].BlendEnable = FALSE;
+		currentRTSetup.BlendEnable = FALSE;
 
 		Storm::throwIfFailed(_device->CreateBlendState(&blendDesc, &_alphaBlendDisable));
 	}
