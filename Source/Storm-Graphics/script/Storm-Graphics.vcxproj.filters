@@ -40,6 +40,18 @@
     <Filter Include="Source Files\Rendered">
       <UniqueIdentifier>{9fe267cf-73fb-4c73-8dc6-abd951b2d618}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Shaders\Base">
+      <UniqueIdentifier>{8bb7122f-f097-412b-a46c-15e3ca12437a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shaders\Component">
+      <UniqueIdentifier>{28607994-c337-4b21-bf7b-e36a16869764}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shaders\Base">
+      <UniqueIdentifier>{ad56a480-dfa9-4af3-89bf-c299ca1fcbec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shaders\Component">
+      <UniqueIdentifier>{b7d74502-69ef-4ffc-a7c3-c857b89ba8cd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-GraphicsPCH.cpp">
@@ -54,20 +66,8 @@
     <ClCompile Include="..\include\Camera.cpp">
       <Filter>Source Files\GraphicComponent</Filter>
     </ClCompile>
-    <ClCompile Include="..\include\ShaderManager.cpp">
-      <Filter>Source Files\Shaders</Filter>
-    </ClCompile>
-    <ClCompile Include="..\include\GridShader.cpp">
-      <Filter>Source Files\Shaders</Filter>
-    </ClCompile>
-    <ClCompile Include="..\include\VPShader.cpp">
-      <Filter>Source Files\Shaders</Filter>
-    </ClCompile>
     <ClCompile Include="..\include\DirectXHardwareInfo.cpp">
       <Filter>Source Files\DirectX</Filter>
-    </ClCompile>
-    <ClCompile Include="..\include\MeshShader.cpp">
-      <Filter>Source Files\Shaders</Filter>
     </ClCompile>
     <ClCompile Include="..\include\Grid.cpp">
       <Filter>Source Files\Rendered</Filter>
@@ -78,8 +78,20 @@
     <ClCompile Include="..\include\GraphicParticleSystem.cpp">
       <Filter>Source Files\Rendered</Filter>
     </ClCompile>
-    <ClCompile Include="..\include\ParticleShader.cpp">
+    <ClCompile Include="..\include\VPShader.cpp">
+      <Filter>Source Files\Shaders\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\ShaderManager.cpp">
       <Filter>Source Files\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\ParticleShader.cpp">
+      <Filter>Source Files\Shaders\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\GridShader.cpp">
+      <Filter>Source Files\Shaders\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\MeshShader.cpp">
+      <Filter>Source Files\Shaders\Component</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -95,13 +107,7 @@
     <ClInclude Include="..\include\Camera.h">
       <Filter>Header Files\GraphicComponent</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\VPShader.h">
-      <Filter>Header Files\Shaders</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\ShaderManager.h">
-      <Filter>Header Files\Shaders</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\GridShader.h">
       <Filter>Header Files\Shaders</Filter>
     </ClInclude>
     <ClInclude Include="..\include\ThrowIfFailed.h">
@@ -109,9 +115,6 @@
     </ClInclude>
     <ClInclude Include="..\include\DirectXHardwareInfo.h">
       <Filter>Header Files\DirectX</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\MeshShader.h">
-      <Filter>Header Files\Shaders</Filter>
     </ClInclude>
     <ClInclude Include="..\include\XMStormHelpers.h">
       <Filter>Header Files\DirectX\Helper</Filter>
@@ -128,8 +131,20 @@
     <ClInclude Include="..\include\IRenderedElement.h">
       <Filter>Header Files\GraphicComponent</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\VPShader.h">
+      <Filter>Header Files\Shaders\Base</Filter>
+    </ClInclude>
     <ClInclude Include="..\include\ParticleShader.h">
-      <Filter>Header Files\Shaders</Filter>
+      <Filter>Header Files\Shaders\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\GridShader.h">
+      <Filter>Header Files\Shaders\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\MeshShader.h">
+      <Filter>Header Files\Shaders\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ConstantBufferHolder.h">
+      <Filter>Header Files\Shaders\Base</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

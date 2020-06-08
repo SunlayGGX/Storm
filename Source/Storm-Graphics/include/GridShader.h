@@ -1,12 +1,15 @@
 #pragma once
 
 #include "VPShader.h"
+#include "ConstantBufferHolder.h"
 
 
 namespace Storm
 {
 	// This class would be interfaced with Grid.hlsl
-	class GridShader : public Storm::VPShaderBase
+	class GridShader :
+		public Storm::VPShaderBase,
+		private Storm::ConstantBufferHolder
 	{
 	public:
 		GridShader(const ComPtr<ID3D11Device> &device, unsigned int indexCount);
@@ -17,7 +20,6 @@ namespace Storm
 		void setup(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera);
 
 	private:
-		ComPtr<ID3D11Buffer> _constantBuffer;
 		unsigned int _gridIndexCount;
 	};
 }

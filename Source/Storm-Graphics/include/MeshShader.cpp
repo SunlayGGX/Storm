@@ -45,15 +45,7 @@ namespace
 Storm::MeshShader::MeshShader(const ComPtr<ID3D11Device> &device) :
 	Storm::VPShaderBase{ device, k_meshShaderFilePath, k_meshVertexShaderFuncName, k_meshShaderFilePath, k_meshPixelShaderFuncName, retrieveMeshInputLayoutElementDesc(), k_meshVertexDataLayoutDescCount }
 {
-	D3D11_BUFFER_DESC constantBufferDesc;
-	Storm::ZeroMemories(constantBufferDesc);
-
-	constantBufferDesc.Usage = D3D11_USAGE::D3D11_USAGE_DYNAMIC;
-	constantBufferDesc.ByteWidth = sizeof(ConstantBuffer);
-	constantBufferDesc.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_CONSTANT_BUFFER;
-	constantBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_FLAG::D3D11_CPU_ACCESS_WRITE;
-
-	Storm::throwIfFailed(device->CreateBuffer(&constantBufferDesc, nullptr, &_constantBuffer));
+	Storm::ConstantBufferHolder::initialize<ConstantBuffer>(device);
 }
 
 void Storm::MeshShader::setup(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera, const DirectX::XMMATRIX &transposedTransform)

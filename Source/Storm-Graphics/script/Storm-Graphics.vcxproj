@@ -30,6 +30,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Camera.h" />
+    <ClInclude Include="..\include\ConstantBufferHolder.h" />
     <ClInclude Include="..\include\DirectXController.h" />
     <ClInclude Include="..\include\DirectXHardwareInfo.h" />
     <ClInclude Include="..\include\GraphicManager.h" />

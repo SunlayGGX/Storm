@@ -46,15 +46,7 @@ Storm::GridShader::GridShader(const ComPtr<ID3D11Device> &device, unsigned int i
 	Storm::VPShaderBase{ device, k_gridShaderFilePath, k_gridVertexShaderFuncName, k_gridShaderFilePath, k_gridPixelShaderFuncName, retrieveGridInputLayoutElementDesc(), k_gridVertexDataLayoutDescCount },
 	_gridIndexCount{ indexCount }
 {
-	D3D11_BUFFER_DESC constantBufferDesc;
-	Storm::ZeroMemories(constantBufferDesc);
-
-	constantBufferDesc.Usage = D3D11_USAGE::D3D11_USAGE_DYNAMIC;
-	constantBufferDesc.ByteWidth = sizeof(ConstantBuffer);
-	constantBufferDesc.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_CONSTANT_BUFFER;
-	constantBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_FLAG::D3D11_CPU_ACCESS_WRITE;
-
-	Storm::throwIfFailed(device->CreateBuffer(&constantBufferDesc, nullptr, &_constantBuffer));
+	Storm::ConstantBufferHolder::initialize<ConstantBuffer>(device);
 }
 
 void Storm::GridShader::draw(const ComPtr<ID3D11DeviceContext> &deviceContext)
