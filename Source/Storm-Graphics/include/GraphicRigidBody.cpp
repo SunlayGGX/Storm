@@ -7,13 +7,13 @@
 
 namespace
 {
-	struct GridVertexType
+	struct MeshVertexType
 	{
 	public:
 		using PointType = DirectX::XMVECTOR;
 
 	public:
-		GridVertexType(float x1, float y1, float z1) :
+		MeshVertexType(float x1, float y1, float z1) :
 			pt{ x1, y1, z1, 1.f }
 		{}
 
@@ -50,7 +50,7 @@ Storm::GraphicRigidBody::GraphicRigidBody(const std::vector<Storm::Vector3> &ver
 
 void Storm::GraphicRigidBody::initializeRendering(const ComPtr<ID3D11Device> &device)
 {
-	std::vector<GridVertexType> meshVertexData;
+	std::vector<MeshVertexType> meshVertexData;
 	meshVertexData.reserve(_tmpVertices.size());
 
 	for (const auto &vertex : _tmpVertices)
@@ -63,7 +63,7 @@ void Storm::GraphicRigidBody::initializeRendering(const ComPtr<ID3D11Device> &de
 	D3D11_SUBRESOURCE_DATA vertexData;
 
 	vertexBufferDesc.Usage = D3D11_USAGE::D3D11_USAGE_DEFAULT;
-	vertexBufferDesc.ByteWidth = sizeof(GridVertexType) * static_cast<UINT>(meshVertexData.size());
+	vertexBufferDesc.ByteWidth = sizeof(MeshVertexType) * static_cast<UINT>(meshVertexData.size());
 	vertexBufferDesc.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_VERTEX_BUFFER;
 	vertexBufferDesc.CPUAccessFlags = 0;
 	vertexBufferDesc.MiscFlags = 0;
@@ -116,7 +116,7 @@ void Storm::GraphicRigidBody::render(const ComPtr<ID3D11Device> &device, const C
 
 void Storm::GraphicRigidBody::setupForRender(const ComPtr<ID3D11DeviceContext> &deviceContext)
 {
-	constexpr UINT stride = sizeof(GridVertexType);
+	constexpr UINT stride = sizeof(MeshVertexType);
 	constexpr UINT offset = 0;
 
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
