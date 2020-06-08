@@ -165,11 +165,23 @@ void Storm::GraphicManager::initialize_Implementation(void* hwnd)
 		meshesPair.second->initializeRendering(device);
 	}
 
-	_renderThread = std::thread([this]()
+	bool registered = false;
+	static std::condition_variable waiter;
+	static std::mutex mut;
+	std::unique_lock<std::mutex> lock{ mut };
+
+	_renderThread = std::thread([this, registeredTmp = &registered]()
 	{
 		const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 
 		STORM_REGISTER_THREAD(GraphicsThread);
+
+		// The real moment we consider the thread as started is when it has registered. Not before...
+		{
+			std::lock_guard<std::mutex> lock{ mut };
+			*registeredTmp = true;
+			waiter.notify_all();
+		}
 
 		{
 			Storm::IInputManager &inputMgr = singletonHolder.getSingleton<Storm::IInputManager>();
@@ -211,6 +223,8 @@ void Storm::GraphicManager::initialize_Implementation(void* hwnd)
 			this->update();
 		}
 	});
+
+	waiter.wait(lock, [&registered]() { return registered; });
 }
 
 void Storm::GraphicManager::cleanUp_Implementation()
