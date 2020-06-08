@@ -64,9 +64,11 @@ namespace
 	}
 #endif
 
-	std::vector<Storm::GraphicParticleData> fastOptimizedTransCopy(const std::vector<Storm::Vector3> &particlePosData, const DirectX::XMVECTOR &color)
+	std::vector<Storm::GraphicParticleData> fastOptimizedTransCopy(const std::vector<Storm::Vector3> &particlePosData)
 	{
 		std::vector<Storm::GraphicParticleData> dxParticlePosDataTmp;
+
+		const DirectX::XMVECTOR defaultColor{ 0.3f, 0.5f, 0.7f, 1.f };
 
 #if _WIN32
 
@@ -83,16 +85,15 @@ namespace
 			memcpy(&current._pos, &particlePosData[iter], sizeof(Storm::Vector3));
 			reinterpret_cast<float*>(&current._pos)[3] = 1.f;
 
-			current._color = color;
+			current._color = defaultColor;
 		}
 
 #else
-
 		dxParticlePosDataTmp.reserve(hijacker._newSize);
 
 		for (const Storm::Vector3 &pos : particlePosData)
 		{
-			dxParticlePosDataTmp.emplace_back(pos, particleRadius);
+			dxParticlePosDataTmp.emplace_back(pos, defaultColor);
 		}
 
 #endif
@@ -276,7 +277,7 @@ void Storm::GraphicManager::pushParticlesData(unsigned int particleSystemId, con
 		const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
 
 		singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(ThreadEnumeration::GraphicsThread,
-			[this, particleSystemId, particlePosDataCopy = fastOptimizedTransCopy(particlePosData, DirectX::XMVECTOR{ 1.f, 1.f, 1.f, 1.f })]() mutable
+			[this, particleSystemId, particlePosDataCopy = fastOptimizedTransCopy(particlePosData)]() mutable
 		{
 			_graphicParticlesSystem->refreshParticleSystemData(particleSystemId, std::move(particlePosDataCopy));
 		});

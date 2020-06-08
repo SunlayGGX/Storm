@@ -12,12 +12,14 @@ namespace
 {
 	struct ConstantBuffer
 	{
-		DirectX::XMMATRIX _viewProjMatrix;
+		DirectX::XMMATRIX _viewMatrix;
+		DirectX::XMMATRIX _projMatrix;
 		float _pointSize;
 	};
 
 	static const std::string k_particleShaderFilePath = "Shaders/ParticleDraw.hlsl";
 	static constexpr std::string_view k_particleVertexShaderFuncName = "particleVertexShader";
+	static constexpr std::string_view k_particleGeometryShaderFuncName = "particleGeometryShader";
 	static constexpr std::string_view k_particlePixelShaderFuncName = "particlePixelShader";
 
 	enum : unsigned int
@@ -56,7 +58,7 @@ namespace
 
 
 Storm::ParticleShader::ParticleShader(const ComPtr<ID3D11Device> &device) :
-	Storm::VPShaderBase{ device, k_particleShaderFilePath, k_particleVertexShaderFuncName, k_particleShaderFilePath, k_particlePixelShaderFuncName, retrieveMeshInputLayoutElementDesc(), k_particleVertexDataLayoutDescCount }
+	Storm::VPShaderBase{ device, k_particleShaderFilePath, k_particleVertexShaderFuncName, k_particleShaderFilePath, k_particleGeometryShaderFuncName, k_particleShaderFilePath, k_particlePixelShaderFuncName, retrieveMeshInputLayoutElementDesc(), k_particleVertexDataLayoutDescCount }
 {
 	Storm::ConstantBufferHolder::initialize<ConstantBuffer>(device);
 }
@@ -72,12 +74,14 @@ void Storm::ParticleShader::setup(const ComPtr<ID3D11Device> &device, const ComP
 
 	ConstantBuffer*const ressourceDataPtr = static_cast<ConstantBuffer*>(meshConstantBufferRessource.pData);
 
-	ressourceDataPtr->_viewProjMatrix = currentCamera.getTransposedViewMatrix() * currentCamera.getTransposedProjectionMatrix();
+	ressourceDataPtr->_viewMatrix = currentCamera.getTransposedViewMatrix();
+	ressourceDataPtr->_projMatrix = currentCamera.getTransposedProjectionMatrix();
 	ressourceDataPtr->_pointSize = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().getGeneralSimulationData()._particleRadius;
 
 	deviceContext->Unmap(_constantBuffer.Get(), 0);
 
 	ID3D11Buffer*const constantBufferTmp = _constantBuffer.Get();
 	deviceContext->VSSetConstantBuffers(0, 1, &constantBufferTmp);
+	deviceContext->GSSetConstantBuffers(0, 1, &constantBufferTmp);
 	deviceContext->PSSetConstantBuffers(0, 1, &constantBufferTmp);
 }
