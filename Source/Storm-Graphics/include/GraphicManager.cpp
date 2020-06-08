@@ -215,7 +215,7 @@ void Storm::GraphicManager::update()
 		_directXController->clearView(g_defaultColor);
 		_directXController->initView();
 
-		_directXController->renderElements(this->getCamera(), _renderedElements, _meshesMap);
+		_directXController->renderElements(this->getCamera(), _renderedElements, _meshesMap, *_graphicParticlesSystem);
 
 		_directXController->unbindTargetView();
 		_directXController->presentToDisplay();
