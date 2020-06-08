@@ -152,5 +152,8 @@
     <ClInclude Include="..\include\GraphicParticleData.h">
       <Filter>Header Files\GraphicComponent</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\RenderModeState.h">
+      <Filter>Header Files\GraphicComponent</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

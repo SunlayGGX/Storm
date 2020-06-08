@@ -43,6 +43,7 @@
     <ClInclude Include="..\include\IRenderedElement.h" />
     <ClInclude Include="..\include\MeshShader.h" />
     <ClInclude Include="..\include\ParticleShader.h" />
+    <ClInclude Include="..\include\RenderModeState.h" />
     <ClInclude Include="..\include\ShaderManager.h" />
     <ClInclude Include="..\include\ThrowIfFailed.h" />
     <ClInclude Include="..\include\VPShader.h" />
