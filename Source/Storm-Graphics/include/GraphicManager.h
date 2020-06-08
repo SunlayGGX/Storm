@@ -35,6 +35,7 @@ namespace Storm
 
 	public:
 		const Storm::Camera& getCamera() const;
+		const Storm::DirectXController& getController() const;
 
 	private:
 		unsigned char _renderCounter;

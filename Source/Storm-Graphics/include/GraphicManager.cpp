@@ -255,3 +255,8 @@ const Storm::Camera& Storm::GraphicManager::getCamera() const
 {
 	return *_camera;
 }
+
+const Storm::DirectXController& Storm::GraphicManager::getController() const
+{
+	return *_directXController;
+}
