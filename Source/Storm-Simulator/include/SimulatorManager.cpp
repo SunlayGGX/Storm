@@ -94,6 +94,18 @@ void Storm::SimulatorManager::addRigidBodyParticleSystem(unsigned int id, std::v
 	LOG_DEBUG << "Rigid body particle system " << id << " was created and successfully registered in simulator!";
 }
 
+std::vector<Storm::Vector3> Storm::SimulatorManager::getParticleSystemPositions(unsigned int id) const
+{
+	if (const auto foundParticleSystem = _particleSystem.find(id); foundParticleSystem != std::end(_particleSystem))
+	{
+		return foundParticleSystem->second->getPositions();
+	}
+	else
+	{
+		Storm::throwException<std::exception>("Particle system with id " + std::to_string(id) + " is unknown!");
+	}
+}
+
 void Storm::SimulatorManager::pushParticlesToGraphicModule() const
 {
 	Storm::IGraphicsManager &graphicMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IGraphicsManager>();

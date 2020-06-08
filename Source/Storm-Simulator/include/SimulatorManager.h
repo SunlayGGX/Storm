@@ -26,6 +26,8 @@ namespace Storm
 		void addFluidParticleSystem(unsigned int id, std::vector<Storm::Vector3> particlePositions) final override;
 		void addRigidBodyParticleSystem(unsigned int id, std::vector<Storm::Vector3> particlePositions) final override;
 
+		std::vector<Storm::Vector3> getParticleSystemPositions(unsigned int id) const final override;
+
 	private:
 		void pushParticlesToGraphicModule() const;
 
