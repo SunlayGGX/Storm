@@ -15,8 +15,8 @@ namespace Storm
 
 		virtual void getRigidBodyTransform(Storm::Vector3 &outTrans, Storm::Vector3 &outRot) const = 0;
 
-		virtual const std::vector<Storm::Vector3>& getRigidBodyParticlesObjectSpacePositions() const = 0;
-
+		// Warning : returns a copy to avoid data races so be careful when using it...
+		virtual std::vector<Storm::Vector3> getRigidBodyParticlesWorldPositions() const = 0;
 		virtual std::vector<Storm::Vector3> getRigidBodyObjectSpaceVertexes() const = 0;
 		virtual std::vector<Storm::Vector3> getRigidBodyObjectSpaceNormals() const = 0;
 	};

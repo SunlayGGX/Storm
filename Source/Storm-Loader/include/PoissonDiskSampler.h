@@ -7,13 +7,6 @@ namespace Storm
 	class PoissonDiskSampler
 	{
 	public:
-		PoissonDiskSampler(float diskRadius, int kTryConst);
-
-	public:
-		std::vector<Storm::Vector3> operator()(const std::vector<Storm::Vector3> &vertices) const;
-	
-	private:
-		int _kTryConst;
-		float _diskRadius;
+		static std::vector<Storm::Vector3> process(const int kTryConst, const float diskRadius, const std::vector<Storm::Vector3> &vertices);
 	};
 }

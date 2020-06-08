@@ -16,7 +16,7 @@ namespace Storm
 		const std::string& getRigidBodyName() const final override;
 		unsigned int getRigidBodyID() const final override;
 		void getRigidBodyTransform(Storm::Vector3 &outTrans, Storm::Vector3 &outRot) const final override;
-		const std::vector<Storm::Vector3>& getRigidBodyParticlesObjectSpacePositions() const final override;
+		std::vector<Storm::Vector3> getRigidBodyParticlesWorldPositions() const final override;
 		std::vector<Storm::Vector3> getRigidBodyObjectSpaceVertexes() const final override;
 		std::vector<Storm::Vector3> getRigidBodyObjectSpaceNormals() const final override;
 
@@ -24,7 +24,7 @@ namespace Storm
 		static std::filesystem::path retrieveParticleDataCacheFolder();
 
 	private:
-		void sampleMesh(const std::vector<Storm::Vector3> &vertices);
+		static std::vector<Storm::Vector3> sampleMesh(const std::vector<Storm::Vector3> &vertices);
 
 	private:
 		void load(const Storm::RigidBodySceneData &rbSceneData);
@@ -32,6 +32,5 @@ namespace Storm
 	private:
 		std::string _meshPath;
 		unsigned int _rbId;
-		std::vector<Storm::Vector3> _objSpaceParticlePos;
 	};
 }

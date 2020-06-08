@@ -8,6 +8,7 @@
 #include "IConfigManager.h"
 #include "IGraphicsManager.h"
 #include "IPhysicsManager.h"
+#include "ISimulatorManager.h"
 
 #include "MemoryHelper.h"
 #include "Version.h"
@@ -61,14 +62,16 @@ unsigned int Storm::RigidBody::getRigidBodyID() const
 
 void Storm::RigidBody::getRigidBodyTransform(Storm::Vector3 &outTrans, Storm::Vector3 &outRot) const
 {
-	// TODO : Physics module should have the ownership of this data.
+	// Physics module should have the ownership of this data.
 	const Storm::IPhysicsManager &physicsMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IPhysicsManager>();
 	physicsMgr.getMeshTransform(_rbId, outTrans, outRot);
 }
 
-const std::vector<Storm::Vector3>& Storm::RigidBody::getRigidBodyParticlesObjectSpacePositions() const
+std::vector<Storm::Vector3> Storm::RigidBody::getRigidBodyParticlesWorldPositions() const
 {
-	return _objSpaceParticlePos;
+	// Simulator module should have the ownership of this data.
+	const Storm::ISimulatorManager &simulMgr = Storm::SingletonHolder::instance().getSingleton<Storm::ISimulatorManager>();
+	return simulMgr.getParticleSystemPositions(_rbId);
 }
 
 std::vector<Storm::Vector3> Storm::RigidBody::getRigidBodyObjectSpaceVertexes() const
@@ -87,14 +90,6 @@ std::filesystem::path Storm::RigidBody::retrieveParticleDataCacheFolder()
 {
 	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
 	return std::filesystem::path{ configMgr.getTemporaryPath() } / "ParticleData";
-}
-
-void Storm::RigidBody::sampleMesh(const std::vector<Storm::Vector3> &vertices)
-{
-	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
-
-	// Poisson Disk sampling
-	_objSpaceParticlePos = Storm::PoissonDiskSampler{ configMgr.getGeneralSimulationData()._particleRadius, 25 }(vertices);
 }
 
 void Storm::RigidBody::load(const Storm::RigidBodySceneData &rbSceneData)
@@ -116,6 +111,7 @@ void Storm::RigidBody::load(const Storm::RigidBodySceneData &rbSceneData)
 
 	std::vector<Storm::Vector3> verticesPos;
 	std::vector<unsigned int> indexes;
+	std::vector<Storm::Vector3> particlePos;
 
 	{
 		// The mesh is a separate entity, therefore we will load it with Assimp.
@@ -284,10 +280,10 @@ void Storm::RigidBody::load(const Storm::RigidBodySceneData &rbSceneData)
 			
 			uint64_t particleCount;
 			Storm::binaryRead(cacheReadStream, particleCount);
-			_objSpaceParticlePos.reserve(particleCount);
+			particlePos.reserve(particleCount);
 			for (uint64_t iter = 0; iter < particleCount; ++iter)
 			{
-				Storm::Vector3 &currentVect = _objSpaceParticlePos.emplace_back();
+				Storm::Vector3 &currentVect = particlePos.emplace_back();
 
 				Storm::binaryRead(cacheReadStream, currentVect.x());
 				Storm::binaryRead(cacheReadStream, currentVect.y());
@@ -303,9 +299,12 @@ void Storm::RigidBody::load(const Storm::RigidBodySceneData &rbSceneData)
 
 	if(!hasCache)
 	{
+		const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
+
 		/* Generate the rb as if no cache data */
-		
-		this->sampleMesh(verticesPos);
+
+		// Poisson Disk sampling
+		particlePos = Storm::PoissonDiskSampler::process(configMgr.getGeneralSimulationData()._particleRadius, 25, verticesPos);
 		
 		/* Cache writing */
 
@@ -318,8 +317,8 @@ void Storm::RigidBody::load(const Storm::RigidBodySceneData &rbSceneData)
 		Storm::binaryWrite(cacheFileStream, meshPathLowerStr);
 		Storm::binaryWrite(cacheFileStream, static_cast<std::string>(currentVersion));
 
-		Storm::binaryWrite(cacheFileStream, static_cast<uint64_t>(_objSpaceParticlePos.size()));
-		for (const Storm::Vector3 &particlePos : _objSpaceParticlePos)
+		Storm::binaryWrite(cacheFileStream, static_cast<uint64_t>(particlePos.size()));
+		for (const Storm::Vector3 &particlePos : particlePos)
 		{
 			Storm::binaryWrite(cacheFileStream, particlePos.x());
 			Storm::binaryWrite(cacheFileStream, particlePos.y());
@@ -329,8 +328,9 @@ void Storm::RigidBody::load(const Storm::RigidBodySceneData &rbSceneData)
 		// Replace the placeholder checksum by the right one to finalize the writing
 		cacheFileStream.seekp(0);
 		Storm::binaryWrite(cacheFileStream, static_cast<uint64_t>(k_cacheGoodChecksum));
-
-		cacheFileStream.flush();
 	}
+
+	Storm::ISimulatorManager &simulMgr = singletonHolder.getSingleton<Storm::ISimulatorManager>();
+	simulMgr.addRigidBodyParticleSystem(_rbId, std::move(particlePos));
 }
 

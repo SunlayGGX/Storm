@@ -126,14 +126,7 @@ namespace
 
 }
 
-Storm::PoissonDiskSampler::PoissonDiskSampler(float diskRadius, int kTryConst) :
-	_diskRadius{ diskRadius },
-	_kTryConst{ kTryConst }
-{
-
-}
-
-std::vector<Storm::Vector3> Storm::PoissonDiskSampler::operator()(const std::vector<Storm::Vector3> &vertices) const
+std::vector<Storm::Vector3> Storm::PoissonDiskSampler::process(const int kTryConst, const float diskRadius, const std::vector<Storm::Vector3> &vertices)
 {
 	std::vector<Storm::Vector3> samplingResult;
 
@@ -153,8 +146,8 @@ std::vector<Storm::Vector3> Storm::PoissonDiskSampler::operator()(const std::vec
 	}
 
 	// Now we would try to sample each triangle with Poisson Disk Sampling algorithm applied on 2D (because a space defined by a plane is 2D ;)).
-	const float minDistSquared = _diskRadius * _diskRadius;
-	const float maxDist = 2.f * _diskRadius;
+	const float minDistSquared = diskRadius * diskRadius;
+	const float maxDist = 2.f * diskRadius;
 	const float personalParticleSpace = static_cast<float>(M_PI) * minDistSquared;
 
 	// No optimization for now... I'll think about it later.
@@ -170,7 +163,7 @@ std::vector<Storm::Vector3> Storm::PoissonDiskSampler::operator()(const std::vec
 		do
 		{
 			Storm::Vector3 candidate;
-			if (currentTriangle.producePoint(randMgr, samplingResult, _kTryConst, _diskRadius, maxDist, activeBeginPointIndex, candidate))
+			if (currentTriangle.producePoint(randMgr, samplingResult, kTryConst, diskRadius, maxDist, activeBeginPointIndex, candidate))
 			{
 				samplingResult.emplace_back(candidate);
 			}
