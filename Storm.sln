@@ -35,6 +35,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shaders", "Shaders", "{1C8B
 	ProjectSection(SolutionItems) = preProject
 		Source\Shaders\Grid.hlsl = Source\Shaders\Grid.hlsl
 		Source\Shaders\MeshDraw.hlsl = Source\Shaders\MeshDraw.hlsl
+		Source\Shaders\ParticleDraw.hlsl = Source\Shaders\ParticleDraw.hlsl
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Storm-Loader", "Source\Storm-Loader\script\Storm-Loader.vcxproj", "{F6BC64C2-F8CA-4BA9-84DA-69A4B78CCD09}"
