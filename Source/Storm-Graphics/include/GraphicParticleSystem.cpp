@@ -34,7 +34,7 @@ void Storm::GraphicParticleSystem::refreshParticleSystemData(unsigned int partic
 	D3D11_SUBRESOURCE_DATA vertexData;
 
 	vertexBufferDesc.Usage = D3D11_USAGE::D3D11_USAGE_DEFAULT;
-	vertexBufferDesc.ByteWidth = sizeof(Storm::GraphicParticleData) * static_cast<UINT>(particlePosition.size());
+	vertexBufferDesc.ByteWidth = sizeof(Storm::GraphicParticleData) * static_cast<UINT>(newParticleCount);
 	vertexBufferDesc.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_VERTEX_BUFFER;
 	vertexBufferDesc.CPUAccessFlags = 0;
 	vertexBufferDesc.MiscFlags = 0;
