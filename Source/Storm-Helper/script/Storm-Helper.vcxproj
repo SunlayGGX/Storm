@@ -55,6 +55,7 @@
     <ClInclude Include="..\include\TimeHelper.h" />
     <ClInclude Include="..\include\TraitsHelper.h" />
     <ClInclude Include="..\include\UniquePointer.h" />
+    <ClInclude Include="..\include\UniversalString.h" />
     <ClInclude Include="..\include\ValueGuard.h" />
     <ClInclude Include="..\include\Version.h" />
     <ClInclude Include="..\include\VersionMacro.h" />

@@ -206,5 +206,8 @@
     <ClInclude Include="..\include\StringHijack.h">
       <Filter>Header Files\General\Misc</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\UniversalString.h">
+      <Filter>Header Files\General\Misc</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
