@@ -23,6 +23,11 @@ set makeFolderLink=call :CreateFolderLink
 %makeFolderLink% "%STORM_DEPENDENCIES%\PhysX" "%PHYSX_DEPENDENCIES_PATH%"
 %makeFolderLink% "%STORM_DEPENDENCIES%\Eigen" "%EIGEN_DEPENDENCIES_PATH%"
 
+:: This one is not mandatory...
+if exist "%CATCH2_DEPENDENCIES_PATH%" (
+	%makeFolderLink% "%STORM_DEPENDENCIES%\Catch2" "%CATCH2_DEPENDENCIES_PATH%"
+)
+
 
 
 :: Now, create the junction from the exe (where it should be) to Storm Shaders files.

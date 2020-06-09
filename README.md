@@ -35,8 +35,15 @@ Note that :
 Note that I chose "vc15win64" settings. If you use another Visual Studio, be aware of Binary compatibility (Visual Studio 2015, 2017 and 2019 are binary compatible, but I don't know about my future and they aren't with the past). Be also aware that the result file won't be in the same folder than what was expected by this readme so adapt a little.
 	+ Build the library in "release" and "debug".
 	+ Go to "physx/(Your output directory)/win.x86_64.vc141.mt" (this name could change if you have chosen another build setting) and copy "debug" and "release" folder inside a new folder "physx/lib"
+-**Catch2 v2.12.2**. Not mandatory, but it is used for unit testing. (link: https://github.com/catchorg/catch2/releases ). If you choose to not pull it, then unload All Automation project from your Storm.sln... If you want to run tests, do not forget to setup your Visual Studio for this. See section "Test Setup" for further details.
 
 
+#Test Setup
+I'm using catch2 as our main unit test library. But to be able to use it, you should :
+- Install Catch2 adapter as a Visual studio extension (go to Extensions -> Manage Extensions -> Online, Then download and Install "Test Adapter for Catch2").
+- Configure your run settings. Go to Test -> Configure Run Settings -> Select Solution Wide runsettings File. Navigate from Storm root directory to Source\Automation\StormAutomation-Base and select catch2.runsettings... 
+- Select your processor architecture : Go to Test -> Processor Architecture for AnyCPU Projects and select "x64". Though I don't think this step is really useful...
+- Maybe you'll have to disable Boost test adapter. Go to Extensions -> Manage Extensions -> Installed and search for "Test Adapter for Boost.Test". If it is enabled, you can disable it.
 
 # Modules
 - **Storm**: This is the executable that runs the SPH simulation.
