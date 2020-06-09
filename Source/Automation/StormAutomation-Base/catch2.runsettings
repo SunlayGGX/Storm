@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+  <!-- Configurations that affect the Test Framework -->
+  <RunConfiguration>
+    <MaxCpuCount>4</MaxCpuCount>
+    <ResultsDirectory>.\TestResults</ResultsDirectory>
+    <TestSessionTimeout>360000</TestSessionTimeout><!-- Milliseconds -->
+    <MSTest>
+      <Parallelize>
+        <Workers>8</Workers>
+        <Scope>MethodLevel</Scope>
+      </Parallelize>
+    </MSTest>
+  </RunConfiguration>
+
+  <Catch2Adapter>
+    <DebugBreak>on</DebugBreak>
+    <DiscoverCommandLine>--discover *</DiscoverCommandLine>
+    <DiscoverTimeout>5000</DiscoverTimeout>
+    <FilenameFilter>^StormAutomation</FilenameFilter>
+    <IncludeHidden>true</IncludeHidden>
+    <Logging>Verbose</Logging>
+    <MessageFormat>AdditionalInfo</MessageFormat>
+    <StackTraceFormat>ShortInfo</StackTraceFormat>
+    <TestCaseTimeout>20000</TestCaseTimeout>
+    <WorkingDirectory></WorkingDirectory>
+    <WorkingDirectoryRoot>Executable</WorkingDirectoryRoot>
+  </Catch2Adapter>
+</RunSettings>

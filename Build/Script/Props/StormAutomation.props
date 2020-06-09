@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <IncludePath>$(MSBuildThisFileDirectory)..\..\..\Dependencies\Boost\include\;$(MSBuildThisFileDirectory)..\..\..\Dependencies\Eigen\;$(MSBuildThisFileDirectory)..\..\..\Dependencies\Catch2\single_include\;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
+    <LibraryPath>$(MSBuildThisFileDirectory)..\..\..\Dependencies\Boost\lib\;$(MSBuildThisFileDirectory)..\..\..\bin\;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)..\..\..\Source\Storm-Helper\include;$(MSBuildThisFileDirectory)..\..\..\Source\Automation\StormAutomation-Base\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup />
+</Project>

@@ -10,6 +10,9 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Storm-ModelBase", "Source\Storm-ModelBase\script\Storm-ModelBase.vcxproj", "{BB52FD96-F795-463D-8AD1-392B37344A7D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Automation", "Automation", "{D7BAD75A-E0E9-4F26-B1A8-0E3A35B1D3C1}"
+	ProjectSection(SolutionItems) = preProject
+		Source\Automation\StormAutomation-Base\catch2.runsettings = Source\Automation\StormAutomation-Base\catch2.runsettings
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Simulation", "Simulation", "{5F8ED569-4527-41D2-B165-276BDE4FA18E}"
 EndProject
@@ -39,6 +42,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shaders", "Shaders", "{1C8B
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Storm-Loader", "Source\Storm-Loader\script\Storm-Loader.vcxproj", "{F6BC64C2-F8CA-4BA9-84DA-69A4B78CCD09}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UnitTester", "UnitTester", "{9ACB8D28-162B-4B97-A55B-3360CBF1F8BC}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "StormAutomation-Base", "Source\Automation\StormAutomation-Base\script\StormAutomation-Base.vcxproj", "{34740247-39FB-45D9-B11D-A7650D128B52}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "StormAutomation-HelperTester", "Source\Automation\StormAutomation-HelperTester\script\StormAutomation-HelperTester.vcxproj", "{FDDA96C7-1A39-4709-919A-EFDB3CF7A126}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -94,6 +103,14 @@ Global
 		{F6BC64C2-F8CA-4BA9-84DA-69A4B78CCD09}.Debug|x64.Build.0 = Debug|x64
 		{F6BC64C2-F8CA-4BA9-84DA-69A4B78CCD09}.Release|x64.ActiveCfg = Release|x64
 		{F6BC64C2-F8CA-4BA9-84DA-69A4B78CCD09}.Release|x64.Build.0 = Release|x64
+		{34740247-39FB-45D9-B11D-A7650D128B52}.Debug|x64.ActiveCfg = Debug|x64
+		{34740247-39FB-45D9-B11D-A7650D128B52}.Debug|x64.Build.0 = Debug|x64
+		{34740247-39FB-45D9-B11D-A7650D128B52}.Release|x64.ActiveCfg = Release|x64
+		{34740247-39FB-45D9-B11D-A7650D128B52}.Release|x64.Build.0 = Release|x64
+		{FDDA96C7-1A39-4709-919A-EFDB3CF7A126}.Debug|x64.ActiveCfg = Debug|x64
+		{FDDA96C7-1A39-4709-919A-EFDB3CF7A126}.Debug|x64.Build.0 = Debug|x64
+		{FDDA96C7-1A39-4709-919A-EFDB3CF7A126}.Release|x64.ActiveCfg = Release|x64
+		{FDDA96C7-1A39-4709-919A-EFDB3CF7A126}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -112,6 +129,9 @@ Global
 		{18A35B78-109A-4ABA-8658-AD746046A610} = {71FDD4FA-5CB7-4461-A3FD-A8818CF6C865}
 		{C115891C-7BDB-4A4C-B19C-24E39536A051} = {71FDD4FA-5CB7-4461-A3FD-A8818CF6C865}
 		{F6BC64C2-F8CA-4BA9-84DA-69A4B78CCD09} = {71FDD4FA-5CB7-4461-A3FD-A8818CF6C865}
+		{9ACB8D28-162B-4B97-A55B-3360CBF1F8BC} = {D7BAD75A-E0E9-4F26-B1A8-0E3A35B1D3C1}
+		{34740247-39FB-45D9-B11D-A7650D128B52} = {D7BAD75A-E0E9-4F26-B1A8-0E3A35B1D3C1}
+		{FDDA96C7-1A39-4709-919A-EFDB3CF7A126} = {9ACB8D28-162B-4B97-A55B-3360CBF1F8BC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {AC48B795-9776-4952-84E0-CE8AB938B72B}
