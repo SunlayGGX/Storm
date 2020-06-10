@@ -14,6 +14,7 @@ namespace Storm
 		bool isFluids() const noexcept final override;
 
 	public:
-		virtual void initializeIteration() override;
+		void initializeIteration() final override;
+		void updatePosition(float deltaTimeInSec) final override;
 	};
 }

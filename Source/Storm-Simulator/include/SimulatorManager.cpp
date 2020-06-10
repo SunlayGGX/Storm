@@ -17,7 +17,7 @@ namespace
 	template<class ParticleSystemType, class MapType, class ... Args>
 	void addParticleSystemToMap(MapType &map, unsigned int particleSystemId, Args &&... args)
 	{
-		std::unique_ptr<Storm::ParticleSystem> particleSystemPtr = std::make_unique<ParticleSystemType>(std::forward<Args>(args)...);
+		std::unique_ptr<Storm::ParticleSystem> particleSystemPtr = std::make_unique<ParticleSystemType>(particleSystemId, std::forward<Args>(args)...);
 		map[particleSystemId] = std::move(particleSystemPtr);
 	}
 }
@@ -46,6 +46,9 @@ void Storm::SimulatorManager::run()
 	
 	std::vector<Storm::SimulationCallback> tmpSimulationCallback;
 	tmpSimulationCallback.reserve(8);
+
+	// A fast iterator that loops every 1024 iterations.
+	union { unsigned short _val : 10 = 0; } _forcedPushFrameIterator;
 
 	do
 	{
@@ -85,11 +88,14 @@ void Storm::SimulatorManager::run()
 
 
 		// Push all particle data to the graphic module to be rendered...
-		this->pushParticlesToGraphicModule();
+		// The first 4 frames every 1024 frames will be pushed for sure to the graphic module to be sure everyone is sync... 
+		this->pushParticlesToGraphicModule(_forcedPushFrameIterator._val < 4);
 
 
 		// Takes time to process messages that came from other threads.
 		threadMgr.processCurrentThreadActions();
+
+		++_forcedPushFrameIterator._val;
 
 	} while (true);
 }
@@ -124,12 +130,15 @@ std::vector<Storm::Vector3> Storm::SimulatorManager::getParticleSystemPositions(
 	}
 }
 
-void Storm::SimulatorManager::pushParticlesToGraphicModule() const
+void Storm::SimulatorManager::pushParticlesToGraphicModule(bool ignoreDirty) const
 {
 	Storm::IGraphicsManager &graphicMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IGraphicsManager>();
-	std::for_each(std::execution::par, std::begin(_particleSystem), std::end(_particleSystem), [&graphicMgr](const auto &particleSystemPair)
+	std::for_each(std::execution::par, std::begin(_particleSystem), std::end(_particleSystem), [&graphicMgr, ignoreDirty](const auto &particleSystemPair)
 	{
 		const Storm::ParticleSystem &currentParticleSystem = *particleSystemPair.second;
-		graphicMgr.pushParticlesData(particleSystemPair.first, currentParticleSystem.getPositions(), currentParticleSystem.isFluids());
+		if (ignoreDirty || currentParticleSystem.isDirty())
+		{
+			graphicMgr.pushParticlesData(particleSystemPair.first, currentParticleSystem.getPositions(), currentParticleSystem.isFluids());
+		}
 	});
 }
