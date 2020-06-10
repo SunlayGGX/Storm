@@ -202,7 +202,7 @@ void* Storm::ShaderManager::requestCompiledShaderBlobs(const std::string &shader
 		HRESULT res = D3DCreateBlob(blobSize, &shaderBlob);
 		if (FAILED(res))
 		{
-			std::string fullError = "Blob creation failed : " + std::filesystem::path{ _com_error{ res }.ErrorMessage() }.string();
+			std::string fullError = "Blob creation failed : " + Storm::toStdString(_com_error{ res });
 			LOG_ERROR << fullError;
 			Storm::throwException<std::exception>(fullError);
 		}

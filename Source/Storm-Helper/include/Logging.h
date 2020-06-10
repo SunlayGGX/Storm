@@ -20,9 +20,9 @@ namespace Storm
 		}
 
 		template<class ToWriteType>
-		static auto addToStream(std::stringstream &stream, const ToWriteType &toWrite, void*) -> decltype(stream << static_cast<std::string>(toWrite))
+		static auto addToStream(std::stringstream &stream, const ToWriteType &toWrite, void*) -> decltype(stream << Storm::toStdString(toWrite))
 		{
-			return stream << static_cast<std::string>(toWrite);
+			return stream << Storm::toStdString(toWrite);
 		}
 
 	public:

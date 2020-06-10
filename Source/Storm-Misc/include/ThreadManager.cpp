@@ -22,7 +22,7 @@ void Storm::ThreadManager::registerCurrentThread(Storm::ThreadEnumeration thread
 	HRESULT res = ::SetThreadDescription(::GetCurrentThread(), newName.c_str());
 	if (FAILED(res))
 	{
-		LOG_ERROR << "Cannot set the name of the current thread to '" << std::filesystem::path{ newName }.string() << "'. Reason " << std::filesystem::path{ _com_error{ res }.ErrorMessage() }.string();
+		LOG_ERROR << "Cannot set the name of the current thread to '" << Storm::toStdString(newName) << "'. Reason " << Storm::toStdString(_com_error{ res });
 	}
 
 	auto executor = std::make_unique<Storm::AsyncActionExecutor>();
@@ -87,6 +87,6 @@ void Storm::ThreadManager::executeOnThreadInternal(const std::thread::id &thread
 	}
 	else
 	{
-		Storm::throwException<std::exception>(std::stringstream{} << "Thread with id " << threadId << " was not registered to execute any callback!");
+		Storm::throwException<std::exception>("Thread with id " + Storm::toStdString(threadId) + " was not registered to execute any callback!");
 	}
 }
