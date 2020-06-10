@@ -64,7 +64,7 @@ void Storm::ThreadManager::processCurrentThreadActions()
 	}
 	else
 	{
-		Storm::throwException<std::exception>(std::stringstream{} << "Thread with id " << thisThreadId << " was not registered to execute any callback!");
+		Storm::throwException<std::exception>("Thread with id " + Storm::toStdString(thisThreadId) + " was not registered to execute any callback!");
 	}
 }
 

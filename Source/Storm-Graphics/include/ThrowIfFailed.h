@@ -11,7 +11,7 @@ namespace Storm
 	{
 		if (!SUCCEEDED(res))
 		{
-			Storm::throwException<std::exception>(callExpression + " failed! Error was " + std::filesystem::path{ _com_error{ res }.ErrorMessage() }.string());
+			Storm::throwException<std::exception>(callExpression + " failed! Error was " + Storm::toStdString(_com_error{ res }));
 		}
 	}
 

@@ -47,7 +47,7 @@ namespace
 
 	std::string generateComError(HRESULT result, const std::string_view &baseMessage)
 	{
-		return std::string{ baseMessage } +" Error was " + std::filesystem::path{ _com_error{ result }.ErrorMessage() }.string();
+		return std::string{ baseMessage } + " Error was " + Storm::toStdString(_com_error{ result });
 	}
 
 	template<class Type>
@@ -152,26 +152,26 @@ std::wstring Storm::OSManager::openFileExplorerDialog(const std::wstring &defaul
 												hr = fileDialog->SetFolder(psiFolder);
 												if (SUCCEEDED(hr))
 												{
-													LOG_DEBUG << "Successfully set the starting folder location to " << std::filesystem::path{ defaultStartingPath }.string();
+													LOG_DEBUG << "Successfully set the starting folder location to " << Storm::toStdString(defaultStartingPath);
 												}
 												else
 												{
 													LOG_ERROR << generateComError(hr,
-														std::filesystem::path{ defaultStartingPath }.string() + " failed to be set as starting folder! We will use the default instead."
+														Storm::toStdString(defaultStartingPath) + " failed to be set as starting folder! We will use the default instead."
 													);
 												}
 											}
 											else
 											{
 												LOG_ERROR << generateComError(hr,
-													"Cannot parse " + std::filesystem::path{ defaultStartingPath }.string() + " name to a IShellItem! Therefore we won't set it as the default folder."
+													"Cannot parse " + Storm::toStdString(defaultStartingPath) + " name to a IShellItem! Therefore we won't set it as the default folder."
 												);
 											}
 										}
 										else
 										{
 											LOG_ERROR << generateComError(hr,
-												std::filesystem::path{ defaultStartingPath }.string() + " is not a valid directory! Therefore we won't set it as the starting folder and use default instead."
+												Storm::toStdString(defaultStartingPath) + " is not a valid directory! Therefore we won't set it as the starting folder and use default instead."
 											);
 										}
 									}

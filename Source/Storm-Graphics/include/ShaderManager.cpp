@@ -31,7 +31,7 @@ namespace
 		
 		if (FAILED(res))
 		{
-			compileErrorMsg += "Compilation failed! Reason : " + std::filesystem::path{ _com_error{ res }.ErrorMessage() }.string() + '\n';
+			compileErrorMsg += "Compilation failed! Reason : " + Storm::toStdString(_com_error{ res }) + '\n';
 
 			if (errorMsg)
 			{
