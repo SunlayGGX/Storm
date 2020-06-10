@@ -16,6 +16,9 @@ namespace Storm
 
 		virtual bool isFluids() const noexcept = 0;
 
+	public:
+		virtual void initializeIteration();
+
 	protected:
 		std::vector<float> _masses;
 		std::vector<Storm::Vector3> _positions;

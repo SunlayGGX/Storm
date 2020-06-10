@@ -35,3 +35,8 @@ const std::vector<Storm::Vector3>& Storm::ParticleSystem::getAccelerations() con
 {
 	return _accelerations;
 }
+
+void Storm::ParticleSystem::initializeIteration()
+{
+
+}

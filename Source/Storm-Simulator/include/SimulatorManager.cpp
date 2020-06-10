@@ -65,7 +65,12 @@ void Storm::SimulatorManager::run()
 
 		const float physicsElapsedDeltaTime = timeMgr.getCurrentPhysicsDeltaTime();
 
-		// TODO : Run SPH
+		// initialize for current iteration. I.e. Initializing with gravity and resetting current iteration velocity.
+		for (auto &particleSystem : _particleSystem)
+		{
+			particleSystem.second->initializeIteration();
+		}
+
 
 
 		// Update the Rigid bodies positions in scene
