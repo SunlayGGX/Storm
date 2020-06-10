@@ -67,10 +67,17 @@ void Storm::SimulatorManager::run()
 
 		// TODO : Run SPH
 
+
+		// Update the Rigid bodies positions in scene
 		physicsMgr.update(physicsElapsedDeltaTime);
 
+
+
+		// Push all particle data to the graphic module to be rendered...
 		this->pushParticlesToGraphicModule();
 
+
+		// Takes time to process messages that came from other threads.
 		threadMgr.processCurrentThreadActions();
 
 	} while (true);
