@@ -77,6 +77,12 @@ void Storm::SimulatorManager::run()
 		physicsMgr.update(physicsElapsedDeltaTime);
 
 
+		// Semi implicit Euler to update the particle position
+		for (auto &particleSystem : _particleSystem)
+		{
+			particleSystem.second->updatePosition(physicsElapsedDeltaTime);
+		}
+
 
 		// Push all particle data to the graphic module to be rendered...
 		this->pushParticlesToGraphicModule();

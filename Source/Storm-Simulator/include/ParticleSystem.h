@@ -18,6 +18,7 @@ namespace Storm
 
 	public:
 		virtual void initializeIteration();
+		virtual void updatePosition(float deltaTimeInSec);
 
 	protected:
 		std::vector<float> _masses;

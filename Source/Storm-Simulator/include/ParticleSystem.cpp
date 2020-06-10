@@ -40,3 +40,15 @@ void Storm::ParticleSystem::initializeIteration()
 {
 
 }
+
+void Storm::ParticleSystem::updatePosition(float deltaTimeInSec)
+{
+	std::for_each(std::execution::par_unseq, std::begin(_accelerations), std::end(_accelerations), [this, deltaTimeInSec](const Storm::Vector3 &currentAccel)
+	{
+		const std::size_t currentParticleIndex = &currentAccel - &_accelerations[0];
+
+		Storm::Vector3 &currentVelocity = _velocity[currentParticleIndex];
+		currentVelocity += deltaTimeInSec * currentAccel;
+		_positions[currentParticleIndex] += deltaTimeInSec * currentVelocity;
+	});
+}
