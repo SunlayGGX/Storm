@@ -11,6 +11,6 @@ namespace Storm
 		using Storm::ParticleSystem::ParticleSystem;
 
 	public:
-		virtual bool isFluids() const noexcept override;
+		bool isFluids() const noexcept final override;
 	};
 }
