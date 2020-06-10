@@ -74,6 +74,7 @@ namespace Storm
 		DirectX::XMMATRIX _transposedOrthoMatrix; // For 2D HUD
 
 		float _cameraMoveSpeed;
+		float _cameraRotateSpeed;
 		float _cameraPlaneSpeed;
 
 		DirectX::XMFLOAT3 _position;

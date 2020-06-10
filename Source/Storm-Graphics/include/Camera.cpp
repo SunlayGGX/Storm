@@ -85,10 +85,9 @@ namespace
 		return position;
 	}
 
-	constexpr float getRotationAngleRad()
+	constexpr float getRotationAngleRadCoeff()
 	{
-		// 10 degrees
-		return DirectX::XM_PI / 18.f;
+		return DirectX::XM_PI / 180.f;
 	}
 
 	template<TranslateAxis axis>
@@ -170,6 +169,7 @@ void Storm::Camera::reset()
 {
 	_cameraMoveSpeed = 1.f;
 	_cameraPlaneSpeed = 1.f;
+	_cameraRotateSpeed = 10.f; // In degrees
 
 	Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
 	const Storm::GraphicData &currentGraphicData = configMgr.getGraphicData();
@@ -261,12 +261,17 @@ float Storm::Camera::getCameraPlaneSpeed() const noexcept
 void Storm::Camera::increaseCameraSpeed()
 {
 	_cameraMoveSpeed *= 2.f;
+
+	// Don't go beyond 45 degrees...
+	_cameraRotateSpeed = std::min(_cameraRotateSpeed * 2.f, 45.f);
+
 	_cameraPlaneSpeed *= 2.f;
 }
 
 void Storm::Camera::decreaseCameraSpeed()
 {
 	_cameraMoveSpeed = std::max(_cameraMoveSpeed / 2.f, getMinimalNearPlaneValue());
+	_cameraRotateSpeed = std::max(_cameraRotateSpeed / 2.f, 0.1f);
 	_cameraPlaneSpeed = std::max(_cameraPlaneSpeed / 2.f, getMinimalNearPlaneValue());
 }
 
@@ -399,25 +404,29 @@ void Storm::Camera::negativeMoveZAxis()
 
 void Storm::Camera::positiveRotateXAxis()
 {
-	const Storm::Vector3 newPosition = rotateToNewPosition<RotateAxis::X>(_position, _target, getRotationAngleRad());
+	const float rotateDegrees = _cameraRotateSpeed * getRotationAngleRadCoeff();
+	const Storm::Vector3 newPosition = rotateToNewPosition<RotateAxis::X>(_position, _target, rotateDegrees);
 	this->setPosition(newPosition.x(), newPosition.y(), newPosition.z());
 }
 
 void Storm::Camera::positiveRotateYAxis()
 {
-	const Storm::Vector3 newPosition = rotateToNewPosition<RotateAxis::Y>(_position, _target, getRotationAngleRad());
+	const float rotateDegrees = _cameraRotateSpeed * getRotationAngleRadCoeff();
+	const Storm::Vector3 newPosition = rotateToNewPosition<RotateAxis::Y>(_position, _target, rotateDegrees);
 	this->setPosition(newPosition.x(), newPosition.y(), newPosition.z());
 }
 
 void Storm::Camera::negativeRotateXAxis()
 {
-	const Storm::Vector3 newPosition = rotateToNewPosition<RotateAxis::X>(_position, _target, -getRotationAngleRad());
+	const float rotateDegrees = -_cameraRotateSpeed * getRotationAngleRadCoeff();
+	const Storm::Vector3 newPosition = rotateToNewPosition<RotateAxis::X>(_position, _target, rotateDegrees);
 	this->setPosition(newPosition.x(), newPosition.y(), newPosition.z());
 }
 
 void Storm::Camera::negativeRotateYAxis()
 {
-	const Storm::Vector3 newPosition = rotateToNewPosition<RotateAxis::Y>(_position, _target, -getRotationAngleRad());
+	const float rotateDegrees = -_cameraRotateSpeed * getRotationAngleRadCoeff();
+	const Storm::Vector3 newPosition = rotateToNewPosition<RotateAxis::Y>(_position, _target, rotateDegrees);
 	this->setPosition(newPosition.x(), newPosition.y(), newPosition.z());
 }
 
