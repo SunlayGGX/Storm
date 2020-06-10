@@ -14,7 +14,7 @@ namespace Storm
 
 		virtual bool isFluids() const noexcept = 0;
 
-	private:
+	protected:
 		std::vector<Storm::Vector3> _positions;
 	};
 }
