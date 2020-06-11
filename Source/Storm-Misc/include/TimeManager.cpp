@@ -15,9 +15,11 @@
 
 #include "SpecialKey.h"
 
+#include "GeneralSimulationData.h"
+
 
 Storm::TimeManager::TimeManager() :
-	_physicsTimeInSeconds{ 0.05f },
+	_physicsTimeInSeconds{ 0.01f },
 	_startTime{ std::chrono::high_resolution_clock::now() },
 	_isRunning{ false },
 	_isPaused{ false },
@@ -42,6 +44,12 @@ void Storm::TimeManager::initialize_Implementation()
 
 	std::lock_guard<std::mutex> lock{ _mutex };
 	_isRunning = true;
+
+	const float requestedPhysicsTimeInSeconds = configMgr.getGeneralSimulationData()._physicsTimeInSeconds;
+	if (requestedPhysicsTimeInSeconds > 0.f)
+	{
+		_physicsTimeInSeconds = requestedPhysicsTimeInSeconds;
+	}
 
 	_shouldLogFPSWatching = configMgr.getShouldLogFpsWatching();
 

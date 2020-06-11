@@ -7,7 +7,8 @@ Storm::GeneralSimulationData::GeneralSimulationData() :
 	_gravity{ 0.f, -9.81f, 0.f },
 	_particleRadius{ 0.05f },
 	_kernelCoefficient{ 4.f },
-	_startPaused{ false }
+	_startPaused{ false },
+	_physicsTimeInSeconds{ -1.f }
 {
 
 }

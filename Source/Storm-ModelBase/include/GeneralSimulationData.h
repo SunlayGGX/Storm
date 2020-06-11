@@ -13,6 +13,8 @@ namespace Storm
 		float _particleRadius;
 		float _kernelCoefficient;
 
+		float _physicsTimeInSeconds;
+
 		bool _startPaused;
 	};
 }
