@@ -10,6 +10,7 @@
 		<cameraLookAt x="0.0" y="0.0" z="0.0" />
 		<zNear>0.01</zNear>
 		<zFar>20.0</zFar>
+		<particleDisplay>true</particleDisplay>
 	</Graphic>
 	<Fluid>
 		<id>0</id>

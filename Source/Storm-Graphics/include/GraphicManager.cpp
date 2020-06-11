@@ -166,6 +166,11 @@ void Storm::GraphicManager::initialize_Implementation(void* hwnd)
 		meshesPair.second->initializeRendering(device);
 	}
 
+	if (graphicData._displaySolidAsParticles)
+	{
+		_directXController->setAllParticleState();
+	}
+
 	bool registered = false;
 	static std::condition_variable waiter;
 	static std::mutex mut;

@@ -15,5 +15,7 @@ namespace Storm
 		Storm::Vector3 _cameraLookAt;
 		float _zNear;
 		float _zFar;
+
+		bool _displaySolidAsParticles;
 	};
 }

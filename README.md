@@ -135,6 +135,7 @@ Unlike the others config files, it can be named as you want. Here the wml tags y
 - **zNear (float, facultative)**: This is the initial distance in meter from the camera which everything that is nearer than this distance won't be rendered. Default value is 0.01.
 - **zFar (float, facultative)**: Same as zNear except that we skip displaying all objects farer than this distance value. Default value is 20.0.
 - **grid (vector3, facultative)**: Set the grid dimension. X coord will be the grid width, Z its depth and Y will be the height where the grid will be drawn. Note that X and Z will be ceiled. Default value is { x=10.0, y=0.0, z=10.0 }
+- **particleDisplay (boolean, facultative)**: Specify if Solids should be displayed as particle on start. If not, they will be displayed as meshes. "false" by default.
 
 #### Fluid
 This element is all setting appartaining to a fluid. Here the tag you can set inside :
