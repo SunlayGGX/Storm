@@ -59,6 +59,8 @@ void Storm::SimulatorManager::run()
 			return;
 
 		case TimeWaitResult::Pause:
+			// Takes time to process messages that came from other threads.
+			threadMgr.processCurrentThreadActions();
 			continue;
 
 		case TimeWaitResult::Continue:
