@@ -13,6 +13,9 @@ namespace Storm
 		return Storm::Vector3{ vec.x, vec.y, vec.z };
 	}
 
+	template<class Ret>
+	_forceinline Ret convertToStorm(const physx::PxQuat &q);
+
 	_forceinline physx::PxQuat convertToPxRotation(const Storm::Vector3 &rot)
 	{
 		physx::PxQuat result;
@@ -39,7 +42,8 @@ namespace Storm
 		return result;
 	}
 
-	_forceinline Storm::Vector3 convertToStorm(const physx::PxQuat &q)
+	template<>
+	_forceinline Storm::Vector3 convertToStorm<Storm::Vector3>(const physx::PxQuat &q)
 	{
 		Storm::Vector3 result;
 
@@ -69,6 +73,12 @@ namespace Storm
 		result.z() = radToDegreeCoeff * std::atan2(sinyCosp, cosyCosp);
 
 		return result;
+	}
+
+	template<>
+	_forceinline Storm::Quaternion convertToStorm<Storm::Quaternion>(const physx::PxQuat &q)
+	{
+		return Storm::Quaternion{ q.w, q.x, q.y, q.z };
 	}
 
 	_forceinline physx::PxTransform convertToPx(const Storm::Vector3 &translation, const Storm::Vector3 &eulerRot)

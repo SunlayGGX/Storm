@@ -44,5 +44,5 @@ void Storm::PhysicsDynamicRigidBody::getMeshTransform(Storm::Vector3 &outTrans, 
 	}
 
 	outTrans = Storm::convertToStorm(currentTransform.p);
-	outRot = Storm::convertToStorm(currentTransform.q);
+	outRot = Storm::convertToStorm<Storm::Vector3>(currentTransform.q);
 }
