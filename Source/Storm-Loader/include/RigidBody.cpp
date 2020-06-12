@@ -69,6 +69,13 @@ void Storm::RigidBody::getRigidBodyTransform(Storm::Vector3 &outTrans, Storm::Ve
 	physicsMgr.getMeshTransform(_rbId, outTrans, outRot);
 }
 
+void Storm::RigidBody::getRigidBodyTransform(Storm::Vector3 &outTrans, Storm::Quaternion &outRot) const
+{
+	// Physics module should have the ownership of this data.
+	const Storm::IPhysicsManager &physicsMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IPhysicsManager>();
+	physicsMgr.getMeshTransform(_rbId, outTrans, outRot);
+}
+
 std::vector<Storm::Vector3> Storm::RigidBody::getRigidBodyParticlesWorldPositions() const
 {
 	// Simulator module should have the ownership of this data.

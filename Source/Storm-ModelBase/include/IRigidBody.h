@@ -14,6 +14,7 @@ namespace Storm
 		virtual unsigned int getRigidBodyID() const = 0;
 
 		virtual void getRigidBodyTransform(Storm::Vector3 &outTrans, Storm::Vector3 &outRot) const = 0;
+		virtual void getRigidBodyTransform(Storm::Vector3 &outTrans, Storm::Quaternion &outRot) const = 0;
 
 		// Warning : returns a copy to avoid data races so be careful when using it...
 		virtual std::vector<Storm::Vector3> getRigidBodyParticlesWorldPositions() const = 0;
