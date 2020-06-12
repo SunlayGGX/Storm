@@ -7,5 +7,7 @@
 namespace Storm
 {
 	using Vector3 = Eigen::Vector3f;
+	using Vector4 = Eigen::Vector4f;
+	using Quaternion = Eigen::Quaternionf;
 }
 
