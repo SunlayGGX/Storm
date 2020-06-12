@@ -19,6 +19,7 @@ namespace Storm
 
 	public:
 		void getMeshTransform(Storm::Vector3 &outTrans, Storm::Vector3 &outRot) const;
+		void getMeshTransform(Storm::Vector3 &outTrans, Storm::Quaternion &outQuatRot) const;
 
 	private:
 		Storm::UniquePointer<physx::PxRigidDynamic> _internalRb;

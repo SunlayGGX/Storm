@@ -46,3 +46,16 @@ void Storm::PhysicsDynamicRigidBody::getMeshTransform(Storm::Vector3 &outTrans, 
 	outTrans = Storm::convertToStorm(currentTransform.p);
 	outRot = Storm::convertToStorm<Storm::Vector3>(currentTransform.q);
 }
+
+void Storm::PhysicsDynamicRigidBody::getMeshTransform(Storm::Vector3 &outTrans, Storm::Quaternion &outQuatRot) const
+{
+	physx::PxTransform currentTransform;
+
+	{
+		std::lock_guard<std::mutex> lock{ Storm::PhysicsManager::instance()._simulationMutex };
+		currentTransform = _internalRb->getGlobalPose();
+	}
+
+	outTrans = Storm::convertToStorm(currentTransform.p);
+	outQuatRot = Storm::convertToStorm<Storm::Quaternion>(currentTransform.q);
+}

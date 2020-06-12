@@ -1,6 +1,7 @@
 #include "PhysicsStaticsRigidBody.h"
 
 #include "ThrowException.h"
+#include "PhysXCoordHelpers.h"
 
 #include "PhysicsManager.h"
 #include "PhysXHandler.h"
@@ -22,7 +23,7 @@ Storm::PhysicsStaticsRigidBody::PhysicsStaticsRigidBody(const Storm::RigidBodySc
 	Storm::PhysicalShape{ rbSceneData, vertices },
 	_internalRb{ createStaticRigidBody(rbSceneData) },
 	_trans{ rbSceneData._translation },
-	_rotation{ rbSceneData._rotation }
+	_eulerRotation{ rbSceneData._rotation }
 {
 	if (!_internalRb)
 	{
@@ -33,10 +34,19 @@ Storm::PhysicsStaticsRigidBody::PhysicsStaticsRigidBody(const Storm::RigidBodySc
 	{
 		Storm::throwException<std::exception>("We failed to attach the created shape to the rigid body " + std::to_string(rbSceneData._rigidBodyID));
 	}
+
+	const physx::PxQuat physXQuatRot = Storm::convertToPxRotation(rbSceneData._rotation);
+	_quatRotation = Storm::convertToStorm<Storm::Quaternion>(physXQuatRot);
 }
 
 void Storm::PhysicsStaticsRigidBody::getMeshTransform(Storm::Vector3 &outTrans, Storm::Vector3 &outRot) const
 {
 	outTrans = _trans;
-	outRot = _rotation;
+	outRot = _eulerRotation;
+}
+
+void Storm::PhysicsStaticsRigidBody::getMeshTransform(Storm::Vector3 &outTrans, Storm::Quaternion &outQuatRot) const
+{
+	outTrans = _trans;
+	outQuatRot = _quatRotation;
 }

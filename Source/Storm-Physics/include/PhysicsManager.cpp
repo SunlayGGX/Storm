@@ -93,6 +93,22 @@ void Storm::PhysicsManager::getMeshTransform(unsigned int meshId, Storm::Vector3
 	}
 }
 
+void Storm::PhysicsManager::getMeshTransform(unsigned int meshId, Storm::Vector3 &outTrans, Storm::Quaternion &outQuatRot) const
+{
+	if (const auto staticFound = _staticsRbMap.find(meshId); staticFound != std::end(_staticsRbMap))
+	{
+		staticFound->second->getMeshTransform(outTrans, outQuatRot);
+	}
+	else if (const auto dynamicFound = _dynamicsRbMap.find(meshId); dynamicFound != std::end(_dynamicsRbMap))
+	{
+		dynamicFound->second->getMeshTransform(outTrans, outQuatRot);
+	}
+	else
+	{
+		Storm::throwException<std::exception>("Cannot find physics rb " + std::to_string(meshId));
+	}
+}
+
 const Storm::PhysXHandler& Storm::PhysicsManager::getPhysXHandler() const
 {
 	return *_physXHandler;
