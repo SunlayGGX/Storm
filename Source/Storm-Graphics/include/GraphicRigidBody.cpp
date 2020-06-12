@@ -28,12 +28,12 @@ namespace
 		cont.shrink_to_fit();
 	}
 
-	DirectX::XMMATRIX makeTransform(const Storm::Vector3 &trans, const Storm::Vector3 &rot)
+	DirectX::XMMATRIX makeTransform(const Storm::Vector3 &trans, const Storm::Quaternion &rot)
 	{
 		return DirectX::XMMatrixTranspose(DirectX::XMMatrixAffineTransformation(
 			DirectX::FXMVECTOR{ 1.f, 1.f, 1.f, 0.f },
 			DirectX::FXMVECTOR{ 0.f, 0.f, 0.f, 1.f },
-			DirectX::XMQuaternionRotationRollPitchYaw(rot.x(), rot.y(), rot.z()),
+			DirectX::XMVECTOR{ rot.x(), rot.y(), rot.z(), rot.w() },
 			Storm::convertToXM(trans)
 		));
 	}
@@ -102,7 +102,7 @@ void Storm::GraphicRigidBody::initializeRendering(const ComPtr<ID3D11Device> &de
 void Storm::GraphicRigidBody::render(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera)
 {
 	Storm::Vector3 trans;
-	Storm::Vector3 rot;
+	Storm::Quaternion rot;
 
 	const std::shared_ptr<Storm::IRigidBody> &boundRbParent = this->getRbParent();
 	boundRbParent->getRigidBodyTransform(trans, rot);
