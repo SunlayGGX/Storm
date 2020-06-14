@@ -22,6 +22,11 @@ Storm::ParticleSystem::ParticleSystem(unsigned int particleSystemIndex, std::vec
 	_accelerations.resize(particleCount);
 }
 
+const std::vector<float>& Storm::ParticleSystem::getMasses() const noexcept
+{
+	return _masses;
+}
+
 const std::vector<Storm::Vector3>& Storm::ParticleSystem::getPositions() const noexcept
 {
 	return _positions;

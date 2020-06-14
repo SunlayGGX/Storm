@@ -10,6 +10,7 @@ namespace Storm
 		virtual ~ParticleSystem() = default;
 
 	public:
+		const std::vector<float>& getMasses() const noexcept;
 		const std::vector<Storm::Vector3>& getPositions() const noexcept;
 		const std::vector<Storm::Vector3>& getVelocity() const noexcept;
 		const std::vector<Storm::Vector3>& getAccelerations() const noexcept;
