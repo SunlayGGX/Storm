@@ -90,8 +90,8 @@ void Storm::SimulatorManager::run()
 
 
 		// Push all particle data to the graphic module to be rendered...
-		// The first 4 frames every 1024 frames will be pushed for sure to the graphic module to be sure everyone is sync... 
-		this->pushParticlesToGraphicModule(_forcedPushFrameIterator._val < 4);
+		// The first 5 frames every 1024 frames will be pushed for sure to the graphic module to be sure everyone is sync... 
+		this->pushParticlesToGraphicModule(_forcedPushFrameIterator._val < 5);
 
 
 		// Takes time to process messages that came from other threads.
