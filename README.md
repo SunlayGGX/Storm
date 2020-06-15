@@ -161,6 +161,7 @@ Inside this element should be put all rigidbodies. Each rigidbody should be spec
 - **staticFrictionCoeff (float, facultative)**: The static friction coefficient of the object, it should be larger than 0.0. PhysX needs it but physically speaking I don't know what to set. This is the minimum force norm threshold that makes our object move. See http://docs.garagegames.com/torque-3d/reference/classPxMaterial.html.
 - **dynamicFrictionCoeff (float, facultative)**: The dynamic friction coefficient of the object, it should be positive. PhysX needs it but physically speaking I don't know what to set. This is the the velocity reduction when a rigid body moves with a contact with another. See http://docs.garagegames.com/torque-3d/reference/classPxMaterial.html.
 - **restitutionCoeff (float, facultative)**: The restitution friction coefficient of the object (the bounciness of the object), it should be positive but close or above 1.0 may cause instabilities. PhysX needs it but physically speaking I don't know what to set. Closer it is to 0.0, less the object will bounce and more it will lose energy when being in contact with another rb. See http://docs.garagegames.com/torque-3d/reference/classPxMaterial.html.
+- **mass (positive float, mandatory)**: The mass of the rigid body in kg. This has to be strictly positive (> 0.0). 
 
 
 

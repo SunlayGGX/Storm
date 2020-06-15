@@ -21,7 +21,8 @@ Storm::RigidBodySceneData::RigidBodySceneData() :
 	_collisionShape{ Storm::CollisionType::None },
 	_staticFrictionCoefficient{ 0.1f },
 	_dynamicFrictionCoefficient{ 0.f },
-	_restitutionCoefficient{ 0.1f }
+	_restitutionCoefficient{ 0.1f },
+	_mass{ -1.f }
 {
 
 }

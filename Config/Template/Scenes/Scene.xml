@@ -25,6 +25,7 @@
 			<meshFile>$[StormResource]\Meshes\cube.obj</meshFile>
 			<isStatic>true</isStatic>
 			<collisionType>cube</collisionType>
+			<mass>1.0</mass>
 		</RigidBody>
 	</RigidBodies>
 </Scene>

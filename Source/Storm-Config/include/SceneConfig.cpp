@@ -163,6 +163,7 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 						!Storm::XmlReader::handleXml(rigidBodyDataXml, "dynamicFrictionCoeff", rbData._dynamicFrictionCoefficient) &&
 						!Storm::XmlReader::handleXml(rigidBodyDataXml, "restitutionCoeff", rbData._restitutionCoefficient) &&
 						!Storm::XmlReader::handleXml(rigidBodyDataXml, "isStatic", rbData._static) &&
+						!Storm::XmlReader::handleXml(rigidBodyDataXml, "mass", rbData._mass) &&
 						!Storm::XmlReader::handleXml(rigidBodyDataXml, "collisionType", rbData._collisionShape, parseCollisionType) &&
 						!Storm::XmlReader::handleXml(rigidBodyDataXml, "translation", rbData._translation, parseVector3Element) &&
 						!Storm::XmlReader::handleXml(rigidBodyDataXml, "rotation", rbData._rotation, parseVector3Element) &&
@@ -191,6 +192,10 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 				else if (!std::filesystem::is_regular_file(rbData._meshFilePath))
 				{
 					Storm::throwException<std::exception>("'" + rbData._meshFilePath + "' is not a valid mesh file!");
+				}
+				else if (rbData._mass <= 0.f)
+				{
+					Storm::throwException<std::exception>(std::to_string(rbData._mass) + "kg is invalid (rigid body " + std::to_string(rbData._rigidBodyID) + ")!");
 				}
 			}
 			else
