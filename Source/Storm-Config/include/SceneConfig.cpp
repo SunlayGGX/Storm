@@ -130,9 +130,14 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 			LOG_ERROR << "tag '" << fluidXmlElement.first << "' (inside Scene.Fluid) is unknown, therefore it cannot be handled";
 		}
 	}
+
 	if (fluidData._fluidGenData.empty())
 	{
-		Storm::throwException<std::exception>("Fluid should have at least one block (an empty fluid is forbidden)!");
+		Storm::throwException<std::exception>("Fluid " + std::to_string(fluidData._fluidId) + " should have at least one block (an empty fluid is forbidden)!");
+	}
+	else if (fluidData._density <= 0.f)
+	{
+		Storm::throwException<std::exception>("Fluid " + std::to_string(fluidData._fluidId) + " density of " + std::to_string(fluidData._density) + "kg.m^-3 is invalid!");
 	}
 
 
