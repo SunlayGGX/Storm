@@ -1,23 +1,14 @@
 #include "ParticleSystem.h"
 
 
-namespace
-{
-	float computeDefaultParticleMass()
-	{
-		// TODO
-		return 1.f;
-	}
-}
 
-
-Storm::ParticleSystem::ParticleSystem(unsigned int particleSystemIndex, std::vector<Storm::Vector3> &&worldPositions) :
+Storm::ParticleSystem::ParticleSystem(unsigned int particleSystemIndex, std::vector<Storm::Vector3> &&worldPositions, float particleMass) :
 	_positions{ std::move(worldPositions) },
 	_particleSystemIndex{ particleSystemIndex }
 {
 	const std::size_t particleCount = _positions.size();
 
-	_masses.resize(particleCount, computeDefaultParticleMass());
+	_masses.resize(particleCount, particleMass);
 	_velocity.resize(particleCount, Storm::Vector3::Zero());
 	_accelerations.resize(particleCount);
 }

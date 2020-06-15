@@ -2,10 +2,36 @@
 
 #include "SingletonHolder.h"
 #include "IPhysicsManager.h"
+#include "IConfigManager.h"
 
+#include "RigidBodySceneData.h"
+#include "CollisionType.h"
+
+
+
+namespace
+{
+	float computeDefaultRigidBodyParticleMass(unsigned int particleSystemIndex, const std::size_t particleCount)
+	{
+		const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
+
+		const auto &allRbData = configMgr.getRigidBodiesData();
+		if (const auto currentRbDataIter = std::find_if(std::begin(allRbData), std::end(allRbData), [particleSystemIndex](const Storm::RigidBodySceneData &rb)
+		{
+			return rb._rigidBodyID == particleSystemIndex;
+		}); currentRbDataIter != std::end(allRbData))
+		{
+			return currentRbDataIter->_mass / static_cast<float>(particleCount);
+		}
+		else
+		{
+			Storm::throwException<std::exception>("Cannot find rigid body data with index " + std::to_string(particleSystemIndex));
+		}
+	}
+}
 
 Storm::RigidBodyParticleSystem::RigidBodyParticleSystem(unsigned int particleSystemIndex, std::vector<Storm::Vector3> &&worldPositions) :
-	Storm::ParticleSystem{ particleSystemIndex, std::move(worldPositions) },
+	Storm::ParticleSystem{ particleSystemIndex, std::move(worldPositions), computeDefaultRigidBodyParticleMass(particleSystemIndex, worldPositions.size()) },
 	_cachedTrackedRbRotationQuat{ Storm::Quaternion::Identity() }
 {
 

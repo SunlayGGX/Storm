@@ -8,7 +8,7 @@ namespace Storm
 	class FluidParticleSystem : public Storm::ParticleSystem
 	{
 	public:
-		using Storm::ParticleSystem::ParticleSystem;
+		FluidParticleSystem(unsigned int particleSystemIndex, std::vector<Storm::Vector3> &&worldPositions);
 
 	public:
 		bool isFluids() const noexcept final override;

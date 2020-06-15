@@ -6,7 +6,7 @@ namespace Storm
 	class ParticleSystem
 	{
 	public:
-		ParticleSystem(unsigned int particleSystemIndex, std::vector<Storm::Vector3> &&worldPositions);
+		ParticleSystem(unsigned int particleSystemIndex, std::vector<Storm::Vector3> &&worldPositions, float particleMass);
 		virtual ~ParticleSystem() = default;
 
 	public:

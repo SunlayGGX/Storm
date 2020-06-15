@@ -4,7 +4,31 @@
 #include "IConfigManager.h"
 
 #include "GeneralSimulationData.h"
+#include "FluidData.h"
 
+
+
+namespace
+{
+	float computeDefaultFluidParticleMass()
+	{
+		const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
+
+		const float particleRadius = configMgr.getGeneralSimulationData()._particleRadius;
+		const float fluidDensity = configMgr.getFluidData()._density;
+
+		const float particleVolume = particleRadius * particleRadius * particleRadius;
+
+		return fluidDensity * particleVolume;
+	}
+}
+
+
+Storm::FluidParticleSystem::FluidParticleSystem(unsigned int particleSystemIndex, std::vector<Storm::Vector3> &&worldPositions) :
+	Storm::ParticleSystem{ particleSystemIndex, std::move(worldPositions), computeDefaultFluidParticleMass() }
+{
+
+}
 
 bool Storm::FluidParticleSystem::isFluids() const noexcept
 {
