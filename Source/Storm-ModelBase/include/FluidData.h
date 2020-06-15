@@ -21,5 +21,6 @@ namespace Storm
 	public:
 		unsigned int _fluidId;
 		std::vector<Storm::FluidBlockData> _fluidGenData;
+		float _density;
 	};
 }

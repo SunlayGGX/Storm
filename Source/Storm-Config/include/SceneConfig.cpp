@@ -122,7 +122,10 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 				Storm::throwException<std::exception>("Generator min block value cannot be equal to the max value!");
 			}
 		}
-		else if (!Storm::XmlReader::handleXml(fluidXmlElement, "id", fluidData._fluidId))
+		else if (
+			!Storm::XmlReader::handleXml(fluidXmlElement, "id", fluidData._fluidId) &&
+			!Storm::XmlReader::handleXml(fluidXmlElement, "density", fluidData._density)
+			)
 		{
 			LOG_ERROR << "tag '" << fluidXmlElement.first << "' (inside Scene.Fluid) is unknown, therefore it cannot be handled";
 		}

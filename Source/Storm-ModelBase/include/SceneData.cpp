@@ -44,7 +44,8 @@ Storm::FluidBlockData::FluidBlockData() :
 
 }
 
-Storm::FluidData::FluidData()
+Storm::FluidData::FluidData() :
+	_density{ 1.2754f } // Dry air density at 0 degrees and normal ATM pressure. https://en.wikipedia.org/wiki/Density_of_air.
 {
 
 }

@@ -144,6 +144,7 @@ This element is all setting appartaining to a fluid. Here the tag you can set in
 - **fluidBlock (tag, at least one)**: This is the fluid generator settings. There should be at least one.
 	+ **firstPoint (vector3, facultative)**: This is one of the corner of the box where fluid particle should be generated. It cannot have the same value than secondPoint, default value is { x=0.0, y=0.0, z=0.0 }.
 	+ **secondPoint (vector3, facultative)**: This is the opposite corner from firstPoint where fluid particle should be generated. It cannot have the same value than firstPoint, default value is { x=0.0, y=0.0, z=0.0 }.
+- **density (float, falcultative)**: This is the rest density of the fluid in kg.m^-3. Default is 1.2754 kg.m^-3 which is the density of Dry air at 0 degree and normal ATM pressure.
 
 
 #### RigidBodies
