@@ -14,6 +14,7 @@ namespace Storm
 		float _kernelCoefficient;
 
 		float _physicsTimeInSeconds;
+		float _expectedFps;
 
 		bool _startPaused;
 	};

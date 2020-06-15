@@ -71,6 +71,7 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 			!Storm::XmlReader::handleXml(generalXmlElement, "gravity", generalData._gravity, parseVector3Element) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "kernelCoeff", generalData._kernelCoefficient) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "physicsTime", generalData._physicsTimeInSeconds) &&
+			!Storm::XmlReader::handleXml(generalXmlElement, "fps", generalData._expectedFps) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "particleRadius", generalData._particleRadius)
 			)
 		{

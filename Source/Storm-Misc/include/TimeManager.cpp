@@ -45,10 +45,17 @@ void Storm::TimeManager::initialize_Implementation()
 	std::lock_guard<std::mutex> lock{ _mutex };
 	_isRunning = true;
 
-	const float requestedPhysicsTimeInSeconds = configMgr.getGeneralSimulationData()._physicsTimeInSeconds;
+	const Storm::GeneralSimulationData &generalSimulationData = configMgr.getGeneralSimulationData();
+	const float requestedPhysicsTimeInSeconds = generalSimulationData._physicsTimeInSeconds;
 	if (requestedPhysicsTimeInSeconds > 0.f)
 	{
 		_physicsTimeInSeconds = requestedPhysicsTimeInSeconds;
+	}
+
+	const float requestedFps = generalSimulationData._expectedFps;
+	if (requestedFps > 0.f)
+	{
+		this->setExpectedFrameFPS(requestedFps);
 	}
 
 	_shouldLogFPSWatching = configMgr.getShouldLogFpsWatching();
