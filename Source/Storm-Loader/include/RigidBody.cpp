@@ -264,31 +264,31 @@ void Storm::RigidBody::load(const Storm::RigidBodySceneData &rbSceneData)
 					Storm::Version cacheFileVersion{ versionTmp };
 					if (cacheFileVersion != currentVersion)
 					{
-						LOG_WARNING << '"' << meshPath << "\" has a particle cached file but it is was made with a previous version of the application (no retro compatibility), therefore we will regenerate it anew.";
+						LOG_WARNING << "'" << meshPath << "' has a particle cached file but it is was made with a previous version of the application (no retro compatibility), therefore we will regenerate it anew.";
 						hasCache = false;
 					}
 				}
 				else
 				{
-					LOG_WARNING << '"' << meshPath << "\" has no particle cached file since the one we found was generated for another file that has the same name, therefore we will regenerate it anew.";
+					LOG_WARNING << "'" << meshPath << "' has no particle cached file since the one we found was generated for another file that has the same name, therefore we will regenerate it anew.";
 					hasCache = false;
 				}
 			}
 			else
 			{
-				LOG_WARNING << '"' << meshPath << "\" has a particle cached file but it is outdated, therefore we will regenerate it anew.";
+				LOG_WARNING << "'" << meshPath << "' has a particle cached file but it is outdated, therefore we will regenerate it anew.";
 				hasCache = false;
 			}
 		}
 		else
 		{
-			LOG_WARNING << '"' << meshPath << "\" has a particle cached file but it is corrupted (invalid), therefore we will regenerate it anew.";
+			LOG_WARNING << "'" << meshPath << "' has a particle cached file but it is corrupted (invalid), therefore we will regenerate it anew.";
 			hasCache = false;
 		}
 
 		if (hasCache)
 		{
-			LOG_COMMENT << '"' << meshPath << "\" has a right matching particle cached data file, therefore we will load it instead.";
+			LOG_COMMENT << "'" << meshPath << "' has a right matching particle cached data file, therefore we will load it instead.";
 			
 			uint64_t particleCount;
 			Storm::binaryRead(cacheReadStream, particleCount);
