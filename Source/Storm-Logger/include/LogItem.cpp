@@ -32,6 +32,18 @@ namespace
 
 		return result;
 	}
+
+	class LogThreadIdParserPolicy
+	{
+	public:
+		template<class SrcPolicy>
+		static std::string parse(const std::thread::id thId)
+		{
+			std::stringstream thStream;
+			thStream << 'T' << thId << " (0x" << std::hex << thId << ')';
+			return std::move(thStream).str();
+		}
+	};
 }
 
 Storm::LogItem::LogItem(const std::string_view &moduleName, const Storm::LogLevel level, const std::string_view &function, const int line, std::string &&msg) :
@@ -71,7 +83,7 @@ Storm::LogItem::operator std::string() const
 	const std::string_view levelStr = Storm::LogItem::parseLogLevel(_level);
 	const std::string timestampStr = timeStampToString(_timestamp);
 	const std::string lineStr = std::to_string(_line);
-	const std::string threadIdStr = Storm::toStdString(_threadId);
+	const std::string threadIdStr = Storm::toStdString<LogThreadIdParserPolicy>(_threadId);
 
 	result.reserve(_msg.size() + _moduleName.size() + _function.size() + levelStr.size() + timestampStr.size() + lineStr.size() + threadIdStr.size() + 16);
 
