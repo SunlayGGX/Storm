@@ -23,6 +23,13 @@ namespace Storm
 		virtual void initializeIteration();
 		virtual void updatePosition(float deltaTimeInSec) = 0;
 
+	public:
+		template<class Type>
+		std::size_t getParticleIndex(const std::vector<std::remove_cv_t<Type>> &dataArray, Type &particleData) const
+		{
+			return &particleData - &dataArray[0];
+		}
+
 	protected:
 		std::vector<float> _masses;
 		std::vector<Storm::Vector3> _positions;
