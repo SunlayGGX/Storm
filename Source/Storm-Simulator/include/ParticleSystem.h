@@ -3,6 +3,8 @@
 
 namespace Storm
 {
+	struct ParticleIdentifier;
+
 	class ParticleSystem
 	{
 	public:
@@ -15,13 +17,23 @@ namespace Storm
 		const std::vector<Storm::Vector3>& getVelocity() const noexcept;
 		const std::vector<Storm::Vector3>& getAccelerations() const noexcept;
 
+		unsigned int getId() const noexcept;
+
 		virtual bool isFluids() const noexcept = 0;
 
 		bool isDirty() const noexcept;
 
+		void buildNeighborhood(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems);
+
+	protected:
+		virtual void buildNeighborhoodOnParticleSystem(const Storm::ParticleSystem &otherParticleSystem, const float kernelLengthSquared) = 0;
+
 	public:
 		virtual void initializeIteration();
 		virtual void updatePosition(float deltaTimeInSec) = 0;
+
+	public:
+		static void addNeighborIfRelevant(std::vector<Storm::ParticleIdentifier> &currentNeighborhoodToFill, const Storm::Vector3 &currentParticlePosition, const Storm::Vector3 &maybeNeighborhood, unsigned int particleSystemIndex, std::size_t particleIndex, const float kernelLengthSquared);
 
 	public:
 		template<class Type>
@@ -30,11 +42,14 @@ namespace Storm
 			return &particleData - &dataArray[0];
 		}
 
+
 	protected:
 		std::vector<float> _masses;
 		std::vector<Storm::Vector3> _positions;
 		std::vector<Storm::Vector3> _velocity;
 		std::vector<Storm::Vector3> _accelerations;
+
+		std::vector<std::vector<Storm::ParticleIdentifier>> _neighborhood;
 
 		unsigned int _particleSystemIndex;
 		std::atomic<bool> _isDirty;

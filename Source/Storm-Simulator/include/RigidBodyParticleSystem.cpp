@@ -1,5 +1,7 @@
 #include "RigidBodyParticleSystem.h"
 
+#include "ParticleIdentifier.h"
+
 #include "SingletonHolder.h"
 #include "IPhysicsManager.h"
 #include "IConfigManager.h"
@@ -40,6 +42,28 @@ Storm::RigidBodyParticleSystem::RigidBodyParticleSystem(unsigned int particleSys
 bool Storm::RigidBodyParticleSystem::isFluids() const noexcept
 {
 	return false;
+}
+
+void Storm::RigidBodyParticleSystem::buildNeighborhoodOnParticleSystem(const Storm::ParticleSystem &otherParticleSystem, const float kernelLengthSquared)
+{
+	if (otherParticleSystem.isFluids())
+	{
+		std::for_each(std::execution::par_unseq, std::begin(_positions), std::end(_positions), [this, kernelLengthSquared, &otherParticleSystem](const Storm::Vector3 &currentParticlePosition)
+		{
+			auto &currentNeighborhoodToFill = _neighborhood[this->getParticleIndex(_positions, currentParticlePosition)];
+			currentNeighborhoodToFill.clear();
+
+			const auto &otherParticleSystemPositionsArray = otherParticleSystem.getPositions();
+			const std::size_t otherParticleSizeCount = otherParticleSystemPositionsArray.size();
+
+			const unsigned int otherParticleSystemId = otherParticleSystem.getId();
+
+			for (std::size_t particleIndex = 0; particleIndex < otherParticleSizeCount; ++particleIndex)
+			{
+				ParticleSystem::addNeighborIfRelevant(currentNeighborhoodToFill, currentParticlePosition, otherParticleSystemPositionsArray[particleIndex], otherParticleSystemId, particleIndex, kernelLengthSquared);
+			}
+		});
+	}
 }
 
 void Storm::RigidBodyParticleSystem::updatePosition(float deltaTimeInSec)

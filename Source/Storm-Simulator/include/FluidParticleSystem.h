@@ -14,6 +14,9 @@ namespace Storm
 		bool isFluids() const noexcept final override;
 
 	public:
+		void buildNeighborhoodOnParticleSystem(const Storm::ParticleSystem &otherParticleSystem, const float kernelLengthSquared) final override;
+
+	public:
 		void initializeIteration() final override;
 		void updatePosition(float deltaTimeInSec) final override;
 	};
