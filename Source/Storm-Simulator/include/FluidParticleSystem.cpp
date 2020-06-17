@@ -1,7 +1,5 @@
 #include "FluidParticleSystem.h"
 
-#include "ParticleIdentifier.h"
-
 #include "SingletonHolder.h"
 #include "IConfigManager.h"
 
@@ -47,17 +45,23 @@ void Storm::FluidParticleSystem::buildNeighborhoodOnParticleSystem(const Storm::
 			const std::size_t currentParticleIndex = this->getParticleIndex(_positions, currentParticlePosition);
 			const std::size_t particleCount = _positions.size();
 
-			auto &currentNeighborhoodToFill = _neighborhood[currentParticleIndex];
+			std::vector<Storm::ParticleIdentifier> &currentNeighborhoodToFill = _neighborhood[currentParticleIndex];
 			currentNeighborhoodToFill.clear();
 
 			for (std::size_t particleIndex = 0; particleIndex < currentParticleIndex; ++particleIndex)
 			{
-				ParticleSystem::addNeighborIfRelevant(currentNeighborhoodToFill, currentParticlePosition, _positions[particleIndex], _particleSystemIndex, particleIndex, kernelLengthSquared);
+				if ((currentParticlePosition - _positions[particleIndex]).squaredNorm() < kernelLengthSquared)
+				{
+					currentNeighborhoodToFill.emplace_back(_particleSystemIndex, particleIndex);
+				}
 			}
 
 			for (std::size_t particleIndex = currentParticleIndex + 1; particleIndex < particleCount; ++particleIndex)
 			{
-				ParticleSystem::addNeighborIfRelevant(currentNeighborhoodToFill, currentParticlePosition, _positions[particleIndex], _particleSystemIndex, particleIndex, kernelLengthSquared);
+				if ((currentParticlePosition - _positions[particleIndex]).squaredNorm() < kernelLengthSquared)
+				{
+					currentNeighborhoodToFill.emplace_back(_particleSystemIndex, particleIndex);
+				}
 			}
 		});
 	}
@@ -65,7 +69,7 @@ void Storm::FluidParticleSystem::buildNeighborhoodOnParticleSystem(const Storm::
 	{
 		std::for_each(std::execution::par_unseq, std::begin(_positions), std::end(_positions), [this, kernelLengthSquared, &otherParticleSystem, otherParticleSystemId](const Storm::Vector3 &currentParticlePosition)
 		{
-			auto &currentNeighborhoodToFill = _neighborhood[this->getParticleIndex(_positions, currentParticlePosition)];
+			std::vector<Storm::ParticleIdentifier> &currentNeighborhoodToFill = _neighborhood[this->getParticleIndex(_positions, currentParticlePosition)];
 			currentNeighborhoodToFill.clear();
 
 			const auto &otherParticleSystemPositionsArray = otherParticleSystem.getPositions();
@@ -73,7 +77,10 @@ void Storm::FluidParticleSystem::buildNeighborhoodOnParticleSystem(const Storm::
 
 			for (std::size_t particleIndex = 0; particleIndex < otherParticleSizeCount; ++particleIndex)
 			{
-				ParticleSystem::addNeighborIfRelevant(currentNeighborhoodToFill, currentParticlePosition, otherParticleSystemPositionsArray[particleIndex], otherParticleSystemId, particleIndex, kernelLengthSquared);
+				if ((currentParticlePosition - otherParticleSystemPositionsArray[particleIndex]).squaredNorm() < kernelLengthSquared)
+				{
+					currentNeighborhoodToFill.emplace_back(otherParticleSystemId, particleIndex);
+				}
 			}
 		});
 	}

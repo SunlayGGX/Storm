@@ -1,7 +1,5 @@
 #include "RigidBodyParticleSystem.h"
 
-#include "ParticleIdentifier.h"
-
 #include "SingletonHolder.h"
 #include "IPhysicsManager.h"
 #include "IConfigManager.h"
@@ -50,7 +48,7 @@ void Storm::RigidBodyParticleSystem::buildNeighborhoodOnParticleSystem(const Sto
 	{
 		std::for_each(std::execution::par_unseq, std::begin(_positions), std::end(_positions), [this, kernelLengthSquared, &otherParticleSystem](const Storm::Vector3 &currentParticlePosition)
 		{
-			auto &currentNeighborhoodToFill = _neighborhood[this->getParticleIndex(_positions, currentParticlePosition)];
+			std::vector<Storm::ParticleIdentifier> &currentNeighborhoodToFill = _neighborhood[this->getParticleIndex(_positions, currentParticlePosition)];
 			currentNeighborhoodToFill.clear();
 
 			const auto &otherParticleSystemPositionsArray = otherParticleSystem.getPositions();
@@ -60,7 +58,10 @@ void Storm::RigidBodyParticleSystem::buildNeighborhoodOnParticleSystem(const Sto
 
 			for (std::size_t particleIndex = 0; particleIndex < otherParticleSizeCount; ++particleIndex)
 			{
-				ParticleSystem::addNeighborIfRelevant(currentNeighborhoodToFill, currentParticlePosition, otherParticleSystemPositionsArray[particleIndex], otherParticleSystemId, particleIndex, kernelLengthSquared);
+				if ((currentParticlePosition - otherParticleSystemPositionsArray[particleIndex]).squaredNorm() < kernelLengthSquared)
+				{
+					currentNeighborhoodToFill.emplace_back(otherParticleSystemId, particleIndex);
+				}
 			}
 		});
 	}

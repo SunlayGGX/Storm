@@ -1,10 +1,9 @@
 #pragma once
 
+#include "ParticleIdentifier.h"
 
 namespace Storm
 {
-	struct ParticleIdentifier;
-
 	class ParticleSystem
 	{
 	public:
@@ -31,9 +30,6 @@ namespace Storm
 	public:
 		virtual void initializeIteration();
 		virtual void updatePosition(float deltaTimeInSec) = 0;
-
-	public:
-		static void addNeighborIfRelevant(std::vector<Storm::ParticleIdentifier> &currentNeighborhoodToFill, const Storm::Vector3 &currentParticlePosition, const Storm::Vector3 &maybeNeighborhood, unsigned int particleSystemIndex, std::size_t particleIndex, const float kernelLengthSquared);
 
 	public:
 		template<class Type>

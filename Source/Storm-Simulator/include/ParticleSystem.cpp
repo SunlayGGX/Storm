@@ -1,7 +1,5 @@
 #include "ParticleSystem.h"
 
-#include "ParticleIdentifier.h"
-
 #include "SingletonHolder.h"
 #include "IConfigManager.h"
 
@@ -19,6 +17,11 @@ Storm::ParticleSystem::ParticleSystem(unsigned int particleSystemIndex, std::vec
 	_velocity.resize(particleCount, Storm::Vector3::Zero());
 	_accelerations.resize(particleCount);
 	_neighborhood.resize(particleCount);
+
+	for (auto &neighborHoodArray : _neighborhood)
+	{
+		neighborHoodArray.reserve(30);
+	}
 }
 
 const std::vector<float>& Storm::ParticleSystem::getMasses() const noexcept
@@ -74,12 +77,4 @@ void Storm::ParticleSystem::initializeIteration()
 		_masses.size() == _accelerations.size() &&
 		"Particle count mismatch detected! An array of particle property has not the same particle count than the other!"
 	);
-}
-
-void Storm::ParticleSystem::addNeighborIfRelevant(std::vector<Storm::ParticleIdentifier> &currentNeighborhoodToFill, const Storm::Vector3 &currentParticlePosition, const Storm::Vector3 &maybeNeighborhood, unsigned int particleSystemIndex, std::size_t particleIndex, const float kernelLengthSquared)
-{
-	if ((currentParticlePosition - maybeNeighborhood).squaredNorm() < kernelLengthSquared)
-	{
-		currentNeighborhoodToFill.emplace_back(particleSystemIndex, particleIndex);
-	}
 }

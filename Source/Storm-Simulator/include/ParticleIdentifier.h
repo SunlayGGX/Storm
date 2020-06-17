@@ -12,6 +12,8 @@ namespace Storm
 			_particleIndex{ particleIndex }
 		{}
 
+		~ParticleIdentifier() = default;
+
 	public:
 		unsigned int _particleSystemId;
 		std::size_t _particleIndex;
