@@ -53,5 +53,8 @@
     <ClInclude Include="..\include\RigidBodyParticleSystem.h">
       <Filter>Header Files\System</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\ParticleIdentifier.h">
+      <Filter>Header Files\System</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
