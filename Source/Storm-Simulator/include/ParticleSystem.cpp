@@ -20,7 +20,7 @@ Storm::ParticleSystem::ParticleSystem(unsigned int particleSystemIndex, std::vec
 
 	for (auto &neighborHoodArray : _neighborhood)
 	{
-		neighborHoodArray.reserve(30);
+		neighborHoodArray.reserve(16);
 	}
 }
 
@@ -61,7 +61,7 @@ void Storm::ParticleSystem::buildNeighborhood(const std::map<unsigned int, std::
 	const float kernelLength = generalSimulData._kernelCoefficient * generalSimulData._particleRadius;
 	const float kernelLengthSquared = kernelLength * kernelLength;
 
-	std::for_each(std::execution::par_unseq, std::begin(allParticleSystems), std::end(allParticleSystems), [this, kernelLengthSquared](const auto &particleSystem)
+	std::for_each(std::begin(allParticleSystems), std::end(allParticleSystems), [this, kernelLengthSquared](const auto &particleSystem)
 	{
 		this->buildNeighborhoodOnParticleSystem(*particleSystem.second, kernelLengthSquared);
 	});
