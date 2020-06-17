@@ -76,6 +76,14 @@ void Storm::SimulatorManager::run()
 			particleSystem.second->initializeIteration();
 		}
 
+		// Build neighborhood.
+		// TODO: Optimize
+		for (auto &particleSystem : _particleSystem)
+		{
+			particleSystem.second->buildNeighborhood(_particleSystem);
+		}
+
+		// TODO
 
 
 		// Update the Rigid bodies positions in scene
