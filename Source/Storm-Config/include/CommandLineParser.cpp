@@ -2,17 +2,23 @@
 #include "ThrowException.h"
 
 
+#define STORM_XMACRO_COMMANDLINE																																					\
+STORM_XMACRO_COMMANDLINE_ELEM("scene", std::string, std::string{}, "The scene config file to use (path).", getSceneFilePath)														\
+STORM_XMACRO_COMMANDLINE_ELEM("macroConfig", std::string, std::string{}, "The general config file to use (path).", getMacroConfigFilePath)											\
+STORM_XMACRO_COMMANDLINE_ELEM("generalConfig", std::string, std::string{}, "The general config file to use (path).", getGeneralConfigFilePath)										\
+STORM_XMACRO_COMMANDLINE_ELEM("tempPath", std::string, std::string{}, "The temporary path to use (path).", getTempPath)																\
+STORM_XMACRO_COMMANDLINE_ELEM("regenPCache", bool, false, "Force invalidating the particle cache data. Therefore regenerating all of them anew.", getShouldRegenerateParticleCache) \
+
+
 Storm::CommandLineParser::CommandLineParser(int argc, const char* argv[]) :
 	_shouldDisplayHelp{ false }
 {
 	boost::program_options::options_description desc{ "Options" };
 	desc.add_options()
 		("help,h", "Command line help")
-		("scene", boost::program_options::value<std::string>(), "The scene config file to use (path).")
-		("macroConfig", boost::program_options::value<std::string>(), "The macro config file to use (path).")
-		("generalConfig", boost::program_options::value<std::string>(), "The general config file to use (path).")
-		("tempPath", boost::program_options::value<std::string>(), "The temporary path to use (path).")
-		("regenPCache", boost::program_options::value<bool>(), "Force invalidating the particle cache data. Therefore regenerating all of them anew.")
+#define STORM_XMACRO_COMMANDLINE_ELEM(tag, type, defaultValue, helpMsg, funcName) (tag, boost::program_options::value<type>(), helpMsg)
+		STORM_XMACRO_COMMANDLINE
+#undef STORM_XMACRO_COMMANDLINE_ELEM
 		;
 
 	boost::program_options::store(
@@ -38,37 +44,12 @@ bool Storm::CommandLineParser::shouldDisplayHelp() const
 	return _shouldDisplayHelp;
 }
 
-std::string Storm::CommandLineParser::getSceneFilePath() const
-{
-	std::string result;
-	this->extractIfExist("scene", result);
-	return result;
+#define STORM_XMACRO_COMMANDLINE_ELEM(tag, type, defaultValue, helpMsg, funcName)	\
+type Storm::CommandLineParser::funcName() const										\
+{																					\
+	type result = defaultValue;														\
+	this->extractIfExist(tag, result);												\
+	return result;																	\
 }
-
-std::string Storm::CommandLineParser::getTempPath() const
-{
-	std::string result;
-	this->extractIfExist("tempPath", result);
-	return result;
-}
-
-std::string Storm::CommandLineParser::getMacroConfigFilePath() const
-{
-	std::string result;
-	this->extractIfExist("macroConfig", result);
-	return result;
-}
-
-std::string Storm::CommandLineParser::getGeneralConfigFilePath() const
-{
-	std::string result;
-	this->extractIfExist("generalConfig", result);
-	return result;
-}
-
-bool Storm::CommandLineParser::getShouldRegenerateParticleCache() const
-{
-	bool shouldRegenPCache = false;
-	this->extractIfExist("regenPCache", shouldRegenPCache);
-	return shouldRegenPCache;
-}
+STORM_XMACRO_COMMANDLINE
+#undef STORM_XMACRO_COMMANDLINE_ELEM
