@@ -237,7 +237,18 @@ void Storm::RigidBody::load(const Storm::RigidBodySceneData &rbSceneData)
 	}
 
 	const auto srcMeshWriteTime = std::filesystem::last_write_time(meshPath);
-	bool hasCache = std::filesystem::exists(cachedPath);
+	bool hasCache;
+	if (configMgr.shouldRegenerateParticleCache())
+	{
+		hasCache = false;
+		LOG_COMMENT << "Regenerating cache no matter its state as requested by user from command line argument!";
+		std::filesystem::remove_all(cachedPath);
+	}
+	else
+	{
+		hasCache = std::filesystem::exists(cachedPath);
+	}
+
 	if (hasCache)
 	{
 		std::ifstream cacheReadStream{ cachedPathStr, std::ios_base::in | std::ios_base::binary };

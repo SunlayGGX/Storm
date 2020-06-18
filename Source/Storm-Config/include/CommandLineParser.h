@@ -17,6 +17,8 @@ namespace Storm
 		std::string getMacroConfigFilePath() const;
 		std::string getGeneralConfigFilePath() const;
 
+		bool getShouldRegenerateParticleCache() const;
+
 	public:
 		template<class Type>
 		bool extractIfExist(const std::string &val, Type &outVar) const

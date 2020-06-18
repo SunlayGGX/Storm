@@ -12,6 +12,7 @@ Storm::CommandLineParser::CommandLineParser(int argc, const char* argv[]) :
 		("macroConfig", boost::program_options::value<std::string>(), "The macro config file to use (path).")
 		("generalConfig", boost::program_options::value<std::string>(), "The general config file to use (path).")
 		("tempPath", boost::program_options::value<std::string>(), "The temporary path to use (path).")
+		("regenPCache", boost::program_options::value<bool>(), "Force invalidating the particle cache data. Therefore regenerating all of them anew.")
 		;
 
 	boost::program_options::store(
@@ -63,4 +64,11 @@ std::string Storm::CommandLineParser::getGeneralConfigFilePath() const
 	std::string result;
 	this->extractIfExist("generalConfig", result);
 	return result;
+}
+
+bool Storm::CommandLineParser::getShouldRegenerateParticleCache() const
+{
+	bool shouldRegenPCache = false;
+	this->extractIfExist("regenPCache", shouldRegenPCache);
+	return shouldRegenPCache;
 }

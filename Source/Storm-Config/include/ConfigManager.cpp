@@ -12,7 +12,8 @@
 
 
 Storm::ConfigManager::ConfigManager() :
-	_shouldDisplayHelp{ false }
+	_shouldDisplayHelp{ false },
+	_shouldRegenerateParticleCache{ false }
 {
 
 }
@@ -141,6 +142,8 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 			LOG_FATAL << errorMsg;
 			Storm::throwException<std::exception>(errorMsg);
 		}
+
+		_shouldRegenerateParticleCache = parser.getShouldRegenerateParticleCache();
 	}
 	else
 	{
@@ -158,6 +161,11 @@ const std::string& Storm::ConfigManager::getTemporaryPath() const
 const std::string& Storm::ConfigManager::getExePath() const
 {
 	return _exePath;
+}
+
+bool Storm::ConfigManager::shouldRegenerateParticleCache() const
+{
+	return _shouldRegenerateParticleCache;
 }
 
 bool Storm::ConfigManager::noPopup() const

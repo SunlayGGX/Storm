@@ -21,6 +21,9 @@ namespace Storm
 		virtual const std::string& getTemporaryPath() const = 0;
 		virtual const std::string& getExePath() const = 0;
 
+		// Command line
+		virtual bool shouldRegenerateParticleCache() const = 0;
+
 		// Logs
 		virtual const std::string& getLogFileName() const = 0;
 		virtual const std::string& getLogFolderPath() const = 0;
