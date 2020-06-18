@@ -5,6 +5,7 @@
 #include "DataIncludes.h"
 
 #include "CollisionType.h"
+#include "SimulationMode.h"
 
 #include "ThrowException.h"
 #include "XmlReader.h"
@@ -47,6 +48,19 @@ namespace
 			Storm::throwException<std::exception>("CollisionType value in rigidbody is unknown : '" + collisionTypeStr + "'");
 		}
 	}
+
+	Storm::SimulationMode parseSimulationMode(std::string simulModeStr)
+	{
+		boost::algorithm::to_lower(simulModeStr);
+		if (simulModeStr == "pcisph")
+		{
+			return Storm::SimulationMode::PCISPH;
+		}
+		else
+		{
+			Storm::throwException<std::exception>("Simulation mode value is unknown : '" + simulModeStr + "'");
+		}
+	}
 }
 
 
@@ -69,6 +83,7 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 		if (
 			!Storm::XmlReader::handleXml(generalXmlElement, "startPaused", generalData._startPaused) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "gravity", generalData._gravity, parseVector3Element) &&
+			!Storm::XmlReader::handleXml(generalXmlElement, "simulation", generalData._simulationMode, parseSimulationMode) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "kernelCoeff", generalData._kernelCoefficient) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "physicsTime", generalData._physicsTimeInSeconds) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "fps", generalData._expectedFps) &&
@@ -79,6 +94,10 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 		}
 	}
 
+	if (generalData._simulationMode == Storm::SimulationMode::None)
+	{
+		Storm::throwException<std::exception>("We expect to set a simulation mode, this is mandatory!");
+	}
 
 	/* Graphic */
 	Storm::GraphicData &graphicData = *_sceneData->_graphicData;

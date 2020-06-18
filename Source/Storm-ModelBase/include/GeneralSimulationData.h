@@ -3,6 +3,8 @@
 
 namespace Storm
 {
+	enum class SimulationMode;
+
 	struct GeneralSimulationData
 	{
 	public:
@@ -17,5 +19,7 @@ namespace Storm
 		float _expectedFps;
 
 		bool _startPaused;
+
+		Storm::SimulationMode _simulationMode;
 	};
 }

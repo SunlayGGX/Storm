@@ -158,5 +158,8 @@
     <ClInclude Include="..\include\FluidData.h">
       <Filter>Header Files\Config</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\SimulationMode.h">
+      <Filter>Header Files\Simulation</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

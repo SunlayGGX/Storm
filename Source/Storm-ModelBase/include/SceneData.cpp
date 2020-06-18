@@ -1,6 +1,7 @@
 #include "DataIncludes.h"
 
 #include "CollisionType.h"
+#include "SimulationMode.h"
 
 
 Storm::GeneralSimulationData::GeneralSimulationData() :
@@ -9,7 +10,8 @@ Storm::GeneralSimulationData::GeneralSimulationData() :
 	_kernelCoefficient{ 4.f },
 	_startPaused{ false },
 	_physicsTimeInSeconds{ -1.f },
-	_expectedFps{ -1.f }
+	_expectedFps{ -1.f },
+	_simulationMode{ Storm::SimulationMode::None }
 {
 
 }
