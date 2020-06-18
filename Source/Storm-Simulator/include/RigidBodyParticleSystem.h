@@ -16,6 +16,9 @@ namespace Storm
 	private:
 		void buildNeighborhoodOnParticleSystem(const Storm::ParticleSystem &otherParticleSystem, const float kernelLengthSquared) final override;
 
+	private:
+		void executePCISPH() final override;
+
 	public:
 		void updatePosition(float deltaTimeInSec) final override;
 

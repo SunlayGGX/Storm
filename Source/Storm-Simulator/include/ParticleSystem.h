@@ -28,6 +28,12 @@ namespace Storm
 		virtual void buildNeighborhoodOnParticleSystem(const Storm::ParticleSystem &otherParticleSystem, const float kernelLengthSquared) = 0;
 
 	public:
+		void executeSPH(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems);
+
+	protected:
+		virtual void executePCISPH() = 0;
+
+	public:
 		virtual void initializeIteration();
 		virtual void updatePosition(float deltaTimeInSec) = 0;
 

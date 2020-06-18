@@ -83,8 +83,11 @@ void Storm::SimulatorManager::run()
 			particleSystem.second->buildNeighborhood(_particleSystem);
 		}
 
-		// TODO
-
+		// Compute the simulation
+		for (auto &particleSystem : _particleSystem)
+		{
+			particleSystem.second->executeSPH(_particleSystem);
+		}
 
 		// Update the Rigid bodies positions in scene
 		physicsMgr.update(physicsElapsedDeltaTime);

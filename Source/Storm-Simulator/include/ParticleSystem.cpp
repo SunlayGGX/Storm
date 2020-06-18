@@ -5,6 +5,8 @@
 
 #include "GeneralSimulationData.h"
 
+#include "SimulationMode.h"
+
 
 
 Storm::ParticleSystem::ParticleSystem(unsigned int particleSystemIndex, std::vector<Storm::Vector3> &&worldPositions, float particleMass) :
@@ -65,6 +67,17 @@ void Storm::ParticleSystem::buildNeighborhood(const std::map<unsigned int, std::
 	{
 		this->buildNeighborhoodOnParticleSystem(*particleSystem.second, kernelLengthSquared);
 	});
+}
+
+void Storm::ParticleSystem::executeSPH(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems)
+{
+	const Storm::GeneralSimulationData &generalSimulData = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().getGeneralSimulationData();
+	switch (generalSimulData._simulationMode)
+	{
+	case Storm::SimulationMode::PCISPH:
+		this->executePCISPH();
+		break;
+	}
 }
 
 void Storm::ParticleSystem::initializeIteration()
