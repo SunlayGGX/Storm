@@ -141,14 +141,7 @@ void Storm::SimulatorManager::addRigidBodyParticleSystem(unsigned int id, std::v
 
 std::vector<Storm::Vector3> Storm::SimulatorManager::getParticleSystemPositions(unsigned int id) const
 {
-	if (const auto foundParticleSystem = _particleSystem.find(id); foundParticleSystem != std::end(_particleSystem))
-	{
-		return foundParticleSystem->second->getPositions();
-	}
-	else
-	{
-		Storm::throwException<std::exception>("Particle system with id " + std::to_string(id) + " is unknown!");
-	}
+	return this->getParticleSystem(id).getPositions();
 }
 
 float Storm::SimulatorManager::getKernelLength() const
@@ -168,4 +161,28 @@ void Storm::SimulatorManager::pushParticlesToGraphicModule(bool ignoreDirty) con
 			graphicMgr.pushParticlesData(particleSystemPair.first, currentParticleSystem.getPositions(), currentParticleSystem.isFluids());
 		}
 	});
+}
+
+Storm::ParticleSystem& Storm::SimulatorManager::getParticleSystem(unsigned int id)
+{
+	if (const auto foundParticleSystem = _particleSystem.find(id); foundParticleSystem != std::end(_particleSystem))
+	{
+		return *foundParticleSystem->second;
+	}
+	else
+	{
+		Storm::throwException<std::exception>("Particle system with id " + std::to_string(id) + " is unknown!");
+	}
+}
+
+const Storm::ParticleSystem& Storm::SimulatorManager::getParticleSystem(unsigned int id) const
+{
+	if (const auto foundParticleSystem = _particleSystem.find(id); foundParticleSystem != std::end(_particleSystem))
+	{
+		return *foundParticleSystem->second;
+	}
+	else
+	{
+		Storm::throwException<std::exception>("Particle system with id " + std::to_string(id) + " is unknown!");
+	}
 }

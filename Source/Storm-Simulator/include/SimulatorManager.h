@@ -34,6 +34,11 @@ namespace Storm
 	private:
 		void pushParticlesToGraphicModule(bool ignoreDirty) const;
 
+	public:
+		// Not from interface because they are intended to be used within simulation only (non thread safe)!
+		Storm::ParticleSystem& getParticleSystem(unsigned int id);
+		const Storm::ParticleSystem& getParticleSystem(unsigned int id) const;
+
 	private:
 		std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> _particleSystem;
 	};
