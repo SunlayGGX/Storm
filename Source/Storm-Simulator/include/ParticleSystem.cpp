@@ -104,3 +104,9 @@ void Storm::ParticleSystem::initializeIteration()
 	});
 }
 
+float Storm::ParticleSystem::computeParticleDefaultVolume()
+{
+	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
+	const float particleRadius = configMgr.getGeneralSimulationData()._particleRadius;
+	return particleRadius * particleRadius * particleRadius;
+}
