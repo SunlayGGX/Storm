@@ -10,9 +10,10 @@ namespace Storm
 	struct NeighborParticleInfo
 	{
 	public:
-		NeighborParticleInfo(const Storm::ParticleSystem* containingParticleSystem, std::size_t particleIndex, float squaredNorm) :
+		NeighborParticleInfo(const Storm::ParticleSystem* containingParticleSystem, std::size_t particleIndex, const Storm::Vector3 &positionDifferenceVector, float squaredNorm) :
 			_containingParticleSystem{ containingParticleSystem },
 			_particleIndex{ particleIndex },
+			_positionDifferenceVector{ positionDifferenceVector },
 			_vectToParticleSquaredNorm{ squaredNorm }
 		{}
 
@@ -21,6 +22,7 @@ namespace Storm
 	public:
 		const Storm::ParticleSystem* _containingParticleSystem;
 		std::size_t _particleIndex;
-		float _vectToParticleSquaredNorm;
+		const Storm::Vector3 _positionDifferenceVector; // currentP_position - neighborhoodP_Position
+		float _vectToParticleSquaredNorm; // Norm squared of _positionDifferenceVector
 	};
 }

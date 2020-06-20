@@ -47,10 +47,11 @@ void Storm::FluidParticleSystem::buildNeighborhoodOnParticleSystem(const Storm::
 
 			for (std::size_t particleIndex = 0; particleIndex < currentParticleIndex; ++particleIndex)
 			{
-				const float vectToParticleSquaredNorm = (currentParticlePosition - _positions[particleIndex]).squaredNorm();
+				const Storm::Vector3 positionDifference = currentParticlePosition - _positions[particleIndex];
+				const float vectToParticleSquaredNorm = positionDifference.squaredNorm();
 				if (vectToParticleSquaredNorm < kernelLengthSquared)
 				{
-					currentNeighborhoodToFill.emplace_back(this, particleIndex, vectToParticleSquaredNorm);
+					currentNeighborhoodToFill.emplace_back(this, particleIndex, positionDifference, vectToParticleSquaredNorm);
 				}
 			}
 
@@ -58,10 +59,11 @@ void Storm::FluidParticleSystem::buildNeighborhoodOnParticleSystem(const Storm::
 
 			for (std::size_t particleIndex = currentParticleIndex + 1; particleIndex < particleCount; ++particleIndex)
 			{
-				const float vectToParticleSquaredNorm = (currentParticlePosition - _positions[particleIndex]).squaredNorm();
+				const Storm::Vector3 positionDifference = currentParticlePosition - _positions[particleIndex];
+				const float vectToParticleSquaredNorm = positionDifference.squaredNorm();
 				if (vectToParticleSquaredNorm < kernelLengthSquared)
 				{
-					currentNeighborhoodToFill.emplace_back(this, particleIndex, vectToParticleSquaredNorm);
+					currentNeighborhoodToFill.emplace_back(this, particleIndex, positionDifference, vectToParticleSquaredNorm);
 				}
 			}
 		});
@@ -78,10 +80,11 @@ void Storm::FluidParticleSystem::buildNeighborhoodOnParticleSystem(const Storm::
 
 			for (std::size_t particleIndex = 0; particleIndex < otherParticleSizeCount; ++particleIndex)
 			{
-				const float vectToParticleSquaredNorm = (currentParticlePosition - otherParticleSystemPositionsArray[particleIndex]).squaredNorm();
+				const Storm::Vector3 positionDifference = currentParticlePosition - otherParticleSystemPositionsArray[particleIndex];
+				const float vectToParticleSquaredNorm = positionDifference.squaredNorm();
 				if (vectToParticleSquaredNorm < kernelLengthSquared)
 				{
-					currentNeighborhoodToFill.emplace_back(&otherParticleSystem, particleIndex, vectToParticleSquaredNorm);
+					currentNeighborhoodToFill.emplace_back(&otherParticleSystem, particleIndex, positionDifference, vectToParticleSquaredNorm);
 				}
 			}
 		});
