@@ -33,7 +33,7 @@ namespace
 }
 
 
-float Storm::DensitySolver::computeDensityPCISPH(float particleMass, const std::vector<Storm::ParticleIdentifier> &particleNeighborhood)
+float Storm::DensitySolver::computeDensityPCISPH(float particleMass, const std::vector<Storm::NeighborParticleInfo> &particleNeighborhood)
 {
 	float resultDensity = 0.f;
 
@@ -41,7 +41,7 @@ float Storm::DensitySolver::computeDensityPCISPH(float particleMass, const std::
 
 	Poly6Kernel poly6Kernel{ simulMgr.getKernelLength() };
 
-	for (const Storm::ParticleIdentifier &neighborhoodParticleIdent : particleNeighborhood)
+	for (const Storm::NeighborParticleInfo &neighborhoodParticleIdent : particleNeighborhood)
 	{
 		resultDensity += particleMass * poly6Kernel(neighborhoodParticleIdent._vectToParticleSquaredNorm);
 

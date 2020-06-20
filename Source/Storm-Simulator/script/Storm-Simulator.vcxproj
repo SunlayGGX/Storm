@@ -25,7 +25,7 @@
   <ItemGroup>
     <ClInclude Include="..\include\DensitySolver.h" />
     <ClInclude Include="..\include\FluidParticleSystem.h" />
-    <ClInclude Include="..\include\ParticleIdentifier.h" />
+    <ClInclude Include="..\include\NeighborParticleInfo.h" />
     <ClInclude Include="..\include\ParticleSystem.h" />
     <ClInclude Include="..\include\RigidBodyParticleSystem.h" />
     <ClInclude Include="..\include\SimulatorManager.h" />

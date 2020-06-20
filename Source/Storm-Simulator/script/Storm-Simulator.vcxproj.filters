@@ -65,14 +65,14 @@
     <ClInclude Include="..\include\RigidBodyParticleSystem.h">
       <Filter>Header Files\System</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\ParticleIdentifier.h">
-      <Filter>Header Files\System</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\DensitySolver.h">
       <Filter>Header Files\Solver</Filter>
     </ClInclude>
     <ClInclude Include="..\include\ViscositySolver.h">
       <Filter>Header Files\Solver</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\NeighborParticleInfo.h">
+      <Filter>Header Files\System</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

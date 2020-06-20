@@ -1,7 +1,7 @@
 #pragma once
 
 #include "NonInstanciable.h"
-#include "ParticleIdentifier.h"
+#include "NeighborParticleInfo.h"
 
 
 namespace Storm
@@ -9,6 +9,6 @@ namespace Storm
 	class DensitySolver : private Storm::NonInstanciable
 	{
 	public:
-		static float computeDensityPCISPH(float particleMass, const std::vector<Storm::ParticleIdentifier> &particleNeighborhood);
+		static float computeDensityPCISPH(float particleMass, const std::vector<Storm::NeighborParticleInfo> &particleNeighborhood);
 	};
 }

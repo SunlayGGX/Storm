@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ParticleIdentifier.h"
+#include "NeighborParticleInfo.h"
 
 namespace Storm
 {
@@ -59,7 +59,7 @@ namespace Storm
 		std::vector<Storm::Vector3> _accelerations;
 		std::vector<Storm::Vector3> _force;
 
-		std::vector<std::vector<Storm::ParticleIdentifier>> _neighborhood;
+		std::vector<std::vector<Storm::NeighborParticleInfo>> _neighborhood;
 
 		float _massPerParticle;
 
