@@ -3,12 +3,14 @@
 
 namespace Storm
 {
+	class ParticleSystem;
+
 	// Just a structure to identify and retrieve the particle from the data oriented architecture we took.
 	struct ParticleIdentifier
 	{
 	public:
-		ParticleIdentifier(unsigned int systemId, std::size_t particleIndex, float squaredNorm) :
-			_particleSystemId{ systemId },
+		ParticleIdentifier(const Storm::ParticleSystem* containingParticleSystem, std::size_t particleIndex, float squaredNorm) :
+			_containingParticleSystem{ containingParticleSystem },
 			_particleIndex{ particleIndex },
 			_vectToParticleSquaredNorm{ squaredNorm }
 		{}
@@ -16,7 +18,7 @@ namespace Storm
 		~ParticleIdentifier() = default;
 
 	public:
-		unsigned int _particleSystemId;
+		const Storm::ParticleSystem* _containingParticleSystem;
 		std::size_t _particleIndex;
 		float _vectToParticleSquaredNorm;
 	};
