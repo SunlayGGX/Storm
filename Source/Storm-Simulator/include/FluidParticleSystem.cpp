@@ -47,17 +47,19 @@ void Storm::FluidParticleSystem::buildNeighborhoodOnParticleSystem(const Storm::
 
 			for (std::size_t particleIndex = 0; particleIndex < currentParticleIndex; ++particleIndex)
 			{
-				if ((currentParticlePosition - _positions[particleIndex]).squaredNorm() < kernelLengthSquared)
+				const float vectToParticleSquaredNorm = (currentParticlePosition - _positions[particleIndex]).squaredNorm();
+				if (vectToParticleSquaredNorm < kernelLengthSquared)
 				{
-					currentNeighborhoodToFill.emplace_back(_particleSystemIndex, particleIndex);
+					currentNeighborhoodToFill.emplace_back(_particleSystemIndex, particleIndex, vectToParticleSquaredNorm);
 				}
 			}
 
 			for (std::size_t particleIndex = currentParticleIndex + 1; particleIndex < particleCount; ++particleIndex)
 			{
-				if ((currentParticlePosition - _positions[particleIndex]).squaredNorm() < kernelLengthSquared)
+				const float vectToParticleSquaredNorm = (currentParticlePosition - _positions[particleIndex]).squaredNorm();
+				if (vectToParticleSquaredNorm < kernelLengthSquared)
 				{
-					currentNeighborhoodToFill.emplace_back(_particleSystemIndex, particleIndex);
+					currentNeighborhoodToFill.emplace_back(_particleSystemIndex, particleIndex, vectToParticleSquaredNorm);
 				}
 			}
 		});
@@ -74,9 +76,10 @@ void Storm::FluidParticleSystem::buildNeighborhoodOnParticleSystem(const Storm::
 
 			for (std::size_t particleIndex = 0; particleIndex < otherParticleSizeCount; ++particleIndex)
 			{
-				if ((currentParticlePosition - otherParticleSystemPositionsArray[particleIndex]).squaredNorm() < kernelLengthSquared)
+				const float vectToParticleSquaredNorm = (currentParticlePosition - otherParticleSystemPositionsArray[particleIndex]).squaredNorm();
+				if (vectToParticleSquaredNorm < kernelLengthSquared)
 				{
-					currentNeighborhoodToFill.emplace_back(otherParticleSystemId, particleIndex);
+					currentNeighborhoodToFill.emplace_back(otherParticleSystemId, particleIndex, vectToParticleSquaredNorm);
 				}
 			}
 		});

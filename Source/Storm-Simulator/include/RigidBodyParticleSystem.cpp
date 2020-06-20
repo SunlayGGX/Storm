@@ -58,9 +58,10 @@ void Storm::RigidBodyParticleSystem::buildNeighborhoodOnParticleSystem(const Sto
 
 			for (std::size_t particleIndex = 0; particleIndex < otherParticleSizeCount; ++particleIndex)
 			{
-				if ((currentParticlePosition - otherParticleSystemPositionsArray[particleIndex]).squaredNorm() < kernelLengthSquared)
+				const float vectToParticleSquaredNorm = (currentParticlePosition - otherParticleSystemPositionsArray[particleIndex]).squaredNorm();
+				if (vectToParticleSquaredNorm < kernelLengthSquared)
 				{
-					currentNeighborhoodToFill.emplace_back(otherParticleSystemId, particleIndex);
+					currentNeighborhoodToFill.emplace_back(otherParticleSystemId, particleIndex, vectToParticleSquaredNorm);
 				}
 			}
 		});
