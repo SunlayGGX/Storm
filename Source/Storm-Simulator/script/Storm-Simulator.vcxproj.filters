@@ -19,6 +19,12 @@
     <Filter Include="Source Files\System">
       <UniqueIdentifier>{c98079f8-b7af-404e-9e54-1df4d65cd656}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Solver">
+      <UniqueIdentifier>{a4efea22-734b-4769-bf73-5abe5e087574}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Solver">
+      <UniqueIdentifier>{c0df2a5b-5ca6-43ba-86bb-3616c9f05f52}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-SimulatorPCH.cpp">
@@ -35,6 +41,9 @@
     </ClCompile>
     <ClCompile Include="..\include\RigidBodyParticleSystem.cpp">
       <Filter>Source Files\System</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\DensitySolver.cpp">
+      <Filter>Source Files\Solver</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -55,6 +64,9 @@
     </ClInclude>
     <ClInclude Include="..\include\ParticleIdentifier.h">
       <Filter>Header Files\System</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\DensitySolver.h">
+      <Filter>Header Files\Solver</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

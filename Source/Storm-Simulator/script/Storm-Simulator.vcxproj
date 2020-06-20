@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\include\DensitySolver.cpp" />
     <ClCompile Include="..\include\FluidParticleSystem.cpp" />
     <ClCompile Include="..\include\ParticleSystem.cpp" />
     <ClCompile Include="..\include\RigidBodyParticleSystem.cpp" />
@@ -21,6 +22,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\include\DensitySolver.h" />
     <ClInclude Include="..\include\FluidParticleSystem.h" />
     <ClInclude Include="..\include\ParticleIdentifier.h" />
     <ClInclude Include="..\include\ParticleSystem.h" />
