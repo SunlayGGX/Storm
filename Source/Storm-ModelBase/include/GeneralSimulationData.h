@@ -18,6 +18,8 @@ namespace Storm
 		float _physicsTimeInSeconds;
 		float _expectedFps;
 
+		unsigned int _maxPredictIteration;
+
 		bool _startPaused;
 
 		Storm::SimulationMode _simulationMode;
