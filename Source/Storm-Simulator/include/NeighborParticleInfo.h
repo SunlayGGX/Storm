@@ -14,7 +14,8 @@ namespace Storm
 			_containingParticleSystem{ containingParticleSystem },
 			_particleIndex{ particleIndex },
 			_positionDifferenceVector{ positionDifferenceVector },
-			_vectToParticleSquaredNorm{ squaredNorm }
+			_vectToParticleSquaredNorm{ squaredNorm },
+			_vectToParticleNorm{ std::sqrtf(squaredNorm) }
 		{}
 
 		~NeighborParticleInfo() = default;
@@ -24,5 +25,6 @@ namespace Storm
 		std::size_t _particleIndex;
 		const Storm::Vector3 _positionDifferenceVector; // currentP_position - neighborhoodP_Position
 		float _vectToParticleSquaredNorm; // Norm squared of _positionDifferenceVector
+		float _vectToParticleNorm; // the version non squared of _vectToParticleSquaredNorm
 	};
 }

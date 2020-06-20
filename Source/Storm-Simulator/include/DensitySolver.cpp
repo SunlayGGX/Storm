@@ -3,34 +3,8 @@
 #include "SingletonHolder.h"
 #include "SimulatorManager.h"
 
+#include "Poly6Kernel.h"
 
-namespace
-{
-	class Poly6Kernel
-	{
-	public:
-		Poly6Kernel(float kernelLength) :
-			_kernelLengthSquared{ kernelLength * kernelLength }
-		{
-			constexpr const float constexprCoeff = static_cast<float>(315.0 / (64.0 * M_PI));
-
-			// h^4
-			const float kernelFourth = _kernelLengthSquared * _kernelLengthSquared;
-
-			// (315 / 64 * pi * h^9)
-			_precomputedCoeff = constexprCoeff / (kernelFourth * kernelFourth * kernelLength);
-		}
-
-		float operator()(float particleDistSquared) const
-		{
-			return _precomputedCoeff * (_kernelLengthSquared - particleDistSquared);
-		}
-
-	private:
-		float _kernelLengthSquared;
-		float _precomputedCoeff;
-	};
-}
 
 
 float Storm::DensitySolver::computeDensityPCISPH(float particleMass, const std::vector<Storm::NeighborParticleInfo> &particleNeighborhood)
@@ -39,7 +13,7 @@ float Storm::DensitySolver::computeDensityPCISPH(float particleMass, const std::
 
 	const Storm::SimulatorManager &simulMgr = Storm::SimulatorManager::instance();
 
-	Poly6Kernel poly6Kernel{ simulMgr.getKernelLength() };
+	Storm::Poly6Kernel poly6Kernel{ simulMgr.getKernelLength() };
 
 	for (const Storm::NeighborParticleInfo &neighborhoodParticleIdent : particleNeighborhood)
 	{

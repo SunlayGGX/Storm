@@ -8,6 +8,8 @@
 
 #include "FluidData.h"
 
+#include "SpikyKernel.h"
+
 
 namespace
 {
@@ -34,7 +36,7 @@ namespace
 
 			const float completeArtificialViscosityCoefficient = coeff * std::min(vij.dot(neighborParticleInfo._positionDifferenceVector), 0.f);
 
-			return completeArtificialViscosityCoefficient * Storm::Vector3{ 0.f, 0.f, 0.f };
+			return completeArtificialViscosityCoefficient * vij.normalized();
 		}
 
 	private:
@@ -51,18 +53,20 @@ Storm::Vector3 Storm::ViscositySolver::computeViscosityForcePCISPH(float current
 	Storm::Vector3 result{ 0.f, 0.f, 0.f };
 
 	const Storm::SimulatorManager &simulMgr = Storm::SimulatorManager::instance();
-	ViscosityComputator viscosityComputator{ currentParticleMass, simulMgr.getKernelLength(), currentParticleDensity, currentParticleVelocity };
+	const float currentKernelLength = simulMgr.getKernelLength();
+
+	ViscosityComputator viscosityComputator{ currentParticleMass, currentKernelLength, currentParticleDensity, currentParticleVelocity };
+	Storm::GradientSpikyKernel gradSpikyKernel{ currentKernelLength };
 
 	for (const Storm::NeighborParticleInfo &neighboorIdent : particleNeighborhood)
 	{
 		const Storm::ParticleSystem &neighborhoodContainingPSystem = *neighboorIdent._containingParticleSystem;
 
-		result += viscosityComputator(
-			neighborhoodContainingPSystem.getMassPerParticle(),
-			neighborhoodContainingPSystem.getDensities()[neighboorIdent._particleIndex],
-			neighborhoodContainingPSystem.getVelocity()[neighboorIdent._particleIndex],
-			neighboorIdent
-		);
+		const float massPerParticle = neighborhoodContainingPSystem.getMassPerParticle();
+		const float neighborDensity = neighborhoodContainingPSystem.getDensities()[neighboorIdent._particleIndex];
+		const Storm::Vector3 &neighborVelocity = neighborhoodContainingPSystem.getVelocity()[neighboorIdent._particleIndex];
+
+		result += viscosityComputator(massPerParticle, neighborDensity, neighborVelocity, neighboorIdent) * gradSpikyKernel(neighboorIdent._vectToParticleNorm);
 	}
 
 	return result;
