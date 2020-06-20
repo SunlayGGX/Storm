@@ -5,7 +5,9 @@
 
 #include "GeneralSimulationData.h"
 #include "FluidData.h"
+
 #include "DensitySolver.h"
+#include "ViscositySolver.h"
 
 
 
@@ -104,6 +106,13 @@ void Storm::FluidParticleSystem::executePCISPH()
 
 		// Density
 		_densities[iter] = Storm::DensitySolver::computeDensityPCISPH(_massPerParticle, _neighborhood[iter]);
+	});
+
+	// Viscosity
+	std::for_each(std::execution::par_unseq, std::begin(_force), std::end(_force), [this](Storm::Vector3 &force)
+	{
+		const std::size_t iter = this->getParticleIndex(_force, force);
+		force += Storm::ViscositySolver::computeViscosityForcePCISPH(_massPerParticle, _densities[iter], _velocity[iter], _neighborhood[iter]);
 	});
 }
 
