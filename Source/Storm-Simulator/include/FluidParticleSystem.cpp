@@ -85,27 +85,26 @@ void Storm::FluidParticleSystem::buildNeighborhoodOnParticleSystem(const Storm::
 
 void Storm::FluidParticleSystem::executePCISPH()
 {
-	// TODO
-}
-
-void Storm::FluidParticleSystem::initializeIteration()
-{
-	Storm::ParticleSystem::initializeIteration();
-
 	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
 	const Storm::Vector3 &gravity = configMgr.getGeneralSimulationData()._gravity;
 
-	std::for_each(std::execution::par_unseq, std::begin(_accelerations), std::end(_accelerations), [&gravity](Storm::Vector3 &accel)
+	std::for_each(std::execution::par_unseq, std::begin(_force), std::end(_force), [this, &gravity](Storm::Vector3 &force)
 	{
-		accel = gravity;
+		const std::size_t iter = this->getParticleIndex(_force, force);
+		force += _massPerParticle * gravity;
 	});
+
+	
 }
 
 void Storm::FluidParticleSystem::updatePosition(float deltaTimeInSec)
 {
-	std::for_each(std::execution::par_unseq, std::begin(_accelerations), std::end(_accelerations), [this, deltaTimeInSec](const Storm::Vector3 &currentAccel)
+	std::for_each(std::execution::par_unseq, std::begin(_force), std::end(_force), [this, deltaTimeInSec](const Storm::Vector3 &currentForce)
 	{
-		const std::size_t currentParticleIndex = this->getParticleIndex(_accelerations, currentAccel);
+		const std::size_t currentParticleIndex = this->getParticleIndex(_force, currentForce);
+
+		Storm::Vector3 &currentAccel = _accelerations[currentParticleIndex];
+		currentAccel = currentForce / _massPerParticle;
 
 		Storm::Vector3 &currentVelocity = _velocity[currentParticleIndex];
 		currentVelocity += deltaTimeInSec * currentAccel;

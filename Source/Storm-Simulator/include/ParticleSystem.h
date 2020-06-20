@@ -15,6 +15,7 @@ namespace Storm
 		const std::vector<Storm::Vector3>& getPositions() const noexcept;
 		const std::vector<Storm::Vector3>& getVelocity() const noexcept;
 		const std::vector<Storm::Vector3>& getAccelerations() const noexcept;
+		const std::vector<Storm::Vector3>& getForces() const noexcept;
 
 		unsigned int getId() const noexcept;
 
@@ -32,6 +33,9 @@ namespace Storm
 
 	protected:
 		virtual void executePCISPH() = 0;
+
+	public:
+		virtual void postApplySPH();
 
 	public:
 		virtual void initializeIteration();
@@ -53,6 +57,7 @@ namespace Storm
 		std::vector<Storm::Vector3> _positions;
 		std::vector<Storm::Vector3> _velocity;
 		std::vector<Storm::Vector3> _accelerations;
+		std::vector<Storm::Vector3> _force;
 
 		std::vector<std::vector<Storm::ParticleIdentifier>> _neighborhood;
 

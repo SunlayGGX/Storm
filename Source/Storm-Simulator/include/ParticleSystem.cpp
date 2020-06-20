@@ -19,6 +19,7 @@ Storm::ParticleSystem::ParticleSystem(unsigned int particleSystemIndex, std::vec
 	_densities.resize(particleCount, particleMass / computeParticleDefaultVolume());
 	_velocity.resize(particleCount, Storm::Vector3::Zero());
 	_accelerations.resize(particleCount);
+	_force.resize(particleCount);
 	_neighborhood.resize(particleCount);
 
 	for (auto &neighborHoodArray : _neighborhood)
@@ -45,6 +46,11 @@ const std::vector<Storm::Vector3>& Storm::ParticleSystem::getVelocity() const no
 const std::vector<Storm::Vector3>& Storm::ParticleSystem::getAccelerations() const noexcept
 {
 	return _accelerations;
+}
+
+const std::vector<Storm::Vector3>& Storm::ParticleSystem::getForces() const noexcept
+{
+	return _force;
 }
 
 unsigned int Storm::ParticleSystem::getId() const noexcept
@@ -91,4 +97,10 @@ void Storm::ParticleSystem::initializeIteration()
 		_densities.size() == _accelerations.size() &&
 		"Particle count mismatch detected! An array of particle property has not the same particle count than the other!"
 	);
+
+	std::for_each(std::execution::par_unseq, std::begin(_force), std::end(_force), [](Storm::Vector3 &force)
+	{
+		force.setZero();
+	});
 }
+

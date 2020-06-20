@@ -20,7 +20,6 @@ namespace Storm
 		void executePCISPH() final override;
 
 	public:
-		void initializeIteration() final override;
 		void updatePosition(float deltaTimeInSec) final override;
 	};
 }
