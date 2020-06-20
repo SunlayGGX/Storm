@@ -17,6 +17,8 @@ namespace Storm
 		const std::vector<Storm::Vector3>& getAccelerations() const noexcept;
 		const std::vector<Storm::Vector3>& getForces() const noexcept;
 
+		float getMassPerParticle() const noexcept;
+
 		unsigned int getId() const noexcept;
 
 		virtual bool isFluids() const noexcept = 0;
@@ -50,7 +52,6 @@ namespace Storm
 		{
 			return &particleData - &dataArray[0];
 		}
-
 
 	protected:
 		std::vector<float> _densities;

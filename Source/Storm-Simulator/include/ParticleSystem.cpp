@@ -54,6 +54,11 @@ const std::vector<Storm::Vector3>& Storm::ParticleSystem::getForces() const noex
 	return _force;
 }
 
+float Storm::ParticleSystem::getMassPerParticle() const noexcept
+{
+	return _massPerParticle;
+}
+
 unsigned int Storm::ParticleSystem::getId() const noexcept
 {
 	return _particleSystemIndex;
