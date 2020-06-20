@@ -4,12 +4,15 @@
 #include "IPhysicsManager.h"
 #include "IThreadManager.h"
 #include "IGraphicsManager.h"
+#include "IConfigManager.h"
 #include "ITimeManager.h"
 #include "TimeWaitResult.h"
 
 #include "ParticleSystem.h"
 #include "FluidParticleSystem.h"
 #include "RigidBodyParticleSystem.h"
+
+#include "GeneralSimulationData.h"
 
 
 namespace
@@ -146,6 +149,12 @@ std::vector<Storm::Vector3> Storm::SimulatorManager::getParticleSystemPositions(
 	{
 		Storm::throwException<std::exception>("Particle system with id " + std::to_string(id) + " is unknown!");
 	}
+}
+
+float Storm::SimulatorManager::getKernelLength() const
+{
+	const Storm::GeneralSimulationData &generalSimulData = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().getGeneralSimulationData();
+	return generalSimulData._particleRadius * generalSimulData._kernelCoefficient;
 }
 
 void Storm::SimulatorManager::pushParticlesToGraphicModule(bool ignoreDirty) const

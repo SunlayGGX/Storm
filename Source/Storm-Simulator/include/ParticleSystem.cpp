@@ -2,6 +2,7 @@
 
 #include "SingletonHolder.h"
 #include "IConfigManager.h"
+#include "SimulatorManager.h"
 
 #include "GeneralSimulationData.h"
 
@@ -65,9 +66,7 @@ bool Storm::ParticleSystem::isDirty() const noexcept
 
 void Storm::ParticleSystem::buildNeighborhood(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems)
 {
-	const Storm::GeneralSimulationData &generalSimulData = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().getGeneralSimulationData();
-
-	const float kernelLength = generalSimulData._kernelCoefficient * generalSimulData._particleRadius;
+	const float kernelLength = Storm::SimulatorManager::instance().getKernelLength();
 	const float kernelLengthSquared = kernelLength * kernelLength;
 
 	std::for_each(std::begin(allParticleSystems), std::end(allParticleSystems), [this, kernelLengthSquared](const auto &particleSystem)

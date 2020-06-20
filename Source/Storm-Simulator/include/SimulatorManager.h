@@ -28,6 +28,9 @@ namespace Storm
 
 		std::vector<Storm::Vector3> getParticleSystemPositions(unsigned int id) const final override;
 
+	public:
+		float getKernelLength() const final override;
+
 	private:
 		void pushParticlesToGraphicModule(bool ignoreDirty) const;
 
