@@ -108,13 +108,13 @@ Unless explicited, the following settings doesn't support Macros (see section Ma
 
 Here the architecture of the config file (each section are a tag in xml where the subsection should be put into)
 
-#### Log (faculative)
+#### Log (facultative)
 - **logFolderPath (string, facultative, accept macro)** : The folder where to gather the log files. The default is the temporary path (StormTmp macro). If it is empty, default is considered.
 - **logFileName (string, facultative, accept macro)** : The log file name of the current run. The default is empty. If it is empty, we won't log into a file (but the log will still be outputed to the console).
 - **logLevel (string, facultative)** : The threshold level under which we ignore the log. Accepted values are in that inmportance order : Debug, DebugError, Comment, Warning, Error, Fatal.
 Note that the maximum value you can set is Fatal, it means that no matter what level you set, we would still log "Fatal" and "Always" logs. The default is Debug.
 - **override (boolean, facultative)** : If the log file specified should have its content overriden each time. If "false", the content will be appended instead. Default is "true".
-- **removeOlderThanDays (integer, faculative)** : Specify the number of day Storm will keep the log file. Log files older than the current date minus this day count will be removed. Disable this feature by setting a number <= 0 (therefore, we will keep everything). Default is -1.
+- **removeOlderThanDays (integer, facultative)** : Specify the number of day Storm will keep the log file. Log files older than the current date minus this day count will be removed. Disable this feature by setting a number <= 0 (therefore, we will keep everything). Default is -1.
 - **fpsWatching (boolean, facultative)** : Our time keeper can watch fps and log if the fps of a thread is too low compared to what was expected. Setting it to "false" prevent it to watch the fps, and therefore to log if fps is under 20% of its expected frame rate. Default is "false".
 
 
@@ -122,6 +122,7 @@ Note that the maximum value you can set is Fatal, it means that no matter what l
 
 Scene configuration files contains all the data for running a simulation, therefore it is mandatory to specify one. If it was not set from the command line, Storm application will open an explorer windows to allow you to choose one.
 Unlike the others config files, it can be named as you want. Here the wml tags you can set :
+
 
 #### General
 - **startPaused (boolean, facultative)**: If true, the simulation will be paused when the application start. Default is false.
@@ -139,6 +140,7 @@ Unlike the others config files, it can be named as you want. Here the wml tags y
 - **zFar (float, facultative)**: Same as zNear except that we skip displaying all objects farer than this distance value. Default value is 20.0.
 - **grid (vector3, facultative)**: Set the grid dimension. X coord will be the grid width, Z its depth and Y will be the height where the grid will be drawn. Note that X and Z will be ceiled. Default value is { x=10.0, y=0.0, z=10.0 }
 - **particleDisplay (boolean, facultative)**: Specify if Solids should be displayed as particle on start. If not, they will be displayed as meshes. "false" by default.
+
 
 #### Fluid
 This element is all setting appartaining to a fluid. Here the tag you can set inside :
