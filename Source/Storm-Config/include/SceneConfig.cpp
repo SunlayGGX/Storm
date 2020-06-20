@@ -145,6 +145,7 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 		else if (
 			!Storm::XmlReader::handleXml(fluidXmlElement, "id", fluidData._fluidId) &&
 			!Storm::XmlReader::handleXml(fluidXmlElement, "viscosity", fluidData._dynamicViscosity) &&
+			!Storm::XmlReader::handleXml(fluidXmlElement, "soundSpeed", fluidData._soundSpeed) &&
 			!Storm::XmlReader::handleXml(fluidXmlElement, "density", fluidData._density)
 			)
 		{
@@ -163,6 +164,10 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 	else if (fluidData._dynamicViscosity <= 0.f)
 	{
 		Storm::throwException<std::exception>("Fluid " + std::to_string(fluidData._fluidId) + " dynamic viscosity of " + std::to_string(fluidData._dynamicViscosity) + "N.s/m² is invalid!");
+	}
+	else if (fluidData._soundSpeed <= 0.f)
+	{
+		Storm::throwException<std::exception>("Fluid " + std::to_string(fluidData._fluidId) + " sound of speed (" + std::to_string(fluidData._dynamicViscosity) + "m/s) is invalid!");
 	}
 
 
