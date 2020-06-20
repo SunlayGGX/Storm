@@ -57,6 +57,9 @@
     <ClCompile Include="..\include\Kernel.cpp">
       <Filter>Source Files\Kernel</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\PressureSolver.cpp">
+      <Filter>Source Files\Solver</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-SimulatorPCH.h">
@@ -88,6 +91,9 @@
     </ClInclude>
     <ClInclude Include="..\include\Poly6Kernel.h">
       <Filter>Header Files\Kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\PressureSolver.h">
+      <Filter>Header Files\Solver</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
