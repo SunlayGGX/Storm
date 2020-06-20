@@ -88,13 +88,15 @@ void Storm::FluidParticleSystem::executePCISPH()
 	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
 	const Storm::Vector3 &gravity = configMgr.getGeneralSimulationData()._gravity;
 
+	// External force
 	std::for_each(std::execution::par_unseq, std::begin(_force), std::end(_force), [this, &gravity](Storm::Vector3 &force)
 	{
 		const std::size_t iter = this->getParticleIndex(_force, force);
 		force += _massPerParticle * gravity;
 	});
 
-	
+
+	// Density
 }
 
 void Storm::FluidParticleSystem::updatePosition(float deltaTimeInSec)
