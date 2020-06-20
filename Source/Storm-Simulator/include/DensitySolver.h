@@ -1,11 +1,12 @@
 #pragma once
 
 #include "NonInstanciable.h"
-#include "NeighborParticleInfo.h"
 
 
 namespace Storm
 {
+	struct NeighborParticleInfo;
+
 	class DensitySolver : private Storm::NonInstanciable
 	{
 	public:

@@ -5,6 +5,7 @@
 
 #include "Poly6Kernel.h"
 
+#include "NeighborParticleInfo.h"
 
 
 float Storm::DensitySolver::computeDensityPCISPH(float particleMass, const std::vector<Storm::NeighborParticleInfo> &particleNeighborhood)

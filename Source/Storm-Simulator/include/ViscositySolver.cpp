@@ -10,6 +10,7 @@
 
 #include "SpikyKernel.h"
 
+#include "NeighborParticleInfo.h"
 
 namespace
 {
