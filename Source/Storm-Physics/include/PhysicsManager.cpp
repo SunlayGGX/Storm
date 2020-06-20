@@ -93,6 +93,25 @@ void Storm::PhysicsManager::getMeshTransform(unsigned int meshId, Storm::Vector3
 	}
 }
 
+void Storm::PhysicsManager::applyLocalForces(unsigned int particleSystemId, const std::vector<Storm::Vector3> &position, const std::vector<Storm::Vector3> &force)
+{
+	if (const auto dynamicFound = _dynamicsRbMap.find(particleSystemId); dynamicFound != std::end(_dynamicsRbMap))
+	{
+		Storm::PhysicsDynamicRigidBody &dynamicRb = *dynamicFound->second;
+		const std::size_t applyCount = position.size();
+
+		assert(applyCount == force.size() && "Mismatch detected between position and force apply count.");
+		for (std::size_t iter = 0; iter < applyCount; ++iter)
+		{
+			dynamicRb.applyForce(position[iter], force[iter]);
+		}
+	}
+	else
+	{
+		assert(_staticsRbMap.find(particleSystemId) != std::end(_staticsRbMap) && "Cannot find requested physics rigid body!");
+	}
+}
+
 void Storm::PhysicsManager::getMeshTransform(unsigned int meshId, Storm::Vector3 &outTrans, Storm::Quaternion &outQuatRot) const
 {
 	if (const auto staticFound = _staticsRbMap.find(meshId); staticFound != std::end(_staticsRbMap))

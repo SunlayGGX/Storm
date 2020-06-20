@@ -47,6 +47,11 @@ void Storm::PhysicsDynamicRigidBody::getMeshTransform(Storm::Vector3 &outTrans, 
 	outRot = Storm::convertToStorm<Storm::Vector3>(currentTransform.q);
 }
 
+void Storm::PhysicsDynamicRigidBody::applyForce(const Storm::Vector3 &location, const Storm::Vector3 &force)
+{
+	// TODO
+}
+
 void Storm::PhysicsDynamicRigidBody::getMeshTransform(Storm::Vector3 &outTrans, Storm::Quaternion &outQuatRot) const
 {
 	physx::PxTransform currentTransform;

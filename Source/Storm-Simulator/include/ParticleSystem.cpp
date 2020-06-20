@@ -87,6 +87,11 @@ void Storm::ParticleSystem::executeSPH(const std::map<unsigned int, std::unique_
 	}
 }
 
+void Storm::ParticleSystem::postApplySPH()
+{
+
+}
+
 void Storm::ParticleSystem::initializeIteration()
 {
 	_isDirty = false;

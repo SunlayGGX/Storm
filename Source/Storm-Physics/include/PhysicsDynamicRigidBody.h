@@ -21,6 +21,8 @@ namespace Storm
 		void getMeshTransform(Storm::Vector3 &outTrans, Storm::Vector3 &outRot) const;
 		void getMeshTransform(Storm::Vector3 &outTrans, Storm::Quaternion &outQuatRot) const;
 
+		void applyForce(const Storm::Vector3 &location, const Storm::Vector3 &force);
+
 	private:
 		Storm::UniquePointer<physx::PxRigidDynamic> _internalRb;
 	};

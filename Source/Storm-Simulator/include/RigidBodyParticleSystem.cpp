@@ -109,3 +109,9 @@ void Storm::RigidBodyParticleSystem::updatePosition(float deltaTimeInSec)
 		_cachedTrackedRbRotationQuat = currentQuatRotation;
 	}
 }
+
+void Storm::RigidBodyParticleSystem::postApplySPH()
+{
+	Storm::IPhysicsManager &physicMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IPhysicsManager>();
+	physicMgr.applyLocalForces(_particleSystemIndex, _positions, _force);
+}

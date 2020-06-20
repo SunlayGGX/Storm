@@ -89,6 +89,11 @@ void Storm::SimulatorManager::run()
 			particleSystem.second->executeSPH(_particleSystem);
 		}
 
+		for (auto &particleSystem : _particleSystem)
+		{
+			particleSystem.second->postApplySPH();
+		}
+
 		// Update the Rigid bodies positions in scene
 		physicsMgr.update(physicsElapsedDeltaTime);
 
