@@ -14,12 +14,9 @@ namespace
 	{
 		const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
 
-		const float particleRadius = configMgr.getGeneralSimulationData()._particleRadius;
 		const float fluidDensity = configMgr.getFluidData()._density;
 
-		const float particleVolume = particleRadius * particleRadius * particleRadius;
-
-		return fluidDensity * particleVolume;
+		return fluidDensity * Storm::ParticleSystem::computeParticleDefaultVolume();
 	}
 }
 

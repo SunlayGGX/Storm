@@ -11,11 +11,12 @@
 
 Storm::ParticleSystem::ParticleSystem(unsigned int particleSystemIndex, std::vector<Storm::Vector3> &&worldPositions, float particleMass) :
 	_positions{ std::move(worldPositions) },
-	_particleSystemIndex{ particleSystemIndex }
+	_particleSystemIndex{ particleSystemIndex },
+	_massPerParticle{ particleMass }
 {
 	const std::size_t particleCount = _positions.size();
 
-	_masses.resize(particleCount, particleMass);
+	_densities.resize(particleCount, particleMass / computeParticleDefaultVolume());
 	_velocity.resize(particleCount, Storm::Vector3::Zero());
 	_accelerations.resize(particleCount);
 	_neighborhood.resize(particleCount);
@@ -26,9 +27,9 @@ Storm::ParticleSystem::ParticleSystem(unsigned int particleSystemIndex, std::vec
 	}
 }
 
-const std::vector<float>& Storm::ParticleSystem::getMasses() const noexcept
+const std::vector<float>& Storm::ParticleSystem::getDensities() const noexcept
 {
-	return _masses;
+	return _densities;
 }
 
 const std::vector<Storm::Vector3>& Storm::ParticleSystem::getPositions() const noexcept
@@ -85,9 +86,9 @@ void Storm::ParticleSystem::initializeIteration()
 	_isDirty = false;
 
 	assert(
-		_masses.size() == _positions.size() &&
-		_masses.size() == _velocity.size() &&
-		_masses.size() == _accelerations.size() &&
+		_densities.size() == _positions.size() &&
+		_densities.size() == _velocity.size() &&
+		_densities.size() == _accelerations.size() &&
 		"Particle count mismatch detected! An array of particle property has not the same particle count than the other!"
 	);
 }

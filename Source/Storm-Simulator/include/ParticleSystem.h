@@ -11,7 +11,7 @@ namespace Storm
 		virtual ~ParticleSystem() = default;
 
 	public:
-		const std::vector<float>& getMasses() const noexcept;
+		const std::vector<float>& getDensities() const noexcept;
 		const std::vector<Storm::Vector3>& getPositions() const noexcept;
 		const std::vector<Storm::Vector3>& getVelocity() const noexcept;
 		const std::vector<Storm::Vector3>& getAccelerations() const noexcept;
@@ -38,6 +38,9 @@ namespace Storm
 		virtual void updatePosition(float deltaTimeInSec) = 0;
 
 	public:
+		static float computeParticleDefaultVolume();
+
+	public:
 		template<class Type>
 		std::size_t getParticleIndex(const std::vector<std::remove_cv_t<Type>> &dataArray, Type &particleData) const
 		{
@@ -46,12 +49,14 @@ namespace Storm
 
 
 	protected:
-		std::vector<float> _masses;
+		std::vector<float> _densities;
 		std::vector<Storm::Vector3> _positions;
 		std::vector<Storm::Vector3> _velocity;
 		std::vector<Storm::Vector3> _accelerations;
 
 		std::vector<std::vector<Storm::ParticleIdentifier>> _neighborhood;
+
+		float _massPerParticle;
 
 		unsigned int _particleSystemIndex;
 		std::atomic<bool> _isDirty;
