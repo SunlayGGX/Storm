@@ -204,6 +204,12 @@ void Storm::SimulatorManager::executePCISPH(const Storm::GeneralSimulationData &
 			}
 		}
 	}
+
+	// Finally The predicted pressure (which isn't predicted anymore) should be added to the total force applied to the particle
+	for (auto &particleSystemPair : _particleSystem)
+	{
+		particleSystemPair.second->applyPredictedPressureToTotalForce();
+	}
 }
 
 void Storm::SimulatorManager::addFluidParticleSystem(unsigned int id, std::vector<Storm::Vector3> particlePositions)
