@@ -52,6 +52,10 @@ namespace Storm
 		virtual void updatePosition(float deltaTimeInSec) = 0;
 
 	public:
+		// For predicted method (no check of the simulation method will be done)
+		virtual void applyPredictedPressureToTotalForce() = 0;
+
+	public:
 		static float computeParticleDefaultVolume();
 
 	public:

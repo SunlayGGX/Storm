@@ -46,25 +46,42 @@ Storm::FluidParticleSystem::FluidParticleSystem(unsigned int particleSystemIndex
 void Storm::FluidParticleSystem::initializeIteration()
 {
 	Storm::ParticleSystem::initializeIteration();
-
-#if defined(DEBUG) || defined(_DEBUG)
-	const std::size_t particleCount = _densities.size();
+	
 	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
-	switch (configMgr.getGeneralSimulationData()._simulationMode)
+	const auto currentSimulationMode = configMgr.getGeneralSimulationData()._simulationMode;
+
+	bool usePredictedArrays;
+	switch (currentSimulationMode)
 	{
 	case Storm::SimulationMode::PCISPH:
+		usePredictedArrays = true;
+		break;
+
+	default:
+		usePredictedArrays = false;
+		break;
+	}
+
+#if defined(DEBUG) || defined(_DEBUG)
+	if (usePredictedArrays)
+	{
+		const std::size_t particleCount = _densities.size();
 		assert(
 			particleCount == _predictedDensity.size() &&
 			particleCount == _predictedPositions.size() &&
 			particleCount == _pressureForce.size() &&
 			"Particle count mismatch detected! An array of particle property has not the same particle count than the other!"
 		);
-		break;
-
-	default:
-		break;
 	}
+	
 #endif
+	if (usePredictedArrays)
+	{
+		std::for_each(std::execution::par_unseq, std::begin(_pressureForce), std::end(_pressureForce), [](Storm::Vector3 &predictedPressureForce)
+		{
+			predictedPressureForce.setZero();
+		});
+	}
 }
 
 bool Storm::FluidParticleSystem::isFluids() const noexcept
@@ -182,5 +199,14 @@ void Storm::FluidParticleSystem::updatePosition(float deltaTimeInSec)
 				fabs(solver._positionDisplacment.z()) > k_epsilon
 				;
 		}
+	});
+}
+
+void Storm::FluidParticleSystem::applyPredictedPressureToTotalForce()
+{
+	std::for_each(std::execution::par_unseq, std::begin(_force), std::end(_force), [this](Storm::Vector3 &currentPForce)
+	{
+		const std::size_t currentPIndex = Storm::ParticleSystem::getParticleIndex(_force, currentPForce);
+		currentPForce += _pressureForce[currentPIndex];
 	});
 }

@@ -140,3 +140,8 @@ void Storm::RigidBodyParticleSystem::postApplySPH()
 	Storm::IPhysicsManager &physicMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IPhysicsManager>();
 	physicMgr.applyLocalForces(_particleSystemIndex, _positions, _force);
 }
+
+void Storm::RigidBodyParticleSystem::applyPredictedPressureToTotalForce()
+{
+	// Nothing to do, rigid body particle system doesn't have predicted pressure.
+}

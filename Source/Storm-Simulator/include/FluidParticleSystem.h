@@ -29,6 +29,9 @@ namespace Storm
 	public:
 		void updatePosition(float deltaTimeInSec) final override;
 
+	public:
+		void applyPredictedPressureToTotalForce() final override;
+
 	private:
 		// "Predictive" SPH
 		std::vector<float> _predictedDensity;

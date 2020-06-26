@@ -30,6 +30,9 @@ namespace Storm
 	public:
 		void postApplySPH() final override;
 
+	public:
+		void applyPredictedPressureToTotalForce() final override;
+
 	private:
 		// Those are particle global position and rotation that serves to update particles using the rigid body position and rotation owned by the physics engine.
 		// Beware because they are made to track the changes of position and rotation, it means that they are not forcefully up to date.
