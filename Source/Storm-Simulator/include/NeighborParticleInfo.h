@@ -10,12 +10,13 @@ namespace Storm
 	struct NeighborParticleInfo
 	{
 	public:
-		NeighborParticleInfo(const Storm::ParticleSystem* containingParticleSystem, std::size_t particleIndex, const Storm::Vector3 &positionDifferenceVector, float squaredNorm) :
+		NeighborParticleInfo(const Storm::ParticleSystem* containingParticleSystem, std::size_t particleIndex, const Storm::Vector3 &positionDifferenceVector, float squaredNorm, bool isFluidP) :
 			_containingParticleSystem{ containingParticleSystem },
 			_particleIndex{ particleIndex },
 			_positionDifferenceVector{ positionDifferenceVector },
 			_vectToParticleSquaredNorm{ squaredNorm },
-			_vectToParticleNorm{ std::sqrtf(squaredNorm) }
+			_vectToParticleNorm{ std::sqrtf(squaredNorm) },
+			_isFluidParticle{ isFluidP }
 		{}
 
 		~NeighborParticleInfo() = default;
@@ -26,5 +27,6 @@ namespace Storm
 		const Storm::Vector3 _positionDifferenceVector; // currentP_position - neighborhoodP_Position
 		float _vectToParticleSquaredNorm; // Norm squared of _positionDifferenceVector
 		float _vectToParticleNorm; // the version non squared of _vectToParticleSquaredNorm
+		bool _isFluidParticle;
 	};
 }
