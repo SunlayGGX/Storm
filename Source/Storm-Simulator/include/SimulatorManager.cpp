@@ -148,21 +148,21 @@ void Storm::SimulatorManager::executePCISPH(const Storm::GeneralSimulationData &
 			std::for_each(std::execution::par_unseq, std::begin(forces), std::end(forces), [&densities, &forces, &neighborhoodArrays, massPerParticle, &gravityForce](Storm::Vector3 &force)
 			{
 				// External force
-				const std::size_t iter = Storm::ParticleSystem::getParticleIndex(forces, force);
+				const std::size_t currentPIndex = Storm::ParticleSystem::getParticleIndex(forces, force);
 				force += gravityForce;
 
 				// TODO : 
 				// Blowers
 
 				// Density
-				densities[iter] = Storm::DensitySolver::computeDensityPCISPH(massPerParticle, neighborhoodArrays[iter]);
+				densities[currentPIndex] = Storm::DensitySolver::computeDensityPCISPH(massPerParticle, neighborhoodArrays[currentPIndex]);
 			});
 
 			// Viscosity
 			std::for_each(std::execution::par_unseq, std::begin(forces), std::end(forces), [&densities, &forces, &neighborhoodArrays, &velocities, massPerParticle](Storm::Vector3 &force)
 			{
-				const std::size_t iter = Storm::ParticleSystem::getParticleIndex(forces, force);
-				force += Storm::ViscositySolver::computeViscosityForcePCISPH(massPerParticle, densities[iter], velocities[iter], neighborhoodArrays[iter]);
+				const std::size_t currentPIndex = Storm::ParticleSystem::getParticleIndex(forces, force);
+				force += Storm::ViscositySolver::computeViscosityForcePCISPH(massPerParticle, densities[currentPIndex], velocities[currentPIndex], neighborhoodArrays[currentPIndex]);
 			});
 		}
 	}
@@ -190,15 +190,15 @@ void Storm::SimulatorManager::executePCISPH(const Storm::GeneralSimulationData &
 
 				std::for_each(std::execution::par_unseq, std::begin(predictedPositions), std::end(predictedPositions), [&](Storm::Vector3 &currentPPredictedPosition)
 				{
-					const std::size_t iter = Storm::ParticleSystem::getParticleIndex(predictedPositions, currentPPredictedPosition);
+					const std::size_t currentPIndex = Storm::ParticleSystem::getParticleIndex(predictedPositions, currentPPredictedPosition);
 
-					const Storm::Vector3 &currentPVelocity = velocities[iter];
-					const Storm::Vector3 &currentPForce = forces[iter];
-					const Storm::Vector3 &currentPPredictPressureForce = pressureForces[iter];
+					const Storm::Vector3 &currentPVelocity = velocities[currentPIndex];
+					const Storm::Vector3 &currentPForce = forces[currentPIndex];
+					const Storm::Vector3 &currentPPredictPressureForce = pressureForces[currentPIndex];
 
 					Storm::SemiImplicitEulerSolver solver{ massPerParticle, currentPForce + currentPPredictPressureForce, currentPVelocity, physicsElapsedDeltaTime };
 
-					const Storm::Vector3 &currentPPosition = positions[iter];
+					const Storm::Vector3 &currentPPosition = positions[currentPIndex];
 					currentPPredictedPosition = currentPPosition + solver._positionDisplacment;
 				});
 			}
