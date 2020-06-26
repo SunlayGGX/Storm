@@ -15,7 +15,6 @@
     <ClCompile Include="..\include\FluidParticleSystem.cpp" />
     <ClCompile Include="..\include\Kernel.cpp" />
     <ClCompile Include="..\include\ParticleSystem.cpp" />
-    <ClCompile Include="..\include\PressureSolver.cpp" />
     <ClCompile Include="..\include\RigidBodyParticleSystem.cpp" />
     <ClCompile Include="..\include\SemiImplicitEulerSolver.cpp" />
     <ClCompile Include="..\include\SimulatorManager.cpp" />
@@ -31,7 +30,6 @@
     <ClInclude Include="..\include\NeighborParticleInfo.h" />
     <ClInclude Include="..\include\ParticleSystem.h" />
     <ClInclude Include="..\include\Poly6Kernel.h" />
-    <ClInclude Include="..\include\PressureSolver.h" />
     <ClInclude Include="..\include\RigidBodyParticleSystem.h" />
     <ClInclude Include="..\include\SemiImplicitEulerSolver.h" />
     <ClInclude Include="..\include\SimulatorManager.h" />

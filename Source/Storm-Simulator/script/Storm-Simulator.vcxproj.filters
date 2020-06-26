@@ -57,9 +57,6 @@
     <ClCompile Include="..\include\Kernel.cpp">
       <Filter>Source Files\Kernel</Filter>
     </ClCompile>
-    <ClCompile Include="..\include\PressureSolver.cpp">
-      <Filter>Source Files\Solver</Filter>
-    </ClCompile>
     <ClCompile Include="..\include\SemiImplicitEulerSolver.cpp">
       <Filter>Source Files\Solver</Filter>
     </ClCompile>
@@ -94,9 +91,6 @@
     </ClInclude>
     <ClInclude Include="..\include\Poly6Kernel.h">
       <Filter>Header Files\Kernel</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\PressureSolver.h">
-      <Filter>Header Files\Solver</Filter>
     </ClInclude>
     <ClInclude Include="..\include\SemiImplicitEulerSolver.h">
       <Filter>Header Files\Solver</Filter>
