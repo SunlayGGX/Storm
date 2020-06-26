@@ -12,9 +12,16 @@ namespace Storm
 
 	public:
 		const std::vector<float>& getDensities() const noexcept;
+		std::vector<float>& getDensities() noexcept;
 		const std::vector<Storm::Vector3>& getPositions() const noexcept;
+		std::vector<Storm::Vector3>& getPositions() noexcept;
 		const std::vector<Storm::Vector3>& getVelocity() const noexcept;
+		std::vector<Storm::Vector3>& getVelocity() noexcept;
 		const std::vector<Storm::Vector3>& getForces() const noexcept;
+		std::vector<Storm::Vector3>& getForces() noexcept;
+
+		const std::vector<std::vector<Storm::NeighborParticleInfo>> &getNeighborhoodArrays() const noexcept;
+		std::vector<std::vector<Storm::NeighborParticleInfo>> &getNeighborhoodArrays() noexcept;
 
 		// "Predictive" SPH
 		virtual const std::vector<float>& getPredictedDensities() const = 0;
@@ -38,12 +45,6 @@ namespace Storm
 		virtual void buildNeighborhoodOnParticleSystem(const Storm::ParticleSystem &otherParticleSystem, const float kernelLengthSquared) = 0;
 
 	public:
-		void executeSPH(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems);
-
-	protected:
-		virtual void executePCISPH() = 0;
-
-	public:
 		virtual void postApplySPH();
 
 	public:
@@ -55,8 +56,9 @@ namespace Storm
 
 	public:
 		template<class Type>
-		std::size_t getParticleIndex(const std::vector<std::remove_cv_t<Type>> &dataArray, Type &particleData) const
+		static std::size_t getParticleIndex(const std::vector<std::remove_cv_t<Type>> &dataArray, Type &particleData)
 		{
+			// Works only because std::vector is contiguous in memory.
 			return &particleData - &dataArray[0];
 		}
 

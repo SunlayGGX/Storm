@@ -14,6 +14,12 @@
 
 #include "GeneralSimulationData.h"
 
+#include "SimulationMode.h"
+
+#include "DensitySolver.h"
+#include "ViscositySolver.h"
+#include "SemiImplicitEulerSolver.h"
+
 
 namespace
 {
@@ -46,6 +52,7 @@ void Storm::SimulatorManager::run()
 	Storm::ITimeManager &timeMgr = singletonHolder.getSingleton<Storm::ITimeManager>();
 	Storm::IPhysicsManager &physicsMgr = singletonHolder.getSingleton<Storm::IPhysicsManager>();
 	Storm::IThreadManager &threadMgr = singletonHolder.getSingleton<Storm::IThreadManager>();
+	const Storm::GeneralSimulationData &generalSimulationConfigData = singletonHolder.getSingleton<Storm::IConfigManager>().getGeneralSimulationData();
 	
 	std::vector<Storm::SimulationCallback> tmpSimulationCallback;
 	tmpSimulationCallback.reserve(8);
@@ -87,9 +94,11 @@ void Storm::SimulatorManager::run()
 		}
 
 		// Compute the simulation
-		for (auto &particleSystem : _particleSystem)
+		switch (generalSimulationConfigData._simulationMode)
 		{
-			particleSystem.second->executeSPH(_particleSystem);
+		case Storm::SimulationMode::PCISPH:
+			this->executePCISPH(generalSimulationConfigData, physicsElapsedDeltaTime);
+			break;
 		}
 
 		for (auto &particleSystem : _particleSystem)
@@ -119,6 +128,44 @@ void Storm::SimulatorManager::run()
 		++_forcedPushFrameIterator._val;
 
 	} while (true);
+}
+
+void Storm::SimulatorManager::executePCISPH(const Storm::GeneralSimulationData &generalSimulationDataConfig, float physicsElapsedDeltaTime)
+{
+	for (auto &particleSystemPair : _particleSystem)
+	{
+		Storm::ParticleSystem &particleSystem = *particleSystemPair.second;
+
+		if (particleSystem.isFluids())
+		{
+			std::vector<float> &densities = particleSystem.getDensities();
+			std::vector<Storm::Vector3> &forces = particleSystem.getForces();
+			std::vector<std::vector<Storm::NeighborParticleInfo>> &neighborhoodArrays = particleSystem.getNeighborhoodArrays();
+			std::vector<Storm::Vector3> &velocities = particleSystem.getVelocity();
+			const float massPerParticle = particleSystem.getMassPerParticle();
+			const Storm::Vector3 gravityForce = massPerParticle * generalSimulationDataConfig._gravity;
+
+			std::for_each(std::execution::par_unseq, std::begin(forces), std::end(forces), [&densities, &forces, &neighborhoodArrays, massPerParticle, &gravityForce](Storm::Vector3 &force)
+			{
+				// External force
+				const std::size_t iter = Storm::ParticleSystem::getParticleIndex(forces, force);
+				force += gravityForce;
+
+				// TODO : 
+				// Blowers
+
+				// Density
+				densities[iter] = Storm::DensitySolver::computeDensityPCISPH(massPerParticle, neighborhoodArrays[iter]);
+			});
+
+			// Viscosity
+			std::for_each(std::execution::par_unseq, std::begin(forces), std::end(forces), [&densities, &forces, &neighborhoodArrays, &velocities, massPerParticle](Storm::Vector3 &force)
+			{
+				const std::size_t iter = Storm::ParticleSystem::getParticleIndex(forces, force);
+				force += Storm::ViscositySolver::computeViscosityForcePCISPH(massPerParticle, densities[iter], velocities[iter], neighborhoodArrays[iter]);
+			});
+		}
+	}
 }
 
 void Storm::SimulatorManager::addFluidParticleSystem(unsigned int id, std::vector<Storm::Vector3> particlePositions)

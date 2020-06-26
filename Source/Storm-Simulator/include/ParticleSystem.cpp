@@ -6,8 +6,6 @@
 
 #include "GeneralSimulationData.h"
 
-#include "SimulationMode.h"
-
 
 
 Storm::ParticleSystem::ParticleSystem(unsigned int particleSystemIndex, std::vector<Storm::Vector3> &&worldPositions, float particleMass) :
@@ -28,9 +26,19 @@ Storm::ParticleSystem::ParticleSystem(unsigned int particleSystemIndex, std::vec
 	}
 }
 
+std::vector<float>& Storm::ParticleSystem::getDensities() noexcept
+{
+	return _densities;
+}
+
 const std::vector<float>& Storm::ParticleSystem::getDensities() const noexcept
 {
 	return _densities;
+}
+
+std::vector<Storm::Vector3>& Storm::ParticleSystem::getPositions() noexcept
+{
+	return _positions;
 }
 
 const std::vector<Storm::Vector3>& Storm::ParticleSystem::getPositions() const noexcept
@@ -43,14 +51,29 @@ const std::vector<Storm::Vector3>& Storm::ParticleSystem::getVelocity() const no
 	return _velocity;
 }
 
-const std::vector<Storm::Vector3>& Storm::ParticleSystem::getAccelerations() const noexcept
+std::vector<Storm::Vector3>& Storm::ParticleSystem::getVelocity() noexcept
 {
-	return _accelerations;
+	return _velocity;
 }
 
 const std::vector<Storm::Vector3>& Storm::ParticleSystem::getForces() const noexcept
 {
 	return _force;
+}
+
+std::vector<Storm::Vector3>& Storm::ParticleSystem::getForces() noexcept
+{
+	return _force;
+}
+
+const std::vector<std::vector<Storm::NeighborParticleInfo>>& Storm::ParticleSystem::getNeighborhoodArrays() const noexcept
+{
+	return _neighborhood;
+}
+
+std::vector<std::vector<Storm::NeighborParticleInfo>>& Storm::ParticleSystem::getNeighborhoodArrays() noexcept
+{
+	return _neighborhood;
 }
 
 float Storm::ParticleSystem::getMassPerParticle() const noexcept
@@ -79,17 +102,6 @@ void Storm::ParticleSystem::buildNeighborhood(const std::map<unsigned int, std::
 	});
 }
 
-void Storm::ParticleSystem::executeSPH(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems)
-{
-	const Storm::GeneralSimulationData &generalSimulData = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().getGeneralSimulationData();
-	switch (generalSimulData._simulationMode)
-	{
-	case Storm::SimulationMode::PCISPH:
-		this->executePCISPH();
-		break;
-	}
-}
-
 void Storm::ParticleSystem::postApplySPH()
 {
 
@@ -99,11 +111,18 @@ void Storm::ParticleSystem::initializeIteration()
 {
 	_isDirty = false;
 
+#if defined(DEBUG) || defined(_DEBUG)
+	const std::size_t particleCount = _densities.size();
+
 	assert(
-		_densities.size() == _positions.size() &&
-		_densities.size() == _velocity.size() &&
+		particleCount == _positions.size() &&
+		particleCount == _velocity.size() &&
+		particleCount == _force.size() &&
+		particleCount == _neighborhood.size() &&
 		"Particle count mismatch detected! An array of particle property has not the same particle count than the other!"
 	);
+	
+#endif
 
 	std::for_each(std::execution::par_unseq, std::begin(_force), std::end(_force), [](Storm::Vector3 &force)
 	{

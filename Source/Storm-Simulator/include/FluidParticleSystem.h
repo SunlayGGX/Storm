@@ -11,6 +11,9 @@ namespace Storm
 		FluidParticleSystem(unsigned int particleSystemIndex, std::vector<Storm::Vector3> &&worldPositions);
 
 	public:
+		void initializeIteration() final override;
+
+	public:
 		bool isFluids() const noexcept final override;
 
 		const std::vector<float>& getPredictedDensities() const noexcept final override;
@@ -22,9 +25,6 @@ namespace Storm
 
 	public:
 		void buildNeighborhoodOnParticleSystem(const Storm::ParticleSystem &otherParticleSystem, const float kernelLengthSquared) final override;
-
-	private:
-		void executePCISPH() final override;
 
 	public:
 		void updatePosition(float deltaTimeInSec) final override;

@@ -8,6 +8,7 @@
 namespace Storm
 {
 	class ParticleSystem;
+	struct GeneralSimulationData;
 
 	class SimulatorManager :
 		private Storm::Singleton<SimulatorManager>,
@@ -21,6 +22,9 @@ namespace Storm
 
 	public:
 		void run();
+
+	private:
+		void executePCISPH(const Storm::GeneralSimulationData &generalSimulationDataConfig, float physicsElapsedDeltaTime);
 
 	public:
 		void addFluidParticleSystem(unsigned int id, std::vector<Storm::Vector3> particlePositions) final override;

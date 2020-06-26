@@ -20,11 +20,9 @@ namespace Storm
 		std::vector<Storm::Vector3>& getPredictedPositions() final override;
 		const std::vector<Storm::Vector3>& getPredictedPressureForces() const final override;
 		std::vector<Storm::Vector3>& getPredictedPressureForces() final override;
-	private:
-		void buildNeighborhoodOnParticleSystem(const Storm::ParticleSystem &otherParticleSystem, const float kernelLengthSquared) final override;
 
 	private:
-		void executePCISPH() final override;
+		void buildNeighborhoodOnParticleSystem(const Storm::ParticleSystem &otherParticleSystem, const float kernelLengthSquared) final override;
 
 	public:
 		void updatePosition(float deltaTimeInSec) final override;
