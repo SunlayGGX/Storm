@@ -19,7 +19,6 @@ Storm::ParticleSystem::ParticleSystem(unsigned int particleSystemIndex, std::vec
 
 	_densities.resize(particleCount, particleMass / computeParticleDefaultVolume());
 	_velocity.resize(particleCount, Storm::Vector3::Zero());
-	_accelerations.resize(particleCount);
 	_force.resize(particleCount);
 	_neighborhood.resize(particleCount);
 
@@ -103,7 +102,6 @@ void Storm::ParticleSystem::initializeIteration()
 	assert(
 		_densities.size() == _positions.size() &&
 		_densities.size() == _velocity.size() &&
-		_densities.size() == _accelerations.size() &&
 		"Particle count mismatch detected! An array of particle property has not the same particle count than the other!"
 	);
 

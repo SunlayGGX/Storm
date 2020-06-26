@@ -14,7 +14,6 @@ namespace Storm
 		const std::vector<float>& getDensities() const noexcept;
 		const std::vector<Storm::Vector3>& getPositions() const noexcept;
 		const std::vector<Storm::Vector3>& getVelocity() const noexcept;
-		const std::vector<Storm::Vector3>& getAccelerations() const noexcept;
 		const std::vector<Storm::Vector3>& getForces() const noexcept;
 
 		// "Predictive" SPH
@@ -65,7 +64,6 @@ namespace Storm
 		std::vector<float> _densities;
 		std::vector<Storm::Vector3> _positions;
 		std::vector<Storm::Vector3> _velocity;
-		std::vector<Storm::Vector3> _accelerations;
 		std::vector<Storm::Vector3> _force;
 
 		std::vector<std::vector<Storm::NeighborParticleInfo>> _neighborhood;
