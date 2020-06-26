@@ -13,6 +13,13 @@ namespace Storm
 	public:
 		bool isFluids() const noexcept final override;
 
+	public:
+		const std::vector<float>& getPredictedDensities() const final override;
+		std::vector<float>& getPredictedDensities() final override;
+		const std::vector<Storm::Vector3>& getPredictedPositions() const final override;
+		std::vector<Storm::Vector3>& getPredictedPositions() final override;
+		const std::vector<Storm::Vector3>& getPredictedPressureForces() const final override;
+		std::vector<Storm::Vector3>& getPredictedPressureForces() final override;
 	private:
 		void buildNeighborhoodOnParticleSystem(const Storm::ParticleSystem &otherParticleSystem, const float kernelLengthSquared) final override;
 

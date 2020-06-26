@@ -6,10 +6,11 @@
 #include "GeneralSimulationData.h"
 #include "FluidData.h"
 
-#include "SemiImplicitEulerSolver.h"
+#include "SimulationMode.h"
 #include "DensitySolver.h"
 #include "ViscositySolver.h"
 
+#include "SemiImplicitEulerSolver.h"
 
 
 namespace
@@ -28,12 +29,79 @@ namespace
 Storm::FluidParticleSystem::FluidParticleSystem(unsigned int particleSystemIndex, std::vector<Storm::Vector3> &&worldPositions) :
 	Storm::ParticleSystem{ particleSystemIndex, std::move(worldPositions), computeDefaultFluidParticleMass() }
 {
+	const std::size_t particleCount = _positions.size();
 
+	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
+	switch (configMgr.getGeneralSimulationData()._simulationMode)
+	{
+	case Storm::SimulationMode::PCISPH:
+		_predictedDensity.resize(particleCount);
+		_predictedPositions.resize(particleCount);
+		_pressureForce.resize(particleCount);
+		break;
+
+	default:
+		break;
+	}
+}
+
+void Storm::FluidParticleSystem::initializeIteration()
+{
+	Storm::ParticleSystem::initializeIteration();
+
+#if defined(DEBUG) || defined(_DEBUG)
+	const std::size_t particleCount = _densities.size();
+	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
+	switch (configMgr.getGeneralSimulationData()._simulationMode)
+	{
+	case Storm::SimulationMode::PCISPH:
+		assert(
+			particleCount == _predictedDensity.size() &&
+			particleCount == _predictedPositions.size() &&
+			particleCount == _pressureForce.size() &&
+			"Particle count mismatch detected! An array of particle property has not the same particle count than the other!"
+		);
+		break;
+
+	default:
+		break;
+	}
+#endif
 }
 
 bool Storm::FluidParticleSystem::isFluids() const noexcept
 {
 	return true;
+}
+
+const std::vector<float>& Storm::FluidParticleSystem::getPredictedDensities() const noexcept
+{
+	return _predictedDensity;
+}
+
+std::vector<float>& Storm::FluidParticleSystem::getPredictedDensities() noexcept
+{
+	return _predictedDensity;
+}
+
+const std::vector<Storm::Vector3>& Storm::FluidParticleSystem::getPredictedPositions() const noexcept
+{
+	return _predictedPositions;
+}
+
+std::vector<Storm::Vector3>& Storm::FluidParticleSystem::getPredictedPositions() noexcept
+{
+	return _predictedPositions;
+}
+
+const std::vector<Storm::Vector3>& Storm::FluidParticleSystem::getPredictedPressureForces() const noexcept
+{
+	return _pressureForce;
+}
+
+std::vector<Storm::Vector3>& Storm::FluidParticleSystem::getPredictedPressureForces() noexcept
+{
+	return _pressureForce;
 }
 
 void Storm::FluidParticleSystem::buildNeighborhoodOnParticleSystem(const Storm::ParticleSystem &otherParticleSystem, const float kernelLengthSquared)

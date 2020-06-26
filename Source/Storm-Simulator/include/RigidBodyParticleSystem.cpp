@@ -37,6 +37,36 @@ Storm::RigidBodyParticleSystem::RigidBodyParticleSystem(unsigned int particleSys
 
 }
 
+const std::vector<float>& Storm::RigidBodyParticleSystem::getPredictedDensities() const
+{
+	Storm::throwException<std::logic_error>(__FUNCTION__ " shouldn't be called for rigid bodies particle system (only implemented for fluids)");
+}
+
+std::vector<float>& Storm::RigidBodyParticleSystem::getPredictedDensities()
+{
+	Storm::throwException<std::logic_error>(__FUNCTION__ " shouldn't be called for rigid bodies particle system (only implemented for fluids)");
+}
+
+const std::vector<Storm::Vector3>& Storm::RigidBodyParticleSystem::getPredictedPressureForces() const
+{
+	Storm::throwException<std::logic_error>(__FUNCTION__ " shouldn't be called for rigid bodies particle system (only implemented for fluids)");
+}
+
+std::vector<Storm::Vector3>& Storm::RigidBodyParticleSystem::getPredictedPressureForces()
+{
+	Storm::throwException<std::logic_error>(__FUNCTION__ " shouldn't be called for rigid bodies particle system (only implemented for fluids)");
+}
+
+const std::vector<Storm::Vector3>& Storm::RigidBodyParticleSystem::getPredictedPositions() const
+{
+	Storm::throwException<std::logic_error>(__FUNCTION__ " shouldn't be called for rigid bodies particle system (only implemented for fluids)");
+}
+
+std::vector<Storm::Vector3>& Storm::RigidBodyParticleSystem::getPredictedPositions()
+{
+	Storm::throwException<std::logic_error>(__FUNCTION__ " shouldn't be called for rigid bodies particle system (only implemented for fluids)");
+}
+
 bool Storm::RigidBodyParticleSystem::isFluids() const noexcept
 {
 	return false;

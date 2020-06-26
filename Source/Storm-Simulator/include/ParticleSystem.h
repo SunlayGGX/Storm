@@ -17,6 +17,14 @@ namespace Storm
 		const std::vector<Storm::Vector3>& getAccelerations() const noexcept;
 		const std::vector<Storm::Vector3>& getForces() const noexcept;
 
+		// "Predictive" SPH
+		virtual const std::vector<float>& getPredictedDensities() const = 0;
+		virtual std::vector<float>& getPredictedDensities() = 0;
+		virtual const std::vector<Storm::Vector3>& getPredictedPositions() const = 0;
+		virtual std::vector<Storm::Vector3>& getPredictedPositions() = 0;
+		virtual const std::vector<Storm::Vector3>& getPredictedPressureForces() const = 0;
+		virtual std::vector<Storm::Vector3>& getPredictedPressureForces() = 0;
+
 		float getMassPerParticle() const noexcept;
 
 		unsigned int getId() const noexcept;

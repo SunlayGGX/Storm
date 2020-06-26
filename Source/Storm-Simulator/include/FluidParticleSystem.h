@@ -13,6 +13,13 @@ namespace Storm
 	public:
 		bool isFluids() const noexcept final override;
 
+		const std::vector<float>& getPredictedDensities() const noexcept final override;
+		std::vector<float>& getPredictedDensities() noexcept final override;
+		const std::vector<Storm::Vector3>& getPredictedPositions() const noexcept final override;
+		std::vector<Storm::Vector3>& getPredictedPositions() noexcept final override;
+		const std::vector<Storm::Vector3>& getPredictedPressureForces() const noexcept final override;
+		std::vector<Storm::Vector3>& getPredictedPressureForces() noexcept final override;
+
 	public:
 		void buildNeighborhoodOnParticleSystem(const Storm::ParticleSystem &otherParticleSystem, const float kernelLengthSquared) final override;
 
@@ -21,5 +28,11 @@ namespace Storm
 
 	public:
 		void updatePosition(float deltaTimeInSec) final override;
+
+	private:
+		// "Predictive" SPH
+		std::vector<float> _predictedDensity;
+		std::vector<Storm::Vector3> _predictedPositions;
+		std::vector<Storm::Vector3> _pressureForce;
 	};
 }
