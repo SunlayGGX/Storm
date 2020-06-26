@@ -166,6 +166,44 @@ void Storm::SimulatorManager::executePCISPH(const Storm::GeneralSimulationData &
 			});
 		}
 	}
+
+	// Pressure prediction and solving
+	unsigned int currentPredictionIteration = 0;
+	bool computePressure = true;
+	while (computePressure && currentPredictionIteration < generalSimulationDataConfig._maxPredictIteration)
+	{
+		// Note "currentP" in variable name = currentParticle (was just lazy to write and read "Particle" each time.
+
+		// First : predict for all particle the projected predicted positions.
+		for (auto &particleSystemPair : _particleSystem)
+		{
+			Storm::ParticleSystem &particleSystem = *particleSystemPair.second;
+
+			if (particleSystem.isFluids())
+			{
+				const std::vector<Storm::Vector3> &positions = particleSystem.getPositions();
+				const std::vector<Storm::Vector3> &velocities = particleSystem.getVelocity();
+				const std::vector<Storm::Vector3> &forces = particleSystem.getForces();
+				const std::vector<Storm::Vector3> &pressureForces = particleSystem.getPredictedPressureForces();
+				std::vector<Storm::Vector3> &predictedPositions = particleSystem.getPredictedPositions();
+				const float massPerParticle = particleSystem.getMassPerParticle();
+
+				std::for_each(std::execution::par_unseq, std::begin(predictedPositions), std::end(predictedPositions), [&](Storm::Vector3 &currentPPredictedPosition)
+				{
+					const std::size_t iter = Storm::ParticleSystem::getParticleIndex(predictedPositions, currentPPredictedPosition);
+
+					const Storm::Vector3 &currentPVelocity = velocities[iter];
+					const Storm::Vector3 &currentPForce = forces[iter];
+					const Storm::Vector3 &currentPPredictPressureForce = pressureForces[iter];
+
+					Storm::SemiImplicitEulerSolver solver{ massPerParticle, currentPForce + currentPPredictPressureForce, currentPVelocity, physicsElapsedDeltaTime };
+
+					const Storm::Vector3 &currentPPosition = positions[iter];
+					currentPPredictedPosition = currentPPosition + solver._positionDisplacment;
+				});
+			}
+		}
+	}
 }
 
 void Storm::SimulatorManager::addFluidParticleSystem(unsigned int id, std::vector<Storm::Vector3> particlePositions)
