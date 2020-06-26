@@ -202,6 +202,8 @@ void Storm::SimulatorManager::executePCISPH(const Storm::GeneralSimulationData &
 					currentPPredictedPosition = currentPPosition + solver._positionDisplacment;
 				});
 			}
+
+			++currentPredictionIteration;
 		}
 	}
 
