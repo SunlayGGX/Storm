@@ -6,6 +6,7 @@
 #include "GeneralSimulationData.h"
 #include "FluidData.h"
 
+#include "SemiImplicitEulerSolver.h"
 #include "DensitySolver.h"
 #include "ViscositySolver.h"
 
@@ -122,14 +123,10 @@ void Storm::FluidParticleSystem::updatePosition(float deltaTimeInSec)
 	{
 		const std::size_t currentParticleIndex = this->getParticleIndex(_force, currentForce);
 
-		Storm::Vector3 &currentAccel = _accelerations[currentParticleIndex];
-		currentAccel = currentForce / _massPerParticle;
+		Storm::SemiImplicitEulerSolver solver{ _massPerParticle, currentForce, _velocity[currentParticleIndex], deltaTimeInSec };
 
-		Storm::Vector3 &currentVelocity = _velocity[currentParticleIndex];
-		currentVelocity += deltaTimeInSec * currentAccel;
-
-		const Storm::Vector3 displacmentPosition = deltaTimeInSec * currentVelocity;
-		_positions[currentParticleIndex] += displacmentPosition;
+		_velocity[currentParticleIndex] += solver._velocityVariation;
+		_positions[currentParticleIndex] += solver._positionDisplacment;
 
 		if (!_isDirty)
 		{
@@ -137,9 +134,9 @@ void Storm::FluidParticleSystem::updatePosition(float deltaTimeInSec)
 			constexpr const float k_epsilon = 0.0001f;
 
 			_isDirty = 
-				fabs(displacmentPosition.x()) > k_epsilon ||
-				fabs(displacmentPosition.y()) > k_epsilon ||
-				fabs(displacmentPosition.z()) > k_epsilon
+				fabs(solver._positionDisplacment.x()) > k_epsilon ||
+				fabs(solver._positionDisplacment.y()) > k_epsilon ||
+				fabs(solver._positionDisplacment.z()) > k_epsilon
 				;
 		}
 	});

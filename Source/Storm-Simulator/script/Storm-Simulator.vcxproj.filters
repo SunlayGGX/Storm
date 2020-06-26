@@ -60,6 +60,9 @@
     <ClCompile Include="..\include\PressureSolver.cpp">
       <Filter>Source Files\Solver</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\SemiImplicitEulerSolver.cpp">
+      <Filter>Source Files\Solver</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-SimulatorPCH.h">
@@ -93,6 +96,9 @@
       <Filter>Header Files\Kernel</Filter>
     </ClInclude>
     <ClInclude Include="..\include\PressureSolver.h">
+      <Filter>Header Files\Solver</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SemiImplicitEulerSolver.h">
       <Filter>Header Files\Solver</Filter>
     </ClInclude>
   </ItemGroup>
