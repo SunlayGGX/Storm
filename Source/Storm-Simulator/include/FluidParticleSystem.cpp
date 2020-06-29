@@ -29,6 +29,8 @@ Storm::FluidParticleSystem::FluidParticleSystem(unsigned int particleSystemIndex
 {
 	const std::size_t particleCount = _positions.size();
 
+	_pressures.resize(particleCount);
+
 	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
 	switch (configMgr.getGeneralSimulationData()._simulationMode)
 	{
@@ -67,6 +69,7 @@ void Storm::FluidParticleSystem::initializeIteration()
 	{
 		const std::size_t particleCount = _densities.size();
 		assert(
+			particleCount == _pressures.size() &&
 			particleCount == _predictedDensity.size() &&
 			particleCount == _predictedPositions.size() &&
 			particleCount == _pressureForce.size() &&
@@ -87,6 +90,16 @@ void Storm::FluidParticleSystem::initializeIteration()
 bool Storm::FluidParticleSystem::isFluids() const noexcept
 {
 	return true;
+}
+
+const std::vector<float>& Storm::FluidParticleSystem::getPressures() const noexcept
+{
+	return _pressures;
+}
+
+std::vector<float>& Storm::FluidParticleSystem::getPressures() noexcept
+{
+	return _pressures;
 }
 
 const std::vector<float>& Storm::FluidParticleSystem::getPredictedDensities() const noexcept

@@ -23,6 +23,9 @@ namespace Storm
 		const std::vector<std::vector<Storm::NeighborParticleInfo>> &getNeighborhoodArrays() const noexcept;
 		std::vector<std::vector<Storm::NeighborParticleInfo>> &getNeighborhoodArrays() noexcept;
 
+		virtual const std::vector<float>& getPressures() const noexcept = 0;
+		virtual std::vector<float>& getPressures() noexcept = 0;
+
 		// "Predictive" SPH
 		virtual const std::vector<float>& getPredictedDensities() const = 0;
 		virtual std::vector<float>& getPredictedDensities() = 0;

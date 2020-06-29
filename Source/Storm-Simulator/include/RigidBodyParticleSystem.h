@@ -14,6 +14,8 @@ namespace Storm
 		bool isFluids() const noexcept final override;
 
 	public:
+		const std::vector<float>& getPressures() const noexcept final override;
+		std::vector<float>& getPressures() noexcept final override;
 		const std::vector<float>& getPredictedDensities() const final override;
 		std::vector<float>& getPredictedDensities() final override;
 		const std::vector<Storm::Vector3>& getPredictedPositions() const final override;
