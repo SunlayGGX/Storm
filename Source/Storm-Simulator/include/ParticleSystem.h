@@ -40,6 +40,7 @@ namespace Storm
 		unsigned int getId() const noexcept;
 
 		virtual bool isFluids() const noexcept = 0;
+		virtual bool isStatic() const noexcept = 0;
 
 		bool isDirty() const noexcept;
 

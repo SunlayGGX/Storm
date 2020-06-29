@@ -12,6 +12,7 @@ namespace Storm
 
 	public:
 		bool isFluids() const noexcept final override;
+		bool isStatic() const noexcept final override;
 
 	public:
 		const std::vector<float>& getPressures() const noexcept final override;
@@ -42,5 +43,7 @@ namespace Storm
 		// they will be equal to the position of the last frame.
 		Storm::Vector3 _cachedTrackedRbPosition;
 		Storm::Quaternion _cachedTrackedRbRotationQuat;
+
+		bool _isStatic;
 	};
 }

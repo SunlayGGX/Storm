@@ -31,6 +31,10 @@ Storm::RigidBodyParticleSystem::RigidBodyParticleSystem(unsigned int particleSys
 	const float k_particleRadius = generalSimulData._particleRadius;
 
 	_restDensity = _massPerParticle / (k_particleRadius * k_particleRadius * k_particleRadius);
+
+	const Storm::RigidBodySceneData &currentRbData = configMgr.getRigidBodyData(particleSystemIndex);
+
+	_isStatic = currentRbData._static;
 }
 
 const std::vector<float>& Storm::RigidBodyParticleSystem::getPressures() const noexcept
@@ -76,6 +80,11 @@ std::vector<Storm::Vector3>& Storm::RigidBodyParticleSystem::getPredictedPositio
 bool Storm::RigidBodyParticleSystem::isFluids() const noexcept
 {
 	return false;
+}
+
+bool Storm::RigidBodyParticleSystem::isStatic() const noexcept
+{
+	return _isStatic;
 }
 
 void Storm::RigidBodyParticleSystem::buildNeighborhoodOnParticleSystem(const Storm::ParticleSystem &otherParticleSystem, const float kernelLengthSquared)

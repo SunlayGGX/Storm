@@ -94,6 +94,11 @@ bool Storm::FluidParticleSystem::isFluids() const noexcept
 	return true;
 }
 
+bool Storm::FluidParticleSystem::isStatic() const noexcept
+{
+	return false;
+}
+
 const std::vector<float>& Storm::FluidParticleSystem::getPressures() const noexcept
 {
 	return _pressures;
