@@ -11,12 +11,12 @@ namespace Storm
 	public:
 		float operator()(float particleDistToNeighbor) const
 		{
-			const float kernelBaseVal = _kernelLengthSquared - particleDistToNeighbor;
+			const float kernelBaseVal = _kernelLength - particleDistToNeighbor;
 			return _precomputedCoefficient * kernelBaseVal * kernelBaseVal;
 		}
 
 	private:
-		const float _kernelLengthSquared;
+		const float _kernelLength;
 		float _precomputedCoefficient;
 	};
 }

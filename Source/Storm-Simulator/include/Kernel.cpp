@@ -17,10 +17,11 @@ Storm::Poly6Kernel::Poly6Kernel(float kernelLength) :
 
 
 Storm::GradientSpikyKernel::GradientSpikyKernel(float kernelLength) :
-	_kernelLengthSquared{ kernelLength * kernelLength }
+	_kernelLength{ kernelLength }
 {
+	const float kernelLengthSquared = _kernelLength * _kernelLength;
 	constexpr float constexprCoeff = static_cast<float>(-3.0 * 15.0 * M_1_PI);
-	const float h6 = _kernelLengthSquared * _kernelLengthSquared * _kernelLengthSquared;
+	const float h6 = kernelLengthSquared * kernelLengthSquared * kernelLengthSquared;
 
 	_precomputedCoefficient = constexprCoeff / h6;
 }
