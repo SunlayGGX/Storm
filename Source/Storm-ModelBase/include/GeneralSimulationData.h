@@ -4,6 +4,7 @@
 namespace Storm
 {
 	enum class SimulationMode;
+	enum class KernelMode;
 
 	struct GeneralSimulationData
 	{
@@ -24,5 +25,6 @@ namespace Storm
 		bool _startPaused;
 
 		Storm::SimulationMode _simulationMode;
+		Storm::KernelMode _kernelMode;
 	};
 }

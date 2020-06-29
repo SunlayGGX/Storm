@@ -6,6 +6,7 @@
 
 #include "CollisionType.h"
 #include "SimulationMode.h"
+#include "KernelMode.h"
 
 #include "ThrowException.h"
 #include "XmlReader.h"
@@ -61,6 +62,23 @@ namespace
 			Storm::throwException<std::exception>("Simulation mode value is unknown : '" + simulModeStr + "'");
 		}
 	}
+
+	Storm::KernelMode parseKernelMode(std::string kernelModeStr)
+	{
+		boost::algorithm::to_lower(kernelModeStr);
+		if (kernelModeStr == "muller2013")
+		{
+			return Storm::KernelMode::Muller2013;
+		}
+		else if (kernelModeStr == "cubicspline")
+		{
+			return Storm::KernelMode::CubicSpline;
+		}
+		else
+		{
+			Storm::throwException<std::exception>("Kernel mode value is unknown : '" + kernelModeStr + "'");
+		}
+	}
 }
 
 
@@ -84,6 +102,7 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 			!Storm::XmlReader::handleXml(generalXmlElement, "startPaused", generalData._startPaused) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "gravity", generalData._gravity, parseVector3Element) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "simulation", generalData._simulationMode, parseSimulationMode) &&
+			!Storm::XmlReader::handleXml(generalXmlElement, "kernel", generalData._kernelMode, parseKernelMode) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "kernelCoeff", generalData._kernelCoefficient) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "physicsTime", generalData._physicsTimeInSeconds) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "fps", generalData._expectedFps) &&

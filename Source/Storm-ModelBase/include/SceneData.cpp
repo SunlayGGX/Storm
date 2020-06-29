@@ -2,6 +2,7 @@
 
 #include "CollisionType.h"
 #include "SimulationMode.h"
+#include "KernelMode.h"
 
 
 Storm::GeneralSimulationData::GeneralSimulationData() :
@@ -13,7 +14,8 @@ Storm::GeneralSimulationData::GeneralSimulationData() :
 	_expectedFps{ -1.f },
 	_simulationMode{ Storm::SimulationMode::None },
 	_maxPredictIteration{ 150 },
-	_maxDensityError{ 0.01f }
+	_maxDensityError{ 0.01f },
+	_kernelMode{ Storm::KernelMode::Muller2013 }
 {
 
 }

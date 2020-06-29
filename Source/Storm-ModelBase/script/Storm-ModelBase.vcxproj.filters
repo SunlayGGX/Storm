@@ -161,5 +161,8 @@
     <ClInclude Include="..\include\SimulationMode.h">
       <Filter>Header Files\Simulation</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\KernelMode.h">
+      <Filter>Header Files\Simulation</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
