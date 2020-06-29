@@ -44,7 +44,6 @@ Storm::FluidParticleSystem::FluidParticleSystem(unsigned int particleSystemIndex
 		break;
 	}
 
-	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
 	_restDensity = configMgr.getFluidData()._density;
 }
 
