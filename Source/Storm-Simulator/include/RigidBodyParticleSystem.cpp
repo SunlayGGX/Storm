@@ -105,7 +105,7 @@ void Storm::RigidBodyParticleSystem::buildNeighborhoodOnParticleSystem(const Sto
 				const float vectToParticleSquaredNorm = positionDifference.squaredNorm();
 				if (vectToParticleSquaredNorm < kernelLengthSquared)
 				{
-					currentNeighborhoodToFill.emplace_back(&otherParticleSystem, particleIndex, positionDifference, vectToParticleSquaredNorm, true);
+					currentNeighborhoodToFill.emplace_back(const_cast<Storm::ParticleSystem*>(&otherParticleSystem), particleIndex, positionDifference, vectToParticleSquaredNorm, true);
 				}
 			}
 		});

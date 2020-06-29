@@ -191,7 +191,7 @@ void Storm::FluidParticleSystem::buildNeighborhoodOnParticleSystem(const Storm::
 				const float vectToParticleSquaredNorm = positionDifference.squaredNorm();
 				if (vectToParticleSquaredNorm < kernelLengthSquared)
 				{
-					currentNeighborhoodToFill.emplace_back(&otherParticleSystem, particleIndex, positionDifference, vectToParticleSquaredNorm, otherParticleSystemIsFluid);
+					currentNeighborhoodToFill.emplace_back(const_cast<Storm::ParticleSystem*>(&otherParticleSystem), particleIndex, positionDifference, vectToParticleSquaredNorm, otherParticleSystemIsFluid);
 				}
 			}
 		});
