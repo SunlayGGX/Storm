@@ -277,7 +277,7 @@ void Storm::SimulatorManager::executePCISPH(const Storm::GeneralSimulationData &
 						currentPPredictedDensity = (k_massPerParticle * kernelGradSum) + kCoeff;
 
 						const float currentPDensityError = currentPPredictedDensity - k_particleSystemRestDensity;
-						runPredictionTmp = std::abs(currentPDensityError) > k_maxDensityError || runPredictionTmp;
+						runPredictionTmp = std::fabs(currentPDensityError) > k_maxDensityError || runPredictionTmp;
 
 						currentPPredictedPressure += currentPDensityError * k_invertPhysicsTimeSquared;
 						if (currentPPredictedPressure < 0.f)
