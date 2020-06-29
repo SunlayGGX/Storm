@@ -220,6 +220,15 @@ void Storm::SimulatorManager::executePCISPH(const Storm::GeneralSimulationData &
 					Storm::Vector3 currentViscosityForce = completeArtificialViscosityCoefficient * vij.normalized();
 
 					force += currentViscosityForce;
+
+					if (!neighborInfo._isFluidParticle && !neighborhoodContainingPSystem.isStatic())
+					{
+						Storm::Vector3 &rbParticleForce = neighborhoodContainingPSystem.getForces()[neighborInfo._particleIndex];
+
+						std::lock_guard<std::mutex> lock{ neighborInfo._containingParticleSystem->_mutex };
+						// F a->b = -F b->a
+						rbParticleForce -= currentViscosityForce;
+					}
 				}
 			});
 		}
@@ -362,13 +371,14 @@ void Storm::SimulatorManager::executePCISPH(const Storm::GeneralSimulationData &
 							const Storm::Vector3 currentPressureForceAdded = (coeff / pNeighbor._vectToParticleNorm) * pNeighbor._positionDifferenceVector;
 							currentPPredictedPressure += currentPressureForceAdded;
 
-#if false
-							// TODO : reflect the force on each neighborhood (need to change a little the architecture)
-							if (!runPrediction && !pNeighbor._isFluidParticle)
+							if (!runPrediction && !pNeighbor._isFluidParticle && !pNeighbor._containingParticleSystem->isStatic())
 							{
+								Storm::Vector3 &rbParticleForce = pNeighbor._containingParticleSystem->getForces()[pNeighbor._particleIndex];
 
+								std::lock_guard<std::mutex> lock{ pNeighbor._containingParticleSystem->_mutex };
+								// F a->b = -F b->a
+								rbParticleForce -= currentPressureForceAdded;
 							}
-#endif
 						}
 					});
 				}
