@@ -151,7 +151,7 @@ void Storm::SimulatorManager::executePCISPH(const Storm::GeneralSimulationData &
 			const float k_particleSystemRestDensity = particleSystem.getRestDensity();
 			const Storm::Vector3 gravityForce = k_massPerParticle * generalSimulationDataConfig._gravity;
 
-			std::for_each(std::execution::par_unseq, std::begin(forces), std::end(forces), [&](Storm::Vector3 &force)
+			std::for_each(std::execution::par, std::begin(forces), std::end(forces), [&](Storm::Vector3 &force)
 			{
 				// External force
 				const std::size_t currentPIndex = Storm::ParticleSystem::getParticleIndex(forces, force);
@@ -169,7 +169,7 @@ void Storm::SimulatorManager::executePCISPH(const Storm::GeneralSimulationData &
 			});
 
 			// Viscosity
-			std::for_each(std::execution::par_unseq, std::begin(forces), std::end(forces), [&densities, &forces, &neighborhoodArrays, &velocities, k_massPerParticle](Storm::Vector3 &force)
+			std::for_each(std::execution::par, std::begin(forces), std::end(forces), [&](Storm::Vector3 &force)
 			{
 				const std::size_t currentPIndex = Storm::ParticleSystem::getParticleIndex(forces, force);
 				force += Storm::ViscositySolver::computeViscosityForcePCISPH(k_massPerParticle, densities[currentPIndex], velocities[currentPIndex], neighborhoodArrays[currentPIndex]);
@@ -202,7 +202,7 @@ void Storm::SimulatorManager::executePCISPH(const Storm::GeneralSimulationData &
 				std::vector<Storm::Vector3> &predictedPositions = particleSystem.getPredictedPositions();
 				const float k_massPerParticle = particleSystem.getMassPerParticle();
 
-				std::for_each(std::execution::par_unseq, std::begin(predictedPositions), std::end(predictedPositions), [&](Storm::Vector3 &currentPPredictedPosition)
+				std::for_each(std::execution::par, std::begin(predictedPositions), std::end(predictedPositions), [&](Storm::Vector3 &currentPPredictedPosition)
 				{
 					const std::size_t currentPIndex = Storm::ParticleSystem::getParticleIndex(predictedPositions, currentPPredictedPosition);
 
@@ -233,7 +233,7 @@ void Storm::SimulatorManager::executePCISPH(const Storm::GeneralSimulationData &
 
 					std::atomic<bool> runPredictionTmp = false;
 
-					std::for_each(std::execution::par_unseq, std::begin(pressures), std::end(pressures), [&](float &currentPPredictedPressure)
+					std::for_each(std::execution::par, std::begin(pressures), std::end(pressures), [&](float &currentPPredictedPressure)
 					{
 						const std::size_t currentPIndex = Storm::ParticleSystem::getParticleIndex(pressures, currentPPredictedPressure);
 
@@ -289,7 +289,7 @@ void Storm::SimulatorManager::executePCISPH(const Storm::GeneralSimulationData &
 					const float k_massPerParticle = particleSystem.getMassPerParticle();
 					const float k_fluidMassCoeff = -k_massPerParticle * k_massPerParticle;
 					const float k_rbMassCoeff = -k_massPerParticle * particleSystem.getRestDensity();
-					std::for_each(std::execution::par_unseq, std::begin(pressureForces), std::end(pressureForces), [&](Storm::Vector3 &currentPPredictedPressure)
+					std::for_each(std::execution::par, std::begin(pressureForces), std::end(pressureForces), [&](Storm::Vector3 &currentPPredictedPressure)
 					{
 						const std::size_t currentPIndex = Storm::ParticleSystem::getParticleIndex(pressureForces, currentPPredictedPressure);
 						const float currentPPredictedDensity = predictedDensities[currentPIndex];

@@ -82,7 +82,7 @@ void Storm::RigidBodyParticleSystem::buildNeighborhoodOnParticleSystem(const Sto
 {
 	if (otherParticleSystem.isFluids())
 	{
-		std::for_each(std::execution::par_unseq, std::begin(_positions), std::end(_positions), [this, kernelLengthSquared, &otherParticleSystem](const Storm::Vector3 &currentParticlePosition)
+		std::for_each(std::execution::par, std::begin(_positions), std::end(_positions), [this, kernelLengthSquared, &otherParticleSystem](const Storm::Vector3 &currentParticlePosition)
 		{
 			std::vector<Storm::NeighborParticleInfo> &currentNeighborhoodToFill = _neighborhood[this->getParticleIndex(_positions, currentParticlePosition)];
 			currentNeighborhoodToFill.clear();
@@ -116,7 +116,7 @@ void Storm::RigidBodyParticleSystem::updatePosition(float deltaTimeInSec)
 		const Storm::Quaternion oldRbRotationConjugateQuat = _cachedTrackedRbRotationQuat.conjugate();
 		const Storm::Quaternion currentConjugateQuatRotation = currentQuatRotation.conjugate();
 
-		std::for_each(std::execution::par_unseq, std::begin(_positions), std::end(_positions), [&](Storm::Vector3 &currentParticlePosition)
+		std::for_each(std::execution::par, std::begin(_positions), std::end(_positions), [&](Storm::Vector3 &currentParticlePosition)
 		{
 			/* First, remove the current world space coordinate to revert to the object space coordinate (where particle were defined initially and on which PhysX was initialized). */
 

@@ -82,7 +82,7 @@ void Storm::FluidParticleSystem::initializeIteration()
 #endif
 	if (usePredictedArrays)
 	{
-		std::for_each(std::execution::par_unseq, std::begin(_pressureForce), std::end(_pressureForce), [](Storm::Vector3 &predictedPressureForce)
+		std::for_each(std::execution::par, std::begin(_pressureForce), std::end(_pressureForce), [](Storm::Vector3 &predictedPressureForce)
 		{
 			predictedPressureForce.setZero();
 		});
@@ -138,7 +138,7 @@ void Storm::FluidParticleSystem::buildNeighborhoodOnParticleSystem(const Storm::
 {
 	if (otherParticleSystem.getId() == this->getId())
 	{
-		std::for_each(std::execution::par_unseq, std::begin(_positions), std::end(_positions), [this, kernelLengthSquared](const Storm::Vector3 &currentParticlePosition)
+		std::for_each(std::execution::par, std::begin(_positions), std::end(_positions), [this, kernelLengthSquared](const Storm::Vector3 &currentParticlePosition)
 		{
 			const std::size_t currentParticleIndex = this->getParticleIndex(_positions, currentParticlePosition);
 			const std::size_t particleCount = _positions.size();
@@ -171,7 +171,7 @@ void Storm::FluidParticleSystem::buildNeighborhoodOnParticleSystem(const Storm::
 	}
 	else
 	{
-		std::for_each(std::execution::par_unseq, std::begin(_positions), std::end(_positions), [this, kernelLengthSquared, &otherParticleSystem](const Storm::Vector3 &currentParticlePosition)
+		std::for_each(std::execution::par, std::begin(_positions), std::end(_positions), [this, kernelLengthSquared, &otherParticleSystem](const Storm::Vector3 &currentParticlePosition)
 		{
 			std::vector<Storm::NeighborParticleInfo> &currentNeighborhoodToFill = _neighborhood[this->getParticleIndex(_positions, currentParticlePosition)];
 			currentNeighborhoodToFill.clear();
@@ -195,7 +195,7 @@ void Storm::FluidParticleSystem::buildNeighborhoodOnParticleSystem(const Storm::
 
 void Storm::FluidParticleSystem::updatePosition(float deltaTimeInSec)
 {
-	std::for_each(std::execution::par_unseq, std::begin(_force), std::end(_force), [this, deltaTimeInSec](const Storm::Vector3 &currentForce)
+	std::for_each(std::execution::par, std::begin(_force), std::end(_force), [this, deltaTimeInSec](const Storm::Vector3 &currentForce)
 	{
 		const std::size_t currentParticleIndex = this->getParticleIndex(_force, currentForce);
 
@@ -220,7 +220,7 @@ void Storm::FluidParticleSystem::updatePosition(float deltaTimeInSec)
 
 void Storm::FluidParticleSystem::applyPredictedPressureToTotalForce()
 {
-	std::for_each(std::execution::par_unseq, std::begin(_force), std::end(_force), [this](Storm::Vector3 &currentPForce)
+	std::for_each(std::execution::par, std::begin(_force), std::end(_force), [this](Storm::Vector3 &currentPForce)
 	{
 		const std::size_t currentPIndex = Storm::ParticleSystem::getParticleIndex(_force, currentPForce);
 		currentPForce += _pressureForce[currentPIndex];

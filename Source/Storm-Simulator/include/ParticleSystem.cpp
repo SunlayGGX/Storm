@@ -130,7 +130,7 @@ void Storm::ParticleSystem::initializeIteration()
 	
 #endif
 
-	std::for_each(std::execution::par_unseq, std::begin(_force), std::end(_force), [](Storm::Vector3 &force)
+	std::for_each(std::execution::par, std::begin(_force), std::end(_force), [](Storm::Vector3 &force)
 	{
 		force.setZero();
 	});
