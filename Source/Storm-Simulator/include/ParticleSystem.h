@@ -81,8 +81,10 @@ namespace Storm
 
 		float _massPerParticle;
 		float _restDensity;
-
 		unsigned int _particleSystemIndex;
 		std::atomic<bool> _isDirty;
+
+	public:
+		mutable std::mutex _mutex;
 	};
 }
