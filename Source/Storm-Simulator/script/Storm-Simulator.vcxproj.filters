@@ -51,9 +51,6 @@
     <ClCompile Include="..\include\DensitySolver.cpp">
       <Filter>Source Files\Solver</Filter>
     </ClCompile>
-    <ClCompile Include="..\include\ViscositySolver.cpp">
-      <Filter>Source Files\Solver</Filter>
-    </ClCompile>
     <ClCompile Include="..\include\Kernel.cpp">
       <Filter>Source Files\Kernel</Filter>
     </ClCompile>
@@ -78,9 +75,6 @@
       <Filter>Header Files\System</Filter>
     </ClInclude>
     <ClInclude Include="..\include\DensitySolver.h">
-      <Filter>Header Files\Solver</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\ViscositySolver.h">
       <Filter>Header Files\Solver</Filter>
     </ClInclude>
     <ClInclude Include="..\include\NeighborParticleInfo.h">

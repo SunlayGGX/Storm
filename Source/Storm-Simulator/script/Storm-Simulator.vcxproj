@@ -22,7 +22,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\include\ViscositySolver.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\CubicKernel.h" />
@@ -36,7 +35,6 @@
     <ClInclude Include="..\include\SimulatorManager.h" />
     <ClInclude Include="..\include\SpikyKernel.h" />
     <ClInclude Include="..\include\Storm-SimulatorPCH.h" />
-    <ClInclude Include="..\include\ViscositySolver.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Storm-Helper\script\Storm-Helper.vcxproj">
