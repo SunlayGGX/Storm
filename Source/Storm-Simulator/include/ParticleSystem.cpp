@@ -5,6 +5,7 @@
 #include "SimulatorManager.h"
 
 #include "GeneralSimulationData.h"
+#include "FluidData.h"
 
 
 
@@ -79,6 +80,11 @@ std::vector<std::vector<Storm::NeighborParticleInfo>>& Storm::ParticleSystem::ge
 float Storm::ParticleSystem::getMassPerParticle() const noexcept
 {
 	return _massPerParticle;
+}
+
+float Storm::ParticleSystem::getRestDensity() const noexcept
+{
+	return _restDensity;
 }
 
 unsigned int Storm::ParticleSystem::getId() const noexcept

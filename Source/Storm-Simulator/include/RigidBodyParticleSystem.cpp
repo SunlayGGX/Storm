@@ -4,6 +4,7 @@
 #include "IPhysicsManager.h"
 #include "IConfigManager.h"
 
+#include "GeneralSimulationData.h"
 #include "RigidBodySceneData.h"
 #include "CollisionType.h"
 
@@ -24,7 +25,12 @@ Storm::RigidBodyParticleSystem::RigidBodyParticleSystem(unsigned int particleSys
 	Storm::ParticleSystem{ particleSystemIndex, std::move(worldPositions), computeDefaultRigidBodyParticleMass(particleSystemIndex, worldPositions.size()) },
 	_cachedTrackedRbRotationQuat{ Storm::Quaternion::Identity() }
 {
+	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
 
+	const Storm::GeneralSimulationData &generalSimulData = configMgr.getGeneralSimulationData();
+	const float k_particleRadius = generalSimulData._particleRadius;
+
+	_restDensity = _massPerParticle / (k_particleRadius * k_particleRadius * k_particleRadius);
 }
 
 const std::vector<float>& Storm::RigidBodyParticleSystem::getPressures() const noexcept

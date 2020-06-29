@@ -35,6 +35,7 @@ namespace Storm
 		virtual std::vector<Storm::Vector3>& getPredictedPressureForces() = 0;
 
 		float getMassPerParticle() const noexcept;
+		float getRestDensity() const noexcept;
 
 		unsigned int getId() const noexcept;
 
@@ -78,6 +79,7 @@ namespace Storm
 		std::vector<std::vector<Storm::NeighborParticleInfo>> _neighborhood;
 
 		float _massPerParticle;
+		float _restDensity;
 
 		unsigned int _particleSystemIndex;
 		std::atomic<bool> _isDirty;
