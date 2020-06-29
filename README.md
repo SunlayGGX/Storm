@@ -133,6 +133,7 @@ Unlike the others config files, it can be named as you want. Here the wml tags y
 - **fps (float, falcultative)**: This is the expected frame rate (it has nothing to do with the physics time, this is the refresh rate of many loop inside the engine to not consume too much cpu). If this value is less or equal to 0, then we would set it to the default value which is 60 FPS.
 - **simulation (string, mandatory)**: This is the simulation mode we will run. It isn't case sensitive. Accepted values (for now) are "PCISPH".
 - **maxPredictIteration (positive integer, facultative)**: This is the max iteration we're allowed to make inside one simulation loop when doing prediction iteration. It is to avoid infinite loop. It should be an integer strictly greater than 0. Default value is 150.
+- **maxDensityError (positive float, facultative)**: This is the max density error under which we would continue the prediction iteration (or until maxPredictIteration hit). It should be less or equal than 0. Default value is 0.01.
 
 #### Graphics
 - **cameraPosition (vector3, facultative)**: This is the camera (viewpoint) initial position. Each coordinate are meters. Default value is { x=0.0, y=0.0, z=-10.0 }.

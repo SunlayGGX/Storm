@@ -12,7 +12,8 @@ Storm::GeneralSimulationData::GeneralSimulationData() :
 	_physicsTimeInSeconds{ -1.f },
 	_expectedFps{ -1.f },
 	_simulationMode{ Storm::SimulationMode::None },
-	_maxPredictIteration{ 150 }
+	_maxPredictIteration{ 150 },
+	_maxDensityError{ 0.01f }
 {
 
 }

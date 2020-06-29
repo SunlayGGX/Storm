@@ -88,6 +88,7 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 			!Storm::XmlReader::handleXml(generalXmlElement, "physicsTime", generalData._physicsTimeInSeconds) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "fps", generalData._expectedFps) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "maxPredictIteration", generalData._maxPredictIteration) &&
+			!Storm::XmlReader::handleXml(generalXmlElement, "maxDensityError", generalData._maxDensityError) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "particleRadius", generalData._particleRadius)
 			)
 		{
@@ -98,6 +99,10 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 	if (generalData._simulationMode == Storm::SimulationMode::None)
 	{
 		Storm::throwException<std::exception>("We expect to set a simulation mode, this is mandatory!");
+	}
+	else if (generalData._maxDensityError <= 0.f)
+	{
+		Storm::throwException<std::exception>("Max density error cannot be negative or equal to 0.f!");
 	}
 
 	/* Graphic */
