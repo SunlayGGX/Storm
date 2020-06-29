@@ -44,5 +44,6 @@ namespace Storm
 		virtual const Storm::GeneralSimulationData& getGeneralSimulationData() const = 0;
 		virtual const std::vector<Storm::RigidBodySceneData>& getRigidBodiesData() const = 0;
 		virtual const Storm::FluidData& getFluidData() const = 0;
+		virtual const Storm::RigidBodySceneData& getRigidBodyData(unsigned int rbId) const = 0;
 	};
 }

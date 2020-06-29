@@ -15,18 +15,8 @@ namespace
 	{
 		const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
 
-		const auto &allRbData = configMgr.getRigidBodiesData();
-		if (const auto currentRbDataIter = std::find_if(std::begin(allRbData), std::end(allRbData), [particleSystemIndex](const Storm::RigidBodySceneData &rb)
-		{
-			return rb._rigidBodyID == particleSystemIndex;
-		}); currentRbDataIter != std::end(allRbData))
-		{
-			return currentRbDataIter->_mass / static_cast<float>(particleCount);
-		}
-		else
-		{
-			Storm::throwException<std::exception>("Cannot find rigid body data with index " + std::to_string(particleSystemIndex));
-		}
+		const Storm::RigidBodySceneData &currentRbData = configMgr.getRigidBodyData(particleSystemIndex);
+		return currentRbData._mass / static_cast<float>(particleCount);
 	}
 }
 

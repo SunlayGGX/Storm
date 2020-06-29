@@ -218,6 +218,22 @@ const Storm::FluidData& Storm::ConfigManager::getFluidData() const
 	return *_sceneConfig.getSceneData()._fluidData;
 }
 
+const Storm::RigidBodySceneData& Storm::ConfigManager::getRigidBodyData(unsigned int rbId) const
+{
+	const std::vector<Storm::RigidBodySceneData> &rbDataArrays = _sceneConfig.getSceneData()._rigidBodiesData;
+	if (const auto currentRbDataIter = std::find_if(std::begin(rbDataArrays), std::end(rbDataArrays), [rbId](const Storm::RigidBodySceneData &rb)
+	{
+		return rb._rigidBodyID == rbId;
+	}); currentRbDataIter != std::end(rbDataArrays))
+	{
+		return *currentRbDataIter;
+	}
+	else
+	{
+		Storm::throwException<std::exception>("Cannot find rigid body data with index " + std::to_string(rbId));
+	}
+}
+
 const std::string& Storm::ConfigManager::getLogFileName() const
 {
 	return _generalConfig._logFileName;
