@@ -15,11 +15,13 @@
 #include "GeneralSimulationData.h"
 
 #include "SimulationMode.h"
+#include "KernelMode.h"
 
 #include "DensitySolver.h"
 #include "ViscositySolver.h"
 #include "SemiImplicitEulerSolver.h"
 #include "SpikyKernel.h"
+#include "CubicKernel.h"
 
 
 namespace
@@ -29,6 +31,17 @@ namespace
 	{
 		std::unique_ptr<Storm::ParticleSystem> particleSystemPtr = std::make_unique<ParticleSystemType>(particleSystemId, std::forward<Args>(args)...);
 		map[particleSystemId] = std::move(particleSystemPtr);
+	}
+
+	std::function<float(float)> retrieveGradKernelMethod(const Storm::KernelMode kernelMode, const float kernelLength)
+	{
+		switch (kernelMode)
+		{
+		case Storm::KernelMode::Muller2013: return Storm::GradientSpikyKernel{ kernelLength };
+		case Storm::KernelMode::CubicSpline: return Storm::GradientCubicSplineKernel{ kernelLength };
+		}
+
+		Storm::throwException<std::exception>("Unknown kernel mode!");
 	}
 }
 
