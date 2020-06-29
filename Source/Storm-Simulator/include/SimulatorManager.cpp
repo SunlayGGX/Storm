@@ -48,6 +48,8 @@ void Storm::SimulatorManager::cleanUp_Implementation()
 
 void Storm::SimulatorManager::run()
 {
+	LOG_COMMENT << "Starting simulation loop";
+
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 
 	Storm::ITimeManager &timeMgr = singletonHolder.getSingleton<Storm::ITimeManager>();
