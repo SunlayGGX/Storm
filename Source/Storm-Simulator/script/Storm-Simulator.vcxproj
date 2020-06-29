@@ -25,6 +25,7 @@
     <ClCompile Include="..\include\ViscositySolver.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\include\CubicKernel.h" />
     <ClInclude Include="..\include\DensitySolver.h" />
     <ClInclude Include="..\include\FluidParticleSystem.h" />
     <ClInclude Include="..\include\NeighborParticleInfo.h" />

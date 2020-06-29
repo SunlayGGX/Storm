@@ -1,5 +1,6 @@
 #include "Poly6Kernel.h"
 #include "SpikyKernel.h"
+#include "CubicKernel.h"
 
 
 
@@ -15,7 +16,6 @@ Storm::Poly6Kernel::Poly6Kernel(float kernelLength) :
 	_precomputedCoeff = constexprCoeff / (kernelFourth * kernelFourth * kernelLength);
 }
 
-
 Storm::GradientSpikyKernel::GradientSpikyKernel(float kernelLength) :
 	_kernelLength{ kernelLength }
 {
@@ -24,4 +24,11 @@ Storm::GradientSpikyKernel::GradientSpikyKernel(float kernelLength) :
 	const float h6 = kernelLengthSquared * kernelLengthSquared * kernelLengthSquared;
 
 	_precomputedCoefficient = constexprCoeff / h6;
+}
+
+Storm::CubicSplineKernelBase::CubicSplineKernelBase(float kernelLength) :
+	k_kernelLength{ kernelLength }
+{
+	constexpr float k_constexprPrecoeffCoeff = static_cast<float>(8.0 / M_PI);
+	_precoeff = k_constexprPrecoeffCoeff / (kernelLength * kernelLength * kernelLength);
 }

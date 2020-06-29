@@ -95,5 +95,8 @@
     <ClInclude Include="..\include\SemiImplicitEulerSolver.h">
       <Filter>Header Files\Solver</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\CubicKernel.h">
+      <Filter>Header Files\Kernel</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
