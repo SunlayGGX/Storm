@@ -429,11 +429,22 @@ void Storm::SimulatorManager::applyCFLIfNeeded(const Storm::GeneralSimulationDat
 		if (currentStepMaxVelocityNorm != 0.f)
 		{
 			currentStepMaxVelocityNorm = std::sqrtf(currentStepMaxVelocityNorm);
+
+			/* Compute the CFL Coefficient */
+			const float maxDistanceAllowed = generalSimulationDataConfig._particleRadius * 2.f;
+			newDeltaTimeStep = generalSimulationDataConfig._kernelCoefficient * maxDistanceAllowed / currentStepMaxVelocityNorm;
+		}
+		else if (std::isinf(currentStepMaxVelocityNorm) || std::isnan(currentStepMaxVelocityNorm))
+		{
+			LOG_WARNING << "Simulation had exploded (at least one particle had an infinite or NaN velocity)!";
 		}
 
-		/* Compute the CFL Coefficient */
-		const float maxDistanceAllowed = generalSimulationDataConfig._particleRadius * 2.f;
-		newDeltaTimeStep = generalSimulationDataConfig._kernelCoefficient * maxDistanceAllowed / currentStepMaxVelocityNorm;
+		// The physics engine doesn't like when the timestep is below some value...
+		constexpr float minDeltaTime = 0.0001f;
+		if (newDeltaTimeStep < minDeltaTime)
+		{
+			newDeltaTimeStep = minDeltaTime;
+		}
 
 		/* Apply the new timestep */
 		Storm::SingletonHolder::instance().getSingleton<Storm::ITimeManager>().setCurrentPhysicsDeltaTime(newDeltaTimeStep);
