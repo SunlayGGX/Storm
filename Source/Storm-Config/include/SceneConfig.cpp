@@ -104,6 +104,7 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 			!Storm::XmlReader::handleXml(generalXmlElement, "simulation", generalData._simulationMode, parseSimulationMode) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "kernel", generalData._kernelMode, parseKernelMode) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "kernelCoeff", generalData._kernelCoefficient) &&
+			!Storm::XmlReader::handleXml(generalXmlElement, "CFLCoeff", generalData._cflCoeff) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "physicsTime", generalData._physicsTimeInSeconds) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "fps", generalData._expectedFps) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "maxPredictIteration", generalData._maxPredictIteration) &&
@@ -122,6 +123,10 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 	else if (generalData._maxDensityError <= 0.f)
 	{
 		Storm::throwException<std::exception>("Max density error cannot be negative or equal to 0.f!");
+	}
+	else if (generalData._cflCoeff <= 0.f && generalData._physicsTimeInSeconds <= 0.f)
+	{
+		Storm::throwException<std::exception>("CFL was enabled but CFL coefficient is less or equal than 0 (value is " + std::to_string(generalData._cflCoeff) + "). It isn't allowed!");
 	}
 
 	/* Graphic */

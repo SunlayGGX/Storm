@@ -16,6 +16,8 @@ namespace Storm
 		float _particleRadius;
 		float _kernelCoefficient;
 
+		float _cflCoeff;
+
 		float _physicsTimeInSeconds;
 		float _expectedFps;
 
