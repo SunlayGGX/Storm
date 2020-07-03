@@ -1,6 +1,6 @@
 #include "Poly6Kernel.h"
 #include "SpikyKernel.h"
-#include "CubicKernel.h"
+#include "CubicSplineKernel.h"
 
 
 

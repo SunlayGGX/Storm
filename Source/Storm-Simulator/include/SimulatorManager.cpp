@@ -21,7 +21,7 @@
 #include "DensitySolver.h"
 #include "SemiImplicitEulerSolver.h"
 #include "SpikyKernel.h"
-#include "CubicKernel.h"
+#include "CubicSplineKernel.h"
 
 
 namespace
