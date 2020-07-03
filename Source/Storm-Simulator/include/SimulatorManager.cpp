@@ -1,4 +1,4 @@
-#include "SimulatorManager.h"
+﻿#include "SimulatorManager.h"
 
 #include "SingletonHolder.h"
 #include "IPhysicsManager.h"
@@ -217,6 +217,7 @@ void Storm::SimulatorManager::executePCISPH(const Storm::GeneralSimulationData &
 			const float k_particleSystemRestDensity = particleSystem.getRestDensity();
 			const Storm::Vector3 gravityForce = k_massPerParticle * generalSimulationDataConfig._gravity;
 
+			// Initialization for external forces
 			std::for_each(std::execution::par, std::begin(forces), std::end(forces), [&](Storm::Vector3 &force)
 			{
 				// External force
@@ -230,8 +231,14 @@ void Storm::SimulatorManager::executePCISPH(const Storm::GeneralSimulationData &
 				float &currentPDensity = densities[currentPIndex];
 				currentPDensity = Storm::DensitySolver::computeDensityPCISPH(k_massPerParticle, neighborhoodArrays[currentPIndex]);
 
-				// Pressure init (heuristically)
-				pressures[currentPIndex] = std::max(20000.f * (currentPDensity - k_particleSystemRestDensity), 0.f);
+				// Pressure init
+
+				// max is explained inside SplishSplash tutorial : https://interactivecomputergraphics.github.io/SPH-Tutorial/pdf/SPH_Tutorial.pdf
+				// Quoted : "As ρi < ρ0 is not considered to solve the particle deficiency problem at the free surface, the computed pressure is always non-negative."
+				pressures[currentPIndex] = std::max(fluidConfData._kPressureCoeff * (currentPDensity - k_particleSystemRestDensity), 0.f);
+
+				//pressures[currentPIndex] = 20000.f * (currentPDensity - k_particleSystemRestDensity);
+				//pressures[currentPIndex] = currentPDensity - k_particleSystemRestDensity;
 			});
 
 			const float k_artificialViscoEpsilonCoeff = 0.01f * k_currentKernelLength * k_currentKernelLength;
@@ -246,6 +253,8 @@ void Storm::SimulatorManager::executePCISPH(const Storm::GeneralSimulationData &
 				const Storm::Vector3 &currentPVelocity = velocities[currentPIndex];
 				std::vector<Storm::NeighborParticleInfo> &currentPNeighborhoodArray = neighborhoodArrays[currentPIndex];
 
+				const float k_currentParticleSystemKernelCoeff = particleSystem.getKernelScale();
+
 				for (const Storm::NeighborParticleInfo &neighborInfo : currentPNeighborhoodArray)
 				{
 					Storm::ParticleSystem &neighborhoodContainingPSystem = *neighborInfo._containingParticleSystem;
@@ -256,7 +265,9 @@ void Storm::SimulatorManager::executePCISPH(const Storm::GeneralSimulationData &
 
 					const Storm::Vector3 vij = currentPVelocity - neighborVelocity;
 
-					const float coeff = massPerParticle * k_precomputedViscosityCoeff / ((currentPDensity + neighborDensity) * (neighborInfo._vectToParticleSquaredNorm + k_artificialViscoEpsilonCoeff));
+					const float viscosityKernelValue = k_currentParticleSystemKernelCoeff * gradViscoPressureKernel(neighborInfo._vectToParticleNorm);
+
+					const float coeff = massPerParticle * k_precomputedViscosityCoeff / ((currentPDensity + neighborDensity) * (neighborInfo._vectToParticleSquaredNorm + k_artificialViscoEpsilonCoeff)) * viscosityKernelValue;
 
 					//const float completeArtificialViscosityCoefficient = coeff * std::min(vij.dot(neighborInfo._positionDifferenceVector), 0.f);
 					const float completeArtificialViscosityCoefficient = coeff * vij.dot(neighborInfo._positionDifferenceVector);
@@ -340,18 +351,20 @@ void Storm::SimulatorManager::executePCISPH(const Storm::GeneralSimulationData &
 						float kCoeff = 0.f;
 						float kernelGradSum = 0.f;
 
+						const float k_currentParticleSystemKernelCoeff = particleSystem.getKernelScale();
+
 						for (const Storm::NeighborParticleInfo &pNeighbor : currentPNeighbors)
 						{
 							if (pNeighbor._isFluidParticle)
 							{
 								const Storm::Vector3 &predictedNeighborPPosition = pNeighbor._containingParticleSystem->getPredictedPositions()[pNeighbor._particleIndex];
 								Storm::Vector3 diffPositionVectorXij = currentPPredictedPosition - predictedNeighborPPosition;
-								kernelGradSum += gradViscoPressureKernel(diffPositionVectorXij.norm());
+								kernelGradSum += k_currentParticleSystemKernelCoeff * gradViscoPressureKernel(diffPositionVectorXij.norm());
 							}
 							else
 							{
 								const float neighborDensity = pNeighbor._containingParticleSystem->getDensities()[pNeighbor._particleIndex];
-								kCoeff += k_particleSystemRestDensity * neighborDensity * gradViscoPressureKernel(pNeighbor._vectToParticleNorm);
+								kCoeff += k_particleSystemRestDensity * neighborDensity * k_currentParticleSystemKernelCoeff * gradViscoPressureKernel(pNeighbor._vectToParticleNorm);
 							}
 						}
 
@@ -362,17 +375,46 @@ void Storm::SimulatorManager::executePCISPH(const Storm::GeneralSimulationData &
 						runPredictionTmp = std::fabs(currentPDensityError) > k_maxDensityError || runPredictionTmp;
 
 						currentPPredictedPressure += currentPDensityError * k_invertPhysicsTimeSquared;
-						if (currentPPredictedPressure < 0.f)
-						{
-							currentPPredictedPressure = 0.f;
-						}
 					});
 
 					runPrediction = runPredictionTmp;
 				}
 			}
 
-			// Third : Compute the predicted pressure force
+			// Third (added) : rescale the pressure to not have any negative one
+			float totalMinPressure = 0.f;
+			for (auto &particleSystemPair : _particleSystem)
+			{
+				Storm::ParticleSystem &particleSystem = *particleSystemPair.second;
+
+				if (particleSystem.isFluids())
+				{
+					std::vector<float> &pressures = particleSystem.getPressures();
+					const float minPressure = *std::min_element(std::execution::par, std::begin(pressures), std::end(pressures));
+					if (minPressure < totalMinPressure)
+					{
+						totalMinPressure = minPressure;
+					}
+				}
+			}
+			if (totalMinPressure < 0.f)
+			{
+				for (auto &particleSystemPair : _particleSystem)
+				{
+					Storm::ParticleSystem &particleSystem = *particleSystemPair.second;
+
+					if (particleSystem.isFluids())
+					{
+						std::vector<float> &pressures = particleSystem.getPressures();
+						std::for_each(std::execution::par, std::begin(pressures), std::end(pressures), [pressureOffset = -totalMinPressure](float &currentPPredictedPressure)
+						{
+							currentPPredictedPressure += pressureOffset;
+						});
+					}
+				}
+			}
+
+			// Fourth : Compute the predicted pressure force
 			for (auto &particleSystemPair : _particleSystem)
 			{
 				Storm::ParticleSystem &particleSystem = *particleSystemPair.second;
@@ -394,9 +436,11 @@ void Storm::SimulatorManager::executePCISPH(const Storm::GeneralSimulationData &
 						const float currentPFluidPressureDensityCoeff = currentPPressure / (currentPPredictedDensity * currentPPredictedDensity);
 						const std::vector<Storm::NeighborParticleInfo> &currentPNeighbors = neighborhoodArrays[currentPIndex];
 
+						const float k_currentParticleSystemKernelCoeff = particleSystem.getKernelScale();
+
 						for (const Storm::NeighborParticleInfo &pNeighbor : currentPNeighbors)
 						{
-							const float gradientCoeff = gradViscoPressureKernel(pNeighbor._vectToParticleNorm);
+							const float gradientCoeff = k_currentParticleSystemKernelCoeff * gradViscoPressureKernel(pNeighbor._vectToParticleNorm);
 							const float neighborDensity = pNeighbor._containingParticleSystem->getDensities()[pNeighbor._particleIndex];
 
 							float coeff;
