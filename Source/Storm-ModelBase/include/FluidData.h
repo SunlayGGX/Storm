@@ -24,5 +24,6 @@ namespace Storm
 		float _density;
 		float _dynamicViscosity;
 		float _soundSpeed;
+		float _kPressureCoeff;
 	};
 }
