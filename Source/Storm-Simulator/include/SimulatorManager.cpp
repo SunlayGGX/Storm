@@ -51,7 +51,49 @@ Storm::SimulatorManager::~SimulatorManager() = default;
 
 void Storm::SimulatorManager::initialize_Implementation()
 {
-	// TODO
+	/* Initialize _kernelScale : This is the Shepard filter scale that should be initialized for when a particle is considered having its full neighborhood */
+
+	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
+	const Storm::GeneralSimulationData &generalSimulConfig = configMgr.getGeneralSimulationData();
+	
+	const float k_kernelLength = this->getKernelLength();
+
+	const auto gradViscoPressureKernel = retrieveGradKernelMethod(generalSimulConfig._kernelMode, k_kernelLength);
+
+	float sumKernel = 0.f;
+
+	// Simulate a full neighborhood around a particle (positions are relative) when it is stable (radius is exactly the kernel length).
+	for (int xNeighborIndex = -1; xNeighborIndex <= 1; ++xNeighborIndex)
+	{
+		for (int yNeighborIndex = -1; yNeighborIndex <= 1; ++yNeighborIndex)
+		{
+			for (int zNeighborIndex = -1; zNeighborIndex <= 1; ++zNeighborIndex)
+			{
+				// If x, y and z are 0, then the particle position index are the currentP...
+				// But currentP is not part of its own neighborhood so we should ignore it.
+				if (!(xNeighborIndex == 0 && yNeighborIndex == 0 && zNeighborIndex == 0))
+				{
+					Storm::Vector3 relativeNeighborPositionToCurrentP{
+						xNeighborIndex * k_kernelLength,
+						yNeighborIndex * k_kernelLength,
+						zNeighborIndex * k_kernelLength
+					};
+
+					const float radiusNeighborToCurrentP = relativeNeighborPositionToCurrentP.norm();
+
+					// ??? FIXME
+					sumKernel += gradViscoPressureKernel(radiusNeighborToCurrentP);
+				}
+			}
+		}
+	}
+
+	// Initialize the kernel scale for each particle system.
+	for (auto &particleSystemPair : _particleSystem)
+	{
+		Storm::ParticleSystem &currentParticleSystem = *particleSystemPair.second;
+		currentParticleSystem.setKernelScale(currentParticleSystem.getRestDensity() / (currentParticleSystem.getMassPerParticle() * sumKernel));
+	}
 }
 
 void Storm::SimulatorManager::cleanUp_Implementation()
