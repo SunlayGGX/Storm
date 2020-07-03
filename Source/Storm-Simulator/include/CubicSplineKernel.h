@@ -3,6 +3,9 @@
 
 namespace Storm
 {
+	// Cubics Kernel as presented by SplishSplash tutorial by D. Koschier, J. Bender, B. Solenthaler & M. Teschner
+	// https://interactivecomputergraphics.github.io/SPH-Tutorial/pdf/SPH_Tutorial.pdf
+
 	class CubicSplineKernelBase
 	{
 	public:

@@ -92,5 +92,8 @@
     <ClInclude Include="..\include\CubicSplineKernel.h">
       <Filter>Header Files\Kernel</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\CubicKernel.h">
+      <Filter>Header Files\Kernel</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
