@@ -12,7 +12,8 @@
 Storm::ParticleSystem::ParticleSystem(unsigned int particleSystemIndex, std::vector<Storm::Vector3> &&worldPositions, float particleMass) :
 	_positions{ std::move(worldPositions) },
 	_particleSystemIndex{ particleSystemIndex },
-	_massPerParticle{ particleMass }
+	_massPerParticle{ particleMass },
+	_kernelScale{ 0.f }
 {
 	const std::size_t particleCount = _positions.size();
 
@@ -85,6 +86,16 @@ float Storm::ParticleSystem::getMassPerParticle() const noexcept
 float Storm::ParticleSystem::getRestDensity() const noexcept
 {
 	return _restDensity;
+}
+
+float Storm::ParticleSystem::getKernelScale() const noexcept
+{
+	return _kernelScale;
+}
+
+void Storm::ParticleSystem::setKernelScale(float kernelScale) noexcept
+{
+	_kernelScale = kernelScale;
 }
 
 unsigned int Storm::ParticleSystem::getId() const noexcept

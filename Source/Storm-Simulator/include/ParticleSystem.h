@@ -37,6 +37,9 @@ namespace Storm
 		float getMassPerParticle() const noexcept;
 		float getRestDensity() const noexcept;
 
+		float getKernelScale() const noexcept;
+		void setKernelScale(float kernelScale) noexcept;
+
 		unsigned int getId() const noexcept;
 
 		virtual bool isFluids() const noexcept = 0;
@@ -78,6 +81,8 @@ namespace Storm
 		std::vector<Storm::Vector3> _force;
 
 		std::vector<std::vector<Storm::NeighborParticleInfo>> _neighborhood;
+
+		float _kernelScale;
 
 		float _massPerParticle;
 		float _restDensity;
