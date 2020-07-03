@@ -37,9 +37,9 @@ namespace Storm
 		using Storm::CubicSplineKernelBase::CubicSplineKernelBase;
 
 	public:
-		float operator()(float norm) const
+		float operator()(float particleDistToNeighbor) const
 		{
-			const float q = norm / k_kernelLength;
+			const float q = particleDistToNeighbor / k_kernelLength;
 			if (q <= 0.5f)
 			{
 				return _precoeff * (18.f * q * q - 12.f * q);
