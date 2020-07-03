@@ -26,6 +26,10 @@ namespace Storm
 	private:
 		void executePCISPH(const Storm::GeneralSimulationData &generalSimulationDataConfig, float physicsElapsedDeltaTime);
 
+	private:
+		// CFL : Courant-Friedrich-Levy
+		void applyCFLIfNeeded(const Storm::GeneralSimulationData &generalSimulationDataConfig);
+
 	public:
 		void addFluidParticleSystem(unsigned int id, std::vector<Storm::Vector3> particlePositions) final override;
 		void addRigidBodyParticleSystem(unsigned int id, std::vector<Storm::Vector3> particlePositions) final override;

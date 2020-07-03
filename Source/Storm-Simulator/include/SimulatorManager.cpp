@@ -132,6 +132,8 @@ void Storm::SimulatorManager::run()
 			particleSystem.second->updatePosition(physicsElapsedDeltaTime);
 		}
 
+		// Apply CFL (???)
+		this->applyCFLIfNeeded(generalSimulationConfigData);
 
 		// Push all particle data to the graphic module to be rendered...
 		// The first 5 frames every 1024 frames will be pushed for sure to the graphic module to be sure everyone is sync... 
@@ -392,6 +394,49 @@ void Storm::SimulatorManager::executePCISPH(const Storm::GeneralSimulationData &
 	for (auto &particleSystemPair : _particleSystem)
 	{
 		particleSystemPair.second->applyPredictedPressureToTotalForce();
+	}
+}
+
+void Storm::SimulatorManager::applyCFLIfNeeded(const Storm::GeneralSimulationData &generalSimulationDataConfig)
+{
+	float newDeltaTimeStep = generalSimulationDataConfig._physicsTimeInSeconds;
+	if (newDeltaTimeStep <= 0.f)
+	{
+		// 500ms by default seems fine (this time will be the one set if no particle moves)...
+		newDeltaTimeStep = 0.500f;
+
+		/* Compute the max velocity norm during this timestep. */
+		float currentStepMaxVelocityNorm = 0.f;
+
+		for (auto &particleSystemPair : _particleSystem)
+		{
+			if (!particleSystemPair.second->isStatic())
+			{
+				const std::vector<Storm::Vector3> &velocityField = particleSystemPair.second->getVelocity();
+				float maxVelocitySquaredOnParticleSystem = std::max_element(std::execution::par, std::begin(velocityField), std::end(velocityField), [](const Storm::Vector3 &pLeftVelocity, const Storm::Vector3 &pRightVelocity)
+				{
+					return pLeftVelocity.squaredNorm() < pRightVelocity.squaredNorm();
+				})->squaredNorm();
+
+				if (maxVelocitySquaredOnParticleSystem > currentStepMaxVelocityNorm)
+				{
+					currentStepMaxVelocityNorm = maxVelocitySquaredOnParticleSystem;
+				}
+			}
+		}
+
+		// Since we have a squared velocity norm (optimization reason). Squared root it now.
+		if (currentStepMaxVelocityNorm != 0.f)
+		{
+			currentStepMaxVelocityNorm = std::sqrtf(currentStepMaxVelocityNorm);
+		}
+
+		/* Compute the CFL Coefficient */
+		const float maxDistanceAllowed = generalSimulationDataConfig._particleRadius * 2.f;
+		newDeltaTimeStep = generalSimulationDataConfig._kernelCoefficient * maxDistanceAllowed / currentStepMaxVelocityNorm;
+
+		/* Apply the new timestep */
+		Storm::SingletonHolder::instance().getSingleton<Storm::ITimeManager>().setCurrentPhysicsDeltaTime(newDeltaTimeStep);
 	}
 }
 
