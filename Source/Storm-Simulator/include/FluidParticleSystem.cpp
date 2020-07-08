@@ -223,7 +223,7 @@ void Storm::FluidParticleSystem::updatePosition(float deltaTimeInSec)
 	});
 }
 
-void Storm::FluidParticleSystem::applyPredictedPressureToTotalForce()
+void Storm::FluidParticleSystem::flushPressureToTotalForce()
 {
 	std::for_each(std::execution::par, std::begin(_force), std::end(_force), [this](Storm::Vector3 &currentPForce)
 	{

@@ -34,7 +34,7 @@ namespace Storm
 		void updatePosition(float deltaTimeInSec) final override;
 
 	public:
-		void applyPredictedPressureToTotalForce() final override;
+		void flushPressureToTotalForce() final override;
 
 	private:
 		// "Predictive" SPH

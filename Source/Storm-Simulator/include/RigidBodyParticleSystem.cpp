@@ -156,7 +156,7 @@ void Storm::RigidBodyParticleSystem::postApplySPH()
 	physicMgr.applyLocalForces(_particleSystemIndex, _positions, _force);
 }
 
-void Storm::RigidBodyParticleSystem::applyPredictedPressureToTotalForce()
+void Storm::RigidBodyParticleSystem::flushPressureToTotalForce()
 {
 	// Nothing to do, rigid body particle system doesn't have predicted pressure.
 }

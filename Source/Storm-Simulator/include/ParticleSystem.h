@@ -61,7 +61,7 @@ namespace Storm
 
 	public:
 		// For predicted method (no check of the simulation method will be done)
-		virtual void applyPredictedPressureToTotalForce() = 0;
+		virtual void flushPressureToTotalForce() = 0;
 
 	public:
 		static float computeParticleDefaultVolume();
