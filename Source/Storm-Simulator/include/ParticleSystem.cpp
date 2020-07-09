@@ -13,11 +13,12 @@ Storm::ParticleSystem::ParticleSystem(unsigned int particleSystemIndex, std::vec
 	_positions{ std::move(worldPositions) },
 	_particleSystemIndex{ particleSystemIndex },
 	_massPerParticle{ particleMass },
-	_kernelScale{ 0.f }
+	_isDirty{ true }
 {
 	const std::size_t particleCount = _positions.size();
 
 	_densities.resize(particleCount, particleMass / computeParticleDefaultVolume());
+	_pressures.resize(particleCount);
 	_velocity.resize(particleCount, Storm::Vector3::Zero());
 	_force.resize(particleCount);
 	_neighborhood.resize(particleCount);
@@ -36,6 +37,16 @@ std::vector<float>& Storm::ParticleSystem::getDensities() noexcept
 const std::vector<float>& Storm::ParticleSystem::getDensities() const noexcept
 {
 	return _densities;
+}
+
+const std::vector<float>& Storm::ParticleSystem::getPressures() const noexcept
+{
+	return _pressures;
+}
+
+std::vector<float>& Storm::ParticleSystem::getPressures() noexcept
+{
+	return _pressures;
 }
 
 std::vector<Storm::Vector3>& Storm::ParticleSystem::getPositions() noexcept
@@ -88,16 +99,6 @@ float Storm::ParticleSystem::getRestDensity() const noexcept
 	return _restDensity;
 }
 
-float Storm::ParticleSystem::getKernelScale() const noexcept
-{
-	return _kernelScale;
-}
-
-void Storm::ParticleSystem::setKernelScale(float kernelScale) noexcept
-{
-	_kernelScale = kernelScale;
-}
-
 unsigned int Storm::ParticleSystem::getId() const noexcept
 {
 	return _particleSystemIndex;
@@ -132,6 +133,7 @@ void Storm::ParticleSystem::initializeIteration()
 	const std::size_t particleCount = _densities.size();
 
 	assert(
+		particleCount == _pressures.size() &&
 		particleCount == _positions.size() &&
 		particleCount == _velocity.size() &&
 		particleCount == _force.size() &&
@@ -140,11 +142,6 @@ void Storm::ParticleSystem::initializeIteration()
 	);
 	
 #endif
-
-	std::for_each(std::execution::par, std::begin(_force), std::end(_force), [](Storm::Vector3 &force)
-	{
-		force.setZero();
-	});
 }
 
 float Storm::ParticleSystem::computeParticleDefaultVolume()
@@ -152,4 +149,9 @@ float Storm::ParticleSystem::computeParticleDefaultVolume()
 	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
 	const float particleRadius = configMgr.getGeneralSimulationData()._particleRadius;
 	return particleRadius * particleRadius * particleRadius;
+}
+
+bool Storm::ParticleSystem::isElligibleNeighborParticle(const float kernelLengthSquared, const float normSquared)
+{
+	return normSquared > 0.000000001f && normSquared < kernelLengthSquared;
 }

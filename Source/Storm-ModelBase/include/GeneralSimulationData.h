@@ -17,6 +17,7 @@ namespace Storm
 		float _kernelCoefficient;
 
 		float _cflCoeff;
+		float _maxCFLTime;
 
 		float _physicsTimeInSeconds;
 		float _expectedFps;

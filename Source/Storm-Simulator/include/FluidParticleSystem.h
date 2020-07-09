@@ -17,9 +17,6 @@ namespace Storm
 		bool isFluids() const noexcept final override;
 		bool isStatic() const noexcept final override;
 
-		const std::vector<float>& getPressures() const noexcept final override;
-		std::vector<float>& getPressures() noexcept final override;
-
 		const std::vector<float>& getPredictedDensities() const noexcept final override;
 		std::vector<float>& getPredictedDensities() noexcept final override;
 		const std::vector<Storm::Vector3>& getPredictedPositions() const noexcept final override;
@@ -40,7 +37,6 @@ namespace Storm
 		// "Predictive" SPH
 		std::vector<float> _predictedDensity;
 		std::vector<Storm::Vector3> _predictedPositions;
-		std::vector<float> _pressures;
 		std::vector<Storm::Vector3> _pressureForce;
 	};
 }

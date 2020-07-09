@@ -6,6 +6,7 @@ namespace Storm
 	enum class SimulationMode
 	{
 		None,
-		PCISPH
+		SESPH,
+		PCISPH,
 	};
 }

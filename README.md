@@ -130,10 +130,11 @@ Unlike the others config files, it can be named as you want. Here the wml tags y
 - **particleRadius (float, falcultative)**: This is the particle radius in meter. It is also what is used for display but has also a physical value. Default value is 0.05.
 - **kernelCoeff (float, falcultative)**: This is the kernel multiplicator coefficient (without unit). If this value is equal to 1.0, then the kernel length would be equal to the particle radius. Default value is 4.0.
 - **CFLCoeff (positive float, falcultative)**: This is the coefficient lambda for the CFL (Courant-Friedrich-Levy conditions). It is used only if CFL is enabled. Default value is 0.4.
-- **kernel (string, falcultative)**: This is the kernel we would use. It isn't case sensitive and the accepted values are "Muller2013" (default) and "CubicSpline".
+- **MaxCFLTime (positive float, falcultative)**: This is the max time the CFL (Courant-Friedrich-Levy conditions) could take in seconds. It is used only if CFL is enabled. Default value is 0.5 seconds (500ms).
+- **kernel (string, falcultative)**: This is the kernel we would use. It isn't case sensitive and the accepted values are for now "CubicSpline" (default).
 - **physicsTime (float, falcultative)**: This is the iteration loop physics time in seconds. If this value is less or equal to 0, then we would adapt it automatically using CFL condition. Default value is -1.
 - **fps (float, falcultative)**: This is the expected frame rate (it has nothing to do with the physics time, this is the refresh rate of many loop inside the engine to not consume too much cpu). If this value is less or equal to 0, then we would set it to the default value which is 60 FPS.
-- **simulation (string, mandatory)**: This is the simulation mode we will run. It isn't case sensitive. Accepted values (for now) are "PCISPH".
+- **simulation (string, mandatory)**: This is the simulation mode we will run. It isn't case sensitive. Accepted values (for now) are "PCISPH" and "SESPH".
 - **maxPredictIteration (positive integer, facultative)**: This is the max iteration we're allowed to make inside one simulation loop when doing prediction iteration. It is to avoid infinite loop. It should be an integer strictly greater than 0. Default value is 150.
 - **maxDensityError (positive float, facultative)**: This is the max density error under which we would continue the prediction iteration (or until maxPredictIteration hit). It should be less or equal than 0. Default value is 0.01.
 

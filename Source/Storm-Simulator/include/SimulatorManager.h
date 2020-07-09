@@ -24,7 +24,8 @@ namespace Storm
 		void run();
 
 	private:
-		void executePCISPH(const Storm::GeneralSimulationData &generalSimulationDataConfig, float physicsElapsedDeltaTime);
+		void executeSESPH(float physicsElapsedDeltaTime);
+		void executePCISPH(float physicsElapsedDeltaTime);
 
 	private:
 		// CFL : Courant-Friedrich-Levy

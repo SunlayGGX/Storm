@@ -8,6 +8,8 @@
 #include "RigidBodySceneData.h"
 #include "CollisionType.h"
 
+#include "RunnerHelper.h"
+
 
 
 namespace
@@ -37,14 +39,14 @@ Storm::RigidBodyParticleSystem::RigidBodyParticleSystem(unsigned int particleSys
 	_isStatic = currentRbData._static;
 }
 
-const std::vector<float>& Storm::RigidBodyParticleSystem::getPressures() const noexcept
+void Storm::RigidBodyParticleSystem::initializeIteration()
 {
-	Storm::throwException<std::logic_error>(__FUNCTION__ " shouldn't be called for rigid bodies particle system (only implemented for fluids)");
-}
+	Storm::ParticleSystem::initializeIteration();
 
-std::vector<float>& Storm::RigidBodyParticleSystem::getPressures() noexcept
-{
-	Storm::throwException<std::logic_error>(__FUNCTION__ " shouldn't be called for rigid bodies particle system (only implemented for fluids)");
+	Storm::runParallel(_force, [](Storm::Vector3 &force)
+	{
+		force.setZero();
+	});
 }
 
 const std::vector<float>& Storm::RigidBodyParticleSystem::getPredictedDensities() const
@@ -103,7 +105,7 @@ void Storm::RigidBodyParticleSystem::buildNeighborhoodOnParticleSystem(const Sto
 			{
 				const Storm::Vector3 positionDifference = currentPPosition - otherParticleSystemPositionsArray[particleIndex];
 				const float vectToParticleSquaredNorm = positionDifference.squaredNorm();
-				if (vectToParticleSquaredNorm < kernelLengthSquared)
+				if (Storm::ParticleSystem::isElligibleNeighborParticle(kernelLengthSquared, vectToParticleSquaredNorm))
 				{
 					currentNeighborhoodToFill.emplace_back(const_cast<Storm::ParticleSystem*>(&otherParticleSystem), particleIndex, positionDifference, vectToParticleSquaredNorm, true);
 				}

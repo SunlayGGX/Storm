@@ -53,7 +53,11 @@ namespace
 	Storm::SimulationMode parseSimulationMode(std::string simulModeStr)
 	{
 		boost::algorithm::to_lower(simulModeStr);
-		if (simulModeStr == "pcisph")
+		if (simulModeStr == "sesph")
+		{
+			return Storm::SimulationMode::SESPH;
+		}
+		else if (simulModeStr == "pcisph")
 		{
 			return Storm::SimulationMode::PCISPH;
 		}
@@ -66,11 +70,7 @@ namespace
 	Storm::KernelMode parseKernelMode(std::string kernelModeStr)
 	{
 		boost::algorithm::to_lower(kernelModeStr);
-		if (kernelModeStr == "muller2013")
-		{
-			return Storm::KernelMode::Muller2013;
-		}
-		else if (kernelModeStr == "cubicspline")
+		if (kernelModeStr == "cubicspline")
 		{
 			return Storm::KernelMode::CubicSpline;
 		}
@@ -105,6 +105,7 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 			!Storm::XmlReader::handleXml(generalXmlElement, "kernel", generalData._kernelMode, parseKernelMode) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "kernelCoeff", generalData._kernelCoefficient) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "CFLCoeff", generalData._cflCoeff) &&
+			!Storm::XmlReader::handleXml(generalXmlElement, "MaxCFLTime", generalData._maxCFLTime) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "physicsTime", generalData._physicsTimeInSeconds) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "fps", generalData._expectedFps) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "maxPredictIteration", generalData._maxPredictIteration) &&

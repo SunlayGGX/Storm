@@ -7,6 +7,9 @@ namespace Storm
 	class ParticleSystem
 	{
 	public:
+		using ParticleNeighborhoodArray = std::vector<Storm::NeighborParticleInfo>;
+
+	public:
 		ParticleSystem(unsigned int particleSystemIndex, std::vector<Storm::Vector3> &&worldPositions, float particleMass);
 		virtual ~ParticleSystem() = default;
 
@@ -19,12 +22,11 @@ namespace Storm
 		std::vector<Storm::Vector3>& getVelocity() noexcept;
 		const std::vector<Storm::Vector3>& getForces() const noexcept;
 		std::vector<Storm::Vector3>& getForces() noexcept;
+		const std::vector<float>& getPressures() const noexcept;
+		std::vector<float>& getPressures() noexcept;
 
 		const std::vector<std::vector<Storm::NeighborParticleInfo>> &getNeighborhoodArrays() const noexcept;
 		std::vector<std::vector<Storm::NeighborParticleInfo>> &getNeighborhoodArrays() noexcept;
-
-		virtual const std::vector<float>& getPressures() const noexcept = 0;
-		virtual std::vector<float>& getPressures() noexcept = 0;
 
 		// "Predictive" SPH
 		virtual const std::vector<float>& getPredictedDensities() const = 0;
@@ -36,9 +38,6 @@ namespace Storm
 
 		float getMassPerParticle() const noexcept;
 		float getRestDensity() const noexcept;
-
-		float getKernelScale() const noexcept;
-		void setKernelScale(float kernelScale) noexcept;
 
 		unsigned int getId() const noexcept;
 
@@ -66,16 +65,17 @@ namespace Storm
 	public:
 		static float computeParticleDefaultVolume();
 
+	protected:
+		static bool isElligibleNeighborParticle(const float kernelLengthSquared, const float normSquared);
 
 	protected:
 		std::vector<float> _densities;
+		std::vector<float> _pressures;
 		std::vector<Storm::Vector3> _positions;
 		std::vector<Storm::Vector3> _velocity;
 		std::vector<Storm::Vector3> _force;
 
-		std::vector<std::vector<Storm::NeighborParticleInfo>> _neighborhood;
-
-		float _kernelScale;
+		std::vector<ParticleNeighborhoodArray> _neighborhood;
 
 		float _massPerParticle;
 		float _restDensity;

@@ -10,6 +10,8 @@
 
 #include "SemiImplicitEulerSolver.h"
 
+#include "RunnerHelper.h"
+
 
 namespace
 {
@@ -28,8 +30,6 @@ Storm::FluidParticleSystem::FluidParticleSystem(unsigned int particleSystemIndex
 	Storm::ParticleSystem{ particleSystemIndex, std::move(worldPositions), computeDefaultFluidParticleMass() }
 {
 	const std::size_t particleCount = _positions.size();
-
-	_pressures.resize(particleCount);
 
 	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
 	switch (configMgr.getGeneralSimulationData()._simulationMode)
@@ -52,7 +52,8 @@ void Storm::FluidParticleSystem::initializeIteration()
 	Storm::ParticleSystem::initializeIteration();
 	
 	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
-	const auto currentSimulationMode = configMgr.getGeneralSimulationData()._simulationMode;
+	const Storm::GeneralSimulationData &generalSimulData = configMgr.getGeneralSimulationData();
+	const auto currentSimulationMode = generalSimulData._simulationMode;
 
 	bool usePredictedArrays;
 	switch (currentSimulationMode)
@@ -71,7 +72,6 @@ void Storm::FluidParticleSystem::initializeIteration()
 	{
 		const std::size_t particleCount = _densities.size();
 		assert(
-			particleCount == _pressures.size() &&
 			particleCount == _predictedDensity.size() &&
 			particleCount == _predictedPositions.size() &&
 			particleCount == _pressureForce.size() &&
@@ -80,11 +80,23 @@ void Storm::FluidParticleSystem::initializeIteration()
 	}
 	
 #endif
+
+	const Storm::Vector3 gravityForce = _massPerParticle * generalSimulData._gravity;
+
 	if (usePredictedArrays)
 	{
 		Storm::runParallel(_force, [this, usePredictedArrays, &gravityForce](Storm::Vector3 &currentPForce, const std::size_t currentPIndex)
 		{
-			predictedPressureForce.setZero();
+			currentPForce = gravityForce;
+
+			_pressureForce[currentPIndex].setZero();
+		});
+	}
+	else
+	{
+		Storm::runParallel(_force, [this, usePredictedArrays, &gravityForce](Storm::Vector3 &currentPForce, const std::size_t)
+		{
+			currentPForce = gravityForce;
 		});
 	}
 }
@@ -97,16 +109,6 @@ bool Storm::FluidParticleSystem::isFluids() const noexcept
 bool Storm::FluidParticleSystem::isStatic() const noexcept
 {
 	return false;
-}
-
-const std::vector<float>& Storm::FluidParticleSystem::getPressures() const noexcept
-{
-	return _pressures;
-}
-
-std::vector<float>& Storm::FluidParticleSystem::getPressures() noexcept
-{
-	return _pressures;
 }
 
 const std::vector<float>& Storm::FluidParticleSystem::getPredictedDensities() const noexcept
@@ -154,7 +156,7 @@ void Storm::FluidParticleSystem::buildNeighborhoodOnParticleSystem(const Storm::
 			{
 				const Storm::Vector3 positionDifference = currentParticlePosition - _positions[particleIndex];
 				const float vectToParticleSquaredNorm = positionDifference.squaredNorm();
-				if (vectToParticleSquaredNorm < kernelLengthSquared)
+				if (Storm::ParticleSystem::isElligibleNeighborParticle(kernelLengthSquared, vectToParticleSquaredNorm))
 				{
 					currentNeighborhoodToFill.emplace_back(this, particleIndex, positionDifference, vectToParticleSquaredNorm, true);
 				}
@@ -166,7 +168,7 @@ void Storm::FluidParticleSystem::buildNeighborhoodOnParticleSystem(const Storm::
 			{
 				const Storm::Vector3 positionDifference = currentParticlePosition - _positions[particleIndex];
 				const float vectToParticleSquaredNorm = positionDifference.squaredNorm();
-				if (vectToParticleSquaredNorm < kernelLengthSquared)
+				if (Storm::ParticleSystem::isElligibleNeighborParticle(kernelLengthSquared, vectToParticleSquaredNorm))
 				{
 					currentNeighborhoodToFill.emplace_back(this, particleIndex, positionDifference, vectToParticleSquaredNorm, true);
 				}
@@ -188,7 +190,7 @@ void Storm::FluidParticleSystem::buildNeighborhoodOnParticleSystem(const Storm::
 			{
 				const Storm::Vector3 positionDifference = currentPPosition - otherParticleSystemPositionsArray[particleIndex];
 				const float vectToParticleSquaredNorm = positionDifference.squaredNorm();
-				if (vectToParticleSquaredNorm < kernelLengthSquared)
+				if (Storm::ParticleSystem::isElligibleNeighborParticle(kernelLengthSquared, vectToParticleSquaredNorm))
 				{
 					currentNeighborhoodToFill.emplace_back(const_cast<Storm::ParticleSystem*>(&otherParticleSystem), particleIndex, positionDifference, vectToParticleSquaredNorm, otherParticleSystemIsFluid);
 				}
