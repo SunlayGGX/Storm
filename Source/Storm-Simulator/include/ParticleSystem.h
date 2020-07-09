@@ -66,13 +66,6 @@ namespace Storm
 	public:
 		static float computeParticleDefaultVolume();
 
-	public:
-		template<class Type>
-		static std::size_t getParticleIndex(const std::vector<std::remove_cv_t<Type>> &dataArray, Type &particleData)
-		{
-			// Works only because std::vector is contiguous in memory.
-			return &particleData - &dataArray[0];
-		}
 
 	protected:
 		std::vector<float> _densities;

@@ -91,17 +91,17 @@ void Storm::RigidBodyParticleSystem::buildNeighborhoodOnParticleSystem(const Sto
 {
 	if (otherParticleSystem.isFluids())
 	{
-		std::for_each(std::execution::par, std::begin(_positions), std::end(_positions), [this, kernelLengthSquared, &otherParticleSystem](const Storm::Vector3 &currentParticlePosition)
+		Storm::runParallel(_positions, [this, kernelLengthSquared, &otherParticleSystem](const Storm::Vector3 &currentPPosition, const std::size_t currentPIndex)
 		{
-			std::vector<Storm::NeighborParticleInfo> &currentNeighborhoodToFill = _neighborhood[this->getParticleIndex(_positions, currentParticlePosition)];
+			std::vector<Storm::NeighborParticleInfo> &currentNeighborhoodToFill = _neighborhood[currentPIndex];
 			currentNeighborhoodToFill.clear();
 
 			const auto &otherParticleSystemPositionsArray = otherParticleSystem.getPositions();
-			const std::size_t otherParticleSizeCount = otherParticleSystemPositionsArray.size();
+			const std::size_t otherParticleCount = otherParticleSystemPositionsArray.size();
 
-			for (std::size_t particleIndex = 0; particleIndex < otherParticleSizeCount; ++particleIndex)
+			for (std::size_t particleIndex = 0; particleIndex < otherParticleCount; ++particleIndex)
 			{
-				const Storm::Vector3 positionDifference = currentParticlePosition - otherParticleSystemPositionsArray[particleIndex];
+				const Storm::Vector3 positionDifference = currentPPosition - otherParticleSystemPositionsArray[particleIndex];
 				const float vectToParticleSquaredNorm = positionDifference.squaredNorm();
 				if (vectToParticleSquaredNorm < kernelLengthSquared)
 				{
@@ -125,7 +125,7 @@ void Storm::RigidBodyParticleSystem::updatePosition(float deltaTimeInSec)
 		const Storm::Quaternion oldRbRotationConjugateQuat = _cachedTrackedRbRotationQuat.conjugate();
 		const Storm::Quaternion currentConjugateQuatRotation = currentQuatRotation.conjugate();
 
-		std::for_each(std::execution::par, std::begin(_positions), std::end(_positions), [&](Storm::Vector3 &currentParticlePosition)
+		Storm::runParallel(_positions, [&](Storm::Vector3 &currentParticlePosition)
 		{
 			/* First, remove the current world space coordinate to revert to the object space coordinate (where particle were defined initially and on which PhysX was initialized). */
 

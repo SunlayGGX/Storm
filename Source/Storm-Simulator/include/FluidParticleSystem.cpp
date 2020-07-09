@@ -82,7 +82,7 @@ void Storm::FluidParticleSystem::initializeIteration()
 #endif
 	if (usePredictedArrays)
 	{
-		std::for_each(std::execution::par, std::begin(_pressureForce), std::end(_pressureForce), [](Storm::Vector3 &predictedPressureForce)
+		Storm::runParallel(_force, [this, usePredictedArrays, &gravityForce](Storm::Vector3 &currentPForce, const std::size_t currentPIndex)
 		{
 			predictedPressureForce.setZero();
 		});
@@ -143,15 +143,14 @@ void Storm::FluidParticleSystem::buildNeighborhoodOnParticleSystem(const Storm::
 {
 	if (otherParticleSystem.getId() == this->getId())
 	{
-		std::for_each(std::execution::par, std::begin(_positions), std::end(_positions), [this, kernelLengthSquared](const Storm::Vector3 &currentParticlePosition)
+		Storm::runParallel(_positions, [this, kernelLengthSquared](const Storm::Vector3 &currentParticlePosition, const std::size_t currentPIndex)
 		{
-			const std::size_t currentParticleIndex = this->getParticleIndex(_positions, currentParticlePosition);
 			const std::size_t particleCount = _positions.size();
 
-			std::vector<Storm::NeighborParticleInfo> &currentNeighborhoodToFill = _neighborhood[currentParticleIndex];
+			std::vector<Storm::NeighborParticleInfo> &currentNeighborhoodToFill = _neighborhood[currentPIndex];
 			currentNeighborhoodToFill.clear();
 
-			for (std::size_t particleIndex = 0; particleIndex < currentParticleIndex; ++particleIndex)
+			for (std::size_t particleIndex = 0; particleIndex < currentPIndex; ++particleIndex)
 			{
 				const Storm::Vector3 positionDifference = currentParticlePosition - _positions[particleIndex];
 				const float vectToParticleSquaredNorm = positionDifference.squaredNorm();
@@ -163,7 +162,7 @@ void Storm::FluidParticleSystem::buildNeighborhoodOnParticleSystem(const Storm::
 
 			// We would skip the current particle (the current particle shouldn't be part of its own neighborhood).
 
-			for (std::size_t particleIndex = currentParticleIndex + 1; particleIndex < particleCount; ++particleIndex)
+			for (std::size_t particleIndex = currentPIndex + 1; particleIndex < particleCount; ++particleIndex)
 			{
 				const Storm::Vector3 positionDifference = currentParticlePosition - _positions[particleIndex];
 				const float vectToParticleSquaredNorm = positionDifference.squaredNorm();
@@ -176,9 +175,9 @@ void Storm::FluidParticleSystem::buildNeighborhoodOnParticleSystem(const Storm::
 	}
 	else
 	{
-		std::for_each(std::execution::par, std::begin(_positions), std::end(_positions), [this, kernelLengthSquared, &otherParticleSystem](const Storm::Vector3 &currentParticlePosition)
+		Storm::runParallel(_positions, [this, kernelLengthSquared, &otherParticleSystem](const Storm::Vector3 &currentPPosition, const std::size_t currentPIndex)
 		{
-			std::vector<Storm::NeighborParticleInfo> &currentNeighborhoodToFill = _neighborhood[this->getParticleIndex(_positions, currentParticlePosition)];
+			std::vector<Storm::NeighborParticleInfo> &currentNeighborhoodToFill = _neighborhood[currentPIndex];
 			currentNeighborhoodToFill.clear();
 
 			const auto &otherParticleSystemPositionsArray = otherParticleSystem.getPositions();
@@ -187,7 +186,7 @@ void Storm::FluidParticleSystem::buildNeighborhoodOnParticleSystem(const Storm::
 
 			for (std::size_t particleIndex = 0; particleIndex < otherParticleSizeCount; ++particleIndex)
 			{
-				const Storm::Vector3 positionDifference = currentParticlePosition - otherParticleSystemPositionsArray[particleIndex];
+				const Storm::Vector3 positionDifference = currentPPosition - otherParticleSystemPositionsArray[particleIndex];
 				const float vectToParticleSquaredNorm = positionDifference.squaredNorm();
 				if (vectToParticleSquaredNorm < kernelLengthSquared)
 				{
@@ -200,14 +199,12 @@ void Storm::FluidParticleSystem::buildNeighborhoodOnParticleSystem(const Storm::
 
 void Storm::FluidParticleSystem::updatePosition(float deltaTimeInSec)
 {
-	std::for_each(std::execution::par, std::begin(_force), std::end(_force), [this, deltaTimeInSec](const Storm::Vector3 &currentForce)
+	Storm::runParallel(_force, [this, deltaTimeInSec](const Storm::Vector3 &currentForce, const std::size_t currentPIndex)
 	{
-		const std::size_t currentParticleIndex = this->getParticleIndex(_force, currentForce);
+		Storm::SemiImplicitEulerSolver solver{ _massPerParticle, currentForce, _velocity[currentPIndex], deltaTimeInSec };
 
-		Storm::SemiImplicitEulerSolver solver{ _massPerParticle, currentForce, _velocity[currentParticleIndex], deltaTimeInSec };
-
-		_velocity[currentParticleIndex] += solver._velocityVariation;
-		_positions[currentParticleIndex] += solver._positionDisplacment;
+		_velocity[currentPIndex] += solver._velocityVariation;
+		_positions[currentPIndex] += solver._positionDisplacment;
 
 		if (!_isDirty)
 		{
@@ -225,9 +222,8 @@ void Storm::FluidParticleSystem::updatePosition(float deltaTimeInSec)
 
 void Storm::FluidParticleSystem::flushPressureToTotalForce()
 {
-	std::for_each(std::execution::par, std::begin(_force), std::end(_force), [this](Storm::Vector3 &currentPForce)
+	Storm::runParallel(_force, [this](Storm::Vector3 &currentPForce, const std::size_t currentPIndex)
 	{
-		const std::size_t currentPIndex = Storm::ParticleSystem::getParticleIndex(_force, currentPForce);
 		currentPForce += _pressureForce[currentPIndex];
 	});
 }
