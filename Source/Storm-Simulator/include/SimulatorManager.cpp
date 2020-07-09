@@ -183,6 +183,54 @@ void Storm::SimulatorManager::executeSESPH(float physicsElapsedDeltaTime)
 	{
 		Storm::ParticleSystem &currentParticleSystem = *particleSystemPair.second;
 
+		std::vector<Storm::Vector3> &forces = currentParticleSystem.getForces();
+		std::vector<float> &densities = currentParticleSystem.getDensities();
+		std::vector<float> &pressures = currentParticleSystem.getPressures();
+		const std::vector<Storm::ParticleSystem::ParticleNeighborhoodArray> &neighborhoods = currentParticleSystem.getNeighborhoodArrays();
+		const float k_massPerParticle = currentParticleSystem.getMassPerParticle();
+		const float k_restDensity = currentParticleSystem.getRestDensity();
+		const bool isFluid = currentParticleSystem.isFluids();
+
+		Storm::runParallel(forces, [&](Storm::Vector3 &currentPForce, const std::size_t currentPIndex)
+		{
+			// TODO : Blower
+
+			// Density
+			float &currentPDensity = densities[currentPIndex];
+			currentPDensity = 0.f;
+
+			const Storm::ParticleSystem::ParticleNeighborhoodArray &currentPNeighborhood = neighborhoods[currentPIndex];
+
+			for (const Storm::NeighborParticleInfo &neighbor : currentPNeighborhood)
+			{
+				const float kernelValue = rawKernelMethod(k_kernelLength, neighbor._vectToParticleNorm);
+				currentPDensity += kernelValue;
+			}
+
+			currentPDensity *= k_massPerParticle;
+
+			// Pressure
+			float &currentPPressure = pressures[currentPIndex];
+			const float densityRatio = currentPDensity / k_restDensity;
+			currentPPressure = fluidSimulationDataConfig._kPressureCoeff * (densityRatio - 1.f);
+		});
+	}
+}
+
+void Storm::SimulatorManager::executePCISPH(float physicsElapsedDeltaTime)
+{
+	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
+
+	const Storm::GeneralSimulationData &generalSimulationDataConfig = configMgr.getGeneralSimulationData();
+	const Storm::FluidData &fluidSimulationDataConfig = configMgr.getFluidData();
+
+	const float k_kernelLength = this->getKernelLength();
+	const RawKernelMethodDelegate rawKernelMethod = retrieveRawKernelMethod(generalSimulationDataConfig._kernelMode);
+
+	for (auto &particleSystemPair : _particleSystem)
+	{
+		Storm::ParticleSystem &currentParticleSystem = *particleSystemPair.second;
+
 		if (currentParticleSystem.isFluids())
 		{
 			std::vector<Storm::Vector3> &forces = currentParticleSystem.getForces();
@@ -215,61 +263,12 @@ void Storm::SimulatorManager::executeSESPH(float physicsElapsedDeltaTime)
 
 				currentPDensity *= k_massPerParticle;
 
-				// Pressure
+				// Pressure scalar value. Updated with Tait equation.
 				float &currentPPressure = pressures[currentPIndex];
 				const float densityRatio = currentPDensity / k_restDensity;
 				currentPPressure = fluidSimulationDataConfig._kPressureCoeff * (densityRatio - 1.f);
 			});
 		}
-	}
-
-}
-
-void Storm::SimulatorManager::executePCISPH(float physicsElapsedDeltaTime)
-{
-	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
-
-	const Storm::GeneralSimulationData &generalSimulationDataConfig = configMgr.getGeneralSimulationData();
-	const Storm::FluidData &fluidSimulationDataConfig = configMgr.getFluidData();
-
-	const float k_kernelLength = this->getKernelLength();
-	const RawKernelMethodDelegate rawKernelMethod = retrieveRawKernelMethod(generalSimulationDataConfig._kernelMode);
-
-	for (auto &particleSystemPair : _particleSystem)
-	{
-		Storm::ParticleSystem &currentParticleSystem = *particleSystemPair.second;
-
-		std::vector<Storm::Vector3> &forces = currentParticleSystem.getForces();
-		std::vector<float> &densities = currentParticleSystem.getDensities();
-		std::vector<float> &pressures = currentParticleSystem.getPressures();
-		const std::vector<Storm::ParticleSystem::ParticleNeighborhoodArray> &neighborhoods = currentParticleSystem.getNeighborhoodArrays();
-		const float k_massPerParticle = currentParticleSystem.getMassPerParticle();
-		const float k_restDensity = currentParticleSystem.getRestDensity();
-		const bool isFluid = currentParticleSystem.isFluids();
-
-		Storm::runParallel(forces, [&](Storm::Vector3 &currentPForce, const std::size_t currentPIndex)
-		{
-			// TODO : Blower
-
-			// Density
-			float &currentPDensity = densities[currentPIndex];
-			currentPDensity = 0.f;
-
-			const Storm::ParticleSystem::ParticleNeighborhoodArray &currentPNeighborhood = neighborhoods[currentPIndex];
-
-			for (const Storm::NeighborParticleInfo &neighbor : currentPNeighborhood)
-			{
-				const float kernelValue = rawKernelMethod(k_kernelLength, neighbor._vectToParticleNorm);
-				currentPDensity += kernelValue;
-			}
-
-			currentPDensity *= k_massPerParticle;
-
-			// Pressure
-			float &currentPPressure = pressures[currentPIndex];
-			const float densityRatio = currentPDensity / k_restDensity;
-			currentPPressure = fluidSimulationDataConfig._kPressureCoeff * (densityRatio - 1.f);
-		});
 	}
 
 
