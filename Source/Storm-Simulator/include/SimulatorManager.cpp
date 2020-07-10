@@ -177,6 +177,7 @@ void Storm::SimulatorManager::executeSESPH(float physicsElapsedDeltaTime)
 
 	const float k_kernelLength = this->getKernelLength();
 	const RawKernelMethodDelegate rawKernelMethod = retrieveRawKernelMethod(generalSimulationDataConfig._kernelMode);
+	const GradKernelMethodDelegate gradientKernelMethod = retrieveGradKernelMethod(generalSimulationDataConfig._kernelMode);
 
 	for (auto &particleSystemPair : _particleSystem)
 	{
@@ -212,7 +213,72 @@ void Storm::SimulatorManager::executeSESPH(float physicsElapsedDeltaTime)
 			float &currentPPressure = pressures[currentPIndex];
 			const float densityRatio = currentPDensity / k_restDensity;
 			currentPPressure = fluidSimulationDataConfig._kPressureCoeff * (densityRatio - 1.f);
+			if (currentPPressure < 0.f)
+			{
+				currentPPressure = 0.f;
+			}
 		});
+	}
+
+	for (auto &particleSystemPair : _particleSystem)
+	{
+		Storm::ParticleSystem &currentParticleSystem = *particleSystemPair.second;
+		if (currentParticleSystem.isFluids())
+		{
+			std::vector<Storm::Vector3> &forces = currentParticleSystem.getForces();
+			std::vector<float> &densities = currentParticleSystem.getDensities();
+			std::vector<float> &pressures = currentParticleSystem.getPressures();
+			std::vector<Storm::Vector3> &velocities = currentParticleSystem.getVelocity();
+			const std::vector<Storm::ParticleSystem::ParticleNeighborhoodArray> &neighborhoods = currentParticleSystem.getNeighborhoodArrays();
+			const float k_massPerParticle = currentParticleSystem.getMassPerParticle();
+			const float k_restDensity = currentParticleSystem.getRestDensity();
+			const float k_oneOverRestDensity = 1.f / k_restDensity;
+			const float k_massicCinematicViscosity = k_massPerParticle * fluidSimulationDataConfig._cinematicViscosity;
+
+			Storm::runParallel(forces, [&](Storm::Vector3 &currentPForce, const std::size_t currentPIndex)
+			{
+				const Storm::Vector3 &currentPVelocity = velocities[currentPIndex];
+				const float currentPDensity = densities[currentPIndex];
+				const float currentPPressure = pressures[currentPIndex];
+				const float currentPPressureCoeff = currentPPressure / (currentPDensity * currentPDensity);
+				const float currentPDensityCoeffRatio = -k_oneOverRestDensity * currentPDensity;
+
+				const Storm::ParticleSystem::ParticleNeighborhoodArray &neigborhood = neighborhoods[currentPIndex];
+				for (const Storm::NeighborParticleInfo &neighbor : neigborhood)
+				{
+					// Setup
+					const Storm::Vector3 gradKernelRes = gradientKernelMethod(k_kernelLength, neighbor._positionDifferenceVector, neighbor._vectToParticleNorm);
+
+					Storm::ParticleSystem &neighborPSystem = *neighbor._containingParticleSystem;
+
+					const float neighborDensity = neighborPSystem.getDensities()[neighbor._particleIndex];
+					const float neighborMass = neighborPSystem.getMassPerParticle();
+					const float neighborVolume = neighborMass / neighborDensity;
+					const Storm::Vector3 neighborVelocityDiff = currentPVelocity - neighborPSystem.getVelocity()[neighbor._particleIndex];
+					const float neighborPressureCoeff = neighborPSystem.getPressures()[neighbor._particleIndex] / (neighborDensity * neighborDensity);
+
+					// Viscosity
+					const Storm::Vector3 viscosityForce =
+						(-k_massicCinematicViscosity * neighborVolume * 2.f * gradKernelRes.norm() / neighbor._vectToParticleNorm) * neighborVelocityDiff;
+
+					// Pressure
+					const Storm::Vector3 pressureForce = (currentPDensityCoeffRatio * neighborMass * (currentPPressureCoeff + neighborPressureCoeff)) * gradKernelRes;
+
+					// Flush forces
+					const Storm::Vector3 totalNeighborForceApplied = viscosityForce + pressureForce;
+
+					currentPForce += totalNeighborForceApplied;
+
+					// Mirror the force to the rigid body following the 3rd Newton law
+					if (!neighbor._isFluidParticle && !neighborPSystem.isStatic())
+					{
+						Storm::Vector3 &neighborForce = neighborPSystem.getForces()[neighbor._particleIndex];
+						std::lock_guard<std::mutex> lock{ neighborPSystem._mutex };
+						neighborForce += totalNeighborForceApplied;
+					}
+				}
+			});
+		}
 	}
 }
 
