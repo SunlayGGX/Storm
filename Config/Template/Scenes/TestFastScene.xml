@@ -1,0 +1,36 @@
+<Scene>
+	<General>
+		<gravity x="0.0" y="-9.81" z="0.0" />
+		<particleRadius>0.05</particleRadius>
+		<kernelCoeff>4.0</kernelCoeff>
+		<startPaused>false</startPaused>
+		<simulation>SESPH</simulation>
+		<kernel>CubicSpline</kernel>
+		<physicsTime>0.001</physicsTime>
+	</General>
+	<Graphic>
+		<cameraPosition x="0.0" y="0.5" z="-2.0" />
+		<cameraLookAt x="0.0" y="0.5" z="0.0" />
+		<zNear>2.0</zNear>
+		<zFar>20.0</zFar>
+		<particleDisplay>true</particleDisplay>
+	</Graphic>
+	<Fluid>
+		<id>0</id>
+		<fluidBlock>
+			<firstPoint x="-0.4" y="0.1" z="-0.4" />
+			<secondPoint x="0.4" y="0.5" z="0.4" />
+		</fluidBlock>
+	</Fluid>
+	<RigidBodies>
+		<RigidBody>
+			<id>1</id>
+			<meshFile>$[StormResource]\Meshes\cube.obj</meshFile>
+			<isStatic>true</isStatic>
+			<collisionType>cube</collisionType>
+			<mass>1.0</mass>
+			<translation x="0.0" y="0.5" z="0.0"/>
+			<scale x="1.0" y="1.0" z="1.0"/>
+		</RigidBody>
+	</RigidBodies>
+</Scene>
