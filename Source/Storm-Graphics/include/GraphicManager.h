@@ -31,7 +31,7 @@ namespace Storm
 		void bindParentRbToMesh(unsigned int meshId, const std::shared_ptr<Storm::IRigidBody> &parentRb) const final override;
 
 	public:
-		void pushParticlesData(unsigned int particleSystemId, const std::vector<Storm::Vector3> &particlePosData, bool isFluids, bool isWall) final override;
+		void pushParticlesData(unsigned int particleSystemId, const std::vector<Storm::Vector3> &particlePosData, const std::vector<Storm::Vector3> &particlevelocityData, bool isFluids, bool isWall) final override;
 
 	public:
 		const Storm::Camera& getCamera() const;

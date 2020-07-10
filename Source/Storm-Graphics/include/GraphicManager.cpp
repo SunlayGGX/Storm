@@ -64,11 +64,11 @@ namespace
 	}
 #endif
 
-	std::vector<Storm::GraphicParticleData> fastOptimizedTransCopy(const std::vector<Storm::Vector3> &particlePosData)
+	std::vector<Storm::GraphicParticleData> fastOptimizedTransCopy(const std::vector<Storm::Vector3> &particlePosData, const std::vector<Storm::Vector3> &particleVelocityData, const float valueToMinColor, const float valueToMaxColor)
 	{
 		std::vector<Storm::GraphicParticleData> dxParticlePosDataTmp;
 
-		const DirectX::XMVECTOR defaultColor{ 0.3f, 0.5f, 0.7f, 1.f };
+		const DirectX::XMVECTOR defaultColor{ 0.3f, 0.5f, 0.6f, 1.f };
 
 #if _WIN32
 
@@ -79,13 +79,33 @@ namespace
 		// (Except that Unreal implemented their own TArray instead of using std::vector. Since I'm stuck with this, I didn't have much choice than to hijack... Note that this code isn't portable because it relies heavily on how Microsoft implemented std::vector (to find out the breach in the armor, we must know whose armor it is ;) )).
 		setNumUninitialized_hijack(dxParticlePosDataTmp, hijacker);
 
+		const float deltaColorRChan = 1.f - defaultColor.m128_f32[0];
+		const float deltaValueForColor = valueToMaxColor - valueToMinColor;
+
 		for (std::size_t iter = 0; iter < hijacker._newSize; ++iter)
 		{
 			Storm::GraphicParticleData &current = dxParticlePosDataTmp[iter];
 			memcpy(&current._pos, &particlePosData[iter], sizeof(Storm::Vector3));
 			reinterpret_cast<float*>(&current._pos)[3] = 1.f;
 
-			current._color = defaultColor;
+			float coeff = particleVelocityData[iter].squaredNorm() - valueToMinColor;
+			if (coeff < 0.f)
+			{
+				current._color = defaultColor;
+			}
+			else
+			{
+				coeff = coeff / deltaValueForColor;
+				if (coeff > 1.f)
+				{
+					current._color.m128_f32[0] = 1.f;
+				}
+				else
+				{
+					current._color.m128_f32[0] = defaultColor.m128_f32[0] + deltaColorRChan * coeff;
+				}
+				memcpy(&current._color.m128_f32[1], &defaultColor.m128_f32[1], sizeof(float) * 3);
+			}
 		}
 
 #else
@@ -278,17 +298,18 @@ void Storm::GraphicManager::bindParentRbToMesh(unsigned int meshId, const std::s
 	}
 }
 
-void Storm::GraphicManager::pushParticlesData(unsigned int particleSystemId, const std::vector<Storm::Vector3> &particlePosData, bool isFluids, bool isWall)
+void Storm::GraphicManager::pushParticlesData(unsigned int particleSystemId, const std::vector<Storm::Vector3> &particlePosData, const std::vector<Storm::Vector3> &particleVelocityData, bool isFluids, bool isWall)
 {
 	assert(!(isFluids && isWall) && "Particle cannot be fluid AND wall at the same time!");
 
-	this->callSequentialToInitCleanup([this, particleSystemId, &particlePosData, isFluids, isWall]()
+	this->callSequentialToInitCleanup([this, particleSystemId, &particlePosData, &particleVelocityData, isFluids, isWall]()
 	{
 		const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 		const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
+		const Storm::GraphicData &graphicDataConfig = configMgr.getGraphicData();
 
 		singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(ThreadEnumeration::GraphicsThread,
-			[this, particleSystemId, particlePosDataCopy = fastOptimizedTransCopy(particlePosData), isFluids, isWall]() mutable
+			[this, particleSystemId, particlePosDataCopy = fastOptimizedTransCopy(particlePosData, particleVelocityData, graphicDataConfig._valueForMinColor, graphicDataConfig._valueForMaxColor), isFluids, isWall]() mutable
 		{
 			_graphicParticlesSystem->refreshParticleSystemData(particleSystemId, std::move(particlePosDataCopy), isFluids, isWall);
 		});

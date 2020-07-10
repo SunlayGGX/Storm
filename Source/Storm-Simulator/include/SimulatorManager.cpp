@@ -440,7 +440,7 @@ void Storm::SimulatorManager::pushParticlesToGraphicModule(bool ignoreDirty) con
 		const Storm::ParticleSystem &currentParticleSystem = *particleSystemPair.second;
 		if (ignoreDirty || currentParticleSystem.isDirty())
 		{
-			graphicMgr.pushParticlesData(particleSystemPair.first, currentParticleSystem.getPositions(), currentParticleSystem.isFluids(), currentParticleSystem.isWall());
+			graphicMgr.pushParticlesData(particleSystemPair.first, currentParticleSystem.getPositions(), currentParticleSystem.getVelocity(), currentParticleSystem.isFluids(), currentParticleSystem.isWall());
 		}
 	});
 }
