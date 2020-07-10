@@ -147,8 +147,8 @@ void Storm::ParticleSystem::initializeIteration()
 float Storm::ParticleSystem::computeParticleDefaultVolume()
 {
 	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
-	const float particleRadius = configMgr.getGeneralSimulationData()._particleRadius;
-	return particleRadius * particleRadius * particleRadius;
+	const float particleDiameter = 2.f * configMgr.getGeneralSimulationData()._particleRadius;
+	return particleDiameter * particleDiameter * particleDiameter;
 }
 
 bool Storm::ParticleSystem::isElligibleNeighborParticle(const float kernelLengthSquared, const float normSquared)
