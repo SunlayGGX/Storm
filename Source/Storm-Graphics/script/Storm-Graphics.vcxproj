@@ -37,6 +37,7 @@
     <ClInclude Include="..\include\GraphicManager.h" />
     <ClInclude Include="..\include\GraphicParticleData.h" />
     <ClInclude Include="..\include\GraphicParticleSystem.h" />
+    <ClInclude Include="..\include\GraphicParticleSystemModality.h" />
     <ClInclude Include="..\include\GraphicRigidBody.h" />
     <ClInclude Include="..\include\Grid.h" />
     <ClInclude Include="..\include\GridShader.h" />

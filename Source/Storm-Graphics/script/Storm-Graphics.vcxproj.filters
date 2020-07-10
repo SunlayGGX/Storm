@@ -155,5 +155,8 @@
     <ClInclude Include="..\include\RenderModeState.h">
       <Filter>Header Files\GraphicComponent</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\GraphicParticleSystemModality.h">
+      <Filter>Header Files\GraphicComponent</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
