@@ -111,6 +111,11 @@ bool Storm::FluidParticleSystem::isStatic() const noexcept
 	return false;
 }
 
+bool Storm::FluidParticleSystem::isWall() const noexcept
+{
+	return false;
+}
+
 const std::vector<float>& Storm::FluidParticleSystem::getPredictedDensities() const noexcept
 {
 	return _predictedDensity;

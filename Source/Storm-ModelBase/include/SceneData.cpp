@@ -24,6 +24,7 @@ Storm::GeneralSimulationData::GeneralSimulationData() :
 
 Storm::RigidBodySceneData::RigidBodySceneData() :
 	_static{ true },
+	_isWall{ false },
 	_translation{ 0.f, 0.f, 0.f },
 	_rotation{ 0.f, 0.f, 0.f },
 	_scale{ 1.f, 1.f, 1.f },

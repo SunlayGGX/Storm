@@ -16,6 +16,7 @@ namespace Storm
 	public:
 		bool isFluids() const noexcept final override;
 		bool isStatic() const noexcept final override;
+		bool isWall() const noexcept final override;
 
 		const std::vector<float>& getPredictedDensities() const noexcept final override;
 		std::vector<float>& getPredictedDensities() noexcept final override;

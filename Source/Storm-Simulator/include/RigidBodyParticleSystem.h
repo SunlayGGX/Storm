@@ -16,6 +16,7 @@ namespace Storm
 	public:
 		bool isFluids() const noexcept final override;
 		bool isStatic() const noexcept final override;
+		bool isWall() const noexcept final override;
 
 	public:
 		const std::vector<float>& getPredictedDensities() const final override;
@@ -46,5 +47,6 @@ namespace Storm
 		Storm::Quaternion _cachedTrackedRbRotationQuat;
 
 		bool _isStatic;
+		bool _isWall;
 	};
 }

@@ -43,6 +43,7 @@ namespace Storm
 
 		virtual bool isFluids() const noexcept = 0;
 		virtual bool isStatic() const noexcept = 0;
+		virtual bool isWall() const noexcept = 0;
 
 		bool isDirty() const noexcept;
 

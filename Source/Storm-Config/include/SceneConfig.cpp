@@ -230,6 +230,7 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 						!Storm::XmlReader::handleXml(rigidBodyDataXml, "dynamicFrictionCoeff", rbData._dynamicFrictionCoefficient) &&
 						!Storm::XmlReader::handleXml(rigidBodyDataXml, "restitutionCoeff", rbData._restitutionCoefficient) &&
 						!Storm::XmlReader::handleXml(rigidBodyDataXml, "isStatic", rbData._static) &&
+						!Storm::XmlReader::handleXml(rigidBodyDataXml, "wall", rbData._isWall) &&
 						!Storm::XmlReader::handleXml(rigidBodyDataXml, "mass", rbData._mass) &&
 						!Storm::XmlReader::handleXml(rigidBodyDataXml, "collisionType", rbData._collisionShape, parseCollisionType) &&
 						!Storm::XmlReader::handleXml(rigidBodyDataXml, "translation", rbData._translation, parseVector3Element) &&

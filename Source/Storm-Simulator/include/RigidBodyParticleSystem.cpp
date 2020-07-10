@@ -36,7 +36,8 @@ Storm::RigidBodyParticleSystem::RigidBodyParticleSystem(unsigned int particleSys
 
 	const Storm::RigidBodySceneData &currentRbData = configMgr.getRigidBodyData(particleSystemIndex);
 
-	_isStatic = currentRbData._static;
+	_isWall = currentRbData._isWall;
+	_isStatic = _isWall || currentRbData._static;
 }
 
 void Storm::RigidBodyParticleSystem::initializeIteration()
@@ -87,6 +88,11 @@ bool Storm::RigidBodyParticleSystem::isFluids() const noexcept
 bool Storm::RigidBodyParticleSystem::isStatic() const noexcept
 {
 	return _isStatic;
+}
+
+bool Storm::RigidBodyParticleSystem::isWall() const noexcept
+{
+	return _isWall;
 }
 
 void Storm::RigidBodyParticleSystem::buildNeighborhoodOnParticleSystem(const Storm::ParticleSystem &otherParticleSystem, const float kernelLengthSquared)
