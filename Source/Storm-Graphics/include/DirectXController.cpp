@@ -111,12 +111,22 @@ void Storm::DirectXController::renderElements(const Storm::Camera &currentCamera
 		renderedElement->render(_device, _immediateContext, currentCamera);
 	}
 
-	if (_currentRenderModeState != Storm::RenderModeState::AllParticle)
+	switch (_currentRenderModeState)
 	{
+	case Storm::RenderModeState::Solid:
+	case Storm::RenderModeState::SolidCullNone:
+	case Storm::RenderModeState::Wireframe:
+	case Storm::RenderModeState::NoWallSolid:
 		for (const auto &rbElementPair : rbElementArrays)
 		{
 			rbElementPair.second->render(_device, _immediateContext, currentCamera);
 		}
+		break;
+
+	case Storm::RenderModeState::NoWallParticles:
+	case Storm::RenderModeState::AllParticle:
+	default:
+		break;
 	}
 
 	particleSystem.render(_device, _immediateContext, currentCamera, _currentRenderModeState);
@@ -153,6 +163,17 @@ void Storm::DirectXController::setSolidCullBackState()
 void Storm::DirectXController::setAllParticleState()
 {
 	_currentRenderModeState = Storm::RenderModeState::AllParticle;
+}
+
+void Storm::DirectXController::setRenderNoWallParticle()
+{
+	_currentRenderModeState = Storm::RenderModeState::NoWallParticles;
+}
+
+void Storm::DirectXController::setRenderNoWallSolid()
+{
+	_immediateContext->RSSetState(_solidCullNoneRS.Get());
+	_currentRenderModeState = Storm::RenderModeState::NoWallSolid;
 }
 
 void Storm::DirectXController::setEnableZBuffer(bool enable)

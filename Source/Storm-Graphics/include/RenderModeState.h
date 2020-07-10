@@ -9,5 +9,7 @@ namespace Storm
 		SolidCullNone,
 		Wireframe,
 		AllParticle,
+		NoWallParticles,
+		NoWallSolid,
 	};
 }
