@@ -17,5 +17,8 @@ namespace Storm
 		float _zFar;
 
 		bool _displaySolidAsParticles;
+
+		float _valueForMinColor;
+		float _valueForMaxColor;
 	};
 }

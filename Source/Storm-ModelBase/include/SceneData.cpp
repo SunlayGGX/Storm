@@ -43,7 +43,9 @@ Storm::GraphicData::GraphicData() :
 	_zNear{ 0.01f },
 	_zFar{ 20.f },
 	_grid{ 10.f, 0.f, 10.f },
-	_displaySolidAsParticles{ false }
+	_displaySolidAsParticles{ false },
+	_valueForMinColor{ 0.01f },
+	_valueForMaxColor{ 100.f }
 {
 
 }
