@@ -202,4 +202,5 @@ Inside this element should be put all rigidbodies. Each rigidbody should be spec
 - **N**: Set solid state without back face culling.
 - **V**: Set wireframe.
 - **C**: Set rendering to display all particles.
+- **X**: Set particle state without rendering walls.
 

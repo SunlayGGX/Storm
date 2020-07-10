@@ -212,6 +212,7 @@ void Storm::GraphicManager::initialize_Implementation(void* hwnd)
 			inputMgr.bindKey(Storm::SpecialKey::KC_B, [this]() { _directXController->setSolidCullBackState(); });
 			inputMgr.bindKey(Storm::SpecialKey::KC_N, [this]() { _directXController->setSolidCullNoneState(); });
 			inputMgr.bindKey(Storm::SpecialKey::KC_C, [this]() { _directXController->setAllParticleState(); });
+			inputMgr.bindKey(Storm::SpecialKey::KC_X, [this]() { _directXController->setRenderNoWallParticle(); });
 
 			inputMgr.bindMouseWheel([this](int axisRelativeIncrement)
 			{
