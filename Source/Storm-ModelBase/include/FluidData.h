@@ -23,6 +23,7 @@ namespace Storm
 		std::vector<Storm::FluidBlockData> _fluidGenData;
 		float _density;
 		float _dynamicViscosity;
+		float _cinematicViscosity;
 		float _soundSpeed;
 		float _kPressureCoeff;
 	};

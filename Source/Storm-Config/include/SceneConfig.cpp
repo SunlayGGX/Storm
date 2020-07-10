@@ -206,6 +206,7 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 		Storm::throwException<std::exception>("Fluid " + std::to_string(fluidData._fluidId) + " sound of speed (" + std::to_string(fluidData._dynamicViscosity) + "m/s) is invalid!");
 	}
 
+	fluidData._cinematicViscosity = fluidData._dynamicViscosity / fluidData._density;
 
 	/* RigidBodies */
 	const auto &rigidBodiesTreeOpt = srcTree.get_child_optional("RigidBodies");
