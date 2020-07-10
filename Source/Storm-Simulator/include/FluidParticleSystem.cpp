@@ -94,7 +94,7 @@ void Storm::FluidParticleSystem::initializeIteration()
 	}
 	else
 	{
-		Storm::runParallel(_force, [this, usePredictedArrays, &gravityForce](Storm::Vector3 &currentPForce, const std::size_t)
+		Storm::runParallel(_force, [this, usePredictedArrays, &gravityForce](Storm::Vector3 &currentPForce)
 		{
 			currentPForce = gravityForce;
 		});
