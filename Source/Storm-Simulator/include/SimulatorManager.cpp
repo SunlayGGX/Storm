@@ -18,7 +18,6 @@
 #include "SimulationMode.h"
 #include "KernelMode.h"
 
-#include "DensitySolver.h"
 #include "SemiImplicitEulerSolver.h"
 #include "CubicSplineKernel.h"
 

@@ -48,9 +48,6 @@
     <ClCompile Include="..\include\RigidBodyParticleSystem.cpp">
       <Filter>Source Files\System</Filter>
     </ClCompile>
-    <ClCompile Include="..\include\DensitySolver.cpp">
-      <Filter>Source Files\Solver</Filter>
-    </ClCompile>
     <ClCompile Include="..\include\Kernel.cpp">
       <Filter>Source Files\Kernel</Filter>
     </ClCompile>
@@ -74,25 +71,13 @@
     <ClInclude Include="..\include\RigidBodyParticleSystem.h">
       <Filter>Header Files\System</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\DensitySolver.h">
-      <Filter>Header Files\Solver</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\NeighborParticleInfo.h">
       <Filter>Header Files\System</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\SpikyKernel.h">
-      <Filter>Header Files\Kernel</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Poly6Kernel.h">
-      <Filter>Header Files\Kernel</Filter>
     </ClInclude>
     <ClInclude Include="..\include\SemiImplicitEulerSolver.h">
       <Filter>Header Files\Solver</Filter>
     </ClInclude>
     <ClInclude Include="..\include\CubicSplineKernel.h">
-      <Filter>Header Files\Kernel</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\CubicKernel.h">
       <Filter>Header Files\Kernel</Filter>
     </ClInclude>
   </ItemGroup>

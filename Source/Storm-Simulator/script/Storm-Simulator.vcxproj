@@ -11,7 +11,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\include\DensitySolver.cpp" />
     <ClCompile Include="..\include\FluidParticleSystem.cpp" />
     <ClCompile Include="..\include\Kernel.cpp" />
     <ClCompile Include="..\include\ParticleSystem.cpp" />
@@ -25,7 +24,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\CubicSplineKernel.h" />
-    <ClInclude Include="..\include\DensitySolver.h" />
     <ClInclude Include="..\include\FluidParticleSystem.h" />
     <ClInclude Include="..\include\NeighborParticleInfo.h" />
     <ClInclude Include="..\include\ParticleSystem.h" />
