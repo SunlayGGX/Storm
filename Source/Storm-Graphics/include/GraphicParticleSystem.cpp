@@ -3,6 +3,7 @@
 #include "ParticleShader.h"
 
 #include "GraphicParticleData.h"
+#include "GraphicParticleSystemModality.h"
 
 #include "GraphicManager.h"
 #include "DirectXController.h"
@@ -18,11 +19,22 @@ Storm::GraphicParticleSystem::GraphicParticleSystem(const ComPtr<ID3D11Device> &
 
 Storm::GraphicParticleSystem::~GraphicParticleSystem() = default;
 
-void Storm::GraphicParticleSystem::refreshParticleSystemData(unsigned int particleSystemId, std::vector<Storm::GraphicParticleData> &&particlePosition, bool isFluids)
+void Storm::GraphicParticleSystem::refreshParticleSystemData(unsigned int particleSystemId, std::vector<Storm::GraphicParticleData> &&particlePosition, bool isFluids, bool isWall)
 {
 	auto &currentPBuffer = _particleSystemVBuffer[particleSystemId];
 
-	currentPBuffer._isFluids = isFluids;
+	if (isFluids)
+	{
+		currentPBuffer._modality = Storm::GraphicParticleSystemModality::Fluid;
+	}
+	else if (isWall)
+	{
+		currentPBuffer._modality = Storm::GraphicParticleSystemModality::RbWall;
+	}
+	else
+	{
+		currentPBuffer._modality = Storm::GraphicParticleSystemModality::RbNoWall;
+	}
 
 	const std::size_t newParticleCount = particlePosition.size();
 	if (newParticleCount == 0)
@@ -90,7 +102,31 @@ void Storm::GraphicParticleSystem::render(const ComPtr<ID3D11Device> &device, co
 
 	for (const auto &particleSystemBuffer : _particleSystemVBuffer)
 	{
-		if (particleSystemBuffer.second._isFluids || currentRenderModeState == Storm::RenderModeState::AllParticle)
+		bool shouldRender;
+		switch (particleSystemBuffer.second._modality)
+		{
+		case Storm::GraphicParticleSystemModality::Fluid:
+			shouldRender = true;
+			break;
+
+		case Storm::GraphicParticleSystemModality::RbNoWall:
+			shouldRender = 
+				currentRenderModeState == Storm::RenderModeState::AllParticle ||
+				currentRenderModeState == Storm::RenderModeState::NoWallParticles
+				;
+			break;
+
+		case Storm::GraphicParticleSystemModality::RbWall:
+			shouldRender = currentRenderModeState == Storm::RenderModeState::AllParticle;
+			break;
+
+		default:
+			assert(false && "Unknown particle system type");
+			shouldRender = false;
+			break;
+		}
+
+		if (shouldRender)
 		{
 			this->setupForRender(deviceContext, particleSystemBuffer.second);
 			_shader->draw(static_cast<unsigned int>(particleSystemBuffer.second._vertexCount), deviceContext);

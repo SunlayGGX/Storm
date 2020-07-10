@@ -277,17 +277,19 @@ void Storm::GraphicManager::bindParentRbToMesh(unsigned int meshId, const std::s
 	}
 }
 
-void Storm::GraphicManager::pushParticlesData(unsigned int particleSystemId, const std::vector<Storm::Vector3> &particlePosData, bool isFluids)
+void Storm::GraphicManager::pushParticlesData(unsigned int particleSystemId, const std::vector<Storm::Vector3> &particlePosData, bool isFluids, bool isWall)
 {
-	this->callSequentialToInitCleanup([this, particleSystemId, &particlePosData, isFluids]()
+	assert(!(isFluids && isWall) && "Particle cannot be fluid AND wall at the same time!");
+
+	this->callSequentialToInitCleanup([this, particleSystemId, &particlePosData, isFluids, isWall]()
 	{
 		const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 		const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
 
 		singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(ThreadEnumeration::GraphicsThread,
-			[this, particleSystemId, particlePosDataCopy = fastOptimizedTransCopy(particlePosData), isFluids]() mutable
+			[this, particleSystemId, particlePosDataCopy = fastOptimizedTransCopy(particlePosData), isFluids, isWall]() mutable
 		{
-			_graphicParticlesSystem->refreshParticleSystemData(particleSystemId, std::move(particlePosDataCopy), isFluids);
+			_graphicParticlesSystem->refreshParticleSystemData(particleSystemId, std::move(particlePosDataCopy), isFluids, isWall);
 		});
 	});
 }
