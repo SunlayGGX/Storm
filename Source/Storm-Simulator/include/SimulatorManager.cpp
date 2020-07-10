@@ -129,7 +129,7 @@ void Storm::SimulatorManager::run()
 		switch (generalSimulationConfigData._simulationMode)
 		{
 		case Storm::SimulationMode::SESPH:
-			this->executePCISPH(physicsElapsedDeltaTime);
+			this->executeSESPH(physicsElapsedDeltaTime);
 			break;
 
 		case Storm::SimulationMode::PCISPH:
