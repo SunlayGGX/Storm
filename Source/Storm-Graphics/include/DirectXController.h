@@ -22,6 +22,8 @@ namespace Storm
 		void presentToDisplay();
 		void reportLiveObject();
 
+		void reportDeviceMessages();
+
 	public:
 		const ComPtr<ID3D11Device>& getDirectXDevice() const noexcept;
 		const ComPtr<ID3D11DeviceContext>& getImmediateContext() const noexcept;
@@ -82,6 +84,8 @@ namespace Storm
 
 		float _viewportWidth;
 		float _viewportHeight;
+
+		bool _logDeviceMessage;
 
 #if defined(DEBUG) || defined(_DEBUG)
 		ComPtr<ID3D11Debug> _debugDevice;

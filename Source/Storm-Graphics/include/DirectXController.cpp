@@ -13,6 +13,72 @@
 #include "RenderModeState.h"
 
 
+namespace
+{
+	template<class Type>
+	class MallocUPtr : public std::unique_ptr<Type, decltype(&::free)>
+	{
+	private:
+		using BaseUPtr = std::unique_ptr<Type, decltype(&::free)>;
+
+	public:
+		MallocUPtr() : BaseUPtr{ nullptr, ::free } {};
+		MallocUPtr(nullptr_t) : BaseUPtr{ nullptr, ::free } {};
+		MallocUPtr(Type* ptr) : BaseUPtr{ ptr, ::free } {};
+	};
+
+	const std::string_view directXMessageCategoryPrettyPrinted(D3D11_MESSAGE_CATEGORY category)
+	{
+#define PRETTY_PRINT_CATEGORY_CASE(CategoryCaseLabel) case D3D11_MESSAGE_CATEGORY::D3D11_MESSAGE_CATEGORY_##CategoryCaseLabel: return "Category: " STRINGIFY(CategoryCaseLabel)
+
+		switch (category)
+		{
+			PRETTY_PRINT_CATEGORY_CASE(APPLICATION_DEFINED);
+			PRETTY_PRINT_CATEGORY_CASE(MISCELLANEOUS);
+			PRETTY_PRINT_CATEGORY_CASE(INITIALIZATION);
+			PRETTY_PRINT_CATEGORY_CASE(CLEANUP);
+			PRETTY_PRINT_CATEGORY_CASE(COMPILATION);
+			PRETTY_PRINT_CATEGORY_CASE(STATE_CREATION);
+			PRETTY_PRINT_CATEGORY_CASE(STATE_SETTING);
+			PRETTY_PRINT_CATEGORY_CASE(STATE_GETTING);
+			PRETTY_PRINT_CATEGORY_CASE(RESOURCE_MANIPULATION);
+			PRETTY_PRINT_CATEGORY_CASE(EXECUTION);
+			PRETTY_PRINT_CATEGORY_CASE(SHADER);
+
+		default: return "Unknown Category!";
+		}
+
+#undef PRETTY_PRINT_CATEGORY_CASE
+	}
+
+	void printParseDeviceMessage(const D3D11_MESSAGE &message)
+	{
+		const std::string_view prettyPrintedMessageCategory = directXMessageCategoryPrettyPrinted(message.Category);
+
+		std::string finalMsg;
+		finalMsg.reserve(message.DescriptionByteLength + prettyPrintedMessageCategory.size() + 38);
+
+		finalMsg += "DirectX Device Message (ID: ";
+		finalMsg += std::to_string(message.ID);
+		finalMsg += "; ";
+		finalMsg += prettyPrintedMessageCategory;
+		finalMsg += ") : ";
+		finalMsg.append(message.pDescription, message.DescriptionByteLength - 1);
+
+		switch (message.Severity)
+		{
+		case D3D11_MESSAGE_SEVERITY::D3D11_MESSAGE_SEVERITY_CORRUPTION: LOG_FATAL << finalMsg; break;
+		case D3D11_MESSAGE_SEVERITY::D3D11_MESSAGE_SEVERITY_ERROR: LOG_ERROR << finalMsg; break;
+		case D3D11_MESSAGE_SEVERITY::D3D11_MESSAGE_SEVERITY_INFO: LOG_COMMENT << finalMsg; break;
+		case D3D11_MESSAGE_SEVERITY::D3D11_MESSAGE_SEVERITY_WARNING: LOG_WARNING << finalMsg; break;
+		case D3D11_MESSAGE_SEVERITY::D3D11_MESSAGE_SEVERITY_MESSAGE: LOG_DEBUG << finalMsg; break;
+
+		default:
+			assert(false && "Unhandled device message, it shouldn't happen unless DirectX API upgraded and this method wasn't modified to reflect the new changes.");
+			break;
+		}
+	}
+}
 
 void Storm::DirectXController::initialize(HWND hwnd)
 {
@@ -23,6 +89,8 @@ void Storm::DirectXController::initialize(HWND hwnd)
 	this->internalInitializeDebugDevice();
 	this->internalConfigureImmediateContextToDefault();
 	this->internalInitializeViewPort();
+
+	_logDeviceMessage = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().getShouldLogGraphicDeviceMessage();
 }
 
 void Storm::DirectXController::cleanUp()
@@ -50,6 +118,10 @@ void Storm::DirectXController::cleanUp()
 
 	_swapChain.Reset();
 	_immediateContext.Reset();
+
+	// A last report before destroying the device once and for all.
+	this->reportDeviceMessages();
+
 	_device.Reset();
 
 #if defined(DEBUG) || defined(_DEBUG)
@@ -87,11 +159,57 @@ void Storm::DirectXController::presentToDisplay()
 void Storm::DirectXController::reportLiveObject()
 {
 #ifdef _DEBUG_GRAPHIC
-	if (m_DXDebugDevice != nullptr)
+	if (_debugDevice != nullptr)
 	{
-		DXTry(m_DXDebugDevice->ReportLiveDeviceObjects(D3D11_RLDO_FLAGS::D3D11_RLDO_DETAIL));
+		Storm::throwIfFailed(_debugDevice->ReportLiveDeviceObjects(D3D11_RLDO_FLAGS::D3D11_RLDO_DETAIL));
 	}
 #endif // _DEBUG
+}
+
+void Storm::DirectXController::reportDeviceMessages()
+{
+	if (_logDeviceMessage)
+	{
+		ComPtr<ID3D11InfoQueue> deviceMessageInfoQueue;
+		_device->QueryInterface(__uuidof(ID3D11InfoQueue), &deviceMessageInfoQueue);
+
+		if (deviceMessageInfoQueue)
+		{
+			const UINT64 numMessage = deviceMessageInfoQueue->GetNumStoredMessages();
+			if (numMessage > 0)
+			{
+				unsigned int unprintedMsgCount = 0;
+				for (UINT64 iter = 0; iter < numMessage; ++iter)
+				{
+					SIZE_T messageSize = 0;
+					deviceMessageInfoQueue->GetMessage(iter, nullptr, &messageSize);
+					if (messageSize > 0)
+					{
+						MallocUPtr<D3D11_MESSAGE> currentMessage{ static_cast<D3D11_MESSAGE*>(malloc(messageSize)) };
+						if (SUCCEEDED(deviceMessageInfoQueue->GetMessage(iter, currentMessage.get(), &messageSize)))
+						{
+							printParseDeviceMessage(*currentMessage);
+						}
+						else
+						{
+							++unprintedMsgCount;
+						}
+					}
+					else
+					{
+						++unprintedMsgCount;
+					}
+				}
+
+				if (unprintedMsgCount > 0)
+				{
+					LOG_WARNING << "There was " << unprintedMsgCount << " unprinted message(s) (maybe due to an unsuccessful message grabbing or a message of size 0.";
+				}
+
+				deviceMessageInfoQueue->ClearStoredMessages();
+			}
+		}
+	}
 }
 
 const ComPtr<ID3D11Device>& Storm::DirectXController::getDirectXDevice() const noexcept
@@ -292,6 +410,15 @@ void Storm::DirectXController::internalCreateDXDevices(HWND hwnd)
 		nullptr,
 		&_immediateContext
 	));
+
+
+	ComPtr<ID3D11InfoQueue> deviceMessageInfoQueue;
+	_device->QueryInterface(__uuidof(ID3D11InfoQueue), &deviceMessageInfoQueue);
+
+	if (deviceMessageInfoQueue)
+	{
+		deviceMessageInfoQueue->PushEmptyStorageFilter();
+	}
 }
 
 void Storm::DirectXController::internalCreateRenderView()

@@ -299,6 +299,8 @@ void Storm::GraphicManager::update()
 
 		_directXController->unbindTargetView();
 		_directXController->presentToDisplay();
+
+		_directXController->reportDeviceMessages();
 	}
 }
 
