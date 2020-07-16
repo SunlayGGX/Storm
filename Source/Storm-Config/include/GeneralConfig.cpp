@@ -39,7 +39,8 @@ Storm::GeneralConfig::GeneralConfig() :
 	_removeLogsOlderThanDays{ -1 },
 	_shouldLogFPSWatching{ false },
 	_wantedApplicationHeight{ 800 },
-	_wantedApplicationWidth{ 1200 }
+	_wantedApplicationWidth{ 1200 },
+	_shouldLogGraphicDeviceMessage{ false }
 {
 
 }
@@ -69,6 +70,7 @@ bool Storm::GeneralConfig::read(const std::string &generalConfigFilePathStr)
 						!Storm::XmlReader::handleXml(logXmlElement, "logLevel", _logLevel, logLevelFromString) &&
 						!Storm::XmlReader::handleXml(logXmlElement, "override", _overrideLogs) &&
 						!Storm::XmlReader::handleXml(logXmlElement, "fpsWatching", _shouldLogFPSWatching) &&
+						!Storm::XmlReader::handleXml(logXmlElement, "logGraphicDeviceMessage", _shouldLogGraphicDeviceMessage) &&
 						!Storm::XmlReader::handleXml(logXmlElement, "removeOlderThanDays", _removeLogsOlderThanDays)
 						)
 					{

@@ -22,6 +22,7 @@ namespace Storm
 		Storm::LogLevel _logLevel;
 		bool _overrideLogs;
 		bool _shouldLogFPSWatching;
+		bool _shouldLogGraphicDeviceMessage;
 		int _removeLogsOlderThanDays;
 
 		// Graphics

@@ -32,6 +32,7 @@ namespace Storm
 		int getRemoveLogOlderThanDaysCount() const final override;
 		bool getShouldOverrideOldLog() const final override;
 		bool getShouldLogFpsWatching() const final override;
+		bool getShouldLogGraphicDeviceMessage() const final override;
 		bool noPopup() const final override;
 
 		unsigned int getWantedScreenWidth() const final override;

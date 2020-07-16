@@ -116,6 +116,7 @@ Note that the maximum value you can set is Fatal, it means that no matter what l
 - **override (boolean, facultative)** : If the log file specified should have its content overriden each time. If "false", the content will be appended instead. Default is "true".
 - **removeOlderThanDays (integer, facultative)** : Specify the number of day Storm will keep the log file. Log files older than the current date minus this day count will be removed. Disable this feature by setting a number <= 0 (therefore, we will keep everything). Default is -1.
 - **fpsWatching (boolean, facultative)** : Our time keeper can watch fps and log if the fps of a thread is too low compared to what was expected. Setting it to "false" prevent it to watch the fps, and therefore to log if fps is under 20% of its expected frame rate. Default is "false".
+- **logGraphicDeviceMessage (boolean, facultative)** : If we should print the graphic device log message. Warning : there is a lot ! Default is "false" but enable it only if it is necessary.
 
 
 ### Scene Config

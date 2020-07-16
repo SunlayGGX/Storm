@@ -263,3 +263,8 @@ bool Storm::ConfigManager::getShouldLogFpsWatching() const
 {
 	return _generalConfig._shouldLogFPSWatching;
 }
+
+bool Storm::ConfigManager::getShouldLogGraphicDeviceMessage() const
+{
+	return _generalConfig._shouldLogGraphicDeviceMessage;
+}

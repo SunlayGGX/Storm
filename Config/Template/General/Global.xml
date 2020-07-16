@@ -6,5 +6,6 @@
 		<override>true</override>
 		<removeOlderThanDays>7</removeOlderThanDays>
 		<fpsWatching>false</fpsWatching>
+		<logGraphicDeviceMessage>false</logGraphicDeviceMessage>
 	</Log>
 </General>
