@@ -12,13 +12,13 @@
 Storm::ParticleSystem::ParticleSystem(unsigned int particleSystemIndex, std::vector<Storm::Vector3> &&worldPositions, float particleMass) :
 	_positions{ std::move(worldPositions) },
 	_particleSystemIndex{ particleSystemIndex },
-	_massPerParticle{ particleMass },
 	_isDirty{ true }
 {
 	const std::size_t particleCount = _positions.size();
+	const float particleVolume = computeParticleDefaultVolume();
 
-	_densities.resize(particleCount, particleMass / computeParticleDefaultVolume());
-	_pressures.resize(particleCount);
+	_masses.resize(particleCount, particleMass);
+	_densities.resize(particleCount, particleMass / particleVolume);
 	_velocity.resize(particleCount, Storm::Vector3::Zero());
 	_force.resize(particleCount);
 	_neighborhood.resize(particleCount);
@@ -29,6 +29,16 @@ Storm::ParticleSystem::ParticleSystem(unsigned int particleSystemIndex, std::vec
 	}
 }
 
+const std::vector<float>& Storm::ParticleSystem::getMasses() const noexcept
+{
+	return _masses;
+}
+
+std::vector<float>& Storm::ParticleSystem::getMasses() noexcept
+{
+	return _masses;
+}
+
 std::vector<float>& Storm::ParticleSystem::getDensities() noexcept
 {
 	return _densities;
@@ -37,16 +47,6 @@ std::vector<float>& Storm::ParticleSystem::getDensities() noexcept
 const std::vector<float>& Storm::ParticleSystem::getDensities() const noexcept
 {
 	return _densities;
-}
-
-const std::vector<float>& Storm::ParticleSystem::getPressures() const noexcept
-{
-	return _pressures;
-}
-
-std::vector<float>& Storm::ParticleSystem::getPressures() noexcept
-{
-	return _pressures;
 }
 
 std::vector<Storm::Vector3>& Storm::ParticleSystem::getPositions() noexcept
@@ -89,16 +89,6 @@ std::vector<std::vector<Storm::NeighborParticleInfo>>& Storm::ParticleSystem::ge
 	return _neighborhood;
 }
 
-float Storm::ParticleSystem::getMassPerParticle() const noexcept
-{
-	return _massPerParticle;
-}
-
-float Storm::ParticleSystem::getRestDensity() const noexcept
-{
-	return _restDensity;
-}
-
 unsigned int Storm::ParticleSystem::getId() const noexcept
 {
 	return _particleSystemIndex;
@@ -133,7 +123,7 @@ void Storm::ParticleSystem::initializeIteration()
 	const std::size_t particleCount = _densities.size();
 
 	assert(
-		particleCount == _pressures.size() &&
+		particleCount == _masses.size() &&
 		particleCount == _positions.size() &&
 		particleCount == _velocity.size() &&
 		particleCount == _force.size() &&

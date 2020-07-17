@@ -25,6 +25,14 @@ namespace Storm
 		std::vector<Storm::Vector3>& getPredictedPositions() final override;
 		const std::vector<Storm::Vector3>& getPredictedPressureForces() const final override;
 		std::vector<Storm::Vector3>& getPredictedPressureForces() final override;
+		std::vector<float>& getPressures() final override;
+		const std::vector<float>& getPressures() const final override;
+
+		const std::vector<float>& getVolumes() const noexcept final override;
+		std::vector<float>& getVolumes() noexcept final override;
+
+		float getParticleVolume() const final override;
+		float getRestDensity() const final override;
 
 	private:
 		void buildNeighborhoodOnParticleSystem(const Storm::ParticleSystem &otherParticleSystem, const float kernelLengthSquared) final override;
@@ -39,6 +47,8 @@ namespace Storm
 		void flushPressureToTotalForce() final override;
 
 	private:
+		std::vector<float> _volumes;
+
 		// Those are particle global position and rotation that serves to update particles using the rigid body position and rotation owned by the physics engine.
 		// Beware because they are made to track the changes of position and rotation, it means that they are not forcefully up to date.
 		// They will be after calling updatePosition, but between the moment the physics engine computed the changes and the next updatePosition,

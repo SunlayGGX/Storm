@@ -31,6 +31,8 @@ Storm::FluidParticleSystem::FluidParticleSystem(unsigned int particleSystemIndex
 {
 	const std::size_t particleCount = _positions.size();
 
+	_pressures.resize(particleCount);
+
 	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
 	switch (configMgr.getGeneralSimulationData()._simulationMode)
 	{
@@ -68,9 +70,14 @@ void Storm::FluidParticleSystem::initializeIteration()
 	}
 
 #if defined(DEBUG) || defined(_DEBUG)
+	const std::size_t particleCount = _densities.size();
+	assert(
+		particleCount == _pressures.size() &&
+		"Particle count mismatch detected! An array of particle property has not the same particle count than the other!"
+	);
+
 	if (usePredictedArrays)
 	{
-		const std::size_t particleCount = _densities.size();
 		assert(
 			particleCount == _predictedDensity.size() &&
 			particleCount == _predictedPositions.size() &&
@@ -81,22 +88,24 @@ void Storm::FluidParticleSystem::initializeIteration()
 	
 #endif
 
-	const Storm::Vector3 gravityForce = _massPerParticle * generalSimulData._gravity;
+	const Storm::Vector3 &gravityAccel = generalSimulData._gravity;
 
 	if (usePredictedArrays)
 	{
-		Storm::runParallel(_force, [this, usePredictedArrays, &gravityForce](Storm::Vector3 &currentPForce, const std::size_t currentPIndex)
+		Storm::runParallel(_force, [this, usePredictedArrays, &gravityAccel](Storm::Vector3 &currentPForce, const std::size_t currentPIndex)
 		{
-			currentPForce = gravityForce;
+			const float currentPMass = _masses[currentPIndex];
+			currentPForce = currentPMass * gravityAccel;
 
 			_pressureForce[currentPIndex].setZero();
 		});
 	}
 	else
 	{
-		Storm::runParallel(_force, [this, usePredictedArrays, &gravityForce](Storm::Vector3 &currentPForce)
+		Storm::runParallel(_force, [this, usePredictedArrays, &gravityAccel](Storm::Vector3 &currentPForce, const std::size_t currentPIndex)
 		{
-			currentPForce = gravityForce;
+			const float currentPMass = _masses[currentPIndex];
+			currentPForce = currentPMass * gravityAccel;;
 		});
 	}
 }
@@ -144,6 +153,36 @@ const std::vector<Storm::Vector3>& Storm::FluidParticleSystem::getPredictedPress
 std::vector<Storm::Vector3>& Storm::FluidParticleSystem::getPredictedPressureForces() noexcept
 {
 	return _pressureForce;
+}
+
+const std::vector<float>& Storm::FluidParticleSystem::getPressures() const noexcept
+{
+	return _pressures;
+}
+
+std::vector<float>& Storm::FluidParticleSystem::getPressures() noexcept
+{
+	return _pressures;
+}
+
+const std::vector<float>& Storm::FluidParticleSystem::getVolumes() const
+{
+	Storm::throwException<std::logic_error>(__FUNCTION__ " shouldn't be called for fluids particle system (only implemented for rigidbodies)");
+}
+
+std::vector<float>& Storm::FluidParticleSystem::getVolumes()
+{
+	Storm::throwException<std::logic_error>(__FUNCTION__ " shouldn't be called for fluids particle system (only implemented for rigidbodies)");
+}
+
+float Storm::FluidParticleSystem::getParticleVolume() const noexcept
+{
+	return _particleVolume;
+}
+
+float Storm::FluidParticleSystem::getRestDensity() const noexcept
+{
+	return _restDensity;
 }
 
 void Storm::FluidParticleSystem::buildNeighborhoodOnParticleSystem(const Storm::ParticleSystem &otherParticleSystem, const float kernelLengthSquared)
@@ -208,9 +247,11 @@ void Storm::FluidParticleSystem::updatePosition(float deltaTimeInSec)
 {
 	Storm::runParallel(_force, [this, deltaTimeInSec](const Storm::Vector3 &currentForce, const std::size_t currentPIndex)
 	{
-		Storm::SemiImplicitEulerSolver solver{ _massPerParticle, currentForce, _velocity[currentPIndex], deltaTimeInSec };
+		Storm::Vector3 &currentPVelocity = _velocity[currentPIndex];
 
-		_velocity[currentPIndex] += solver._velocityVariation;
+		Storm::SemiImplicitEulerSolver solver{ _masses[currentPIndex], currentForce, currentPVelocity, deltaTimeInSec };
+
+		currentPVelocity += solver._velocityVariation;
 		_positions[currentPIndex] += solver._positionDisplacment;
 
 		if (!_isDirty)

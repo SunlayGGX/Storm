@@ -14,6 +14,8 @@ namespace Storm
 		virtual ~ParticleSystem() = default;
 
 	public:
+		const std::vector<float>& getMasses() const noexcept;
+		std::vector<float>& getMasses() noexcept;
 		const std::vector<float>& getDensities() const noexcept;
 		std::vector<float>& getDensities() noexcept;
 		const std::vector<Storm::Vector3>& getPositions() const noexcept;
@@ -22,11 +24,16 @@ namespace Storm
 		std::vector<Storm::Vector3>& getVelocity() noexcept;
 		const std::vector<Storm::Vector3>& getForces() const noexcept;
 		std::vector<Storm::Vector3>& getForces() noexcept;
-		const std::vector<float>& getPressures() const noexcept;
-		std::vector<float>& getPressures() noexcept;
 
 		const std::vector<std::vector<Storm::NeighborParticleInfo>> &getNeighborhoodArrays() const noexcept;
 		std::vector<std::vector<Storm::NeighborParticleInfo>> &getNeighborhoodArrays() noexcept;
+
+		virtual const std::vector<float>& getPressures() const = 0;
+		virtual std::vector<float>& getPressures() = 0;
+		virtual const std::vector<float>& getVolumes() const = 0;
+		virtual std::vector<float>& getVolumes() = 0;
+		virtual float getParticleVolume() const = 0;
+		virtual float getRestDensity() const = 0;
 
 		// "Predictive" SPH
 		virtual const std::vector<float>& getPredictedDensities() const = 0;
@@ -35,9 +42,6 @@ namespace Storm
 		virtual std::vector<Storm::Vector3>& getPredictedPositions() = 0;
 		virtual const std::vector<Storm::Vector3>& getPredictedPressureForces() const = 0;
 		virtual std::vector<Storm::Vector3>& getPredictedPressureForces() = 0;
-
-		float getMassPerParticle() const noexcept;
-		float getRestDensity() const noexcept;
 
 		unsigned int getId() const noexcept;
 
@@ -70,16 +74,15 @@ namespace Storm
 		static bool isElligibleNeighborParticle(const float kernelLengthSquared, const float normSquared);
 
 	protected:
+		std::vector<float> _masses;
 		std::vector<float> _densities;
-		std::vector<float> _pressures;
+
 		std::vector<Storm::Vector3> _positions;
 		std::vector<Storm::Vector3> _velocity;
 		std::vector<Storm::Vector3> _force;
 
 		std::vector<ParticleNeighborhoodArray> _neighborhood;
 
-		float _massPerParticle;
-		float _restDensity;
 		unsigned int _particleSystemIndex;
 		std::atomic<bool> _isDirty;
 

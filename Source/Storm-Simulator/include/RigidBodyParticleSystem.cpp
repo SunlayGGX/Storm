@@ -3,12 +3,14 @@
 #include "SingletonHolder.h"
 #include "IPhysicsManager.h"
 #include "IConfigManager.h"
+#include "SimulatorManager.h"
 
 #include "GeneralSimulationData.h"
 #include "RigidBodySceneData.h"
 #include "CollisionType.h"
 
 #include "RunnerHelper.h"
+#include "Kernel.h"
 
 
 
@@ -28,25 +30,53 @@ Storm::RigidBodyParticleSystem::RigidBodyParticleSystem(unsigned int particleSys
 	_cachedTrackedRbRotationQuat{ Storm::Quaternion::Identity() }
 {
 	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
-
-	const Storm::GeneralSimulationData &generalSimulData = configMgr.getGeneralSimulationData();
-	const float k_particleRadius = generalSimulData._particleRadius;
-
-	_restDensity = _massPerParticle / (k_particleRadius * k_particleRadius * k_particleRadius);
-
 	const Storm::RigidBodySceneData &currentRbData = configMgr.getRigidBodyData(particleSystemIndex);
 
 	_isWall = currentRbData._isWall;
 	_isStatic = _isWall || currentRbData._static;
+
+	const std::size_t particleCount = _positions.size();
+
+	_volumes.resize(particleCount);
 }
 
 void Storm::RigidBodyParticleSystem::initializeIteration()
 {
 	Storm::ParticleSystem::initializeIteration();
 
-	Storm::runParallel(_force, [](Storm::Vector3 &force)
+#if defined(_DEBUG) || defined(DEBUG)
+	const std::size_t particleCount = _positions.size();
+	assert(
+		_volumes.size() == particleCount &&
+		"Particle count mismatch detected! An array of particle property has not the same particle count than the other!"
+	);
+#endif
+
+	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
+	const Storm::GeneralSimulationData &generalSimulDataConfig = configMgr.getGeneralSimulationData();
+
+	const float k_kernelLength = Storm::SimulatorManager::instance().getKernelLength();
+
+	const float currentKernelZero = Storm::retrieveKernelZeroValue(generalSimulDataConfig._kernelMode);
+	const Storm::RawKernelMethodDelegate rawKernelMeth = Storm::retrieveRawKernelMethod(generalSimulDataConfig._kernelMode);
+
+	Storm::runParallel(_force, [this, currentKernelZero, rawKernelMeth, k_kernelLength](Storm::Vector3 &force, const std::size_t currentPIndex)
 	{
+		// Initialize forces to 0
 		force.setZero();
+
+		// Compute the current boundary particle volume.		
+		const std::vector<Storm::NeighborParticleInfo> &currentPNeighborhood = _neighborhood[currentPIndex];
+		float &currentPVolume = _volumes[currentPIndex];
+
+		float delta = currentKernelZero;
+		for (const Storm::NeighborParticleInfo &boundaryNeighbor : currentPNeighborhood)
+		{
+			delta += rawKernelMeth(k_kernelLength, boundaryNeighbor._vectToParticleNorm);
+		}
+
+		// ???
+		currentPVolume = 1.f / delta;
 	});
 }
 
@@ -80,6 +110,36 @@ std::vector<Storm::Vector3>& Storm::RigidBodyParticleSystem::getPredictedPositio
 	Storm::throwException<std::logic_error>(__FUNCTION__ " shouldn't be called for rigid bodies particle system (only implemented for fluids)");
 }
 
+const std::vector<float>& Storm::RigidBodyParticleSystem::getPressures() const
+{
+	Storm::throwException<std::logic_error>(__FUNCTION__ " shouldn't be called for rigid bodies particle system (only implemented for fluids)");
+}
+
+const std::vector<float>& Storm::RigidBodyParticleSystem::getVolumes() const noexcept
+{
+	return _volumes;
+}
+
+std::vector<float>& Storm::RigidBodyParticleSystem::getVolumes() noexcept
+{
+	return _volumes;
+}
+
+float Storm::RigidBodyParticleSystem::getParticleVolume() const
+{
+	Storm::throwException<std::logic_error>(__FUNCTION__ " shouldn't be called for rigid bodies particle system (only implemented for fluids)");
+}
+
+float Storm::RigidBodyParticleSystem::getRestDensity() const
+{
+	Storm::throwException<std::logic_error>(__FUNCTION__ " shouldn't be called for rigid bodies particle system (only implemented for fluids)");
+}
+
+std::vector<float>& Storm::RigidBodyParticleSystem::getPressures()
+{
+	Storm::throwException<std::logic_error>(__FUNCTION__ " shouldn't be called for rigid bodies particle system (only implemented for fluids)");
+}
+
 bool Storm::RigidBodyParticleSystem::isFluids() const noexcept
 {
 	return false;
@@ -97,7 +157,7 @@ bool Storm::RigidBodyParticleSystem::isWall() const noexcept
 
 void Storm::RigidBodyParticleSystem::buildNeighborhoodOnParticleSystem(const Storm::ParticleSystem &otherParticleSystem, const float kernelLengthSquared)
 {
-	if (otherParticleSystem.isFluids())
+	if (!otherParticleSystem.isFluids())
 	{
 		Storm::runParallel(_positions, [this, kernelLengthSquared, &otherParticleSystem](const Storm::Vector3 &currentPPosition, const std::size_t currentPIndex)
 		{
@@ -113,7 +173,7 @@ void Storm::RigidBodyParticleSystem::buildNeighborhoodOnParticleSystem(const Sto
 				const float vectToParticleSquaredNorm = positionDifference.squaredNorm();
 				if (Storm::ParticleSystem::isElligibleNeighborParticle(kernelLengthSquared, vectToParticleSquaredNorm))
 				{
-					currentNeighborhoodToFill.emplace_back(const_cast<Storm::ParticleSystem*>(&otherParticleSystem), particleIndex, positionDifference, vectToParticleSquaredNorm, true);
+					currentNeighborhoodToFill.emplace_back(const_cast<Storm::ParticleSystem*>(&otherParticleSystem), particleIndex, positionDifference, vectToParticleSquaredNorm, false);
 				}
 			}
 		});
