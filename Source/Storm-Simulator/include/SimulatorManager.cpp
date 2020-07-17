@@ -19,41 +19,18 @@
 #include "KernelMode.h"
 
 #include "SemiImplicitEulerSolver.h"
-#include "CubicSplineKernel.h"
+#include "Kernel.h"
 
 #include "RunnerHelper.h"
 
 
 namespace
 {
-	using RawKernelMethodDelegate = float(*)(const float k_kernelLength, const float norm);
-	using GradKernelMethodDelegate = Storm::Vector3(*)(const float, const Storm::Vector3 &, const float);
-
 	template<class ParticleSystemType, class MapType, class ... Args>
 	void addParticleSystemToMap(MapType &map, unsigned int particleSystemId, Args &&... args)
 	{
 		std::unique_ptr<Storm::ParticleSystem> particleSystemPtr = std::make_unique<ParticleSystemType>(particleSystemId, std::forward<Args>(args)...);
 		map[particleSystemId] = std::move(particleSystemPtr);
-	}
-
-	RawKernelMethodDelegate retrieveRawKernelMethod(const Storm::KernelMode kernelMode)
-	{
-		switch (kernelMode)
-		{
-		case Storm::KernelMode::CubicSpline: return Storm::CubicSplineKernel::raw;
-		}
-
-		Storm::throwException<std::exception>("Unknown kernel mode!");
-	}
-
-	GradKernelMethodDelegate retrieveGradKernelMethod(const Storm::KernelMode kernelMode)
-	{
-		switch (kernelMode)
-		{
-		case Storm::KernelMode::CubicSpline: return Storm::CubicSplineKernel::gradient;
-		}
-
-		Storm::throwException<std::exception>("Unknown kernel mode!");
 	}
 }
 
@@ -65,9 +42,7 @@ void Storm::SimulatorManager::initialize_Implementation()
 {
 	/* Initialize kernels */
 
-	const float k_kernelLength = this->getKernelLength();
-
-	Storm::CubicSplineKernel::initialize(k_kernelLength);
+	Storm::initializeKernels(this->getKernelLength());
 }
 
 void Storm::SimulatorManager::cleanUp_Implementation()
@@ -176,8 +151,8 @@ void Storm::SimulatorManager::executeSESPH(float physicsElapsedDeltaTime)
 	const Storm::FluidData &fluidSimulationDataConfig = configMgr.getFluidData();
 
 	const float k_kernelLength = this->getKernelLength();
-	const RawKernelMethodDelegate rawKernelMethod = retrieveRawKernelMethod(generalSimulationDataConfig._kernelMode);
-	const GradKernelMethodDelegate gradientKernelMethod = retrieveGradKernelMethod(generalSimulationDataConfig._kernelMode);
+	const RawKernelMethodDelegate rawKernelMethod = Storm::retrieveRawKernelMethod(generalSimulationDataConfig._kernelMode);
+	const GradKernelMethodDelegate gradientKernelMethod = Storm::retrieveGradKernelMethod(generalSimulationDataConfig._kernelMode);
 
 	for (auto &particleSystemPair : _particleSystem)
 	{
@@ -290,7 +265,7 @@ void Storm::SimulatorManager::executePCISPH(float physicsElapsedDeltaTime)
 	const Storm::FluidData &fluidSimulationDataConfig = configMgr.getFluidData();
 
 	const float k_kernelLength = this->getKernelLength();
-	const RawKernelMethodDelegate rawKernelMethod = retrieveRawKernelMethod(generalSimulationDataConfig._kernelMode);
+	const RawKernelMethodDelegate rawKernelMethod = Storm::retrieveRawKernelMethod(generalSimulationDataConfig._kernelMode);
 
 	for (auto &particleSystemPair : _particleSystem)
 	{
