@@ -150,6 +150,10 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 		}
 	}
 
+	if (graphicData._valueForMinColor > graphicData._valueForMaxColor)
+	{
+		Storm::throwException<std::exception>("Min color value (" + std::to_string(graphicData._valueForMinColor) + ") is greater than Max color value (" + std::to_string(graphicData._valueForMaxColor) + "). It isn't allowed!");
+	}
 
 	/* Fluids */
 	Storm::FluidData &fluidData = *_sceneData->_fluidData;
