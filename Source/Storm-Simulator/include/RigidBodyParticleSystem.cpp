@@ -14,19 +14,8 @@
 
 
 
-namespace
-{
-	float computeDefaultRigidBodyParticleMass(unsigned int particleSystemIndex, const std::size_t particleCount)
-	{
-		const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
-
-		const Storm::RigidBodySceneData &currentRbData = configMgr.getRigidBodyData(particleSystemIndex);
-		return currentRbData._mass / static_cast<float>(particleCount);
-	}
-}
-
 Storm::RigidBodyParticleSystem::RigidBodyParticleSystem(unsigned int particleSystemIndex, std::vector<Storm::Vector3> &&worldPositions) :
-	Storm::ParticleSystem{ particleSystemIndex, std::move(worldPositions), computeDefaultRigidBodyParticleMass(particleSystemIndex, worldPositions.size()) },
+	Storm::ParticleSystem{ particleSystemIndex, std::move(worldPositions) },
 	_cachedTrackedRbRotationQuat{ Storm::Quaternion::Identity() }
 {
 	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
@@ -65,7 +54,7 @@ void Storm::RigidBodyParticleSystem::initializeIteration()
 		// Initialize forces to 0
 		force.setZero();
 
-		// Compute the current boundary particle volume.		
+		// Compute the current boundary particle volume.
 		const std::vector<Storm::NeighborParticleInfo> &currentPNeighborhood = _neighborhood[currentPIndex];
 		float &currentPVolume = _volumes[currentPIndex];
 
@@ -80,41 +69,6 @@ void Storm::RigidBodyParticleSystem::initializeIteration()
 	});
 }
 
-const std::vector<float>& Storm::RigidBodyParticleSystem::getPredictedDensities() const
-{
-	Storm::throwException<std::logic_error>(__FUNCTION__ " shouldn't be called for rigid bodies particle system (only implemented for fluids)");
-}
-
-std::vector<float>& Storm::RigidBodyParticleSystem::getPredictedDensities()
-{
-	Storm::throwException<std::logic_error>(__FUNCTION__ " shouldn't be called for rigid bodies particle system (only implemented for fluids)");
-}
-
-const std::vector<Storm::Vector3>& Storm::RigidBodyParticleSystem::getPredictedPressureForces() const
-{
-	Storm::throwException<std::logic_error>(__FUNCTION__ " shouldn't be called for rigid bodies particle system (only implemented for fluids)");
-}
-
-std::vector<Storm::Vector3>& Storm::RigidBodyParticleSystem::getPredictedPressureForces()
-{
-	Storm::throwException<std::logic_error>(__FUNCTION__ " shouldn't be called for rigid bodies particle system (only implemented for fluids)");
-}
-
-const std::vector<Storm::Vector3>& Storm::RigidBodyParticleSystem::getPredictedPositions() const
-{
-	Storm::throwException<std::logic_error>(__FUNCTION__ " shouldn't be called for rigid bodies particle system (only implemented for fluids)");
-}
-
-std::vector<Storm::Vector3>& Storm::RigidBodyParticleSystem::getPredictedPositions()
-{
-	Storm::throwException<std::logic_error>(__FUNCTION__ " shouldn't be called for rigid bodies particle system (only implemented for fluids)");
-}
-
-const std::vector<float>& Storm::RigidBodyParticleSystem::getPressures() const
-{
-	Storm::throwException<std::logic_error>(__FUNCTION__ " shouldn't be called for rigid bodies particle system (only implemented for fluids)");
-}
-
 const std::vector<float>& Storm::RigidBodyParticleSystem::getVolumes() const noexcept
 {
 	return _volumes;
@@ -123,21 +77,6 @@ const std::vector<float>& Storm::RigidBodyParticleSystem::getVolumes() const noe
 std::vector<float>& Storm::RigidBodyParticleSystem::getVolumes() noexcept
 {
 	return _volumes;
-}
-
-float Storm::RigidBodyParticleSystem::getParticleVolume() const
-{
-	Storm::throwException<std::logic_error>(__FUNCTION__ " shouldn't be called for rigid bodies particle system (only implemented for fluids)");
-}
-
-float Storm::RigidBodyParticleSystem::getRestDensity() const
-{
-	Storm::throwException<std::logic_error>(__FUNCTION__ " shouldn't be called for rigid bodies particle system (only implemented for fluids)");
-}
-
-std::vector<float>& Storm::RigidBodyParticleSystem::getPressures()
-{
-	Storm::throwException<std::logic_error>(__FUNCTION__ " shouldn't be called for rigid bodies particle system (only implemented for fluids)");
 }
 
 bool Storm::RigidBodyParticleSystem::isFluids() const noexcept
@@ -222,9 +161,4 @@ void Storm::RigidBodyParticleSystem::postApplySPH()
 {
 	Storm::IPhysicsManager &physicMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IPhysicsManager>();
 	physicMgr.applyLocalForces(_particleSystemIndex, _positions, _force);
-}
-
-void Storm::RigidBodyParticleSystem::flushPressureToTotalForce()
-{
-	// Nothing to do, rigid body particle system doesn't have predicted pressure.
 }

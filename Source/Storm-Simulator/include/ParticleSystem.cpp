@@ -9,7 +9,7 @@
 
 
 
-Storm::ParticleSystem::ParticleSystem(unsigned int particleSystemIndex, std::vector<Storm::Vector3> &&worldPositions, float particleMass) :
+Storm::ParticleSystem::ParticleSystem(unsigned int particleSystemIndex, std::vector<Storm::Vector3> &&worldPositions) :
 	_positions{ std::move(worldPositions) },
 	_particleSystemIndex{ particleSystemIndex },
 	_isDirty{ true }
@@ -17,8 +17,6 @@ Storm::ParticleSystem::ParticleSystem(unsigned int particleSystemIndex, std::vec
 	const std::size_t particleCount = _positions.size();
 	const float particleVolume = computeParticleDefaultVolume();
 
-	_masses.resize(particleCount, particleMass);
-	_densities.resize(particleCount, particleMass / particleVolume);
 	_velocity.resize(particleCount, Storm::Vector3::Zero());
 	_force.resize(particleCount);
 	_neighborhood.resize(particleCount);
@@ -27,26 +25,6 @@ Storm::ParticleSystem::ParticleSystem(unsigned int particleSystemIndex, std::vec
 	{
 		neighborHoodArray.reserve(16);
 	}
-}
-
-const std::vector<float>& Storm::ParticleSystem::getMasses() const noexcept
-{
-	return _masses;
-}
-
-std::vector<float>& Storm::ParticleSystem::getMasses() noexcept
-{
-	return _masses;
-}
-
-std::vector<float>& Storm::ParticleSystem::getDensities() noexcept
-{
-	return _densities;
-}
-
-const std::vector<float>& Storm::ParticleSystem::getDensities() const noexcept
-{
-	return _densities;
 }
 
 std::vector<Storm::Vector3>& Storm::ParticleSystem::getPositions() noexcept
@@ -120,10 +98,9 @@ void Storm::ParticleSystem::initializeIteration()
 	_isDirty = false;
 
 #if defined(DEBUG) || defined(_DEBUG)
-	const std::size_t particleCount = _densities.size();
+	const std::size_t particleCount = _positions.size();
 
 	assert(
-		particleCount == _masses.size() &&
 		particleCount == _positions.size() &&
 		particleCount == _velocity.size() &&
 		particleCount == _force.size() &&

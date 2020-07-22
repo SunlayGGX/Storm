@@ -19,20 +19,8 @@ namespace Storm
 		bool isWall() const noexcept final override;
 
 	public:
-		const std::vector<float>& getPredictedDensities() const final override;
-		std::vector<float>& getPredictedDensities() final override;
-		const std::vector<Storm::Vector3>& getPredictedPositions() const final override;
-		std::vector<Storm::Vector3>& getPredictedPositions() final override;
-		const std::vector<Storm::Vector3>& getPredictedPressureForces() const final override;
-		std::vector<Storm::Vector3>& getPredictedPressureForces() final override;
-		std::vector<float>& getPressures() final override;
-		const std::vector<float>& getPressures() const final override;
-
-		const std::vector<float>& getVolumes() const noexcept final override;
-		std::vector<float>& getVolumes() noexcept final override;
-
-		float getParticleVolume() const final override;
-		float getRestDensity() const final override;
+		const std::vector<float>& getVolumes() const noexcept;
+		std::vector<float>& getVolumes() noexcept;
 
 	private:
 		void buildNeighborhoodOnParticleSystem(const Storm::ParticleSystem &otherParticleSystem, const float kernelLengthSquared) final override;
@@ -42,9 +30,6 @@ namespace Storm
 
 	public:
 		void postApplySPH() final override;
-
-	public:
-		void flushPressureToTotalForce() final override;
 
 	private:
 		std::vector<float> _volumes;
