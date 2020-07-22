@@ -20,3 +20,6 @@
 #define STORM_STATIC_LIBRARY_NAME(name) STORM_PLUGIN_NAME(name) ".lib"
 #define STORM_DYNAMIC_LIBRARY_NAME(name) STORM_PLUGIN_NAME(name) ".dll"
 #define STORM_EXECUTABLE_NAME(name) STORM_PLUGIN_NAME(name) ".exe"
+
+
+#define STORM_NOT_IMPLEMENTED Storm::throwException<std::logic_error>(__FUNCTION__ " is not implemented!")
