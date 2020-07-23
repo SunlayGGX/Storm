@@ -29,4 +29,6 @@ namespace Storm
 		float _vectToParticleNorm; // the version non squared of _vectToParticleSquaredNorm
 		bool _isFluidParticle;
 	};
+
+	using ParticleNeighborhoodArray = std::vector<Storm::NeighborParticleInfo>;
 }

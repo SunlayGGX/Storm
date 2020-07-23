@@ -21,6 +21,8 @@ Storm::RigidBodyParticleSystem::RigidBodyParticleSystem(unsigned int particleSys
 	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
 	const Storm::RigidBodySceneData &currentRbData = configMgr.getRigidBodyData(particleSystemIndex);
 
+	_viscosity = currentRbData._viscosity;
+
 	_isWall = currentRbData._isWall;
 	_isStatic = _isWall || currentRbData._static;
 
@@ -29,9 +31,9 @@ Storm::RigidBodyParticleSystem::RigidBodyParticleSystem(unsigned int particleSys
 	_volumes.resize(particleCount);
 }
 
-void Storm::RigidBodyParticleSystem::initializeIteration()
+void Storm::RigidBodyParticleSystem::initializeIteration(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems)
 {
-	Storm::ParticleSystem::initializeIteration();
+	Storm::ParticleSystem::initializeIteration(allParticleSystems);
 
 #if defined(_DEBUG) || defined(DEBUG)
 	const std::size_t particleCount = _positions.size();
@@ -72,6 +74,11 @@ void Storm::RigidBodyParticleSystem::initializeIteration()
 const std::vector<float>& Storm::RigidBodyParticleSystem::getVolumes() const noexcept
 {
 	return _volumes;
+}
+
+float Storm::RigidBodyParticleSystem::getViscosity() const noexcept
+{
+	return _viscosity;
 }
 
 std::vector<float>& Storm::RigidBodyParticleSystem::getVolumes() noexcept
@@ -159,6 +166,9 @@ void Storm::RigidBodyParticleSystem::updatePosition(float deltaTimeInSec)
 
 void Storm::RigidBodyParticleSystem::postApplySPH()
 {
-	Storm::IPhysicsManager &physicMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IPhysicsManager>();
-	physicMgr.applyLocalForces(_particleSystemIndex, _positions, _force);
+	if (!_isStatic)
+	{
+		Storm::IPhysicsManager &physicMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IPhysicsManager>();
+		physicMgr.applyLocalForces(_particleSystemIndex, _positions, _force);
+	}
 }

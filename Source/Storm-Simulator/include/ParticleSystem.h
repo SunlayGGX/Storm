@@ -7,9 +7,6 @@ namespace Storm
 	class ParticleSystem
 	{
 	public:
-		using ParticleNeighborhoodArray = std::vector<Storm::NeighborParticleInfo>;
-
-	public:
 		ParticleSystem(unsigned int particleSystemIndex, std::vector<Storm::Vector3> &&worldPositions);
 		virtual ~ParticleSystem() = default;
 
@@ -21,8 +18,8 @@ namespace Storm
 		const std::vector<Storm::Vector3>& getForces() const noexcept;
 		std::vector<Storm::Vector3>& getForces() noexcept;
 
-		const std::vector<std::vector<Storm::NeighborParticleInfo>> &getNeighborhoodArrays() const noexcept;
-		std::vector<std::vector<Storm::NeighborParticleInfo>> &getNeighborhoodArrays() noexcept;
+		const std::vector<Storm::ParticleNeighborhoodArray>& getNeighborhoodArrays() const noexcept;
+		std::vector<Storm::ParticleNeighborhoodArray>& getNeighborhoodArrays() noexcept;
 
 		unsigned int getId() const noexcept;
 
@@ -32,6 +29,7 @@ namespace Storm
 
 		bool isDirty() const noexcept;
 
+	private:
 		void buildNeighborhood(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems);
 
 	protected:
@@ -41,7 +39,7 @@ namespace Storm
 		virtual void postApplySPH();
 
 	public:
-		virtual void initializeIteration();
+		virtual void initializeIteration(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems);
 		virtual void updatePosition(float deltaTimeInSec) = 0;
 
 	public:
@@ -55,7 +53,7 @@ namespace Storm
 		std::vector<Storm::Vector3> _velocity;
 		std::vector<Storm::Vector3> _force;
 
-		std::vector<ParticleNeighborhoodArray> _neighborhood;
+		std::vector<Storm::ParticleNeighborhoodArray> _neighborhood;
 
 		unsigned int _particleSystemIndex;
 		std::atomic<bool> _isDirty;

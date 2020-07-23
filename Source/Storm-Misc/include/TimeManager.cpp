@@ -52,6 +52,8 @@ void Storm::TimeManager::initialize_Implementation()
 		_physicsTimeInSeconds = requestedPhysicsTimeInSeconds;
 	}
 
+	_isPaused = generalSimulationData._startPaused;
+
 	const float requestedFps = generalSimulationData._expectedFps;
 	if (requestedFps > 0.f)
 	{

@@ -57,12 +57,12 @@ std::vector<Storm::Vector3>& Storm::ParticleSystem::getForces() noexcept
 	return _force;
 }
 
-const std::vector<std::vector<Storm::NeighborParticleInfo>>& Storm::ParticleSystem::getNeighborhoodArrays() const noexcept
+const std::vector<Storm::ParticleNeighborhoodArray>& Storm::ParticleSystem::getNeighborhoodArrays() const noexcept
 {
 	return _neighborhood;
 }
 
-std::vector<std::vector<Storm::NeighborParticleInfo>>& Storm::ParticleSystem::getNeighborhoodArrays() noexcept
+std::vector<Storm::ParticleNeighborhoodArray>& Storm::ParticleSystem::getNeighborhoodArrays() noexcept
 {
 	return _neighborhood;
 }
@@ -93,7 +93,7 @@ void Storm::ParticleSystem::postApplySPH()
 
 }
 
-void Storm::ParticleSystem::initializeIteration()
+void Storm::ParticleSystem::initializeIteration(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems)
 {
 	_isDirty = false;
 
@@ -109,6 +109,8 @@ void Storm::ParticleSystem::initializeIteration()
 	);
 	
 #endif
+
+	this->buildNeighborhood(allParticleSystems);
 }
 
 float Storm::ParticleSystem::computeParticleDefaultVolume()

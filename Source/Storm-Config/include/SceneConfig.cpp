@@ -183,7 +183,8 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 			!Storm::XmlReader::handleXml(fluidXmlElement, "id", fluidData._fluidId) &&
 			!Storm::XmlReader::handleXml(fluidXmlElement, "viscosity", fluidData._dynamicViscosity) &&
 			!Storm::XmlReader::handleXml(fluidXmlElement, "soundSpeed", fluidData._soundSpeed) &&
-			!Storm::XmlReader::handleXml(fluidXmlElement, "kPressureCoeff", fluidData._kPressureCoeff) &&
+			!Storm::XmlReader::handleXml(fluidXmlElement, "pressureK1", fluidData._kPressureStiffnessCoeff) &&
+			!Storm::XmlReader::handleXml(fluidXmlElement, "pressureK2", fluidData._kPressureExponentCoeff) &&
 			!Storm::XmlReader::handleXml(fluidXmlElement, "density", fluidData._density)
 			)
 		{
@@ -199,9 +200,13 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 	{
 		Storm::throwException<std::exception>("Fluid " + std::to_string(fluidData._fluidId) + " density of " + std::to_string(fluidData._density) + "kg.m^-3 is invalid!");
 	}
-	else if (fluidData._kPressureCoeff < 0.f)
+	else if (fluidData._kPressureStiffnessCoeff < 0.f)
 	{
-		Storm::throwException<std::exception>("Fluid " + std::to_string(fluidData._fluidId) + " pressure coeff of " + std::to_string(fluidData._kPressureCoeff) + " is invalid!");
+		Storm::throwException<std::exception>("Fluid " + std::to_string(fluidData._fluidId) + " pressure stiffness of " + std::to_string(fluidData._kPressureStiffnessCoeff) + " is invalid!");
+	}
+	else if (fluidData._kPressureExponentCoeff < 0.f)
+	{
+		Storm::throwException<std::exception>("Fluid " + std::to_string(fluidData._fluidId) + " pressure exponent of " + std::to_string(fluidData._kPressureExponentCoeff) + " is invalid!");
 	}
 	else if (fluidData._dynamicViscosity <= 0.f)
 	{
@@ -238,6 +243,7 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 						!Storm::XmlReader::handleXml(rigidBodyDataXml, "isStatic", rbData._static) &&
 						!Storm::XmlReader::handleXml(rigidBodyDataXml, "wall", rbData._isWall) &&
 						!Storm::XmlReader::handleXml(rigidBodyDataXml, "mass", rbData._mass) &&
+						!Storm::XmlReader::handleXml(rigidBodyDataXml, "viscosity", rbData._viscosity) &&
 						!Storm::XmlReader::handleXml(rigidBodyDataXml, "collisionType", rbData._collisionShape, parseCollisionType) &&
 						!Storm::XmlReader::handleXml(rigidBodyDataXml, "translation", rbData._translation, parseVector3Element) &&
 						!Storm::XmlReader::handleXml(rigidBodyDataXml, "rotation", rbData._rotation, parseVector3Element) &&
@@ -269,7 +275,11 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 				}
 				else if (rbData._mass <= 0.f)
 				{
-					Storm::throwException<std::exception>(std::to_string(rbData._mass) + "kg is invalid (rigid body " + std::to_string(rbData._rigidBodyID) + ")!");
+					Storm::throwException<std::exception>("mass " + std::to_string(rbData._mass) + "kg is invalid (rigid body " + std::to_string(rbData._rigidBodyID) + ")!");
+				}
+				else if (rbData._viscosity < 0.f)
+				{
+					Storm::throwException<std::exception>("viscosity " + std::to_string(rbData._viscosity) + "Pa.s is invalid (rigid body " + std::to_string(rbData._rigidBodyID) + ")!");
 				}
 			}
 			else

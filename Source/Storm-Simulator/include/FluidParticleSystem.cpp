@@ -16,20 +16,33 @@
 Storm::FluidParticleSystem::FluidParticleSystem(unsigned int particleSystemIndex, std::vector<Storm::Vector3> &&worldPositions) :
 	Storm::ParticleSystem{ particleSystemIndex, std::move(worldPositions) }
 {
+	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
+	const Storm::GeneralSimulationData &generalSimulDataConfig = configMgr.getGeneralSimulationData();
+	const Storm::FluidData &fluidDataConfig = configMgr.getFluidData();
+
+	_restDensity = fluidDataConfig._density;
+
 	const std::size_t particleCount = _positions.size();
 
-	_masses.resize(particleCount);
+	const float particleDiameter = generalSimulDataConfig._particleRadius * 2.f;
+	_particleVolume = particleDiameter * particleDiameter * particleDiameter;
+
+	_masses.resize(particleCount, _particleVolume * _restDensity);
+	_densities.resize(particleCount);
+	_pressure.resize(particleCount);
 }
 
-void Storm::FluidParticleSystem::initializeIteration()
+void Storm::FluidParticleSystem::initializeIteration(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems)
 {
-	Storm::ParticleSystem::initializeIteration();
+	Storm::ParticleSystem::initializeIteration(allParticleSystems);
 
 #if defined(DEBUG) || defined(_DEBUG)
 	const std::size_t particleCount = _positions.size();
 
 	assert(
 		_masses.size() == particleCount &&
+		_densities.size() == particleCount &&
+		_pressure.size() == particleCount &&
 		"Particle count mismatch detected! An array of particle property has not the same particle count than the other!"
 	);
 #endif
@@ -64,6 +77,41 @@ bool Storm::FluidParticleSystem::isWall() const noexcept
 float Storm::FluidParticleSystem::getRestDensity() const noexcept
 {
 	return _restDensity;
+}
+
+float Storm::FluidParticleSystem::getParticleVolume() const noexcept
+{
+	return _particleVolume;
+}
+
+std::vector<float>& Storm::FluidParticleSystem::getMasses() noexcept
+{
+	return _masses;
+}
+
+const std::vector<float>& Storm::FluidParticleSystem::getMasses() const noexcept
+{
+	return _masses;
+}
+
+std::vector<float>& Storm::FluidParticleSystem::getDensities() noexcept
+{
+	return _densities;
+}
+
+const std::vector<float>& Storm::FluidParticleSystem::getDensities() const noexcept
+{
+	return _densities;
+}
+
+std::vector<float>& Storm::FluidParticleSystem::getPressures() noexcept
+{
+	return _pressure;
+}
+
+const std::vector<float>& Storm::FluidParticleSystem::getPressures() const noexcept
+{
+	return _pressure;
 }
 
 void Storm::FluidParticleSystem::buildNeighborhoodOnParticleSystem(const Storm::ParticleSystem &otherParticleSystem, const float kernelLengthSquared)

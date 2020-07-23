@@ -48,6 +48,9 @@ namespace Storm
 		Storm::ParticleSystem& getParticleSystem(unsigned int id);
 		const Storm::ParticleSystem& getParticleSystem(unsigned int id) const;
 
+	public:
+		void printFluidParticleData() const;
+
 	private:
 		std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> _particleSystem;
 	};
