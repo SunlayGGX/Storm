@@ -21,7 +21,11 @@
 #include "SemiImplicitEulerSolver.h"
 #include "Kernel.h"
 
+#include "SpecialKey.h"
+
 #include "RunnerHelper.h"
+
+#include <fstream>
 
 
 namespace
@@ -31,6 +35,31 @@ namespace
 	{
 		std::unique_ptr<Storm::ParticleSystem> particleSystemPtr = std::make_unique<ParticleSystemType>(particleSystemId, std::forward<Args>(args)...);
 		map[particleSystemId] = std::move(particleSystemPtr);
+	}
+
+	class Vector3Parser
+	{
+	public:
+		template<class PolicyType>
+		static std::string parse(const Storm::Vector3 &vect)
+		{
+			return "{ " + std::to_string(vect.x()) + ',' + std::to_string(vect.y()) + ',' + std::to_string(vect.z()) + " }";
+		}
+	};
+
+	template<bool separator, class StreamType, class ContainerType>
+	void printToStream(StreamType &stream, const ContainerType &dataContainer, const std::string_view &dataName)
+	{
+		if constexpr (separator)
+		{
+			stream <<
+				"\n\n\n"
+				"********************************************\n"
+				"********************************************\n"
+				"\n\n";
+		}
+
+		stream << dataName << " :\n\n" << Storm::toStdString<Vector3Parser>(dataContainer) << "\n\n";
 	}
 }
 
@@ -43,6 +72,9 @@ void Storm::SimulatorManager::initialize_Implementation()
 	/* Initialize kernels */
 
 	Storm::initializeKernels(this->getKernelLength());
+
+	Storm::IInputManager &inputMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IInputManager>();
+	inputMgr.bindKey(Storm::SpecialKey::KC_F1, [this]() { this->printFluidParticleData(); });
 }
 
 void Storm::SimulatorManager::cleanUp_Implementation()
@@ -263,6 +295,29 @@ Storm::ParticleSystem& Storm::SimulatorManager::getParticleSystem(unsigned int i
 	else
 	{
 		Storm::throwException<std::exception>("Particle system with id " + std::to_string(id) + " is unknown!");
+	}
+}
+
+void Storm::SimulatorManager::printFluidParticleData() const
+{
+	static int s_id = 0;
+	std::filesystem::path filePath = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().getTemporaryPath();
+	filePath /= "Debug";
+	filePath /= "fluidData_" + std::to_string(s_id++) + ".txt";
+
+	std::filesystem::create_directories(filePath.parent_path());
+
+	std::ofstream file{ filePath.string() };
+
+	for (const auto &particleSystemPair : _particleSystem)
+	{
+		const Storm::ParticleSystem &currentPSystem = *particleSystemPair.second;
+		if (currentPSystem.isFluids())
+		{
+			printToStream<false>(file, currentPSystem.getPositions(), "Position");
+			printToStream<true>(file, currentPSystem.getVelocity(), "Velocity");
+			printToStream<true>(file, currentPSystem.getForces(), "Force");
+		}
 	}
 }
 
