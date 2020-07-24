@@ -19,7 +19,7 @@ void Storm::CubicSplineKernel::initialize(const float kernelLength)
 	const float h3 = kernelLength * kernelLength * kernelLength;
 
 	s_rawPrecoeff = k_constexprRawPrecoeffCoeff / h3;
-	s_gradientPrecoeff = k_constexprGradientPrecoeffCoeff / h3;
+	s_gradientPrecoeff = k_constexprGradientPrecoeffCoeff / (h3 * kernelLength);
 
 	s_kernelZero = Storm::CubicSplineKernel::raw(kernelLength, 0.f);
 }
@@ -29,10 +29,11 @@ float Storm::CubicSplineKernel::raw(const float k_kernelLength, const float norm
 	const float q = norm / k_kernelLength;
 	if (q < 0.5f)
 	{
-		return s_rawPrecoeff * (q * q * (6.f * q - 1.f) + 1.f);
+		return s_rawPrecoeff * (6.f * q * q * (q - 1.f) + 1.f);
 	}
 
-	return s_rawPrecoeff * 2.f * (1.f - q);
+	const float oneMinusQ = 1.f - q;
+	return s_rawPrecoeff * 2.f * oneMinusQ * oneMinusQ * oneMinusQ;
 }
 
 Storm::Vector3 Storm::CubicSplineKernel::gradient(const float k_kernelLength, const Storm::Vector3 &vectToNeighbor, const float norm)
@@ -50,7 +51,7 @@ Storm::Vector3 Storm::CubicSplineKernel::gradient(const float k_kernelLength, co
 		factor = -subfactor * subfactor;
 	}
 
-	return vectToNeighbor * (s_gradientPrecoeff * factor / (norm * k_kernelLength));
+	return vectToNeighbor * (s_gradientPrecoeff * factor / norm);
 }
 
 float Storm::CubicSplineKernel::zeroValue()
