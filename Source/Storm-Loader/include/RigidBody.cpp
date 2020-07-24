@@ -325,7 +325,7 @@ void Storm::RigidBody::load(const Storm::RigidBodySceneData &rbSceneData)
 		/* Generate the rb as if no cache data */
 
 		// Poisson Disk sampling
-		particlePos = Storm::PoissonDiskSampler::process(30, currentParticleRadius, verticesPos);
+		particlePos = Storm::PoissonDiskSampler::process_v2(30, currentParticleRadius, verticesPos);
 		
 		/* Cache writing */
 

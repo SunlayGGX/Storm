@@ -3,6 +3,7 @@
 #include "SingletonHolder.h"
 #include "IRandomManager.h"
 
+#include "RunnerHelper.h"
 
 
 namespace
@@ -123,7 +124,47 @@ namespace
 		float _area;
 	};
 
+	const std::size_t computeExpectedSampleCount(const float diskRadius, const float totalArea)
+	{
+		const float minDistSquared = diskRadius * diskRadius;
+		const float personalParticleSpace = static_cast<float>(M_PI) * minDistSquared;
 
+		constexpr float epsilon = 0.0001f;
+		return static_cast<std::size_t>(ceilf(totalArea / personalParticleSpace) + epsilon);
+	}
+
+	std::vector<Storm::Vector3> produceRandomPointsAllOverMesh(Storm::IRandomManager &randMgr, const std::vector<Triangle> &allTriangles, const float maxArea, const std::size_t expectedSampleFinalCount)
+	{
+		enum : std::size_t
+		{
+			k_allParticleCluteringCoefficient = 45
+		};
+
+		std::vector<Storm::Vector3> denseSamplingResult;
+
+		const std::size_t expectedPopulationCount = k_allParticleCluteringCoefficient * expectedSampleFinalCount;
+
+		denseSamplingResult.resize(expectedPopulationCount);
+
+		Storm::runParallel(denseSamplingResult, [&randMgr, &allTriangles, &maxArea, triangleCount = static_cast<int64_t>(allTriangles.size())](Storm::Vector3 &currentPointSample)
+		{
+			std::size_t selectedTriangleIndex;
+			do
+			{
+				selectedTriangleIndex = randMgr.randomizeInteger(static_cast<int64_t>(0), triangleCount);
+
+				const Triangle &triangle = allTriangles[selectedTriangleIndex];
+				if (randMgr.randomizeFloat() < (triangle._area / maxArea))
+				{
+					triangle.producePoint(randMgr, currentPointSample);
+					return;
+				}
+
+			} while (true);
+		});
+
+		return denseSamplingResult;
+	}
 }
 
 std::vector<Storm::Vector3> Storm::PoissonDiskSampler::process(const int kTryConst, const float diskRadius, const std::vector<Storm::Vector3> &vertices)
@@ -146,13 +187,11 @@ std::vector<Storm::Vector3> Storm::PoissonDiskSampler::process(const int kTryCon
 	}
 
 	// Now we would try to sample each triangle with Poisson Disk Sampling algorithm applied on 2D (because a space defined by a plane is 2D ;)).
-	const float minDistSquared = diskRadius * diskRadius;
 	const float maxDist = 2.f * diskRadius;
-	const float personalParticleSpace = static_cast<float>(M_PI) * minDistSquared;
+	const std::size_t sampleCount = computeExpectedSampleCount(diskRadius, totalArea);
 
 	// No optimization for now... I'll think about it later.
-	constexpr float epsilon = 0.0001f;
-	samplingResult.reserve(static_cast<std::size_t>(ceilf(totalArea / personalParticleSpace) + epsilon));
+	samplingResult.reserve(sampleCount);
 	for (const Triangle &currentTriangle : triangles)
 	{
 		std::size_t activeBeginPointIndex = samplingResult.size();
@@ -173,6 +212,52 @@ std::vector<Storm::Vector3> Storm::PoissonDiskSampler::process(const int kTryCon
 			}
 
 		} while (samplingResult.size() != activeBeginPointIndex);
+	}
+
+	return samplingResult;
+}
+
+std::vector<Storm::Vector3> Storm::PoissonDiskSampler::process_v2(const int kTryConst, const float diskRadius, const std::vector<Storm::Vector3> &vertices)
+{
+	std::vector<Storm::Vector3> samplingResult;
+
+	Storm::IRandomManager &randMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IRandomManager>();
+
+	// Compute the triangles from the vertices.
+	// Those triangle will be the base where we would sample on them (they would make 2D planes where we make 2D Poisson sampling)
+	std::vector<Triangle> triangles;
+	triangles.reserve(vertices.size() / 3);
+
+	float totalArea = 0.f;
+	float maxArea = 0.f;
+
+	for (std::size_t iter = 0; iter < vertices.size(); iter += 3)
+	{
+		const auto &addedTriangle = triangles.emplace_back(vertices[iter], vertices[iter + 1], vertices[iter + 2]);
+		totalArea += addedTriangle._area;
+		if (maxArea < addedTriangle._area)
+		{
+			maxArea = addedTriangle._area;
+		}
+	}
+
+	// Produce a set of point sampling the mesh...
+	const float maxDist = 2.f * diskRadius;
+	const std::size_t sampleCount = computeExpectedSampleCount(diskRadius, totalArea);
+	std::vector<Storm::Vector3> allPossibleSamples = produceRandomPointsAllOverMesh(randMgr, triangles, maxArea, sampleCount);
+
+	// Now, remove the points that couldn't be in the final sample count...
+	const float minDistSquared = diskRadius * diskRadius;
+	samplingResult.reserve(sampleCount);
+	for (const Storm::Vector3 &maybeSample : allPossibleSamples)
+	{
+		if (std::find_if(std::execution::par, std::begin(samplingResult), std::end(samplingResult), [&maybeSample, &minDistSquared](const Storm::Vector3 &alreadyRegisteredSample)
+		{
+			return (maybeSample - alreadyRegisteredSample).squaredNorm() < minDistSquared;
+		}) == std::end(samplingResult))
+		{
+			samplingResult.emplace_back(maybeSample);
+		}
 	}
 
 	return samplingResult;
