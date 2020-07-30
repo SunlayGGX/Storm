@@ -230,14 +230,18 @@ void Storm::SimulatorManager::executeSESPH(float physicsElapsedDeltaTime)
 
 				// Volume * density is mass...
 				currentPDensity *= density0;
-				if (currentPDensity < density0)
-				{
-					currentPDensity = density0;
-				}
 
 				// Pressure
 				float &currentPPressure = pressures[currentPIndex];
-				currentPPressure = fluidConfigData._kPressureStiffnessCoeff * (std::powf(currentPDensity / density0, fluidConfigData._kPressureExponentCoeff) - 1.f);
+				if (currentPDensity < density0)
+				{
+					currentPDensity = density0;
+					currentPPressure = 0.f;
+				}
+				else
+				{
+					currentPPressure = fluidConfigData._kPressureStiffnessCoeff * (std::powf(currentPDensity / density0, fluidConfigData._kPressureExponentCoeff) - 1.f);
+				}
 			});
 		}
 	}
