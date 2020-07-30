@@ -95,6 +95,15 @@ bool Storm::GeneralConfig::read(const std::string &generalConfigFilePathStr)
 				}
 			}
 
+			if (_wantedApplicationWidth == 0)
+			{
+				Storm::throwException<std::exception>("screenWidth cannot be null!");
+			}
+			else if (_wantedApplicationHeight == 0)
+			{
+				Storm::throwException<std::exception>("screenHeight cannot be null!");
+			}
+
 			return true;
 		}
 	}
