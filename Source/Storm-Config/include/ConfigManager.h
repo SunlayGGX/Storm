@@ -37,6 +37,7 @@ namespace Storm
 
 		unsigned int getWantedScreenWidth() const final override;
 		unsigned int getWantedScreenHeight() const final override;
+		float getFontSize() const final override;
 
 		bool shouldDisplayHelp() const;
 

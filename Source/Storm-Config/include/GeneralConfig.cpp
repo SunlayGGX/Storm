@@ -40,6 +40,7 @@ Storm::GeneralConfig::GeneralConfig() :
 	_shouldLogFPSWatching{ false },
 	_wantedApplicationHeight{ 800 },
 	_wantedApplicationWidth{ 1200 },
+	_fontSize{ 20.f },
 	_shouldLogGraphicDeviceMessage{ false }
 {
 
@@ -87,7 +88,8 @@ bool Storm::GeneralConfig::read(const std::string &generalConfigFilePathStr)
 				{
 					if (
 						!Storm::XmlReader::handleXml(graphicXmlElement, "screenWidth", _wantedApplicationWidth) &&
-						!Storm::XmlReader::handleXml(graphicXmlElement, "screenHeight", _wantedApplicationHeight)
+						!Storm::XmlReader::handleXml(graphicXmlElement, "screenHeight", _wantedApplicationHeight) &&
+						!Storm::XmlReader::handleXml(graphicXmlElement, "fontSize", _fontSize)
 						)
 					{
 						LOG_ERROR << graphicXmlElement.first << " (inside General.Graphics) is unknown, therefore it cannot be handled";
@@ -102,6 +104,10 @@ bool Storm::GeneralConfig::read(const std::string &generalConfigFilePathStr)
 			else if (_wantedApplicationHeight == 0)
 			{
 				Storm::throwException<std::exception>("screenHeight cannot be null!");
+			}
+			else if (_fontSize <= 0)
+			{
+				Storm::throwException<std::exception>("Font size must be a strictly positive value! Current value was " + std::to_string(_fontSize));
 			}
 
 			return true;

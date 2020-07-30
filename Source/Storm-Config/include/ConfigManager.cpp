@@ -183,6 +183,11 @@ unsigned int Storm::ConfigManager::getWantedScreenHeight() const
 	return _generalConfig._wantedApplicationHeight;
 }
 
+float Storm::ConfigManager::getFontSize() const
+{
+	return _generalConfig._fontSize;
+}
+
 bool Storm::ConfigManager::shouldDisplayHelp() const
 {
 	return _shouldDisplayHelp;
