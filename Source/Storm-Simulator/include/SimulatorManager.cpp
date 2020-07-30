@@ -76,6 +76,12 @@ void Storm::SimulatorManager::initialize_Implementation()
 
 	Storm::IInputManager &inputMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IInputManager>();
 	inputMgr.bindKey(Storm::SpecialKey::KC_F1, [this]() { this->printFluidParticleData(); });
+
+	// First position update to regenerate the position of any particle according to its translation.
+	for (auto &particleSystem : _particleSystem)
+	{
+		particleSystem.second->updatePosition(0.f);
+	}
 }
 
 void Storm::SimulatorManager::cleanUp_Implementation()
