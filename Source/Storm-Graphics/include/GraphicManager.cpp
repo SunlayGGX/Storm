@@ -64,10 +64,23 @@ namespace
 	}
 #endif
 
+	template<bool isFluids>
+	constexpr DirectX::XMVECTOR getDefaultParticleColor()
+	{
+		if constexpr (isFluids)
+		{
+			return { 0.3f, 0.5f, 0.85f, 1.f };
+		}
+		else
+		{
+			return { 0.3f, 0.5f, 0.5f, 1.f };
+		}
+	}
+
 	template<bool enableDifferentColoring>
 	void fastTransCopyImpl(const std::vector<Storm::Vector3> &particlePosData, const std::vector<Storm::Vector3> &particleVelocityData, const float valueToMinColor, const float valueToMaxColor, std::vector<Storm::GraphicParticleData> &inOutDxParticlePosDataTmp)
 	{
-		const DirectX::XMVECTOR defaultColor{ 0.3f, 0.5f, 0.6f, 1.f };
+		const DirectX::XMVECTOR defaultColor = getDefaultParticleColor<enableDifferentColoring>();
 
 		const float deltaColorRChan = 1.f - defaultColor.m128_f32[0];
 		const float deltaValueForColor = valueToMaxColor - valueToMinColor;
