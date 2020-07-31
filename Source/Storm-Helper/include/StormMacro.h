@@ -23,3 +23,10 @@
 
 
 #define STORM_NOT_IMPLEMENTED Storm::throwException<std::logic_error>(__FUNCTION__ " is not implemented!")
+
+
+#if UNICODE
+#	define STORM_TEXT(val) L##val
+#else
+#	define STORM_TEXT(val) val
+#endif
