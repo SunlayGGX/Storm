@@ -55,6 +55,12 @@
     <Filter Include="Header Files\Threading">
       <UniqueIdentifier>{c259ba52-6040-4e3a-9aeb-b63b130a7c16}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Graphics">
+      <UniqueIdentifier>{c02632d5-3202-4576-b82d-b402dad65063}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Graphics">
+      <UniqueIdentifier>{b2384f99-bcd2-4b8d-98e2-f31fdd4f7764}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-ModelBasePCH.cpp">
@@ -65,6 +71,9 @@
     </ClCompile>
     <ClCompile Include="..\include\RigidBodyHolder.cpp">
       <Filter>Source Files\Simulation\RigidBodies</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\UIField.cpp">
+      <Filter>Source Files\Graphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -163,6 +172,15 @@
     </ClInclude>
     <ClInclude Include="..\include\KernelMode.h">
       <Filter>Header Files\Simulation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\UIField.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\UIFieldBase.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\UIFieldContainer.h">
+      <Filter>Header Files\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
