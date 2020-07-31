@@ -28,7 +28,7 @@ void Storm::ThreadManager::registerCurrentThread(Storm::ThreadEnumeration thread
 	auto executor = std::make_unique<Storm::AsyncActionExecutor>();
 	const auto currentThreadId = std::this_thread::get_id();
 
-	std::lock_guard<std::mutex> lock{ _mutex };
+	std::lock_guard<std::recursive_mutex> lock{ _mutex };
 	_toExecute[currentThreadId] = std::move(executor);
 	_threadIdMapping[threadEnum] = currentThreadId;
 	_threadEnumMapping[currentThreadId] = threadEnum;
@@ -36,13 +36,13 @@ void Storm::ThreadManager::registerCurrentThread(Storm::ThreadEnumeration thread
 
 void Storm::ThreadManager::executeOnThread(const std::thread::id &threadId, AsyncAction &&action)
 {
-	std::lock_guard<std::mutex> lock{ _mutex };
+	std::lock_guard<std::recursive_mutex> lock{ _mutex };
 	this->executeOnThreadInternal(threadId, std::move(action));
 }
 
 void Storm::ThreadManager::executeOnThread(Storm::ThreadEnumeration threadEnum, Storm::AsyncAction &&action)
 {
-	std::lock_guard<std::mutex> lock{ _mutex };
+	std::lock_guard<std::recursive_mutex> lock{ _mutex };
 	if (const auto found = _threadIdMapping.find(threadEnum); found != std::end(_threadIdMapping))
 	{
 		this->executeOnThreadInternal(found->second, std::move(action));
@@ -57,7 +57,7 @@ void Storm::ThreadManager::processCurrentThreadActions()
 {
 	const auto thisThreadId = std::this_thread::get_id();
 
-	std::lock_guard<std::mutex> lock{ _mutex };
+	std::lock_guard<std::recursive_mutex> lock{ _mutex };
 	if (const auto executorFound = _toExecute.find(thisThreadId); executorFound != std::end(_toExecute))
 	{
 		executorFound->second->execute();
@@ -70,7 +70,7 @@ void Storm::ThreadManager::processCurrentThreadActions()
 
 bool Storm::ThreadManager::isExecutingOnThread(Storm::ThreadEnumeration threadEnum) const
 {
-	std::lock_guard<std::mutex> lock{ _mutex };
+	std::lock_guard<std::recursive_mutex> lock{ _mutex };
 	if (const auto found = _threadIdMapping.find(threadEnum); found != std::end(_threadIdMapping))
 	{
 		return found->second == std::this_thread::get_id();

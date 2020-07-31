@@ -27,7 +27,7 @@ namespace Storm
 
 
 	private:
-		mutable std::mutex _mutex;
+		mutable std::recursive_mutex _mutex;
 		std::map<std::thread::id, std::unique_ptr<Storm::AsyncActionExecutor>> _toExecute;
 
 		std::map<std::thread::id, Storm::ThreadEnumeration> _threadEnumMapping;
