@@ -34,8 +34,15 @@ namespace Storm
 		void pushParticlesData(unsigned int particleSystemId, const std::vector<Storm::Vector3> &particlePosData, const std::vector<Storm::Vector3> &particlevelocityData, bool isFluids, bool isWall) final override;
 
 	public:
+		void createGraphicsField(const std::wstring_view &fieldName, std::wstring &&fieldValueStr) final override;
+		void updateGraphicsField(std::vector<std::pair<std::wstring_view, std::wstring>> &&rawFields) final override;
+		void updateGraphicsField(const std::wstring_view &fieldName, std::wstring &&fieldValue) final override;
+
+	public:
 		const Storm::Camera& getCamera() const;
 		const Storm::DirectXController& getController() const;
+
+		std::size_t getFieldCount() const;
 
 	private:
 		unsigned char _renderCounter;
@@ -46,6 +53,8 @@ namespace Storm
 		std::vector<std::unique_ptr<Storm::IRenderedElement>> _renderedElements;
 		std::map<unsigned int, std::unique_ptr<Storm::GraphicRigidBody>> _meshesMap;
 		std::unique_ptr<Storm::GraphicParticleSystem> _graphicParticlesSystem;
+
+		std::map<std::wstring_view, std::wstring> _fieldsMap;
 
 		std::thread _renderThread;
 	};

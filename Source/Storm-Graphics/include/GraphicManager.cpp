@@ -310,6 +310,8 @@ void Storm::GraphicManager::update()
 
 		_directXController->renderElements(this->getCamera(), _renderedElements, _meshesMap, *_graphicParticlesSystem);
 
+		_directXController->drawUI(_fieldsMap);
+
 		_directXController->unbindTargetView();
 		_directXController->presentToDisplay();
 
@@ -352,6 +354,30 @@ void Storm::GraphicManager::pushParticlesData(unsigned int particleSystemId, con
 	});
 }
 
+void Storm::GraphicManager::createGraphicsField(const std::wstring_view &fieldName, std::wstring &&fieldValueStr)
+{
+	assert(_fieldsMap.find(fieldName) == std::end(_fieldsMap) && "We shouldn't create another field with the same name!");
+	_fieldsMap[fieldName] = std::move(fieldValueStr);
+
+	_directXController->notifyFieldCount(_fieldsMap.size());
+}
+
+void Storm::GraphicManager::updateGraphicsField(std::vector<std::pair<std::wstring_view, std::wstring>> &&rawFields)
+{
+	for (auto &field : rawFields)
+	{
+		this->updateGraphicsField(field.first, std::move(field.second));
+	}
+}
+
+void Storm::GraphicManager::updateGraphicsField(const std::wstring_view &fieldName, std::wstring &&fieldValue)
+{
+	if (auto found = _fieldsMap.find(fieldName); found != std::end(_fieldsMap))
+	{
+		found->second = std::move(fieldValue);
+	}
+}
+
 const Storm::Camera& Storm::GraphicManager::getCamera() const
 {
 	return *_camera;
@@ -360,4 +386,9 @@ const Storm::Camera& Storm::GraphicManager::getCamera() const
 const Storm::DirectXController& Storm::GraphicManager::getController() const
 {
 	return *_directXController;
+}
+
+std::size_t Storm::GraphicManager::getFieldCount() const
+{
+	return _fieldsMap.size();
 }
