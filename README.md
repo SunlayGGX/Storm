@@ -122,7 +122,7 @@ Note that the maximum value you can set is Fatal, it means that no matter what l
 #### Graphics (facultative)
 - **screenWidth (unsigned integer, facultative)** : Set the expected windows width at startup. Note that it could be something else near this value... Default is 1200.
 - **screenHeight (unsigned integer, facultative)** : Set the expected windows height at startup. Note that it could be something else near this value... Default is 800.
-- **fontSize (unsigned integer, facultative)** : the font size of any written information displayed in the HUD... Default is 20.
+- **fontSize (unsigned integer, facultative)** : the font size of any written information displayed in the HUD... Default is 16.
 
 
 ### Scene Config

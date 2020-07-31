@@ -40,7 +40,7 @@ Storm::GeneralConfig::GeneralConfig() :
 	_shouldLogFPSWatching{ false },
 	_wantedApplicationHeight{ 800 },
 	_wantedApplicationWidth{ 1200 },
-	_fontSize{ 20.f },
+	_fontSize{ 17.f },
 	_shouldLogGraphicDeviceMessage{ false }
 {
 
