@@ -4,6 +4,8 @@
 #include "ITimeManager.h"
 #include "FPSWatcher.h"
 
+#include "UIFieldContainer.h"
+
 
 namespace Storm
 {
@@ -66,6 +68,8 @@ namespace Storm
 
 		std::chrono::microseconds _simulationFrameTime;
 		std::chrono::time_point<std::chrono::high_resolution_clock> _startTime;
+
+		Storm::UIFieldContainer _fields;
 
 		std::thread _timeThread;
 	};

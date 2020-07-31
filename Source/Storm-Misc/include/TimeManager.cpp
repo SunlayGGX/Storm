@@ -17,6 +17,12 @@
 
 #include "GeneralSimulationData.h"
 
+#include "UIField.h"
+
+#define STORM_ELAPSED_TIME_FIELD_NAME "elapsed time"
+#define STORM_DELTA_TIME_FIELD_NAME "delta time"
+#define STORM_PAUSE_FIELD_NAME "paused"
+
 
 Storm::TimeManager::TimeManager() :
 	_physicsTimeInSeconds{ 0.01f },
@@ -62,6 +68,12 @@ void Storm::TimeManager::initialize_Implementation()
 	}
 
 	_shouldLogFPSWatching = configMgr.getShouldLogFpsWatching();
+
+	_fields
+		.bindField(STORM_ELAPSED_TIME_FIELD_NAME, _physicsElapsedTimeInSeconds)
+		.bindField(STORM_DELTA_TIME_FIELD_NAME, _physicsTimeInSeconds)
+		.bindField(STORM_PAUSE_FIELD_NAME, _isPaused)
+		;
 
 	_timeThread = std::thread{ [this]() 
 	{
@@ -164,6 +176,7 @@ float Storm::TimeManager::getCurrentPhysicsDeltaTime() const
 void Storm::TimeManager::setCurrentPhysicsDeltaTime(float deltaTimeInSeconds)
 {
 	_physicsTimeInSeconds = deltaTimeInSeconds;
+	_fields.pushField(STORM_DELTA_TIME_FIELD_NAME);
 }
 
 float Storm::TimeManager::getCurrentPhysicsElapsedTime() const
@@ -174,6 +187,7 @@ float Storm::TimeManager::getCurrentPhysicsElapsedTime() const
 void Storm::TimeManager::increaseCurrentPhysicsElapsedTime(float timeIncreaseInSeconds)
 {
 	_physicsElapsedTimeInSeconds += timeIncreaseInSeconds;
+	_fields.pushField(STORM_ELAPSED_TIME_FIELD_NAME);
 }
 
 void Storm::TimeManager::advanceCurrentPhysicsElapsedTime()
@@ -208,6 +222,7 @@ bool Storm::TimeManager::changeSimulationPauseState()
 {
 	std::lock_guard<std::mutex> lock{ _mutex };
 	_isPaused = !_isPaused;
+	_fields.pushField(STORM_PAUSE_FIELD_NAME);
 	return _isPaused;
 }
 
