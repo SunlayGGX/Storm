@@ -95,6 +95,9 @@ namespace Storm
 		// Increase the simulation physics time elapsed by the passed value in seconds.
 		virtual void increaseCurrentPhysicsElapsedTime(float timeIncreaseInSeconds) = 0;
 
+		// Advance the simulation physics time elapsed by the current physics time value.
+		virtual void advanceCurrentPhysicsElapsedTime() = 0;
+
 
 		/************************************************************************/
 		/*							TimeManager controls                        */

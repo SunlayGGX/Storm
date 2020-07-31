@@ -174,7 +174,6 @@ void Storm::SimulatorManager::run()
 		// The first 5 frames every 1024 frames will be pushed for sure to the graphic module to be sure everyone is sync... 
 		this->pushParticlesToGraphicModule(_forcedPushFrameIterator._val < 5);
 
-
 		// Takes time to process messages that came from other threads.
 		threadMgr.processCurrentThreadActions();
 
@@ -344,6 +343,9 @@ void Storm::SimulatorManager::executePCISPH(float physicsElapsedDeltaTime)
 
 void Storm::SimulatorManager::applyCFLIfNeeded(const Storm::GeneralSimulationData &generalSimulationDataConfig)
 {
+	Storm::ITimeManager &timeMgr = Storm::SingletonHolder::instance().getSingleton<Storm::ITimeManager>();
+	timeMgr.advanceCurrentPhysicsElapsedTime();
+
 	float newDeltaTimeStep = generalSimulationDataConfig._physicsTimeInSeconds;
 	if (newDeltaTimeStep <= 0.f)
 	{
@@ -397,7 +399,7 @@ void Storm::SimulatorManager::applyCFLIfNeeded(const Storm::GeneralSimulationDat
 		}
 
 		/* Apply the new timestep */
-		Storm::SingletonHolder::instance().getSingleton<Storm::ITimeManager>().setCurrentPhysicsDeltaTime(newDeltaTimeStep);
+		timeMgr.setCurrentPhysicsDeltaTime(newDeltaTimeStep);
 	}
 }
 

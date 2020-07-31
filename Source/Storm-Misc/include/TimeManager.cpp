@@ -23,7 +23,8 @@ Storm::TimeManager::TimeManager() :
 	_startTime{ std::chrono::high_resolution_clock::now() },
 	_isRunning{ false },
 	_isPaused{ false },
-	_shouldLogFPSWatching{ false }
+	_shouldLogFPSWatching{ false },
+	_physicsElapsedTimeInSeconds{ 0.f }
 {
 	this->setExpectedFrameFPS(60.f);
 }
@@ -173,6 +174,11 @@ float Storm::TimeManager::getCurrentPhysicsElapsedTime() const
 void Storm::TimeManager::increaseCurrentPhysicsElapsedTime(float timeIncreaseInSeconds)
 {
 	_physicsElapsedTimeInSeconds += timeIncreaseInSeconds;
+}
+
+void Storm::TimeManager::advanceCurrentPhysicsElapsedTime()
+{
+	this->increaseCurrentPhysicsElapsedTime(_physicsTimeInSeconds);
 }
 
 void Storm::TimeManager::quit()
