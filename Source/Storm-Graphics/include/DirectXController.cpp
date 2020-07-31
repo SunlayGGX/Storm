@@ -6,6 +6,7 @@
 
 #include "SingletonHolder.h"
 #include "IConfigManager.h"
+#include "GraphicManager.h"
 
 #include "MemoryHelper.h"
 #include "DirectXHardwareInfo.h"
@@ -78,6 +79,24 @@ namespace
 			break;
 		}
 	}
+
+	class WriterAutoDrawer
+	{
+	public:
+		WriterAutoDrawer(ID2D1RenderTarget* direct2DRT) :
+			_direct2DRT{ direct2DRT }
+		{
+			direct2DRT->BeginDraw();
+		}
+
+		~WriterAutoDrawer()
+		{
+			_direct2DRT->EndDraw();
+		}
+
+	private:
+		ID2D1RenderTarget* _direct2DRT;
+	};
 }
 
 void Storm::DirectXController::initialize(HWND hwnd)
@@ -89,6 +108,9 @@ void Storm::DirectXController::initialize(HWND hwnd)
 	this->internalInitializeDebugDevice();
 	this->internalConfigureImmediateContextToDefault();
 	this->internalInitializeViewPort();
+
+	this->internalCreateDirect2DDevices(hwnd);
+	this->internalCreateDirectWrite();
 
 	_logDeviceMessage = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().getShouldLogGraphicDeviceMessage();
 }
@@ -305,6 +327,73 @@ void Storm::DirectXController::setEnableBlendAlpha(bool enable)
 	_immediateContext->OMSetBlendState(enable ? _alphaBlendEnable.Get() : _alphaBlendDisable.Get(), k_blendFactor, 0xFFFFFFFF);
 }
 
+void Storm::DirectXController::drawUI(const std::map<std::wstring_view, std::wstring> &texts)
+{
+	D2D1_RECT_F writeRectPosition{
+		_writeRectLeft,
+		0.f, 
+		_writeRectRight,
+		_writeRectHeight
+	};
+
+	WriterAutoDrawer autoDrawerRAII{ _direct2DRenderTarget.Get() };
+
+	this->drawTextBackground(writeRectPosition);
+
+	std::wstring tmp;
+
+	unsigned int iter = 0;
+	for (const auto fieldText : texts)
+	{
+		writeRectPosition.top = _textHeightCoeff * static_cast<float>(iter);
+		writeRectPosition.bottom = _textHeightCoeff * static_cast<float>(iter + 1);
+
+		tmp.clear();
+		tmp.reserve(fieldText.first.size() + fieldText.second.size() + 2);
+
+		tmp += fieldText.first;
+		tmp += STORM_TEXT(": ");
+		tmp += fieldText.second;
+
+		this->drawText(tmp, writeRectPosition);
+
+		++iter;
+	}
+}
+
+void Storm::DirectXController::notifyFieldCount(std::size_t fieldCount)
+{
+	_writeRectHeight = (static_cast<float>(fieldCount) * _textHeightCoeff) + 1.f;
+	if (_writeRectHeight > _viewportHeight)
+	{
+		LOG_WARNING << 
+			"Beware, some field would be rendered outside the screen since either the font is too big, or the viewport is too small...\n"
+			"Currently, we ask to render " << fieldCount << " field taking each " << _textHeightCoeff << " pixels.";
+	}
+}
+
+void Storm::DirectXController::setTextHeightCoeff(float textHeightCoeff)
+{
+	_textHeightCoeff = textHeightCoeff;
+	this->notifyFieldCount(Storm::GraphicManager::instance().getFieldCount());
+}
+
+void Storm::DirectXController::drawTextBackground(const D2D1_RECT_F &rectPosition)
+{
+	_direct2DRenderTarget->FillRectangle(rectPosition, _direct2DRectSolidBrush.Get());
+}
+
+void Storm::DirectXController::drawText(const std::wstring &text, const D2D1_RECT_F &rectPosition)
+{
+	_direct2DRenderTarget->DrawText(
+		text.c_str(),
+		static_cast<UINT32>(text.size()),
+		_textFormat.Get(),
+		rectPosition,
+		_direct2DTextSolidBrush.Get()
+	);
+}
+
 void Storm::DirectXController::internalCreateDXDevices(HWND hwnd)
 {
 	enum
@@ -312,7 +401,7 @@ void Storm::DirectXController::internalCreateDXDevices(HWND hwnd)
 		k_wantedFPS = 60
 	};
 
-	UINT creationFlags = 0;
+	UINT creationFlags = D3D11_CREATE_DEVICE_FLAG::D3D11_CREATE_DEVICE_BGRA_SUPPORT;
 
 #if defined(_DEBUG) || defined(DEBUG)
 	creationFlags |= D3D11_CREATE_DEVICE_FLAG::D3D11_CREATE_DEVICE_DEBUG;
@@ -332,7 +421,7 @@ void Storm::DirectXController::internalCreateDXDevices(HWND hwnd)
 		Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
 
 		DXGI_MODE_DESC descModeWanted;
-		descModeWanted.Format = DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM;
+		descModeWanted.Format = DXGI_FORMAT::DXGI_FORMAT_B8G8R8A8_UNORM;
 		descModeWanted.Height = configMgr.getWantedScreenHeight();
 		descModeWanted.Width = configMgr.getWantedScreenWidth();
 		descModeWanted.RefreshRate.Numerator = k_wantedFPS;
@@ -377,6 +466,7 @@ void Storm::DirectXController::internalCreateDXDevices(HWND hwnd)
 	swapChainDesc.Windowed = true;
 
 	swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG::DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+	//swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG::DXGI_SWAP_CHAIN_FLAG_GDI_COMPATIBLE;
 
 	{
 		RECT rcClient;
@@ -410,7 +500,6 @@ void Storm::DirectXController::internalCreateDXDevices(HWND hwnd)
 		nullptr,
 		&_immediateContext
 	));
-
 
 	ComPtr<ID3D11InfoQueue> deviceMessageInfoQueue;
 	_device->QueryInterface(__uuidof(ID3D11InfoQueue), &deviceMessageInfoQueue);
@@ -559,4 +648,63 @@ void Storm::DirectXController::internalInitializeViewPort()
 	viewPort.TopLeftY = 0;
 
 	_immediateContext->RSSetViewports(1, &viewPort);
+}
+
+void Storm::DirectXController::internalCreateDirect2DDevices(HWND hwnd)
+{
+	Storm::throwIfFailed(D2D1CreateFactory<ID2D1Factory>(D2D1_FACTORY_TYPE::D2D1_FACTORY_TYPE_SINGLE_THREADED, &_direct2DFactory));
+
+	// For interoperability between DX11 and D2D
+	ComPtr<IDXGISurface> sharedSurface;
+	Storm::throwIfFailed(_swapChain->GetBuffer(0, __uuidof(IDXGISurface), &sharedSurface));
+
+	auto dcReleaser = [hwnd](HDC* dc)
+	{
+		if (dc != nullptr)
+		{
+			ReleaseDC(hwnd, *dc);
+		}
+	};
+
+	HDC currentDC = GetDC(hwnd);
+	std::unique_ptr<HDC, decltype(dcReleaser)> dcRAIIHolder{ &currentDC, dcReleaser };
+
+	float dpiX = static_cast<float>(GetDeviceCaps(currentDC, LOGPIXELSX));
+	float dpiY = static_cast<float>(GetDeviceCaps(currentDC, LOGPIXELSY));
+
+	const D2D1_RENDER_TARGET_PROPERTIES renderTargetProperties = D2D1::RenderTargetProperties(
+		D2D1_RENDER_TARGET_TYPE::D2D1_RENDER_TARGET_TYPE_DEFAULT, 
+		D2D1::PixelFormat(DXGI_FORMAT::DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE::D2D1_ALPHA_MODE_PREMULTIPLIED),
+		dpiX, dpiY
+	);
+	const D2D1_HWND_RENDER_TARGET_PROPERTIES hwndProperties = D2D1::HwndRenderTargetProperties(hwnd, D2D1::Size(static_cast<UINT>(_viewportWidth), static_cast<UINT>(_viewportHeight)));
+
+	Storm::throwIfFailed(_direct2DFactory->CreateDxgiSurfaceRenderTarget(sharedSurface.Get(), renderTargetProperties, &_direct2DRenderTarget));
+
+	Storm::throwIfFailed(_direct2DRenderTarget->CreateSolidColorBrush(D2D1::ColorF{ D2D1::ColorF::Aquamarine, 0.6f }, &_direct2DRectSolidBrush));
+	Storm::throwIfFailed(_direct2DRenderTarget->CreateSolidColorBrush(D2D1::ColorF{ D2D1::ColorF::Black }, &_direct2DTextSolidBrush));
+
+	_writeRectLeft = _viewportWidth * 0.8f;
+	_writeRectRight = _viewportWidth;
+}
+
+void Storm::DirectXController::internalCreateDirectWrite()
+{
+	Storm::throwIfFailed(DWriteCreateFactory(DWRITE_FACTORY_TYPE::DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory) , &_writeFactory));
+
+	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
+	_textHeightCoeff = configMgr.getFontSize();
+
+	Storm::throwIfFailed(_writeFactory->CreateTextFormat(
+		L"Arial",
+		nullptr,
+		DWRITE_FONT_WEIGHT::DWRITE_FONT_WEIGHT_REGULAR,
+		DWRITE_FONT_STYLE::DWRITE_FONT_STYLE_NORMAL,
+		DWRITE_FONT_STRETCH::DWRITE_FONT_STRETCH_NORMAL,
+		_textHeightCoeff,
+		L"en-us",
+		&_textFormat
+	));
+
+	this->setTextHeightCoeff(_textHeightCoeff + 1.f);
 }

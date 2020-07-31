@@ -1,6 +1,9 @@
 #pragma once
 
 
+struct D2D_RECT_F;
+using D2D1_RECT_F = D2D_RECT_F;
+
 namespace Storm
 {
 	class Camera;
@@ -46,7 +49,17 @@ namespace Storm
 		void setEnableZBuffer(bool enable);
 		void setEnableBlendAlpha(bool enable);
 
+	public:
+		void drawUI(const std::map<std::wstring_view, std::wstring> &texts);
+		void notifyFieldCount(std::size_t fieldCount);
+		void setTextHeightCoeff(float textHeightCoeff);
+
 	private:
+		void drawTextBackground(const D2D1_RECT_F &rectPosition);
+		void drawText(const std::wstring &text, const D2D1_RECT_F &rectPosition);
+
+	private:
+		// 3D
 		void internalCreateDXDevices(HWND hwnd);
 		void internalCreateRenderView();
 		void internalInitializeDepthBuffer();
@@ -55,7 +68,12 @@ namespace Storm
 		void internalConfigureImmediateContextToDefault();
 		void internalInitializeViewPort();
 
+		//2D
+		void internalCreateDirect2DDevices(HWND hwnd);
+		void internalCreateDirectWrite();
+
 	private:
+		// 3D
 		ComPtr<ID3D11Device> _device;
 		ComPtr<ID3D11DeviceContext> _immediateContext;
 		ComPtr<IDXGISwapChain> _swapChain;
@@ -82,10 +100,27 @@ namespace Storm
 
 		Storm::RenderModeState _currentRenderModeState;
 
+		// 2D
+		ComPtr<ID2D1Factory> _direct2DFactory;
+		ComPtr<ID2D1RenderTarget> _direct2DRenderTarget;
+
+		ComPtr<ID2D1SolidColorBrush> _direct2DRectSolidBrush;
+
+		ComPtr<ID2D1SolidColorBrush> _direct2DTextSolidBrush;
+		ComPtr<IDWriteFactory> _writeFactory;
+		ComPtr<IDWriteTextFormat> _textFormat;
+
+		// Misc
 		float _viewportWidth;
 		float _viewportHeight;
 
 		bool _logDeviceMessage;
+
+		float _textHeightCoeff;
+
+		float _writeRectLeft;
+		float _writeRectRight;
+		float _writeRectHeight;
 
 #if defined(DEBUG) || defined(_DEBUG)
 		ComPtr<ID3D11Debug> _debugDevice;
