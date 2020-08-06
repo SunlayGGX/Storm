@@ -7,6 +7,8 @@
 #include "GeneralSimulationData.h"
 #include "FluidData.h"
 
+#include "RunnerHelper.h"
+
 
 
 Storm::ParticleSystem::ParticleSystem(unsigned int particleSystemIndex, std::vector<Storm::Vector3> &&worldPositions) :
@@ -79,6 +81,13 @@ bool Storm::ParticleSystem::isDirty() const noexcept
 
 void Storm::ParticleSystem::buildNeighborhood(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems)
 {
+	// First, clear all neighborhood
+	Storm::runParallel(_neighborhood, [](Storm::ParticleNeighborhoodArray &neighbors)
+	{
+		neighbors.clear();
+	});
+
+	// Then fill them again with the right data
 	const float kernelLength = Storm::SimulatorManager::instance().getKernelLength();
 	const float kernelLengthSquared = kernelLength * kernelLength;
 

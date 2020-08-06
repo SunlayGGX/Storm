@@ -118,12 +118,11 @@ void Storm::FluidParticleSystem::buildNeighborhoodOnParticleSystem(const Storm::
 {
 	if (otherParticleSystem.getId() == this->getId())
 	{
-		Storm::runParallel(_positions, [this, kernelLengthSquared](const Storm::Vector3 &currentParticlePosition, const std::size_t currentPIndex)
-		{
-			const std::size_t particleCount = _positions.size();
+		const std::size_t particleCount = _positions.size();
 
+		Storm::runParallel(_positions, [this, kernelLengthSquared, particleCount](const Storm::Vector3 &currentParticlePosition, const std::size_t currentPIndex)
+		{
 			std::vector<Storm::NeighborParticleInfo> &currentNeighborhoodToFill = _neighborhood[currentPIndex];
-			currentNeighborhoodToFill.clear();
 
 			for (std::size_t particleIndex = 0; particleIndex < currentPIndex; ++particleIndex)
 			{
@@ -153,7 +152,6 @@ void Storm::FluidParticleSystem::buildNeighborhoodOnParticleSystem(const Storm::
 		Storm::runParallel(_positions, [this, kernelLengthSquared, &otherParticleSystem](const Storm::Vector3 &currentPPosition, const std::size_t currentPIndex)
 		{
 			std::vector<Storm::NeighborParticleInfo> &currentNeighborhoodToFill = _neighborhood[currentPIndex];
-			currentNeighborhoodToFill.clear();
 
 			const auto &otherParticleSystemPositionsArray = otherParticleSystem.getPositions();
 			const std::size_t otherParticleSizeCount = otherParticleSystemPositionsArray.size();
