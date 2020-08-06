@@ -53,9 +53,9 @@ namespace
 	Storm::SimulationMode parseSimulationMode(std::string simulModeStr)
 	{
 		boost::algorithm::to_lower(simulModeStr);
-		if (simulModeStr == "sesph")
+		if (simulModeStr == "wcsph")
 		{
-			return Storm::SimulationMode::SESPH;
+			return Storm::SimulationMode::WCSPH;
 		}
 		else if (simulModeStr == "pcisph")
 		{

@@ -24,7 +24,7 @@ namespace Storm
 		void run();
 
 	private:
-		void executeSESPH(float physicsElapsedDeltaTime);
+		void executeWCSPH(float physicsElapsedDeltaTime);
 		void executePCISPH(float physicsElapsedDeltaTime);
 
 	private:

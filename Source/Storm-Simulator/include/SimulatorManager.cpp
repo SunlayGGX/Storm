@@ -143,8 +143,8 @@ void Storm::SimulatorManager::run()
 		// Compute the simulation
 		switch (generalSimulationConfigData._simulationMode)
 		{
-		case Storm::SimulationMode::SESPH:
-			this->executeSESPH(physicsElapsedDeltaTime);
+		case Storm::SimulationMode::WCSPH:
+			this->executeWCSPH(physicsElapsedDeltaTime);
 			break;
 
 		case Storm::SimulationMode::PCISPH:
@@ -182,7 +182,7 @@ void Storm::SimulatorManager::run()
 	} while (true);
 }
 
-void Storm::SimulatorManager::executeSESPH(float physicsElapsedDeltaTime)
+void Storm::SimulatorManager::executeWCSPH(float physicsElapsedDeltaTime)
 {
 	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
 	const Storm::GeneralSimulationData &generalSimulData = configMgr.getGeneralSimulationData();
