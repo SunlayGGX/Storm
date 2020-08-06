@@ -18,7 +18,7 @@ Storm::ParticleSystem::ParticleSystem(unsigned int particleSystemIndex, std::vec
 	const float particleVolume = computeParticleDefaultVolume();
 
 	_velocity.resize(particleCount, Storm::Vector3::Zero());
-	_force.resize(particleCount);
+	_force.resize(particleCount, Storm::Vector3::Zero());
 	_neighborhood.resize(particleCount);
 
 	for (auto &neighborHoodArray : _neighborhood)
