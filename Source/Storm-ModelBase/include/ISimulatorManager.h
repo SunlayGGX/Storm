@@ -21,5 +21,8 @@ namespace Storm
 
 	public:
 		virtual float getKernelLength() const = 0;
+
+	public:
+		virtual void printFluidParticleData() const = 0;
 	};
 }

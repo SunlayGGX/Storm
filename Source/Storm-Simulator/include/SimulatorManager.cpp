@@ -38,13 +38,44 @@ namespace
 		map[particleSystemId] = std::move(particleSystemPtr);
 	}
 
-	class Vector3Parser
+	class ParticleDataParser
 	{
 	public:
+		enum
+		{
+			k_printIndex = true
+		};
+
 		template<class PolicyType>
 		static std::string parse(const Storm::Vector3 &vect)
 		{
 			return "{ " + std::to_string(vect.x()) + ',' + std::to_string(vect.y()) + ',' + std::to_string(vect.z()) + " }";
+		}
+
+		template<class PolicyType>
+		static std::string parse(const Storm::ParticleNeighborhoodArray &neighborhood)
+		{
+			std::string result;
+
+			const std::size_t neighborhoodCount = neighborhood.size();
+			result.reserve(12 + neighborhoodCount * 70);
+
+			result += "Count :";
+			result += std::to_string(neighborhoodCount);
+			
+			for (const Storm::NeighborParticleInfo &neighbor : neighborhood)
+			{
+				result += "; iter=";
+				result += Storm::toStdString<PolicyType>(neighbor._particleIndex);
+				result += "; r=";
+				result += Storm::toStdString<PolicyType>(neighbor._vectToParticleNorm);
+				result += "; xij=";
+				result += Storm::toStdString<PolicyType>(neighbor._positionDifferenceVector);
+				result += "; fluid=";
+				result += Storm::toStdString<PolicyType>(neighbor._isFluidParticle);
+			}
+
+			return result;
 		}
 	};
 
@@ -60,7 +91,7 @@ namespace
 				"\n\n";
 		}
 
-		stream << dataName << " :\n\n" << Storm::toStdString<Vector3Parser>(dataContainer) << "\n\n";
+		stream << dataName << " :\n\n" << Storm::toStdString<ParticleDataParser>(dataContainer) << "\n\n";
 	}
 }
 
@@ -476,6 +507,7 @@ void Storm::SimulatorManager::printFluidParticleData() const
 			printToStream<false>(file, currentPSystem.getPositions(), "Position");
 			printToStream<true>(file, currentPSystem.getVelocity(), "Velocity");
 			printToStream<true>(file, currentPSystem.getForces(), "Force");
+			printToStream<true>(file, currentPSystem.getNeighborhoodArrays(), "Neighborhood");
 		}
 	}
 }
