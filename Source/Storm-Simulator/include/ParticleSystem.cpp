@@ -131,5 +131,5 @@ float Storm::ParticleSystem::computeParticleDefaultVolume()
 
 bool Storm::ParticleSystem::isElligibleNeighborParticle(const float kernelLengthSquared, const float normSquared)
 {
-	return normSquared > 0.000000001f && normSquared < kernelLengthSquared;
+	return normSquared > 0.000001f && normSquared < kernelLengthSquared;
 }
