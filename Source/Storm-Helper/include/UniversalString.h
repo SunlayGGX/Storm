@@ -171,7 +171,19 @@ namespace Storm
 			template<class Policy>
 			constexpr static const char separator(void*)
 			{
-				return ',';
+				return '\n';
+			}
+
+			template<class Policy>
+			constexpr static auto printIndex(int) -> decltype(Policy::k_printIndex)
+			{
+				return Policy::k_printIndex;
+			}
+
+			template<class Policy>
+			constexpr static bool printIndex(void*)
+			{
+				return false;
 			}
 
 			template<class Type>
@@ -194,11 +206,20 @@ namespace Storm
 				const auto currentSeparator = Storm::details::ContainerParser<Policy, ValueType>::separator<Policy>(0);
 				const std::size_t currentSeparatorSize = Storm::details::ContainerParser<Policy, ValueType>::extractSize(currentSeparator, 0);
 
+				constexpr bool shouldPrintIndex = Storm::details::ContainerParser<Policy, ValueType>::printIndex<Policy>(0);
+
 				// Heuristic
 				result.reserve(Storm::details::ContainerParser<Policy, ValueType>::extractSize(array, 0) * (16 + currentSeparatorSize));
 
 				for (auto &&item : array)
 				{
+					if constexpr (shouldPrintIndex)
+					{
+						result += "Iter=";
+						result += std::to_string(&item - &*std::begin(array));
+						result += "; ";
+					}
+
 					if constexpr (std::is_rvalue_reference_v<decltype(item)>)
 					{
 						result += Storm::details::toStdString<Policy>(std::move(item));
