@@ -13,6 +13,8 @@
 #include "RigidBodySceneData.h"
 #include "RigidBody.h"
 
+#include "FluidParticleLoadDenseMode.h"
+
 #include <Assimp\DefaultLogger.hpp>
 
 
@@ -42,14 +44,89 @@ namespace
 		}
 	}
 
-	void computeParticleCountBoxExtents(const Storm::FluidBlockData &fluidBlock, const float particleDiameter, std::size_t &outParticleXCount, std::size_t &outParticleYCount, std::size_t &outParticleZCount)
+	template<Storm::FluidParticleLoadDenseMode>
+	void computeParticleCountBoxExtents(const Storm::FluidBlockData &fluidBlock, const float particleDiameter, std::size_t &outParticleXCount, std::size_t &outParticleYCount, std::size_t &outParticleZCount);
+
+	template<Storm::FluidParticleLoadDenseMode>
+	void generateFluidParticles(std::vector<Storm::Vector3> &inOutFluidParticlePos, const Storm::FluidBlockData &fluidBlockGenerated, const float particleDiameter);
+
+
+	template<>
+	void computeParticleCountBoxExtents<Storm::FluidParticleLoadDenseMode::Normal>(const Storm::FluidBlockData &fluidBlock, const float particleDiameter, std::size_t &outParticleXCount, std::size_t &outParticleYCount, std::size_t &outParticleZCount)
 	{
 		outParticleXCount = static_cast<std::size_t>(fabs(fluidBlock._firstPoint.x() - fluidBlock._secondPoint.x()) / particleDiameter);
 		outParticleYCount = static_cast<std::size_t>(fabs(fluidBlock._firstPoint.y() - fluidBlock._secondPoint.y()) / particleDiameter);
 		outParticleZCount = static_cast<std::size_t>(fabs(fluidBlock._firstPoint.z() - fluidBlock._secondPoint.z()) / particleDiameter);
 	}
+
+	template<>
+	void computeParticleCountBoxExtents<Storm::FluidParticleLoadDenseMode::AsSplishSplash>(const Storm::FluidBlockData &fluidBlock, const float particleDiameter, std::size_t &outParticleXCount, std::size_t &outParticleYCount, std::size_t &outParticleZCount)
+	{
+		const Storm::Vector3 diff = fluidBlock._secondPoint - fluidBlock._firstPoint;
+
+		outParticleXCount = static_cast<std::size_t>(std::roundf(diff[0] / particleDiameter)) - 1ULL;
+		outParticleYCount = static_cast<std::size_t>(std::roundf(diff[1] / particleDiameter)) - 1ULL;
+		outParticleZCount = static_cast<std::size_t>(std::roundf(diff[2] / particleDiameter)) - 1ULL;
+	}
+
+	template<>
+	void generateFluidParticles<Storm::FluidParticleLoadDenseMode::Normal>(std::vector<Storm::Vector3> &inOutFluidParticlePos, const Storm::FluidBlockData &fluidBlockGenerated, const float particleDiameter)
+	{
+		std::size_t particleXCount;
+		std::size_t particleYCount;
+		std::size_t particleZCount;
+
+		computeParticleCountBoxExtents<Storm::FluidParticleLoadDenseMode::Normal>(fluidBlockGenerated, particleDiameter, particleXCount, particleYCount, particleZCount);
+
+		const float xPosBegin = std::min(fluidBlockGenerated._firstPoint.x(), fluidBlockGenerated._secondPoint.x());
+		const float yPosBegin = std::min(fluidBlockGenerated._firstPoint.y(), fluidBlockGenerated._secondPoint.y());
+		const float zPosBegin = std::min(fluidBlockGenerated._firstPoint.z(), fluidBlockGenerated._secondPoint.z());
+
+		Storm::Vector3 currentParticlePos;
+		for (std::size_t xIter = 0; xIter < particleXCount; ++xIter)
+		{
+			currentParticlePos.x() = xPosBegin + static_cast<float>(xIter) * particleDiameter;
+			for (std::size_t yIter = 0; yIter < particleYCount; ++yIter)
+			{
+				currentParticlePos.y() = yPosBegin + static_cast<float>(yIter) * particleDiameter;
+				for (std::size_t zIter = 0; zIter < particleZCount; ++zIter)
+				{
+					currentParticlePos.z() = zPosBegin + static_cast<float>(zIter) * particleDiameter;
+					inOutFluidParticlePos.push_back(currentParticlePos);
+				}
+			}
+		}
+	}
+
+	template<>
+	void generateFluidParticles<Storm::FluidParticleLoadDenseMode::AsSplishSplash>(std::vector<Storm::Vector3> &inOutFluidParticlePos, const Storm::FluidBlockData &fluidBlockGenerated, const float particleDiameter)
+	{
+		std::size_t particleXCount;
+		std::size_t particleYCount;
+		std::size_t particleZCount;
+
+		computeParticleCountBoxExtents<Storm::FluidParticleLoadDenseMode::AsSplishSplash>(fluidBlockGenerated, particleDiameter, particleXCount, particleYCount, particleZCount);
+
+		const Storm::Vector3 start = fluidBlockGenerated._firstPoint + particleDiameter * Storm::Vector3::Ones();
+
+		for (std::size_t xIter = 0; xIter < particleXCount; ++xIter)
+		{
+			const float xCoeff = static_cast<float>(xIter);
+			for (std::size_t yIter = 0; yIter < particleYCount; ++yIter)
+			{
+				const float yCoeff = static_cast<float>(yIter);
+				for (std::size_t zIter = 0; zIter < particleZCount; ++zIter)
+				{
+					const float zCoeff = static_cast<float>(zIter);
+					Storm::Vector3 &addedPos = inOutFluidParticlePos.emplace_back(xCoeff * particleDiameter, yCoeff * particleDiameter, zCoeff * particleDiameter);
+					addedPos += start;
+				}
+			}
+		}
+	}
 }
 
+#define STORM_EXECUTE_CASE_ON_DENSE_MODE(DenseModeEnum) case Storm::##DenseModeEnum: STORM_EXECUTE_METHOD_ON_DENSE_MODE(Storm::##DenseModeEnum) break
 
 
 Storm::AssetLoaderManager::AssetLoaderManager() = default;
@@ -100,35 +177,36 @@ void Storm::AssetLoaderManager::initialize_Implementation()
 		std::size_t particleXCount;
 		std::size_t particleYCount;
 		std::size_t particleZCount;
-		computeParticleCountBoxExtents(fluidBlockGenerated, particleDiameter, particleXCount, particleYCount, particleZCount);
+
+		switch (fluidBlockGenerated._loadDenseMode)
+		{
+#define STORM_EXECUTE_METHOD_ON_DENSE_MODE(DenseMode) computeParticleCountBoxExtents<DenseMode>(fluidBlockGenerated, particleDiameter, particleXCount, particleYCount, particleZCount);
+
+			STORM_EXECUTE_CASE_ON_DENSE_MODE(FluidParticleLoadDenseMode::Normal);
+			STORM_EXECUTE_CASE_ON_DENSE_MODE(FluidParticleLoadDenseMode::AsSplishSplash);
+
+#undef STORM_EXECUTE_METHOD_ON_DENSE_MODE
+
+		default:
+			break;
+		}
 
 		return accumulatedVal + particleXCount * particleYCount * particleZCount;
 	}));
 
 	for (const Storm::FluidBlockData &fluidBlockGenerated : fluidsDataToLoad._fluidGenData)
 	{
-		std::size_t particleXCount;
-		std::size_t particleYCount;
-		std::size_t particleZCount;
-		computeParticleCountBoxExtents(fluidBlockGenerated, particleDiameter, particleXCount, particleYCount, particleZCount);
-
-		const float xPosBegin = std::min(fluidBlockGenerated._firstPoint.x(), fluidBlockGenerated._secondPoint.x());
-		const float yPosBegin = std::min(fluidBlockGenerated._firstPoint.y(), fluidBlockGenerated._secondPoint.y());
-		const float zPosBegin = std::min(fluidBlockGenerated._firstPoint.z(), fluidBlockGenerated._secondPoint.z());
-
-		Storm::Vector3 currentParticlePos;
-		for (std::size_t xIter = 0; xIter < particleXCount; ++xIter)
+		switch (fluidBlockGenerated._loadDenseMode)
 		{
-			currentParticlePos.x() = xPosBegin + static_cast<float>(xIter) * particleDiameter;
-			for (std::size_t yIter = 0; yIter < particleYCount; ++yIter)
-			{
-				currentParticlePos.y() = yPosBegin + static_cast<float>(yIter) * particleDiameter;
-				for (std::size_t zIter = 0; zIter < particleZCount; ++zIter)
-				{
-					currentParticlePos.z() = zPosBegin + static_cast<float>(zIter) * particleDiameter;
-					fluidParticlePos.push_back(currentParticlePos);
-				}
-			}
+#define STORM_EXECUTE_METHOD_ON_DENSE_MODE(DenseMode) generateFluidParticles<DenseMode>(fluidParticlePos, fluidBlockGenerated, particleDiameter);
+
+			STORM_EXECUTE_CASE_ON_DENSE_MODE(FluidParticleLoadDenseMode::Normal);
+			STORM_EXECUTE_CASE_ON_DENSE_MODE(FluidParticleLoadDenseMode::AsSplishSplash);
+
+#undef STORM_EXECUTE_METHOD_ON_DENSE_MODE
+
+		default:
+			break;
 		}
 	}
 
