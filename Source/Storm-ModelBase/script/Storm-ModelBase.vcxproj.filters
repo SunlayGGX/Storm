@@ -61,6 +61,9 @@
     <Filter Include="Source Files\Graphics">
       <UniqueIdentifier>{b2384f99-bcd2-4b8d-98e2-f31fdd4f7764}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Load">
+      <UniqueIdentifier>{9e6b5550-060d-4ff7-8490-143c8ed00280}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-ModelBasePCH.cpp">
@@ -181,6 +184,9 @@
     </ClInclude>
     <ClInclude Include="..\include\UIFieldContainer.h">
       <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\FluidParticleLoadDenseMode.h">
+      <Filter>Header Files\Load</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

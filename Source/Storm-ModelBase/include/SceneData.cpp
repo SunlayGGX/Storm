@@ -3,6 +3,7 @@
 #include "CollisionType.h"
 #include "SimulationMode.h"
 #include "KernelMode.h"
+#include "FluidParticleLoadDenseMode.h"
 
 
 Storm::GeneralSimulationData::GeneralSimulationData() :
@@ -53,7 +54,8 @@ Storm::GraphicData::GraphicData() :
 
 Storm::FluidBlockData::FluidBlockData() :
 	_firstPoint{ Vector3::Zero() },
-	_secondPoint{ Vector3::Zero() }
+	_secondPoint{ Vector3::Zero() }, 
+	_loadDenseMode{ Storm::FluidParticleLoadDenseMode::Normal }
 {
 
 }

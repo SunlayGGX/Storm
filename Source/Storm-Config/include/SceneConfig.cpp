@@ -7,6 +7,7 @@
 #include "CollisionType.h"
 #include "SimulationMode.h"
 #include "KernelMode.h"
+#include "FluidParticleLoadDenseMode.h"
 
 #include "ThrowException.h"
 #include "XmlReader.h"
@@ -77,6 +78,23 @@ namespace
 		else
 		{
 			Storm::throwException<std::exception>("Kernel mode value is unknown : '" + kernelModeStr + "'");
+		}
+	}
+
+	Storm::FluidParticleLoadDenseMode parseLoadDenseMode(std::string loadModeStr)
+	{
+		boost::algorithm::to_lower(loadModeStr);
+		if (loadModeStr == "normal")
+		{
+			return Storm::FluidParticleLoadDenseMode::Normal;
+		}
+		else if (loadModeStr == "splishsplash")
+		{
+			return Storm::FluidParticleLoadDenseMode::AsSplishSplash;
+		}
+		else
+		{
+			Storm::throwException<std::exception>("Fluid particle dense load mode value is unknown : '" + loadModeStr + "'");
 		}
 	}
 }
@@ -167,7 +185,8 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 			{
 				if (
 					!Storm::XmlReader::handleXml(fluidBlockDataXml, "firstPoint", fluidBlockGenerator._firstPoint, parseVector3Element) &&
-					!Storm::XmlReader::handleXml(fluidBlockDataXml, "secondPoint", fluidBlockGenerator._secondPoint, parseVector3Element)
+					!Storm::XmlReader::handleXml(fluidBlockDataXml, "secondPoint", fluidBlockGenerator._secondPoint, parseVector3Element) &&
+					!Storm::XmlReader::handleXml(fluidBlockDataXml, "denseMode", fluidBlockGenerator._loadDenseMode, parseLoadDenseMode)
 					)
 				{
 					LOG_ERROR << "tag '" << fluidBlockDataXml.first << "' (inside Scene.Fluid.fluidBlock) is unknown, therefore it cannot be handled";

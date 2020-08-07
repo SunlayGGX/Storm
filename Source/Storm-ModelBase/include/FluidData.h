@@ -3,6 +3,8 @@
 
 namespace Storm
 {
+	enum class FluidParticleLoadDenseMode;
+
 	struct FluidBlockData
 	{
 	public:
@@ -11,6 +13,7 @@ namespace Storm
 	public:
 		Storm::Vector3 _firstPoint;
 		Storm::Vector3 _secondPoint;
+		Storm::FluidParticleLoadDenseMode _loadDenseMode;
 	};
 
 	struct FluidData

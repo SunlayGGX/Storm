@@ -23,6 +23,7 @@
     <ClInclude Include="..\include\AsyncAction.h" />
     <ClInclude Include="..\include\CollisionType.h" />
     <ClInclude Include="..\include\DataIncludes.h" />
+    <ClInclude Include="..\include\FluidParticleLoadDenseMode.h" />
     <ClInclude Include="..\include\GeneralSimulationData.h" />
     <ClInclude Include="..\include\GraphicData.h" />
     <ClInclude Include="..\include\IAssetLoaderManager.h" />
