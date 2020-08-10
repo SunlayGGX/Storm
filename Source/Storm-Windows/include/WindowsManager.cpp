@@ -72,7 +72,7 @@ void Storm::WindowsManager::initialize_Implementation()
 
 	_windowsThread = std::thread{ [this, &syncronizer, &canLeave, &syncMutex]()
 	{
-		STORM_REGISTER_THREAD(TimeThread);
+		STORM_REGISTER_THREAD(WindowsAndInputThread);
 
 		this->initializeInternal();
 
