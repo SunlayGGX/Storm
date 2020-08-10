@@ -66,11 +66,21 @@ void Storm::WindowsManager::initialize_Implementation()
 {
 	LOG_COMMENT << "Starting creating the Windows for the application";
 
-	_windowsThread = std::thread{ [this]()
+	std::condition_variable syncronizer;
+	bool canLeave = false;
+	std::mutex syncMutex;
+
+	_windowsThread = std::thread{ [this, &syncronizer, &canLeave, &syncMutex]()
 	{
 		STORM_REGISTER_THREAD(TimeThread);
 
 		this->initializeInternal();
+
+		{
+			std::unique_lock<std::mutex> lock{ syncMutex };
+			canLeave = true;
+			syncronizer.notify_all();
+		}
 
 		const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 		Storm::ITimeManager &timeMgr = singletonHolder.getSingleton<Storm::ITimeManager>();
@@ -85,6 +95,9 @@ void Storm::WindowsManager::initialize_Implementation()
 			threadMgr.processCurrentThreadActions();
 		}
 	} };
+
+	std::unique_lock<std::mutex> lock{ syncMutex };
+	syncronizer.wait(lock, [&canLeave]() { return canLeave; });
 }
 
 void Storm::WindowsManager::cleanUp_Implementation()
