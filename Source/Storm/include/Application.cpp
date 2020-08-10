@@ -41,6 +41,11 @@ namespace
 
 	std::unique_ptr<SingletonAllocatorAlias> g_singletonMaker;
 
+	bool shouldRunSimulation()
+	{
+		return !Storm::ConfigManager::instance().shouldDisplayHelp();
+	}
+
 	void initializeStormApplication(int argc, const char* argv[])
 	{
 		g_singletonMaker = std::make_unique<SingletonAllocatorAlias>();
@@ -59,19 +64,26 @@ namespace
 
 		Storm::ThreadManager::instance().initialize();
 
-		Storm::TimeManager::instance().initialize();
+		if (shouldRunSimulation())
+		{
+			Storm::TimeManager::instance().initialize();
 
-		Storm::RandomManager::instance().initialize();
-		Storm::OSManager::instance().initialize();
+			Storm::RandomManager::instance().initialize();
+			Storm::OSManager::instance().initialize();
 
-		Storm::InputManager::instance().initialize();
+			Storm::InputManager::instance().initialize();
 
-		Storm::PhysicsManager::instance().initialize();
+			Storm::PhysicsManager::instance().initialize();
 
-		Storm::ShaderManager::instance().initialize();
-		Storm::GraphicManager::instance().initialize();
+			Storm::ShaderManager::instance().initialize();
+			Storm::GraphicManager::instance().initialize();
 
-		Storm::AssetLoaderManager::instance().initialize();
+			Storm::AssetLoaderManager::instance().initialize();
+
+			Storm::WindowsManager::instance().initialize();
+
+			Storm::SimulatorManager::instance().initialize();
+		}
 
 		LOG_COMMENT << "Application Creation finished";
 	}
@@ -115,16 +127,14 @@ Storm::ExitCode Storm::Application::run()
 {
 	try
 	{
-		if (!Storm::ConfigManager::instance().shouldDisplayHelp())
+		if (shouldRunSimulation())
 		{
-			LOG_COMMENT << "Creating Application Windows";
-			Storm::WindowsManager::instance().initialize();
-
-			LOG_COMMENT << "Initializing the simulator";
-			Storm::SimulatorManager::instance().initialize();
-
 			LOG_COMMENT << "Start Application Run";
 			Storm::SimulatorManager::instance().run();
+		}
+		else
+		{
+			LOG_COMMENT << "Help requested, therefore the simulator wasn't initialized! We will exit now.";
 		}
 	}
 	catch (const std::exception &ex)

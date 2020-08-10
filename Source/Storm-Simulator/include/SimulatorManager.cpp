@@ -101,6 +101,8 @@ Storm::SimulatorManager::~SimulatorManager() = default;
 
 void Storm::SimulatorManager::initialize_Implementation()
 {
+	LOG_COMMENT << "Initializing the simulator";
+
 	/* Initialize kernels */
 
 	Storm::initializeKernels(this->getKernelLength());
