@@ -136,8 +136,10 @@ void Storm::SimulatorManager::run()
 	std::vector<Storm::SimulationCallback> tmpSimulationCallback;
 	tmpSimulationCallback.reserve(8);
 
-	// A fast iterator that loops every 1024 iterations.
-	union { unsigned short _val : 10 = 0; } _forcedPushFrameIterator;
+	this->pushParticlesToGraphicModule(true);
+
+	// A fast iterator that loops every 512 iterations.
+	union { unsigned short _val : 9 = 0; } _forcedPushFrameIterator;
 
 	do
 	{
@@ -148,12 +150,6 @@ void Storm::SimulatorManager::run()
 			return;
 
 		case TimeWaitResult::Pause:
-			if (_forcedPushFrameIterator._val < 5)
-			{
-				this->pushParticlesToGraphicModule(true);
-				++_forcedPushFrameIterator._val;
-			}
-
 			// Takes time to process messages that came from other threads.
 			threadMgr.processCurrentThreadActions();
 			continue;
@@ -205,7 +201,7 @@ void Storm::SimulatorManager::run()
 
 		// Push all particle data to the graphic module to be rendered...
 		// The first 5 frames every 1024 frames will be pushed for sure to the graphic module to be sure everyone is sync... 
-		this->pushParticlesToGraphicModule(_forcedPushFrameIterator._val < 5);
+		this->pushParticlesToGraphicModule(_forcedPushFrameIterator._val == 0);
 
 		// Takes time to process messages that came from other threads.
 		threadMgr.processCurrentThreadActions();
