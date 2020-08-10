@@ -166,7 +166,7 @@ Storm::EarlyExitAnswer Storm::Application::ensureCleanStateAfterException(const 
 		}
 		catch (const std::exception &cleanUpEx)
 		{
-			std::string errorMsg2{ "Another exception happened during cleanup : " + std::string{ cleanUpEx.what() } };
+			std::string errorMsg2{ "Another exception happened during cleanup : " + Storm::toStdString(cleanUpEx) };
 			if (Storm::LoggerManager::isAlive() && Storm::LoggerManager::instance().isInitialized())
 			{
 				LOG_FATAL << errorMsg2;
