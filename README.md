@@ -56,6 +56,7 @@ I'm using catch2 as our main unit test library. But to be able to use it, you sh
 - **Storm-Misc**: This module is intended to gather module manager helper that shouldn't be made into helpers since they are Storm project implementation related but cannot be put into any other modules. Example are the RandomManager (that should be deterministic), the TimeManager (that should be compliant with Storm simulator), the AsyncManager (that is intended to be executed in the main Simulation loop like Unreal's Async method), ... .
 - **Storm-ModelBase**: This module is the base for each modules. It ontains everything that could be used to bind the modules together without the need to reference each other.
 - **Storm-Physics**: This module is responsible for initializing and managing Physics computations.
+- **Storm-Space**: This module is where we implement the space vicualisation of the domain. Be it Voxels, Grids, octree, ... This is where we compute and store element for a fast neighborhood search.
 - **Storm-Simulator**: This module is where the Simulation classes would be. It is responsible to handle SPH.
 - **Storm-Windows**: This module is responsible for managing the Windows and everything related to it.
 
