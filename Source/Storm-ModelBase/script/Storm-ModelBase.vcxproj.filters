@@ -188,5 +188,8 @@
     <ClInclude Include="..\include\FluidParticleLoadDenseMode.h">
       <Filter>Header Files\Load</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\ISpaceManager.h">
+      <Filter>Header Files\Singleton</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
