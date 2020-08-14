@@ -54,6 +54,9 @@
     <ProjectReference Include="..\..\Storm-Simulator\script\Storm-Simulator.vcxproj">
       <Project>{c115891c-7bdb-4a4c-b19c-24e39536a051}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\..\Storm-Space\script\Storm-Space.vcxproj">
+      <Project>{bf9a69c6-f71f-4838-9ec9-1b63717eddac}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\..\Storm-Windows\script\Storm-Windows.vcxproj">
       <Project>{0ca7df04-32a0-4200-9d32-4cb257e47d98}</Project>
     </ProjectReference>
@@ -112,7 +115,7 @@
       <PrecompiledHeaderFile>StormPCH.h</PrecompiledHeaderFile>
       <ForcedIncludeFiles>%(PrecompiledHeaderFile);%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <LanguageStandard>stdcpplatest</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)../../Storm-ModelBase/include;$(ProjectDir)../../Storm-Loader/include;$(ProjectDir)../../Storm-Logger/include;$(ProjectDir)../../Storm-Config/include;$(ProjectDir)../../Storm-Windows/include;$(ProjectDir)../../Storm-Input/include;$(ProjectDir)../../Storm-Graphics/include;$(ProjectDir)../../Storm-Physics/include;$(ProjectDir)../../Storm-Misc/include;$(ProjectDir)../../Storm-Simulator/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)../../Storm-ModelBase/include;$(ProjectDir)../../Storm-Loader/include;$(ProjectDir)../../Storm-Logger/include;$(ProjectDir)../../Storm-Config/include;$(ProjectDir)../../Storm-Windows/include;$(ProjectDir)../../Storm-Input/include;$(ProjectDir)../../Storm-Graphics/include;$(ProjectDir)../../Storm-Physics/include;$(ProjectDir)../../Storm-Misc/include;$(ProjectDir)../../Storm-Space/include;$(ProjectDir)../../Storm-Simulator/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -134,7 +137,7 @@
       <PrecompiledHeaderFile>StormPCH.h</PrecompiledHeaderFile>
       <ForcedIncludeFiles>%(PrecompiledHeaderFile);%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <LanguageStandard>stdcpplatest</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)../../Storm-ModelBase/include;$(ProjectDir)../../Storm-Loader/include;$(ProjectDir)../../Storm-Logger/include;$(ProjectDir)../../Storm-Config/include;$(ProjectDir)../../Storm-Windows/include;$(ProjectDir)../../Storm-Input/include;$(ProjectDir)../../Storm-Graphics/include;$(ProjectDir)../../Storm-Physics/include;$(ProjectDir)../../Storm-Misc/include;$(ProjectDir)../../Storm-Simulator/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)../../Storm-ModelBase/include;$(ProjectDir)../../Storm-Loader/include;$(ProjectDir)../../Storm-Logger/include;$(ProjectDir)../../Storm-Config/include;$(ProjectDir)../../Storm-Windows/include;$(ProjectDir)../../Storm-Input/include;$(ProjectDir)../../Storm-Graphics/include;$(ProjectDir)../../Storm-Physics/include;$(ProjectDir)../../Storm-Misc/include;$(ProjectDir)../../Storm-Space/include;$(ProjectDir)../../Storm-Simulator/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
