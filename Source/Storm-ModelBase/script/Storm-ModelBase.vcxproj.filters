@@ -64,6 +64,9 @@
     <Filter Include="Header Files\Load">
       <UniqueIdentifier>{9e6b5550-060d-4ff7-8490-143c8ed00280}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Space">
+      <UniqueIdentifier>{a52c935a-7083-41cb-ad13-f23ffb65ee9b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-ModelBasePCH.cpp">
@@ -190,6 +193,9 @@
     </ClInclude>
     <ClInclude Include="..\include\ISpaceManager.h">
       <Filter>Header Files\Singleton</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\PartitionReorderingModality.h">
+      <Filter>Header Files\Space</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Vector3Utils.h">
       <Filter>Header Files\General</Filter>

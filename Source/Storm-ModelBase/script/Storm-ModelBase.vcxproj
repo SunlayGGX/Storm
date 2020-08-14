@@ -40,6 +40,7 @@
     <ClInclude Include="..\include\IThreadManager.h" />
     <ClInclude Include="..\include\FluidData.h" />
     <ClInclude Include="..\include\KernelMode.h" />
+    <ClInclude Include="..\include\PartitionReorderingModality.h" />
     <ClInclude Include="..\include\RigidBodyHolder.h" />
     <ClInclude Include="..\include\RigidBodySceneData.h" />
     <ClInclude Include="..\include\ISimulatorManager.h" />
