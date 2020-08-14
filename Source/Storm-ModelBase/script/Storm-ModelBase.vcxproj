@@ -56,6 +56,7 @@
     <ClInclude Include="..\include\UIFieldBase.h" />
     <ClInclude Include="..\include\UIFieldContainer.h" />
     <ClInclude Include="..\include\Vector3.h" />
+    <ClInclude Include="..\include\Vector3Utils.h" />
     <ClInclude Include="..\include\WindowsCallbacks.h" />
   </ItemGroup>
   <ItemGroup>

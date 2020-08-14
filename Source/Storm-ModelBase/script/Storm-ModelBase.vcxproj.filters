@@ -191,5 +191,8 @@
     <ClInclude Include="..\include\ISpaceManager.h">
       <Filter>Header Files\Singleton</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\Vector3Utils.h">
+      <Filter>Header Files\General</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
