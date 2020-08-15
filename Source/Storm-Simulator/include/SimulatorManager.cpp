@@ -416,11 +416,11 @@ void Storm::SimulatorManager::applyCFLIfNeeded(const Storm::GeneralSimulationDat
 		}
 
 		// The physics engine doesn't like when the timestep is below some value...
-		/*constexpr float minDeltaTime = 0.0001f;
+		constexpr float minDeltaTime = 0.0000001f;
 		if (newDeltaTimeStep < minDeltaTime)
 		{
 			newDeltaTimeStep = minDeltaTime;
-		}*/
+		}
 
 		if (newDeltaTimeStep > generalSimulationDataConfig._maxCFLTime)
 		{

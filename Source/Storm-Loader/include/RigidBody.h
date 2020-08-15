@@ -25,9 +25,6 @@ namespace Storm
 		static std::filesystem::path retrieveParticleDataCacheFolder();
 
 	private:
-		static std::vector<Storm::Vector3> sampleMesh(const std::vector<Storm::Vector3> &vertices);
-
-	private:
 		void load(const Storm::RigidBodySceneData &rbSceneData);
 
 	private:
