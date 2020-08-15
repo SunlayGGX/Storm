@@ -36,7 +36,7 @@
     <ClInclude Include="..\include\IRandomManager.h" />
     <ClInclude Include="..\include\IRigidBody.h" />
     <ClInclude Include="..\include\IShaderManager.h" />
-    <ClInclude Include="..\include\ISpaceManager.h" />
+    <ClInclude Include="..\include\ISpacePartitionerManager.h" />
     <ClInclude Include="..\include\IThreadManager.h" />
     <ClInclude Include="..\include\FluidData.h" />
     <ClInclude Include="..\include\KernelMode.h" />

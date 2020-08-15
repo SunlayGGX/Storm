@@ -4,10 +4,10 @@
 
 namespace Storm
 {
-	class ISpaceManager : public Storm::ISingletonHeldInterface<Storm::ISpaceManager>
+	class ISpacePartitionerManager : public Storm::ISingletonHeldInterface<Storm::ISpacePartitionerManager>
 	{
 	public:
-		virtual ~ISpaceManager() = default;
+		virtual ~ISpacePartitionerManager() = default;
 
 	public:
 		// Partition the space into smaller chunks. This initialize the space and should absolutely be called before really using this manager.

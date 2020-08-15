@@ -30,28 +30,28 @@
     <ClCompile Include="..\include\Storm-SpacePCH.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\include\SpaceManager.cpp">
-      <Filter>Source Files\General</Filter>
-    </ClCompile>
     <ClCompile Include="..\include\VoxelGrid.cpp">
       <Filter>Source Files\Voxel</Filter>
     </ClCompile>
     <ClCompile Include="..\include\Voxel.cpp">
       <Filter>Source Files\Voxel</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\SpacePartitionerManager.cpp">
+      <Filter>Source Files\General</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-SpacePCH.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\SpaceManager.h">
-      <Filter>Header Files\General</Filter>
     </ClInclude>
     <ClInclude Include="..\include\VoxelGrid.h">
       <Filter>Header Files\Voxel</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Voxel.h">
       <Filter>Header Files\Voxel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SpacePartitionerManager.h">
+      <Filter>Header Files\General</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

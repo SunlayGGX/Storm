@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\include\SpaceManager.cpp" />
+    <ClCompile Include="..\include\SpacePartitionerManager.cpp" />
     <ClCompile Include="..\include\Storm-SpacePCH.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
@@ -20,7 +20,7 @@
     <ClCompile Include="..\include\VoxelGrid.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\include\SpaceManager.h" />
+    <ClInclude Include="..\include\SpacePartitionerManager.h" />
     <ClInclude Include="..\include\Storm-SpacePCH.h" />
     <ClInclude Include="..\include\Voxel.h" />
     <ClInclude Include="..\include\VoxelGrid.h" />

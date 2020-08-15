@@ -1,17 +1,17 @@
 
 #include "Singleton.h"
-#include "ISpaceManager.h"
+#include "ISpacePartitionerManager.h"
 
 
 namespace Storm
 {
 	class VoxelGrid;
 
-	class SpaceManager :
-		private Storm::Singleton<SpaceManager>,
-		public Storm::ISpaceManager
+	class SpacePartitionerManager :
+		private Storm::Singleton<SpacePartitionerManager>,
+		public Storm::ISpacePartitionerManager
 	{
-		STORM_DECLARE_SINGLETON(SpaceManager);
+		STORM_DECLARE_SINGLETON(SpacePartitionerManager);
 
 	private:
 		using BundleMap = std::map<unsigned int, std::unique_ptr<Storm::VoxelGrid>>;
