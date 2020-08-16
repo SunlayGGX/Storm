@@ -33,7 +33,7 @@ void Storm::SpacePartitionerManager::initialize_Implementation(float partitionLe
 	const auto &allRigidBodies = assetLoaderMgr.getRigidBodyArray();
 	for (const auto &rigidBody : allRigidBodies)
 	{
-		const std::vector<Storm::Vector3> &allVertexes = rigidBody->getRigidBodyObjectSpaceVertexes();
+		const std::vector<Storm::Vector3> &allVertexes = rigidBody->getRigidBodyParticlesWorldPositions();
 		for (const Storm::Vector3 &vertex : allVertexes)
 		{
 			Storm::minMaxInPlace(_downSpaceCorner, _upSpaceCorner, vertex, [](auto &vect) -> auto& { return vect.x(); });
