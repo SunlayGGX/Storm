@@ -6,9 +6,9 @@ TEST_CASE("toStdString", "[classic]")
 	CHECK(Storm::toStdString(3) == "3");
 	CHECK(Storm::toStdString(true) == "true");
 	CHECK(Storm::toStdString(false) == "false");
-	CHECK(Storm::toStdString(std::vector<int>{ 5, 6, 7, 9, -1 }) == "5,6,7,9,-1");
-	CHECK(Storm::toStdString(std::map<int, std::string>{ { 5, "toto" }, { 6, "titi" }, { -1, "tutu" } }) == "tutu,toto,titi");
-	CHECK(Storm::toStdString<Storm::DebugPolicy>(std::map<int, std::string>{ { 5, "toto" }, { 6, "titi" }, { -1, "tutu" } }) == "{ -1,tutu },{ 5,toto },{ 6,titi }");
+	CHECK(Storm::toStdString(std::vector<int>{ 5, 6, 7, 9, -1 }) == "5\n6\n7\n9\n-1");
+	CHECK(Storm::toStdString(std::map<int, std::string>{ { 5, "toto" }, { 6, "titi" }, { -1, "tutu" } }) == "tutu\ntoto\ntiti");
+	CHECK(Storm::toStdString<Storm::DebugPolicy>(std::map<int, std::string>{ { 5, "toto" }, { 6, "titi" }, { -1, "tutu" } }) == "{ -1,tutu }\n{ 5,toto }\n{ 6,titi }");
 	CHECK(Storm::toStdString(std::string{ "toto" }) == "toto");
 	CHECK(Storm::toStdString(std::wstring{ L"toto" }) == "toto");
 	CHECK(Storm::toStdString("toto") == "toto");
