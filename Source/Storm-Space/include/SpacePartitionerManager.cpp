@@ -6,6 +6,7 @@
 #include "IRigidBody.h"
 
 #include "VoxelGrid.h"
+#include "PartitionSelection.h"
 
 #include "Vector3Utils.h"
 
@@ -42,31 +43,46 @@ void Storm::SpacePartitionerManager::initialize_Implementation(float partitionLe
 		}
 	}
 
+	_partitionLength = -1.f; // To be sure we don't set the same length.
 	this->setPartitionLength(partitionLength);
 }
 
 void Storm::SpacePartitionerManager::cleanUp_Implementation()
 {
-	_fluidSpacePartition.clear();
-	_rigidBodySpacePartition.clear();
+	_fluidSpacePartition.reset();
+	_staticRigidBodySpacePartition.reset();
+	_dynamicRigidBodySpacePartition.reset();
 }
 
-void Storm::SpacePartitionerManager::partitionSpace(unsigned int systemId, bool isFluid)
+void Storm::SpacePartitionerManager::partitionSpace()
 {
-	this->partitionSpace_Internal(isFluid ? _fluidSpacePartition : _rigidBodySpacePartition, systemId);
+	auto fluidSpacePartitionSrc = std::make_unique<Storm::VoxelGrid>(_upSpaceCorner, _downSpaceCorner, _partitionLength);
+
+	// Since the space partition are the same (this is the internal referrals that differ, but since we have not added anything, those does not differ for now). 
+	// Just copy the newly created space partition instead of computing everything again. 
+	auto dynamicRigidBodySpacePartitionSrc = std::make_unique<Storm::VoxelGrid>(*fluidSpacePartitionSrc);
+	auto staticRigidBodySpacePartitionSrc = std::make_unique<Storm::VoxelGrid>(*fluidSpacePartitionSrc);
+
+	_fluidSpacePartition = std::move(fluidSpacePartitionSrc);
+	_dynamicRigidBodySpacePartition = std::move(dynamicRigidBodySpacePartitionSrc);
+	_staticRigidBodySpacePartition = std::move(staticRigidBodySpacePartitionSrc);
 }
 
-void Storm::SpacePartitionerManager::computeSpaceReordering(const std::vector<Storm::Vector3> &particlePositions, unsigned int systemId, bool isFluid)
+void Storm::SpacePartitionerManager::computeSpaceReordering(const std::vector<Storm::Vector3> &particlePositions, Storm::PartitionSelection modality, const unsigned int systemId)
 {
-	const std::unique_ptr<Storm::VoxelGrid> &spacePartition = this->getSpacePartition(systemId, isFluid);
-	spacePartition->clear();
-
+	const std::unique_ptr<Storm::VoxelGrid> &spacePartition = this->getSpacePartition(modality);
 	spacePartition->fill(particlePositions);
 }
 
-void Storm::SpacePartitionerManager::getAllBundles(const std::vector<std::size_t>* &outContainingBundlePtr, std::vector<const std::vector<std::size_t> *> &outNeighborBundle, const Storm::Vector3 &particlePosition, unsigned int systemId, bool isFluid) const
+void Storm::SpacePartitionerManager::clearSpaceReordering(Storm::PartitionSelection modality)
 {
-	const std::unique_ptr<Storm::VoxelGrid> &spacePartition = this->getSpacePartition(systemId, isFluid);
+	const std::unique_ptr<Storm::VoxelGrid> &spacePartition = this->getSpacePartition(modality);
+	spacePartition->clear();
+}
+
+void Storm::SpacePartitionerManager::getAllBundles(const std::vector<Storm::NeighborParticleReferral>* &outContainingBundlePtr, const std::vector<Storm::NeighborParticleReferral>*(&outNeighborBundle)[Storm::k_neighborLinkedBunkCount], const Storm::Vector3 &particlePosition, Storm::PartitionSelection modality) const
+{
+	const std::unique_ptr<Storm::VoxelGrid> &spacePartition = this->getSpacePartition(modality);
 	spacePartition->getVoxelsDataAtPosition(outContainingBundlePtr, outNeighborBundle, particlePosition);
 }
 
@@ -77,31 +93,26 @@ float Storm::SpacePartitionerManager::getPartitionLength() const
 
 void Storm::SpacePartitionerManager::setPartitionLength(float length)
 {
-	_partitionLength = length;
+	if (_partitionLength != length)
+	{
+		_partitionLength = length;
+
+		// Recreate all partitions.
+		this->partitionSpace();
+	}
 }
 
-void Storm::SpacePartitionerManager::partitionSpace_Internal(Storm::SpacePartitionerManager::BundleMap &spacePartitionMap, unsigned int systemId)
+const std::unique_ptr<Storm::VoxelGrid>& Storm::SpacePartitionerManager::getSpacePartition(Storm::PartitionSelection modality) const
 {
-	auto spacePartition = std::make_unique<Storm::VoxelGrid>(_upSpaceCorner, _downSpaceCorner, _partitionLength);
-	spacePartitionMap[systemId] = std::move(spacePartition);
-}
-
-const std::unique_ptr<Storm::VoxelGrid>& Storm::SpacePartitionerManager::getSpacePartition(unsigned int systemId, bool isFluid) const
-{
-	if (isFluid)
+	switch (modality)
 	{
-		if (auto found = _fluidSpacePartition.find(systemId); found != std::end(_fluidSpacePartition))
-		{
-			return found->second;
-		}
-	}
-	else
-	{
-		if (auto found = _rigidBodySpacePartition.find(systemId); found != std::end(_rigidBodySpacePartition))
-		{
-			return found->second;
-		}
-	}
+	case Storm::PartitionSelection::Fluid: return _fluidSpacePartition;
+	case Storm::PartitionSelection::DynamicRigidBody: return _dynamicRigidBodySpacePartition;
+	case Storm::PartitionSelection::StaticRigidBody: return _staticRigidBodySpacePartition;
 
-	Storm::throwException<std::exception>("Space partition " + std::to_string(systemId) + " supposed to be a " + (isFluid ? "fluid" : "rigid body") + " was not found!");
+	default:
+		assert(false && "Space partition referred to the PartitionSelection enum value doesn't exist!");
+		__assume(false);
+		return nullptr;
+	}
 }

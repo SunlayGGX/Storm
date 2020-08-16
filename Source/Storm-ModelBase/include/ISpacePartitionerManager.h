@@ -2,8 +2,13 @@
 
 #include "SingletonHeldInterfaceBase.h"
 
+#include "SpacePartitionConstants.h"
+
 namespace Storm
 {
+	enum class PartitionSelection;
+	struct NeighborParticleReferral;
+
 	class ISpacePartitionerManager : public Storm::ISingletonHeldInterface<Storm::ISpacePartitionerManager>
 	{
 	public:
@@ -11,16 +16,21 @@ namespace Storm
 
 	public:
 		// Partition the space into smaller chunks. This initialize the space and should absolutely be called before really using this manager.
-		virtual void partitionSpace(unsigned int systemId, bool isFluid) = 0;
+		virtual void partitionSpace() = 0;
 
-		// Reorder the space using the passed particle Positions. This clear the former reordering.
-		virtual void computeSpaceReordering(const std::vector<Storm::Vector3> &particlePositions, unsigned int systemId, bool isFluid) = 0;
+		// Reorder the space using the passed particle Positions. This does not clear the former reordering but add the particle positions to the right partition.
+		virtual void computeSpaceReordering(const std::vector<Storm::Vector3> &particlePositions, Storm::PartitionSelection modality, const unsigned int systemId) = 0;
+
+		// Clear the selected space partition from all registered particle referrals. This does not remove the partition.
+		virtual void clearSpaceReordering(Storm::PartitionSelection modality) = 0;
 
 		// Get the all bundles that can be considered as neighbor from the bundle referred by systemId containing the particlePosition. 
 		// Note that inOutContainingBundlePtr can also contain the particle at particlePosition.
-		virtual void getAllBundles(const std::vector<std::size_t>* &outContainingBundlePtr, std::vector<const std::vector<std::size_t>*> &outNeighborBundle, const Storm::Vector3 &particlePosition, unsigned int systemId, bool isFluid) const = 0;
+		virtual void getAllBundles(const std::vector<Storm::NeighborParticleReferral>* &outContainingBundlePtr, const std::vector<Storm::NeighborParticleReferral>*(&outNeighborBundle)[Storm::k_neighborLinkedBunkCount], const Storm::Vector3 &particlePosition, Storm::PartitionSelection modality) const = 0;
 
-		virtual float getPartitionLength() const = 0;
+		// Set the partition length used when partitioning the space. The length is the length of one partition.
+		// Beware since setting it will automatically reset the partitioning (recreate all partitions and clear the particle referrals).
 		virtual void setPartitionLength(float length) = 0;
+		virtual float getPartitionLength() const = 0;
 	};
 }
