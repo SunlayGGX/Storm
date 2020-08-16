@@ -439,6 +439,42 @@ namespace Storm
 			}
 		};
 
+		// Custom policy parser for type that will be declared somewhere else in the application (maybe inside a child module), but where we want a default policy for them...
+		template<class Policy, class ValueType>
+		struct CustomLaterImplementedTypeParser
+		{
+		private:
+			// Default policy for Storm::Vector3 that will be defined inside Storm-ModelBase library
+			template<class ValType>
+			static auto parseImpl(ValType &&val)
+				-> decltype(std::enable_if_t<std::is_same_v<std::remove_cv_t<std::remove_reference_t<ValType>>, Storm::Vector3>, std::true_type>::value, std::string{})
+			{
+				std::string result;
+				
+				const std::string xStr = Storm::details::toStdString<Policy>(val.x());
+				const std::string yStr = Storm::details::toStdString<Policy>(val.y());
+				const std::string zStr = Storm::details::toStdString<Policy>(val.z());
+
+				result.reserve(static_cast<std::size_t>(8) + xStr.size() + yStr.size() + zStr.size());
+
+				result += "{ ";
+				result += xStr;
+				result += ", ";
+				result += yStr;
+				result += ", ";
+				result += zStr;
+				result += " }";
+
+				return result;
+			}
+
+		public:
+			template<class ValType>
+			static auto parse(ValType &&val) -> decltype(parseImpl(std::forward<ValType>(val)))
+			{
+				return parseImpl(std::forward<ValType>(val));
+			}
+		};
 
 		template<class Policy, class ValueType>
 		struct NonParser
@@ -458,6 +494,7 @@ namespace Storm
 
 			using BestFitParser =
 				STORM_CHECK_AND_RETURN_IF_SHOULD_USE(CustomPolicyParser),
+				STORM_CHECK_AND_RETURN_IF_SHOULD_USE(CustomLaterImplementedTypeParser),
 				STORM_CHECK_AND_RETURN_IF_SHOULD_USE(ForwardParser),
 				STORM_CHECK_AND_RETURN_IF_SHOULD_USE(ConvertableParser),
 				STORM_CHECK_AND_RETURN_IF_SHOULD_USE(StandardParser),
@@ -466,7 +503,7 @@ namespace Storm
 				STORM_CHECK_AND_RETURN_IF_SHOULD_USE(CastableParser),
 				STORM_CHECK_AND_RETURN_IF_SHOULD_USE(MiscParser),
 				Storm::details::NonParser<Policy, ValueType>
-				>>>>>>>>;
+				>>>>>>>>>;
 
 #undef STORM_CHECK_AND_RETURN_IF_SHOULD_USE
 

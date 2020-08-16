@@ -47,12 +47,6 @@ namespace
 		};
 
 		template<class PolicyType>
-		static std::string parse(const Storm::Vector3 &vect)
-		{
-			return "{ " + std::to_string(vect.x()) + ',' + std::to_string(vect.y()) + ',' + std::to_string(vect.z()) + " }";
-		}
-
-		template<class PolicyType>
 		static std::string parse(const Storm::ParticleNeighborhoodArray &neighborhood)
 		{
 			std::string result;
