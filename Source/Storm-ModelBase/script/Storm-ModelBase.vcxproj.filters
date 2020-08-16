@@ -197,6 +197,9 @@
     <ClInclude Include="..\include\ISpacePartitionerManager.h">
       <Filter>Header Files\Singleton</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\NeighborParticleReferral.h">
+      <Filter>Header Files\SpacePartitioning</Filter>
+    </ClInclude>
     <ClInclude Include="..\include\PartitionSelection.h">
       <Filter>Header Files\SpacePartitioning</Filter>
     </ClInclude>
