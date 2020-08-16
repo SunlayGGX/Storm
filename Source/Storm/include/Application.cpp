@@ -15,6 +15,7 @@
 #include "SimulatorManager.h"
 #include "PhysicsManager.h"
 #include "ThreadManager.h"
+#include "SpacePartitionerManager.h"
 
 #include "Version.h"
 #include "TimeHelper.h"
@@ -36,6 +37,7 @@ namespace
 		Storm::ShaderManager,
 		Storm::GraphicManager,
 		Storm::PhysicsManager,
+		Storm::SpacePartitionerManager,
 		Storm::SimulatorManager
 	>;
 
@@ -83,6 +85,8 @@ namespace
 			Storm::WindowsManager::instance().initialize();
 
 			Storm::SimulatorManager::instance().initialize();
+
+			Storm::SpacePartitionerManager::instance().initialize(Storm::SimulatorManager::instance().getKernelLength());
 		}
 
 		LOG_COMMENT << "Application Creation finished";
@@ -96,6 +100,7 @@ namespace
 
 			Storm::TimeManager::instance().cleanUp();
 			Storm::SimulatorManager::instance().cleanUp();
+			Storm::SpacePartitionerManager::instance().cleanUp();
 			Storm::ThreadManager::instance().cleanUp();
 			Storm::InputManager::instance().cleanUp();
 			Storm::GraphicManager::instance().cleanUp();
