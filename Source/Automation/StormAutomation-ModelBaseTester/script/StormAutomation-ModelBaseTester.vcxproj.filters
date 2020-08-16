@@ -14,22 +14,22 @@
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
     <Filter Include="Source Files\Tests">
-      <UniqueIdentifier>{ec3e3630-5ba6-44cb-8aa0-af11f20b403f}</UniqueIdentifier>
+      <UniqueIdentifier>{cf0dafcb-ad22-4388-93f0-60b70ebda258}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\include\StormAutomation-HelperTesterPCH.h">
+    <ClInclude Include="..\include\StormAutomation-ModelBaseTesterPCH.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\include\StormAutomation-HelperTesterPCH.cpp">
+    <ClCompile Include="..\include\StormAutomation-ModelBaseTesterPCH.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\include\StormAutomation-HelperTester.cpp">
+    <ClCompile Include="..\include\StormAutomation-ModelBaseTester.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\include\toStdStringTesterHelper.cpp">
+    <ClCompile Include="..\include\toStdStringTesterModelBase.cpp">
       <Filter>Source Files\Tests</Filter>
     </ClCompile>
   </ItemGroup>

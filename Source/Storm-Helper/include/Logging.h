@@ -13,14 +13,22 @@ namespace Storm
 		~LoggerObject();
 
 	private:
+		// Customs for types that would be declared later
 		template<class ToWriteType>
-		static auto addToStream(std::stringstream &stream, const ToWriteType &toWrite, int) -> decltype(stream << toWrite)
+		static auto addToStream(std::stringstream &stream, const ToWriteType &toWrite, int)
+			-> decltype(std::enable_if_t<std::is_same_v<ToWriteType, Storm::Vector3>, std::true_type>::value, stream << Storm::toStdString(toWrite))
+		{
+			return stream << Storm::toStdString(toWrite);
+		}
+
+		template<class ToWriteType>
+		static auto addToStream(std::stringstream &stream, const ToWriteType &toWrite, void*) -> decltype(stream << toWrite)
 		{
 			return stream << toWrite;
 		}
 
 		template<class ToWriteType>
-		static auto addToStream(std::stringstream &stream, const ToWriteType &toWrite, void*) -> decltype(stream << Storm::toStdString(toWrite))
+		static auto addToStream(std::stringstream &stream, const ToWriteType &toWrite, ...) -> decltype(stream << Storm::toStdString(toWrite))
 		{
 			return stream << Storm::toStdString(toWrite);
 		}

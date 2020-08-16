@@ -13,8 +13,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{fdda96c7-1a39-4709-919a-efdb3cf7a126}</ProjectGuid>
-    <RootNamespace>StormAutomationHelperTester</RootNamespace>
+    <ProjectGuid>{58D7C87A-DCB4-42DC-8575-4F416154F226}</ProjectGuid>
+    <RootNamespace>StormAutomationModelBaseTester</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -61,10 +61,11 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>StormAutomation-HelperTesterPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile>StormAutomation-ModelBaseTesterPCH.h</PrecompiledHeaderFile>
       <ForcedIncludeFiles>%(PrecompiledHeaderFile);%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <AdditionalIncludeDirectories>$(ProjectDir)../../../Storm-ModelBase/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -80,9 +81,10 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>StormAutomation-HelperTesterPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile>StormAutomation-ModelBaseTesterPCH.h</PrecompiledHeaderFile>
       <ForcedIncludeFiles>%(PrecompiledHeaderFile);%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <LanguageStandard>stdcpplatest</LanguageStandard>
+      <AdditionalIncludeDirectories>$(ProjectDir)../../../Storm-ModelBase/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -92,19 +94,22 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\include\StormAutomation-HelperTesterPCH.h" />
+    <ClInclude Include="..\include\StormAutomation-ModelBaseTesterPCH.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\include\StormAutomation-HelperTester.cpp" />
-    <ClCompile Include="..\include\StormAutomation-HelperTesterPCH.cpp">
+    <ClCompile Include="..\include\StormAutomation-ModelBaseTester.cpp" />
+    <ClCompile Include="..\include\StormAutomation-ModelBaseTesterPCH.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\include\toStdStringTesterHelper.cpp" />
+    <ClCompile Include="..\include\toStdStringTesterModelBase.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Storm-Helper\script\Storm-Helper.vcxproj">
       <Project>{30709355-d527-4faa-9c02-1f64129968e5}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Storm-ModelBase\script\Storm-ModelBase.vcxproj">
+      <Project>{bb52fd96-f795-463d-8ad1-392b37344a7d}</Project>
     </ProjectReference>
     <ProjectReference Include="..\..\StormAutomation-Base\script\StormAutomation-Base.vcxproj">
       <Project>{34740247-39fb-45d9-b11d-a7650d128b52}</Project>
