@@ -71,7 +71,7 @@ void Storm::SpacePartitionerManager::partitionSpace()
 void Storm::SpacePartitionerManager::computeSpaceReordering(const std::vector<Storm::Vector3> &particlePositions, Storm::PartitionSelection modality, const unsigned int systemId)
 {
 	const std::unique_ptr<Storm::VoxelGrid> &spacePartition = this->getSpacePartition(modality);
-	spacePartition->fill(particlePositions);
+	spacePartition->fill(this->getPartitionLength(), particlePositions, systemId);
 }
 
 void Storm::SpacePartitionerManager::clearSpaceReordering(Storm::PartitionSelection modality)
@@ -83,7 +83,7 @@ void Storm::SpacePartitionerManager::clearSpaceReordering(Storm::PartitionSelect
 void Storm::SpacePartitionerManager::getAllBundles(const std::vector<Storm::NeighborParticleReferral>* &outContainingBundlePtr, const std::vector<Storm::NeighborParticleReferral>*(&outNeighborBundle)[Storm::k_neighborLinkedBunkCount], const Storm::Vector3 &particlePosition, Storm::PartitionSelection modality) const
 {
 	const std::unique_ptr<Storm::VoxelGrid> &spacePartition = this->getSpacePartition(modality);
-	spacePartition->getVoxelsDataAtPosition(outContainingBundlePtr, outNeighborBundle, particlePosition);
+	spacePartition->getVoxelsDataAtPosition(this->getPartitionLength(), outContainingBundlePtr, outNeighborBundle, particlePosition);
 }
 
 float Storm::SpacePartitionerManager::getPartitionLength() const
