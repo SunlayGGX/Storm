@@ -1,0 +1,2 @@
+#define STORM_AUTOMATION_AUTO_GENERATE_MAIN_DISCOVERY
+#include "MainDiscover.h"
