@@ -3,7 +3,7 @@
 
 namespace Storm
 {
-	enum class PartitionReorderingModality
+	enum class PartitionSelection
 	{
 		Fluid,
 		DynamicRigidBody,
