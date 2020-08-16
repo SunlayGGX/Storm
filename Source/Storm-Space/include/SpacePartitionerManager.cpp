@@ -16,6 +16,8 @@ Storm::SpacePartitionerManager::~SpacePartitionerManager() = default;
 
 void Storm::SpacePartitionerManager::initialize_Implementation(float partitionLength)
 {
+	LOG_COMMENT << "Starting to initialize the Space partitioner manager";
+
 	_downSpaceCorner = Storm::Vector3{
 		std::numeric_limits<Storm::Vector3::Scalar>::max(),
 		std::numeric_limits<Storm::Vector3::Scalar>::max(),
@@ -45,17 +47,25 @@ void Storm::SpacePartitionerManager::initialize_Implementation(float partitionLe
 
 	_partitionLength = -1.f; // To be sure we don't set the same length.
 	this->setPartitionLength(partitionLength);
+
+	LOG_COMMENT << "Space partitioner manager init finished";
 }
 
 void Storm::SpacePartitionerManager::cleanUp_Implementation()
 {
+	LOG_COMMENT << "Space partitioner manager cleanUp starting";
+
 	_fluidSpacePartition.reset();
 	_staticRigidBodySpacePartition.reset();
 	_dynamicRigidBodySpacePartition.reset();
+
+	LOG_COMMENT << "Space partitioner manager cleanUp finished";
 }
 
 void Storm::SpacePartitionerManager::partitionSpace()
 {
+	LOG_DEBUG << "Space partitioning requested from " << _upSpaceCorner << " to " << _downSpaceCorner << " with a partition length of " << _partitionLength;
+
 	auto fluidSpacePartitionSrc = std::make_unique<Storm::VoxelGrid>(_upSpaceCorner, _downSpaceCorner, _partitionLength);
 
 	// Since the space partition are the same (this is the internal referrals that differ, but since we have not added anything, those does not differ for now). 
