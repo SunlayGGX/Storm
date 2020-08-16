@@ -200,5 +200,8 @@
     <ClInclude Include="..\include\PartitionSelection.h">
       <Filter>Header Files\SpacePartitioning</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\SpacePartitionConstants.h">
+      <Filter>Header Files\SpacePartitioning</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
