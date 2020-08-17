@@ -68,7 +68,7 @@ namespace
 				{
 					return PositionInDomain::MiddleFront;
 				}
-				else // Is on top side, so the resulting enum value will contain the word "Back"
+				else // Is on back side, so the resulting enum value will contain the word "Back"
 				{
 					return PositionInDomain::MiddleBack;
 				}
@@ -83,7 +83,7 @@ namespace
 				{
 					return PositionInDomain::MiddleBottomFront;
 				}
-				else // Is on top side, so the resulting enum value will contain the word "Back"
+				else // Is on back side, so the resulting enum value will contain the word "Back"
 				{
 					return PositionInDomain::MiddleBottomBack;
 				}
@@ -98,7 +98,7 @@ namespace
 				{
 					return PositionInDomain::MiddleTopFront;
 				}
-				else // Is on top side, so the resulting enum value will contain the word "Back"
+				else // Is on back side, so the resulting enum value will contain the word "Back"
 				{
 					return PositionInDomain::MiddleTopBack;
 				}
@@ -116,7 +116,7 @@ namespace
 				{
 					return PositionInDomain::LeftMiddleFront;
 				}
-				else // Is on top side, so the resulting enum value will contain the word "Back"
+				else // Is on back side, so the resulting enum value will contain the word "Back"
 				{
 					return PositionInDomain::LeftMiddleBack;
 				}
@@ -131,7 +131,7 @@ namespace
 				{
 					return PositionInDomain::LeftBottomFront;
 				}
-				else // Is on top side, so the resulting enum value will contain the word "Back"
+				else // Is on back side, so the resulting enum value will contain the word "Back"
 				{
 					return PositionInDomain::LeftBottomBack;
 				}
@@ -146,7 +146,7 @@ namespace
 				{
 					return PositionInDomain::LeftTopFront;
 				}
-				else // Is on top side, so the resulting enum value will contain the word "Back"
+				else // Is on back side, so the resulting enum value will contain the word "Back"
 				{
 					return PositionInDomain::LeftTopBack;
 				}
@@ -164,7 +164,7 @@ namespace
 				{
 					return PositionInDomain::RightMiddleFront;
 				}
-				else // Is on top side, so the resulting enum value will contain the word "Back"
+				else // Is on back side, so the resulting enum value will contain the word "Back"
 				{
 					return PositionInDomain::RightMiddleBack;
 				}
@@ -179,7 +179,7 @@ namespace
 				{
 					return PositionInDomain::RightBottomFront;
 				}
-				else // Is on top side, so the resulting enum value will contain the word "Back"
+				else // Is on back side, so the resulting enum value will contain the word "Back"
 				{
 					return PositionInDomain::RightBottomBack;
 				}
@@ -194,7 +194,7 @@ namespace
 				{
 					return PositionInDomain::RightTopFront;
 				}
-				else // Is on top side, so the resulting enum value will contain the word "Back"
+				else // Is on back side, so the resulting enum value will contain the word "Back"
 				{
 					return PositionInDomain::RightTopBack;
 				}
@@ -308,7 +308,6 @@ void Storm::VoxelGrid::getVoxelsDataAtPosition(float voxelEdgeLength, const std:
 
 		STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexBefore, zIndex);
 		STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexBefore, zIndexAfter);
-		//STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndex, zIndex);
 		STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndex, zIndexAfter);
 		STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexAfter, zIndex);
 		STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexAfter, zIndexAfter);
@@ -332,7 +331,6 @@ void Storm::VoxelGrid::getVoxelsDataAtPosition(float voxelEdgeLength, const std:
 		STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexBefore, zIndexBefore);
 		STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexBefore, zIndex);
 		STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndex, zIndexBefore);
-		//STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndex, zIndex);
 		STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexAfter, zIndexBefore);
 		STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexAfter, zIndex);
 
@@ -349,7 +347,6 @@ void Storm::VoxelGrid::getVoxelsDataAtPosition(float voxelEdgeLength, const std:
 		STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexBefore, zIndex);
 		STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexBefore, zIndexAfter);
 		STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndex, zIndexBefore);
-		//STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndex, zIndex);
 		STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndex, zIndexAfter);
 		STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexAfter, zIndexBefore);
 		STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexAfter, zIndex);
@@ -381,7 +378,6 @@ void Storm::VoxelGrid::getVoxelsDataAtPosition(float voxelEdgeLength, const std:
 		STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexBefore, zIndex);
 		STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexBefore, zIndexAfter);
 		STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndex, zIndexBefore);
-		//STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndex, zIndex);
 		STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndex, zIndexAfter);
 		STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexAfter, zIndexBefore);
 		STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexAfter, zIndex);
@@ -397,7 +393,6 @@ void Storm::VoxelGrid::getVoxelsDataAtPosition(float voxelEdgeLength, const std:
 		STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndexAfter, zIndexAfter);
 
 		STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndex, zIndexBefore);
-		//STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndex, zIndex);
 		STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndex, zIndexAfter);
 		STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexAfter, zIndexBefore);
 		STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexAfter, zIndex);
@@ -423,7 +418,6 @@ void Storm::VoxelGrid::getVoxelsDataAtPosition(float voxelEdgeLength, const std:
 		STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexBefore, zIndex);
 		STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexBefore, zIndexAfter);
 		STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndex, zIndexBefore);
-		//STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndex, zIndex);
 		STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndex, zIndexAfter);
 
 		STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexAfter, yIndexBefore, zIndexBefore);
