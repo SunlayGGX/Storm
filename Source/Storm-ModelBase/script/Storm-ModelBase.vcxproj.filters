@@ -206,5 +206,8 @@
     <ClInclude Include="..\include\SpacePartitionConstants.h">
       <Filter>Header Files\SpacePartitioning</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\IProfilerManager.h">
+      <Filter>Header Files\Singleton</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -18,9 +18,15 @@
     <ClCompile Include="..\include\Storm-ProfilerPCH.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\ProfilerManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-ProfilerPCH.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ProfilerManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

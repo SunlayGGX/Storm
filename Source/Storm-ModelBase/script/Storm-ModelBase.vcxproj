@@ -33,6 +33,7 @@
     <ClInclude Include="..\include\InputEvents.h" />
     <ClInclude Include="..\include\IOSManager.h" />
     <ClInclude Include="..\include\IPhysicsManager.h" />
+    <ClInclude Include="..\include\IProfilerManager.h" />
     <ClInclude Include="..\include\IRandomManager.h" />
     <ClInclude Include="..\include\IRigidBody.h" />
     <ClInclude Include="..\include\IShaderManager.h" />
