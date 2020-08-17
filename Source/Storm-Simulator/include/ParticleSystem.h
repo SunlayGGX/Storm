@@ -34,6 +34,7 @@ namespace Storm
 
 	protected:
 		virtual void buildNeighborhoodOnParticleSystem(const Storm::ParticleSystem &otherParticleSystem, const float kernelLengthSquared) = 0;
+		virtual void buildNeighborhoodOnParticleSystemUsingSpacePartition(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const float kernelLengthSquared) = 0;
 
 	public:
 		virtual void postApplySPH();

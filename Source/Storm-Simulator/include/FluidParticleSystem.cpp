@@ -2,15 +2,21 @@
 
 #include "SingletonHolder.h"
 #include "IConfigManager.h"
+#include "ISpacePartitionerManager.h"
 
 #include "GeneralSimulationData.h"
 #include "FluidData.h"
 
 #include "SimulationMode.h"
 
+#include "PartitionSelection.h"
+#include "NeighborParticleReferral.h"
+
 #include "SemiImplicitEulerSolver.h"
 
 #include "RunnerHelper.h"
+
+#include "ParticleSystemUtils.h"
 
 
 Storm::FluidParticleSystem::FluidParticleSystem(unsigned int particleSystemIndex, std::vector<Storm::Vector3> &&worldPositions) :
@@ -168,6 +174,58 @@ void Storm::FluidParticleSystem::buildNeighborhoodOnParticleSystem(const Storm::
 			}
 		});
 	}
+}
+
+void Storm::FluidParticleSystem::buildNeighborhoodOnParticleSystemUsingSpacePartition(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const float kernelLengthSquared)
+{
+	const Storm::ISpacePartitionerManager &spacePartitionerMgr = Storm::SingletonHolder::instance().getSingleton<Storm::ISpacePartitionerManager>();
+	Storm::runParallel(_neighborhood, [this, &allParticleSystems, kernelLengthSquared, &spacePartitionerMgr, currentSystemId = this->getId()](ParticleNeighborhoodArray &currentPNeighborhood, const std::size_t particleIndex)
+	{
+		const std::vector<Storm::NeighborParticleReferral>* bundleContainingPtr;
+		const std::vector<Storm::NeighborParticleReferral>* outLinkedNeighborBundle[Storm::k_neighborLinkedBunkCount];
+
+		const Storm::Vector3 &currentPPosition = _positions[particleIndex];
+
+		// Get all particles referrals that are near the current particle position. First, get all particles inside the fluid partitioned space...
+		spacePartitionerMgr.getAllBundles(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::Fluid);
+		Storm::searchForNeighborhood<true, true>(
+			this,
+			allParticleSystems,
+			kernelLengthSquared,
+			currentSystemId,
+			currentPNeighborhood,
+			particleIndex,
+			currentPPosition,
+			*bundleContainingPtr,
+			outLinkedNeighborBundle
+		);
+
+		spacePartitionerMgr.getAllBundles(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::StaticRigidBody);
+		Storm::searchForNeighborhood<false, false>(
+			this,
+			allParticleSystems,
+			kernelLengthSquared,
+			currentSystemId,
+			currentPNeighborhood,
+			particleIndex,
+			currentPPosition,
+			*bundleContainingPtr,
+			outLinkedNeighborBundle
+		);
+
+		spacePartitionerMgr.getAllBundles(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::DynamicRigidBody);
+		Storm::searchForNeighborhood<false, false>(
+			this,
+			allParticleSystems,
+			kernelLengthSquared,
+			currentSystemId,
+			currentPNeighborhood,
+			particleIndex,
+			currentPPosition,
+			*bundleContainingPtr,
+			outLinkedNeighborBundle
+		);
+	});
 }
 
 void Storm::FluidParticleSystem::updatePosition(float deltaTimeInSec)

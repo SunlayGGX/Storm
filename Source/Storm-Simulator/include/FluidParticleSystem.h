@@ -32,6 +32,7 @@ namespace Storm
 
 	public:
 		void buildNeighborhoodOnParticleSystem(const Storm::ParticleSystem &otherParticleSystem, const float kernelLengthSquared) final override;
+		void buildNeighborhoodOnParticleSystemUsingSpacePartition(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const float kernelLengthSquared) final override;
 
 	public:
 		void updatePosition(float deltaTimeInSec) final override;

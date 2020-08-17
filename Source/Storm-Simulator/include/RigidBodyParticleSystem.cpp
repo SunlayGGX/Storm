@@ -3,7 +3,11 @@
 #include "SingletonHolder.h"
 #include "IPhysicsManager.h"
 #include "IConfigManager.h"
+#include "ISpacePartitionerManager.h"
 #include "SimulatorManager.h"
+
+#include "NeighborParticleReferral.h"
+#include "PartitionSelection.h"
 
 #include "GeneralSimulationData.h"
 #include "RigidBodySceneData.h"
@@ -11,6 +15,8 @@
 
 #include "RunnerHelper.h"
 #include "Kernel.h"
+
+#include "ParticleSystemUtils.h"
 
 
 
@@ -123,6 +129,77 @@ void Storm::RigidBodyParticleSystem::buildNeighborhoodOnParticleSystem(const Sto
 			}
 		});
 	}
+}
+
+void Storm::RigidBodyParticleSystem::buildNeighborhoodOnParticleSystemUsingSpacePartition(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const float kernelLengthSquared)
+{
+	const Storm::ISpacePartitionerManager &spacePartitionerMgr = Storm::SingletonHolder::instance().getSingleton<Storm::ISpacePartitionerManager>();
+	Storm::runParallel(_neighborhood, [this, &allParticleSystems, kernelLengthSquared, &spacePartitionerMgr, currentSystemId = this->getId()](ParticleNeighborhoodArray &currentPNeighborhood, const std::size_t particleIndex)
+	{
+		const std::vector<Storm::NeighborParticleReferral>* bundleContainingPtr;
+		const std::vector<Storm::NeighborParticleReferral>* outLinkedNeighborBundle[Storm::k_neighborLinkedBunkCount];
+
+		const Storm::Vector3 &currentPPosition = _positions[particleIndex];
+
+		// Get all particles referrals that are near the current particle position. First, rigid bodies doesn't see fluids, so do not query them...
+
+		if (this->isStatic())
+		{
+			spacePartitionerMgr.getAllBundles(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::StaticRigidBody);
+			Storm::searchForNeighborhood<false, true>(
+				this,
+				allParticleSystems,
+				kernelLengthSquared,
+				currentSystemId,
+				currentPNeighborhood,
+				particleIndex,
+				currentPPosition,
+				*bundleContainingPtr,
+				outLinkedNeighborBundle
+			);
+
+			spacePartitionerMgr.getAllBundles(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::DynamicRigidBody);
+			Storm::searchForNeighborhood<false, false>(
+				this,
+				allParticleSystems,
+				kernelLengthSquared,
+				currentSystemId,
+				currentPNeighborhood,
+				particleIndex,
+				currentPPosition,
+				*bundleContainingPtr,
+				outLinkedNeighborBundle
+			);
+		}
+		else
+		{
+			spacePartitionerMgr.getAllBundles(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::StaticRigidBody);
+			Storm::searchForNeighborhood<false, false>(
+				this,
+				allParticleSystems,
+				kernelLengthSquared,
+				currentSystemId,
+				currentPNeighborhood,
+				particleIndex,
+				currentPPosition,
+				*bundleContainingPtr,
+				outLinkedNeighborBundle
+			);
+
+			spacePartitionerMgr.getAllBundles(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::DynamicRigidBody);
+			Storm::searchForNeighborhood<false, true>(
+				this,
+				allParticleSystems,
+				kernelLengthSquared,
+				currentSystemId,
+				currentPNeighborhood,
+				particleIndex,
+				currentPPosition,
+				*bundleContainingPtr,
+				outLinkedNeighborBundle
+			);
+		}
+	});
 }
 
 void Storm::RigidBodyParticleSystem::updatePosition(float deltaTimeInSec)
