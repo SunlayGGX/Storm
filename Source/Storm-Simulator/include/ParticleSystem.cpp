@@ -91,10 +91,14 @@ void Storm::ParticleSystem::buildNeighborhood(const std::map<unsigned int, std::
 	const float kernelLength = Storm::SimulatorManager::instance().getKernelLength();
 	const float kernelLengthSquared = kernelLength * kernelLength;
 
-	std::for_each(std::begin(allParticleSystems), std::end(allParticleSystems), [this, kernelLengthSquared](const auto &particleSystem)
+#if false
+	std::for_each(std::begin(allParticleSystems), std::end(allParticleSystems), [this, kernelLength, kernelLengthSquared](const auto &particleSystem)
 	{
 		this->buildNeighborhoodOnParticleSystem(*particleSystem.second, kernelLengthSquared);
 	});
+#else
+	this->buildNeighborhoodOnParticleSystemUsingSpacePartition(allParticleSystems, kernelLengthSquared);
+#endif
 }
 
 void Storm::ParticleSystem::postApplySPH()

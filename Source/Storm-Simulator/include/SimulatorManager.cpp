@@ -6,6 +6,7 @@
 #include "IGraphicsManager.h"
 #include "IConfigManager.h"
 #include "IInputManager.h"
+#include "ISpacePartitionerManager.h"
 #include "ITimeManager.h"
 #include "TimeWaitResult.h"
 
@@ -18,6 +19,8 @@
 
 #include "SimulationMode.h"
 #include "KernelMode.h"
+
+#include "PartitionSelection.h"
 
 #include "SemiImplicitEulerSolver.h"
 #include "Kernel.h"
@@ -130,12 +133,23 @@ void Storm::SimulatorManager::run()
 	Storm::ITimeManager &timeMgr = singletonHolder.getSingleton<Storm::ITimeManager>();
 	Storm::IPhysicsManager &physicsMgr = singletonHolder.getSingleton<Storm::IPhysicsManager>();
 	Storm::IThreadManager &threadMgr = singletonHolder.getSingleton<Storm::IThreadManager>();
+	Storm::ISpacePartitionerManager &spacePartitionerMgr = singletonHolder.getSingleton<Storm::ISpacePartitionerManager>();
 	const Storm::GeneralSimulationData &generalSimulationConfigData = singletonHolder.getSingleton<Storm::IConfigManager>().getGeneralSimulationData();
 	
 	std::vector<Storm::SimulationCallback> tmpSimulationCallback;
 	tmpSimulationCallback.reserve(8);
 
 	this->pushParticlesToGraphicModule(true);
+	
+	// Register the positions of static rigid bodies inside the space partition. Since this is static rigid bodies, they don't move so we wouldn't need to regenerate them again afterwards. 
+	for (auto &particleSystem : _particleSystem)
+	{
+		Storm::ParticleSystem &pSystem = *particleSystem.second;
+		if (pSystem.isStatic())
+		{
+			spacePartitionerMgr.computeSpaceReordering(pSystem.getPositions(), Storm::PartitionSelection::StaticRigidBody, pSystem.getId());
+		}
+	}
 
 	// A fast iterator that loops every 512 iterations.
 	union { unsigned short _val : 9 = 0; } _forcedPushFrameIterator;
@@ -162,7 +176,21 @@ void Storm::SimulatorManager::run()
 
 		// initialize for current iteration. I.e. Initializing with gravity and resetting current iteration velocity.
 		// Also build neighborhood.
-		// TODO: Optimize
+
+		spacePartitionerMgr.clearSpaceReorderingNoStatic();
+		for (auto &particleSystem : _particleSystem)
+		{
+			Storm::ParticleSystem &pSystem = *particleSystem.second;
+			if (!pSystem.isStatic())
+			{
+				spacePartitionerMgr.computeSpaceReordering(
+					pSystem.getPositions(),
+					pSystem.isFluids() ? Storm::PartitionSelection::Fluid : Storm::PartitionSelection::StaticRigidBody,
+					pSystem.getId()
+				);
+			}
+		}
+
 		for (auto &particleSystem : _particleSystem)
 		{
 			particleSystem.second->initializeIteration(_particleSystem);
