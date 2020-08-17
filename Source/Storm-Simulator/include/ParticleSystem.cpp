@@ -25,7 +25,7 @@ Storm::ParticleSystem::ParticleSystem(unsigned int particleSystemIndex, std::vec
 
 	for (auto &neighborHoodArray : _neighborhood)
 	{
-		neighborHoodArray.reserve(16);
+		neighborHoodArray.reserve(64);
 	}
 }
 
