@@ -189,8 +189,8 @@ void Storm::SimulatorManager::run()
 
 	this->initializePreSimulation();
 
-	// A fast iterator that loops every 512 iterations.
-	union { unsigned short _val : 9 = 0; } _forcedPushFrameIterator;
+	// A fast iterator that loops every 256 iterations.
+	unsigned char _forcedPushFrameIterator = 0;
 
 	do
 	{
@@ -217,17 +217,20 @@ void Storm::SimulatorManager::run()
 		// initialize for current iteration. I.e. Initializing with gravity and resetting current iteration velocity.
 		// Also build neighborhood.
 
-		spacePartitionerMgr.clearSpaceReorderingNoStatic();
-		for (auto &particleSystem : _particleSystem)
+		if (_forcedPushFrameIterator % generalSimulationConfigData._recomputeNeighborhoodStep == 0)
 		{
-			Storm::ParticleSystem &pSystem = *particleSystem.second;
-			if (!pSystem.isStatic())
+			spacePartitionerMgr.clearSpaceReorderingNoStatic();
+			for (auto &particleSystem : _particleSystem)
 			{
-				spacePartitionerMgr.computeSpaceReordering(
-					pSystem.getPositions(),
-					pSystem.isFluids() ? Storm::PartitionSelection::Fluid : Storm::PartitionSelection::DynamicRigidBody,
-					pSystem.getId()
-				);
+				Storm::ParticleSystem &pSystem = *particleSystem.second;
+				if (!pSystem.isStatic())
+				{
+					spacePartitionerMgr.computeSpaceReordering(
+						pSystem.getPositions(),
+						pSystem.isFluids() ? Storm::PartitionSelection::Fluid : Storm::PartitionSelection::DynamicRigidBody,
+						pSystem.getId()
+					);
+				}
 			}
 		}
 
@@ -267,13 +270,12 @@ void Storm::SimulatorManager::run()
 		this->applyCFLIfNeeded(generalSimulationConfigData);
 
 		// Push all particle data to the graphic module to be rendered...
-		// The first 5 frames every 1024 frames will be pushed for sure to the graphic module to be sure everyone is sync... 
-		this->pushParticlesToGraphicModule(_forcedPushFrameIterator._val == 0);
+		this->pushParticlesToGraphicModule(_forcedPushFrameIterator == 0);
 
 		// Takes time to process messages that came from other threads.
 		threadMgr.processCurrentThreadActions();
 
-		++_forcedPushFrameIterator._val;
+		++_forcedPushFrameIterator;
 
 	} while (true);
 }
