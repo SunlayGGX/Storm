@@ -35,6 +35,8 @@ namespace Storm
 		bool getShouldLogGraphicDeviceMessage() const final override;
 		bool noPopup() const final override;
 
+		bool getShouldProfileSimulationSpeed() const final override;
+
 		unsigned int getWantedScreenWidth() const final override;
 		unsigned int getWantedScreenHeight() const final override;
 		float getFontSize() const final override;

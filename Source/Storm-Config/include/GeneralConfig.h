@@ -29,5 +29,8 @@ namespace Storm
 		unsigned int _wantedApplicationWidth;
 		unsigned int _wantedApplicationHeight;
 		float _fontSize;
+
+		// Profile
+		bool _profileSimulationSpeed;
 	};
 }

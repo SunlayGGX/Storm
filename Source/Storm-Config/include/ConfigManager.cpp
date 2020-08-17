@@ -173,6 +173,11 @@ bool Storm::ConfigManager::noPopup() const
 	return _allowPopup;
 }
 
+bool Storm::ConfigManager::getShouldProfileSimulationSpeed() const
+{
+	return _generalConfig._profileSimulationSpeed;
+}
+
 unsigned int Storm::ConfigManager::getWantedScreenWidth() const
 {
 	return _generalConfig._wantedApplicationWidth;

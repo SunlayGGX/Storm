@@ -41,7 +41,8 @@ Storm::GeneralConfig::GeneralConfig() :
 	_wantedApplicationHeight{ 800 },
 	_wantedApplicationWidth{ 1200 },
 	_fontSize{ 17.f },
-	_shouldLogGraphicDeviceMessage{ false }
+	_shouldLogGraphicDeviceMessage{ false },
+	_profileSimulationSpeed{ false }
 {
 
 }
@@ -93,6 +94,21 @@ bool Storm::GeneralConfig::read(const std::string &generalConfigFilePathStr)
 						)
 					{
 						LOG_ERROR << graphicXmlElement.first << " (inside General.Graphics) is unknown, therefore it cannot be handled";
+					}
+				}
+			}
+
+			const auto &profileTreeOpt = generalTree.get_child_optional("Profile");
+			if (profileTreeOpt.has_value())
+			{
+				const auto &profileTree = profileTreeOpt.value();
+				for (const auto &profileXmlElement : profileTree)
+				{
+					if (
+						!Storm::XmlReader::handleXml(profileXmlElement, "profileSimulationSpeed", _profileSimulationSpeed)
+						)
+					{
+						LOG_ERROR << profileXmlElement.first << " (inside General.Profile) is unknown, therefore it cannot be handled";
 					}
 				}
 			}

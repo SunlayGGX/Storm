@@ -127,6 +127,10 @@ Note that the maximum value you can set is Fatal, it means that no matter what l
 - **fontSize (unsigned integer, facultative)** : the font size of any written information displayed in the HUD... Default is 16.
 
 
+#### Profile (faculative)
+- **profileSimulationSpeed (boolean, faculative)** : Specify that we should enable Simulation speed profile. Default is false.
+
+
 ### Scene Config
 
 Scene configuration files contains all the data for running a simulation, therefore it is mandatory to specify one. If it was not set from the command line, Storm application will open an explorer windows to allow you to choose one.
