@@ -185,7 +185,7 @@ void Storm::SimulatorManager::run()
 			{
 				spacePartitionerMgr.computeSpaceReordering(
 					pSystem.getPositions(),
-					pSystem.isFluids() ? Storm::PartitionSelection::Fluid : Storm::PartitionSelection::StaticRigidBody,
+					pSystem.isFluids() ? Storm::PartitionSelection::Fluid : Storm::PartitionSelection::DynamicRigidBody,
 					pSystem.getId()
 				);
 			}
