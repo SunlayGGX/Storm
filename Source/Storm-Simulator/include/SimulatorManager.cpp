@@ -105,9 +105,14 @@ void Storm::SimulatorManager::initialize_Implementation()
 	inputMgr.bindKey(Storm::SpecialKey::KC_F1, [this]() { this->printFluidParticleData(); });
 
 	// First position update to regenerate the position of any particle according to its translation.
+	// This needs to be done only for rigid bodies. Fluids don't need it.
 	for (auto &particleSystem : _particleSystem)
 	{
-		particleSystem.second->updatePosition(0.f);
+		Storm::ParticleSystem &pSystem = *particleSystem.second;
+		if (!pSystem.isFluids())
+		{
+			particleSystem.second->updatePosition(0.f);
+		}
 	}
 }
 
