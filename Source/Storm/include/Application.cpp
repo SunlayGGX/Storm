@@ -16,6 +16,7 @@
 #include "PhysicsManager.h"
 #include "ThreadManager.h"
 #include "SpacePartitionerManager.h"
+#include "ProfilerManager.h"
 
 #include "Version.h"
 #include "TimeHelper.h"
@@ -27,6 +28,7 @@ namespace
 		Storm::SingletonHolder,
 		Storm::ConfigManager,
 		Storm::LoggerManager,
+		Storm::ProfilerManager,
 		Storm::ThreadManager,
 		Storm::RandomManager,
 		Storm::OSManager,
@@ -87,6 +89,8 @@ namespace
 			Storm::SimulatorManager::instance().initialize();
 
 			Storm::SpacePartitionerManager::instance().initialize(Storm::SimulatorManager::instance().getKernelLength());
+
+			Storm::ProfilerManager::instance().initialize();
 		}
 
 		LOG_COMMENT << "Application Creation finished";
@@ -103,6 +107,7 @@ namespace
 			Storm::SpacePartitionerManager::instance().cleanUp();
 			Storm::ThreadManager::instance().cleanUp();
 			Storm::InputManager::instance().cleanUp();
+			Storm::ProfilerManager::instance().cleanUp();
 			Storm::GraphicManager::instance().cleanUp();
 			Storm::AssetLoaderManager::instance().cleanUp();
 			Storm::ShaderManager::instance().cleanUp();
