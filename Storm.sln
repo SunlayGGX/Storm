@@ -55,6 +55,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "StormAutomation-ModelBaseTe
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Storm-Profiler", "Source\Storm-Profiler\script\Storm-Profiler.vcxproj", "{66664E96-F4E4-4C82-9B7B-A6E8CCD92069}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Repo", "Repo", "{F3761E77-B57B-4CCF-AF7F-C97830641E49}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -152,6 +157,7 @@ Global
 		{FDDA96C7-1A39-4709-919A-EFDB3CF7A126} = {9ACB8D28-162B-4B97-A55B-3360CBF1F8BC}
 		{BF9A69C6-F71F-4838-9EC9-1B63717EDDAC} = {71FDD4FA-5CB7-4461-A3FD-A8818CF6C865}
 		{58D7C87A-DCB4-42DC-8575-4F416154F226} = {9ACB8D28-162B-4B97-A55B-3360CBF1F8BC}
+		{66664E96-F4E4-4C82-9B7B-A6E8CCD92069} = {71FDD4FA-5CB7-4461-A3FD-A8818CF6C865}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {AC48B795-9776-4952-84E0-CE8AB938B72B}
