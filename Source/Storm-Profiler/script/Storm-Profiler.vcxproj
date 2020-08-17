@@ -12,6 +12,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\ProfilerManager.cpp" />
+    <ClCompile Include="..\include\SpeedProfileData.cpp" />
+    <ClCompile Include="..\include\SpeedProfileHandler.cpp" />
     <ClCompile Include="..\include\Storm-ProfilerPCH.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
@@ -19,6 +21,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\ProfilerManager.h" />
+    <ClInclude Include="..\include\SpeedProfileData.h" />
+    <ClInclude Include="..\include\SpeedProfileHandler.h" />
     <ClInclude Include="..\include\Storm-ProfilerPCH.h" />
   </ItemGroup>
   <ItemGroup>

@@ -13,6 +13,18 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\ProfileData">
+      <UniqueIdentifier>{cb03d241-45ad-4a0f-bb62-a83529dd44b0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ProfileData">
+      <UniqueIdentifier>{2fe8684f-b409-4372-a662-b3981a00be4d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ProfileHandler">
+      <UniqueIdentifier>{592662e0-fa5e-4d72-af33-b671783b0177}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\ProfileHandler">
+      <UniqueIdentifier>{15e8954e-6a5c-4b25-b8f4-649bd3ff5eb9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-ProfilerPCH.cpp">
@@ -21,6 +33,12 @@
     <ClCompile Include="..\include\ProfilerManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\SpeedProfileData.cpp">
+      <Filter>Source Files\ProfileData</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\SpeedProfileHandler.cpp">
+      <Filter>Source Files\ProfileHandler</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-ProfilerPCH.h">
@@ -28,6 +46,12 @@
     </ClInclude>
     <ClInclude Include="..\include\ProfilerManager.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SpeedProfileData.h">
+      <Filter>Header Files\ProfileData</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SpeedProfileHandler.h">
+      <Filter>Header Files\ProfileHandler</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
