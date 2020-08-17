@@ -83,5 +83,8 @@
     <ClInclude Include="..\include\Kernel.h">
       <Filter>Header Files\Kernel</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\ParticleSystemUtils.h">
+      <Filter>Header Files\System</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

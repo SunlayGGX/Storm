@@ -28,6 +28,7 @@
     <ClInclude Include="..\include\Kernel.h" />
     <ClInclude Include="..\include\NeighborParticleInfo.h" />
     <ClInclude Include="..\include\ParticleSystem.h" />
+    <ClInclude Include="..\include\ParticleSystemUtils.h" />
     <ClInclude Include="..\include\RigidBodyParticleSystem.h" />
     <ClInclude Include="..\include\SemiImplicitEulerSolver.h" />
     <ClInclude Include="..\include\SimulatorManager.h" />
