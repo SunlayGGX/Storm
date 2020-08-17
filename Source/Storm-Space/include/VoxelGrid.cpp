@@ -214,17 +214,17 @@ Storm::VoxelGrid::VoxelGrid(const Storm::Vector3 &upCorner, const Storm::Vector3
 
 	const Storm::Vector3 diff = upCorner - downCorner;
 
-	_xVoxelCount = computeBlocCountOnAxis(diff.x(), voxelEdgeLength);
-	_yVoxelCount = computeBlocCountOnAxis(diff.y(), voxelEdgeLength);
-	_zVoxelCount = computeBlocCountOnAxis(diff.z(), voxelEdgeLength);
+	_gridBoundary.x() = computeBlocCountOnAxis(diff.x(), voxelEdgeLength);
+	_gridBoundary.y() = computeBlocCountOnAxis(diff.y(), voxelEdgeLength);
+	_gridBoundary.z() = computeBlocCountOnAxis(diff.z(), voxelEdgeLength);
 
-	_xIndexOffsetCoeff = _yVoxelCount * _zVoxelCount;
+	_xIndexOffsetCoeff = _gridBoundary.y() * _gridBoundary.z();
 
-	for (unsigned int xIter = 0; xIter < _xVoxelCount; ++xIter)
+	for (unsigned int xIter = 0; xIter < _gridBoundary.x(); ++xIter)
 	{
-		for (unsigned int yIter = 0; yIter < _yVoxelCount; ++yIter)
+		for (unsigned int yIter = 0; yIter < _gridBoundary.y(); ++yIter)
 		{
-			for (unsigned int zIter = 0; zIter < _zVoxelCount; ++zIter)
+			for (unsigned int zIter = 0; zIter < _gridBoundary.z(); ++zIter)
 			{
 				_voxels.emplace_back();
 			}
@@ -233,9 +233,7 @@ Storm::VoxelGrid::VoxelGrid(const Storm::Vector3 &upCorner, const Storm::Vector3
 }
 
 Storm::VoxelGrid::VoxelGrid(const Storm::VoxelGrid &other) :
-	_xVoxelCount{ other._xVoxelCount },
-	_yVoxelCount{ other._yVoxelCount },
-	_zVoxelCount{ other._zVoxelCount },
+	_gridBoundary{ other._gridBoundary },
 	_xIndexOffsetCoeff{ other._xIndexOffsetCoeff },
 	_voxels{ other._voxels }
 {
@@ -266,7 +264,7 @@ void Storm::VoxelGrid::getVoxelsDataAtPosition(float voxelEdgeLength, const std:
 *iter = &_voxels[this->computeRawIndexFromCoordIndex(xIndex, yIndex, zIndex)].getData(); \
 ++iter
 
-	switch (computePositionInDomain(_xVoxelCount - 1, _yVoxelCount - 1, _zVoxelCount - 1, xIndex, yIndex, zIndex))
+	switch (computePositionInDomain(_gridBoundary.x() - 1, _gridBoundary.y() - 1, _gridBoundary.z() - 1, xIndex, yIndex, zIndex))
 	{
 	case PositionInDomain::AllMiddle: // We're inside the domain and not near a boundary, so complete neighborhood!
 		STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndexBefore, zIndexBefore);
@@ -723,7 +721,7 @@ void Storm::VoxelGrid::clear()
 
 std::size_t Storm::VoxelGrid::size() const
 {
-	return _xVoxelCount * _yVoxelCount * _zVoxelCount;
+	return _gridBoundary.x() * _gridBoundary.y() * _gridBoundary.z();
 }
 
 void Storm::VoxelGrid::computeCoordIndexFromPosition(float voxelEdgeLength, const Storm::Vector3 &position, unsigned int &outXIndex, unsigned int &outYIndex, unsigned int &outZIndex) const
@@ -737,7 +735,7 @@ unsigned int Storm::VoxelGrid::computeRawIndexFromCoordIndex(unsigned int xIndex
 {
 	return 
 		xIndex * _xIndexOffsetCoeff +
-		yIndex * _zVoxelCount +
+		yIndex * _gridBoundary.z() +
 		zIndex
 		;
 }

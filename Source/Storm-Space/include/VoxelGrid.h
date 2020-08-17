@@ -32,9 +32,7 @@ namespace Storm
 		unsigned int computeRawIndexFromPosition(float voxelEdgeLength, const Storm::Vector3 &position, unsigned int &outXIndex, unsigned int &outYIndex, unsigned int &outZIndex) const;
 
 	private:
-		unsigned int _xVoxelCount;
-		unsigned int _yVoxelCount;
-		unsigned int _zVoxelCount;
+		Storm::Vector3ui _gridBoundary;
 
 		unsigned int _xIndexOffsetCoeff;
 
