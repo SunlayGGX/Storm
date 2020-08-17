@@ -19,15 +19,24 @@ namespace Storm
 			_isFluidParticle{ isFluidP }
 		{}
 
+		NeighborParticleInfo(Storm::ParticleSystem* containingParticleSystem, std::size_t particleIndex, const float xDiff, const float yDiff, const float zDiff, const float squaredNorm, const bool isFluidP) :
+			_containingParticleSystem{ containingParticleSystem },
+			_particleIndex{ particleIndex },
+			_positionDifferenceVector{ xDiff, yDiff, zDiff },
+			_vectToParticleSquaredNorm{ squaredNorm },
+			_vectToParticleNorm{ std::sqrtf(squaredNorm) },
+			_isFluidParticle{ isFluidP }
+		{}
+
 		~NeighborParticleInfo() = default;
 
 	public:
 		Storm::ParticleSystem*const _containingParticleSystem;
-		std::size_t _particleIndex;
+		const std::size_t _particleIndex;
 		const Storm::Vector3 _positionDifferenceVector; // currentP_position - neighborhoodP_Position
-		float _vectToParticleSquaredNorm; // Norm squared of _positionDifferenceVector
-		float _vectToParticleNorm; // the version non squared of _vectToParticleSquaredNorm
-		bool _isFluidParticle;
+		const float _vectToParticleSquaredNorm; // Norm squared of _positionDifferenceVector
+		const float _vectToParticleNorm; // the version non squared of _vectToParticleSquaredNorm
+		const bool _isFluidParticle;
 	};
 
 	using ParticleNeighborhoodArray = std::vector<Storm::NeighborParticleInfo>;
