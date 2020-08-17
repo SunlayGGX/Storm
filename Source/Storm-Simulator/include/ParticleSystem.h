@@ -56,6 +56,10 @@ namespace Storm
 		std::vector<Storm::Vector3> _velocity;
 		std::vector<Storm::Vector3> _force;
 
+		// This contains the neighborhood per particle.
+		// Note : For static rigid body, it does not contain the static particles neighborhood because we use it only one time (when initializing the volume) and this is a huge lost of computation time !
+		// So when we would need to have the static neighborhood for static rigid body, we should add another array separated from this one and compute it only one time 
+		// => Static rigid bodies doesn't move, so static particles from static rigid bodies would always be the same, at the same position. Thus recomputing it each timestep takes a lot of time for nothing (for getting the same result as the time step before). Therefore, storing the result used from this static neighborhood, instead of recomputing it, is wiser.
 		std::vector<Storm::ParticleNeighborhoodArray> _neighborhood;
 
 		unsigned int _particleSystemIndex;

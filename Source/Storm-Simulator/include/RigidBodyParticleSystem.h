@@ -11,6 +11,7 @@ namespace Storm
 		RigidBodyParticleSystem(unsigned int particleSystemIndex, std::vector<Storm::Vector3> &&worldPositions);
 
 	public:
+		void initializePreSimulation(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const float kernelLength) final override;
 		void initializeIteration(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems) final override;
 
 	public:
@@ -35,6 +36,9 @@ namespace Storm
 		void postApplySPH() final override;
 
 	private:
+		// Volumes got from the computation of static rigid bodies neighbor for a rigid body (So useful only for Rigid bodies) !
+		std::vector<float> _staticVolumesInitValue;
+
 		std::vector<float> _volumes;
 
 		float _viscosity;

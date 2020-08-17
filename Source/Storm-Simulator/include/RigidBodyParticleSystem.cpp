@@ -18,6 +18,19 @@
 
 #include "ParticleSystemUtils.h"
 
+namespace
+{
+	template<class NeighborhoodArray, class RawKernelMeth>
+	float computeParticleDeltaVolume(const NeighborhoodArray &currentPNeighborhood, const float kernelLength, float delta, const RawKernelMeth &rawKernelMeth)
+	{
+		for (const Storm::NeighborParticleInfo &boundaryNeighbor : currentPNeighborhood)
+		{
+			delta += rawKernelMeth(kernelLength, boundaryNeighbor._vectToParticleNorm);
+		}
+
+		return delta;
+	}
+}
 
 
 Storm::RigidBodyParticleSystem::RigidBodyParticleSystem(unsigned int particleSystemIndex, std::vector<Storm::Vector3> &&worldPositions) :
@@ -34,7 +47,61 @@ Storm::RigidBodyParticleSystem::RigidBodyParticleSystem(unsigned int particleSys
 
 	const std::size_t particleCount = _positions.size();
 
+	if (this->isStatic())
+	{
+		_staticVolumesInitValue.resize(particleCount);
+	}
+
 	_volumes.resize(particleCount);
+}
+
+void Storm::RigidBodyParticleSystem::initializePreSimulation(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const float kernelLength)
+{
+	Storm::ParticleSystem::initializePreSimulation(allParticleSystems, kernelLength);
+
+	// This should be done only for static rigid body that doesn't move in space (optimization done by computing values that can be computed beforehand)
+	if (this->isStatic())
+	{
+		std::vector<Storm::ParticleNeighborhoodArray> staticNeighborhood;
+		staticNeighborhood.resize(_positions.size());
+		for (Storm::ParticleNeighborhoodArray &particleNeighbor : staticNeighborhood)
+		{
+			particleNeighbor.reserve(32);
+		}
+
+		const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
+		const Storm::GeneralSimulationData &generalSimulDataConfig = configMgr.getGeneralSimulationData();
+
+		const float currentKernelZero = Storm::retrieveKernelZeroValue(generalSimulDataConfig._kernelMode);
+		const Storm::RawKernelMethodDelegate rawKernelMeth = Storm::retrieveRawKernelMethod(generalSimulDataConfig._kernelMode);
+
+		const Storm::ISpacePartitionerManager &spacePartitionerMgr = Storm::SingletonHolder::instance().getSingleton<Storm::ISpacePartitionerManager>();
+		Storm::runParallel(staticNeighborhood, [this, &allParticleSystems, kernelLength, currentKernelZero, rawKernelMeth, kernelLengthSquared = kernelLength * kernelLength, &spacePartitionerMgr, currentSystemId = this->getId()](ParticleNeighborhoodArray &currentPStaticNeighborhood, const std::size_t particleIndex)
+		{
+			const std::vector<Storm::NeighborParticleReferral>* bundleContainingPtr;
+			const std::vector<Storm::NeighborParticleReferral>* outLinkedNeighborBundle[Storm::k_neighborLinkedBunkCount];
+
+			const Storm::Vector3 &currentPPosition = _positions[particleIndex];
+
+			// Get all particles referrals that are near the current particle position.
+			spacePartitionerMgr.getAllBundles(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::StaticRigidBody);
+			Storm::searchForNeighborhood<false, true>(
+				this,
+				allParticleSystems,
+				kernelLengthSquared,
+				currentSystemId,
+				currentPStaticNeighborhood,
+				particleIndex,
+				currentPPosition,
+				*bundleContainingPtr,
+				outLinkedNeighborBundle
+			);
+
+			// Initialize the static volume.
+			float &currentPStaticVolumeDelta = _staticVolumesInitValue[particleIndex];
+			currentPStaticVolumeDelta = computeParticleDeltaVolume(currentPStaticNeighborhood, kernelLength, currentKernelZero, rawKernelMeth);
+		});
+	}
 }
 
 void Storm::RigidBodyParticleSystem::initializeIteration(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems)
@@ -47,6 +114,13 @@ void Storm::RigidBodyParticleSystem::initializeIteration(const std::map<unsigned
 		_volumes.size() == particleCount &&
 		"Particle count mismatch detected! An array of particle property has not the same particle count than the other!"
 	);
+	if (this->isStatic())
+	{
+		assert(
+			_staticVolumesInitValue.size() == particleCount &&
+			"Particle count mismatch detected! An array of particle property has not the same particle count than the other!"
+		);
+	}
 #endif
 
 	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
@@ -57,23 +131,17 @@ void Storm::RigidBodyParticleSystem::initializeIteration(const std::map<unsigned
 	const float currentKernelZero = Storm::retrieveKernelZeroValue(generalSimulDataConfig._kernelMode);
 	const Storm::RawKernelMethodDelegate rawKernelMeth = Storm::retrieveRawKernelMethod(generalSimulDataConfig._kernelMode);
 
-	Storm::runParallel(_force, [this, currentKernelZero, rawKernelMeth, k_kernelLength](Storm::Vector3 &force, const std::size_t currentPIndex)
+	const bool isStaticRigidBody = this->isStatic();
+
+	Storm::runParallel(_force, [this, currentKernelZero, rawKernelMeth, k_kernelLength, isStaticRigidBody](Storm::Vector3 &force, const std::size_t currentPIndex)
 	{
 		// Initialize forces to 0
 		force.setZero();
 
 		// Compute the current boundary particle volume.
-		const std::vector<Storm::NeighborParticleInfo> &currentPNeighborhood = _neighborhood[currentPIndex];
+		const float initialVolumeValue = isStaticRigidBody ? _staticVolumesInitValue[currentPIndex] : currentKernelZero;
 		float &currentPVolume = _volumes[currentPIndex];
-
-		float delta = currentKernelZero;
-		for (const Storm::NeighborParticleInfo &boundaryNeighbor : currentPNeighborhood)
-		{
-			delta += rawKernelMeth(k_kernelLength, boundaryNeighbor._vectToParticleNorm);
-		}
-
-		// ???
-		currentPVolume = 1.f / delta;
+		currentPVolume = 1.f / computeParticleDeltaVolume(_neighborhood[currentPIndex], k_kernelLength, initialVolumeValue, rawKernelMeth); // ???
 	});
 }
 
@@ -134,30 +202,17 @@ void Storm::RigidBodyParticleSystem::buildNeighborhoodOnParticleSystem(const Sto
 void Storm::RigidBodyParticleSystem::buildNeighborhoodOnParticleSystemUsingSpacePartition(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const float kernelLengthSquared)
 {
 	const Storm::ISpacePartitionerManager &spacePartitionerMgr = Storm::SingletonHolder::instance().getSingleton<Storm::ISpacePartitionerManager>();
-	Storm::runParallel(_neighborhood, [this, &allParticleSystems, kernelLengthSquared, &spacePartitionerMgr, currentSystemId = this->getId()](ParticleNeighborhoodArray &currentPNeighborhood, const std::size_t particleIndex)
+
+	if (this->isStatic())
 	{
-		const std::vector<Storm::NeighborParticleReferral>* bundleContainingPtr;
-		const std::vector<Storm::NeighborParticleReferral>* outLinkedNeighborBundle[Storm::k_neighborLinkedBunkCount];
-
-		const Storm::Vector3 &currentPPosition = _positions[particleIndex];
-
-		// Get all particles referrals that are near the current particle position. First, rigid bodies doesn't see fluids, so do not query them...
-
-		if (this->isStatic())
+		Storm::runParallel(_neighborhood, [this, &allParticleSystems, kernelLengthSquared, &spacePartitionerMgr, currentSystemId = this->getId()](ParticleNeighborhoodArray &currentPNeighborhood, const std::size_t particleIndex)
 		{
-			spacePartitionerMgr.getAllBundles(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::StaticRigidBody);
-			Storm::searchForNeighborhood<false, true>(
-				this,
-				allParticleSystems,
-				kernelLengthSquared,
-				currentSystemId,
-				currentPNeighborhood,
-				particleIndex,
-				currentPPosition,
-				*bundleContainingPtr,
-				outLinkedNeighborBundle
-			);
+			const std::vector<Storm::NeighborParticleReferral>* bundleContainingPtr;
+			const std::vector<Storm::NeighborParticleReferral>* outLinkedNeighborBundle[Storm::k_neighborLinkedBunkCount];
 
+			const Storm::Vector3 &currentPPosition = _positions[particleIndex];
+
+			// Get all particles referrals that are near the current particle position. First, rigid bodies doesn't see fluids, so do not query them...
 			spacePartitionerMgr.getAllBundles(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::DynamicRigidBody);
 			Storm::searchForNeighborhood<false, false>(
 				this,
@@ -170,9 +225,18 @@ void Storm::RigidBodyParticleSystem::buildNeighborhoodOnParticleSystemUsingSpace
 				*bundleContainingPtr,
 				outLinkedNeighborBundle
 			);
-		}
-		else
+		});
+	}
+	else
+	{
+		Storm::runParallel(_neighborhood, [this, &allParticleSystems, kernelLengthSquared, &spacePartitionerMgr, currentSystemId = this->getId()](ParticleNeighborhoodArray &currentPNeighborhood, const std::size_t particleIndex)
 		{
+			const std::vector<Storm::NeighborParticleReferral>* bundleContainingPtr;
+			const std::vector<Storm::NeighborParticleReferral>* outLinkedNeighborBundle[Storm::k_neighborLinkedBunkCount];
+
+			const Storm::Vector3 &currentPPosition = _positions[particleIndex];
+
+			// Get all particles referrals that are near the current particle position. First, rigid bodies doesn't see fluids, so do not query them...
 			spacePartitionerMgr.getAllBundles(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::StaticRigidBody);
 			Storm::searchForNeighborhood<false, false>(
 				this,
@@ -198,8 +262,8 @@ void Storm::RigidBodyParticleSystem::buildNeighborhoodOnParticleSystemUsingSpace
 				*bundleContainingPtr,
 				outLinkedNeighborBundle
 			);
-		}
-	});
+		});
+	}
 }
 
 void Storm::RigidBodyParticleSystem::updatePosition(float deltaTimeInSec)
