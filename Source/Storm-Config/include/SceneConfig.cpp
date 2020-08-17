@@ -128,6 +128,7 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 			!Storm::XmlReader::handleXml(generalXmlElement, "fps", generalData._expectedFps) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "maxPredictIteration", generalData._maxPredictIteration) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "maxDensityError", generalData._maxDensityError) &&
+			!Storm::XmlReader::handleXml(generalXmlElement, "neighborCheckStep", generalData._recomputeNeighborhoodStep) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "particleRadius", generalData._particleRadius)
 			)
 		{
@@ -146,6 +147,10 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 	else if (generalData._cflCoeff <= 0.f && generalData._physicsTimeInSeconds <= 0.f)
 	{
 		Storm::throwException<std::exception>("CFL was enabled but CFL coefficient is less or equal than 0 (value is " + std::to_string(generalData._cflCoeff) + "). It isn't allowed!");
+	}
+	else if (generalData._recomputeNeighborhoodStep == 0)
+	{
+		Storm::throwException<std::exception>("neighborCheckStep is equal to 0 which isn't allowed (we must recompute neighborhood at least one time)!");
 	}
 
 	/* Graphic */

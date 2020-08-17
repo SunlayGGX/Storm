@@ -18,7 +18,8 @@ Storm::GeneralSimulationData::GeneralSimulationData() :
 	_maxPredictIteration{ 150 },
 	_maxDensityError{ 0.01f },
 	_kernelMode{ Storm::KernelMode::CubicSpline },
-	_maxCFLTime{ 0.5f }
+	_maxCFLTime{ 0.5f },
+	_recomputeNeighborhoodStep{ 1 }
 {
 
 }

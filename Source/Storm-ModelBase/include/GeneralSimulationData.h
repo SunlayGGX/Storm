@@ -27,6 +27,8 @@ namespace Storm
 
 		bool _startPaused;
 
+		unsigned char _recomputeNeighborhoodStep;
+
 		Storm::SimulationMode _simulationMode;
 		Storm::KernelMode _kernelMode;
 	};
