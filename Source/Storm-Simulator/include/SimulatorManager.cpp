@@ -3,6 +3,7 @@
 #include "SingletonHolder.h"
 #include "IPhysicsManager.h"
 #include "IThreadManager.h"
+#include "IProfilerManager.h"
 #include "IGraphicsManager.h"
 #include "IConfigManager.h"
 #include "IInputManager.h"
@@ -90,8 +91,33 @@ namespace
 
 		stream << dataName << " :\n\n" << Storm::toStdString<ParticleDataParser>(dataContainer) << "\n\n";
 	}
-}
 
+	constexpr std::wstring_view k_simulationSpeedBalistName = STORM_TEXT("Simulation Speed");
+
+	class SpeedProfileBalist
+	{
+	public:
+		SpeedProfileBalist(Storm::IProfilerManager* profileMgrPtr) :
+			_profileMgrPtr{ profileMgrPtr }
+		{
+			if (profileMgrPtr)
+			{
+				_profileMgrPtr->startSpeedProfile(k_simulationSpeedBalistName);
+			}
+		}
+
+		~SpeedProfileBalist()
+		{
+			if (_profileMgrPtr)
+			{
+				_profileMgrPtr->endSpeedProfile(k_simulationSpeedBalistName);
+			}
+		}
+
+	private:
+		Storm::IProfilerManager*const _profileMgrPtr;
+	};
+}
 
 Storm::SimulatorManager::SimulatorManager() = default;
 Storm::SimulatorManager::~SimulatorManager() = default;
@@ -104,7 +130,9 @@ void Storm::SimulatorManager::initialize_Implementation()
 
 	Storm::initializeKernels(this->getKernelLength());
 
-	Storm::IInputManager &inputMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IInputManager>();
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+
+	Storm::IInputManager &inputMgr = singletonHolder.getSingleton<Storm::IInputManager>();
 	inputMgr.bindKey(Storm::SpecialKey::KC_F1, [this]() { this->printFluidParticleData(); });
 
 	// First position update to regenerate the position of any particle according to its translation.
@@ -117,6 +145,10 @@ void Storm::SimulatorManager::initialize_Implementation()
 			particleSystem.second->updatePosition(0.f);
 		}
 	}
+
+	/* Register this thread as the simulator thread for the speed profiler */
+	Storm::IProfilerManager &profilerMgr = singletonHolder.getSingleton<Storm::IProfilerManager>();
+	profilerMgr.registerCurrentThreadAsSimulationThread(k_simulationSpeedBalistName);
 }
 
 void Storm::SimulatorManager::cleanUp_Implementation()
@@ -134,7 +166,11 @@ void Storm::SimulatorManager::run()
 	Storm::IPhysicsManager &physicsMgr = singletonHolder.getSingleton<Storm::IPhysicsManager>();
 	Storm::IThreadManager &threadMgr = singletonHolder.getSingleton<Storm::IThreadManager>();
 	Storm::ISpacePartitionerManager &spacePartitionerMgr = singletonHolder.getSingleton<Storm::ISpacePartitionerManager>();
-	const Storm::GeneralSimulationData &generalSimulationConfigData = singletonHolder.getSingleton<Storm::IConfigManager>().getGeneralSimulationData();
+
+	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
+	const Storm::GeneralSimulationData &generalSimulationConfigData = configMgr.getGeneralSimulationData();
+	
+	Storm::IProfilerManager* profilerMgrNullablePtr = configMgr.getShouldProfileSimulationSpeed() ? singletonHolder.getFacet<Storm::IProfilerManager>() : nullptr;
 	
 	std::vector<Storm::SimulationCallback> tmpSimulationCallback;
 	tmpSimulationCallback.reserve(8);
@@ -171,6 +207,8 @@ void Storm::SimulatorManager::run()
 		default:
 			break;
 		}
+
+		SpeedProfileBalist simulationSpeedProfile{ profilerMgrNullablePtr };
 
 		const float physicsElapsedDeltaTime = timeMgr.getCurrentPhysicsDeltaTime();
 
