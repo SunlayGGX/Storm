@@ -693,10 +693,10 @@ void Storm::VoxelGrid::getVoxelsDataAtPosition(float voxelEdgeLength, const Stor
 
 	// The remaining unset are because they are outside the partitioned domain (happens when we consider a voxel at the domain boundary).
 	// We must set those to nullptr since those neighborhood don't exist.
-	const std::size_t ghostNeighborhoodCount = std::end(outNeighborData) - iter;
-	assert(ghostNeighborhoodCount != Storm::k_neighborLinkedBunkCount && "We have forgotten to handle a PositionInDomain enum value case!");
+	assert(std::end(outNeighborData) - iter != Storm::k_neighborLinkedBunkCount && "We have forgotten to handle a PositionInDomain enum value case!");
 
-	memset(iter, NULL, ghostNeighborhoodCount);
+	// The next iterator should always be a nullptr to stop the loop. Since we have 1 more pointer than the maximum logically possible, we shouldn't trigger any sigsegv...
+	*iter = nullptr;
 }
 
 void Storm::VoxelGrid::fill(float voxelEdgeLength, const Storm::Vector3 &voxelShift, const std::vector<Storm::Vector3> &particlePositions, const unsigned int systemId)
