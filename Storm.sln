@@ -53,6 +53,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Storm-Space", "Source\Storm
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "StormAutomation-ModelBaseTester", "Source\Automation\StormAutomation-ModelBaseTester\script\StormAutomation-ModelBaseTester.vcxproj", "{58D7C87A-DCB4-42DC-8575-4F416154F226}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Storm-Profiler", "Source\Storm-Profiler\script\Storm-Profiler.vcxproj", "{66664E96-F4E4-4C82-9B7B-A6E8CCD92069}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -123,6 +125,10 @@ Global
 		{58D7C87A-DCB4-42DC-8575-4F416154F226}.Debug|x64.Build.0 = Debug|x64
 		{58D7C87A-DCB4-42DC-8575-4F416154F226}.Release|x64.ActiveCfg = Release|x64
 		{58D7C87A-DCB4-42DC-8575-4F416154F226}.Release|x64.Build.0 = Release|x64
+		{66664E96-F4E4-4C82-9B7B-A6E8CCD92069}.Debug|x64.ActiveCfg = Debug|x64
+		{66664E96-F4E4-4C82-9B7B-A6E8CCD92069}.Debug|x64.Build.0 = Debug|x64
+		{66664E96-F4E4-4C82-9B7B-A6E8CCD92069}.Release|x64.ActiveCfg = Release|x64
+		{66664E96-F4E4-4C82-9B7B-A6E8CCD92069}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -51,6 +51,9 @@
     <ProjectReference Include="..\..\Storm-Physics\script\Storm-Physics.vcxproj">
       <Project>{bc32bd4c-db35-4923-8b99-0219bf111eae}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\..\Storm-Profiler\script\Storm-Profiler.vcxproj">
+      <Project>{66664e96-f4e4-4c82-9b7b-a6e8ccd92069}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\..\Storm-Simulator\script\Storm-Simulator.vcxproj">
       <Project>{c115891c-7bdb-4a4c-b19c-24e39536a051}</Project>
     </ProjectReference>
