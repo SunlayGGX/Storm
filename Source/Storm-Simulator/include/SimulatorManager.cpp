@@ -187,6 +187,8 @@ void Storm::SimulatorManager::run()
 		}
 	}
 
+	this->initializePreSimulation();
+
 	// A fast iterator that loops every 512 iterations.
 	union { unsigned short _val : 9 = 0; } _forcedPushFrameIterator;
 
@@ -494,6 +496,16 @@ void Storm::SimulatorManager::applyCFLIfNeeded(const Storm::GeneralSimulationDat
 
 		/* Apply the new timestep */
 		timeMgr.setCurrentPhysicsDeltaTime(newDeltaTimeStep);
+	}
+}
+
+void Storm::SimulatorManager::initializePreSimulation()
+{
+	const float k_kernelLength = this->getKernelLength();
+	for (auto &particleSystem : _particleSystem)
+	{
+		Storm::ParticleSystem &pSystem = *particleSystem.second;
+		pSystem.initializePreSimulation(_particleSystem, k_kernelLength);
 	}
 }
 

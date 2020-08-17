@@ -106,6 +106,11 @@ void Storm::ParticleSystem::postApplySPH()
 
 }
 
+void Storm::ParticleSystem::initializePreSimulation(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const float kernelLengthSquared)
+{
+
+}
+
 void Storm::ParticleSystem::initializeIteration(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems)
 {
 	_isDirty = false;

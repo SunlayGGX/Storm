@@ -40,6 +40,8 @@ namespace Storm
 		virtual void postApplySPH();
 
 	public:
+		virtual void initializePreSimulation(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const float kernelLength);
+
 		virtual void initializeIteration(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems);
 		virtual void updatePosition(float deltaTimeInSec) = 0;
 
