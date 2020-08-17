@@ -16,9 +16,9 @@ namespace Storm
 		~VoxelGrid();
 
 	public:
-		void getVoxelsDataAtPosition(float voxelEdgeLength, const std::vector<Storm::NeighborParticleReferral>* &outContainingVoxelPtr, const std::vector<Storm::NeighborParticleReferral>*(&outNeighborData)[Storm::k_neighborLinkedBunkCount], const Storm::Vector3 &particlePosition) const;
+		void getVoxelsDataAtPosition(float voxelEdgeLength, const Storm::Vector3 &voxelShift, const std::vector<Storm::NeighborParticleReferral>* &outContainingVoxelPtr, const std::vector<Storm::NeighborParticleReferral>*(&outNeighborData)[Storm::k_neighborLinkedBunkCount], const Storm::Vector3 &particlePosition) const;
 
-		void fill(float voxelEdgeLength, const std::vector<Storm::Vector3> &particlePositions, const unsigned int systemId);
+		void fill(float voxelEdgeLength, const Storm::Vector3 &voxelShift, const std::vector<Storm::Vector3> &particlePositions, const unsigned int systemId);
 
 		// Beware, this clear all data inside all voxels but not the voxels themselves (the space would remains partitioned, but without any particle inside).
 		// To reset the partitioning, you must create a new VoxelGrid.
@@ -27,9 +27,9 @@ namespace Storm
 		std::size_t size() const;
 
 	private:
-		void computeCoordIndexFromPosition(float voxelEdgeLength, const Storm::Vector3 &position, unsigned int &outXIndex, unsigned int &outYIndex, unsigned int &outZIndex) const;
+		void computeCoordIndexFromPosition(const Storm::Vector3ui &maxValue, const float voxelEdgeLength, const Storm::Vector3 &voxelShift, const Storm::Vector3 &position, unsigned int &outXIndex, unsigned int &outYIndex, unsigned int &outZIndex) const;
 		unsigned int computeRawIndexFromCoordIndex(unsigned int xIndex, unsigned int yIndex, unsigned int zIndex) const;
-		unsigned int computeRawIndexFromPosition(float voxelEdgeLength, const Storm::Vector3 &position, unsigned int &outXIndex, unsigned int &outYIndex, unsigned int &outZIndex) const;
+		unsigned int computeRawIndexFromPosition(const Storm::Vector3ui &maxValue, const float voxelEdgeLength, const Storm::Vector3 &voxelShift, const Storm::Vector3 &position, unsigned int &outXIndex, unsigned int &outYIndex, unsigned int &outZIndex) const;
 
 	private:
 		Storm::Vector3ui _gridBoundary;

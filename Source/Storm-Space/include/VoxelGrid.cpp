@@ -13,6 +13,14 @@ namespace
 		return static_cast<unsigned int>(diffCoordOnAxis / voxelEdgeLength) + 1;
 	}
 
+	template<class SelectorFunc>
+	__forceinline unsigned int computeCoordIndexOnAxis(const Storm::Vector3ui &maxValue, const float voxelEdgeLength, const Storm::Vector3 &voxelShift, const Storm::Vector3 &position, const SelectorFunc &selectorFunc)
+	{
+		// if it over maxValue, then the particle has left the domain... Just register it inside the last voxel...
+		// Whatever, the simulation was instable and we will lose a little performance but whatever, it's better than crashing...
+		return std::min(selectorFunc(maxValue) - 1, static_cast<unsigned int>((selectorFunc(position) - selectorFunc(voxelShift)) / voxelEdgeLength));
+	}
+
 	enum class PositionInDomain
 	{
 		// x=middle, y=middle, z=middle
@@ -242,13 +250,13 @@ Storm::VoxelGrid::VoxelGrid(const Storm::VoxelGrid &other) :
 
 Storm::VoxelGrid::~VoxelGrid() = default;
 
-void Storm::VoxelGrid::getVoxelsDataAtPosition(float voxelEdgeLength, const std::vector<Storm::NeighborParticleReferral>* &outContainingVoxelPtr, const std::vector<Storm::NeighborParticleReferral>*(&outNeighborData)[Storm::k_neighborLinkedBunkCount], const Storm::Vector3 &particlePosition) const
+void Storm::VoxelGrid::getVoxelsDataAtPosition(float voxelEdgeLength, const Storm::Vector3 &voxelShift, const std::vector<Storm::NeighborParticleReferral>* &outContainingVoxelPtr, const std::vector<Storm::NeighborParticleReferral>*(&outNeighborData)[Storm::k_neighborLinkedBunkCount], const Storm::Vector3 &particlePosition) const
 {
 	unsigned int xIndex;
 	unsigned int yIndex;
 	unsigned int zIndex;
 
-	const std::size_t voxelIndex = static_cast<std::size_t>(this->computeRawIndexFromPosition(voxelEdgeLength, particlePosition, xIndex, yIndex, zIndex));
+	const std::size_t voxelIndex = static_cast<std::size_t>(this->computeRawIndexFromPosition(_gridBoundary, voxelEdgeLength, voxelShift, particlePosition, xIndex, yIndex, zIndex));
 	outContainingVoxelPtr = &_voxels[voxelIndex].getData();
 
 	const std::vector<Storm::NeighborParticleReferral>** iter = std::begin(outNeighborData);
@@ -691,7 +699,7 @@ void Storm::VoxelGrid::getVoxelsDataAtPosition(float voxelEdgeLength, const std:
 	memset(iter, NULL, ghostNeighborhoodCount);
 }
 
-void Storm::VoxelGrid::fill(float voxelEdgeLength, const std::vector<Storm::Vector3> &particlePositions, const unsigned int systemId)
+void Storm::VoxelGrid::fill(float voxelEdgeLength, const Storm::Vector3 &voxelShift, const std::vector<Storm::Vector3> &particlePositions, const unsigned int systemId)
 {
 	unsigned int dummy1;
 	unsigned int dummy2;
@@ -700,7 +708,7 @@ void Storm::VoxelGrid::fill(float voxelEdgeLength, const std::vector<Storm::Vect
 	const std::size_t particleCount = particlePositions.size();
 	for (std::size_t index = 0; index < particleCount; ++index)
 	{
-		const std::size_t voxelIndex = static_cast<std::size_t>(this->computeRawIndexFromPosition(voxelEdgeLength, particlePositions[index], dummy1, dummy2, dummy3));
+		const std::size_t voxelIndex = static_cast<std::size_t>(this->computeRawIndexFromPosition(_gridBoundary, voxelEdgeLength, voxelShift, particlePositions[index], dummy1, dummy2, dummy3));
 		_voxels[voxelIndex].addParticle(index, systemId);
 	}
 }
@@ -718,11 +726,11 @@ std::size_t Storm::VoxelGrid::size() const
 	return _gridBoundary.x() * _gridBoundary.y() * _gridBoundary.z();
 }
 
-void Storm::VoxelGrid::computeCoordIndexFromPosition(float voxelEdgeLength, const Storm::Vector3 &position, unsigned int &outXIndex, unsigned int &outYIndex, unsigned int &outZIndex) const
+void Storm::VoxelGrid::computeCoordIndexFromPosition(const Storm::Vector3ui &maxValue, const float voxelEdgeLength, const Storm::Vector3 &voxelShift, const Storm::Vector3 &position, unsigned int &outXIndex, unsigned int &outYIndex, unsigned int &outZIndex) const
 {
-	outXIndex = static_cast<unsigned int>(position.x() / voxelEdgeLength);
-	outYIndex = static_cast<unsigned int>(position.y() / voxelEdgeLength);
-	outZIndex = static_cast<unsigned int>(position.z() / voxelEdgeLength);
+	outXIndex = computeCoordIndexOnAxis(maxValue, voxelEdgeLength, voxelShift, position, [](auto &vect) -> auto& { return vect.x(); });
+	outYIndex = computeCoordIndexOnAxis(maxValue, voxelEdgeLength, voxelShift, position, [](auto &vect) -> auto& { return vect.y(); });
+	outZIndex = computeCoordIndexOnAxis(maxValue, voxelEdgeLength, voxelShift, position, [](auto &vect) -> auto& { return vect.z(); });
 }
 
 unsigned int Storm::VoxelGrid::computeRawIndexFromCoordIndex(unsigned int xIndex, unsigned int yIndex, unsigned int zIndex) const
@@ -734,9 +742,9 @@ unsigned int Storm::VoxelGrid::computeRawIndexFromCoordIndex(unsigned int xIndex
 		;
 }
 
-unsigned int Storm::VoxelGrid::computeRawIndexFromPosition(float voxelEdgeLength, const Storm::Vector3 &position, unsigned int &outXIndex, unsigned int &outYIndex, unsigned int &outZIndex) const
+unsigned int Storm::VoxelGrid::computeRawIndexFromPosition(const Storm::Vector3ui &maxValue, const float voxelEdgeLength, const Storm::Vector3 &voxelShift, const Storm::Vector3 &position, unsigned int &outXIndex, unsigned int &outYIndex, unsigned int &outZIndex) const
 {
-	this->computeCoordIndexFromPosition(voxelEdgeLength, position, outXIndex, outYIndex, outZIndex);
+	this->computeCoordIndexFromPosition(maxValue, voxelEdgeLength, voxelShift, position, outXIndex, outYIndex, outZIndex);
 
 	const unsigned int result = this->computeRawIndexFromCoordIndex(outXIndex, outYIndex, outZIndex);
 	assert(result < this->size() && "We referenced an index that goes outside the partitioned space. It is illegal!");

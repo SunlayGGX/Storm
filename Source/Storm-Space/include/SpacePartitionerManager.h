@@ -37,9 +37,10 @@ namespace Storm
 		Storm::Vector3 _downSpaceCorner;
 
 		float _partitionLength;
+		Storm::Vector3 _gridShiftOffset;
 
-		SpacePartitionStructure _staticRigidBodySpacePartition;
-		SpacePartitionStructure _dynamicRigidBodySpacePartition;
 		SpacePartitionStructure _fluidSpacePartition;
+		SpacePartitionStructure _dynamicRigidBodySpacePartition;
+		SpacePartitionStructure _staticRigidBodySpacePartition;
 	};
 }
