@@ -21,8 +21,11 @@ namespace Storm
 		// Reorder the space using the passed particle Positions. This does not clear the former reordering but add the particle positions to the right partition.
 		virtual void computeSpaceReordering(const std::vector<Storm::Vector3> &particlePositions, Storm::PartitionSelection modality, const unsigned int systemId) = 0;
 
+		// Clear the space partition from all registered particle referrals for partition that aren't static. This does not remove the partition.
+		virtual void clearSpaceReorderingNoStatic() = 0;
+
 		// Clear the selected space partition from all registered particle referrals. This does not remove the partition.
-		virtual void clearSpaceReordering(Storm::PartitionSelection modality) = 0;
+		virtual void clearSpaceReorderingForPartition(Storm::PartitionSelection modality) = 0;
 
 		// Get the all bundles that can be considered as neighbor from the bundle referred by systemId containing the particlePosition. 
 		// Note that inOutContainingBundlePtr can also contain the particle at particlePosition.

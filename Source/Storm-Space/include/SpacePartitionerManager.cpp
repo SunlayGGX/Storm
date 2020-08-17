@@ -91,13 +91,19 @@ void Storm::SpacePartitionerManager::partitionSpace()
 	_staticRigidBodySpacePartition = std::move(staticRigidBodySpacePartitionSrc);
 }
 
+void Storm::SpacePartitionerManager::clearSpaceReorderingNoStatic()
+{
+	this->clearSpaceReorderingForPartition(Storm::PartitionSelection::Fluid);
+	this->clearSpaceReorderingForPartition(Storm::PartitionSelection::DynamicRigidBody);
+}
+
 void Storm::SpacePartitionerManager::computeSpaceReordering(const std::vector<Storm::Vector3> &particlePositions, Storm::PartitionSelection modality, const unsigned int systemId)
 {
 	const std::unique_ptr<Storm::VoxelGrid> &spacePartition = this->getSpacePartition(modality);
 	spacePartition->fill(this->getPartitionLength(), _gridShiftOffset, particlePositions, systemId);
 }
 
-void Storm::SpacePartitionerManager::clearSpaceReordering(Storm::PartitionSelection modality)
+void Storm::SpacePartitionerManager::clearSpaceReorderingForPartition(Storm::PartitionSelection modality)
 {
 	const std::unique_ptr<Storm::VoxelGrid> &spacePartition = this->getSpacePartition(modality);
 	spacePartition->clear();
