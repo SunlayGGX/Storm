@@ -43,6 +43,6 @@
 # Custom
 **/[Dd]ependencies/**
 UserSettings.bat
-Config/Custom/*/Original/**
+Config/Custom/**
 **/Logs/**
 Intermediate/**
