@@ -29,6 +29,7 @@ namespace Storm
 		Storm::TimeWaitResult waitForTime(std::chrono::milliseconds timeToWait) final override;
 		bool waitNextFrameOrExit() final override;
 		bool waitForTimeOrExit(std::chrono::milliseconds timeToWait) final override;
+		Storm::TimeWaitResult getStateNoSyncWait() const final override;
 
 		void setExpectedFrameFPS(float fps) final override;
 		float getExpectedFrameFPS() const final override;

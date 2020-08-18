@@ -45,6 +45,8 @@ namespace Storm
 		// Return value is false if we should exit, true if we should continue.
 		virtual bool waitForTimeOrExit(std::chrono::milliseconds timeToWait) = 0;
 
+		// Get the state of the time loop without being synchronized. But a little wait can be expected since this is queried on a multithreaded context.
+		virtual Storm::TimeWaitResult getStateNoSyncWait() const = 0;
 
 		/****************************************************************************/
 		/*							Simulation Time									*/

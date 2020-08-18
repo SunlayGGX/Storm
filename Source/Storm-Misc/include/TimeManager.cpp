@@ -131,6 +131,17 @@ bool Storm::TimeManager::waitForTimeOrExit(std::chrono::milliseconds timeToWait)
 	return this->waitForTime(timeToWait) != Storm::TimeWaitResult::Exit;
 }
 
+Storm::TimeWaitResult Storm::TimeManager::getStateNoSyncWait() const
+{
+	std::unique_lock<std::mutex> lock{ _mutex };
+	if (_isRunning)
+	{
+		return _isPaused ? Storm::TimeWaitResult::Pause : Storm::TimeWaitResult::Continue;
+	}
+
+	return Storm::TimeWaitResult::Exit;
+}
+
 void Storm::TimeManager::setExpectedFrameFPS(float fps)
 {
 	_simulationFrameTime = std::chrono::microseconds{ static_cast<std::chrono::microseconds::rep>(std::roundf(Storm::InvertPeriod<std::chrono::microseconds::period>::value / fps)) };
