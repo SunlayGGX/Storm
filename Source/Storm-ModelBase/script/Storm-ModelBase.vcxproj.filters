@@ -25,9 +25,6 @@
     <Filter Include="Header Files\Modules\Config">
       <UniqueIdentifier>{d00a5300-7080-48d9-8adc-77818e645a1f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Modules\Config\Includes">
-      <UniqueIdentifier>{99538e86-e5c4-48b7-8aed-eae5c4a90863}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Modules\Events">
       <UniqueIdentifier>{530b1741-32b1-4a2c-9d4a-0d2826540f53}</UniqueIdentifier>
     </Filter>
@@ -139,9 +136,6 @@
     </ClInclude>
     <ClInclude Include="..\include\SceneData.h">
       <Filter>Header Files\Modules\Config</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\DataIncludes.h">
-      <Filter>Header Files\Modules\Config\Includes</Filter>
     </ClInclude>
     <ClInclude Include="..\include\GraphicData.h">
       <Filter>Header Files\Modules\Config</Filter>

@@ -2,7 +2,12 @@
 
 #include "MacroConfig.h"
 
-#include "DataIncludes.h"
+#include "SceneData.h"
+#include "GeneralSimulationData.h"
+#include "RigidBodySceneData.h"
+#include "GraphicData.h"
+#include "FluidData.h"
+#include "BlowerData.h"
 
 #include "CollisionType.h"
 #include "SimulationMode.h"

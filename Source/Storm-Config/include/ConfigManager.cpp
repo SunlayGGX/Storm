@@ -6,7 +6,8 @@
 #include "SingletonHolder.h"
 #include "IOSManager.h"
 
-#include "DataIncludes.h"
+#include "SceneData.h"
+#include "RigidBodySceneData.h"
 
 #include <boost/algorithm/string.hpp>
 

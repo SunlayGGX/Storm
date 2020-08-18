@@ -12,6 +12,7 @@ namespace Storm
 	{
 	public:
 		SceneData();
+		~SceneData();
 
 	public:
 		std::unique_ptr<Storm::GeneralSimulationData> _generalSimulationData;

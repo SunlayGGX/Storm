@@ -1,4 +1,9 @@
-#include "DataIncludes.h"
+#include "SceneData.h"
+#include "GeneralSimulationData.h"
+#include "RigidBodySceneData.h"
+#include "GraphicData.h"
+#include "FluidData.h"
+#include "BlowerData.h"
 
 #include "CollisionType.h"
 #include "SimulationMode.h"
@@ -80,3 +85,6 @@ Storm::SceneData::SceneData() :
 {
 
 }
+
+// Needed for prototypes. Otherwise, std::vector declared inside this structure won't compile anywhere else because the underlying structure wasn't defined (vector cannot destroy undefined element)...
+Storm::SceneData::~SceneData() = default;
