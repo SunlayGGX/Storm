@@ -4,7 +4,7 @@
 		<particleRadius>0.05</particleRadius>
 		<kernelCoeff>4.0</kernelCoeff>
 		<startPaused>false</startPaused>
-		<simulation>PCISPH</simulation>
+		<simulation>WCSPH</simulation>
 	</General>
 	<Graphic>
 		<cameraPosition x="0.0" y="1.0" z="-5.0" />
@@ -16,8 +16,8 @@
 	<Fluid>
 		<id>0</id>
 		<fluidBlock>
-			<firstPoint x="-1.0" y="-1.0" z="-1.0" />
-			<secondPoint x="1.0" y="1.0" z="1.0" />
+			<firstPoint x="-0.9" y="-0.9" z="-0.9" />
+			<secondPoint x="0.9" y="0.9" z="0.9" />
 		</fluidBlock>
 	</Fluid>
 	<RigidBodies>
