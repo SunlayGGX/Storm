@@ -18,6 +18,8 @@
 
 #include "ParticleSystemUtils.h"
 
+#include "MacroConfig.h"
+
 namespace
 {
 	template<class NeighborhoodArray, class RawKernelMeth>
@@ -139,7 +141,11 @@ void Storm::RigidBodyParticleSystem::initializeIteration(const std::map<unsigned
 		force.setZero();
 
 		// Compute the current boundary particle volume.
+#if STORM_USE_OPTIMIZED_NEIGHBORHOOD_ALGORITHM
 		const float initialVolumeValue = isStaticRigidBody ? _staticVolumesInitValue[currentPIndex] : currentKernelZero;
+#else
+		const float initialVolumeValue = currentKernelZero;
+#endif
 		float &currentPVolume = _volumes[currentPIndex];
 		currentPVolume = 1.f / computeParticleDeltaVolume(_neighborhood[currentPIndex], k_kernelLength, initialVolumeValue, rawKernelMeth); // ???
 	});

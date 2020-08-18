@@ -1,0 +1,5 @@
+#pragma once
+
+
+
+#define STORM_USE_OPTIMIZED_NEIGHBORHOOD_ALGORITHM true
