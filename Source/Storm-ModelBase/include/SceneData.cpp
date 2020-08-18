@@ -78,6 +78,11 @@ Storm::FluidData::FluidData() :
 
 }
 
+Storm::BlowerData::BlowerData()
+{
+
+}
+
 Storm::SceneData::SceneData() :
 	_generalSimulationData{ std::make_unique<Storm::GeneralSimulationData>() },
 	_graphicData{ std::make_unique<Storm::GraphicData>() },

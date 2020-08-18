@@ -7,6 +7,7 @@ namespace Storm
 	struct GraphicData;
 	struct FluidData;
 	struct RigidBodySceneData;
+	struct BlowerData;
 
 	struct SceneData
 	{
@@ -19,5 +20,6 @@ namespace Storm
 		std::unique_ptr<Storm::GraphicData> _graphicData;
 		std::unique_ptr<Storm::FluidData> _fluidData;
 		std::vector<Storm::RigidBodySceneData> _rigidBodiesData;
+		std::vector<Storm::BlowerData> _blowersData;
 	};
 }

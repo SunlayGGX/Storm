@@ -21,6 +21,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\AsyncAction.h" />
+    <ClInclude Include="..\include\BlowerData.h" />
     <ClInclude Include="..\include\CollisionType.h" />
     <ClInclude Include="..\include\FluidParticleLoadDenseMode.h" />
     <ClInclude Include="..\include\GeneralSimulationData.h" />

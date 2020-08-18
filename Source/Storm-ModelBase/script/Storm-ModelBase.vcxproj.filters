@@ -209,5 +209,8 @@
     <ClInclude Include="..\include\IProfilerManager.h">
       <Filter>Header Files\Singleton</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\BlowerData.h">
+      <Filter>Header Files\Modules\Config</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
