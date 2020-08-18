@@ -95,7 +95,7 @@ namespace Storm
 		template<class ResultType, class TreeItem>
 		static void sureReadXmlAttribute(const TreeItem &treeItem, ResultType &value, const std::string_view &tag)
 		{
-			const std::string_view xmlAttrIdentificator{ "<xmlattr>." };
+			constexpr std::string_view xmlAttrIdentificator{ "<xmlattr>." };
 
 			std::string finalTag;
 			finalTag.reserve(xmlAttrIdentificator.size() + tag.size());
