@@ -9,6 +9,8 @@
 
 #include "RunnerHelper.h"
 
+#include "MacroConfig.h"
+
 
 
 Storm::ParticleSystem::ParticleSystem(unsigned int particleSystemIndex, std::vector<Storm::Vector3> &&worldPositions) :
@@ -91,13 +93,13 @@ void Storm::ParticleSystem::buildNeighborhood(const std::map<unsigned int, std::
 	const float kernelLength = Storm::SimulatorManager::instance().getKernelLength();
 	const float kernelLengthSquared = kernelLength * kernelLength;
 
-#if false
+#if STORM_USE_OPTIMIZED_NEIGHBORHOOD_ALGORITHM
+	this->buildNeighborhoodOnParticleSystemUsingSpacePartition(allParticleSystems, kernelLengthSquared);
+#else
 	std::for_each(std::begin(allParticleSystems), std::end(allParticleSystems), [this, kernelLength, kernelLengthSquared](const auto &particleSystem)
 	{
 		this->buildNeighborhoodOnParticleSystem(*particleSystem.second, kernelLengthSquared);
 	});
-#else
-	this->buildNeighborhoodOnParticleSystemUsingSpacePartition(allParticleSystems, kernelLengthSquared);
 #endif
 }
 

@@ -33,6 +33,7 @@
     <ClInclude Include="..\include\InvertPeriod.h" />
     <ClInclude Include="..\include\Logging.h" />
     <ClInclude Include="..\include\LogLevel.h" />
+    <ClInclude Include="..\include\MacroConfig.h" />
     <ClInclude Include="..\include\MemoryHelper.h" />
     <ClInclude Include="..\include\MultiCallback.h" />
     <ClInclude Include="..\include\NonInstanciable.h" />
