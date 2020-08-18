@@ -78,5 +78,5 @@ Storm::SceneData::SceneData() :
 	_graphicData{ std::make_unique<Storm::GraphicData>() },
 	_fluidData{ std::make_unique<Storm::FluidData>() }
 {
-	_rigidBodiesData.reserve(4);
+
 }

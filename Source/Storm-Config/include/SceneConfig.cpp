@@ -249,7 +249,9 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 	if (rigidBodiesTreeOpt.has_value())
 	{
 		const auto &rigidBodiesTree = rigidBodiesTreeOpt.value();
+
 		auto &rigidBodiesDataArray = _sceneData->_rigidBodiesData;
+		rigidBodiesDataArray.reserve(rigidBodiesTree.size());
 
 		for (const auto &rigidBodyXmlElement : rigidBodiesTree)
 		{
