@@ -194,7 +194,7 @@ void Storm::SimulatorManager::run()
 
 	do
 	{
-		Storm::TimeWaitResult simulationState = timeMgr.waitNextFrame();
+		Storm::TimeWaitResult simulationState = generalSimulationConfigData._simulationNoWait ? timeMgr.getStateNoSyncWait() : timeMgr.waitNextFrame();
 		switch (simulationState)
 		{
 		case Storm::TimeWaitResult::Exit:
