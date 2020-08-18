@@ -9,6 +9,7 @@
 #include "SimulationMode.h"
 #include "KernelMode.h"
 #include "FluidParticleLoadDenseMode.h"
+#include "BlowerType.h"
 
 
 Storm::GeneralSimulationData::GeneralSimulationData() :
@@ -78,7 +79,15 @@ Storm::FluidData::FluidData() :
 
 }
 
-Storm::BlowerData::BlowerData()
+Storm::BlowerData::BlowerData() :
+	_startTimeInSeconds{ 0.f },
+	_stopTimeInSeconds{ -1.f },
+	_fadeInTimeInSeconds{ 0.f },
+	_fadeOutTimeInSeconds{ 0.f },
+	_blowerType{ Storm::BlowerType::None },
+	_blowerDimension{ Storm::Vector3::Zero() },
+	_blowerPosition{ Storm::Vector3::Zero() },
+	_blowerForce{ Storm::Vector3::Zero() }
 {
 
 }

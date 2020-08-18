@@ -13,6 +13,7 @@
 #include "SimulationMode.h"
 #include "KernelMode.h"
 #include "FluidParticleLoadDenseMode.h"
+#include "BlowerType.h"
 
 #include "ThrowException.h"
 #include "XmlReader.h"
@@ -100,6 +101,23 @@ namespace
 		else
 		{
 			Storm::throwException<std::exception>("Fluid particle dense load mode value is unknown : '" + loadModeStr + "'");
+		}
+	}
+
+	Storm::BlowerType parseBlowerType(std::string blowerTypeStr)
+	{
+		boost::algorithm::to_lower(blowerTypeStr);
+		if (blowerTypeStr == "cube")
+		{
+			return Storm::BlowerType::Cube;
+		}
+		else if (blowerTypeStr == "sphere")
+		{
+			return Storm::BlowerType::Sphere;
+		}
+		else
+		{
+			Storm::throwException<std::exception>("BlowerType value is unknown : '" + blowerTypeStr + "'");
 		}
 	}
 }
@@ -255,7 +273,7 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 	{
 		const auto &rigidBodiesTree = rigidBodiesTreeOpt.value();
 
-		auto &rigidBodiesDataArray = _sceneData->_rigidBodiesData;
+		std::vector<Storm::RigidBodySceneData> &rigidBodiesDataArray = _sceneData->_rigidBodiesData;
 		rigidBodiesDataArray.reserve(rigidBodiesTree.size());
 
 		for (const auto &rigidBodyXmlElement : rigidBodiesTree)
@@ -317,6 +335,80 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 			else
 			{
 				LOG_ERROR << rigidBodyXmlElement.first + " is not a valid tag inside 'RigidBodies'. Only 'RigidBody' is accepted!";
+			}
+		}
+	}
+
+	/* Blowers */
+	const auto &blowersTreeOpt = srcTree.get_child_optional("Blowers");
+	if (blowersTreeOpt.has_value())
+	{
+		const auto &blowersTree = blowersTreeOpt.value();
+
+		std::vector<Storm::BlowerData> &blowersDataArray = _sceneData->_blowersData;
+		blowersDataArray.reserve(blowersTree.size());
+
+		std::size_t blowerElemIter = 0;
+		for (const auto &blowerXmlElement : blowersTree)
+		{
+			if (blowerXmlElement.first == "Blower")
+			{
+				Storm::BlowerData &blowerData = blowersDataArray.emplace_back();
+				for (const auto &blowerDataXml : blowerXmlElement.second)
+				{
+					if (
+						!Storm::XmlReader::handleXml(blowerDataXml, "type", blowerData._blowerType, parseBlowerType) &&
+						!Storm::XmlReader::handleXml(blowerDataXml, "startTime", blowerData._startTimeInSeconds) &&
+						!Storm::XmlReader::handleXml(blowerDataXml, "endTime", blowerData._stopTimeInSeconds) &&
+						!Storm::XmlReader::handleXml(blowerDataXml, "fadeInTime", blowerData._fadeInTimeInSeconds) &&
+						!Storm::XmlReader::handleXml(blowerDataXml, "fadeOutTime", blowerData._fadeOutTimeInSeconds) &&
+						!Storm::XmlReader::handleXml(blowerDataXml, "dimension", blowerData._blowerDimension, parseVector3Element) &&
+						!Storm::XmlReader::handleXml(blowerDataXml, "force", blowerData._blowerForce, parseVector3Element) &&
+						!Storm::XmlReader::handleXml(blowerDataXml, "position", blowerData._blowerPosition, parseVector3Element)
+						)
+					{
+						LOG_ERROR << "tag '" << blowerDataXml.first << "' (inside Scene.Blowers.Blower) is unknown, therefore it cannot be handled";
+					}
+				}
+
+				if (blowerData._blowerType == Storm::BlowerType::None)
+				{
+					Storm::throwException<std::exception>("Blower " + std::to_string(blowerElemIter) + " should have defined a blower type, this is mandatory!");
+				}
+				else if (blowerData._blowerDimension == Storm::Vector3::Zero())
+				{
+					Storm::throwException<std::exception>("Blower " + std::to_string(blowerElemIter) + " should have defined a dimension!");
+				}
+				else if (blowerData._blowerDimension.x() <= 0.f || blowerData._blowerDimension.y() <= 0.f || blowerData._blowerDimension.z() <= 0.f)
+				{
+					Storm::throwException<std::exception>("Blower " + std::to_string(blowerElemIter) + " cannot have one of its dimension value lesser or equal to 0! Specified dimension was " + Storm::toStdString(blowerData._blowerDimension));
+				}
+				else if (blowerData._startTimeInSeconds < 0.f)
+				{
+					Storm::throwException<std::exception>("Blower " + std::to_string(blowerElemIter) + " start time is invalid (it cannot be lesser or equal to 0, value was " + std::to_string(blowerData._startTimeInSeconds) + ")!");
+				}
+				else if (blowerData._stopTimeInSeconds != -1.f && blowerData._startTimeInSeconds >= blowerData._stopTimeInSeconds)
+				{
+					Storm::throwException<std::exception>(
+						"Blower " + std::to_string(blowerElemIter) + " end time cannot be before its start time.\n"
+						"Either set it to -1 to specify that there is no stop time, or set it strictly greater than the start time!\n"
+						"startTime was " + std::to_string(blowerData._startTimeInSeconds) + "s\n"
+						"endTime was " + std::to_string(blowerData._stopTimeInSeconds) + "s.");
+				}
+				else if (blowerData._fadeInTimeInSeconds < 0.f)
+				{
+					Storm::throwException<std::exception>("Blower " + std::to_string(blowerElemIter) + " fade in time cannot be negative!");
+				}
+				else if (blowerData._fadeOutTimeInSeconds < 0.f)
+				{
+					Storm::throwException<std::exception>("Blower " + std::to_string(blowerElemIter) + " fade out time cannot be negative!");
+				}
+
+				++blowerElemIter;
+			}
+			else
+			{
+				LOG_ERROR << blowerXmlElement.first + " is not a valid tag inside 'Blowers'. Only 'Blower' is accepted!";
 			}
 		}
 	}
