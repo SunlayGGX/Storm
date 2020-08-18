@@ -16,56 +16,62 @@
     <Filter Include="Header Files\Singleton">
       <UniqueIdentifier>{085616b2-875d-4356-8323-774c4dfe2c2f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Input">
-      <UniqueIdentifier>{5fb650ab-a0a2-436d-9718-561c220b7710}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Time">
-      <UniqueIdentifier>{9c849229-55f2-4d20-b427-37d2361b3a7b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Events">
-      <UniqueIdentifier>{530b1741-32b1-4a2c-9d4a-0d2826540f53}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Config">
-      <UniqueIdentifier>{d00a5300-7080-48d9-8adc-77818e645a1f}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\General">
       <UniqueIdentifier>{ed75b67c-0355-4bad-9046-25694bb7d10a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Config\Includes">
+    <Filter Include="Header Files\Modules">
+      <UniqueIdentifier>{8a64377b-88f1-4110-8353-0fe6815fe6ad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Modules\Config">
+      <UniqueIdentifier>{d00a5300-7080-48d9-8adc-77818e645a1f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Modules\Config\Includes">
       <UniqueIdentifier>{99538e86-e5c4-48b7-8aed-eae5c4a90863}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Config">
-      <UniqueIdentifier>{9a6ef5c9-1c47-495d-9141-da83b385ba0a}</UniqueIdentifier>
+    <Filter Include="Header Files\Modules\Events">
+      <UniqueIdentifier>{530b1741-32b1-4a2c-9d4a-0d2826540f53}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Simulation">
-      <UniqueIdentifier>{f59f1462-4c13-491b-9f1e-a856e5df2683}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Simulation\RigidBodies">
-      <UniqueIdentifier>{1fc22d48-249a-463a-91bd-786a73e954c1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Physics">
-      <UniqueIdentifier>{7dcf50cd-783d-4bed-aa55-40ea3f119cd7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Simulation">
-      <UniqueIdentifier>{52d2bcff-4bef-42e2-ae60-dba40a77b293}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Simulation\RigidBodies">
-      <UniqueIdentifier>{3de21183-a2e9-40db-a556-038d2b3cbf9b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Threading">
-      <UniqueIdentifier>{c259ba52-6040-4e3a-9aeb-b63b130a7c16}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Graphics">
+    <Filter Include="Header Files\Modules\Graphics">
       <UniqueIdentifier>{c02632d5-3202-4576-b82d-b402dad65063}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Graphics">
-      <UniqueIdentifier>{b2384f99-bcd2-4b8d-98e2-f31fdd4f7764}</UniqueIdentifier>
+    <Filter Include="Header Files\Modules\Input">
+      <UniqueIdentifier>{5fb650ab-a0a2-436d-9718-561c220b7710}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Load">
+    <Filter Include="Header Files\Modules\Load">
       <UniqueIdentifier>{9e6b5550-060d-4ff7-8490-143c8ed00280}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\SpacePartitioning">
+    <Filter Include="Header Files\Modules\Physics">
+      <UniqueIdentifier>{7dcf50cd-783d-4bed-aa55-40ea3f119cd7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Modules\Simulation">
+      <UniqueIdentifier>{f59f1462-4c13-491b-9f1e-a856e5df2683}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Modules\Simulation\RigidBodies">
+      <UniqueIdentifier>{1fc22d48-249a-463a-91bd-786a73e954c1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Modules\SpacePartitioning">
       <UniqueIdentifier>{a52c935a-7083-41cb-ad13-f23ffb65ee9b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Modules\Threading">
+      <UniqueIdentifier>{c259ba52-6040-4e3a-9aeb-b63b130a7c16}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Modules\Time">
+      <UniqueIdentifier>{9c849229-55f2-4d20-b427-37d2361b3a7b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Modules">
+      <UniqueIdentifier>{75a2046b-ef5a-4ca6-9922-eea8cccf0e6b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Modules\Simulation">
+      <UniqueIdentifier>{52d2bcff-4bef-42e2-ae60-dba40a77b293}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Modules\Simulation\RigidBodies">
+      <UniqueIdentifier>{3de21183-a2e9-40db-a556-038d2b3cbf9b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Modules\Graphics">
+      <UniqueIdentifier>{b2384f99-bcd2-4b8d-98e2-f31fdd4f7764}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Modules\Config">
+      <UniqueIdentifier>{9a6ef5c9-1c47-495d-9141-da83b385ba0a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -73,13 +79,13 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\include\SceneData.cpp">
-      <Filter>Source Files\Config</Filter>
+      <Filter>Source Files\Modules\Config</Filter>
     </ClCompile>
     <ClCompile Include="..\include\RigidBodyHolder.cpp">
-      <Filter>Source Files\Simulation\RigidBodies</Filter>
+      <Filter>Source Files\Modules\Simulation\RigidBodies</Filter>
     </ClCompile>
     <ClCompile Include="..\include\UIField.cpp">
-      <Filter>Source Files\Graphics</Filter>
+      <Filter>Source Files\Modules\Graphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -111,19 +117,19 @@
       <Filter>Header Files\Singleton</Filter>
     </ClInclude>
     <ClInclude Include="..\include\TimeWaitResult.h">
-      <Filter>Header Files\Time</Filter>
+      <Filter>Header Files\Modules\Time</Filter>
     </ClInclude>
     <ClInclude Include="..\include\ISimulatorManager.h">
       <Filter>Header Files\Singleton</Filter>
     </ClInclude>
     <ClInclude Include="..\include\WindowsCallbacks.h">
-      <Filter>Header Files\Events</Filter>
+      <Filter>Header Files\Modules\Events</Filter>
     </ClInclude>
     <ClInclude Include="..\include\InputEvents.h">
-      <Filter>Header Files\Input</Filter>
+      <Filter>Header Files\Modules\Input</Filter>
     </ClInclude>
     <ClInclude Include="..\include\RigidBodySceneData.h">
-      <Filter>Header Files\Config</Filter>
+      <Filter>Header Files\Modules\Config</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Vector3.h">
       <Filter>Header Files\General</Filter>
@@ -132,13 +138,13 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\include\SceneData.h">
-      <Filter>Header Files\Config</Filter>
+      <Filter>Header Files\Modules\Config</Filter>
     </ClInclude>
     <ClInclude Include="..\include\DataIncludes.h">
-      <Filter>Header Files\Config\Includes</Filter>
+      <Filter>Header Files\Modules\Config\Includes</Filter>
     </ClInclude>
     <ClInclude Include="..\include\GraphicData.h">
-      <Filter>Header Files\Config</Filter>
+      <Filter>Header Files\Modules\Config</Filter>
     </ClInclude>
     <ClInclude Include="..\include\IShaderManager.h">
       <Filter>Header Files\Singleton</Filter>
@@ -147,49 +153,49 @@
       <Filter>Header Files\Singleton</Filter>
     </ClInclude>
     <ClInclude Include="..\include\IRigidBody.h">
-      <Filter>Header Files\Simulation\RigidBodies</Filter>
+      <Filter>Header Files\Modules\Simulation\RigidBodies</Filter>
     </ClInclude>
     <ClInclude Include="..\include\CollisionType.h">
-      <Filter>Header Files\Physics</Filter>
+      <Filter>Header Files\Modules\Physics</Filter>
     </ClInclude>
     <ClInclude Include="..\include\GeneralSimulationData.h">
-      <Filter>Header Files\Config</Filter>
+      <Filter>Header Files\Modules\Config</Filter>
     </ClInclude>
     <ClInclude Include="..\include\RigidBodyHolder.h">
-      <Filter>Header Files\Simulation\RigidBodies</Filter>
+      <Filter>Header Files\Modules\Simulation\RigidBodies</Filter>
     </ClInclude>
     <ClInclude Include="..\include\SpecialKey.h">
-      <Filter>Header Files\Input</Filter>
+      <Filter>Header Files\Modules\Input</Filter>
     </ClInclude>
     <ClInclude Include="..\include\IThreadManager.h">
       <Filter>Header Files\Singleton</Filter>
     </ClInclude>
     <ClInclude Include="..\include\AsyncAction.h">
-      <Filter>Header Files\Events</Filter>
+      <Filter>Header Files\Modules\Events</Filter>
     </ClInclude>
     <ClInclude Include="..\include\ThreadEnumeration.h">
-      <Filter>Header Files\Threading</Filter>
+      <Filter>Header Files\Modules\Threading</Filter>
     </ClInclude>
     <ClInclude Include="..\include\FluidData.h">
-      <Filter>Header Files\Config</Filter>
+      <Filter>Header Files\Modules\Config</Filter>
     </ClInclude>
     <ClInclude Include="..\include\SimulationMode.h">
-      <Filter>Header Files\Simulation</Filter>
+      <Filter>Header Files\Modules\Simulation</Filter>
     </ClInclude>
     <ClInclude Include="..\include\KernelMode.h">
-      <Filter>Header Files\Simulation</Filter>
+      <Filter>Header Files\Modules\Simulation</Filter>
     </ClInclude>
     <ClInclude Include="..\include\UIField.h">
-      <Filter>Header Files\Graphics</Filter>
+      <Filter>Header Files\Modules\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="..\include\UIFieldBase.h">
-      <Filter>Header Files\Graphics</Filter>
+      <Filter>Header Files\Modules\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="..\include\UIFieldContainer.h">
-      <Filter>Header Files\Graphics</Filter>
+      <Filter>Header Files\Modules\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="..\include\FluidParticleLoadDenseMode.h">
-      <Filter>Header Files\Load</Filter>
+      <Filter>Header Files\Modules\Load</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Vector3Utils.h">
       <Filter>Header Files\General</Filter>
@@ -198,13 +204,13 @@
       <Filter>Header Files\Singleton</Filter>
     </ClInclude>
     <ClInclude Include="..\include\NeighborParticleReferral.h">
-      <Filter>Header Files\SpacePartitioning</Filter>
+      <Filter>Header Files\Modules\SpacePartitioning</Filter>
     </ClInclude>
     <ClInclude Include="..\include\PartitionSelection.h">
-      <Filter>Header Files\SpacePartitioning</Filter>
+      <Filter>Header Files\Modules\SpacePartitioning</Filter>
     </ClInclude>
     <ClInclude Include="..\include\SpacePartitionConstants.h">
-      <Filter>Header Files\SpacePartitioning</Filter>
+      <Filter>Header Files\Modules\SpacePartitioning</Filter>
     </ClInclude>
     <ClInclude Include="..\include\IProfilerManager.h">
       <Filter>Header Files\Singleton</Filter>
