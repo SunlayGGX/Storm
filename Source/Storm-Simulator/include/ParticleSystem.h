@@ -4,6 +4,8 @@
 
 namespace Storm
 {
+	class IBlower;
+
 	class ParticleSystem
 	{
 	public:
@@ -42,7 +44,7 @@ namespace Storm
 	public:
 		virtual void initializePreSimulation(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const float kernelLength);
 
-		virtual void initializeIteration(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems);
+		virtual void initializeIteration(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const std::vector<std::unique_ptr<Storm::IBlower>> &blowers);
 		virtual void updatePosition(float deltaTimeInSec) = 0;
 
 	public:

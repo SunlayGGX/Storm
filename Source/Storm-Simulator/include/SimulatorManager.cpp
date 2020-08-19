@@ -239,9 +239,14 @@ void Storm::SimulatorManager::run()
 			}
 		}
 
+		for (const std::unique_ptr<Storm::IBlower> &blowerUPtr : _blowers)
+		{
+			blowerUPtr->advanceTime(physicsElapsedDeltaTime);
+		}
+
 		for (auto &particleSystem : _particleSystem)
 		{
-			particleSystem.second->initializeIteration(_particleSystem);
+			particleSystem.second->initializeIteration(_particleSystem, _blowers);
 		}
 
 		// Compute the simulation

@@ -106,9 +106,9 @@ void Storm::RigidBodyParticleSystem::initializePreSimulation(const std::map<unsi
 	}
 }
 
-void Storm::RigidBodyParticleSystem::initializeIteration(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems)
+void Storm::RigidBodyParticleSystem::initializeIteration(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const std::vector<std::unique_ptr<Storm::IBlower>> &blowers)
 {
-	Storm::ParticleSystem::initializeIteration(allParticleSystems);
+	Storm::ParticleSystem::initializeIteration(allParticleSystems, blowers);
 
 #if defined(_DEBUG) || defined(DEBUG)
 	const std::size_t particleCount = _positions.size();

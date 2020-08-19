@@ -14,6 +14,8 @@
 
 #include "SemiImplicitEulerSolver.h"
 
+#include "IBlower.h"
+
 #include "RunnerHelper.h"
 
 #include "ParticleSystemUtils.h"
@@ -38,9 +40,9 @@ Storm::FluidParticleSystem::FluidParticleSystem(unsigned int particleSystemIndex
 	_pressure.resize(particleCount);
 }
 
-void Storm::FluidParticleSystem::initializeIteration(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems)
+void Storm::FluidParticleSystem::initializeIteration(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const std::vector<std::unique_ptr<Storm::IBlower>> &blowers)
 {
-	Storm::ParticleSystem::initializeIteration(allParticleSystems);
+	Storm::ParticleSystem::initializeIteration(allParticleSystems, blowers);
 
 #if defined(DEBUG) || defined(_DEBUG)
 	const std::size_t particleCount = _positions.size();
@@ -58,10 +60,16 @@ void Storm::FluidParticleSystem::initializeIteration(const std::map<unsigned int
 
 	const Storm::Vector3 &gravityAccel = generalSimulData._gravity;
 
-	Storm::runParallel(_force, [this, &gravityAccel](Storm::Vector3 &currentPForce, const std::size_t currentPIndex)
+	Storm::runParallel(_force, [this, &gravityAccel, &blowers](Storm::Vector3 &currentPForce, const std::size_t currentPIndex)
 	{
 		const float currentPMass = _masses[currentPIndex];
 		currentPForce = currentPMass * gravityAccel;
+
+		const Storm::Vector3 &currentPPosition = _positions[currentPIndex];
+		for (const std::unique_ptr<Storm::IBlower> &blowerUPtr : blowers)
+		{
+			blowerUPtr->applyForce(currentPPosition, currentPForce);
+		}
 	});
 }
 
