@@ -30,6 +30,8 @@
 
 #include "RunnerHelper.h"
 
+#include "BlowerType.h"
+#include "BlowerData.h"
 #include "Blower.h"
 
 #include <fstream>
@@ -119,6 +121,11 @@ namespace
 	private:
 		Storm::IProfilerManager*const _profileMgrPtr;
 	};
+
+	template<Storm::BlowerType type, class BlowerEffectArea>
+	void appendNewBlower(std::vector<std::unique_ptr<Storm::IBlower>> &inOutBlowerContainer, const Storm::BlowerData &blowerDataConfig)
+	{
+	}
 }
 
 Storm::SimulatorManager::SimulatorManager() = default;
@@ -546,7 +553,40 @@ std::vector<Storm::Vector3> Storm::SimulatorManager::getParticleSystemPositions(
 
 void Storm::SimulatorManager::loadBlowers()
 {
+	const std::vector<Storm::BlowerData> &allBlowersData = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().getBlowersData();
 	
+	const std::size_t blowerCountToLoad = allBlowersData.size();
+
+	if (blowerCountToLoad != 0)
+	{
+		LOG_DEBUG << "Starting to load blowers";
+
+		decltype(_blowers) tmp;
+		tmp.reserve(allBlowersData.size());
+
+#define STORM_CREATE_BLOWER_CASE(blowerEnumValue, BlowerEffectArea, ...) \
+case Storm::blowerEnumValue: appendNewBlower<blowerEnumValue, BlowerEffectArea>(tmp, __VA_ARGS__); break
+		for (const Storm::BlowerData &blowerData : allBlowersData)
+		{
+			switch (blowerData._blowerType)
+			{
+				STORM_CREATE_BLOWER_CASE(BlowerType::Cube, Storm::BlowerCubeArea, blowerData);
+				STORM_CREATE_BLOWER_CASE(BlowerType::Sphere, Storm::BlowerSphereArea, blowerData);
+
+			default:
+				Storm::throwException<std::exception>("Unhandled Blower Type creation requested! Value was " + std::to_string(static_cast<int>(blowerData._blowerType)));
+			}
+		}
+#undef STORM_CREATE_BLOWER_CASE
+
+		_blowers = std::move(tmp);
+
+		LOG_COMMENT << "Blowers loading finished";
+	}
+	else
+	{
+		LOG_DEBUG << "No blowers to load.";
+	}
 }
 
 float Storm::SimulatorManager::getKernelLength() const
