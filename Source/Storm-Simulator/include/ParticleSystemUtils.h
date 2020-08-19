@@ -5,21 +5,21 @@ namespace Storm
 {
 	__forceinline bool isNeighborhood(const Storm::Vector3 &currentPPos, const Storm::Vector3 &toCheckPPos, const float kernelLengthSquared, Storm::Vector3 &outPosDiff, float &normSquared)
 	{
-		outPosDiff.x() = currentPPos.x() - toCheckPPos.x();
-		const float xDiffSquared = outPosDiff.x() * outPosDiff.x();
+		float &outX = outPosDiff.x();
+		outX = currentPPos.x() - toCheckPPos.x();
+		const float xDiffSquared = outX * outX;
 		if (xDiffSquared < kernelLengthSquared)
 		{
-			outPosDiff.y() = currentPPos.y() - toCheckPPos.y();
-			const float yDiffSquared = outPosDiff.y() * outPosDiff.y();
+			float &outY = outPosDiff.y();
+			outY = currentPPos.y() - toCheckPPos.y();
+			const float yDiffSquared = outY * outY;
 			if (yDiffSquared < kernelLengthSquared)
 			{
-				outPosDiff.z() = currentPPos.z() - toCheckPPos.z();
-				const float zDiffSquared = outPosDiff.z() * outPosDiff.z();
-				if (zDiffSquared < kernelLengthSquared)
-				{
-					normSquared = xDiffSquared + yDiffSquared + zDiffSquared;
-					return normSquared > 0.000000001f && normSquared < kernelLengthSquared;
-				}
+				float &outZ = outPosDiff.z();
+				outZ = currentPPos.z() - toCheckPPos.z();
+				normSquared = xDiffSquared + yDiffSquared + outZ * outZ;
+
+				return normSquared > 0.000000001f && normSquared < kernelLengthSquared;
 			}
 		}
 
