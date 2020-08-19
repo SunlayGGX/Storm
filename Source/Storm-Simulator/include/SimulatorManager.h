@@ -8,6 +8,7 @@
 namespace Storm
 {
 	class ParticleSystem;
+	class IBlower;
 	struct GeneralSimulationData;
 
 	class SimulatorManager :
@@ -40,6 +41,9 @@ namespace Storm
 
 		std::vector<Storm::Vector3> getParticleSystemPositions(unsigned int id) const final override;
 
+	private:
+		void loadBlowers();
+
 	public:
 		void printFluidParticleData() const final override;
 
@@ -56,5 +60,6 @@ namespace Storm
 
 	private:
 		std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> _particleSystem;
+		std::vector<std::unique_ptr<Storm::IBlower>> _blowers;
 	};
 }

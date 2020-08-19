@@ -30,6 +30,8 @@
 
 #include "RunnerHelper.h"
 
+#include "Blower.h"
+
 #include <fstream>
 
 
@@ -145,6 +147,9 @@ void Storm::SimulatorManager::initialize_Implementation()
 			particleSystem.second->updatePosition(0.f);
 		}
 	}
+
+	// Load all blowers
+	this->loadBlowers();
 
 	/* Register this thread as the simulator thread for the speed profiler */
 	Storm::IProfilerManager &profilerMgr = singletonHolder.getSingleton<Storm::IProfilerManager>();
@@ -532,6 +537,11 @@ void Storm::SimulatorManager::addRigidBodyParticleSystem(unsigned int id, std::v
 std::vector<Storm::Vector3> Storm::SimulatorManager::getParticleSystemPositions(unsigned int id) const
 {
 	return this->getParticleSystem(id).getPositions();
+}
+
+void Storm::SimulatorManager::loadBlowers()
+{
+	
 }
 
 float Storm::SimulatorManager::getKernelLength() const
