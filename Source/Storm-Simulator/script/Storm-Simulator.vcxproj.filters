@@ -31,6 +31,9 @@
     <Filter Include="Source Files\Kernel">
       <UniqueIdentifier>{761c0be8-5117-4d8d-9a8d-c1c5aab0e4bb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Blowers">
+      <UniqueIdentifier>{fce4722b-e4b9-451f-bd5a-e3402f8ee885}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-SimulatorPCH.cpp">
@@ -85,6 +88,9 @@
     </ClInclude>
     <ClInclude Include="..\include\ParticleSystemUtils.h">
       <Filter>Header Files\System</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\IBlower.h">
+      <Filter>Header Files\Blowers</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

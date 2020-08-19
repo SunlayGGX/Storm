@@ -28,7 +28,6 @@
     <ClInclude Include="..\include\GeneralSimulationData.h" />
     <ClInclude Include="..\include\GraphicData.h" />
     <ClInclude Include="..\include\IAssetLoaderManager.h" />
-    <ClInclude Include="..\include\IBlower.h" />
     <ClInclude Include="..\include\IConfigManager.h" />
     <ClInclude Include="..\include\IGraphicsManager.h" />
     <ClInclude Include="..\include\IInputManager.h" />

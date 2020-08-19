@@ -218,8 +218,5 @@
     <ClInclude Include="..\include\BlowerType.h">
       <Filter>Header Files\Modules\Simulation\Blowers</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\IBlower.h">
-      <Filter>Header Files\Modules\Simulation\Blowers</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>
