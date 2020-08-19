@@ -92,5 +92,8 @@
     <ClInclude Include="..\include\IBlower.h">
       <Filter>Header Files\Blowers</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\Blower.h">
+      <Filter>Header Files\Blowers</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
