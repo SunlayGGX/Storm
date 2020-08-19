@@ -49,6 +49,7 @@ namespace Storm
 		const Storm::GeneralSimulationData& getGeneralSimulationData() const final override;
 		const std::vector<Storm::RigidBodySceneData>& getRigidBodiesData() const final override;
 		const Storm::FluidData& getFluidData() const final override;
+		const std::vector<Storm::BlowerData>& getBlowersData() const final override;
 		const Storm::RigidBodySceneData& getRigidBodyData(unsigned int rbId) const final override;
 
 	private:

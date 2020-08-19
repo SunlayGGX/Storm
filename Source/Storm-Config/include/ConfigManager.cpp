@@ -229,6 +229,11 @@ const Storm::FluidData& Storm::ConfigManager::getFluidData() const
 	return *_sceneConfig.getSceneData()._fluidData;
 }
 
+const std::vector<Storm::BlowerData>& Storm::ConfigManager::getBlowersData() const
+{
+	return _sceneConfig.getSceneData()._blowersData;
+}
+
 const Storm::RigidBodySceneData& Storm::ConfigManager::getRigidBodyData(unsigned int rbId) const
 {
 	const std::vector<Storm::RigidBodySceneData> &rbDataArrays = _sceneConfig.getSceneData()._rigidBodiesData;
