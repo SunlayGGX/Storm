@@ -70,6 +70,9 @@
     <Filter Include="Source Files\Modules\Config">
       <UniqueIdentifier>{9a6ef5c9-1c47-495d-9141-da83b385ba0a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Modules\Simulation\Blowers">
+      <UniqueIdentifier>{cea87c3b-959a-4f83-b57b-133280ae3049}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-ModelBasePCH.cpp">
@@ -213,7 +216,10 @@
       <Filter>Header Files\Modules\Config</Filter>
     </ClInclude>
     <ClInclude Include="..\include\BlowerType.h">
-      <Filter>Header Files\Modules\Simulation</Filter>
+      <Filter>Header Files\Modules\Simulation\Blowers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\IBlower.h">
+      <Filter>Header Files\Modules\Simulation\Blowers</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
