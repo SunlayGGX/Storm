@@ -32,6 +32,8 @@
 
 #include "BlowerType.h"
 #include "BlowerData.h"
+#include "BlowerTimeHandler.h"
+#include "BlowerEffectArea.h"
 #include "Blower.h"
 
 #include <fstream>
@@ -125,6 +127,33 @@ namespace
 	template<Storm::BlowerType type, class BlowerEffectArea>
 	void appendNewBlower(std::vector<std::unique_ptr<Storm::IBlower>> &inOutBlowerContainer, const Storm::BlowerData &blowerDataConfig)
 	{
+		std::string_view blowerIntroMsg;
+		if (blowerDataConfig._fadeInTimeInSeconds > 0.f && blowerDataConfig._fadeOutTimeInSeconds > 0.f)
+		{
+			inOutBlowerContainer.emplace_back(std::make_unique<Storm::Blower<type, BlowerEffectArea, Storm::FadeInOutTimeHandler>>(blowerDataConfig));
+			blowerIntroMsg = "Blower with fadeIn and fadeOut feature created.\n";
+		}
+		else if (blowerDataConfig._fadeInTimeInSeconds > 0.f)
+		{
+			inOutBlowerContainer.emplace_back(std::make_unique<Storm::Blower<type, BlowerEffectArea, Storm::FadeInTimeHandler>>(blowerDataConfig));
+			blowerIntroMsg = "Blower with fadeIn only feature created.\n";
+		}
+		else if (blowerDataConfig._fadeOutTimeInSeconds > 0.f)
+		{
+			inOutBlowerContainer.emplace_back(std::make_unique<Storm::Blower<type, BlowerEffectArea, Storm::FadeOutTimeHandler>>(blowerDataConfig));
+			blowerIntroMsg = "Blower with fadeOut only feature created.\n";
+		}
+		else
+		{
+			inOutBlowerContainer.emplace_back(std::make_unique<Storm::Blower<type, BlowerEffectArea, Storm::BlowerTimeHandlerBase>>(blowerDataConfig));
+			blowerIntroMsg = "Blower without fadeIn or fadeOut only feature created.\n";
+		}
+
+		LOG_DEBUG << blowerIntroMsg <<
+			"The blower is placed at " << blowerDataConfig._blowerPosition <<
+			", has a dimension of " << blowerDataConfig._blowerDimension <<
+			" and a force of " << blowerDataConfig._blowerForce <<
+			" will start at " << blowerDataConfig._startTimeInSeconds << "s.";
 	}
 }
 
