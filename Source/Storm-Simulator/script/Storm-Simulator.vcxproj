@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\include\Blower.cpp" />
     <ClCompile Include="..\include\FluidParticleSystem.cpp" />
     <ClCompile Include="..\include\Kernel.cpp" />
     <ClCompile Include="..\include\ParticleSystem.cpp" />
@@ -24,6 +25,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Blower.h" />
+    <ClInclude Include="..\include\BlowerEffectArea.h" />
+    <ClInclude Include="..\include\BlowerTimeHandler.h" />
     <ClInclude Include="..\include\CubicSplineKernel.h" />
     <ClInclude Include="..\include\FluidParticleSystem.h" />
     <ClInclude Include="..\include\IBlower.h" />

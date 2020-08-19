@@ -34,6 +34,9 @@
     <Filter Include="Header Files\Blowers">
       <UniqueIdentifier>{fce4722b-e4b9-451f-bd5a-e3402f8ee885}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Blowers">
+      <UniqueIdentifier>{dcfc1944-4431-485b-89b9-079b1cb14d9f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-SimulatorPCH.cpp">
@@ -56,6 +59,9 @@
     </ClCompile>
     <ClCompile Include="..\include\SemiImplicitEulerSolver.cpp">
       <Filter>Source Files\Solver</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\Blower.cpp">
+      <Filter>Source Files\Blowers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -93,6 +99,12 @@
       <Filter>Header Files\Blowers</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Blower.h">
+      <Filter>Header Files\Blowers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\BlowerTimeHandler.h">
+      <Filter>Header Files\Blowers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\BlowerEffectArea.h">
       <Filter>Header Files\Blowers</Filter>
     </ClInclude>
   </ItemGroup>
