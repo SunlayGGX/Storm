@@ -55,6 +55,18 @@
     <Filter Include="Header Files\Rendered\Blowers">
       <UniqueIdentifier>{f0c35cc2-f8ff-42f2-9423-8812a4becd02}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Basics">
+      <UniqueIdentifier>{b5d77d79-e0a5-4d39-9b56-8c3d0c064bb2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Basics\MeshGenerator">
+      <UniqueIdentifier>{7bf2deee-dd51-4371-ad11-4083334ddeeb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Basics">
+      <UniqueIdentifier>{72c55efc-39bd-4cbd-8721-764184e58173}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Basics\MeshGenerator">
+      <UniqueIdentifier>{cb89a9c0-1806-4c1e-8c45-0cf87a87aef0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-GraphicsPCH.cpp">
@@ -104,6 +116,9 @@
     </ClCompile>
     <ClCompile Include="..\include\BlowerShader.cpp">
       <Filter>Source Files\Shaders\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\MeshGeneratorImpl.cpp">
+      <Filter>Source Files\Basics\MeshGenerator</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -175,6 +190,12 @@
     </ClInclude>
     <ClInclude Include="..\include\GraphicBlower.h">
       <Filter>Header Files\Rendered\Blowers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\CubeMeshGenerator.h">
+      <Filter>Header Files\Basics\MeshGenerator</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SphereMeshGenerator.h">
+      <Filter>Header Files\Basics\MeshGenerator</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
