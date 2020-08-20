@@ -15,7 +15,7 @@ namespace Storm
 	template<class Type>
 	void ZeroMemories(Type &val)
 	{
-		ZeroMemory(&val, sizeof(Type));
+		::memset(&val, 0, sizeof(Type));
 	}
 
 
