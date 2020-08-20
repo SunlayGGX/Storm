@@ -95,6 +95,9 @@
     <ClInclude Include="..\include\StormAutomation-HelperTesterPCH.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\include\ChronoTester.cpp" />
+    <ClCompile Include="..\include\MetaprogTester.cpp" />
+    <ClCompile Include="..\include\MiscTester.cpp" />
     <ClCompile Include="..\include\StormAutomation-HelperTester.cpp" />
     <ClCompile Include="..\include\StormAutomation-HelperTesterPCH.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
