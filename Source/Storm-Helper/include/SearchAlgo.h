@@ -1,6 +1,7 @@
 #pragma once
 
 #include "NonInstanciable.h"
+#include "ThrowException.h"
 
 
 namespace Storm
@@ -9,7 +10,7 @@ namespace Storm
 	{
 	private:
 		template<class PairType, class ValueType>
-		static auto compare(const ValueType &value, const PairType &pair, int) -> decltype(pair.second == value)
+		static auto compare(const ValueType &value, const PairType &pair, int) -> decltype(value == pair.second)
 		{
 			return value == pair.second;
 		}
@@ -31,8 +32,8 @@ namespace Storm
 			return false;
 		}
 
-		template<class ContainerType, class ValueType, class MsgType>
-		static auto searchIfExistImpl(const ContainerType &cont, const MsgType &errorMsg, const ValueType &value, int)
+		template<class ContainerType, class ValueType>
+		static auto searchIfExistImpl(const ContainerType &cont, const ValueType &value, int)
 			-> decltype(Storm::SearchAlgo::compare(value, *std::begin(cont), 0), bool())
 		{
 			return std::find_if(std::begin(cont), std::end(cont), [&value](const auto &other)
@@ -41,24 +42,24 @@ namespace Storm
 			}) != std::end(cont);
 		}
 
-		template<class ContainerType, class PredicateType, class MsgType>
-		static auto searchIfExistImpl(const ContainerType &cont, const MsgType &errorMsg, const PredicateType &predicate, void*)
+		template<class ContainerType, class PredicateType>
+		static auto searchIfExistImpl(const ContainerType &cont, const PredicateType &predicate, void*)
 			-> decltype(std::find_if(std::begin(cont), std::end(cont), predicate), bool())
 		{
 			return std::find_if(std::begin(cont), std::end(cont), predicate) != std::end(cont);
 		}
 
 	public:
-		template<class ContainerType, class ValueOrPredicateType, class MsgType>
-		static bool searchIfExist(const ContainerType &cont, const MsgType &errorMsg, const ValueOrPredicateType &valueOrPredicate)
+		template<class ContainerType, class ValueOrPredicateType>
+		static bool searchIfExist(const ContainerType &cont, const ValueOrPredicateType &valueOrPredicate)
 		{
-			return Storm::SearchAlgo::searchIfExistImpl(cont, errorMsg, valueOrPredicate, 0);
+			return Storm::SearchAlgo::searchIfExistImpl(cont, valueOrPredicate, 0);
 		}
 
 		template<class ContainerType, class ValueOrPredicateType, class MsgType>
 		static void throwIfExist(const ContainerType &cont, const MsgType &errorMsg, const ValueOrPredicateType &valueOrPredicate)
 		{
-			if (Storm::SearchAlgo::searchIfExistImpl(cont, errorMsg, valueOrPredicate, 0))
+			if (Storm::SearchAlgo::searchIfExistImpl(cont, valueOrPredicate, 0))
 			{
 				Storm::throwException<std::exception>(errorMsg);
 			}
