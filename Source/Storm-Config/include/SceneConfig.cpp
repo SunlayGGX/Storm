@@ -348,12 +348,13 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 		std::vector<Storm::BlowerData> &blowersDataArray = _sceneData->_blowersData;
 		blowersDataArray.reserve(blowersTree.size());
 
-		std::size_t blowerElemIter = 0;
 		for (const auto &blowerXmlElement : blowersTree)
 		{
 			if (blowerXmlElement.first == "Blower")
 			{
 				Storm::BlowerData &blowerData = blowersDataArray.emplace_back();
+				blowerData._id = blowersDataArray.size() - 1;
+
 				for (const auto &blowerDataXml : blowerXmlElement.second)
 				{
 					if (
@@ -373,56 +374,54 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 
 				if (blowerData._blowerType == Storm::BlowerType::None)
 				{
-					Storm::throwException<std::exception>("Blower " + std::to_string(blowerElemIter) + " should have defined a blower type, this is mandatory!");
+					Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._id) + " should have defined a blower type, this is mandatory!");
 				}
 				else if (blowerData._blowerDimension == Storm::Vector3::Zero())
 				{
-					Storm::throwException<std::exception>("Blower " + std::to_string(blowerElemIter) + " should have defined a dimension!");
+					Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._id) + " should have defined a dimension!");
 				}
 				else if (blowerData._blowerDimension.x() <= 0.f || blowerData._blowerDimension.y() <= 0.f || blowerData._blowerDimension.z() <= 0.f)
 				{
-					Storm::throwException<std::exception>("Blower " + std::to_string(blowerElemIter) + " cannot have one of its dimension value lesser or equal to 0! Specified dimension was " + Storm::toStdString(blowerData._blowerDimension));
+					Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._id) + " cannot have one of its dimension value lesser or equal to 0! Specified dimension was " + Storm::toStdString(blowerData._blowerDimension));
 				}
 				else if (blowerData._startTimeInSeconds < 0.f)
 				{
-					Storm::throwException<std::exception>("Blower " + std::to_string(blowerElemIter) + " start time is invalid (it cannot be lesser or equal to 0, value was " + std::to_string(blowerData._startTimeInSeconds) + ")!");
+					Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._id) + " start time is invalid (it cannot be lesser or equal to 0, value was " + std::to_string(blowerData._startTimeInSeconds) + ")!");
 				}
 				else if (blowerData._stopTimeInSeconds == -1.f && blowerData._fadeOutTimeInSeconds > 0.f)
 				{
-					Storm::throwException<std::exception>("Blower " + std::to_string(blowerElemIter) + " doesn't have a stop time but has a fade out time. It is illogical!");
+					Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._id) + " doesn't have a stop time but has a fade out time. It is illogical!");
 				}
 				else if (blowerData._fadeInTimeInSeconds < 0.f)
 				{
-					Storm::throwException<std::exception>("Blower " + std::to_string(blowerElemIter) + " fade in time cannot be negative!");
+					Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._id) + " fade in time cannot be negative!");
 				}
 				else if (blowerData._fadeOutTimeInSeconds < 0.f)
 				{
-					Storm::throwException<std::exception>("Blower " + std::to_string(blowerElemIter) + " fade out time cannot be negative!");
+					Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._id) + " fade out time cannot be negative!");
 				}
 				else if (blowerData._stopTimeInSeconds != -1.f)
 				{
 					if (blowerData._startTimeInSeconds >= blowerData._stopTimeInSeconds)
 					{
 						Storm::throwException<std::exception>(
-							"Blower " + std::to_string(blowerElemIter) + " end time cannot be before its start time.\n"
+							"Blower " + std::to_string(blowerData._id) + " end time cannot be before its start time.\n"
 							"Either set it to -1 to specify that there is no stop time, or set it strictly greater than the start time!\n"
 							"startTime was " + std::to_string(blowerData._startTimeInSeconds) + "s\n"
 							"endTime was " + std::to_string(blowerData._stopTimeInSeconds) + "s.");
 					}
 					else if (blowerData._stopTimeInSeconds < blowerData._fadeOutTimeInSeconds)
 					{
-						Storm::throwException<std::exception>("Blower " + std::to_string(blowerElemIter) + " fade out time is greater than the stop time (this means that it has faded out even before the time 0, which does not make much sense)!");
+						Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._id) + " fade out time is greater than the stop time (this means that it has faded out even before the time 0, which does not make much sense)!");
 					}
 					else if ((blowerData._startTimeInSeconds + blowerData._fadeInTimeInSeconds) > (blowerData._stopTimeInSeconds - blowerData._fadeOutTimeInSeconds))
 					{
 						Storm::throwException<std::exception>(
-							"Blower " + std::to_string(blowerElemIter) + " fade in and fade out overlaps... Too complex and error prone, please, change it to a way those do not overlaps!\n"
+							"Blower " + std::to_string(blowerData._id) + " fade in and fade out overlaps... Too complex and error prone, please, change it to a way those do not overlaps!\n"
 							"Fade in time start=" + std::to_string(blowerData._startTimeInSeconds) + "s; end=" + std::to_string(blowerData._startTimeInSeconds + blowerData._fadeInTimeInSeconds) + "s.\n"
 							"Fade out time start=" + std::to_string(blowerData._stopTimeInSeconds - blowerData._fadeOutTimeInSeconds) + "s; end=" + std::to_string(blowerData._stopTimeInSeconds) + "s.");
 					}
 				}
-
-				++blowerElemIter;
 			}
 			else
 			{

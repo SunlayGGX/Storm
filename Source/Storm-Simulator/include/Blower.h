@@ -25,6 +25,7 @@ namespace Storm
 		Blower(const Storm::BlowerData &blowerDataConfig) :
 			BlowerEffectArea{ blowerDataConfig },
 			BlowerTimeHandler{ blowerDataConfig },
+			_id{ blowerDataConfig._id },
 			_srcForce{ blowerDataConfig._blowerForce },
 			_force{ Vector3::Zero() },
 			_blowerPosition{ blowerDataConfig._blowerPosition },
@@ -145,7 +146,20 @@ namespace Storm
 			}
 		}
 
+	public:
+		bool operator==(const std::size_t id) const final override
+		{
+			return _id == id;
+		}
+
+		bool operator<(const std::size_t id) const final override
+		{
+			return _id < id;
+		}
+
 	private:
+		std::size_t _id;
+
 		Storm::Vector3 _force;
 		const Storm::Vector3 _blowerPosition;
 		const Storm::Vector3 _srcForce;
