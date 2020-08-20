@@ -41,5 +41,8 @@
     <ClCompile Include="..\include\ChronoTester.cpp">
       <Filter>Source Files\Tests</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\SearchAlgoTester.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
