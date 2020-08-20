@@ -52,6 +52,9 @@
     <Filter Include="Header Files\Shaders\Component">
       <UniqueIdentifier>{b7d74502-69ef-4ffc-a7c3-c857b89ba8cd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Rendered\Blowers">
+      <UniqueIdentifier>{f0c35cc2-f8ff-42f2-9423-8812a4becd02}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-GraphicsPCH.cpp">
@@ -95,6 +98,12 @@
     </ClCompile>
     <ClCompile Include="..\include\GraphicParticleData.cpp">
       <Filter>Source Files\GraphicComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\GraphicBlowerBase.cpp">
+      <Filter>Source Files\Rendered</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\BlowerShader.cpp">
+      <Filter>Source Files\Shaders\Component</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -157,6 +166,15 @@
     </ClInclude>
     <ClInclude Include="..\include\GraphicParticleSystemModality.h">
       <Filter>Header Files\GraphicComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\BlowerShader.h">
+      <Filter>Header Files\Shaders\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\GraphicBlowerBase.h">
+      <Filter>Header Files\Rendered\Blowers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\GraphicBlower.h">
+      <Filter>Header Files\Rendered\Blowers</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
