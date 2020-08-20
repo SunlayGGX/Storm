@@ -225,23 +225,11 @@ void Storm::GraphicManager::initialize_Implementation(void* hwnd)
 		_directXController->setAllParticleState();
 	}
 
-	bool registered = false;
-	static std::condition_variable waiter;
-	static std::mutex mut;
-	std::unique_lock<std::mutex> lock{ mut };
-
-	_renderThread = std::thread([this, registeredTmp = &registered]()
+	_renderThread = std::thread([this]()
 	{
 		const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 
 		STORM_REGISTER_THREAD(GraphicsThread);
-
-		// The real moment we consider the thread as started is when it has registered. Not before...
-		{
-			std::lock_guard<std::mutex> lock{ mut };
-			*registeredTmp = true;
-			waiter.notify_all();
-		}
 
 		{
 			// I have an Azerty keyboard, so if you have a Qwerty keyboard, you'll surely need to change those.
@@ -287,8 +275,6 @@ void Storm::GraphicManager::initialize_Implementation(void* hwnd)
 			this->update();
 		}
 	});
-
-	waiter.wait(lock, [&registered]() { return registered; });
 }
 
 void Storm::GraphicManager::cleanUp_Implementation()
@@ -340,17 +326,14 @@ void Storm::GraphicManager::pushParticlesData(unsigned int particleSystemId, con
 {
 	assert(!(isFluids && isWall) && "Particle cannot be fluid AND wall at the same time!");
 
-	this->callSequentialToInitCleanup([this, particleSystemId, &particlePosData, &particleVelocityData, isFluids, isWall]()
-	{
-		const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
-		const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
-		const Storm::GraphicData &graphicDataConfig = configMgr.getGraphicData();
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
+	const Storm::GraphicData &graphicDataConfig = configMgr.getGraphicData();
 
-		singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(ThreadEnumeration::GraphicsThread,
-			[this, particleSystemId, particlePosDataCopy = fastOptimizedTransCopy(particlePosData, particleVelocityData, graphicDataConfig._valueForMinColor, graphicDataConfig._valueForMaxColor, isFluids), isFluids, isWall]() mutable
-		{
-			_graphicParticlesSystem->refreshParticleSystemData(particleSystemId, std::move(particlePosDataCopy), isFluids, isWall);
-		});
+	singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(ThreadEnumeration::GraphicsThread,
+		[this, particleSystemId, particlePosDataCopy = fastOptimizedTransCopy(particlePosData, particleVelocityData, graphicDataConfig._valueForMinColor, graphicDataConfig._valueForMaxColor, isFluids), isFluids, isWall]() mutable
+	{
+		_graphicParticlesSystem->refreshParticleSystemData(particleSystemId, std::move(particlePosDataCopy), isFluids, isWall);
 	});
 }
 
