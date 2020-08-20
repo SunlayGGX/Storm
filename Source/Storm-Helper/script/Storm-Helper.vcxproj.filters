@@ -76,6 +76,9 @@
     <Filter Include="Header Files\Prerequisite">
       <UniqueIdentifier>{d31db43b-aff1-4e0d-b62e-86082147bc4a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\General\Algorithm">
+      <UniqueIdentifier>{f0a01266-ee0f-45a4-b5a7-2c84061bf491}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-HelperPCH.cpp">
@@ -214,6 +217,9 @@
     </ClInclude>
     <ClInclude Include="..\include\MacroConfig.h">
       <Filter>Header Files\Macro</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SearchAlgo.h">
+      <Filter>Header Files\General\Algorithm</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
