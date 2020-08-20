@@ -32,6 +32,18 @@ void Storm::ThreadManager::registerCurrentThread(Storm::ThreadEnumeration thread
 	_toExecute[currentThreadId] = std::move(executor);
 	_threadIdMapping[threadEnum] = currentThreadId;
 	_threadEnumMapping[currentThreadId] = threadEnum;
+
+	// If there were pending actions for this thread. Transfer them now to the new executor that was just created.
+	if (const auto pendingActionsIter = _pendingThreadsRegisteringActions.find(threadEnum); pendingActionsIter != std::end(_pendingThreadsRegisteringActions))
+	{
+		auto &executor = _toExecute[currentThreadId];
+		for (Storm::AsyncAction &pendingAction : pendingActionsIter->second)
+		{
+			executor->bind(std::move(pendingAction));
+		}
+
+		_pendingThreadsRegisteringActions.erase(pendingActionsIter);
+	}
 }
 
 void Storm::ThreadManager::executeOnThread(const std::thread::id &threadId, AsyncAction &&action)
@@ -49,7 +61,7 @@ void Storm::ThreadManager::executeOnThread(Storm::ThreadEnumeration threadEnum, 
 	}
 	else
 	{
-		Storm::throwException<std::exception>("Requested thread was not registered to execute any callback!");
+		_pendingThreadsRegisteringActions[threadEnum].emplace_back(std::move(action));
 	}
 }
 

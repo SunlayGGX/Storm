@@ -17,14 +17,13 @@ namespace Storm
 
 	public:
 		void registerCurrentThread(Storm::ThreadEnumeration threadEnum, const std::wstring &newName) final override;
-		void executeOnThread(const std::thread::id &threadId, AsyncAction &&action) final override;
+		void executeOnThread(const std::thread::id &threadId, Storm::AsyncAction &&action) final override;
 		void executeOnThread(Storm::ThreadEnumeration threadEnum, Storm::AsyncAction &&action) final override;
 		void processCurrentThreadActions() final override;
 		bool isExecutingOnThread(Storm::ThreadEnumeration threadEnum) const final override;
 
 	private:
-		void executeOnThreadInternal(const std::thread::id &threadId, AsyncAction &&action);
-
+		void executeOnThreadInternal(const std::thread::id &threadId, Storm::AsyncAction &&action);
 
 	private:
 		mutable std::recursive_mutex _mutex;
@@ -32,5 +31,7 @@ namespace Storm
 
 		std::map<std::thread::id, Storm::ThreadEnumeration> _threadEnumMapping;
 		std::map<Storm::ThreadEnumeration, std::thread::id> _threadIdMapping;
+
+		std::map<Storm::ThreadEnumeration, std::vector<Storm::AsyncAction>> _pendingThreadsRegisteringActions;
 	};
 }
