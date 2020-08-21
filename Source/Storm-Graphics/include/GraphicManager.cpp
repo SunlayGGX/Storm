@@ -23,6 +23,13 @@
 
 #include "SpecialKey.h"
 
+#include "BlowerData.h"
+#include "BlowerType.h"
+#include "GraphicBlower.h"
+
+#include "MeshMaker.h"
+
+
 namespace
 {
 #if false
@@ -154,6 +161,31 @@ namespace
 
 		return dxParticlePosDataTmp;
 	}
+
+	void appendNewBlower(std::map<std::size_t, std::unique_ptr<Storm::GraphicBlowerBase>> &inOutGraphicBlowerContainer, const ComPtr<ID3D11Device> &device, const Storm::BlowerData &blowerDataConfig)
+	{
+		std::unique_ptr<Storm::GraphicBlowerBase> graphicBlower;
+		
+		switch (blowerDataConfig._blowerType)
+		{
+		case Storm::BlowerType::Cube:
+			graphicBlower = std::make_unique<Storm::GraphicBlower<Storm::BlowerType::Cube, Storm::CubeMeshMaker>>(device, blowerDataConfig);
+			break;
+
+		case Storm::BlowerType::Sphere:
+			graphicBlower = std::make_unique<Storm::GraphicBlower<Storm::BlowerType::Sphere, Storm::SphereMeshMaker>>(device, blowerDataConfig);
+			break;
+
+		default:
+		case Storm::BlowerType::None:
+			Storm::throwException<std::exception>("Unknown Graphic Blower to be created!");
+			break;
+		}
+
+		inOutGraphicBlowerContainer[blowerDataConfig._id] = std::move(graphicBlower);
+
+		LOG_DEBUG << "Graphic blower " << blowerDataConfig._id << " was created.";
+	}
 }
 
 Storm::GraphicManager::GraphicManager() :
@@ -214,6 +246,8 @@ void Storm::GraphicManager::initialize_Implementation(void* hwnd)
 	_renderedElements.emplace_back(std::make_unique<Storm::Grid>(device, graphicData._grid));
 
 	_graphicParticlesSystem = std::make_unique<Storm::GraphicParticleSystem>(device);
+
+	this->loadBlowers();
 
 	for (auto &meshesPair : _meshesMap)
 	{
@@ -319,6 +353,18 @@ void Storm::GraphicManager::bindParentRbToMesh(unsigned int meshId, const std::s
 	else
 	{
 		Storm::throwException<std::exception>("Cannot find rb " + std::to_string(meshId) + " inside registered graphics meshes!");
+	}
+}
+
+void Storm::GraphicManager::loadBlowers()
+{
+	const ComPtr<ID3D11Device> &currentDevice = _directXController->getDirectXDevice();
+
+	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
+	const std::vector<Storm::BlowerData> &allBlowersData = configMgr.getBlowersData();
+	for (const Storm::BlowerData &blowerData : allBlowersData)
+	{
+		appendNewBlower(_blowersMap, currentDevice, blowerData);
 	}
 }
 

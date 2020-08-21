@@ -70,6 +70,9 @@
     <Filter Include="Source Files\DirectX\Helper">
       <UniqueIdentifier>{19d65fe9-5db2-4476-ad7e-a7254a8dba9b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Rendered\Blowers">
+      <UniqueIdentifier>{9481d448-0739-4c03-a93c-0368e06cf101}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-GraphicsPCH.cpp">
@@ -114,9 +117,6 @@
     <ClCompile Include="..\include\GraphicParticleData.cpp">
       <Filter>Source Files\GraphicComponent</Filter>
     </ClCompile>
-    <ClCompile Include="..\include\GraphicBlowerBase.cpp">
-      <Filter>Source Files\Rendered</Filter>
-    </ClCompile>
     <ClCompile Include="..\include\BlowerShader.cpp">
       <Filter>Source Files\Shaders\Component</Filter>
     </ClCompile>
@@ -125,6 +125,9 @@
     </ClCompile>
     <ClCompile Include="..\include\XMStormHelpers.cpp">
       <Filter>Source Files\DirectX\Helper</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\GraphicBlowerBase.cpp">
+      <Filter>Source Files\Rendered\Blowers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

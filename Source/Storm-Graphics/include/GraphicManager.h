@@ -11,6 +11,7 @@ namespace Storm
 	class IRenderedElement;
 	class GraphicRigidBody;
 	class GraphicParticleSystem;
+	class GraphicBlowerBase;
 
 	class GraphicManager :
 		private Storm::Singleton<GraphicManager>,
@@ -29,6 +30,9 @@ namespace Storm
 	public:
 		void addMesh(unsigned int meshId, const std::vector<Storm::Vector3> &vertexes, const std::vector<Storm::Vector3> &normals, const std::vector<unsigned int> &indexes) final override;
 		void bindParentRbToMesh(unsigned int meshId, const std::shared_ptr<Storm::IRigidBody> &parentRb) const final override;
+
+	private:
+		void loadBlowers();
 
 	public:
 		void pushParticlesData(unsigned int particleSystemId, const std::vector<Storm::Vector3> &particlePosData, const std::vector<Storm::Vector3> &particlevelocityData, bool isFluids, bool isWall) final override;
@@ -53,6 +57,7 @@ namespace Storm
 		std::vector<std::unique_ptr<Storm::IRenderedElement>> _renderedElements;
 		std::map<unsigned int, std::unique_ptr<Storm::GraphicRigidBody>> _meshesMap;
 		std::unique_ptr<Storm::GraphicParticleSystem> _graphicParticlesSystem;
+		std::map<std::size_t, std::unique_ptr<Storm::GraphicBlowerBase>> _blowersMap;
 
 		std::map<std::wstring_view, std::wstring> _fieldsMap;
 
