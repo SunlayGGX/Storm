@@ -7,3 +7,7 @@ Storm::GraphicBlowerBase::GraphicBlowerBase(const std::size_t index, const Storm
 
 Storm::GraphicBlowerBase::~GraphicBlowerBase() = default;
 
+std::size_t Storm::GraphicBlowerBase::getIndex() const
+{
+	return _index;
+}
