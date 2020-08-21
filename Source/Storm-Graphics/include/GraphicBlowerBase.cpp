@@ -27,7 +27,7 @@ namespace
 		const std::size_t vertexCountToConvert = inTransitionBuffer.size();
 		if (vertexCountToConvert > 0)
 		{
-			outFinalVertexes.reserve(outFinalVertexes.size() + vertexCountToConvert);
+			outFinalVertexes.reserve(vertexCountToConvert);
 			for (const Storm::Vector3 &toConvert : inTransitionBuffer)
 			{
 				outFinalVertexes.emplace_back(toConvert);
@@ -54,17 +54,20 @@ void Storm::GraphicBlowerBase::instantiateShader(const ComPtr<ID3D11Device> &dev
 	_indexCount = static_cast<uint32_t>(indexes.size());
 
 	// Create Vertex data
+	std::vector<BlowerVertex> finalVertexes;
+	convertVertexesToBlowerVertexes(vertexes, finalVertexes);
+
 	D3D11_BUFFER_DESC vertexBufferDesc;
 	D3D11_SUBRESOURCE_DATA vertexData;
 
 	vertexBufferDesc.Usage = D3D11_USAGE::D3D11_USAGE_DEFAULT;
-	vertexBufferDesc.ByteWidth = sizeof(BlowerVertex) * static_cast<UINT>(vertexes.size());
+	vertexBufferDesc.ByteWidth = sizeof(BlowerVertex) * static_cast<UINT>(finalVertexes.size());
 	vertexBufferDesc.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_VERTEX_BUFFER;
 	vertexBufferDesc.CPUAccessFlags = 0;
 	vertexBufferDesc.MiscFlags = 0;
 	vertexBufferDesc.StructureByteStride = 0;
 
-	vertexData.pSysMem = vertexes.data();
+	vertexData.pSysMem = finalVertexes.data();
 	vertexData.SysMemPitch = 0;
 	vertexData.SysMemSlicePitch = 0;
 
