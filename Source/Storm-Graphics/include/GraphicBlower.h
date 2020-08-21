@@ -13,7 +13,12 @@ namespace Storm
 		GraphicBlower(const ComPtr<ID3D11Device> &device, const std::size_t index, const Storm::BlowerData &blowerData) :
 			Storm::GraphicBlowerBase{ index, blowerData }
 		{
+			std::vector<Storm::Vector3> vertexes;
+			std::vector<uint32_t> indexes;
 
+			MeshMaker::generate(blowerData._blowerPosition, blowerData._blowerDimension, vertexes, indexes);
+
+			this->instantiateShader(device, vertexes, indexes);
 		}
 	};
 }
