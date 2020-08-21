@@ -33,6 +33,7 @@ namespace Storm
 	public:
 		void render(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera, Storm::RenderModeState currentRenderModeState);
 
+	private:
 		void setupForRender(const ComPtr<ID3D11DeviceContext> &deviceContext, const InternalParticleSystemBuffer &sysBufferToRender);
 
 	private:
