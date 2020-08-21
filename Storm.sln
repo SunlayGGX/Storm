@@ -36,7 +36,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Storm-Simulator", "Source\S
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shaders", "Shaders", "{1C8BF644-7554-4E5E-96B0-D36429EA84F2}"
 	ProjectSection(SolutionItems) = preProject
-		Source\Shaders\Blower.hlsl = Source\Shaders\Blower.hlsl
+		Source\Shaders\BlowerDraw.hlsl = Source\Shaders\BlowerDraw.hlsl
 		Source\Shaders\Grid.hlsl = Source\Shaders\Grid.hlsl
 		Source\Shaders\MeshDraw.hlsl = Source\Shaders\MeshDraw.hlsl
 		Source\Shaders\ParticleDraw.hlsl = Source\Shaders\ParticleDraw.hlsl
