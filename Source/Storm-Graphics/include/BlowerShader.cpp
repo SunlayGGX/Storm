@@ -8,7 +8,6 @@ namespace
 {
 	struct ConstantBuffer
 	{
-		DirectX::XMMATRIX _worldMatrix;
 		DirectX::XMMATRIX _viewMatrix;
 		DirectX::XMMATRIX _projectionMatrix;
 	};
@@ -24,9 +23,9 @@ namespace
 
 	inline D3D11_INPUT_ELEMENT_DESC* retrieveBlowerInputLayoutElementDesc()
 	{
-		static D3D11_INPUT_ELEMENT_DESC meshVertexDataLayoutDesc[k_blowerVertexDataLayoutDescCount];
+		static D3D11_INPUT_ELEMENT_DESC bowerVertexDataLayoutDesc[k_blowerVertexDataLayoutDescCount];
 
-		D3D11_INPUT_ELEMENT_DESC &currentVertexDataLayoutDesc = meshVertexDataLayoutDesc[0];
+		D3D11_INPUT_ELEMENT_DESC &currentVertexDataLayoutDesc = bowerVertexDataLayoutDesc[0];
 		currentVertexDataLayoutDesc.SemanticName = "POSITION";
 		currentVertexDataLayoutDesc.SemanticIndex = 0;
 		currentVertexDataLayoutDesc.Format = DXGI_FORMAT::DXGI_FORMAT_R32G32B32A32_FLOAT;
@@ -35,7 +34,7 @@ namespace
 		currentVertexDataLayoutDesc.InputSlotClass = D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA;
 		currentVertexDataLayoutDesc.InstanceDataStepRate = 0;
 
-		return meshVertexDataLayoutDesc;
+		return bowerVertexDataLayoutDesc;
 	}
 }
 
@@ -45,7 +44,7 @@ Storm::BlowerShader::BlowerShader(const ComPtr<ID3D11Device> &device, const uint
 	Storm::ConstantBufferHolder::initialize<ConstantBuffer>(device);
 }
 
-void Storm::BlowerShader::setup(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera, const DirectX::XMMATRIX &transposedTransform)
+void Storm::BlowerShader::setup(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera)
 {
 	this->setupDeviceContext(deviceContext);
 
@@ -55,7 +54,6 @@ void Storm::BlowerShader::setup(const ComPtr<ID3D11Device> &device, const ComPtr
 
 	ConstantBuffer*const ressourceDataPtr = static_cast<ConstantBuffer*>(blowerConstantBufferRessource.pData);
 
-	ressourceDataPtr->_worldMatrix = transposedTransform;
 	ressourceDataPtr->_viewMatrix = currentCamera.getTransposedViewMatrix();
 	ressourceDataPtr->_projectionMatrix = currentCamera.getTransposedProjectionMatrix();
 

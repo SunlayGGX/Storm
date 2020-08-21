@@ -1,6 +1,5 @@
 cbuffer ConstantBuffer
 {
-    matrix _worldMatrix;
     matrix _viewMatrix;
     matrix _projectionMatrix;
 };
@@ -23,8 +22,7 @@ PixelInputType blowerVertexShader(VertexInputType input)
     input._position.w = 1.0f;
 
     // Calculate the position of the vertex against the world, view, and projection matrices.
-    output._position = mul(input._position, _worldMatrix);
-    output._position = mul(output._position, _viewMatrix);
+    output._position = mul(input._position, _viewMatrix);
     output._position = mul(output._position, _projectionMatrix);
 
     return output;

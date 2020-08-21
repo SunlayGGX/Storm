@@ -44,9 +44,7 @@ namespace
 Storm::GraphicBlowerBase::GraphicBlowerBase(const Storm::BlowerData &blowerData) :
 	_id{ blowerData._id }
 {
-	// Take the Blower position.
-	// TODO: One day, have a rotation for blowers... When we'll need it.
-	_blowerWorldMatrix = Storm::makeTransform(blowerData._blowerPosition, Storm::Quaternion::Identity());
+
 }
 
 Storm::GraphicBlowerBase::~GraphicBlowerBase() = default;
@@ -94,7 +92,7 @@ void Storm::GraphicBlowerBase::instantiateShader(const ComPtr<ID3D11Device> &dev
 
 void Storm::GraphicBlowerBase::render(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera)
 {
-	_blowerShader->setup(device, deviceContext, currentCamera, _blowerWorldMatrix);
+	_blowerShader->setup(device, deviceContext, currentCamera);
 	this->setupBlower(deviceContext);
 	_blowerShader->draw(_indexCount, deviceContext);
 }

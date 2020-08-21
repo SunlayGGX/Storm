@@ -38,8 +38,6 @@ namespace Storm
 		ComPtr<ID3D11Buffer> _vertexBuffer;
 		ComPtr<ID3D11Buffer> _indexBuffer;
 
-		DirectX::XMMATRIX _blowerWorldMatrix;
-
 		std::unique_ptr<Storm::BlowerShader> _blowerShader;
 	};
 }
