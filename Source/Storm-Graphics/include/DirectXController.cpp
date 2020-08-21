@@ -13,6 +13,8 @@
 
 #include "RenderModeState.h"
 
+#include "GraphicBlowerBase.h"
+
 
 namespace
 {
@@ -244,7 +246,7 @@ const ComPtr<ID3D11DeviceContext>& Storm::DirectXController::getImmediateContext
 	return _immediateContext;
 }
 
-void Storm::DirectXController::renderElements(const Storm::Camera &currentCamera, const std::vector<std::unique_ptr<Storm::IRenderedElement>> &renderedElementArrays, const std::map<unsigned int, std::unique_ptr<Storm::GraphicRigidBody>> &rbElementArrays, Storm::GraphicParticleSystem &particleSystem) const
+void Storm::DirectXController::renderElements(const Storm::Camera &currentCamera, const std::vector<std::unique_ptr<Storm::IRenderedElement>> &renderedElementArrays, const std::map<unsigned int, std::unique_ptr<Storm::GraphicRigidBody>> &rbElementArrays, Storm::GraphicParticleSystem &particleSystem, const std::map<std::size_t, std::unique_ptr<Storm::GraphicBlowerBase>> &blowersMap) const
 {
 	for (const auto &renderedElement : renderedElementArrays)
 	{
@@ -270,6 +272,11 @@ void Storm::DirectXController::renderElements(const Storm::Camera &currentCamera
 	}
 
 	particleSystem.render(_device, _immediateContext, currentCamera, _currentRenderModeState);
+
+	for (const auto &graphicBlower : blowersMap)
+	{
+		graphicBlower.second->render(_device, _immediateContext, currentCamera);
+	}
 }
 
 float Storm::DirectXController::getViewportWidth() const noexcept

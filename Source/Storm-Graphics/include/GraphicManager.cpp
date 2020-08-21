@@ -328,7 +328,7 @@ void Storm::GraphicManager::update()
 		_directXController->clearView(g_defaultColor);
 		_directXController->initView();
 
-		_directXController->renderElements(this->getCamera(), _renderedElements, _meshesMap, *_graphicParticlesSystem);
+		_directXController->renderElements(this->getCamera(), _renderedElements, _meshesMap, *_graphicParticlesSystem, _blowersMap);
 
 		_directXController->drawUI(_fieldsMap);
 
