@@ -58,14 +58,17 @@
     <Filter Include="Header Files\Basics">
       <UniqueIdentifier>{b5d77d79-e0a5-4d39-9b56-8c3d0c064bb2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Basics\MeshGenerator">
-      <UniqueIdentifier>{7bf2deee-dd51-4371-ad11-4083334ddeeb}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Basics">
       <UniqueIdentifier>{72c55efc-39bd-4cbd-8721-764184e58173}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Basics\MeshGenerator">
+    <Filter Include="Header Files\Basics\MeshMaker">
+      <UniqueIdentifier>{7bf2deee-dd51-4371-ad11-4083334ddeeb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Basics\MeshMaker">
       <UniqueIdentifier>{cb89a9c0-1806-4c1e-8c45-0cf87a87aef0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\DirectX\Helper">
+      <UniqueIdentifier>{19d65fe9-5db2-4476-ad7e-a7254a8dba9b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -117,8 +120,8 @@
     <ClCompile Include="..\include\BlowerShader.cpp">
       <Filter>Source Files\Shaders\Component</Filter>
     </ClCompile>
-    <ClCompile Include="..\include\MeshGeneratorImpl.cpp">
-      <Filter>Source Files\Basics\MeshGenerator</Filter>
+    <ClCompile Include="..\include\MeshMaker.cpp">
+      <Filter>Source Files\Basics\MeshMaker</Filter>
     </ClCompile>
     <ClCompile Include="..\include\XMStormHelpers.cpp">
       <Filter>Source Files\DirectX\Helper</Filter>
@@ -194,11 +197,8 @@
     <ClInclude Include="..\include\GraphicBlower.h">
       <Filter>Header Files\Rendered\Blowers</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\CubeMeshGenerator.h">
-      <Filter>Header Files\Basics\MeshGenerator</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\SphereMeshGenerator.h">
-      <Filter>Header Files\Basics\MeshGenerator</Filter>
+    <ClInclude Include="..\include\MeshMaker.h">
+      <Filter>Header Files\Basics\MeshMaker</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

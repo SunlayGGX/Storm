@@ -22,7 +22,6 @@
     <ClCompile Include="..\include\GraphicRigidBody.cpp" />
     <ClCompile Include="..\include\Grid.cpp" />
     <ClCompile Include="..\include\GridShader.cpp" />
-    <ClCompile Include="..\include\MeshGeneratorImpl.cpp" />
     <ClCompile Include="..\include\MeshShader.cpp" />
     <ClCompile Include="..\include\ParticleShader.cpp" />
     <ClCompile Include="..\include\ShaderManager.cpp" />
@@ -37,7 +36,6 @@
     <ClInclude Include="..\include\BlowerShader.h" />
     <ClInclude Include="..\include\Camera.h" />
     <ClInclude Include="..\include\ConstantBufferHolder.h" />
-    <ClInclude Include="..\include\CubeMeshGenerator.h" />
     <ClInclude Include="..\include\DirectXController.h" />
     <ClInclude Include="..\include\DirectXHardwareInfo.h" />
     <ClInclude Include="..\include\GraphicBlowerBase.h" />
@@ -54,7 +52,6 @@
     <ClInclude Include="..\include\ParticleShader.h" />
     <ClInclude Include="..\include\RenderModeState.h" />
     <ClInclude Include="..\include\ShaderManager.h" />
-    <ClInclude Include="..\include\SphereMeshGenerator.h" />
     <ClInclude Include="..\include\ThrowIfFailed.h" />
     <ClInclude Include="..\include\VPShader.h" />
     <ClInclude Include="..\include\Storm-GraphicsPCH.h" />
