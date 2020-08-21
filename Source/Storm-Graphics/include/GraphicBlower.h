@@ -1,5 +1,7 @@
 #pragma once
 
+#include "GraphicBlowerBase.h"
+
 
 namespace Storm
 {
@@ -18,7 +20,13 @@ namespace Storm
 
 			MeshMaker::generate(blowerData._blowerPosition, blowerData._blowerDimension, vertexes, indexes);
 
-			this->instantiateShader(device, blowerData, vertexes, indexes);
+			this->instantiateShader(device, vertexes, indexes);
+		}
+
+	public:
+		constexpr Storm::BlowerType getType() const final override
+		{
+			return type;
 		}
 	};
 }

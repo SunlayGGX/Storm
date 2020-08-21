@@ -11,6 +11,9 @@ namespace Storm
 		private Storm::ConstantBufferHolder
 	{
 	public:
-		BlowerShader(const ComPtr<ID3D11Device> &device, const uint32_t indexCount, const DirectX::XMMATRIX &blowerWorldMatrix);
+		BlowerShader(const ComPtr<ID3D11Device> &device, const uint32_t indexCount);
+
+	public:
+		void setup(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera, const DirectX::XMMATRIX &transposedTransform);
 	};
 }

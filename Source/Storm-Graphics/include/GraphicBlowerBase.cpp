@@ -42,14 +42,18 @@ namespace
 
 
 Storm::GraphicBlowerBase::GraphicBlowerBase(const Storm::BlowerData &blowerData) :
-	_index{ blowerData._id }
-{}
+	_id{ blowerData._id }
+{
+	// Take the Blower position.
+	// TODO: One day, have a rotation for blowers... When we'll need it.
+	_blowerWorldMatrix = Storm::makeTransform(blowerData._blowerPosition, Storm::Quaternion::Identity());
+}
 
 Storm::GraphicBlowerBase::~GraphicBlowerBase() = default;
 
-void Storm::GraphicBlowerBase::instantiateShader(const ComPtr<ID3D11Device> &device, const Storm::BlowerData &blowerData, const std::vector<Storm::Vector3> &vertexes, const std::vector<uint32_t> &indexes)
+void Storm::GraphicBlowerBase::instantiateShader(const ComPtr<ID3D11Device> &device, const std::vector<Storm::Vector3> &vertexes, const std::vector<uint32_t> &indexes)
 {
-	uint32_t totalIndexCount = static_cast<uint32_t>(indexes.size());
+	_indexCount = static_cast<uint32_t>(indexes.size());
 
 	// Create Vertex data
 	D3D11_BUFFER_DESC vertexBufferDesc;
@@ -73,7 +77,7 @@ void Storm::GraphicBlowerBase::instantiateShader(const ComPtr<ID3D11Device> &dev
 	D3D11_SUBRESOURCE_DATA indexData;
 
 	indexBufferDesc.Usage = D3D11_USAGE::D3D11_USAGE_DEFAULT;
-	indexBufferDesc.ByteWidth = sizeof(uint32_t) * totalIndexCount;
+	indexBufferDesc.ByteWidth = sizeof(uint32_t) * _indexCount;
 	indexBufferDesc.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_INDEX_BUFFER;
 	indexBufferDesc.CPUAccessFlags = 0;
 	indexBufferDesc.MiscFlags = 0;
@@ -85,14 +89,30 @@ void Storm::GraphicBlowerBase::instantiateShader(const ComPtr<ID3D11Device> &dev
 
 	Storm::throwIfFailed(device->CreateBuffer(&indexBufferDesc, &indexData, &_indexBuffer));
 
-	// Take the Blower position.
-	// TODO: One day, have a rotation for blowers... When we'll need it.
-	DirectX::XMMATRIX blowerWorldMatrix = Storm::makeTransform(blowerData._blowerPosition, Storm::Quaternion::Identity());
-
-	_blowerShader = std::make_unique<Storm::BlowerShader>(device, totalIndexCount, blowerWorldMatrix);
+	_blowerShader = std::make_unique<Storm::BlowerShader>(device, _indexCount);
 }
 
-std::size_t Storm::GraphicBlowerBase::getIndex() const
+void Storm::GraphicBlowerBase::render(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera)
 {
-	return _index;
+	_blowerShader->setup(device, deviceContext, currentCamera, _blowerWorldMatrix);
+	this->setupBlower(deviceContext);
+	_blowerShader->draw(_indexCount, deviceContext);
+}
+
+void Storm::GraphicBlowerBase::setupBlower(const ComPtr<ID3D11DeviceContext> &deviceContext)
+{
+	constexpr UINT stride = sizeof(BlowerVertex);
+	constexpr UINT offset = 0;
+
+	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	deviceContext->IASetIndexBuffer(_indexBuffer.Get(), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
+
+	ID3D11Buffer*const tmpVertexBuffer = _vertexBuffer.Get();
+	deviceContext->IASetVertexBuffers(0, 1, &tmpVertexBuffer, &stride, &offset);
+}
+
+std::size_t Storm::GraphicBlowerBase::getId() const
+{
+	return _id;
 }
