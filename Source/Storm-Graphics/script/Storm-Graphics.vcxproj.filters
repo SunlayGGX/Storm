@@ -120,6 +120,9 @@
     <ClCompile Include="..\include\MeshGeneratorImpl.cpp">
       <Filter>Source Files\Basics\MeshGenerator</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\XMStormHelpers.cpp">
+      <Filter>Source Files\DirectX\Helper</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-GraphicsPCH.h">

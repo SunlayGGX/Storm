@@ -27,16 +27,6 @@ namespace
 		cont.clear();
 		cont.shrink_to_fit();
 	}
-
-	DirectX::XMMATRIX makeTransform(const Storm::Vector3 &trans, const Storm::Quaternion &rot)
-	{
-		return DirectX::XMMatrixTranspose(DirectX::XMMatrixAffineTransformation(
-			DirectX::FXMVECTOR{ 1.f, 1.f, 1.f, 0.f },
-			DirectX::FXMVECTOR{ 0.f, 0.f, 0.f, 1.f },
-			DirectX::XMVECTOR{ rot.x(), rot.y(), rot.z(), rot.w() },
-			Storm::convertToXM(trans)
-		));
-	}
 }
 
 
@@ -107,7 +97,7 @@ void Storm::GraphicRigidBody::render(const ComPtr<ID3D11Device> &device, const C
 	const std::shared_ptr<Storm::IRigidBody> &boundRbParent = this->getRbParent();
 	boundRbParent->getRigidBodyTransform(trans, rot);
 
-	DirectX::XMMATRIX worldTransform = makeTransform(trans, rot);
+	DirectX::XMMATRIX worldTransform = Storm::makeTransform(trans, rot);
 
 	_shader->setup(device, deviceContext, currentCamera, worldTransform);
 	this->setupForRender(deviceContext);

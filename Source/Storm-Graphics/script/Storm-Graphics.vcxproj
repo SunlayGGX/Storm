@@ -31,6 +31,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\include\VPShader.cpp" />
+    <ClCompile Include="..\include\XMStormHelpers.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\BlowerShader.h" />

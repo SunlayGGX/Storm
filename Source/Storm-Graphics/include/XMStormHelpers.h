@@ -3,8 +3,6 @@
 
 namespace Storm
 {
-	DirectX::FXMVECTOR convertToXM(const Storm::Vector3 &trans)
-	{
-		return DirectX::FXMVECTOR{ trans.x(), trans.y(), trans.z(), 1.f };
-	}
+	DirectX::FXMVECTOR convertToXM(const Storm::Vector3 &trans);
+	DirectX::XMMATRIX makeTransform(const Storm::Vector3 &trans, const Storm::Quaternion &rot);
 }
