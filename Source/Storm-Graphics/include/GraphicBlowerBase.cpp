@@ -1,6 +1,9 @@
 #include "GraphicBlowerBase.h"
 
+#include "BlowerData.h"
 #include "BlowerShader.h"
+
+#include "XMStormHelpers.h"
 
 
 namespace
@@ -38,13 +41,13 @@ namespace
 }
 
 
-Storm::GraphicBlowerBase::GraphicBlowerBase(const std::size_t index, const Storm::BlowerData &blowerData) :
-	_index{ index }
+Storm::GraphicBlowerBase::GraphicBlowerBase(const Storm::BlowerData &blowerData) :
+	_index{ blowerData._id }
 {}
 
 Storm::GraphicBlowerBase::~GraphicBlowerBase() = default;
 
-void Storm::GraphicBlowerBase::instantiateShader(const ComPtr<ID3D11Device> &device, const std::vector<Storm::Vector3> &vertexes, const std::vector<uint32_t> &indexes)
+void Storm::GraphicBlowerBase::instantiateShader(const ComPtr<ID3D11Device> &device, const Storm::BlowerData &blowerData, const std::vector<Storm::Vector3> &vertexes, const std::vector<uint32_t> &indexes)
 {
 	uint32_t totalIndexCount = static_cast<uint32_t>(indexes.size());
 
@@ -82,7 +85,11 @@ void Storm::GraphicBlowerBase::instantiateShader(const ComPtr<ID3D11Device> &dev
 
 	Storm::throwIfFailed(device->CreateBuffer(&indexBufferDesc, &indexData, &_indexBuffer));
 
-	_blowerShader = std::make_unique<Storm::BlowerShader>(device, totalIndexCount);
+	// Take the Blower position.
+	// TODO: One day, have a rotation for blowers... When we'll need it.
+	DirectX::XMMATRIX blowerWorldMatrix = Storm::makeTransform(blowerData._blowerPosition, Storm::Quaternion::Identity());
+
+	_blowerShader = std::make_unique<Storm::BlowerShader>(device, totalIndexCount, blowerWorldMatrix);
 }
 
 std::size_t Storm::GraphicBlowerBase::getIndex() const
