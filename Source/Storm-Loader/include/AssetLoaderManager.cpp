@@ -13,6 +13,8 @@
 #include "RigidBodySceneData.h"
 #include "RigidBody.h"
 
+#include "BasicMeshGenerator.h"
+
 #include "FluidParticleLoadDenseMode.h"
 
 #include <Assimp\DefaultLogger.hpp>
@@ -223,4 +225,14 @@ void Storm::AssetLoaderManager::cleanUp_Implementation()
 const std::vector<std::shared_ptr<Storm::IRigidBody>>& Storm::AssetLoaderManager::getRigidBodyArray() const
 {
 	return _rigidBodies;
+}
+
+void Storm::AssetLoaderManager::generateSimpleCube(const Storm::Vector3 &position, const Storm::Vector3 &dimension, std::vector<Storm::Vector3> &inOutVertexes, std::vector<uint32_t> &inOutIndexes) const
+{
+	Storm::BasicMeshGenerator::generateCube(position, dimension, inOutVertexes, inOutIndexes);
+}
+
+void Storm::AssetLoaderManager::generateSimpleSphere(const Storm::Vector3 &position, const float radius, std::vector<Storm::Vector3> &inOutVertexes, std::vector<uint32_t> &inOutIndexes) const
+{
+	Storm::BasicMeshGenerator::generateSphere(position, radius, inOutVertexes, inOutIndexes);
 }
