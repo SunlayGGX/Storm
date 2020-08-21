@@ -217,7 +217,7 @@ Inside this element should be put all rigidbodies. Each rigidbody should be spec
 - **+ (Numpad)**: Move near clipping plane forward.
 - **- (Numpad)**: Move near clipping plane backward.
 - **/ (Numpad)**: Move far clipping plane backward.
-- **Star (Numpad)**: Move far clipping plane forward.
+- **\* (Numpad)**: Move far clipping plane forward.
 - **Up Arrow**: Move camera up.
 - **Down Arrow**: Move camera down.
 - **Left Arrow**: Move camera left.
