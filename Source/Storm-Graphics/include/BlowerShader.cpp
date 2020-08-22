@@ -10,6 +10,8 @@ namespace
 	{
 		DirectX::XMMATRIX _viewMatrix;
 		DirectX::XMMATRIX _projectionMatrix;
+
+		DirectX::XMVECTOR _color;
 	};
 
 	static const std::string k_blowerShaderFilePath = "Shaders/BlowerDraw.hlsl";
@@ -44,7 +46,7 @@ Storm::BlowerShader::BlowerShader(const ComPtr<ID3D11Device> &device, const uint
 	Storm::ConstantBufferHolder::initialize<ConstantBuffer>(device);
 }
 
-void Storm::BlowerShader::setup(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera)
+void Storm::BlowerShader::setup(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera, const DirectX::XMVECTOR &color)
 {
 	this->setupDeviceContext(deviceContext);
 
@@ -56,6 +58,7 @@ void Storm::BlowerShader::setup(const ComPtr<ID3D11Device> &device, const ComPtr
 
 	ressourceDataPtr->_viewMatrix = currentCamera.getTransposedViewMatrix();
 	ressourceDataPtr->_projectionMatrix = currentCamera.getTransposedProjectionMatrix();
+	ressourceDataPtr->_color = color;
 
 	deviceContext->Unmap(_constantBuffer.Get(), 0);
 

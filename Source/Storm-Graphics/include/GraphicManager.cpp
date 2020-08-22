@@ -421,3 +421,11 @@ std::size_t Storm::GraphicManager::getFieldCount() const
 {
 	return _fieldsMap.size();
 }
+
+void Storm::GraphicManager::changeBlowerState(const std::size_t blowerId, const Storm::BlowerState newState)
+{
+	Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::GraphicsThread, [this, blowerId, newState]()
+	{
+		_blowersMap[blowerId]->setBlowerState(newState);
+	});
+}

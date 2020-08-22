@@ -5,6 +5,7 @@
 
 namespace Storm
 {
+	enum class BlowerState;
 	class IRigidBody;
 
 	class IGraphicsManager : public Storm::ISingletonHeldInterface<IGraphicsManager>
@@ -29,5 +30,8 @@ namespace Storm
 		virtual void createGraphicsField(const std::wstring_view &fieldName, std::wstring &&fieldValueStr) = 0;
 		virtual void updateGraphicsField(std::vector<std::pair<std::wstring_view, std::wstring>> &&rawFields) = 0;
 		virtual void updateGraphicsField(const std::wstring_view &fieldName, std::wstring &&fieldValue) = 0;
+
+	public:
+		virtual void changeBlowerState(const std::size_t blowerId, const Storm::BlowerState newState) = 0;
 	};
 }

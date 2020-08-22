@@ -129,6 +129,8 @@ namespace
 	public:
 		void notifyStateChanged(const std::size_t blowerId, const Storm::BlowerState newState)
 		{
+			Storm::IGraphicsManager &graphicMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IGraphicsManager>();
+			graphicMgr.changeBlowerState(blowerId, newState);
 		}
 	};
 

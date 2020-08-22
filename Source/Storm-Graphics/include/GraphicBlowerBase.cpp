@@ -1,6 +1,7 @@
 #include "GraphicBlowerBase.h"
 
 #include "BlowerData.h"
+#include "BlowerState.h"
 #include "BlowerShader.h"
 
 #include "XMStormHelpers.h"
@@ -38,11 +39,25 @@ namespace
 			assert(false && "We got 0 vertexes from a simple mesh generation, this shouldn't happen!");
 		}
 	}
+
+	DirectX::XMVECTOR convertStateToColor(const Storm::BlowerState blowerState)
+	{
+		constexpr const float k_alpha = 0.25f;
+		constexpr const float k_disabledAlpha = k_alpha / 2.f;
+		switch (blowerState)
+		{
+		case Storm::BlowerState::NotWorking:		return DirectX::XMVECTOR{ 0.2f, 0.2f, 0.2f, k_disabledAlpha };
+		case Storm::BlowerState::Fading:			return DirectX::XMVECTOR{ 1.f, 0.5f, 0.f, k_alpha };
+		case Storm::BlowerState::FullyFonctional:	return DirectX::XMVECTOR{ 0.1f, 8.f, 0.2f, k_alpha };
+		default:									return DirectX::XMVECTOR{ 0.f, 0.f, 0.f, 0.f };
+		}
+	}
 }
 
 
 Storm::GraphicBlowerBase::GraphicBlowerBase(const Storm::BlowerData &blowerData) :
-	_id{ blowerData._id }
+	_id{ blowerData._id },
+	_blowerState{ Storm::BlowerState::NotWorking }
 {
 
 }
@@ -95,7 +110,7 @@ void Storm::GraphicBlowerBase::instantiateShader(const ComPtr<ID3D11Device> &dev
 
 void Storm::GraphicBlowerBase::render(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera)
 {
-	_blowerShader->setup(device, deviceContext, currentCamera);
+	_blowerShader->setup(device, deviceContext, currentCamera, convertStateToColor(_blowerState));
 	this->setupBlower(deviceContext);
 	_blowerShader->draw(_indexCount, deviceContext);
 }
@@ -111,6 +126,11 @@ void Storm::GraphicBlowerBase::setupBlower(const ComPtr<ID3D11DeviceContext> &de
 
 	ID3D11Buffer*const tmpVertexBuffer = _vertexBuffer.Get();
 	deviceContext->IASetVertexBuffers(0, 1, &tmpVertexBuffer, &stride, &offset);
+}
+
+void Storm::GraphicBlowerBase::setBlowerState(const Storm::BlowerState newState)
+{
+	_blowerState = newState;
 }
 
 std::size_t Storm::GraphicBlowerBase::getId() const

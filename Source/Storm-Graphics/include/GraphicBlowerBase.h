@@ -6,6 +6,7 @@
 namespace Storm
 {
 	enum class BlowerType;
+	enum class BlowerState;
 	struct BlowerData;
 	class BlowerShader;
 
@@ -27,6 +28,9 @@ namespace Storm
 		void setupBlower(const ComPtr<ID3D11DeviceContext> &deviceContext);
 
 	public:
+		void setBlowerState(const Storm::BlowerState newState);
+
+	public:
 		std::size_t getId() const;
 		virtual Storm::BlowerType getType() const = 0;
 
@@ -34,6 +38,7 @@ namespace Storm
 		std::size_t _id;
 
 		uint32_t _indexCount;
+		Storm::BlowerState _blowerState;
 
 		ComPtr<ID3D11Buffer> _vertexBuffer;
 		ComPtr<ID3D11Buffer> _indexBuffer;
