@@ -104,8 +104,8 @@ void Storm::BasicMeshGenerator::generateSphere(const Storm::Vector3 &position, c
 {
 	enum : std::size_t
 	{
-		k_ringsX = 36,
-		k_ringsY = 36,
+		k_ringsX = 16,
+		k_ringsY = 16,
 
 		// The summit doesn't need to have a concentration of k_ringsX vertexes. In other words, the rings rotation made redundancy at 2 specific location.
 		k_ringsYLean = k_ringsY - 2,
