@@ -29,6 +29,9 @@ namespace Storm
 	private:
 		void writeLogs(const LogArray &logArray) const;
 
+	public:
+		void logToTempFile(const std::string &fileName, const std::string &msg) const final override;
+
 	private:
 		bool _isRunning;
 		std::thread _loggerThread;

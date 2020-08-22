@@ -227,3 +227,8 @@ void Storm::LoggerManager::writeLogs(const LogArray &logArray) const
 		}
 	}
 }
+
+void Storm::LoggerManager::logToTempFile(const std::string &fileName, const std::string &msg) const
+{
+	std::ofstream{ (std::filesystem::path{ Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().getTemporaryPath() } / fileName).string() } << msg;
+}
