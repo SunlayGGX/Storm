@@ -124,28 +124,36 @@ namespace
 		Storm::IProfilerManager*const _profileMgrPtr;
 	};
 
+	class BlowerCallbacks
+	{
+	public:
+		void notifyStateChanged(const std::size_t blowerId, const Storm::BlowerState newState)
+		{
+		}
+	};
+
 	template<Storm::BlowerType type, class BlowerEffectArea>
 	void appendNewBlower(std::vector<std::unique_ptr<Storm::IBlower>> &inOutBlowerContainer, const Storm::BlowerData &blowerDataConfig)
 	{
 		std::string_view blowerIntroMsg;
 		if (blowerDataConfig._fadeInTimeInSeconds > 0.f && blowerDataConfig._fadeOutTimeInSeconds > 0.f)
 		{
-			inOutBlowerContainer.emplace_back(std::make_unique<Storm::Blower<type, BlowerEffectArea, Storm::FadeInOutTimeHandler>>(blowerDataConfig));
+			inOutBlowerContainer.emplace_back(std::make_unique<Storm::Blower<type, BlowerEffectArea, Storm::FadeInOutTimeHandler, BlowerCallbacks>>(blowerDataConfig));
 			blowerIntroMsg = "Blower with fadeIn and fadeOut feature created.\n";
 		}
 		else if (blowerDataConfig._fadeInTimeInSeconds > 0.f)
 		{
-			inOutBlowerContainer.emplace_back(std::make_unique<Storm::Blower<type, BlowerEffectArea, Storm::FadeInTimeHandler>>(blowerDataConfig));
+			inOutBlowerContainer.emplace_back(std::make_unique<Storm::Blower<type, BlowerEffectArea, Storm::FadeInTimeHandler, BlowerCallbacks>>(blowerDataConfig));
 			blowerIntroMsg = "Blower with fadeIn only feature created.\n";
 		}
 		else if (blowerDataConfig._fadeOutTimeInSeconds > 0.f)
 		{
-			inOutBlowerContainer.emplace_back(std::make_unique<Storm::Blower<type, BlowerEffectArea, Storm::FadeOutTimeHandler>>(blowerDataConfig));
+			inOutBlowerContainer.emplace_back(std::make_unique<Storm::Blower<type, BlowerEffectArea, Storm::FadeOutTimeHandler, BlowerCallbacks>>(blowerDataConfig));
 			blowerIntroMsg = "Blower with fadeOut only feature created.\n";
 		}
 		else
 		{
-			inOutBlowerContainer.emplace_back(std::make_unique<Storm::Blower<type, BlowerEffectArea, Storm::BlowerTimeHandlerBase>>(blowerDataConfig));
+			inOutBlowerContainer.emplace_back(std::make_unique<Storm::Blower<type, BlowerEffectArea, Storm::BlowerTimeHandlerBase, BlowerCallbacks>>(blowerDataConfig));
 			blowerIntroMsg = "Blower without fadeIn or fadeOut only feature created.\n";
 		}
 

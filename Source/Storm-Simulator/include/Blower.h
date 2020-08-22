@@ -1,25 +1,22 @@
 #pragma once
 
 #include "IBlower.h"
+#include "BlowerState.h"
 
 
 namespace Storm
 {
 	enum class BlowerType;
 
-	template<Storm::BlowerType blowerType, class BlowerEffectArea, class BlowerTimeHandler>
+	template<Storm::BlowerType blowerType, class BlowerEffectArea, class BlowerTimeHandler, class BlowerCallbacks>
 	class Blower :
 		public Storm::IBlower,
 		private BlowerEffectArea,
-		private BlowerTimeHandler
+		private BlowerTimeHandler,
+		private BlowerCallbacks
 	{
 	private:
-		enum class BlowerState : char
-		{
-			NotWorking,
-			Fading,
-			FullyFonctional,
-		};
+		using ThisType = Storm::Blower<blowerType, BlowerEffectArea, BlowerTimeHandler, BlowerCallbacks>;
 
 	public:
 		Blower(const Storm::BlowerData &blowerDataConfig) :
@@ -29,7 +26,7 @@ namespace Storm
 			_srcForce{ blowerDataConfig._blowerForce },
 			_force{ Vector3::Zero() },
 			_blowerPosition{ blowerDataConfig._blowerPosition },
-			_state{ BlowerState::NotWorking }
+			_state{ Storm::BlowerState::NotWorking }
 		{}
 
 	private:
@@ -77,8 +74,6 @@ namespace Storm
 
 		void advanceTime(float deltaTime) final override
 		{
-			using ThisType = Storm::Blower<blowerType, BlowerEffectArea, BlowerTimeHandler>;
-
 			if (BlowerTimeHandler::advanceTime(deltaTime))
 			{
 				if constexpr (ThisType::hasFadeIn<BlowerTimeHandler>(0))
@@ -86,8 +81,12 @@ namespace Storm
 					float fadeInCoefficient;
 					if (BlowerTimeHandler::shouldFadeIn(fadeInCoefficient))
 					{
+						if (_state != Storm::BlowerState::Fading)
+						{
+							this->setAndNotifyStateChanged<Storm::BlowerState::Fading>();
+						}
+
 						_force = _srcForce * fadeInCoefficient;
-						_state = BlowerState::Fading;
 						return;
 					}
 				}
@@ -97,29 +96,31 @@ namespace Storm
 					float fadeOutCoefficient;
 					if (BlowerTimeHandler::shouldFadeOut(fadeOutCoefficient))
 					{
+						if (_state != Storm::BlowerState::Fading)
+						{
+							this->setAndNotifyStateChanged<Storm::BlowerState::Fading>();
+						}
+
 						_force = _srcForce * fadeOutCoefficient;
-						_state = BlowerState::Fading;
 						return;
 					}
 				}
 
-				if (_state != BlowerState::FullyFonctional)
+				if (_state != Storm::BlowerState::FullyFonctional)
 				{
 					_force = _srcForce;
-					_state = BlowerState::FullyFonctional;
+					this->setAndNotifyStateChanged<Storm::BlowerState::FullyFonctional>();
 				}
 			}
-			else
+			else if (_state != Storm::BlowerState::NotWorking)
 			{
-				_state = BlowerState::NotWorking;
+				this->setAndNotifyStateChanged<Storm::BlowerState::NotWorking>();
 			}
 		}
 
 	private:
 		void applyForceInternal(const Storm::Vector3 &inParticlePosition, Storm::Vector3 &inOutParticleForce) const
 		{
-			using ThisType = Storm::Blower<blowerType, BlowerEffectArea, BlowerTimeHandler>;
-
 			// tmp is the position diff
 			Storm::Vector3 tmp = inParticlePosition - _blowerPosition;
 			if (BlowerEffectArea::isInside(tmp))
@@ -137,10 +138,17 @@ namespace Storm
 			}
 		}
 
+		template<Storm::BlowerState newState>
+		void setAndNotifyStateChanged()
+		{
+			BlowerCallbacks::notifyStateChanged(_id, newState);
+			_state = newState;
+		}
+
 	public:
 		void applyForce(const Storm::Vector3 &inParticlePosition, Storm::Vector3 &inOutParticleForce) const final override
 		{
-			if (_state != BlowerState::NotWorking)
+			if (_state != Storm::BlowerState::NotWorking)
 			{
 				this->applyForceInternal(inParticlePosition, inOutParticleForce);
 			}
@@ -164,6 +172,6 @@ namespace Storm
 		const Storm::Vector3 _blowerPosition;
 		const Storm::Vector3 _srcForce;
 
-		BlowerState _state;
+		Storm::BlowerState _state;
 	};
 }
