@@ -21,6 +21,8 @@ namespace Storm
 		Storm::BlowerType _blowerType;
 
 		Storm::Vector3 _blowerDimension;
+		float _radius;
+
 		Storm::Vector3 _blowerPosition;
 
 		Storm::Vector3 _blowerForce;

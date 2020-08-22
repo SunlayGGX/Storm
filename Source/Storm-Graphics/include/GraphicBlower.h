@@ -7,7 +7,7 @@ namespace Storm
 {
 	enum class BlowerType;
 
-	template<Storm::BlowerType type, class MeshMaker>
+	template<Storm::BlowerType type, class BlowerMeshMaker>
 	class GraphicBlower :
 		public Storm::GraphicBlowerBase
 	{
@@ -18,7 +18,7 @@ namespace Storm
 			std::vector<Storm::Vector3> vertexes;
 			std::vector<uint32_t> indexes;
 
-			MeshMaker::generate(blowerData._blowerPosition, blowerData._blowerDimension, vertexes, indexes);
+			BlowerMeshMaker::generate(blowerData, vertexes, indexes);
 
 			this->instantiateShader(device, vertexes, indexes);
 		}

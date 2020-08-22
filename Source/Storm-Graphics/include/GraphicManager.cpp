@@ -27,7 +27,7 @@
 #include "BlowerType.h"
 #include "GraphicBlower.h"
 
-#include "MeshMaker.h"
+#include "BlowerMeshMaker.h"
 
 
 namespace
@@ -169,11 +169,11 @@ namespace
 		switch (blowerDataConfig._blowerType)
 		{
 		case Storm::BlowerType::Cube:
-			graphicBlower = std::make_unique<Storm::GraphicBlower<Storm::BlowerType::Cube, Storm::CubeMeshMaker>>(device, blowerDataConfig);
+			graphicBlower = std::make_unique<Storm::GraphicBlower<Storm::BlowerType::Cube, Storm::BlowerCubeMeshMaker>>(device, blowerDataConfig);
 			break;
 
 		case Storm::BlowerType::Sphere:
-			graphicBlower = std::make_unique<Storm::GraphicBlower<Storm::BlowerType::Sphere, Storm::SphereMeshMaker>>(device, blowerDataConfig);
+			graphicBlower = std::make_unique<Storm::GraphicBlower<Storm::BlowerType::Sphere, Storm::BlowerSphereMeshMaker>>(device, blowerDataConfig);
 			break;
 
 		default:

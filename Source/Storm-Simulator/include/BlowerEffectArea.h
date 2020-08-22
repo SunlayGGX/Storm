@@ -5,16 +5,7 @@ namespace Storm
 {
 	struct BlowerData;
 
-	class BlowerEffectAreaBase
-	{
-	public:
-		BlowerEffectAreaBase(const Storm::BlowerData &blowerDataConfig);
-
-	protected:
-		const Storm::Vector3 _dimension;
-	};
-
-	class BlowerCubeArea : protected Storm::BlowerEffectAreaBase
+	class BlowerCubeArea
 	{
 	public:
 		BlowerCubeArea(const Storm::BlowerData &blowerDataConfig);
@@ -27,9 +18,12 @@ namespace Storm
 				std::fabs(relativePosDiff.y()) < _dimension.y() &&
 				std::fabs(relativePosDiff.z()) < _dimension.z();
 		}
+
+	protected:
+		const Storm::Vector3 _dimension;
 	};
 
-	class BlowerSphereArea : protected Storm::BlowerEffectAreaBase
+	class BlowerSphereArea
 	{
 	public:
 		BlowerSphereArea(const Storm::BlowerData &blowerDataConfig);

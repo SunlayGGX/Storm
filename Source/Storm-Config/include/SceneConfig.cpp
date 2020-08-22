@@ -363,6 +363,7 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 						!Storm::XmlReader::handleXml(blowerDataXml, "endTime", blowerData._stopTimeInSeconds) &&
 						!Storm::XmlReader::handleXml(blowerDataXml, "fadeInTime", blowerData._fadeInTimeInSeconds) &&
 						!Storm::XmlReader::handleXml(blowerDataXml, "fadeOutTime", blowerData._fadeOutTimeInSeconds) &&
+						!Storm::XmlReader::handleXml(blowerDataXml, "radius", blowerData._radius) &&
 						!Storm::XmlReader::handleXml(blowerDataXml, "dimension", blowerData._blowerDimension, parseVector3Element) &&
 						!Storm::XmlReader::handleXml(blowerDataXml, "force", blowerData._blowerForce, parseVector3Element) &&
 						!Storm::XmlReader::handleXml(blowerDataXml, "position", blowerData._blowerPosition, parseVector3Element)
@@ -372,19 +373,7 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 					}
 				}
 
-				if (blowerData._blowerType == Storm::BlowerType::None)
-				{
-					Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._id) + " should have defined a blower type, this is mandatory!");
-				}
-				else if (blowerData._blowerDimension == Storm::Vector3::Zero())
-				{
-					Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._id) + " should have defined a dimension!");
-				}
-				else if (blowerData._blowerDimension.x() <= 0.f || blowerData._blowerDimension.y() <= 0.f || blowerData._blowerDimension.z() <= 0.f)
-				{
-					Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._id) + " cannot have one of its dimension value lesser or equal to 0! Specified dimension was " + Storm::toStdString(blowerData._blowerDimension));
-				}
-				else if (blowerData._startTimeInSeconds < 0.f)
+				if (blowerData._startTimeInSeconds < 0.f)
 				{
 					Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._id) + " start time is invalid (it cannot be lesser or equal to 0, value was " + std::to_string(blowerData._startTimeInSeconds) + ")!");
 				}
@@ -421,6 +410,32 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 							"Fade in time start=" + std::to_string(blowerData._startTimeInSeconds) + "s; end=" + std::to_string(blowerData._startTimeInSeconds + blowerData._fadeInTimeInSeconds) + "s.\n"
 							"Fade out time start=" + std::to_string(blowerData._stopTimeInSeconds - blowerData._fadeOutTimeInSeconds) + "s; end=" + std::to_string(blowerData._stopTimeInSeconds) + "s.");
 					}
+				}
+
+				switch (blowerData._blowerType)
+				{
+				case Storm::BlowerType::Cube:
+					if (blowerData._blowerDimension == Storm::Vector3::Zero())
+					{
+						Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._id) + " (a cube) should have defined a dimension!");
+					}
+					else if (blowerData._blowerDimension.x() <= 0.f || blowerData._blowerDimension.y() <= 0.f || blowerData._blowerDimension.z() <= 0.f)
+					{
+						Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._id) + " (a cube) cannot have one of its dimension value lesser or equal to 0! Specified dimension was " + Storm::toStdString(blowerData._blowerDimension));
+					}
+					break;
+
+				case Storm::BlowerType::Sphere:
+					if (blowerData._radius <= 0.f)
+					{
+						Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._id) + " (a sphere) should have defined a positive non-zero radius!");
+					}
+					blowerData._blowerDimension = Storm::Vector3{ blowerData._radius, blowerData._radius, blowerData._radius };
+					break;
+
+				case Storm::BlowerType::None:
+				default:
+					Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._id) + " should have defined a blower type, this is mandatory!");
 				}
 			}
 			else

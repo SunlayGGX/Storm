@@ -22,7 +22,7 @@
     <ClCompile Include="..\include\GraphicRigidBody.cpp" />
     <ClCompile Include="..\include\Grid.cpp" />
     <ClCompile Include="..\include\GridShader.cpp" />
-    <ClCompile Include="..\include\MeshMaker.cpp" />
+    <ClCompile Include="..\include\BlowerMeshMaker.cpp" />
     <ClCompile Include="..\include\MeshShader.cpp" />
     <ClCompile Include="..\include\ParticleShader.cpp" />
     <ClCompile Include="..\include\ShaderManager.cpp" />
@@ -37,7 +37,7 @@
     <ClInclude Include="..\include\BlowerShader.h" />
     <ClInclude Include="..\include\Camera.h" />
     <ClInclude Include="..\include\ConstantBufferHolder.h" />
-    <ClInclude Include="..\include\MeshMaker.h" />
+    <ClInclude Include="..\include\BlowerMeshMaker.h" />
     <ClInclude Include="..\include\DirectXController.h" />
     <ClInclude Include="..\include\DirectXHardwareInfo.h" />
     <ClInclude Include="..\include\GraphicBlowerBase.h" />

@@ -3,6 +3,10 @@
 #include "BlowerTimeHandler.h"
 #include "BlowerEffectArea.h"
 
+#include "BlowerType.h"
+
+#include "ThrowException.h"
+
 
 namespace
 {
@@ -18,6 +22,10 @@ namespace
 		return outFadeCoefficient >= 0.f && outFadeCoefficient < 1.f;
 	}
 }
+
+#define STORM_ENSURE_CONSTRUCTED_ON_RIGHT_SETTING(BlowerDataVariable, Setting)									\
+if (BlowerDataVariable._blowerType != Storm::Setting)															\
+	Storm::throwException<std::exception>(__FUNCTION__ " is intended to be used for " #Setting " blowers!")		\
 
 
 Storm::BlowerTimeHandlerBase::BlowerTimeHandlerBase(const Storm::BlowerData &blowerDataConfig) :
@@ -80,20 +88,14 @@ bool Storm::FadeInOutTimeHandler::shouldFadeOut(float &outFadeCoefficient) const
 	return computeFadeOutCoefficient(_currentTime, ThisType::UnderlyingFadeOutType::_startFadeTimeInSeconds, ThisType::UnderlyingFadeOutType::_fadeDurationInSeconds, outFadeCoefficient);
 }
 
-Storm::BlowerEffectAreaBase::BlowerEffectAreaBase(const Storm::BlowerData &blowerDataConfig) :
-	_dimension{ blowerDataConfig._blowerDimension }
-{
-
-}
-
 Storm::BlowerCubeArea::BlowerCubeArea(const Storm::BlowerData &blowerDataConfig) :
-	Storm::BlowerEffectAreaBase::BlowerEffectAreaBase{ blowerDataConfig }
+	_dimension{ blowerDataConfig._blowerDimension / 2.f }
 {
-
+	STORM_ENSURE_CONSTRUCTED_ON_RIGHT_SETTING(blowerDataConfig, BlowerType::Cube);
 }
 
-Storm::BlowerSphereArea::BlowerSphereArea(const Storm::BlowerData &blowerDataConfig) :
-	Storm::BlowerEffectAreaBase::BlowerEffectAreaBase{ blowerDataConfig }
+Storm::BlowerSphereArea::BlowerSphereArea(const Storm::BlowerData &blowerDataConfig)
 {
-	_radiusSquared = _dimension.x() * _dimension.x();
+	STORM_ENSURE_CONSTRUCTED_ON_RIGHT_SETTING(blowerDataConfig, BlowerType::Sphere);
+	_radiusSquared = blowerDataConfig._radius * blowerDataConfig._radius;
 }

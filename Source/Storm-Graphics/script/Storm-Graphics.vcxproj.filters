@@ -120,14 +120,14 @@
     <ClCompile Include="..\include\BlowerShader.cpp">
       <Filter>Source Files\Shaders\Component</Filter>
     </ClCompile>
-    <ClCompile Include="..\include\MeshMaker.cpp">
-      <Filter>Source Files\Basics\MeshMaker</Filter>
-    </ClCompile>
     <ClCompile Include="..\include\XMStormHelpers.cpp">
       <Filter>Source Files\DirectX\Helper</Filter>
     </ClCompile>
     <ClCompile Include="..\include\GraphicBlowerBase.cpp">
       <Filter>Source Files\Rendered\Blowers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\BlowerMeshMaker.cpp">
+      <Filter>Source Files\Basics\MeshMaker</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -200,7 +200,7 @@
     <ClInclude Include="..\include\GraphicBlower.h">
       <Filter>Header Files\Rendered\Blowers</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\MeshMaker.h">
+    <ClInclude Include="..\include\BlowerMeshMaker.h">
       <Filter>Header Files\Basics\MeshMaker</Filter>
     </ClInclude>
   </ItemGroup>
