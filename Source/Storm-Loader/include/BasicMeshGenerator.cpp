@@ -11,22 +11,23 @@ namespace
 	template<class IndexContainer>
 	void addIndexesOfQuadIndex(IndexContainer &inOutIndexes, const uint32_t p0, const uint32_t p1, const uint32_t p2, const uint32_t p3)
 	{
-		STORM_REGISTER_TRIANGLE_INDEX(p0, p1, p2);
-		STORM_REGISTER_TRIANGLE_INDEX(p2, p1, p3);
+		STORM_REGISTER_TRIANGLE_INDEX(p0, p2, p1);
+		STORM_REGISTER_TRIANGLE_INDEX(p1, p2, p3);
 	}
 
 	// LUT means "Look Up Table"
-	template<std::size_t division>
+	template<std::size_t division, bool hemisphere>
 	struct SinCosLUT
 	{
 	public:
-		SinCosLUT()
+		SinCosLUT() :
+			_divAngleRad{ static_cast<float>((hemisphere ? M_PI : 2.0 * M_PI) / static_cast<double>(division)) }
 		{
-			constexpr const float k_xAngleStepRad = static_cast<float>(2.0 * M_PI / static_cast<double>(division));
 			for (std::size_t iter = 0; iter < division; ++iter)
 			{
-				_cosLUT[iter] = std::cosf(k_xAngleStepRad * iter);
-				_sinLUT[iter] = std::sinf(k_xAngleStepRad * iter);
+				const float angleRad = _divAngleRad * static_cast<float>(iter);
+				_cosLUT[iter] = std::cosf(angleRad);
+				_sinLUT[iter] = std::sinf(angleRad);
 			}
 		}
 
@@ -40,6 +41,9 @@ namespace
 		{
 			return _sinLUT[index];
 		}
+
+	public:
+		const float _divAngleRad;
 
 	private:
 		float _cosLUT[division];
@@ -100,19 +104,21 @@ void Storm::BasicMeshGenerator::generateSphere(const Storm::Vector3 &position, c
 {
 	enum : std::size_t
 	{
-		k_ringsX = 30,
-		k_ringsY = 30,
+		k_ringsX = 36,
+		k_ringsY = 36,
 
 		// The summit doesn't need to have a concentration of k_ringsX vertexes. In other words, the rings rotation made redundancy at 2 specific location.
 		k_ringsYLean = k_ringsY - 2,
 
+		k_ringsYIndexLine = k_ringsYLean - 1,
+
 		k_ringsXIteration = k_ringsX - 1,
 		k_ringsYIteration = k_ringsYLean + 1,
 
-		k_vertexCount = k_ringsX * k_ringsYLean,
+		k_vertexCount = k_ringsX * k_ringsYLean + 2,
 
 		// Every batch of 4 vertexes make 2 triangles : 3 indexes per triangle, therefore 6 indexes per batch of 4 vertexes.
-		k_indexCount = k_vertexCount * 6 / 4
+		k_indexCount = (k_ringsYLean * k_ringsXIteration + 1) * 6 + k_ringsX * 6
 	};
 
 	// Increase the vertex count to avoid reallocation. The increase is from the former size of those buffers since maybe, they contains a scene we want to render in one batch... 
@@ -125,29 +131,27 @@ void Storm::BasicMeshGenerator::generateSphere(const Storm::Vector3 &position, c
 	const Storm::Vector3 upCorner = position + upVect;
 	const Storm::Vector3 downCorner = position - upVect;
 
-	static const SinCosLUT<k_ringsX> k_sinCosLUT;
+	static const SinCosLUT<k_ringsX, false> k_sinCosXRingLUT;
+	static const SinCosLUT<k_ringsY, true> k_sinCosYRingLUT;
 
 	// Vertexes
-	constexpr const float k_vertAngleStep = static_cast<float>(M_PI / static_cast<double>(k_ringsYIteration));
-	const float vertStep = diameter / static_cast<float>(k_ringsYLean);
-
 	for (std::size_t iter = 1; iter < k_ringsYIteration; ++iter)
 	{
-		const float currentCutRadius = radius * std::sinf(static_cast<float>(iter) * k_vertAngleStep);
-		const float yCutPos = downCorner.y() + vertStep * static_cast<float>(iter);
+		const float currentCutRadius = radius * k_sinCosYRingLUT.sinInLUT(iter);
+		const float yCutPos = downCorner.y() + radius * (1.f - k_sinCosYRingLUT.cosInLUT(iter));
 
 		for (std::size_t jiter = 0; jiter < k_ringsX; ++jiter)
 		{
-			inOutVertexes.emplace_back(currentCutRadius * k_sinCosLUT.cosInLUT(jiter), yCutPos, currentCutRadius * k_sinCosLUT.sinInLUT(jiter));
+			inOutVertexes.emplace_back(downCorner.x() + currentCutRadius * k_sinCosXRingLUT.cosInLUT(jiter), yCutPos, downCorner.z() + currentCutRadius * k_sinCosXRingLUT.sinInLUT(jiter));
 		}
 	}
 
 	// The 2 special location where all points in the same ring converges.
-	inOutVertexes.emplace_back(downCorner.x(), downCorner.y(), downCorner.z());
-	inOutVertexes.emplace_back(upCorner.x(), upCorner.y(), upCorner.z());
+	inOutVertexes.emplace_back(downCorner);
+	inOutVertexes.emplace_back(upCorner);
 
 	// Indexes
-	for (std::size_t iter = 0; iter < k_ringsYLean; ++iter)
+	for (std::size_t iter = 0; iter < k_ringsYIndexLine; ++iter)
 	{
 		const uint32_t pointStartOffset = static_cast<uint32_t>(iter * k_ringsX);
 
@@ -169,8 +173,8 @@ void Storm::BasicMeshGenerator::generateSphere(const Storm::Vector3 &position, c
 		addIndexesOfQuadIndex(inOutIndexes,
 			pointStartOffset + static_cast<uint32_t>(k_ringsXIteration),
 			pointStartOffset,
-			pointStartOffset + static_cast<uint32_t>(k_ringsXIteration) + static_cast<uint32_t>(k_ringsX),
-			pointStartOffset + 1
+			pointStartOffset + static_cast<uint32_t>(k_ringsX) + static_cast<uint32_t>(k_ringsXIteration),
+			pointStartOffset + static_cast<uint32_t>(k_ringsX)
 		);
 	}
 
@@ -178,9 +182,12 @@ void Storm::BasicMeshGenerator::generateSphere(const Storm::Vector3 &position, c
 	const uint32_t downVertexIndex = static_cast<uint32_t>(k_vertexCount - 2);
 	const uint32_t upVertexIndex = static_cast<uint32_t>(downVertexIndex + 1);
 	const uint32_t lastRingStartOffset = static_cast<uint32_t>(downVertexIndex - k_ringsX);
-	for (std::size_t jiter = 0; jiter < k_ringsX; ++jiter)
+	for (std::size_t jiter = 0; jiter < k_ringsXIteration; ++jiter)
 	{
 		STORM_REGISTER_TRIANGLE_INDEX(downVertexIndex, static_cast<uint32_t>(jiter), static_cast<uint32_t>(jiter + 1));
-		STORM_REGISTER_TRIANGLE_INDEX(upVertexIndex, static_cast<uint32_t>(jiter + lastRingStartOffset), static_cast<uint32_t>(jiter + lastRingStartOffset + 1));
+		STORM_REGISTER_TRIANGLE_INDEX(upVertexIndex, static_cast<uint32_t>(lastRingStartOffset + jiter + 1), static_cast<uint32_t>(lastRingStartOffset + jiter));
 	}
+
+	STORM_REGISTER_TRIANGLE_INDEX(downVertexIndex, static_cast<uint32_t>(k_ringsXIteration), 0);
+	STORM_REGISTER_TRIANGLE_INDEX(upVertexIndex, static_cast<uint32_t>(lastRingStartOffset), static_cast<uint32_t>(lastRingStartOffset + k_ringsXIteration));
 }
