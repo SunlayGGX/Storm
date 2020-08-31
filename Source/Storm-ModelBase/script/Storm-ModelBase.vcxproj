@@ -25,6 +25,7 @@
     <ClInclude Include="..\include\BlowerState.h" />
     <ClInclude Include="..\include\BlowerType.h" />
     <ClInclude Include="..\include\CollisionType.h" />
+    <ClInclude Include="..\include\ConstraintData.h" />
     <ClInclude Include="..\include\FluidParticleLoadDenseMode.h" />
     <ClInclude Include="..\include\GeneralSimulationData.h" />
     <ClInclude Include="..\include\GraphicData.h" />

@@ -4,6 +4,7 @@
 #include "GraphicData.h"
 #include "FluidData.h"
 #include "BlowerData.h"
+#include "ConstraintData.h"
 
 #include "CollisionType.h"
 #include "SimulationMode.h"
@@ -92,6 +93,8 @@ Storm::BlowerData::BlowerData() :
 {
 
 }
+
+Storm::ConstraintData::ConstraintData() = default;
 
 Storm::SceneData::SceneData() :
 	_generalSimulationData{ std::make_unique<Storm::GeneralSimulationData>() },
