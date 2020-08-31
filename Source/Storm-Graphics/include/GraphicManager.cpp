@@ -176,6 +176,10 @@ namespace
 			graphicBlower = std::make_unique<Storm::GraphicBlower<Storm::BlowerType::Sphere, Storm::BlowerSphereMeshMaker>>(device, blowerDataConfig);
 			break;
 
+		case Storm::BlowerType::RepulsionSphere:
+			graphicBlower = std::make_unique<Storm::GraphicBlower<Storm::BlowerType::RepulsionSphere, Storm::BlowerSphereMeshMaker>>(device, blowerDataConfig);
+			break;
+
 		default:
 		case Storm::BlowerType::None:
 			Storm::throwException<std::exception>("Unknown Graphic Blower to be created!");

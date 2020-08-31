@@ -88,14 +88,38 @@ bool Storm::FadeInOutTimeHandler::shouldFadeOut(float &outFadeCoefficient) const
 	return computeFadeOutCoefficient(_currentTime, ThisType::UnderlyingFadeOutType::_startFadeTimeInSeconds, ThisType::UnderlyingFadeOutType::_fadeDurationInSeconds, outFadeCoefficient);
 }
 
+void Storm::BlowerRepulsionSphereArea::applyDistanceEffectToTemporary(const Storm::Vector3 &force, const float forceNorm, Storm::Vector3 &tmp) const
+{
+	const float distNorm = tmp.squaredNorm();
+	if (distNorm > 0.0000001f)
+	{
+		tmp *= (forceNorm / std::sqrtf(distNorm));
+	}
+	else
+	{
+		tmp = force;
+	}
+}
+
 Storm::BlowerCubeArea::BlowerCubeArea(const Storm::BlowerData &blowerDataConfig) :
 	_dimension{ blowerDataConfig._blowerDimension / 2.f }
 {
 	STORM_ENSURE_CONSTRUCTED_ON_RIGHT_SETTING(blowerDataConfig, BlowerType::Cube);
 }
 
-Storm::BlowerSphereArea::BlowerSphereArea(const Storm::BlowerData &blowerDataConfig)
+Storm::BlowerSphereArea::BlowerSphereArea(const Storm::BlowerData &blowerDataConfig) :
+	Storm::BlowerSphereArea{ blowerDataConfig, 0 }
 {
 	STORM_ENSURE_CONSTRUCTED_ON_RIGHT_SETTING(blowerDataConfig, BlowerType::Sphere);
+}
+
+Storm::BlowerSphereArea::BlowerSphereArea(const Storm::BlowerData &blowerDataConfig, int)
+{
 	_radiusSquared = blowerDataConfig._radius * blowerDataConfig._radius;
+}
+
+Storm::BlowerRepulsionSphereArea::BlowerRepulsionSphereArea(const Storm::BlowerData &blowerDataConfig) :
+	Storm::BlowerSphereArea{ blowerDataConfig, 0 }
+{
+	STORM_ENSURE_CONSTRUCTED_ON_RIGHT_SETTING(blowerDataConfig, BlowerType::RepulsionSphere);
 }

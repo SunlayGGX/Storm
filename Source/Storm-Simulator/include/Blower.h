@@ -25,6 +25,7 @@ namespace Storm
 			_id{ blowerDataConfig._id },
 			_srcForce{ blowerDataConfig._blowerForce },
 			_force{ Vector3::Zero() },
+			_forceNorm{ 0.f },
 			_blowerPosition{ blowerDataConfig._blowerPosition },
 			_state{ Storm::BlowerState::NotWorking }
 		{}
@@ -111,6 +112,11 @@ namespace Storm
 					_force = _srcForce;
 					this->setAndNotifyStateChanged<Storm::BlowerState::FullyFonctional>();
 				}
+
+				if constexpr (ThisType::hasDistanceEffect<BlowerEffectArea>(0))
+				{
+					_forceNorm = _force.norm();
+				}
 			}
 			else if (_state != Storm::BlowerState::NotWorking)
 			{
@@ -128,7 +134,7 @@ namespace Storm
 				if constexpr (ThisType::hasDistanceEffect<BlowerEffectArea>(0))
 				{
 					// tmp is the position diff before entering the method, it is a force scaled by the distance effect after leaving the method (to optimize, we wouldn't create another temporary Vect3)...
-					BlowerEffectArea::applyDistanceEffectToTemporary(_force, tmp);
+					BlowerEffectArea::applyDistanceEffectToTemporary(_force, _forceNorm, tmp);
 					inOutParticleForce += tmp;
 				}
 				else
@@ -171,6 +177,8 @@ namespace Storm
 		Storm::Vector3 _force;
 		const Storm::Vector3 _blowerPosition;
 		const Storm::Vector3 _srcForce;
+
+		float _forceNorm;
 
 		Storm::BlowerState _state;
 	};

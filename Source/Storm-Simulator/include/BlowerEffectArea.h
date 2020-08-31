@@ -28,6 +28,9 @@ namespace Storm
 	public:
 		BlowerSphereArea(const Storm::BlowerData &blowerDataConfig);
 
+	protected:
+		BlowerSphereArea(const Storm::BlowerData &blowerDataConfig, int);
+
 	public:
 		__forceinline bool isInside(const Storm::Vector3 &relativePosDiff) const
 		{
@@ -48,5 +51,20 @@ namespace Storm
 
 	protected:
 		float _radiusSquared;
+	};
+
+	class BlowerRepulsionSphereArea : private Storm::BlowerSphereArea
+	{
+	public:
+		BlowerRepulsionSphereArea(const Storm::BlowerData &blowerDataConfig);
+
+	public:
+		using Storm::BlowerSphereArea::isInside;
+
+	protected:
+		static constexpr bool hasDistanceEffect() { return true; }
+
+	public:
+		void applyDistanceEffectToTemporary(const Storm::Vector3 &force, const float forceNorm, Storm::Vector3 &tmp) const;
 	};
 }

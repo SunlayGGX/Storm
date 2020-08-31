@@ -10,5 +10,7 @@ namespace Storm
 
 		Cube,
 		Sphere,
+
+		RepulsionSphere,
 	};
 }

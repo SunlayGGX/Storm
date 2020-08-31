@@ -611,6 +611,7 @@ case Storm::blowerEnumValue: appendNewBlower<blowerEnumValue, BlowerEffectArea>(
 			{
 				STORM_CREATE_BLOWER_CASE(BlowerType::Cube, Storm::BlowerCubeArea, blowerData);
 				STORM_CREATE_BLOWER_CASE(BlowerType::Sphere, Storm::BlowerSphereArea, blowerData);
+				STORM_CREATE_BLOWER_CASE(BlowerType::RepulsionSphere, Storm::BlowerRepulsionSphereArea, blowerData);
 
 			default:
 				Storm::throwException<std::exception>("Unhandled Blower Type creation requested! Value was " + std::to_string(static_cast<int>(blowerData._blowerType)));

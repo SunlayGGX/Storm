@@ -116,6 +116,10 @@ namespace
 		{
 			return Storm::BlowerType::Sphere;
 		}
+		else if (blowerTypeStr == "repulsionsphere")
+		{
+			return Storm::BlowerType::RepulsionSphere;
+		}
 		else
 		{
 			Storm::throwException<std::exception>("BlowerType value is unknown : '" + blowerTypeStr + "'");
@@ -488,6 +492,7 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 					break;
 
 				case Storm::BlowerType::Sphere:
+				case Storm::BlowerType::RepulsionSphere:
 					if (blowerData._radius <= 0.f)
 					{
 						Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._id) + " (a sphere) should have defined a positive non-zero radius!");
