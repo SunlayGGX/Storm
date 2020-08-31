@@ -198,6 +198,13 @@ Inside this element should be put all rigidbodies. Each rigidbody should be spec
 - **viscosity (positive float, facultative)**: The viscosity of the rigid body in Pa.s (???). This has to be strictly positive (> 0.0). 
 
 
+#### Constraints
+
+##### Constraint
+- rbId1 **(positive integer, mandatory)**: This is the id of the first rigid body the contraints is attached to. It is a mandatory setting and the rigid body id must exist.
+- rbId2 **(positive integer, mandatory)**: This is the id of the second rigid body the contraints is attached to. It is a mandatory setting and the rigid body id must exist.
+
+
 #### Blowers
 
 ##### Blower

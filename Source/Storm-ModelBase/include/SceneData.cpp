@@ -94,7 +94,12 @@ Storm::BlowerData::BlowerData() :
 
 }
 
-Storm::ConstraintData::ConstraintData() = default;
+Storm::ConstraintData::ConstraintData() :
+	_rigidBodyId1{ std::numeric_limits<decltype(_rigidBodyId1)>::max() },
+	_rigidBodyId2{ std::numeric_limits<decltype(_rigidBodyId2)>::max() }
+{
+
+}
 
 Storm::SceneData::SceneData() :
 	_generalSimulationData{ std::make_unique<Storm::GeneralSimulationData>() },

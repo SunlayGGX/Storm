@@ -8,6 +8,7 @@
 #include "GraphicData.h"
 #include "FluidData.h"
 #include "BlowerData.h"
+#include "ConstraintData.h"
 
 #include "CollisionType.h"
 #include "SimulationMode.h"
@@ -335,6 +336,67 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 			else
 			{
 				LOG_ERROR << rigidBodyXmlElement.first + " is not a valid tag inside 'RigidBodies'. Only 'RigidBody' is accepted!";
+			}
+		}
+	}
+
+	/* Contraints */
+	const auto &constraintsTreeOpt = srcTree.get_child_optional("Constraints");
+	if (constraintsTreeOpt.has_value())
+	{
+		const auto &constraintsTree = constraintsTreeOpt.value();
+
+		std::vector<Storm::ConstraintData> &constraintsDataArray = _sceneData->_contraintsData;
+		constraintsDataArray.reserve(constraintsTree.size());
+
+		std::size_t contraintsIndex = 0;
+
+		for (const auto &constraintXmlElement : constraintsTree)
+		{
+			if (constraintXmlElement.first == "Constraint")
+			{
+				Storm::ConstraintData &contraintData = constraintsDataArray.emplace_back();
+
+				for (const auto &constraintDataXml : constraintXmlElement.second)
+				{
+					if (
+						!Storm::XmlReader::handleXml(constraintDataXml, "rbId1", contraintData._rigidBodyId1) &&
+						!Storm::XmlReader::handleXml(constraintDataXml, "rbId2", contraintData._rigidBodyId2)
+						)
+					{
+						LOG_ERROR << "tag '" << constraintDataXml.first << "' (inside Scene.Contraints.Constraint) is unknown, therefore it cannot be handled";
+					}
+				}
+
+				std::vector<Storm::RigidBodySceneData> &rigidBodiesDataArray = _sceneData->_rigidBodiesData;
+				const auto lastToCheck = std::end(rigidBodiesDataArray);
+
+				if (contraintData._rigidBodyId1 == std::numeric_limits<decltype(contraintData._rigidBodyId1)>::max())
+				{
+					Storm::throwException<std::exception>("Constraints " + std::to_string(contraintsIndex) + " rigid body 1 id wasn't set! It is a mandatory field.");
+				}
+				else if (contraintData._rigidBodyId2 == std::numeric_limits<decltype(contraintData._rigidBodyId2)>::max())
+				{
+					Storm::throwException<std::exception>("Constraints " + std::to_string(contraintsIndex) + " rigid body 2 id wasn't set! It is a mandatory field.");
+				}
+				else if (std::find_if(std::begin(rigidBodiesDataArray), std::end(rigidBodiesDataArray), [&contraintData](const Storm::RigidBodySceneData &registeredRb)
+				{
+					return registeredRb._rigidBodyID == contraintData._rigidBodyId1;
+				}) == lastToCheck)
+				{
+					Storm::throwException<std::exception>("Constraints " + std::to_string(contraintsIndex) + " rigid body 1 id wasn't found (" + std::to_string(contraintData._rigidBodyId1) + ")!");
+				}
+				else if (std::find_if(std::begin(rigidBodiesDataArray), std::end(rigidBodiesDataArray), [&contraintData](const Storm::RigidBodySceneData &registeredRb)
+				{
+					return registeredRb._rigidBodyID == contraintData._rigidBodyId2;
+				}) == lastToCheck)
+				{
+					Storm::throwException<std::exception>("Constraints " + std::to_string(contraintsIndex) + " rigid body 2 id wasn't found (" + std::to_string(contraintData._rigidBodyId2) + ")!");
+				}
+			}
+			else
+			{
+				LOG_ERROR << constraintXmlElement.first + " is not a valid tag inside 'Constraints'. Only 'Constraint' is accepted!";
 			}
 		}
 	}

@@ -7,5 +7,9 @@ namespace Storm
 	{
 	public:
 		ConstraintData();
+
+	public:
+		unsigned int _rigidBodyId1;
+		unsigned int _rigidBodyId2;
 	};
 }
