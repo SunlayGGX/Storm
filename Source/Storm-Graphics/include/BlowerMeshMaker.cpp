@@ -9,14 +9,40 @@
 #include "ThrowException.h"
 
 
-#define STORM_ENSURE_MESH_MAKER_USED_ON_RIGHT_SETTING(BlowerDataVariable, Setting) 				\
-if (BlowerDataVariable._blowerType != Storm::Setting)											\
-	Storm::throwException<std::exception>(__FUNCTION__ " is intended to be used for " #Setting)	\
+namespace
+{
+	template<Storm::BlowerType expected, Storm::BlowerType ... others>
+	struct CorrectSettingChecker
+	{
+	public:
+		static inline bool check(const Storm::BlowerType currentSetting)
+		{
+			return
+				CorrectSettingChecker<expected>::check(currentSetting) ||
+				CorrectSettingChecker<others...>::check(currentSetting);
+		}
+	};
+
+	template<Storm::BlowerType expected>
+	struct CorrectSettingChecker<expected>
+	{
+	public:
+		static inline bool check(const Storm::BlowerType currentSetting)
+		{
+			return currentSetting == expected;
+		}
+	};
+}
+
+
+#define STORM_ENSURE_MESH_MAKER_USED_ON_RIGHT_SETTING(BlowerDataVariable, ...) 						\
+if (!CorrectSettingChecker<__VA_ARGS__>::check(BlowerDataVariable._blowerType))						\
+	Storm::throwException<std::exception>(__FUNCTION__ " is intended to be used for " #__VA_ARGS__)	\
 
 
 void Storm::BlowerCubeMeshMaker::generate(const Storm::BlowerData &blowerData, std::vector<Storm::Vector3> &outVertexes, std::vector<uint32_t> &outIndexes)
 {
-	STORM_ENSURE_MESH_MAKER_USED_ON_RIGHT_SETTING(blowerData, BlowerType::Cube);
+	STORM_ENSURE_MESH_MAKER_USED_ON_RIGHT_SETTING(blowerData, Storm::BlowerType::Cube);
 
 	const Storm::IAssetLoaderManager &assetLoaderMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IAssetLoaderManager>();
 	assetLoaderMgr.generateSimpleCube(blowerData._blowerPosition, blowerData._blowerDimension, outVertexes, outIndexes);
@@ -24,7 +50,7 @@ void Storm::BlowerCubeMeshMaker::generate(const Storm::BlowerData &blowerData, s
 
 void Storm::BlowerSphereMeshMaker::generate(const Storm::BlowerData &blowerData, std::vector<Storm::Vector3> &outVertexes, std::vector<uint32_t> &outIndexes)
 {
-	STORM_ENSURE_MESH_MAKER_USED_ON_RIGHT_SETTING(blowerData, BlowerType::Sphere);
+	STORM_ENSURE_MESH_MAKER_USED_ON_RIGHT_SETTING(blowerData, Storm::BlowerType::Sphere, Storm::BlowerType::RepulsionSphere);
 
 	const Storm::IAssetLoaderManager &assetLoaderMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IAssetLoaderManager>();
 	assetLoaderMgr.generateSimpleSphere(blowerData._blowerPosition, blowerData._radius, outVertexes, outIndexes);
