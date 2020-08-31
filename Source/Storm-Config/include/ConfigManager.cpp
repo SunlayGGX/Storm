@@ -234,6 +234,11 @@ const std::vector<Storm::BlowerData>& Storm::ConfigManager::getBlowersData() con
 	return _sceneConfig.getSceneData()._blowersData;
 }
 
+const std::vector<Storm::ConstraintData>& Storm::ConfigManager::getConstraintsData() const
+{
+	return _sceneConfig.getSceneData()._contraintsData;
+}
+
 const Storm::RigidBodySceneData& Storm::ConfigManager::getRigidBodyData(unsigned int rbId) const
 {
 	const std::vector<Storm::RigidBodySceneData> &rbDataArrays = _sceneConfig.getSceneData()._rigidBodiesData;

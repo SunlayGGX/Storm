@@ -10,6 +10,7 @@ namespace Storm
 	struct RigidBodySceneData;
 	struct FluidData;
 	struct BlowerData;
+	struct ConstraintData;
 	struct GeneralSimulationData;
 
 	class IConfigManager : public Storm::ISingletonHeldInterface<IConfigManager>
@@ -51,6 +52,7 @@ namespace Storm
 		virtual const std::vector<Storm::RigidBodySceneData>& getRigidBodiesData() const = 0;
 		virtual const Storm::FluidData& getFluidData() const = 0;
 		virtual const std::vector<Storm::BlowerData>& getBlowersData() const = 0;
+		virtual const std::vector<Storm::ConstraintData>& getConstraintsData() const = 0;
 		virtual const Storm::RigidBodySceneData& getRigidBodyData(unsigned int rbId) const = 0;
 	};
 }
