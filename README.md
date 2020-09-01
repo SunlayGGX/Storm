@@ -208,7 +208,7 @@ Inside this element should be put all rigidbodies. Each rigidbody should be spec
 #### Blowers
 
 ##### Blower
-- **type (string, mandatory)**: This is the blower type. This setting is non case sensitive and is mandatory. It defines what your underlying blower would be. For now, the accepted values are "Cube" and "Sphere".
+- **type (string, mandatory)**: This is the blower type. This setting is non case sensitive and is mandatory. It defines what your underlying blower would be. For now, the accepted values are "Cube", "Sphere", "RepulsionSphere", "PulseExplosion" and "Explosion".
 - **startTime (positive float, facultative)**: This defines the time in simulation second time your blower start working. Before this value, your blower will remain disabled. This value + fadeInTime shouldn't be greater than the endTime - fadeOutTime. Default value is 0.0 (the blower start right away).
 - **endTime (positive float, facultative)**: This defines the time in simulation second time your blower stop completely. After this value, your blower will remain disabled. This value minus fadeOutTime shouldn't be lesser than the start time + fadeInTime. If -1.0 is specified, the endTime will be ignored and the blower will continue indefinitely. Default value is -1.0.
 - **fadeInTime (positive float, facultative)**: This defines the time in simulation second time the blower will take to attain its peak force. 0.0 means that it will be instant. The increase rate is linear between startTime and startTime + fadeInTime.
