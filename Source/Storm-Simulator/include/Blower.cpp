@@ -90,10 +90,10 @@ bool Storm::FadeInOutTimeHandler::shouldFadeOut(float &outFadeCoefficient) const
 
 void Storm::BlowerRepulsionSphereArea::applyDistanceEffectToTemporary(const Storm::Vector3 &force, const float forceNorm, Storm::Vector3 &tmp) const
 {
-	const float distNorm = tmp.squaredNorm();
-	if (distNorm > 0.0000001f)
+	const float distNormSquared = tmp.squaredNorm();
+	if (distNormSquared > 0.0000001f)
 	{
-		tmp *= (forceNorm / std::sqrtf(distNorm));
+		tmp *= (forceNorm / std::sqrtf(distNormSquared));
 	}
 	else
 	{
