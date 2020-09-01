@@ -50,7 +50,9 @@ void Storm::BlowerCubeMeshMaker::generate(const Storm::BlowerData &blowerData, s
 
 void Storm::BlowerSphereMeshMaker::generate(const Storm::BlowerData &blowerData, std::vector<Storm::Vector3> &outVertexes, std::vector<uint32_t> &outIndexes)
 {
-	STORM_ENSURE_MESH_MAKER_USED_ON_RIGHT_SETTING(blowerData, Storm::BlowerType::Sphere, Storm::BlowerType::RepulsionSphere);
+	STORM_ENSURE_MESH_MAKER_USED_ON_RIGHT_SETTING(blowerData,
+		Storm::BlowerType::Sphere, Storm::BlowerType::RepulsionSphere, Storm::BlowerType::ExplosionSphere, Storm::BlowerType::PulseExplosionSphere
+	);
 
 	const Storm::IAssetLoaderManager &assetLoaderMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IAssetLoaderManager>();
 	assetLoaderMgr.generateSimpleSphere(blowerData._blowerPosition, blowerData._radius, outVertexes, outIndexes);

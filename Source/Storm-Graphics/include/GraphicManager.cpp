@@ -166,25 +166,26 @@ namespace
 	{
 		std::unique_ptr<Storm::GraphicBlowerBase> graphicBlower;
 		
+#define STORM_CASE_MAKE_GRAPHIC_BLOWER(BlowerType, MeshMakerType) \
+case Storm::BlowerType: \
+	graphicBlower = std::make_unique<Storm::GraphicBlower<Storm::BlowerType, MeshMakerType>>(device, blowerDataConfig); \
+	break
+
 		switch (blowerDataConfig._blowerType)
 		{
-		case Storm::BlowerType::Cube:
-			graphicBlower = std::make_unique<Storm::GraphicBlower<Storm::BlowerType::Cube, Storm::BlowerCubeMeshMaker>>(device, blowerDataConfig);
-			break;
-
-		case Storm::BlowerType::Sphere:
-			graphicBlower = std::make_unique<Storm::GraphicBlower<Storm::BlowerType::Sphere, Storm::BlowerSphereMeshMaker>>(device, blowerDataConfig);
-			break;
-
-		case Storm::BlowerType::RepulsionSphere:
-			graphicBlower = std::make_unique<Storm::GraphicBlower<Storm::BlowerType::RepulsionSphere, Storm::BlowerSphereMeshMaker>>(device, blowerDataConfig);
-			break;
+			STORM_CASE_MAKE_GRAPHIC_BLOWER(BlowerType::Cube, Storm::BlowerCubeMeshMaker);
+			STORM_CASE_MAKE_GRAPHIC_BLOWER(BlowerType::Sphere, Storm::BlowerSphereMeshMaker);
+			STORM_CASE_MAKE_GRAPHIC_BLOWER(BlowerType::RepulsionSphere, Storm::BlowerSphereMeshMaker);
+			STORM_CASE_MAKE_GRAPHIC_BLOWER(BlowerType::ExplosionSphere, Storm::BlowerSphereMeshMaker);
+			STORM_CASE_MAKE_GRAPHIC_BLOWER(BlowerType::PulseExplosionSphere, Storm::BlowerSphereMeshMaker);
 
 		default:
 		case Storm::BlowerType::None:
 			Storm::throwException<std::exception>("Unknown Graphic Blower to be created!");
 			break;
 		}
+
+#undef STORM_CASE_MAKE_GRAPHIC_BLOWER
 
 		inOutGraphicBlowerContainer[blowerDataConfig._id] = std::move(graphicBlower);
 

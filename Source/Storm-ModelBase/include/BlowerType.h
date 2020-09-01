@@ -12,5 +12,7 @@ namespace Storm
 		Sphere,
 
 		RepulsionSphere,
+		ExplosionSphere,
+		PulseExplosionSphere,
 	};
 }

@@ -21,11 +21,33 @@ namespace
 		outFadeCoefficient = 1.f - ((currentTime - startFadeOutTime) / fadeInDurationTime);
 		return outFadeCoefficient >= 0.f && outFadeCoefficient < 1.f;
 	}
+
+	template<Storm::BlowerType expected, Storm::BlowerType ... others>
+	struct CorrectSettingChecker
+	{
+	public:
+		static inline bool check(const Storm::BlowerType currentSetting)
+		{
+			return
+				CorrectSettingChecker<expected>::check(currentSetting) ||
+				CorrectSettingChecker<others...>::check(currentSetting);
+		}
+	};
+
+	template<Storm::BlowerType expected>
+	struct CorrectSettingChecker<expected>
+	{
+	public:
+		static inline bool check(const Storm::BlowerType currentSetting)
+		{
+			return currentSetting == expected;
+		}
+	};
 }
 
-#define STORM_ENSURE_CONSTRUCTED_ON_RIGHT_SETTING(BlowerDataVariable, Setting)									\
-if (BlowerDataVariable._blowerType != Storm::Setting)															\
-	Storm::throwException<std::exception>(__FUNCTION__ " is intended to be used for " #Setting " blowers!")		\
+#define STORM_ENSURE_CONSTRUCTED_ON_RIGHT_SETTING(BlowerDataVariable, ...)											\
+if (!CorrectSettingChecker<__VA_ARGS__>::check(BlowerDataVariable._blowerType))										\
+	Storm::throwException<std::exception>(__FUNCTION__ " is intended to be used for " #__VA_ARGS__ " blowers!")		\
 
 
 Storm::BlowerTimeHandlerBase::BlowerTimeHandlerBase(const Storm::BlowerData &blowerDataConfig) :
@@ -34,6 +56,29 @@ Storm::BlowerTimeHandlerBase::BlowerTimeHandlerBase(const Storm::BlowerData &blo
 	_currentTime{ 0.f }
 {
 
+}
+
+Storm::BlowerPulseTimeHandler::BlowerPulseTimeHandler(const Storm::BlowerData &blowerDataConfig) :
+	_startTime{ blowerDataConfig._startTimeInSeconds },
+	_currentTime{ 0.f },
+	_enabled{ true }
+{
+
+}
+
+bool Storm::BlowerPulseTimeHandler::advanceTime(const float deltaTimeInSeconds)
+{
+	if (_enabled)
+	{
+		_currentTime += deltaTimeInSeconds;
+		if (_currentTime >= _startTime)
+		{
+			_enabled = false;
+			return true;
+		}
+	}
+
+	return false;
 }
 
 bool Storm::BlowerTimeHandlerBase::advanceTime(const float deltaTimeInSeconds)
@@ -101,16 +146,29 @@ void Storm::BlowerRepulsionSphereArea::applyDistanceEffectToTemporary(const Stor
 	}
 }
 
+void Storm::BlowerExplosionSphereArea::applyDistanceEffectToTemporary(const Storm::Vector3 &force, const float forceNorm, Storm::Vector3 &tmp) const
+{
+	const float distNormSquared = tmp.squaredNorm();
+	if (distNormSquared > 0.0000001f)
+	{
+		tmp *= (_radius * forceNorm / distNormSquared);
+	}
+	else
+	{
+		tmp = force;
+	}
+}
+
 Storm::BlowerCubeArea::BlowerCubeArea(const Storm::BlowerData &blowerDataConfig) :
 	_dimension{ blowerDataConfig._blowerDimension / 2.f }
 {
-	STORM_ENSURE_CONSTRUCTED_ON_RIGHT_SETTING(blowerDataConfig, BlowerType::Cube);
+	STORM_ENSURE_CONSTRUCTED_ON_RIGHT_SETTING(blowerDataConfig, Storm::BlowerType::Cube);
 }
 
 Storm::BlowerSphereArea::BlowerSphereArea(const Storm::BlowerData &blowerDataConfig) :
 	Storm::BlowerSphereArea{ blowerDataConfig, 0 }
 {
-	STORM_ENSURE_CONSTRUCTED_ON_RIGHT_SETTING(blowerDataConfig, BlowerType::Sphere);
+	STORM_ENSURE_CONSTRUCTED_ON_RIGHT_SETTING(blowerDataConfig, Storm::BlowerType::Sphere);
 }
 
 Storm::BlowerSphereArea::BlowerSphereArea(const Storm::BlowerData &blowerDataConfig, int)
@@ -121,5 +179,12 @@ Storm::BlowerSphereArea::BlowerSphereArea(const Storm::BlowerData &blowerDataCon
 Storm::BlowerRepulsionSphereArea::BlowerRepulsionSphereArea(const Storm::BlowerData &blowerDataConfig) :
 	Storm::BlowerSphereArea{ blowerDataConfig, 0 }
 {
-	STORM_ENSURE_CONSTRUCTED_ON_RIGHT_SETTING(blowerDataConfig, BlowerType::RepulsionSphere);
+	STORM_ENSURE_CONSTRUCTED_ON_RIGHT_SETTING(blowerDataConfig, Storm::BlowerType::RepulsionSphere);
+}
+
+Storm::BlowerExplosionSphereArea::BlowerExplosionSphereArea(const Storm::BlowerData &blowerDataConfig) :
+	Storm::BlowerSphereArea{ blowerDataConfig, 0 }
+{
+	STORM_ENSURE_CONSTRUCTED_ON_RIGHT_SETTING(blowerDataConfig, Storm::BlowerType::ExplosionSphere, Storm::BlowerType::PulseExplosionSphere);
+	_radius = std::sqrtf(_radiusSquared);
 }

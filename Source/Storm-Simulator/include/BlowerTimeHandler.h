@@ -19,6 +19,20 @@ namespace Storm
 		const float _stopTime;
 	};
 
+	class BlowerPulseTimeHandler
+	{
+	protected:
+		BlowerPulseTimeHandler(const Storm::BlowerData &blowerDataConfig);
+
+	public:
+		bool advanceTime(const float deltaTimeInSeconds);
+
+	protected:
+		bool _enabled;
+		float _currentTime;
+		const float _startTime;
+	};
+
 	template<int>
 	class FadeTimeHandler
 	{

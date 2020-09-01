@@ -120,6 +120,14 @@ namespace
 		{
 			return Storm::BlowerType::RepulsionSphere;
 		}
+		else if (blowerTypeStr == "explosion")
+		{
+			return Storm::BlowerType::ExplosionSphere;
+		}
+		else if (blowerTypeStr == "pulseexplosion")
+		{
+			return Storm::BlowerType::PulseExplosionSphere;
+		}
 		else
 		{
 			Storm::throwException<std::exception>("BlowerType value is unknown : '" + blowerTypeStr + "'");
@@ -493,10 +501,32 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 
 				case Storm::BlowerType::Sphere:
 				case Storm::BlowerType::RepulsionSphere:
+				case Storm::BlowerType::ExplosionSphere:
 					if (blowerData._radius <= 0.f)
 					{
 						Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._id) + " (a sphere) should have defined a positive non-zero radius!");
 					}
+					blowerData._blowerDimension = Storm::Vector3{ blowerData._radius, blowerData._radius, blowerData._radius };
+					break;
+
+				case Storm::BlowerType::PulseExplosionSphere:
+					if (blowerData._radius <= 0.f)
+					{
+						Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._id) + " (a pulse explosion) should have defined a positive non-zero radius!");
+					}
+					else if (blowerData._stopTimeInSeconds != -1.f)
+					{
+						Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._id) + " (a pulse explosion) have its stop time set in stone! You cannot override it (you've set " + std::to_string(blowerData._stopTimeInSeconds) + "s).");
+					}
+					else if (blowerData._fadeInTimeInSeconds != 0.f)
+					{
+						Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._id) + " (a pulse explosion) have its fadeInTime set in stone! You cannot override it (you've set " + std::to_string(blowerData._fadeInTimeInSeconds) + "s).");
+					}
+					else if (blowerData._fadeOutTimeInSeconds != 0.f)
+					{
+						Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._id) + " (a pulse explosion) have its fadeInTime set in stone! You cannot override it (you've set " + std::to_string(blowerData._fadeOutTimeInSeconds) + "s).");
+					}
+
 					blowerData._blowerDimension = Storm::Vector3{ blowerData._radius, blowerData._radius, blowerData._radius };
 					break;
 

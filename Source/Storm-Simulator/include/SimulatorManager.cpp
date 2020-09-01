@@ -138,25 +138,33 @@ namespace
 	void appendNewBlower(std::vector<std::unique_ptr<Storm::IBlower>> &inOutBlowerContainer, const Storm::BlowerData &blowerDataConfig)
 	{
 		std::string_view blowerIntroMsg;
-		if (blowerDataConfig._fadeInTimeInSeconds > 0.f && blowerDataConfig._fadeOutTimeInSeconds > 0.f)
+		if (type != Storm::BlowerType::PulseExplosionSphere)
 		{
-			inOutBlowerContainer.emplace_back(std::make_unique<Storm::Blower<type, BlowerEffectArea, Storm::FadeInOutTimeHandler, BlowerCallbacks>>(blowerDataConfig));
-			blowerIntroMsg = "Blower with fadeIn and fadeOut feature created.\n";
-		}
-		else if (blowerDataConfig._fadeInTimeInSeconds > 0.f)
-		{
-			inOutBlowerContainer.emplace_back(std::make_unique<Storm::Blower<type, BlowerEffectArea, Storm::FadeInTimeHandler, BlowerCallbacks>>(blowerDataConfig));
-			blowerIntroMsg = "Blower with fadeIn only feature created.\n";
-		}
-		else if (blowerDataConfig._fadeOutTimeInSeconds > 0.f)
-		{
-			inOutBlowerContainer.emplace_back(std::make_unique<Storm::Blower<type, BlowerEffectArea, Storm::FadeOutTimeHandler, BlowerCallbacks>>(blowerDataConfig));
-			blowerIntroMsg = "Blower with fadeOut only feature created.\n";
+			if (blowerDataConfig._fadeInTimeInSeconds > 0.f && blowerDataConfig._fadeOutTimeInSeconds > 0.f)
+			{
+				inOutBlowerContainer.emplace_back(std::make_unique<Storm::Blower<type, BlowerEffectArea, Storm::FadeInOutTimeHandler, BlowerCallbacks>>(blowerDataConfig));
+				blowerIntroMsg = "Blower with fadeIn and fadeOut feature created.\n";
+			}
+			else if (blowerDataConfig._fadeInTimeInSeconds > 0.f)
+			{
+				inOutBlowerContainer.emplace_back(std::make_unique<Storm::Blower<type, BlowerEffectArea, Storm::FadeInTimeHandler, BlowerCallbacks>>(blowerDataConfig));
+				blowerIntroMsg = "Blower with fadeIn only feature created.\n";
+			}
+			else if (blowerDataConfig._fadeOutTimeInSeconds > 0.f)
+			{
+				inOutBlowerContainer.emplace_back(std::make_unique<Storm::Blower<type, BlowerEffectArea, Storm::FadeOutTimeHandler, BlowerCallbacks>>(blowerDataConfig));
+				blowerIntroMsg = "Blower with fadeOut only feature created.\n";
+			}
+			else
+			{
+				inOutBlowerContainer.emplace_back(std::make_unique<Storm::Blower<type, BlowerEffectArea, Storm::BlowerTimeHandlerBase, BlowerCallbacks>>(blowerDataConfig));
+				blowerIntroMsg = "Blower without fadeIn or fadeOut only feature created.\n";
+			}
 		}
 		else
 		{
-			inOutBlowerContainer.emplace_back(std::make_unique<Storm::Blower<type, BlowerEffectArea, Storm::BlowerTimeHandlerBase, BlowerCallbacks>>(blowerDataConfig));
-			blowerIntroMsg = "Blower without fadeIn or fadeOut only feature created.\n";
+			inOutBlowerContainer.emplace_back(std::make_unique<Storm::Blower<Storm::BlowerType::PulseExplosionSphere, BlowerEffectArea, Storm::BlowerPulseTimeHandler, BlowerCallbacks>>(blowerDataConfig));
+			blowerIntroMsg = "Explosion Blower Effect created.\n";
 		}
 
 		LOG_DEBUG << blowerIntroMsg <<
@@ -612,6 +620,8 @@ case Storm::blowerEnumValue: appendNewBlower<blowerEnumValue, BlowerEffectArea>(
 				STORM_CREATE_BLOWER_CASE(BlowerType::Cube, Storm::BlowerCubeArea, blowerData);
 				STORM_CREATE_BLOWER_CASE(BlowerType::Sphere, Storm::BlowerSphereArea, blowerData);
 				STORM_CREATE_BLOWER_CASE(BlowerType::RepulsionSphere, Storm::BlowerRepulsionSphereArea, blowerData);
+				STORM_CREATE_BLOWER_CASE(BlowerType::ExplosionSphere, Storm::BlowerExplosionSphereArea, blowerData);
+				STORM_CREATE_BLOWER_CASE(BlowerType::PulseExplosionSphere, Storm::BlowerExplosionSphereArea, blowerData);
 
 			default:
 				Storm::throwException<std::exception>("Unhandled Blower Type creation requested! Value was " + std::to_string(static_cast<int>(blowerData._blowerType)));

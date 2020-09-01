@@ -67,4 +67,22 @@ namespace Storm
 	public:
 		void applyDistanceEffectToTemporary(const Storm::Vector3 &force, const float forceNorm, Storm::Vector3 &tmp) const;
 	};
+
+	class BlowerExplosionSphereArea : private Storm::BlowerSphereArea
+	{
+	public:
+		BlowerExplosionSphereArea(const Storm::BlowerData &blowerDataConfig);
+
+	public:
+		using Storm::BlowerSphereArea::isInside;
+
+	protected:
+		static constexpr bool hasDistanceEffect() { return true; }
+
+	public:
+		void applyDistanceEffectToTemporary(const Storm::Vector3 &force, const float forceNorm, Storm::Vector3 &tmp) const;
+
+	protected:
+		float _radius;
+	};
 }
