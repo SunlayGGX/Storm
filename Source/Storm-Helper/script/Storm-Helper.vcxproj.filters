@@ -221,5 +221,8 @@
     <ClInclude Include="..\include\SearchAlgo.h">
       <Filter>Header Files\General\Algorithm</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\CorrectSettingChecker.h">
+      <Filter>Header Files\MetaP</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

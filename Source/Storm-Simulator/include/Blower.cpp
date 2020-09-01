@@ -6,6 +6,7 @@
 #include "BlowerType.h"
 
 #include "ThrowException.h"
+#include "CorrectSettingChecker.h"
 
 
 namespace
@@ -21,32 +22,10 @@ namespace
 		outFadeCoefficient = 1.f - ((currentTime - startFadeOutTime) / fadeInDurationTime);
 		return outFadeCoefficient >= 0.f && outFadeCoefficient < 1.f;
 	}
-
-	template<Storm::BlowerType expected, Storm::BlowerType ... others>
-	struct CorrectSettingChecker
-	{
-	public:
-		static inline bool check(const Storm::BlowerType currentSetting)
-		{
-			return
-				CorrectSettingChecker<expected>::check(currentSetting) ||
-				CorrectSettingChecker<others...>::check(currentSetting);
-		}
-	};
-
-	template<Storm::BlowerType expected>
-	struct CorrectSettingChecker<expected>
-	{
-	public:
-		static inline bool check(const Storm::BlowerType currentSetting)
-		{
-			return currentSetting == expected;
-		}
-	};
 }
 
 #define STORM_ENSURE_CONSTRUCTED_ON_RIGHT_SETTING(BlowerDataVariable, ...)											\
-if (!CorrectSettingChecker<__VA_ARGS__>::check(BlowerDataVariable._blowerType))										\
+if (!CorrectSettingChecker<Storm::BlowerType>::check<__VA_ARGS__>(BlowerDataVariable._blowerType))					\
 	Storm::throwException<std::exception>(__FUNCTION__ " is intended to be used for " #__VA_ARGS__ " blowers!")		\
 
 

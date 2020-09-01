@@ -25,6 +25,7 @@
   <ItemGroup>
     <ClInclude Include="..\include\CallbackIdType.h" />
     <ClInclude Include="..\include\CoInitializerRAII.h" />
+    <ClInclude Include="..\include\CorrectSettingChecker.h" />
     <ClInclude Include="..\include\CRTPHierarchy.h" />
     <ClInclude Include="..\include\ExitCode.h" />
     <ClInclude Include="..\include\Facets.h" />

@@ -7,36 +7,11 @@
 #include "BlowerType.h"
 
 #include "ThrowException.h"
-
-
-namespace
-{
-	template<Storm::BlowerType expected, Storm::BlowerType ... others>
-	struct CorrectSettingChecker
-	{
-	public:
-		static inline bool check(const Storm::BlowerType currentSetting)
-		{
-			return
-				CorrectSettingChecker<expected>::check(currentSetting) ||
-				CorrectSettingChecker<others...>::check(currentSetting);
-		}
-	};
-
-	template<Storm::BlowerType expected>
-	struct CorrectSettingChecker<expected>
-	{
-	public:
-		static inline bool check(const Storm::BlowerType currentSetting)
-		{
-			return currentSetting == expected;
-		}
-	};
-}
+#include "CorrectSettingChecker.h"
 
 
 #define STORM_ENSURE_MESH_MAKER_USED_ON_RIGHT_SETTING(BlowerDataVariable, ...) 						\
-if (!CorrectSettingChecker<__VA_ARGS__>::check(BlowerDataVariable._blowerType))						\
+if (!CorrectSettingChecker<Storm::BlowerType>::check<__VA_ARGS__>(BlowerDataVariable._blowerType))	\
 	Storm::throwException<std::exception>(__FUNCTION__ " is intended to be used for " #__VA_ARGS__)	\
 
 
