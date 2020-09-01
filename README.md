@@ -38,7 +38,7 @@ Note that I chose "vc15win64" settings. If you use another Visual Studio, be awa
 -**Catch2 v2.12.2**. Not mandatory, but it is used for unit testing. (link: https://github.com/catchorg/catch2/releases ). If you choose to not pull it, then unload All Automation project from your Storm.sln... If you want to run tests, do not forget to setup your Visual Studio for this. See section "Test Setup" for further details.
 
 
-#Test Setup
+# Test Setup
 I'm using catch2 as our main unit test library. But to be able to use it, you should :
 - Install Catch2 adapter as a Visual studio extension (go to Extensions -> Manage Extensions -> Online, Then download and Install "Test Adapter for Catch2").
 - Configure your run settings. Go to Test -> Configure Run Settings -> Select Solution Wide runsettings File. Navigate from Storm root directory to Source\Automation\StormAutomation-Base and select catch2.runsettings... 
