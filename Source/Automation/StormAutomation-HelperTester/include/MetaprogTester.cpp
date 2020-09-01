@@ -1,4 +1,5 @@
 #include "SizeCounter.h"
+#include "CorrectSettingChecker.h"
 
 namespace
 {
@@ -18,4 +19,24 @@ TEST_CASE("SizeCounter", "[classic]")
 	CHECK(Storm::SizeCounter<double, double, double, float, Object>::value == 60);
 	CHECK(Storm::SizeCounter<double, double, float, Object>::value == 52);
 	CHECK(Storm::SizeCounter<int32_t[24]>::value == 96);
+}
+
+TEST_CASE("CorrectSettingChecker", "[classic]")
+{
+	enum class EnumTest
+	{
+		Val1,
+		Val2,
+		Val3,
+		Val4,
+		Val5,
+	};
+
+	using CorrectSettingChecker = Storm::CorrectSettingChecker<EnumTest>;
+
+	CHECK(CorrectSettingChecker::check<EnumTest::Val1, EnumTest::Val2, EnumTest::Val3>(EnumTest::Val4) == false);
+	CHECK(CorrectSettingChecker::check<EnumTest::Val1>(EnumTest::Val4) == false);
+	CHECK(CorrectSettingChecker::check<EnumTest::Val4>(EnumTest::Val4) == true);
+	CHECK(CorrectSettingChecker::check<EnumTest::Val1, EnumTest::Val2, EnumTest::Val4>(EnumTest::Val4) == true);
+	CHECK(CorrectSettingChecker::check<EnumTest::Val1, EnumTest::Val2, EnumTest::Val3, EnumTest::Val4>(EnumTest::Val4) == true);
 }
