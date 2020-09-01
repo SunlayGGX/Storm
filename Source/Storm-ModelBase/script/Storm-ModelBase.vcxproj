@@ -22,6 +22,7 @@
   <ItemGroup>
     <ClInclude Include="..\include\AsyncAction.h" />
     <ClInclude Include="..\include\BlowerData.h" />
+    <ClInclude Include="..\include\BlowerDef.h" />
     <ClInclude Include="..\include\BlowerState.h" />
     <ClInclude Include="..\include\BlowerType.h" />
     <ClInclude Include="..\include\CollisionType.h" />

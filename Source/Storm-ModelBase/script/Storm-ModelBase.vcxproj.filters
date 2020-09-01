@@ -224,5 +224,8 @@
     <ClInclude Include="..\include\ConstraintData.h">
       <Filter>Header Files\Modules\Config</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\BlowerDef.h">
+      <Filter>Header Files\Modules\Simulation\Blowers</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
