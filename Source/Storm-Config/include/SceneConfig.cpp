@@ -15,6 +15,7 @@
 #include "KernelMode.h"
 #include "FluidParticleLoadDenseMode.h"
 #include "BlowerType.h"
+#include "BlowerDef.h"
 
 #include "ThrowException.h"
 #include "XmlReader.h"
@@ -108,30 +109,14 @@ namespace
 	Storm::BlowerType parseBlowerType(std::string blowerTypeStr)
 	{
 		boost::algorithm::to_lower(blowerTypeStr);
-		if (blowerTypeStr == "cube")
-		{
-			return Storm::BlowerType::Cube;
-		}
-		else if (blowerTypeStr == "sphere")
-		{
-			return Storm::BlowerType::Sphere;
-		}
-		else if (blowerTypeStr == "repulsionsphere")
-		{
-			return Storm::BlowerType::RepulsionSphere;
-		}
-		else if (blowerTypeStr == "explosion")
-		{
-			return Storm::BlowerType::ExplosionSphere;
-		}
-		else if (blowerTypeStr == "pulseexplosion")
-		{
-			return Storm::BlowerType::PulseExplosionSphere;
-		}
-		else
-		{
-			Storm::throwException<std::exception>("BlowerType value is unknown : '" + blowerTypeStr + "'");
-		}
+#define STORM_XMACRO_GENERATE_ELEMENTARY_BLOWER(BlowerTypeName, BlowerTypeXmlName, EffectAreaType, MeshMakerType) \
+if (blowerTypeStr == BlowerTypeXmlName) return Storm::BlowerType::BlowerTypeName;
+
+		STORM_XMACRO_GENERATE_BLOWERS_CODE;
+
+#undef STORM_XMACRO_GENERATE_ELEMENTARY_BLOWER
+
+		Storm::throwException<std::exception>("BlowerType value is unknown : '" + blowerTypeStr + "'");
 	}
 }
 

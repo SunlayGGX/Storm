@@ -24,6 +24,7 @@
 #include "SpecialKey.h"
 
 #include "BlowerData.h"
+#include "BlowerDef.h"
 #include "BlowerType.h"
 #include "GraphicBlower.h"
 
@@ -166,18 +167,14 @@ namespace
 	{
 		std::unique_ptr<Storm::GraphicBlowerBase> graphicBlower;
 		
-#define STORM_CASE_MAKE_GRAPHIC_BLOWER(BlowerType, MeshMakerType) \
-case Storm::BlowerType: \
-	graphicBlower = std::make_unique<Storm::GraphicBlower<Storm::BlowerType, MeshMakerType>>(device, blowerDataConfig); \
-	break
+#define STORM_XMACRO_GENERATE_ELEMENTARY_BLOWER(BlowerTypeName, BlowerTypeXmlName, EffectAreaType, MeshMakerType) \
+case Storm::BlowerType::BlowerTypeName: \
+	graphicBlower = std::make_unique<Storm::GraphicBlower<Storm::BlowerType::BlowerTypeName, Storm::MeshMakerType>>(device, blowerDataConfig); \
+	break;
 
 		switch (blowerDataConfig._blowerType)
 		{
-			STORM_CASE_MAKE_GRAPHIC_BLOWER(BlowerType::Cube, Storm::BlowerCubeMeshMaker);
-			STORM_CASE_MAKE_GRAPHIC_BLOWER(BlowerType::Sphere, Storm::BlowerSphereMeshMaker);
-			STORM_CASE_MAKE_GRAPHIC_BLOWER(BlowerType::RepulsionSphere, Storm::BlowerSphereMeshMaker);
-			STORM_CASE_MAKE_GRAPHIC_BLOWER(BlowerType::ExplosionSphere, Storm::BlowerSphereMeshMaker);
-			STORM_CASE_MAKE_GRAPHIC_BLOWER(BlowerType::PulseExplosionSphere, Storm::BlowerSphereMeshMaker);
+			STORM_XMACRO_GENERATE_BLOWERS_CODE;
 
 		default:
 		case Storm::BlowerType::None:
@@ -185,7 +182,7 @@ case Storm::BlowerType: \
 			break;
 		}
 
-#undef STORM_CASE_MAKE_GRAPHIC_BLOWER
+#undef STORM_XMACRO_GENERATE_ELEMENTARY_BLOWER
 
 		inOutGraphicBlowerContainer[blowerDataConfig._id] = std::move(graphicBlower);
 

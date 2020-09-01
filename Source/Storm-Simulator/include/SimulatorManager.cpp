@@ -30,6 +30,7 @@
 
 #include "RunnerHelper.h"
 
+#include "BlowerDef.h"
 #include "BlowerType.h"
 #include "BlowerData.h"
 #include "BlowerTimeHandler.h"
@@ -611,23 +612,20 @@ void Storm::SimulatorManager::loadBlowers()
 		decltype(_blowers) tmp;
 		tmp.reserve(allBlowersData.size());
 
-#define STORM_CREATE_BLOWER_CASE(blowerEnumValue, BlowerEffectArea, ...) \
-case Storm::blowerEnumValue: appendNewBlower<blowerEnumValue, BlowerEffectArea>(tmp, __VA_ARGS__); break
+#define STORM_XMACRO_GENERATE_ELEMENTARY_BLOWER(BlowerTypeName, BlowerTypeXmlName, EffectAreaType, MeshMakerType) \
+case Storm::BlowerType::BlowerTypeName: appendNewBlower<Storm::BlowerType::BlowerTypeName, Storm::EffectAreaType>(tmp, blowerData); break;
+
 		for (const Storm::BlowerData &blowerData : allBlowersData)
 		{
 			switch (blowerData._blowerType)
 			{
-				STORM_CREATE_BLOWER_CASE(BlowerType::Cube, Storm::BlowerCubeArea, blowerData);
-				STORM_CREATE_BLOWER_CASE(BlowerType::Sphere, Storm::BlowerSphereArea, blowerData);
-				STORM_CREATE_BLOWER_CASE(BlowerType::RepulsionSphere, Storm::BlowerRepulsionSphereArea, blowerData);
-				STORM_CREATE_BLOWER_CASE(BlowerType::ExplosionSphere, Storm::BlowerExplosionSphereArea, blowerData);
-				STORM_CREATE_BLOWER_CASE(BlowerType::PulseExplosionSphere, Storm::BlowerExplosionSphereArea, blowerData);
+				STORM_XMACRO_GENERATE_BLOWERS_CODE;
 
 			default:
 				Storm::throwException<std::exception>("Unhandled Blower Type creation requested! Value was " + std::to_string(static_cast<int>(blowerData._blowerType)));
 			}
 		}
-#undef STORM_CREATE_BLOWER_CASE
+#undef STORM_XMACRO_GENERATE_ELEMENTARY_BLOWER
 
 		_blowers = std::move(tmp);
 
