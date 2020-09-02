@@ -532,6 +532,27 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 					blowerData._blowerDimension = Storm::Vector3{ blowerData._radius, blowerData._radius, blowerData._radius };
 					break;
 
+				case Storm::BlowerType::Cylinder:
+					if (blowerData._radius <= 0.f)
+					{
+						Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._id) + " (a cylinder) should have defined a positive non-zero radius!");
+					}
+					else if (blowerData._height <= 0.f)
+					{
+						Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._id) + " (a cylinder) should have defined a positive non zero height!");
+					}
+					else if (blowerData._blowerDimension.x() != 0.f || blowerData._blowerDimension.z() != 0.f)
+					{
+						Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._id) + " (a cylinder) shouldn't use dimension tag to specify x and z width and depth but radius instead!");
+					}
+					else if (blowerData._blowerDimension.y() != 0.f && blowerData._blowerDimension.y() != blowerData._height)
+					{
+						Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._id) + " (a cylinder) shouldn't use dimension tag for the height but use height tag instead!");
+					}
+
+					blowerData._blowerDimension = Storm::Vector3{ 0.f, blowerData._height, 0.f };
+					break;
+
 				case Storm::BlowerType::None:
 				default:
 					Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._id) + " should have defined a blower type, this is mandatory!");
