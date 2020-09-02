@@ -85,4 +85,27 @@ namespace Storm
 	protected:
 		float _radius;
 	};
+
+	// For now, a cylinder that is vertical. (YAGNI)
+	class BlowerCylinderArea
+	{
+	public:
+		BlowerCylinderArea(const Storm::BlowerData &blowerDataConfig);
+
+	public:
+		__forceinline bool isInside(const Storm::Vector3 &relativePosDiff) const
+		{
+			if (std::fabs(relativePosDiff.y()) < _height)
+			{
+				const float twoDRelativeLengthSquared = relativePosDiff.x() * relativePosDiff.x() + relativePosDiff.z() * relativePosDiff.z();
+				return twoDRelativeLengthSquared < _radiusSquared;
+			}
+
+			return false;
+		}
+
+	protected:
+		float _height;
+		float _radiusSquared;
+	};
 }

@@ -162,8 +162,15 @@ Storm::BlowerRepulsionSphereArea::BlowerRepulsionSphereArea(const Storm::BlowerD
 }
 
 Storm::BlowerExplosionSphereArea::BlowerExplosionSphereArea(const Storm::BlowerData &blowerDataConfig) :
-	Storm::BlowerSphereArea{ blowerDataConfig, 0 }
+	Storm::BlowerSphereArea{ blowerDataConfig, 0 },
+	_radius{ blowerDataConfig._radius }
 {
 	STORM_ENSURE_CONSTRUCTED_ON_RIGHT_SETTING(blowerDataConfig, Storm::BlowerType::ExplosionSphere, Storm::BlowerType::PulseExplosionSphere);
-	_radius = std::sqrtf(_radiusSquared);
+}
+
+Storm::BlowerCylinderArea::BlowerCylinderArea(const Storm::BlowerData &blowerDataConfig) :
+	_radiusSquared{ blowerDataConfig._radius * blowerDataConfig._radius },
+	_height{ blowerDataConfig._height }
+{
+	STORM_ENSURE_CONSTRUCTED_ON_RIGHT_SETTING(blowerDataConfig, Storm::BlowerType::Cylinder);
 }
