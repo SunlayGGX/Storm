@@ -2,14 +2,14 @@
 
 
 #define STORM_REGISTER_TRIANGLE_INDEX(index1, index2, index3)\
-inOutIndexes.emplace_back(index1);\
-inOutIndexes.emplace_back(index2);\
-inOutIndexes.emplace_back(index3);
+inOutIndexes.emplace_back(indexOffset + index1);\
+inOutIndexes.emplace_back(indexOffset + index2);\
+inOutIndexes.emplace_back(indexOffset + index3)
 
 namespace
 {
 	template<class IndexContainer>
-	void addIndexesOfQuadIndex(IndexContainer &inOutIndexes, const uint32_t p0, const uint32_t p1, const uint32_t p2, const uint32_t p3)
+	void addIndexesOfQuadIndex(IndexContainer &inOutIndexes, const uint32_t indexOffset, const uint32_t p0, const uint32_t p1, const uint32_t p2, const uint32_t p3)
 	{
 		STORM_REGISTER_TRIANGLE_INDEX(p0, p2, p1);
 		STORM_REGISTER_TRIANGLE_INDEX(p1, p2, p3);
@@ -68,6 +68,7 @@ void Storm::BasicMeshGenerator::generateCube(const Storm::Vector3 &position, con
 	};
 
 	// Increase the vertex count to avoid reallocation. The increase is from the former size of those buffers since maybe, they contains a scene we want to render in one batch... 
+	const uint32_t indexOffset = static_cast<uint32_t>(inOutVertexes.size());
 	inOutVertexes.reserve(inOutVertexes.size() + k_summitCount);
 	inOutIndexes.reserve(inOutIndexes.size() + k_indexCount);
 
@@ -122,6 +123,7 @@ void Storm::BasicMeshGenerator::generateSphere(const Storm::Vector3 &position, c
 	};
 
 	// Increase the vertex count to avoid reallocation. The increase is from the former size of those buffers since maybe, they contains a scene we want to render in one batch... 
+	const uint32_t indexOffset = static_cast<uint32_t>(inOutVertexes.size());
 	inOutVertexes.reserve(inOutVertexes.size() + k_vertexCount);
 	inOutIndexes.reserve(inOutIndexes.size() + k_indexCount);
 
@@ -161,7 +163,7 @@ void Storm::BasicMeshGenerator::generateSphere(const Storm::Vector3 &position, c
 			// The Quad defined by the current ring and the next ring
 			const uint32_t currentP0 = static_cast<uint32_t>(pointStartOffset + jiter);
 
-			addIndexesOfQuadIndex(inOutIndexes,
+			addIndexesOfQuadIndex(inOutIndexes, indexOffset,
 				currentP0,
 				currentP0 + 1,
 				currentP0 + static_cast<uint32_t>(k_ringsX),
@@ -170,7 +172,7 @@ void Storm::BasicMeshGenerator::generateSphere(const Storm::Vector3 &position, c
 		}
 
 		// The last point of the ring that loops back.
-		addIndexesOfQuadIndex(inOutIndexes,
+		addIndexesOfQuadIndex(inOutIndexes, indexOffset,
 			pointStartOffset + static_cast<uint32_t>(k_ringsXIteration),
 			pointStartOffset,
 			pointStartOffset + static_cast<uint32_t>(k_ringsX) + static_cast<uint32_t>(k_ringsXIteration),
