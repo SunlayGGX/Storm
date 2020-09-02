@@ -482,6 +482,10 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 					{
 						Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._id) + " (a cube) cannot have one of its dimension value lesser or equal to 0! Specified dimension was " + Storm::toStdString(blowerData._blowerDimension));
 					}
+					else if (blowerData._radius != 0.f)
+					{
+						Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._id) + " (a cube) cannot have a radius (" + Storm::toStdString(blowerData._radius) + ")!");
+					}
 					break;
 
 				case Storm::BlowerType::Sphere:
