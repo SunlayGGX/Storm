@@ -358,7 +358,8 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 				{
 					if (
 						!Storm::XmlReader::handleXml(constraintDataXml, "rbId1", contraintData._rigidBodyId1) &&
-						!Storm::XmlReader::handleXml(constraintDataXml, "rbId2", contraintData._rigidBodyId2)
+						!Storm::XmlReader::handleXml(constraintDataXml, "rbId2", contraintData._rigidBodyId2) &&
+						!Storm::XmlReader::handleXml(constraintDataXml, "length", contraintData._constraintsLength)
 						)
 					{
 						LOG_ERROR << "tag '" << constraintDataXml.first << "' (inside Scene.Contraints.Constraint) is unknown, therefore it cannot be handled";
@@ -368,7 +369,15 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 				std::vector<Storm::RigidBodySceneData> &rigidBodiesDataArray = _sceneData->_rigidBodiesData;
 				const auto lastToCheck = std::end(rigidBodiesDataArray);
 
-				if (contraintData._rigidBodyId1 == std::numeric_limits<decltype(contraintData._rigidBodyId1)>::max())
+				if (contraintData._constraintsLength == -1.f)
+				{
+					Storm::throwException<std::exception>("Constraints " + std::to_string(contraintsIndex) + " length isn't set but is a mandatory setting, please specify it with 'length' tag.");
+				}
+				else if (contraintData._constraintsLength <= 0.f)
+				{
+					Storm::throwException<std::exception>("Constraints " + std::to_string(contraintsIndex) + " length should be a positive non zero value (was " + std::to_string(contraintData._constraintsLength) + ")!");
+				}
+				else if (contraintData._rigidBodyId1 == std::numeric_limits<decltype(contraintData._rigidBodyId1)>::max())
 				{
 					Storm::throwException<std::exception>("Constraints " + std::to_string(contraintsIndex) + " rigid body 1 id wasn't set! It is a mandatory field.");
 				}

@@ -203,6 +203,7 @@ Inside this element should be put all rigidbodies. Each rigidbody should be spec
 ##### Constraint
 - rbId1 **(positive integer, mandatory)**: This is the id of the first rigid body the contraints is attached to. It is a mandatory setting and the rigid body id must exist.
 - rbId2 **(positive integer, mandatory)**: This is the id of the second rigid body the contraints is attached to. It is a mandatory setting and the rigid body id must exist.
+- length **(positive float, mandatory)**: This is the max length (in meter) of the contraints separating both rigid bodies. It is a mandatory setting and should be a non zero positive value.
 
 
 #### Blowers

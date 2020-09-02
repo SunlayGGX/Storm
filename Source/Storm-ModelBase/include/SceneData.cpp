@@ -97,7 +97,8 @@ Storm::BlowerData::BlowerData() :
 
 Storm::ConstraintData::ConstraintData() :
 	_rigidBodyId1{ std::numeric_limits<decltype(_rigidBodyId1)>::max() },
-	_rigidBodyId2{ std::numeric_limits<decltype(_rigidBodyId2)>::max() }
+	_rigidBodyId2{ std::numeric_limits<decltype(_rigidBodyId2)>::max() },
+	_constraintsLength{ -1.f }
 {
 
 }

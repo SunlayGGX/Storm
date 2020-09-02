@@ -11,5 +11,6 @@ namespace Storm
 	public:
 		unsigned int _rigidBodyId1;
 		unsigned int _rigidBodyId2;
+		float _constraintsLength;
 	};
 }
