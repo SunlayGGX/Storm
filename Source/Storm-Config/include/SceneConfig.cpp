@@ -423,6 +423,7 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 						!Storm::XmlReader::handleXml(blowerDataXml, "fadeInTime", blowerData._fadeInTimeInSeconds) &&
 						!Storm::XmlReader::handleXml(blowerDataXml, "fadeOutTime", blowerData._fadeOutTimeInSeconds) &&
 						!Storm::XmlReader::handleXml(blowerDataXml, "radius", blowerData._radius) &&
+						!Storm::XmlReader::handleXml(blowerDataXml, "height", blowerData._height) &&
 						!Storm::XmlReader::handleXml(blowerDataXml, "dimension", blowerData._blowerDimension, parseVector3Element) &&
 						!Storm::XmlReader::handleXml(blowerDataXml, "force", blowerData._blowerForce, parseVector3Element) &&
 						!Storm::XmlReader::handleXml(blowerDataXml, "position", blowerData._blowerPosition, parseVector3Element)
@@ -486,6 +487,10 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 					{
 						Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._id) + " (a cube) cannot have a radius (" + Storm::toStdString(blowerData._radius) + ")!");
 					}
+					else if (blowerData._height != 0.f && blowerData._height != blowerData._blowerDimension.y())
+					{
+						Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._id) + " (a cube) cannot have a specific height (use the dimension for a cube, not the height tag (" + Storm::toStdString(blowerData._height) + "))!");
+					}
 					break;
 
 				case Storm::BlowerType::Sphere:
@@ -495,6 +500,10 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 					{
 						Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._id) + " (a sphere) should have defined a positive non-zero radius!");
 					}
+					else if (blowerData._height != 0.f)
+					{
+						Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._id) + " (a sphere) cannot have a specific height (this tag is reserved for cylinder derived blowers (" + Storm::toStdString(blowerData._height) + "))!");
+					}
 					blowerData._blowerDimension = Storm::Vector3{ blowerData._radius, blowerData._radius, blowerData._radius };
 					break;
 
@@ -502,6 +511,10 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 					if (blowerData._radius <= 0.f)
 					{
 						Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._id) + " (a pulse explosion) should have defined a positive non-zero radius!");
+					}
+					else if (blowerData._height != 0.f)
+					{
+						Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._id) + " (a pulse explosion) cannot have a specific height (this tag is reserved for cylinder derived blowers (" + Storm::toStdString(blowerData._height) + "))!");
 					}
 					else if (blowerData._stopTimeInSeconds != -1.f)
 					{
