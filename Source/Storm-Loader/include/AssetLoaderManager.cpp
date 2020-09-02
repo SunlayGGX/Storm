@@ -236,3 +236,7 @@ void Storm::AssetLoaderManager::generateSimpleSphere(const Storm::Vector3 &posit
 {
 	Storm::BasicMeshGenerator::generateSphere(position, radius, inOutVertexes, inOutIndexes);
 }
+
+void Storm::AssetLoaderManager::generateSimpleCylinder(const Storm::Vector3 &position, const float radius, const float height, std::vector<Storm::Vector3> &inOutVertexes, std::vector<uint32_t> &inOutIndexes) const
+{
+}
