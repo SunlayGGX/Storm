@@ -196,5 +196,82 @@ void Storm::BasicMeshGenerator::generateSphere(const Storm::Vector3 &position, c
 
 void Storm::BasicMeshGenerator::generateCylinder(const Storm::Vector3 &position, const float radius, const float height, std::vector<Storm::Vector3> &inOutVertexes, std::vector<uint32_t> &inOutIndexes)
 {
+	enum : std::size_t
+	{
+		// The point count on a disk periphery making the base of the cylinder.
+		k_division = 48,
+		k_divisionMinusOne = k_division - 1,
 
+		// There are 2 disks and k_division vertex on each disk + a vertex on each disk's center.
+		k_vertexCount = 2 * (k_division + 1),
+
+		k_triangleCount = 4 * k_division,
+
+		k_indexCount = k_triangleCount * 3,
+	};
+
+	static const SinCosLUT<k_division, false> k_sinCosLUT;
+
+	// Increase the vertex count to avoid reallocation. The increase is from the former size of those buffers since maybe, they contains a scene we want to render in one batch... 
+	const uint32_t indexOffset = static_cast<uint32_t>(inOutVertexes.size());
+	inOutVertexes.reserve(inOutVertexes.size() + k_vertexCount);
+	inOutIndexes.reserve(inOutIndexes.size() + k_indexCount);
+
+	const float midHeight = height / 2.f;
+	const float upDiskY = position.y() + midHeight;
+	const float downDiskY = position.y() - midHeight;
+
+	// Vertexes
+	
+	// Up disk
+	for (std::size_t iter = 0; iter < k_division; ++iter)
+	{
+		inOutVertexes.emplace_back(position.x() + radius * k_sinCosLUT.cosInLUT(iter), upDiskY, position.z() + radius * k_sinCosLUT.sinInLUT(iter));
+	}
+
+	// Down disk
+	for (std::size_t iter = 0; iter < k_division; ++iter)
+	{
+		inOutVertexes.emplace_back(position.x() + radius * k_sinCosLUT.cosInLUT(iter), downDiskY, position.z() + radius * k_sinCosLUT.sinInLUT(iter));
+	}
+
+	// The special points that are the center of each disks.
+	inOutVertexes.emplace_back(position.x(), upDiskY, position.z());
+	inOutVertexes.emplace_back(position.x(), downDiskY, position.z());
+
+	// Indexes
+
+	// The triangles joining each disks
+	for (std::size_t iter = 0; iter < k_divisionMinusOne; ++iter)
+	{
+		const uint32_t currentP0 = static_cast<uint32_t>(iter);
+
+		addIndexesOfQuadIndex(inOutIndexes, indexOffset,
+			currentP0,
+			currentP0 + 1,
+			currentP0 + static_cast<uint32_t>(k_division),
+			currentP0 + static_cast<uint32_t>(k_division) + 1
+		);
+	}
+
+	// To complete the joining disk triangles with the triangle bindings the vertex index that loops back
+	addIndexesOfQuadIndex(inOutIndexes, indexOffset,
+		static_cast<uint32_t>(k_divisionMinusOne),
+		0,
+		static_cast<uint32_t>(k_divisionMinusOne) + static_cast<uint32_t>(k_division),
+		static_cast<uint32_t>(k_division)
+	);
+
+	// The disks themselves
+	const uint32_t downVertexIndex = static_cast<uint32_t>(k_vertexCount - 1);
+	const uint32_t upVertexIndex = downVertexIndex - 1;
+	for (std::size_t iter = 0; iter < k_divisionMinusOne; ++iter)
+	{
+		STORM_REGISTER_TRIANGLE_INDEX(upVertexIndex, static_cast<uint32_t>(iter), static_cast<uint32_t>(iter + 1));
+		STORM_REGISTER_TRIANGLE_INDEX(downVertexIndex, static_cast<uint32_t>(k_division + iter + 1), static_cast<uint32_t>(k_division + iter));
+	}
+
+	// At last, the 2 last triangle that loops back
+	STORM_REGISTER_TRIANGLE_INDEX(upVertexIndex, static_cast<uint32_t>(k_divisionMinusOne), 0);
+	STORM_REGISTER_TRIANGLE_INDEX(downVertexIndex, static_cast<uint32_t>(k_division), static_cast<uint32_t>(k_division + k_divisionMinusOne));
 }
