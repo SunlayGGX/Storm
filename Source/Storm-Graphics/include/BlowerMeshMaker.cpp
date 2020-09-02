@@ -32,3 +32,11 @@ void Storm::BlowerSphereMeshMaker::generate(const Storm::BlowerData &blowerData,
 	const Storm::IAssetLoaderManager &assetLoaderMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IAssetLoaderManager>();
 	assetLoaderMgr.generateSimpleSphere(blowerData._blowerPosition, blowerData._radius, outVertexes, outIndexes);
 }
+
+void Storm::BlowerCylinderMeshMaker::generate(const Storm::BlowerData &blowerData, std::vector<Storm::Vector3> &outVertexes, std::vector<uint32_t> &outIndexes)
+{
+	STORM_ENSURE_MESH_MAKER_USED_ON_RIGHT_SETTING(blowerData, Storm::BlowerType::Cylinder);
+
+	const Storm::IAssetLoaderManager &assetLoaderMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IAssetLoaderManager>();
+	assetLoaderMgr.generateSimpleCylinder(blowerData._blowerPosition, blowerData._radius, blowerData._height, outVertexes, outIndexes);
+}
