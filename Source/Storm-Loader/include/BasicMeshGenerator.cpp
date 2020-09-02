@@ -191,3 +191,8 @@ void Storm::BasicMeshGenerator::generateSphere(const Storm::Vector3 &position, c
 	STORM_REGISTER_TRIANGLE_INDEX(downVertexIndex, static_cast<uint32_t>(k_ringsXIteration), 0);
 	STORM_REGISTER_TRIANGLE_INDEX(upVertexIndex, static_cast<uint32_t>(lastRingStartOffset), static_cast<uint32_t>(lastRingStartOffset + k_ringsXIteration));
 }
+
+void Storm::BasicMeshGenerator::generateCylinder(const Storm::Vector3 &position, const float radius, const float height, std::vector<Storm::Vector3> &inOutVertexes, std::vector<uint32_t> &inOutIndexes)
+{
+
+}
