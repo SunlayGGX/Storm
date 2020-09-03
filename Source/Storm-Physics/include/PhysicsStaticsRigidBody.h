@@ -21,6 +21,8 @@ namespace Storm
 		void getMeshTransform(Storm::Vector3 &outTrans, Storm::Vector3 &outRot) const;
 		void getMeshTransform(Storm::Vector3 &outTrans, Storm::Quaternion &outQuatRot) const;
 
+		physx::PxRigidStatic* getInternalPhysicsPointer() const;
+
 	private:
 		Storm::UniquePointer<physx::PxRigidStatic> _internalRb;
 

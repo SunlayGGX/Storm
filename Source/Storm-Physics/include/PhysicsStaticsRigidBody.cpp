@@ -45,6 +45,11 @@ void Storm::PhysicsStaticsRigidBody::getMeshTransform(Storm::Vector3 &outTrans, 
 	outRot = _eulerRotation;
 }
 
+physx::PxRigidStatic* Storm::PhysicsStaticsRigidBody::getInternalPhysicsPointer() const
+{
+	return _internalRb.get();
+}
+
 void Storm::PhysicsStaticsRigidBody::getMeshTransform(Storm::Vector3 &outTrans, Storm::Quaternion &outQuatRot) const
 {
 	outTrans = _trans;

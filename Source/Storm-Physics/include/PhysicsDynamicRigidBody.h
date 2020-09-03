@@ -23,6 +23,8 @@ namespace Storm
 
 		void applyForce(const Storm::Vector3 &location, const Storm::Vector3 &force);
 
+		physx::PxRigidDynamic* getInternalPhysicsPointer() const;
+
 	private:
 		Storm::UniquePointer<physx::PxRigidDynamic> _internalRb;
 	};

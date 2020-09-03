@@ -52,6 +52,11 @@ void Storm::PhysicsDynamicRigidBody::applyForce(const Storm::Vector3 &location, 
 	// TODO
 }
 
+physx::PxRigidDynamic* Storm::PhysicsDynamicRigidBody::getInternalPhysicsPointer() const
+{
+	return _internalRb.get();
+}
+
 void Storm::PhysicsDynamicRigidBody::getMeshTransform(Storm::Vector3 &outTrans, Storm::Quaternion &outQuatRot) const
 {
 	physx::PxTransform currentTransform;
