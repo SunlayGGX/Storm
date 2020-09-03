@@ -9,6 +9,25 @@ namespace Storm
 	class SearchAlgo : private Storm::NonInstanciable
 	{
 	private:
+		template<class PtrType>
+		static auto extract(const PtrType &value, int) -> decltype(value == nullptr, Storm::SearchAlgo::extract(*value, 0))
+		{
+			if (value != nullptr)
+			{
+				return Storm::SearchAlgo::extract(*value, 0);
+			}
+			else
+			{
+				Storm::throwException<std::exception>("Trying to extract a null value! It is forbidden!");
+			}
+		}
+
+		template<class ValueType>
+		static const ValueType& extract(const ValueType &value, void*)
+		{
+			return value;
+		}
+
 		template<class PairType, class ValueType>
 		static auto compare(const ValueType &value, const PairType &pair, int) -> decltype(value == pair.second)
 		{
@@ -62,6 +81,37 @@ namespace Storm
 			if (Storm::SearchAlgo::searchIfExistImpl(cont, valueOrPredicate, 0))
 			{
 				Storm::throwException<std::exception>(errorMsg);
+			}
+		}
+
+	private:
+		template<class KeyType, class Func, class ContainerType, class ... OthersContainerType>
+		static bool executeOnObjectInContainerImpl(const KeyType &key, const Func &func, const ContainerType &container, const OthersContainerType &... others)
+		{
+			return
+				Storm::SearchAlgo::executeOnObjectInContainerImpl(key, func, container) ||
+				Storm::SearchAlgo::executeOnObjectInContainerImpl(key, func, others...);
+		}
+
+		template<class KeyType, class Func, class ContainerType>
+		static bool executeOnObjectInContainerImpl(const KeyType &key, const Func &func, const ContainerType &container)
+		{
+			if (const auto found = container.find(key); found != std::end(container))
+			{
+				func(Storm::SearchAlgo::extract(found->second, 0));
+				return true;
+			}
+
+			return false;
+		}
+
+	public:
+		template<class KeyType, class Func, class ... OthersContainerType>
+		static void executeOnObjectInContainer(const KeyType &key, const Func &func, const OthersContainerType &... allContainers)
+		{
+			if (!Storm::SearchAlgo::executeOnObjectInContainerImpl(key, func, allContainers...))
+			{
+				Storm::throwException<std::exception>("Cannot find object with id " + Storm::toStdString(key) + " inside given maps. (" __FUNCSIG__ ")");
 			}
 		}
 	};
