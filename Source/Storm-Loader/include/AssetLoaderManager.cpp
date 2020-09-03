@@ -151,6 +151,8 @@ void Storm::AssetLoaderManager::initialize_Implementation()
 
 
 	/* Load rigid bodies */
+	LOG_COMMENT << "Loading Rigid body";
+
 	const auto &rigidBodiesDataToLoad = configMgr.getRigidBodiesData();
 	_rigidBodies.reserve(rigidBodiesDataToLoad.size());
 	for (const auto &rbToLoad : rigidBodiesDataToLoad)
@@ -166,6 +168,7 @@ void Storm::AssetLoaderManager::initialize_Implementation()
 
 
 	/* Load fluid particles */
+	LOG_COMMENT << "Loading fluid particles";
 
 	const float particleRadius = configMgr.getGeneralSimulationData()._particleRadius;
 	const float particleDiameter = particleRadius * 2.f;
