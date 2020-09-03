@@ -18,6 +18,7 @@ TEST_CASE("throwException", "[classic]")
 {
 	try
 	{
+		// If the test fails here because of a sigsegv => rebuild.
 		Storm::throwException<std::exception>(__FUNCTION__);
 		FAIL("No exception was thrown!");
 	}
