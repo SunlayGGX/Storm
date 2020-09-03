@@ -369,13 +369,9 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 				std::vector<Storm::RigidBodySceneData> &rigidBodiesDataArray = _sceneData->_rigidBodiesData;
 				const auto lastToCheck = std::end(rigidBodiesDataArray);
 
-				if (contraintData._constraintsLength == -1.f)
+				if (contraintData._constraintsLength < 0.f)
 				{
-					Storm::throwException<std::exception>("Constraints " + std::to_string(contraintsIndex) + " length isn't set but is a mandatory setting, please specify it with 'length' tag.");
-				}
-				else if (contraintData._constraintsLength <= 0.f)
-				{
-					Storm::throwException<std::exception>("Constraints " + std::to_string(contraintsIndex) + " length should be a positive non zero value (was " + std::to_string(contraintData._constraintsLength) + ")!");
+					Storm::throwException<std::exception>("Constraints " + std::to_string(contraintsIndex) + " length should be a positive value (was " + std::to_string(contraintData._constraintsLength) + ")!");
 				}
 				else if (contraintData._rigidBodyId1 == std::numeric_limits<decltype(contraintData._rigidBodyId1)>::max())
 				{
