@@ -48,6 +48,9 @@
     <ClCompile Include="..\include\PhysicalShape.cpp">
       <Filter>Source Files\PhysicsComponent</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\PhysicsConstraint.cpp">
+      <Filter>Source Files\PhysicsComponent</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-PhysicsPCH.h">
@@ -72,6 +75,9 @@
       <Filter>Header Files\PhysX</Filter>
     </ClInclude>
     <ClInclude Include="..\include\PhysicalShape.h">
+      <Filter>Header Files\PhysicsComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\PhysicsConstraint.h">
       <Filter>Header Files\PhysicsComponent</Filter>
     </ClInclude>
   </ItemGroup>
