@@ -47,6 +47,59 @@ namespace
 			}
 		}
 	}
+
+	template<bool shouldThrow, class KeyType, class ValueType, class ... ContainerTypes>
+	void testExecuteOnObjectInContainer(const KeyType &key, const ValueType &expected, const ContainerTypes &... containers)
+	{
+		try
+		{
+			bool executed = false;
+			Storm::SearchAlgo::executeOnObjectInContainer(key, [&executed, &expected](const auto &found)
+			{
+				executed = true;
+				CHECK(typeid(found) == typeid(expected));
+				CHECK(Storm::toStdString(found) == Storm::toStdString(expected));
+			}, containers...);
+
+			if constexpr (shouldThrow)
+			{
+				FAIL("Storm::SearchAlgo::executeOnObjectInContainer should have thrown, but it didn't!");
+			}
+			else
+			{
+				if (executed)
+				{
+					SUCCEED("Storm::SearchAlgo::executeOnObjectInContainer executed its callback as expected.");
+				}
+				else
+				{
+					FAIL("Storm::SearchAlgo::executeOnObjectInContainer has not executed its callback.");
+				}
+			}
+		}
+		catch (const std::exception &)
+		{
+			if constexpr (shouldThrow)
+			{
+				SUCCEED("Storm::SearchAlgo::executeOnObjectInContainer have thrown an std exception as expected");
+			}
+			else
+			{
+				FAIL("Storm::SearchAlgo::executeOnObjectInContainer have thrown, but it shouldn't have!");
+			}
+		}
+		catch (...)
+		{
+			if constexpr (shouldThrow)
+			{
+				FAIL("Storm::SearchAlgo::executeOnObjectInContainer haven't thrown a std exception!");
+			}
+			else
+			{
+				FAIL("Storm::SearchAlgo::executeOnObjectInContainer have thrown, but it shouldn't have!");
+			}
+		}
+	}
 }
 
 TEST_CASE("SearchAlgo.searchIfExist.vector", "[classic]")
@@ -107,4 +160,14 @@ TEST_CASE("SearchAlgo.throwIfExist.map", "[classic]")
 
 	testThrowIfExist<true>(mapObj, [toCheck = std::string{ "toto" }](const std::pair<int, Obj> &val) { return val.second == toCheck; });
 	testThrowIfExist<false>(mapObj, [toCheck = std::string{ "tata" }](const std::pair<int, Obj> &val) { return val.second == toCheck; });
+}
+
+TEST_CASE("SearchAlgo.executeOnObjectInContainer.map", "[classic]")
+{
+	const std::map<int, std::string> mapStr{ std::pair<int, std::string>{ 0, "toto" }, std::pair<int, std::string>{ 1, "titi" }, std::pair<int, std::string>{ -5, "tutu" } };
+	const std::map<int, std::wstring> mapWStr{ std::pair<int, std::wstring>{ 2, L"wtoto" }, std::pair<int, std::wstring>{ 4, L"wtiti" }, std::pair<int, std::wstring>{ -6, L"wtutu" } };
+
+	testExecuteOnObjectInContainer<true>(-10000, "", mapStr, mapWStr);
+	testExecuteOnObjectInContainer<false>(0, std::string{ "toto" }, mapStr, mapWStr);
+	testExecuteOnObjectInContainer<false>(4, std::wstring{ L"wtiti" }, mapStr, mapWStr);
 }
