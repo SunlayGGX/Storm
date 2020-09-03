@@ -86,6 +86,16 @@ void Storm::PhysicsManager::bindParentRbToPhysicalBody(const Storm::RigidBodySce
 void Storm::PhysicsManager::addConstraint(const Storm::ConstraintData &constraintData)
 {
 	STORM_NOT_IMPLEMENTED;
+
+	Storm::SearchAlgo::executeOnObjectInContainer(constraintData._rigidBodyId1, [&](const auto &rb1)
+	{
+		Storm::SearchAlgo::executeOnObjectInContainer(constraintData._rigidBodyId2, [&](const auto &rb2)
+		{
+
+
+		}, _staticsRbMap, _dynamicsRbMap);
+	}, _staticsRbMap, _dynamicsRbMap);
+
 	LOG_DEBUG << "Constraint loaded";
 }
 
