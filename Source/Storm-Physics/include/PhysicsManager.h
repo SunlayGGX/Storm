@@ -32,6 +32,9 @@ namespace Storm
 		void getMeshTransform(unsigned int meshId, Storm::Vector3 &outTrans, Storm::Quaternion &outQuatRot) const final override;
 		void applyLocalForces(unsigned int particleSystemId, const std::vector<Storm::Vector3> &position, const std::vector<Storm::Vector3> &force) final override;
 
+		void addConstraint(const Storm::ConstraintData &constraintData) final override;
+		void loadConstraints(const std::vector<Storm::ConstraintData> &constraintsToLoad) final override;
+
 	public:
 		const Storm::PhysXHandler& getPhysXHandler() const;
 		Storm::PhysXHandler& getPhysXHandler();

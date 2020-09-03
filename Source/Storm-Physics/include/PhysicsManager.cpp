@@ -6,6 +6,7 @@
 #include "PhysicsStaticsRigidBody.h"
 
 #include "RigidBodySceneData.h"
+#include "ConstraintData.h"
 
 #include "ThrowException.h"
 
@@ -74,6 +75,29 @@ void Storm::PhysicsManager::bindParentRbToPhysicalBody(const Storm::RigidBodySce
 		{
 			Storm::throwException<std::exception>("Cannot find dynamic physics rb " + std::to_string(rbSceneData._rigidBodyID));
 		}
+	}
+}
+
+void Storm::PhysicsManager::addConstraint(const Storm::ConstraintData &constraintData)
+{
+	STORM_NOT_IMPLEMENTED;
+	LOG_DEBUG << "Constraint loaded";
+}
+
+void Storm::PhysicsManager::loadConstraints(const std::vector<Storm::ConstraintData> &constraintsToLoad)
+{
+	const std::size_t constraintsCount = constraintsToLoad.size();
+	if (constraintsCount > 0)
+	{
+		LOG_DEBUG << "Loading " << constraintsCount << " constraints";
+		for (const Storm::ConstraintData &constraint : constraintsToLoad)
+		{
+			this->addConstraint(constraint);
+		}
+	}
+	else
+	{
+		LOG_DEBUG << "No constraints to be load";
 	}
 }
 
