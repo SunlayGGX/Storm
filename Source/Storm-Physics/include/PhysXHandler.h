@@ -6,6 +6,7 @@
 namespace Storm
 {
 	struct RigidBodySceneData;
+	struct ConstraintData;
 
 	class PhysXHandler : public physx::PxDeletionListener
 	{
@@ -32,6 +33,7 @@ namespace Storm
 		Storm::UniquePointer<physx::PxMaterial> createRigidBodyMaterial(const Storm::RigidBodySceneData &rbSceneData);
 		Storm::UniquePointer<physx::PxShape> createRigidBodyShape(const Storm::RigidBodySceneData &rbSceneData, const std::vector<Storm::Vector3> &vertices, physx::PxMaterial* rbMaterial);
 
+		Storm::UniquePointer<physx::PxJoint> createJoint(const Storm::ConstraintData &constraintData, physx::PxRigidActor* actor1, physx::PxRigidActor* actor2);
 
 	private:
 		Storm::UniquePointer<physx::PxFoundation> _foundationInstance;

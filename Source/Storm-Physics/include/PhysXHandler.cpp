@@ -13,6 +13,8 @@
 #include "RigidBodySceneData.h"
 #include "CollisionType.h"
 
+#include "ConstraintData.h"
+
 
 namespace
 {
@@ -234,4 +236,19 @@ Storm::UniquePointer<physx::PxShape> Storm::PhysXHandler::createRigidBodyShape(c
 	default:
 		return Storm::UniquePointer<physx::PxShape>{};
 	}
+}
+
+Storm::UniquePointer<physx::PxJoint> Storm::PhysXHandler::createJoint(const Storm::ConstraintData &constraintData, physx::PxRigidActor* actor1, physx::PxRigidActor* actor2)
+{
+	physx::PxDistanceJoint* tmp = physx::PxDistanceJointCreate(*_physics,
+		actor1, physx::PxTransform{},
+		actor2, physx::PxTransform{}
+	);
+
+	Storm::UniquePointer<physx::PxJoint> result{ tmp };
+
+	tmp->setMaxDistance((actor1->getGlobalPose().p - actor2->getGlobalPose().p).magnitude() + constraintData._constraintsLength);
+	tmp->setDistanceJointFlag(physx::PxDistanceJointFlag::eMAX_DISTANCE_ENABLED, true);
+
+	return result;
 }
