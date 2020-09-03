@@ -50,6 +50,6 @@ namespace Storm
 		std::map<unsigned int, std::unique_ptr<Storm::PhysicsStaticsRigidBody>> _staticsRbMap;
 		std::map<unsigned int, std::unique_ptr<Storm::PhysicsDynamicRigidBody>> _dynamicsRbMap;
 
-		std::vector<Storm::PhysicsConstraint> _constraints;
+		std::vector<std::unique_ptr<Storm::PhysicsConstraint>> _constraints;
 	};
 }

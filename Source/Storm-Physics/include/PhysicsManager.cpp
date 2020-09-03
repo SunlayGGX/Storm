@@ -91,8 +91,7 @@ void Storm::PhysicsManager::addConstraint(const Storm::ConstraintData &constrain
 	{
 		Storm::SearchAlgo::executeOnObjectInContainer(constraintData._rigidBodyId2, [&](const auto &rb2)
 		{
-
-
+			_constraints.emplace_back(std::make_unique<Storm::PhysicsConstraint>(constraintData, rb1.getInternalPhysicsPointer(), rb2.getInternalPhysicsPointer()));
 		}, _staticsRbMap, _dynamicsRbMap);
 	}, _staticsRbMap, _dynamicsRbMap);
 
