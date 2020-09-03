@@ -5,6 +5,8 @@
 #include "PhysicsDynamicRigidBody.h"
 #include "PhysicsStaticsRigidBody.h"
 
+#include "PhysicsConstraint.h"
+
 #include "RigidBodySceneData.h"
 #include "ConstraintData.h"
 
@@ -27,7 +29,9 @@ void Storm::PhysicsManager::initialize_Implementation()
 void Storm::PhysicsManager::cleanUp_Implementation()
 {
 	LOG_COMMENT << "PhysX cleanup requested";
-	
+
+	_constraints.clear();
+
 	_staticsRbMap.clear();
 	_dynamicsRbMap.clear();
 
@@ -91,6 +95,9 @@ void Storm::PhysicsManager::loadConstraints(const std::vector<Storm::ConstraintD
 	if (constraintsCount > 0)
 	{
 		LOG_DEBUG << "Loading " << constraintsCount << " constraints";
+
+		_constraints.reserve(_constraints.size() + constraintsCount);
+
 		for (const Storm::ConstraintData &constraint : constraintsToLoad)
 		{
 			this->addConstraint(constraint);

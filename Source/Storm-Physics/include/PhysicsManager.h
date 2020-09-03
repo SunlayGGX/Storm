@@ -11,6 +11,8 @@ namespace Storm
 
 	class PhysicsDynamicRigidBody;
 	class PhysicsStaticsRigidBody;
+	
+	class PhysicsConstraint;
 
 	class PhysicsManager :
 		private Storm::Singleton<PhysicsManager>,
@@ -47,5 +49,7 @@ namespace Storm
 
 		std::map<unsigned int, std::unique_ptr<Storm::PhysicsStaticsRigidBody>> _staticsRbMap;
 		std::map<unsigned int, std::unique_ptr<Storm::PhysicsDynamicRigidBody>> _dynamicsRbMap;
+
+		std::vector<Storm::PhysicsConstraint> _constraints;
 	};
 }
