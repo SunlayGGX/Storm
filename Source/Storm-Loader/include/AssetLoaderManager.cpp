@@ -166,6 +166,9 @@ void Storm::AssetLoaderManager::initialize_Implementation()
 		LOG_DEBUG << "Rigid body " << emplacedRbId << " created and bound to the right modules.";
 	}
 
+	/* Load constraints */
+	LOG_COMMENT << "Loading Constraints";
+	physicsMgr.loadConstraints(configMgr.getConstraintsData());
 
 	/* Load fluid particles */
 	LOG_COMMENT << "Loading fluid particles";
