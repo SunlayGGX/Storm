@@ -9,6 +9,7 @@
 #include "ConstraintData.h"
 
 #include "ThrowException.h"
+#include "SearchAlgo.h"
 
 
 Storm::PhysicsManager::PhysicsManager() = default;
@@ -103,18 +104,10 @@ void Storm::PhysicsManager::loadConstraints(const std::vector<Storm::ConstraintD
 
 void Storm::PhysicsManager::getMeshTransform(unsigned int meshId, Storm::Vector3 &outTrans, Storm::Vector3 &outRot) const
 {
-	if (const auto staticFound = _staticsRbMap.find(meshId); staticFound != std::end(_staticsRbMap))
+	Storm::SearchAlgo::executeOnObjectInContainer(meshId, [&outTrans, &outRot](const auto &rbFound)
 	{
-		staticFound->second->getMeshTransform(outTrans, outRot);
-	}
-	else if (const auto dynamicFound = _dynamicsRbMap.find(meshId); dynamicFound != std::end(_dynamicsRbMap))
-	{
-		dynamicFound->second->getMeshTransform(outTrans, outRot);
-	}
-	else
-	{
-		Storm::throwException<std::exception>("Cannot find physics rb " + std::to_string(meshId));
-	}
+		rbFound.getMeshTransform(outTrans, outRot);
+	}, _staticsRbMap, _dynamicsRbMap);
 }
 
 void Storm::PhysicsManager::applyLocalForces(unsigned int particleSystemId, const std::vector<Storm::Vector3> &position, const std::vector<Storm::Vector3> &force)
@@ -138,18 +131,10 @@ void Storm::PhysicsManager::applyLocalForces(unsigned int particleSystemId, cons
 
 void Storm::PhysicsManager::getMeshTransform(unsigned int meshId, Storm::Vector3 &outTrans, Storm::Quaternion &outQuatRot) const
 {
-	if (const auto staticFound = _staticsRbMap.find(meshId); staticFound != std::end(_staticsRbMap))
+	Storm::SearchAlgo::executeOnObjectInContainer(meshId, [&outTrans, &outQuatRot](const auto &rbFound)
 	{
-		staticFound->second->getMeshTransform(outTrans, outQuatRot);
-	}
-	else if (const auto dynamicFound = _dynamicsRbMap.find(meshId); dynamicFound != std::end(_dynamicsRbMap))
-	{
-		dynamicFound->second->getMeshTransform(outTrans, outQuatRot);
-	}
-	else
-	{
-		Storm::throwException<std::exception>("Cannot find physics rb " + std::to_string(meshId));
-	}
+		rbFound.getMeshTransform(outTrans, outQuatRot);
+	}, _staticsRbMap, _dynamicsRbMap);
 }
 
 const Storm::PhysXHandler& Storm::PhysicsManager::getPhysXHandler() const
