@@ -139,7 +139,7 @@ namespace
 	void appendNewBlower(std::vector<std::unique_ptr<Storm::IBlower>> &inOutBlowerContainer, const Storm::BlowerData &blowerDataConfig)
 	{
 		std::string_view blowerIntroMsg;
-		if (type != Storm::BlowerType::PulseExplosionSphere)
+		if constexpr (type != Storm::BlowerType::PulseExplosionSphere)
 		{
 			if (blowerDataConfig._fadeInTimeInSeconds > 0.f && blowerDataConfig._fadeOutTimeInSeconds > 0.f)
 			{
