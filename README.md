@@ -167,7 +167,7 @@ Unlike the others config files, it can be named as you want. Here the wml tags y
 
 #### Fluid
 This element is all setting appartaining to a fluid. Here the tag you can set inside :
-- **id (positive integer, mandatory)**: This is the unique id of the fluid. It should be unique (Note that it should not be equal to any rigid body id too).
+- **id (positive integer, mandatory)**: This is the unique id of the fluid. It should be unique (Note that it should not be equal to any rigid body id and blower id too).
 - **fluidBlock (tag, at least one)**: This is the fluid generator settings. There should be at least one.
 	+ **firstPoint (vector3, facultative)**: This is one of the corner of the box where fluid particle should be generated. It cannot have the same value than secondPoint, default value is { x=0.0, y=0.0, z=0.0 }.
 	+ **secondPoint (vector3, facultative)**: This is the opposite corner from firstPoint where fluid particle should be generated. It cannot have the same value than firstPoint, default value is { x=0.0, y=0.0, z=0.0 }.
@@ -183,7 +183,7 @@ This element is all setting appartaining to a fluid. Here the tag you can set in
 Inside this element should be put all rigidbodies. Each rigidbody should be specified under a tag named "RigidBody".
 
 ##### RigidBody
-- **id (positive integer, mandatory)**: This is the unique id of the rigid body.  It should be unique (Note that it should not be equal to any fluid id too).
+- **id (positive integer, mandatory)**: This is the unique id of the rigid body.  It should be unique (Note that it should not be equal to any fluid id and blower id too).
 - **meshFile (string, mandatory, accept macro)**: This is mesh file path this rigid body is bound to.
 - **isStatic (boolean, facultative)**: Specify this to tell the simulation that this object is fixed (won't move throughout the simulation). Default value is "true".
 - **wall (boolean, facultative)**: Specify that this object is the wall (considered to be a wall). By defainition, a wall is static so if the value is true, the object will be considered static no matter the value set to isStatic. Default value is "false".

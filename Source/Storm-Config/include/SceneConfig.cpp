@@ -238,7 +238,12 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 		}
 	}
 
-	if (fluidData._fluidGenData.empty())
+
+	if (fluidData._fluidId == std::numeric_limits<decltype(fluidData._fluidId)>::max())
+	{
+		Storm::throwException<std::exception>("Fluid id should be set using 'id' tag!");
+	}
+	else if (fluidData._fluidGenData.empty())
 	{
 		Storm::throwException<std::exception>("Fluid " + std::to_string(fluidData._fluidId) + " should have at least one block (an empty fluid is forbidden)!");
 	}
@@ -290,6 +295,11 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 		[&macroConfig, &rigidBodiesDataArray, &fluidData](Storm::RigidBodySceneData &rbData)
 	{
 		macroConfig(rbData._meshFilePath);
+
+		if (rbData._rigidBodyID == std::numeric_limits<decltype(rbData._rigidBodyID)>::max())
+		{
+			Storm::throwException<std::exception>("Rigid body id should be set using 'id' tag!");
+		}
 
 		// Minus 1 because of course, the rbData that we are currently filling has the same id than itself... 
 		const auto lastToCheck = std::end(rigidBodiesDataArray) - 1;
