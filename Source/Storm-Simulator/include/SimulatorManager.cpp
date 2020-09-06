@@ -203,9 +203,6 @@ void Storm::SimulatorManager::initialize_Implementation()
 		}
 	}
 
-	// Load all blowers
-	this->loadBlowers();
-
 	/* Register this thread as the simulator thread for the speed profiler */
 	Storm::IProfilerManager &profilerMgr = singletonHolder.getSingleton<Storm::IProfilerManager>();
 	profilerMgr.registerCurrentThreadAsSimulationThread(k_simulationSpeedBalistName);
@@ -599,42 +596,20 @@ std::vector<Storm::Vector3> Storm::SimulatorManager::getParticleSystemPositions(
 	return this->getParticleSystem(id).getPositions();
 }
 
-void Storm::SimulatorManager::loadBlowers()
+void Storm::SimulatorManager::loadBlower(const Storm::BlowerData &blowerData)
 {
-	const std::vector<Storm::BlowerData> &allBlowersData = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().getBlowersData();
-	
-	const std::size_t blowerCountToLoad = allBlowersData.size();
-
-	if (blowerCountToLoad != 0)
-	{
-		LOG_DEBUG << "Starting to load blowers";
-
-		decltype(_blowers) tmp;
-		tmp.reserve(allBlowersData.size());
-
 #define STORM_XMACRO_GENERATE_ELEMENTARY_BLOWER(BlowerTypeName, BlowerTypeXmlName, EffectAreaType, MeshMakerType) \
-case Storm::BlowerType::BlowerTypeName: appendNewBlower<Storm::BlowerType::BlowerTypeName, Storm::EffectAreaType>(tmp, blowerData); break;
+case Storm::BlowerType::BlowerTypeName: appendNewBlower<Storm::BlowerType::BlowerTypeName, Storm::EffectAreaType>(_blowers, blowerData); break;
 
-		for (const Storm::BlowerData &blowerData : allBlowersData)
+		switch (blowerData._blowerType)
 		{
-			switch (blowerData._blowerType)
-			{
-				STORM_XMACRO_GENERATE_BLOWERS_CODE;
+			STORM_XMACRO_GENERATE_BLOWERS_CODE;
 
-			default:
-				Storm::throwException<std::exception>("Unhandled Blower Type creation requested! Value was " + std::to_string(static_cast<int>(blowerData._blowerType)));
-			}
+		default:
+			Storm::throwException<std::exception>("Unhandled Blower Type creation requested! Value was " + std::to_string(static_cast<int>(blowerData._blowerType)));
 		}
+
 #undef STORM_XMACRO_GENERATE_ELEMENTARY_BLOWER
-
-		_blowers = std::move(tmp);
-
-		LOG_COMMENT << "Blowers loading finished";
-	}
-	else
-	{
-		LOG_DEBUG << "No blowers to load.";
-	}
 }
 
 float Storm::SimulatorManager::getKernelLength() const

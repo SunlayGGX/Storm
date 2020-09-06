@@ -10,6 +10,7 @@
 
 #include "GeneralSimulationData.h"
 #include "FluidData.h"
+#include "BlowerData.h"
 #include "RigidBodySceneData.h"
 #include "RigidBody.h"
 
@@ -149,6 +150,7 @@ void Storm::AssetLoaderManager::initialize_Implementation()
 	Storm::ISimulatorManager &simulMgr = singletonHolder.getSingleton<Storm::ISimulatorManager>();
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
 
+	const auto &blowersDataToLoad = configMgr.getBlowersData();
 
 	/* Load rigid bodies */
 	LOG_COMMENT << "Loading Rigid body";
@@ -169,6 +171,12 @@ void Storm::AssetLoaderManager::initialize_Implementation()
 	/* Load constraints */
 	LOG_COMMENT << "Loading Constraints";
 	physicsMgr.loadConstraints(configMgr.getConstraintsData());
+
+	/* Loading Blowers */
+	for (const Storm::BlowerData &blowerToLoad : blowersDataToLoad)
+	{
+		simulMgr.loadBlower(blowerToLoad);
+	}
 
 	/* Load fluid particles */
 	LOG_COMMENT << "Loading fluid particles";
