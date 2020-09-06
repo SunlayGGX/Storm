@@ -166,7 +166,7 @@ void Storm::AssetLoaderManager::initialize_Implementation()
 	LOG_COMMENT << "Loading Rigid body";
 
 	const auto &rigidBodiesDataToLoad = configMgr.getRigidBodiesData();
-	_rigidBodies.reserve(rigidBodiesDataToLoad.size());
+	_rigidBodies.reserve(rigidBodiesDataToLoad.size() + blowersDataToLoad.size());
 	for (const auto &rbToLoad : rigidBodiesDataToLoad)
 	{
 		auto &emplacedRb = _rigidBodies.emplace_back(std::static_pointer_cast<Storm::IRigidBody>(std::make_shared<Storm::RigidBody>(rbToLoad)));
