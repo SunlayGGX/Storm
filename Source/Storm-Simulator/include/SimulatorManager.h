@@ -41,8 +41,8 @@ namespace Storm
 
 		std::vector<Storm::Vector3> getParticleSystemPositions(unsigned int id) const final override;
 
-	private:
-		void loadBlowers();
+	public:
+		void loadBlower(const Storm::BlowerData &blowerData) final override;
 
 	public:
 		void printFluidParticleData() const final override;
