@@ -22,7 +22,7 @@
 #define STORM_EXECUTABLE_NAME(name) STORM_PLUGIN_NAME(name) ".exe"
 
 
-#define STORM_NOT_IMPLEMENTED Storm::throwException<std::logic_error>(__FUNCTION__ " is not implemented!")
+#define STORM_NOT_IMPLEMENTED Storm::throwException<std::logic_error>(__FUNCSIG__ " is not implemented!")
 
 
 #if UNICODE
