@@ -14,6 +14,7 @@
     <ClCompile Include="..\include\AssetLoaderManager.cpp" />
     <ClCompile Include="..\include\AssimpLoggingWrapper.cpp" />
     <ClCompile Include="..\include\BasicMeshGenerator.cpp" />
+    <ClCompile Include="..\include\BlowerMeshMaker.cpp" />
     <ClCompile Include="..\include\PoissonDiskSampler.cpp" />
     <ClCompile Include="..\include\RigidBody.cpp" />
     <ClCompile Include="..\include\Storm-LoaderPCH.cpp">
@@ -25,6 +26,7 @@
     <ClInclude Include="..\include\AssetLoaderManager.h" />
     <ClInclude Include="..\include\AssimpLoggingWrapper.h" />
     <ClInclude Include="..\include\BasicMeshGenerator.h" />
+    <ClInclude Include="..\include\BlowerMeshMaker.h" />
     <ClInclude Include="..\include\PoissonDiskSampler.h" />
     <ClInclude Include="..\include\RigidBody.h" />
     <ClInclude Include="..\include\Storm-LoaderPCH.h" />

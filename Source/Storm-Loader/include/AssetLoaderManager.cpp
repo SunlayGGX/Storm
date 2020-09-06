@@ -7,16 +7,23 @@
 #include "IGraphicsManager.h"
 #include "IPhysicsManager.h"
 #include "ISimulatorManager.h"
+#include "IThreadManager.h"
 
 #include "GeneralSimulationData.h"
 #include "FluidData.h"
 #include "BlowerData.h"
 #include "RigidBodySceneData.h"
+
 #include "RigidBody.h"
 
 #include "BasicMeshGenerator.h"
 
 #include "FluidParticleLoadDenseMode.h"
+
+#include "BlowerMeshMaker.h"
+#include "BlowerType.h"
+
+#include "ThreadEnumeration.h"
 
 #include <Assimp\DefaultLogger.hpp>
 
@@ -127,6 +134,8 @@ namespace
 			}
 		}
 	}
+
+
 }
 
 #define STORM_EXECUTE_CASE_ON_DENSE_MODE(DenseModeEnum) case Storm::##DenseModeEnum: STORM_EXECUTE_METHOD_ON_DENSE_MODE(Storm::##DenseModeEnum) break
@@ -148,6 +157,7 @@ void Storm::AssetLoaderManager::initialize_Implementation()
 	Storm::IGraphicsManager &graphicsMgr = singletonHolder.getSingleton<Storm::IGraphicsManager>();
 	Storm::IPhysicsManager &physicsMgr = singletonHolder.getSingleton<Storm::IPhysicsManager>();
 	Storm::ISimulatorManager &simulMgr = singletonHolder.getSingleton<Storm::ISimulatorManager>();
+	Storm::IThreadManager &threadMgr = singletonHolder.getSingleton<Storm::IThreadManager>();
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
 
 	const auto &blowersDataToLoad = configMgr.getBlowersData();
@@ -173,8 +183,33 @@ void Storm::AssetLoaderManager::initialize_Implementation()
 	physicsMgr.loadConstraints(configMgr.getConstraintsData());
 
 	/* Loading Blowers */
+	std::vector<Storm::Vector3> areaVertexesTmp;
+	std::vector<uint32_t> areaIndexesTmp;
 	for (const Storm::BlowerData &blowerToLoad : blowersDataToLoad)
 	{
+		// Generate the mesh area data to pass to the graphical resources.
+#define STORM_XMACRO_GENERATE_ELEMENTARY_BLOWER(BlowerTypeName, BlowerTypeXmlName, EffectAreaType, MeshMakerType) \
+case Storm::BlowerType::BlowerTypeName: \
+	Storm::MeshMakerType::generate(blowerToLoad, areaVertexesTmp, areaIndexesTmp); \
+	break;
+
+		switch (blowerToLoad._blowerType)
+		{
+			STORM_XMACRO_GENERATE_BLOWERS_CODE;
+
+		default:
+		case Storm::BlowerType::None:
+			Storm::throwException<std::exception>("Unknown Blower to be created!");
+			break;
+		}
+
+#undef STORM_XMACRO_GENERATE_ELEMENTARY_BLOWER
+
+		threadMgr.executeOnThread(Storm::ThreadEnumeration::GraphicsThread, [&graphicsMgr, blowerToLoad, areaVertexes = std::move(areaVertexesTmp), areaIndexes = std::move(areaIndexesTmp)]()
+		{
+			graphicsMgr.loadBlower(blowerToLoad, areaVertexes, areaIndexes);
+		});
+
 		simulMgr.loadBlower(blowerToLoad);
 	}
 

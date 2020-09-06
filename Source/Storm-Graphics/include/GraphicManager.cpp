@@ -24,11 +24,7 @@
 #include "SpecialKey.h"
 
 #include "BlowerData.h"
-#include "BlowerDef.h"
-#include "BlowerType.h"
 #include "GraphicBlower.h"
-
-#include "BlowerMeshMaker.h"
 
 
 namespace
@@ -162,32 +158,6 @@ namespace
 
 		return dxParticlePosDataTmp;
 	}
-
-	void appendNewBlower(std::map<std::size_t, std::unique_ptr<Storm::GraphicBlowerBase>> &inOutGraphicBlowerContainer, const ComPtr<ID3D11Device> &device, const Storm::BlowerData &blowerDataConfig)
-	{
-		std::unique_ptr<Storm::GraphicBlowerBase> graphicBlower;
-		
-#define STORM_XMACRO_GENERATE_ELEMENTARY_BLOWER(BlowerTypeName, BlowerTypeXmlName, EffectAreaType, MeshMakerType) \
-case Storm::BlowerType::BlowerTypeName: \
-	graphicBlower = std::make_unique<Storm::GraphicBlower<Storm::BlowerType::BlowerTypeName, Storm::MeshMakerType>>(device, blowerDataConfig); \
-	break;
-
-		switch (blowerDataConfig._blowerType)
-		{
-			STORM_XMACRO_GENERATE_BLOWERS_CODE;
-
-		default:
-		case Storm::BlowerType::None:
-			Storm::throwException<std::exception>("Unknown Graphic Blower to be created!");
-			break;
-		}
-
-#undef STORM_XMACRO_GENERATE_ELEMENTARY_BLOWER
-
-		inOutGraphicBlowerContainer[blowerDataConfig._id] = std::move(graphicBlower);
-
-		LOG_DEBUG << "Graphic blower " << blowerDataConfig._id << " was created.";
-	}
 }
 
 Storm::GraphicManager::GraphicManager() :
@@ -248,8 +218,6 @@ void Storm::GraphicManager::initialize_Implementation(void* hwnd)
 	_renderedElements.emplace_back(std::make_unique<Storm::Grid>(device, graphicData._grid));
 
 	_graphicParticlesSystem = std::make_unique<Storm::GraphicParticleSystem>(device);
-
-	this->loadBlowers();
 
 	for (auto &meshesPair : _meshesMap)
 	{
@@ -358,16 +326,14 @@ void Storm::GraphicManager::bindParentRbToMesh(unsigned int meshId, const std::s
 	}
 }
 
-void Storm::GraphicManager::loadBlowers()
+void Storm::GraphicManager::loadBlower(const Storm::BlowerData &blowerData, const std::vector<Storm::Vector3> &vertexes, const std::vector<unsigned int> &indexes)
 {
 	const ComPtr<ID3D11Device> &currentDevice = _directXController->getDirectXDevice();
 
-	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
-	const std::vector<Storm::BlowerData> &allBlowersData = configMgr.getBlowersData();
-	for (const Storm::BlowerData &blowerData : allBlowersData)
-	{
-		appendNewBlower(_blowersMap, currentDevice, blowerData);
-	}
+	std::unique_ptr<Storm::GraphicBlower> graphicBlower = std::make_unique<Storm::GraphicBlower>(currentDevice, blowerData, vertexes, indexes);
+	_blowersMap[blowerData._id] = std::move(graphicBlower);
+
+	LOG_DEBUG << "Graphic blower " << blowerData._id << " was created.";
 }
 
 void Storm::GraphicManager::pushParticlesData(unsigned int particleSystemId, const std::vector<Storm::Vector3> &particlePosData, const std::vector<Storm::Vector3> &particleVelocityData, bool isFluids, bool isWall)
