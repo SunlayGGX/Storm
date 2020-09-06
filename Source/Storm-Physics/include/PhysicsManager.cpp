@@ -53,30 +53,35 @@ void Storm::PhysicsManager::addPhysicalBody(const Storm::RigidBodySceneData &rbS
 	}
 }
 
-void Storm::PhysicsManager::bindParentRbToPhysicalBody(const Storm::RigidBodySceneData &rbSceneData, const std::shared_ptr<Storm::IRigidBody> &parentRb) const
+void Storm::PhysicsManager::bindParentRbToPhysicalBody(const bool isStatic, const unsigned int rbId, const std::shared_ptr<Storm::IRigidBody> &parentRb) const
 {
-	if (rbSceneData._static)
+	if (isStatic)
 	{
-		if (const auto found = _staticsRbMap.find(rbSceneData._rigidBodyID); found != std::end(_staticsRbMap))
+		if (const auto found = _staticsRbMap.find(rbId); found != std::end(_staticsRbMap))
 		{
 			found->second->setRbParent(parentRb);
 		}
 		else
 		{
-			Storm::throwException<std::exception>("Cannot find static physics rb " + std::to_string(rbSceneData._rigidBodyID));
+			Storm::throwException<std::exception>("Cannot find static physics rigid body " + std::to_string(rbId));
 		}
 	}
 	else
 	{
-		if (const auto found = _dynamicsRbMap.find(rbSceneData._rigidBodyID); found != std::end(_dynamicsRbMap))
+		if (const auto found = _dynamicsRbMap.find(rbId); found != std::end(_dynamicsRbMap))
 		{
 			found->second->setRbParent(parentRb);
 		}
 		else
 		{
-			Storm::throwException<std::exception>("Cannot find dynamic physics rb " + std::to_string(rbSceneData._rigidBodyID));
+			Storm::throwException<std::exception>("Cannot find dynamic physics rigid body " + std::to_string(rbId));
 		}
 	}
+}
+
+void Storm::PhysicsManager::bindParentRbToPhysicalBody(const Storm::RigidBodySceneData &rbSceneData, const std::shared_ptr<Storm::IRigidBody> &parentRb) const
+{
+	this->bindParentRbToPhysicalBody(rbSceneData._static, rbSceneData._rigidBodyID, parentRb);
 }
 
 void Storm::PhysicsManager::addConstraint(const Storm::ConstraintData &constraintData)
