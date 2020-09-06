@@ -331,9 +331,9 @@ void Storm::GraphicManager::loadBlower(const Storm::BlowerData &blowerData, cons
 	const ComPtr<ID3D11Device> &currentDevice = _directXController->getDirectXDevice();
 
 	std::unique_ptr<Storm::GraphicBlower> graphicBlower = std::make_unique<Storm::GraphicBlower>(currentDevice, blowerData, vertexes, indexes);
-	_blowersMap[blowerData._id] = std::move(graphicBlower);
+	_blowersMap[blowerData._blowerId] = std::move(graphicBlower);
 
-	LOG_DEBUG << "Graphic blower " << blowerData._id << " was created.";
+	LOG_DEBUG << "Graphic blower " << blowerData._blowerId << " was created.";
 }
 
 void Storm::GraphicManager::pushParticlesData(unsigned int particleSystemId, const std::vector<Storm::Vector3> &particlePosData, const std::vector<Storm::Vector3> &particleVelocityData, bool isFluids, bool isWall)

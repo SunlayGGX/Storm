@@ -22,7 +22,7 @@ namespace Storm
 		Blower(const Storm::BlowerData &blowerDataConfig) :
 			BlowerEffectArea{ blowerDataConfig },
 			BlowerTimeHandler{ blowerDataConfig },
-			_id{ blowerDataConfig._id },
+			_id{ blowerDataConfig._blowerId },
 			_srcForce{ blowerDataConfig._blowerForce },
 			_force{ Vector3::Zero() },
 			_forceNorm{ 0.f },

@@ -238,7 +238,6 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 		}
 	}
 
-
 	if (fluidData._fluidId == std::numeric_limits<decltype(fluidData._fluidId)>::max())
 	{
 		Storm::throwException<std::exception>("Fluid id should be set using 'id' tag!");
@@ -382,6 +381,7 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 		[](const auto &blowerDataXml, Storm::BlowerData &blowerData)
 	{
 		return
+			Storm::XmlReader::handleXml(blowerDataXml, "id", blowerData._blowerId) ||
 			Storm::XmlReader::handleXml(blowerDataXml, "type", blowerData._blowerType, parseBlowerType) ||
 			Storm::XmlReader::handleXml(blowerDataXml, "startTime", blowerData._startTimeInSeconds) ||
 			Storm::XmlReader::handleXml(blowerDataXml, "endTime", blowerData._stopTimeInSeconds) ||
@@ -394,47 +394,62 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 			Storm::XmlReader::handleXml(blowerDataXml, "position", blowerData._blowerPosition, parseVector3Element)
 			;
 	},
-		[&blowersDataArray](Storm::BlowerData &blowerData)
+		[&rigidBodiesDataArray, &fluidData](Storm::BlowerData &blowerData)
 	{
-		blowerData._id = blowersDataArray.size() - 1;
-
-		if (blowerData._startTimeInSeconds < 0.f)
+		if (blowerData._blowerId == std::numeric_limits<decltype(blowerData._blowerId)>::max())
 		{
-			Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._id) + " start time is invalid (it cannot be lesser or equal to 0, value was " + std::to_string(blowerData._startTimeInSeconds) + ")!");
+			Storm::throwException<std::exception>("Blower id should be set using 'id' tag!");
+		}
+		else if (blowerData._blowerId == fluidData._fluidId)
+		{
+			Storm::throwException<std::exception>("Blower with id " + std::to_string(blowerData._blowerId) + " shares the same id than an already registered fluid. It is forbidden!");
+		}
+		else if (blowerData._startTimeInSeconds < 0.f)
+		{
+			Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._blowerId) + " start time is invalid (it cannot be lesser or equal to 0, value was " + std::to_string(blowerData._startTimeInSeconds) + ")!");
 		}
 		else if (blowerData._stopTimeInSeconds == -1.f && blowerData._fadeOutTimeInSeconds > 0.f)
 		{
-			Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._id) + " doesn't have a stop time but has a fade out time. It is illogical!");
+			Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._blowerId) + " doesn't have a stop time but has a fade out time. It is illogical!");
 		}
 		else if (blowerData._fadeInTimeInSeconds < 0.f)
 		{
-			Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._id) + " fade in time cannot be negative!");
+			Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._blowerId) + " fade in time cannot be negative!");
 		}
 		else if (blowerData._fadeOutTimeInSeconds < 0.f)
 		{
-			Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._id) + " fade out time cannot be negative!");
+			Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._blowerId) + " fade out time cannot be negative!");
 		}
 		else if (blowerData._stopTimeInSeconds != -1.f)
 		{
 			if (blowerData._startTimeInSeconds >= blowerData._stopTimeInSeconds)
 			{
 				Storm::throwException<std::exception>(
-					"Blower " + std::to_string(blowerData._id) + " end time cannot be before its start time.\n"
+					"Blower " + std::to_string(blowerData._blowerId) + " end time cannot be before its start time.\n"
 					"Either set it to -1 to specify that there is no stop time, or set it strictly greater than the start time!\n"
 					"startTime was " + std::to_string(blowerData._startTimeInSeconds) + "s\n"
 					"endTime was " + std::to_string(blowerData._stopTimeInSeconds) + "s.");
 			}
 			else if (blowerData._stopTimeInSeconds < blowerData._fadeOutTimeInSeconds)
 			{
-				Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._id) + " fade out time is greater than the stop time (this means that it has faded out even before the time 0, which does not make much sense)!");
+				Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._blowerId) + " fade out time is greater than the stop time (this means that it has faded out even before the time 0, which does not make much sense)!");
 			}
 			else if ((blowerData._startTimeInSeconds + blowerData._fadeInTimeInSeconds) > (blowerData._stopTimeInSeconds - blowerData._fadeOutTimeInSeconds))
 			{
 				Storm::throwException<std::exception>(
-					"Blower " + std::to_string(blowerData._id) + " fade in and fade out overlaps... Too complex and error prone, please, change it to a way those do not overlaps!\n"
+					"Blower " + std::to_string(blowerData._blowerId) + " fade in and fade out overlaps... Too complex and error prone, please, change it to a way those do not overlaps!\n"
 					"Fade in time start=" + std::to_string(blowerData._startTimeInSeconds) + "s; end=" + std::to_string(blowerData._startTimeInSeconds + blowerData._fadeInTimeInSeconds) + "s.\n"
 					"Fade out time start=" + std::to_string(blowerData._stopTimeInSeconds - blowerData._fadeOutTimeInSeconds) + "s; end=" + std::to_string(blowerData._stopTimeInSeconds) + "s.");
 			}
+		}
+
+		const auto lastRbToCheck = std::end(rigidBodiesDataArray);
+		if (const auto found = std::find_if(std::begin(rigidBodiesDataArray), lastRbToCheck, [id = blowerData._blowerId](const Storm::RigidBodySceneData &registeredRb)
+		{
+			return registeredRb._rigidBodyID == id;
+		}); found != lastRbToCheck)
+		{
+			Storm::throwException<std::exception>("Blower with id " + std::to_string(blowerData._blowerId) + " shares the same id than an already registered rigid body. It is forbidden!");
 		}
 
 		switch (blowerData._blowerType)
@@ -442,19 +457,19 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 		case Storm::BlowerType::Cube:
 			if (blowerData._blowerDimension == Storm::Vector3::Zero())
 			{
-				Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._id) + " (a cube) should have defined a dimension!");
+				Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._blowerId) + " (a cube) should have defined a dimension!");
 			}
 			else if (blowerData._blowerDimension.x() <= 0.f || blowerData._blowerDimension.y() <= 0.f || blowerData._blowerDimension.z() <= 0.f)
 			{
-				Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._id) + " (a cube) cannot have one of its dimension value lesser or equal to 0! Specified dimension was " + Storm::toStdString(blowerData._blowerDimension));
+				Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._blowerId) + " (a cube) cannot have one of its dimension value lesser or equal to 0! Specified dimension was " + Storm::toStdString(blowerData._blowerDimension));
 			}
 			else if (blowerData._radius != 0.f)
 			{
-				Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._id) + " (a cube) cannot have a radius (" + Storm::toStdString(blowerData._radius) + ")!");
+				Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._blowerId) + " (a cube) cannot have a radius (" + Storm::toStdString(blowerData._radius) + ")!");
 			}
 			else if (blowerData._height != 0.f && blowerData._height != blowerData._blowerDimension.y())
 			{
-				Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._id) + " (a cube) cannot have a specific height (use the dimension for a cube, not the height tag (" + Storm::toStdString(blowerData._height) + "))!");
+				Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._blowerId) + " (a cube) cannot have a specific height (use the dimension for a cube, not the height tag (" + Storm::toStdString(blowerData._height) + "))!");
 			}
 			break;
 
@@ -463,11 +478,11 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 		case Storm::BlowerType::ExplosionSphere:
 			if (blowerData._radius <= 0.f)
 			{
-				Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._id) + " (a sphere) should have defined a positive non-zero radius!");
+				Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._blowerId) + " (a sphere) should have defined a positive non-zero radius!");
 			}
 			else if (blowerData._height != 0.f)
 			{
-				Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._id) + " (a sphere) cannot have a specific height (this tag is reserved for cylinder derived blowers (" + Storm::toStdString(blowerData._height) + "))!");
+				Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._blowerId) + " (a sphere) cannot have a specific height (this tag is reserved for cylinder derived blowers (" + Storm::toStdString(blowerData._height) + "))!");
 			}
 			blowerData._blowerDimension = Storm::Vector3{ blowerData._radius, blowerData._radius, blowerData._radius };
 			break;
@@ -475,23 +490,23 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 		case Storm::BlowerType::PulseExplosionSphere:
 			if (blowerData._radius <= 0.f)
 			{
-				Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._id) + " (a pulse explosion) should have defined a positive non-zero radius!");
+				Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._blowerId) + " (a pulse explosion) should have defined a positive non-zero radius!");
 			}
 			else if (blowerData._height != 0.f)
 			{
-				Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._id) + " (a pulse explosion) cannot have a specific height (this tag is reserved for cylinder derived blowers (" + Storm::toStdString(blowerData._height) + "))!");
+				Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._blowerId) + " (a pulse explosion) cannot have a specific height (this tag is reserved for cylinder derived blowers (" + Storm::toStdString(blowerData._height) + "))!");
 			}
 			else if (blowerData._stopTimeInSeconds != -1.f)
 			{
-				Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._id) + " (a pulse explosion) have its stop time set in stone! You cannot override it (you've set " + std::to_string(blowerData._stopTimeInSeconds) + "s).");
+				Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._blowerId) + " (a pulse explosion) have its stop time set in stone! You cannot override it (you've set " + std::to_string(blowerData._stopTimeInSeconds) + "s).");
 			}
 			else if (blowerData._fadeInTimeInSeconds != 0.f)
 			{
-				Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._id) + " (a pulse explosion) have its fadeInTime set in stone! You cannot override it (you've set " + std::to_string(blowerData._fadeInTimeInSeconds) + "s).");
+				Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._blowerId) + " (a pulse explosion) have its fadeInTime set in stone! You cannot override it (you've set " + std::to_string(blowerData._fadeInTimeInSeconds) + "s).");
 			}
 			else if (blowerData._fadeOutTimeInSeconds != 0.f)
 			{
-				Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._id) + " (a pulse explosion) have its fadeInTime set in stone! You cannot override it (you've set " + std::to_string(blowerData._fadeOutTimeInSeconds) + "s).");
+				Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._blowerId) + " (a pulse explosion) have its fadeInTime set in stone! You cannot override it (you've set " + std::to_string(blowerData._fadeOutTimeInSeconds) + "s).");
 			}
 
 			blowerData._blowerDimension = Storm::Vector3{ blowerData._radius, blowerData._radius, blowerData._radius };
@@ -500,19 +515,19 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 		case Storm::BlowerType::Cylinder:
 			if (blowerData._radius <= 0.f)
 			{
-				Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._id) + " (a cylinder) should have defined a positive non-zero radius!");
+				Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._blowerId) + " (a cylinder) should have defined a positive non-zero radius!");
 			}
 			else if (blowerData._height <= 0.f)
 			{
-				Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._id) + " (a cylinder) should have defined a positive non zero height!");
+				Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._blowerId) + " (a cylinder) should have defined a positive non zero height!");
 			}
 			else if (blowerData._blowerDimension.x() != 0.f || blowerData._blowerDimension.z() != 0.f)
 			{
-				Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._id) + " (a cylinder) shouldn't use dimension tag to specify x and z width and depth but radius instead!");
+				Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._blowerId) + " (a cylinder) shouldn't use dimension tag to specify x and z width and depth but radius instead!");
 			}
 			else if (blowerData._blowerDimension.y() != 0.f && blowerData._blowerDimension.y() != blowerData._height)
 			{
-				Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._id) + " (a cylinder) shouldn't use dimension tag for the height but use height tag instead!");
+				Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._blowerId) + " (a cylinder) shouldn't use dimension tag for the height but use height tag instead!");
 			}
 
 			blowerData._blowerDimension = Storm::Vector3{ 0.f, blowerData._height, 0.f };
@@ -520,7 +535,7 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 
 		case Storm::BlowerType::None:
 		default:
-			Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._id) + " should have defined a blower type, this is mandatory!");
+			Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._blowerId) + " should have defined a blower type, this is mandatory!");
 		}
 	});
 }

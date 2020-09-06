@@ -33,6 +33,7 @@ Storm::GeneralSimulationData::GeneralSimulationData() :
 }
 
 Storm::RigidBodySceneData::RigidBodySceneData() :
+	_rigidBodyID{ std::numeric_limits<decltype(_rigidBodyID)>::max() },
 	_static{ true },
 	_isWall{ false },
 	_translation{ 0.f, 0.f, 0.f },
@@ -70,6 +71,7 @@ Storm::FluidBlockData::FluidBlockData() :
 }
 
 Storm::FluidData::FluidData() :
+	_fluidId{ std::numeric_limits<decltype(_fluidId)>::max() },
 	_density{ 1.2754f }, // Dry air density at 0 °C degrees and normal ATM pressure. https://en.wikipedia.org/wiki/Density_of_air.
 	_dynamicViscosity{ 0.00001715f }, // Dry air dynamic viscosity at 0 °C degrees and normal ATM pressure. https://www.engineeringtoolbox.com/air-absolute-kinematic-viscosity-d_601.html.
 	_soundSpeed{ 331.4f }, // Sound speed in air at 0 °C degrees and normal ATM pressure. https://www.engineeringtoolbox.com/air-speed-sound-d_603.html,
@@ -81,6 +83,7 @@ Storm::FluidData::FluidData() :
 }
 
 Storm::BlowerData::BlowerData() :
+	_blowerId{ std::numeric_limits<decltype(_blowerId)>::max() },
 	_startTimeInSeconds{ 0.f },
 	_stopTimeInSeconds{ -1.f },
 	_fadeInTimeInSeconds{ 0.f },

@@ -11,7 +11,7 @@ namespace Storm
 		BlowerData();
 
 	public:
-		std::size_t _id;
+		unsigned int _blowerId;
 
 		float _startTimeInSeconds;
 		float _stopTimeInSeconds;

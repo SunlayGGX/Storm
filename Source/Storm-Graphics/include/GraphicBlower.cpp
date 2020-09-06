@@ -56,7 +56,7 @@ namespace
 
 
 Storm::GraphicBlower::GraphicBlower(const ComPtr<ID3D11Device> &device, const Storm::BlowerData &blowerData, const std::vector<Storm::Vector3> &vertexes, const std::vector<unsigned int> &indexes) :
-	_id{ blowerData._id },
+	_id{ blowerData._blowerId },
 	_type{ blowerData._blowerType },
 	_blowerState{ Storm::BlowerState::NotWorking }
 {

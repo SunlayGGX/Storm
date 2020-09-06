@@ -209,6 +209,7 @@ Inside this element should be put all rigidbodies. Each rigidbody should be spec
 #### Blowers
 
 ##### Blower
+- **id (positive integer, mandatory)**: This is the blower id. This setting is mandatory. Note that this will also be the id of the blower rigid body that will be generated along your blower so it should also be unique with rigidbodies id and fluids id.
 - **type (string, mandatory)**: This is the blower type. This setting is non case sensitive and is mandatory. It defines what your underlying blower would be. For now, the accepted values are "Cube", "Sphere", "Cylinder", "RepulsionSphere", "PulseExplosion" and "Explosion".
 - **startTime (positive float, facultative)**: This defines the time in simulation second time your blower start working. Before this value, your blower will remain disabled. This value + fadeInTime shouldn't be greater than the endTime - fadeOutTime. Default value is 0.0 (the blower start right away).
 - **endTime (positive float, facultative)**: This defines the time in simulation second time your blower stop completely. After this value, your blower will remain disabled. This value minus fadeOutTime shouldn't be lesser than the start time + fadeInTime. If -1.0 is specified, the endTime will be ignored and the blower will continue indefinitely. Default value is -1.0.
