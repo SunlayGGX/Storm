@@ -205,7 +205,7 @@ case Storm::BlowerType::BlowerTypeName: \
 
 #undef STORM_XMACRO_GENERATE_ELEMENTARY_BLOWER
 
-		threadMgr.executeOnThread(Storm::ThreadEnumeration::GraphicsThread, [&graphicsMgr, blowerToLoad, areaVertexes = std::move(areaVertexesTmp), areaIndexes = std::move(areaIndexesTmp)]()
+		threadMgr.executeOnThread(Storm::ThreadEnumeration::GraphicsThread, [&graphicsMgr, &blowerToLoad, areaVertexes = std::move(areaVertexesTmp), areaIndexes = std::move(areaIndexesTmp)]()
 		{
 			graphicsMgr.loadBlower(blowerToLoad, areaVertexes, areaIndexes);
 		});
