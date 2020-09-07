@@ -160,13 +160,12 @@ void Storm::AssetLoaderManager::initialize_Implementation()
 	Storm::IThreadManager &threadMgr = singletonHolder.getSingleton<Storm::IThreadManager>();
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
 
-	const auto &blowersDataToLoad = configMgr.getBlowersData();
-
 	/* Load rigid bodies */
 	LOG_COMMENT << "Loading Rigid body";
 
 	const auto &rigidBodiesDataToLoad = configMgr.getRigidBodiesData();
-	_rigidBodies.reserve(rigidBodiesDataToLoad.size() + blowersDataToLoad.size());
+	const std::size_t rigidBodyCount = rigidBodiesDataToLoad.size();
+	_rigidBodies.reserve(rigidBodyCount);
 	for (const auto &rbToLoad : rigidBodiesDataToLoad)
 	{
 		auto &emplacedRb = _rigidBodies.emplace_back(std::static_pointer_cast<Storm::IRigidBody>(std::make_shared<Storm::RigidBody>(rbToLoad)));
@@ -183,6 +182,8 @@ void Storm::AssetLoaderManager::initialize_Implementation()
 	physicsMgr.loadConstraints(configMgr.getConstraintsData());
 
 	/* Loading Blowers */
+	const auto &blowersDataToLoad = configMgr.getBlowersData();
+
 	std::vector<Storm::Vector3> areaVertexesTmp;
 	std::vector<uint32_t> areaIndexesTmp;
 	for (const Storm::BlowerData &blowerToLoad : blowersDataToLoad)
