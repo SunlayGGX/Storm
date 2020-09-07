@@ -143,7 +143,7 @@ namespace
 			return nullptr;
 		}
 
-		Storm::UniquePointer<physx::PxShape> result = physics.createShape(geometry, *rbMaterial);
+		Storm::UniquePointer<physx::PxShape> result = physics.createShape(geometry, *rbMaterial, true);
 
 		inOutRegisteredRef.emplace_back(std::move(ownedPtr));
 
