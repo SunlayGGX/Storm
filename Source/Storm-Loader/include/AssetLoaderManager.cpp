@@ -178,8 +178,16 @@ void Storm::AssetLoaderManager::initialize_Implementation()
 	}
 
 	/* Load constraints */
-	LOG_COMMENT << "Loading Constraints";
-	physicsMgr.loadConstraints(configMgr.getConstraintsData());
+	const auto &constraintsData = configMgr.getConstraintsData();
+	if (!constraintsData.empty())
+	{
+		LOG_COMMENT << "Loading Constraints";
+		physicsMgr.loadConstraints(constraintsData);
+	}
+	else
+	{
+		LOG_DEBUG << "No Constraints to load. Skipping this step.";
+	}
 
 	/* Loading Blowers */
 	const auto &blowersDataToLoad = configMgr.getBlowersData();
