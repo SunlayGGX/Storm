@@ -12,5 +12,7 @@ namespace Storm
 		unsigned int _rigidBodyId1;
 		unsigned int _rigidBodyId2;
 		float _constraintsLength;
+		Storm::Vector3 _rigidBody1LinkTranslationOffset;
+		Storm::Vector3 _rigidBody2LinkTranslationOffset;
 	};
 }

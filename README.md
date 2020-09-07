@@ -203,9 +203,11 @@ Inside this element should be put all rigidbodies. Each rigidbody should be spec
 #### Constraints
 
 ##### Constraint
-- rbId1 **(positive integer, mandatory)**: This is the id of the first rigid body the contraints is attached to. It is a mandatory setting and the rigid body id must exist.
-- rbId2 **(positive integer, mandatory)**: This is the id of the second rigid body the contraints is attached to. It is a mandatory setting and the rigid body id must exist.
-- length **(positive float, facultative)**: This is the max length (in meter) of the contraints separating both rigid bodies (+ the initial distance between those rigidbodies). It should be a positive value and default is 0.0.
+- **rbId1 (positive integer, mandatory)**: This is the id of the first rigid body the contraints is attached to. It is a mandatory setting and the rigid body id must exist.
+- **rbId2 (positive integer, mandatory)**: This is the id of the second rigid body the contraints is attached to. It is a mandatory setting and the rigid body id must exist.
+- **length (positive float, facultative)**: This is the max length (in meter) of the contraints separating both rigid bodies (+ the initial distance between those rigidbodies). It should be a positive value and default is 0.0.
+- **rb1LinkOffset (vector3, facultative)**: This is the translation offset of the link endpoint on the rigid body 1 relative from its center. All coordinate are expressed in meters. Default is { x=0.0, y=0.0, z=0.0 } (the link end point is located at the center of the rigid body 1).
+- **rb2LinkOffset (vector3, facultative)**: This is the translation offset of the link endpoint on the rigid body 2 relative from its center. All coordinate are expressed in meters. Default is { x=0.0, y=0.0, z=0.0 } (the link end point is located at the center of the rigid body 2).
 
 
 #### Blowers

@@ -327,14 +327,20 @@ Storm::UniquePointer<physx::PxShape> Storm::PhysXHandler::createRigidBodyShape(c
 
 Storm::UniquePointer<physx::PxJoint> Storm::PhysXHandler::createJoint(const Storm::ConstraintData &constraintData, physx::PxRigidActor* actor1, physx::PxRigidActor* actor2)
 {
+	physx::PxTransform actor1LinkTransformFrame = actor1->getGlobalPose();
+	actor1LinkTransformFrame.p += Storm::convertToPx(constraintData._rigidBody1LinkTranslationOffset);
+
+	physx::PxTransform actor2LinkTransformFrame = actor2->getGlobalPose();
+	actor2LinkTransformFrame.p += Storm::convertToPx(constraintData._rigidBody2LinkTranslationOffset);
+
 	physx::PxDistanceJoint* tmp = physx::PxDistanceJointCreate(*_physics,
-		actor1, actor1->getGlobalPose(),
-		actor2, actor2->getGlobalPose()
+		actor1, actor1LinkTransformFrame,
+		actor2, actor2LinkTransformFrame
 	);
 
 	Storm::UniquePointer<physx::PxJoint> result{ tmp };
 
-	tmp->setMaxDistance((actor1->getGlobalPose().p - actor2->getGlobalPose().p).magnitude() + constraintData._constraintsLength);
+	tmp->setMaxDistance((actor1LinkTransformFrame.p - actor2LinkTransformFrame.p).magnitude() + constraintData._constraintsLength);
 	tmp->setDistanceJointFlag(physx::PxDistanceJointFlag::eMAX_DISTANCE_ENABLED, true);
 
 	return result;

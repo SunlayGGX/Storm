@@ -353,7 +353,9 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 		return
 			Storm::XmlReader::handleXml(constraintDataXml, "rbId1", contraintData._rigidBodyId1) ||
 			Storm::XmlReader::handleXml(constraintDataXml, "rbId2", contraintData._rigidBodyId2) ||
-			Storm::XmlReader::handleXml(constraintDataXml, "length", contraintData._constraintsLength)
+			Storm::XmlReader::handleXml(constraintDataXml, "length", contraintData._constraintsLength) ||
+			Storm::XmlReader::handleXml(constraintDataXml, "rb1LinkOffset", contraintData._rigidBody1LinkTranslationOffset, parseVector3Element) ||
+			Storm::XmlReader::handleXml(constraintDataXml, "rb2LinkOffset", contraintData._rigidBody2LinkTranslationOffset, parseVector3Element)
 			;
 	},
 		[&rigidBodiesDataArray, &contraintsIndex](Storm::ConstraintData &contraintData)
