@@ -89,9 +89,28 @@ namespace
 		meshDesc.points.stride = sizeof(Storm::Vector3);
 		meshDesc.points.data = vertices.data();
 
-		meshDesc.triangles.count = static_cast<physx::PxU32>(indexes.size() / 3);
-		meshDesc.triangles.stride = 3 * sizeof(uint32_t);
-		meshDesc.triangles.data = indexes.data();
+		// We need to invert the clock wise rotation of triangles if the rigid body collision is pointing inside (like in the case of a wall).
+		if (rbSceneData._isWall)
+		{
+			std::vector<uint32_t> indexSwapped;
+			indexSwapped.resize(indexes.size());
+			for (std::size_t index = 0; index < indexes.size(); index += 3)
+			{
+				indexSwapped[index] = indexes[index];
+				indexSwapped[index + 1] = indexes[index + 2];
+				indexSwapped[index + 2] = indexes[index + 1];
+			}
+
+			meshDesc.triangles.count = static_cast<physx::PxU32>(indexSwapped.size() / 3);
+			meshDesc.triangles.stride = 3 * sizeof(uint32_t);
+			meshDesc.triangles.data = indexSwapped.data();
+		}
+		else
+		{
+			meshDesc.triangles.count = static_cast<physx::PxU32>(indexes.size() / 3);
+			meshDesc.triangles.stride = 3 * sizeof(uint32_t);
+			meshDesc.triangles.data = indexes.data();
+		}
 
 		physx::PxDefaultMemoryOutputStream writeBuffer;
 		physx::PxTriangleMeshCookingResult::Enum res;
