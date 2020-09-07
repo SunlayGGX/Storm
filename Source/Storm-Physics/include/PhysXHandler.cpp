@@ -92,9 +92,9 @@ namespace
 		meshDesc.points.data = vertices.data();
 
 		// We need to invert the clock wise rotation of triangles if the rigid body collision is pointing inside (like in the case of a wall).
+		std::vector<uint32_t> indexSwapped;
 		if (rbSceneData._isWall)
 		{
-			std::vector<uint32_t> indexSwapped;
 			indexSwapped.resize(indexes.size());
 			for (std::size_t index = 0; index < indexes.size(); index += 3)
 			{
@@ -115,7 +115,7 @@ namespace
 		}
 
 		physx::PxDefaultMemoryOutputStream writeBuffer;
-		physx::PxTriangleMeshCookingResult::Enum res;
+		physx::PxTriangleMeshCookingResult::Enum res = physx::PxTriangleMeshCookingResult::eFAILURE;
 
 		if (!cooking.cookTriangleMesh(meshDesc, writeBuffer, &res))
 		{
