@@ -36,6 +36,9 @@ namespace Storm
 		void initializePreSimulation();
 
 	public:
+		void refreshParticlesPosition() final override;
+
+	public:
 		void addFluidParticleSystem(unsigned int id, std::vector<Storm::Vector3> particlePositions) final override;
 		void addRigidBodyParticleSystem(unsigned int id, std::vector<Storm::Vector3> particlePositions) final override;
 

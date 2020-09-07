@@ -192,17 +192,6 @@ void Storm::SimulatorManager::initialize_Implementation()
 	Storm::IInputManager &inputMgr = singletonHolder.getSingleton<Storm::IInputManager>();
 	inputMgr.bindKey(Storm::SpecialKey::KC_F1, [this]() { this->printFluidParticleData(); });
 
-	// First position update to regenerate the position of any particle according to its translation.
-	// This needs to be done only for rigid bodies. Fluids don't need it.
-	for (auto &particleSystem : _particleSystem)
-	{
-		Storm::ParticleSystem &pSystem = *particleSystem.second;
-		if (!pSystem.isFluids())
-		{
-			particleSystem.second->updatePosition(0.f);
-		}
-	}
-
 	/* Register this thread as the simulator thread for the speed profiler */
 	Storm::IProfilerManager &profilerMgr = singletonHolder.getSingleton<Storm::IProfilerManager>();
 	profilerMgr.registerCurrentThreadAsSimulationThread(k_simulationSpeedBalistName);
@@ -570,6 +559,15 @@ void Storm::SimulatorManager::initializePreSimulation()
 	{
 		Storm::ParticleSystem &pSystem = *particleSystem.second;
 		pSystem.initializePreSimulation(_particleSystem, k_kernelLength);
+	}
+}
+
+void Storm::SimulatorManager::refreshParticlesPosition()
+{
+	for (auto &particleSystem : _particleSystem)
+	{
+		Storm::ParticleSystem &pSystem = *particleSystem.second;
+		pSystem.updatePosition(0.f);
 	}
 }
 

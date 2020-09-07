@@ -261,6 +261,10 @@ case Storm::BlowerType::BlowerTypeName: \
 		}
 	}
 
+	// We need to update the position to regenerate the position of any rigid body particle according to its translation.
+	// This needs to be done only for rigid bodies. Fluids don't need it. 
+	simulMgr.refreshParticlesPosition();
+
 	simulMgr.addFluidParticleSystem(fluidsDataToLoad._fluidId, std::move(fluidParticlePos));
 
 	LOG_COMMENT << "Asset loading finished!";

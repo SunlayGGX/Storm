@@ -21,6 +21,9 @@ namespace Storm
 		virtual std::vector<Storm::Vector3> getParticleSystemPositions(unsigned int id) const = 0;
 
 	public:
+		virtual void refreshParticlesPosition() = 0;
+
+	public:
 		virtual void loadBlower(const Storm::BlowerData &blowerData) = 0;
 
 	public:
