@@ -118,6 +118,12 @@ namespace
 		physx::PxTriangleMeshGeometry geometry;
 		geometry.triangleMesh = ownedPtr.get();
 
+		if (!geometry.isValid())
+		{
+			LOG_ERROR << "Triangle mesh geometry isn't valid!";
+			return nullptr;
+		}
+
 		Storm::UniquePointer<physx::PxShape> result = physics.createShape(geometry, *rbMaterial);
 
 		inOutRegisteredRef.emplace_back(std::move(ownedPtr));
