@@ -226,6 +226,9 @@ Storm::PhysXHandler::PhysXHandler() :
 	{
 		Storm::throwException<std::exception>("PhysX main scene creation failed!");
 	}
+
+	_scene->setFlag(physx::PxSceneFlag::Enum::eENABLE_KINEMATIC_PAIRS, true);
+	_scene->setFlag(physx::PxSceneFlag::Enum::eENABLE_KINEMATIC_STATIC_PAIRS, true);
 }
 
 Storm::PhysXHandler::~PhysXHandler()
@@ -327,10 +330,10 @@ Storm::UniquePointer<physx::PxShape> Storm::PhysXHandler::createRigidBodyShape(c
 
 Storm::UniquePointer<physx::PxJoint> Storm::PhysXHandler::createJoint(const Storm::ConstraintData &constraintData, physx::PxRigidActor* actor1, physx::PxRigidActor* actor2)
 {
-	physx::PxTransform actor1LinkTransformFrame = actor1->getGlobalPose();
+	physx::PxTransform actor1LinkTransformFrame = physx::PxTransform{ physx::PxIDENTITY::PxIdentity };
 	actor1LinkTransformFrame.p += Storm::convertToPx(constraintData._rigidBody1LinkTranslationOffset);
 
-	physx::PxTransform actor2LinkTransformFrame = actor2->getGlobalPose();
+	physx::PxTransform actor2LinkTransformFrame = physx::PxTransform{ physx::PxIDENTITY::PxIdentity };
 	actor2LinkTransformFrame.p += Storm::convertToPx(constraintData._rigidBody2LinkTranslationOffset);
 
 	physx::PxDistanceJoint* tmp = physx::PxDistanceJointCreate(*_physics,
@@ -340,8 +343,13 @@ Storm::UniquePointer<physx::PxJoint> Storm::PhysXHandler::createJoint(const Stor
 
 	Storm::UniquePointer<physx::PxJoint> result{ tmp };
 
-	tmp->setMaxDistance((actor1LinkTransformFrame.p - actor2LinkTransformFrame.p).magnitude() + constraintData._constraintsLength);
+	const float maxDistance = constraintData._constraintsLength;
+	tmp->setMaxDistance(maxDistance);
 	tmp->setDistanceJointFlag(physx::PxDistanceJointFlag::eMAX_DISTANCE_ENABLED, true);
+	tmp->setDistanceJointFlag(physx::PxDistanceJointFlag::eSPRING_ENABLED, false);
+
+	tmp->setConstraintFlag(physx::PxConstraintFlag::Enum::eCOLLISION_ENABLED, true);
+	tmp->setConstraintFlag(physx::PxConstraintFlag::Enum::eENABLE_EXTENDED_LIMITS, true);
 
 	return result;
 }
