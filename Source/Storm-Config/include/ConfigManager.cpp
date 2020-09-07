@@ -289,3 +289,8 @@ bool Storm::ConfigManager::getShouldLogGraphicDeviceMessage() const
 {
 	return _generalConfig._shouldLogGraphicDeviceMessage;
 }
+
+bool Storm::ConfigManager::getShouldLogPhysics() const
+{
+	return _generalConfig._shouldLogPhysics;
+}

@@ -34,6 +34,7 @@ namespace Storm
 		virtual bool getShouldOverrideOldLog() const = 0;
 		virtual bool getShouldLogFpsWatching() const = 0;
 		virtual bool getShouldLogGraphicDeviceMessage() const = 0;
+		virtual bool getShouldLogPhysics() const = 0;
 		virtual bool noPopup() const = 0;
 
 		// General Graphics

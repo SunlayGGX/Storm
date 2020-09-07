@@ -23,6 +23,7 @@ namespace Storm
 		bool _overrideLogs;
 		bool _shouldLogFPSWatching;
 		bool _shouldLogGraphicDeviceMessage;
+		bool _shouldLogPhysics;
 		int _removeLogsOlderThanDays;
 
 		// Graphics

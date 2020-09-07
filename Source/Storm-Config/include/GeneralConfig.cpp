@@ -42,6 +42,7 @@ Storm::GeneralConfig::GeneralConfig() :
 	_wantedApplicationWidth{ 1200 },
 	_fontSize{ 17.f },
 	_shouldLogGraphicDeviceMessage{ false },
+	_shouldLogPhysics{ false },
 	_profileSimulationSpeed{ false }
 {
 
@@ -73,6 +74,7 @@ bool Storm::GeneralConfig::read(const std::string &generalConfigFilePathStr)
 						!Storm::XmlReader::handleXml(logXmlElement, "override", _overrideLogs) &&
 						!Storm::XmlReader::handleXml(logXmlElement, "fpsWatching", _shouldLogFPSWatching) &&
 						!Storm::XmlReader::handleXml(logXmlElement, "logGraphicDeviceMessage", _shouldLogGraphicDeviceMessage) &&
+						!Storm::XmlReader::handleXml(logXmlElement, "logPhysics", _shouldLogPhysics) &&
 						!Storm::XmlReader::handleXml(logXmlElement, "removeOlderThanDays", _removeLogsOlderThanDays)
 						)
 					{

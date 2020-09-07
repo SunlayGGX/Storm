@@ -33,6 +33,7 @@ namespace Storm
 		bool getShouldOverrideOldLog() const final override;
 		bool getShouldLogFpsWatching() const final override;
 		bool getShouldLogGraphicDeviceMessage() const final override;
+		bool getShouldLogPhysics() const final override;
 		bool noPopup() const final override;
 
 		bool getShouldProfileSimulationSpeed() const final override;
