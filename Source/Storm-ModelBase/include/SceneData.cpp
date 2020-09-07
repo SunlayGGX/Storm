@@ -93,8 +93,7 @@ Storm::BlowerData::BlowerData() :
 	_radius{ 0.f },
 	_height{ 0.f },
 	_blowerPosition{ Storm::Vector3::Zero() },
-	_blowerForce{ Storm::Vector3::Zero() },
-	_makeRigidBody{ false }
+	_blowerForce{ Storm::Vector3::Zero() }
 {
 
 }

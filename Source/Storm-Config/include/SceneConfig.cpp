@@ -393,7 +393,6 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 			Storm::XmlReader::handleXml(blowerDataXml, "fadeOutTime", blowerData._fadeOutTimeInSeconds) ||
 			Storm::XmlReader::handleXml(blowerDataXml, "radius", blowerData._radius) ||
 			Storm::XmlReader::handleXml(blowerDataXml, "height", blowerData._height) ||
-			Storm::XmlReader::handleXml(blowerDataXml, "makeRigidbody", blowerData._makeRigidBody) ||
 			Storm::XmlReader::handleXml(blowerDataXml, "dimension", blowerData._blowerDimension, parseVector3Element) ||
 			Storm::XmlReader::handleXml(blowerDataXml, "force", blowerData._blowerForce, parseVector3Element) ||
 			Storm::XmlReader::handleXml(blowerDataXml, "position", blowerData._blowerPosition, parseVector3Element)
@@ -541,21 +540,6 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 		case Storm::BlowerType::None:
 		default:
 			Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._blowerId) + " should have defined a blower type, this is mandatory!");
-		}
-
-		switch (blowerData._blowerType)
-		{
-		case Storm::BlowerType::Sphere:
-		case Storm::BlowerType::ExplosionSphere:
-		case Storm::BlowerType::PulseExplosionSphere:
-		case Storm::BlowerType::RepulsionSphere:
-			if (blowerData._makeRigidBody)
-			{
-				// For logic reason, sphere and derived cannot have an auto generated rigid body because where is the opening ?!
-				// Cylinder would have the opening at both bases, and Cube opening will be at up and down faces.
-				Storm::throwException<std::exception>("Sphere blowers (Blower " + std::to_string(blowerData._blowerId) + ") cannot have an auto generated rigid body!");
-			}
-			break;
 		}
 	});
 }

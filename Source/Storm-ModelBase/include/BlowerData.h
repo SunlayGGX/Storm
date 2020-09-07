@@ -27,7 +27,5 @@ namespace Storm
 		Storm::Vector3 _blowerPosition;
 
 		Storm::Vector3 _blowerForce;
-
-		bool _makeRigidBody;
 	};
 }
