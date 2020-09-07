@@ -49,6 +49,10 @@ namespace
 		{
 			return Storm::CollisionType::Sphere;
 		}
+		else if (collisionTypeStr == "custom")
+		{
+			return Storm::CollisionType::Custom;
+		}
 		else if (collisionTypeStr == "none")
 		{
 			return Storm::CollisionType::None;
