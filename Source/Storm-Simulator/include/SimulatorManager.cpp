@@ -189,7 +189,7 @@ namespace
 			}
 		}
 
-		const auto thresholdToEliminate = std::stable_partition(std::execution::par, std::begin(inOutParticlePositions), std::end(inOutParticlePositions), [&allRbParticlePositions, &particleRadius](const Storm::Vector3 &particlePos)
+		const auto thresholdToEliminate = std::partition(std::execution::par, std::begin(inOutParticlePositions), std::end(inOutParticlePositions), [&allRbParticlePositions, &particleRadius](const Storm::Vector3 &particlePos)
 		{
 			for (const auto &rbAllPositions : allRbParticlePositions)
 			{
@@ -211,12 +211,8 @@ namespace
 			return true;
 		});
 
-		if (thresholdToEliminate != std::end(inOutParticlePositions))
+		for (std::size_t toRemove = std::end(inOutParticlePositions) - thresholdToEliminate; toRemove > 0; --toRemove)
 		{
-			while (std::end(inOutParticlePositions) != thresholdToEliminate)
-			{
-				inOutParticlePositions.pop_back();
-			}
 			inOutParticlePositions.pop_back();
 		}
 	}
