@@ -35,5 +35,7 @@ namespace Storm
 		Storm::KernelMode _kernelMode;
 
 		bool _removeFluidParticleCollidingWithRb;
+
+		bool _hasFluid;
 	};
 }

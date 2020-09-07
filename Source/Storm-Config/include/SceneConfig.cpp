@@ -134,6 +134,7 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 
 	const auto &srcTree = xmlTree.get_child("Scene");
 
+	bool allowNoFluid = false;
 
 	/* General */
 	// This is mandatory, so no optional
@@ -155,6 +156,7 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 			!Storm::XmlReader::handleXml(generalXmlElement, "maxDensityError", generalData._maxDensityError) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "neighborCheckStep", generalData._recomputeNeighborhoodStep) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "simulationNoWait", generalData._simulationNoWait) &&
+			!Storm::XmlReader::handleXml(generalXmlElement, "allowNoFluid", allowNoFluid) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "particleRadius", generalData._particleRadius)
 			)
 		{
@@ -206,72 +208,84 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 
 	/* Fluids */
 	Storm::FluidData &fluidData = *_sceneData->_fluidData;
-	const auto &fluidTree = srcTree.get_child("Fluid");
-	for (const auto &fluidXmlElement : fluidTree)
+	const auto &fluidTreeOpt = srcTree.get_child_optional("Fluid");
+	if (fluidTreeOpt.has_value())
 	{
-		if (fluidXmlElement.first == "fluidBlock")
+		const auto &fluidTree = fluidTreeOpt.value();
+		for (const auto &fluidXmlElement : fluidTree)
 		{
-			auto &fluidBlockGenerator = fluidData._fluidGenData.emplace_back();
-			for (const auto &fluidBlockDataXml : fluidXmlElement.second)
+			if (fluidXmlElement.first == "fluidBlock")
 			{
-				if (
-					!Storm::XmlReader::handleXml(fluidBlockDataXml, "firstPoint", fluidBlockGenerator._firstPoint, parseVector3Element) &&
-					!Storm::XmlReader::handleXml(fluidBlockDataXml, "secondPoint", fluidBlockGenerator._secondPoint, parseVector3Element) &&
-					!Storm::XmlReader::handleXml(fluidBlockDataXml, "denseMode", fluidBlockGenerator._loadDenseMode, parseLoadDenseMode)
-					)
+				auto &fluidBlockGenerator = fluidData._fluidGenData.emplace_back();
+				for (const auto &fluidBlockDataXml : fluidXmlElement.second)
 				{
-					LOG_ERROR << "tag '" << fluidBlockDataXml.first << "' (inside Scene.Fluid.fluidBlock) is unknown, therefore it cannot be handled";
+					if (
+						!Storm::XmlReader::handleXml(fluidBlockDataXml, "firstPoint", fluidBlockGenerator._firstPoint, parseVector3Element) &&
+						!Storm::XmlReader::handleXml(fluidBlockDataXml, "secondPoint", fluidBlockGenerator._secondPoint, parseVector3Element) &&
+						!Storm::XmlReader::handleXml(fluidBlockDataXml, "denseMode", fluidBlockGenerator._loadDenseMode, parseLoadDenseMode)
+						)
+					{
+						LOG_ERROR << "tag '" << fluidBlockDataXml.first << "' (inside Scene.Fluid.fluidBlock) is unknown, therefore it cannot be handled";
+					}
+				}
+
+				if (fluidBlockGenerator._firstPoint == fluidBlockGenerator._secondPoint)
+				{
+					Storm::throwException<std::exception>("Generator min block value cannot be equal to the max value!");
 				}
 			}
-
-			if (fluidBlockGenerator._firstPoint == fluidBlockGenerator._secondPoint)
+			else if (
+				!Storm::XmlReader::handleXml(fluidXmlElement, "id", fluidData._fluidId) &&
+				!Storm::XmlReader::handleXml(fluidXmlElement, "viscosity", fluidData._dynamicViscosity) &&
+				!Storm::XmlReader::handleXml(fluidXmlElement, "soundSpeed", fluidData._soundSpeed) &&
+				!Storm::XmlReader::handleXml(fluidXmlElement, "pressureK1", fluidData._kPressureStiffnessCoeff) &&
+				!Storm::XmlReader::handleXml(fluidXmlElement, "pressureK2", fluidData._kPressureExponentCoeff) &&
+				!Storm::XmlReader::handleXml(fluidXmlElement, "density", fluidData._density)
+				)
 			{
-				Storm::throwException<std::exception>("Generator min block value cannot be equal to the max value!");
+				LOG_ERROR << "tag '" << fluidXmlElement.first << "' (inside Scene.Fluid) is unknown, therefore it cannot be handled";
 			}
 		}
-		else if (
-			!Storm::XmlReader::handleXml(fluidXmlElement, "id", fluidData._fluidId) &&
-			!Storm::XmlReader::handleXml(fluidXmlElement, "viscosity", fluidData._dynamicViscosity) &&
-			!Storm::XmlReader::handleXml(fluidXmlElement, "soundSpeed", fluidData._soundSpeed) &&
-			!Storm::XmlReader::handleXml(fluidXmlElement, "pressureK1", fluidData._kPressureStiffnessCoeff) &&
-			!Storm::XmlReader::handleXml(fluidXmlElement, "pressureK2", fluidData._kPressureExponentCoeff) &&
-			!Storm::XmlReader::handleXml(fluidXmlElement, "density", fluidData._density)
-			)
+
+		if (fluidData._fluidId == std::numeric_limits<decltype(fluidData._fluidId)>::max())
 		{
-			LOG_ERROR << "tag '" << fluidXmlElement.first << "' (inside Scene.Fluid) is unknown, therefore it cannot be handled";
+			Storm::throwException<std::exception>("Fluid id should be set using 'id' tag!");
 		}
-	}
+		else if (fluidData._fluidGenData.empty())
+		{
+			Storm::throwException<std::exception>("Fluid " + std::to_string(fluidData._fluidId) + " should have at least one block (an empty fluid is forbidden)!");
+		}
+		else if (fluidData._density <= 0.f)
+		{
+			Storm::throwException<std::exception>("Fluid " + std::to_string(fluidData._fluidId) + " density of " + std::to_string(fluidData._density) + "kg.m^-3 is invalid!");
+		}
+		else if (fluidData._kPressureStiffnessCoeff < 0.f)
+		{
+			Storm::throwException<std::exception>("Fluid " + std::to_string(fluidData._fluidId) + " pressure stiffness of " + std::to_string(fluidData._kPressureStiffnessCoeff) + " is invalid!");
+		}
+		else if (fluidData._kPressureExponentCoeff < 0.f)
+		{
+			Storm::throwException<std::exception>("Fluid " + std::to_string(fluidData._fluidId) + " pressure exponent of " + std::to_string(fluidData._kPressureExponentCoeff) + " is invalid!");
+		}
+		else if (fluidData._dynamicViscosity <= 0.f)
+		{
+			Storm::throwException<std::exception>("Fluid " + std::to_string(fluidData._fluidId) + " dynamic viscosity of " + std::to_string(fluidData._dynamicViscosity) + "N.s/m² is invalid!");
+		}
+		else if (fluidData._soundSpeed <= 0.f)
+		{
+			Storm::throwException<std::exception>("Fluid " + std::to_string(fluidData._fluidId) + " sound of speed (" + std::to_string(fluidData._dynamicViscosity) + "m/s) is invalid!");
+		}
 
-	if (fluidData._fluidId == std::numeric_limits<decltype(fluidData._fluidId)>::max())
-	{
-		Storm::throwException<std::exception>("Fluid id should be set using 'id' tag!");
+		fluidData._cinematicViscosity = fluidData._dynamicViscosity / fluidData._density;
 	}
-	else if (fluidData._fluidGenData.empty())
+	else if (allowNoFluid)
 	{
-		Storm::throwException<std::exception>("Fluid " + std::to_string(fluidData._fluidId) + " should have at least one block (an empty fluid is forbidden)!");
+		generalData._hasFluid = false;
 	}
-	else if (fluidData._density <= 0.f)
+	else
 	{
-		Storm::throwException<std::exception>("Fluid " + std::to_string(fluidData._fluidId) + " density of " + std::to_string(fluidData._density) + "kg.m^-3 is invalid!");
+		Storm::throwException<std::exception>("You should have at least one Fluid inside the scene, unless you've specified the tag 'General.allowNoFluid' to true!");
 	}
-	else if (fluidData._kPressureStiffnessCoeff < 0.f)
-	{
-		Storm::throwException<std::exception>("Fluid " + std::to_string(fluidData._fluidId) + " pressure stiffness of " + std::to_string(fluidData._kPressureStiffnessCoeff) + " is invalid!");
-	}
-	else if (fluidData._kPressureExponentCoeff < 0.f)
-	{
-		Storm::throwException<std::exception>("Fluid " + std::to_string(fluidData._fluidId) + " pressure exponent of " + std::to_string(fluidData._kPressureExponentCoeff) + " is invalid!");
-	}
-	else if (fluidData._dynamicViscosity <= 0.f)
-	{
-		Storm::throwException<std::exception>("Fluid " + std::to_string(fluidData._fluidId) + " dynamic viscosity of " + std::to_string(fluidData._dynamicViscosity) + "N.s/m² is invalid!");
-	}
-	else if (fluidData._soundSpeed <= 0.f)
-	{
-		Storm::throwException<std::exception>("Fluid " + std::to_string(fluidData._fluidId) + " sound of speed (" + std::to_string(fluidData._dynamicViscosity) + "m/s) is invalid!");
-	}
-
-	fluidData._cinematicViscosity = fluidData._dynamicViscosity / fluidData._density;
 
 	/* RigidBodies */
 	auto &rigidBodiesDataArray = _sceneData->_rigidBodiesData;

@@ -215,58 +215,70 @@ case Storm::BlowerType::BlowerTypeName: \
 	}
 
 	/* Load fluid particles */
-	LOG_COMMENT << "Loading fluid particles";
-
-	const float particleRadius = configMgr.getGeneralSimulationData()._particleRadius;
-	const float particleDiameter = particleRadius * 2.f;
-	const auto &fluidsDataToLoad = configMgr.getFluidData();
-	std::vector<Storm::Vector3> fluidParticlePos;
-
-	// First, evaluate the particle total count we need to have (to avoid unneeded reallocations along the way)...
-	fluidParticlePos.reserve(std::accumulate(std::begin(fluidsDataToLoad._fluidGenData), std::end(fluidsDataToLoad._fluidGenData), static_cast<std::size_t>(0), 
-		[particleDiameter](const std::size_t accumulatedVal, const Storm::FluidBlockData &fluidBlockGenerated)
+	const Storm::GeneralSimulationData &generalConfigData = configMgr.getGeneralSimulationData();
+	if (generalConfigData._hasFluid)
 	{
-		std::size_t particleXCount;
-		std::size_t particleYCount;
-		std::size_t particleZCount;
+		LOG_COMMENT << "Loading fluid particles";
 
-		switch (fluidBlockGenerated._loadDenseMode)
+		const float particleRadius = generalConfigData._particleRadius;
+		const float particleDiameter = particleRadius * 2.f;
+		const auto &fluidsDataToLoad = configMgr.getFluidData();
+		std::vector<Storm::Vector3> fluidParticlePos;
+
+		// First, evaluate the particle total count we need to have (to avoid unneeded reallocations along the way)...
+		fluidParticlePos.reserve(std::accumulate(std::begin(fluidsDataToLoad._fluidGenData), std::end(fluidsDataToLoad._fluidGenData), static_cast<std::size_t>(0),
+			[particleDiameter](const std::size_t accumulatedVal, const Storm::FluidBlockData &fluidBlockGenerated)
 		{
+			std::size_t particleXCount;
+			std::size_t particleYCount;
+			std::size_t particleZCount;
+
+			switch (fluidBlockGenerated._loadDenseMode)
+			{
 #define STORM_EXECUTE_METHOD_ON_DENSE_MODE(DenseMode) computeParticleCountBoxExtents<DenseMode>(fluidBlockGenerated, particleDiameter, particleXCount, particleYCount, particleZCount);
 
-			STORM_EXECUTE_CASE_ON_DENSE_MODE(FluidParticleLoadDenseMode::Normal);
-			STORM_EXECUTE_CASE_ON_DENSE_MODE(FluidParticleLoadDenseMode::AsSplishSplash);
+				STORM_EXECUTE_CASE_ON_DENSE_MODE(FluidParticleLoadDenseMode::Normal);
+				STORM_EXECUTE_CASE_ON_DENSE_MODE(FluidParticleLoadDenseMode::AsSplishSplash);
 
 #undef STORM_EXECUTE_METHOD_ON_DENSE_MODE
 
-		default:
-			break;
-		}
+			default:
+				break;
+			}
 
-		return accumulatedVal + particleXCount * particleYCount * particleZCount;
-	}));
+			return accumulatedVal + particleXCount * particleYCount * particleZCount;
+		}));
 
-	for (const Storm::FluidBlockData &fluidBlockGenerated : fluidsDataToLoad._fluidGenData)
-	{
-		switch (fluidBlockGenerated._loadDenseMode)
+		for (const Storm::FluidBlockData &fluidBlockGenerated : fluidsDataToLoad._fluidGenData)
 		{
+			switch (fluidBlockGenerated._loadDenseMode)
+			{
 #define STORM_EXECUTE_METHOD_ON_DENSE_MODE(DenseMode) generateFluidParticles<DenseMode>(fluidParticlePos, fluidBlockGenerated, particleDiameter);
 
-			STORM_EXECUTE_CASE_ON_DENSE_MODE(FluidParticleLoadDenseMode::Normal);
-			STORM_EXECUTE_CASE_ON_DENSE_MODE(FluidParticleLoadDenseMode::AsSplishSplash);
+				STORM_EXECUTE_CASE_ON_DENSE_MODE(FluidParticleLoadDenseMode::Normal);
+				STORM_EXECUTE_CASE_ON_DENSE_MODE(FluidParticleLoadDenseMode::AsSplishSplash);
 
 #undef STORM_EXECUTE_METHOD_ON_DENSE_MODE
 
-		default:
-			break;
+			default:
+				break;
+			}
 		}
+
+		// We need to update the position to regenerate the position of any rigid body particle according to its translation.
+		// This needs to be done only for rigid bodies. Fluids don't need it. 
+		simulMgr.refreshParticlesPosition();
+
+		simulMgr.addFluidParticleSystem(fluidsDataToLoad._fluidId, std::move(fluidParticlePos));
 	}
+	else
+	{
+		LOG_WARNING << 
+			"No fluid was present and we allowed it... Therefore, we would skip fluid loading to concentrate on rigid body interactions.\n"
+			"It is a debug/development helper feature so don't let this setting remains because this isn't the purpose of the application...";
 
-	// We need to update the position to regenerate the position of any rigid body particle according to its translation.
-	// This needs to be done only for rigid bodies. Fluids don't need it. 
-	simulMgr.refreshParticlesPosition();
-
-	simulMgr.addFluidParticleSystem(fluidsDataToLoad._fluidId, std::move(fluidParticlePos));
+		simulMgr.refreshParticlesPosition();
+	}
 
 	LOG_COMMENT << "Asset loading finished!";
 }

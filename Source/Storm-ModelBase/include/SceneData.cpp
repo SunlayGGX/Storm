@@ -28,7 +28,8 @@ Storm::GeneralSimulationData::GeneralSimulationData() :
 	_maxCFLTime{ 0.5f },
 	_recomputeNeighborhoodStep{ 1 },
 	_simulationNoWait{ false },
-	_removeFluidParticleCollidingWithRb{ true }
+	_removeFluidParticleCollidingWithRb{ true },
+	_hasFluid{ true }
 {
 
 }

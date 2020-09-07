@@ -153,6 +153,7 @@ Unlike the others config files, it can be named as you want. Here the wml tags y
 - **maxDensityError (positive float, facultative)**: This is the max density error under which we would continue the prediction iteration (or until maxPredictIteration hit). It should be less or equal than 0. Default value is 0.01.
 - **neighborCheckStep (positive integer, facultative)**: This is a char between 1 and 255. This specify that we will recompute the neighborhood every neighborCheckStep step. Default is 1 (we recompute each step of the simulation).
 - **collidingFluidRemoval (boolean, facultative)**: If true, the fluid particle colliding with already existing rigid body particle will be removed at initialization time. This does not reproduce the behavior of SplishSplash. Default is true.
+- **allowNoFluid (boolean, facultative)**: If true, we will allow the scene config file to not have any fluid (useful for testing rigid body features without minding particles while developping). Default is false.
 
 
 #### Graphics
