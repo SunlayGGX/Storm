@@ -174,6 +174,52 @@ namespace
 			" and a force of " << blowerDataConfig._blowerForce <<
 			" will start at " << blowerDataConfig._startTimeInSeconds << "s.";
 	}
+
+	void removeParticleInsideRbPosition(std::vector<Storm::Vector3> &inOutParticlePositions, const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystem, const float particleRadius)
+	{
+		std::vector<const std::vector<Storm::Vector3>*> allRbParticlePositions;
+		allRbParticlePositions.reserve(allParticleSystem.size());
+
+		for (const auto &particleSystemPair : allParticleSystem)
+		{
+			const Storm::ParticleSystem &currentPSystem = *particleSystemPair.second;
+			if (!currentPSystem.isFluids())
+			{
+				allRbParticlePositions.emplace_back(&currentPSystem.getPositions());
+			}
+		}
+
+		const auto thresholdToEliminate = std::stable_partition(std::execution::par, std::begin(inOutParticlePositions), std::end(inOutParticlePositions), [&allRbParticlePositions, &particleRadius](const Storm::Vector3 &particlePos)
+		{
+			for (const auto &rbAllPositions : allRbParticlePositions)
+			{
+				for (const Storm::Vector3 &rbPPosition : *rbAllPositions)
+				{
+					if (std::fabs(rbPPosition.x() - particlePos.x()) < particleRadius)
+					{
+						if (std::fabs(rbPPosition.y() - particlePos.y()) < particleRadius)
+						{
+							if (std::fabs(rbPPosition.z() - particlePos.z()) < particleRadius)
+							{
+								return false;
+							}
+						}
+					}
+				}
+			}
+
+			return true;
+		});
+
+		if (thresholdToEliminate != std::end(inOutParticlePositions))
+		{
+			while (std::end(inOutParticlePositions) != thresholdToEliminate)
+			{
+				inOutParticlePositions.pop_back();
+			}
+			inOutParticlePositions.pop_back();
+		}
+	}
 }
 
 Storm::SimulatorManager::SimulatorManager() = default;
@@ -573,7 +619,18 @@ void Storm::SimulatorManager::refreshParticlesPosition()
 
 void Storm::SimulatorManager::addFluidParticleSystem(unsigned int id, std::vector<Storm::Vector3> particlePositions)
 {
-	LOG_COMMENT << "Creating fluid particle system with " << particlePositions.size() << " particles.";
+	const std::size_t initialParticleCount = particlePositions.size();
+	LOG_COMMENT << "Creating fluid particle system with " << initialParticleCount << " particles.";
+
+	const Storm::GeneralSimulationData &generalConfigData = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().getGeneralSimulationData();
+	if (generalConfigData._removeFluidParticleCollidingWithRb)
+	{
+		LOG_COMMENT << "Removing fluid particles that collide with rigid bodies particles.";
+
+		removeParticleInsideRbPosition(particlePositions, _particleSystem, generalConfigData._particleRadius);
+
+		LOG_DEBUG << "We removed " << initialParticleCount - particlePositions.size() << " particle(s) after checking which collide with existing rigid bodies.";
+	}
 
 	addParticleSystemToMap<Storm::FluidParticleSystem>(_particleSystem, id, std::move(particlePositions));
 
