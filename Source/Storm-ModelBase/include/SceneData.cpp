@@ -27,7 +27,8 @@ Storm::GeneralSimulationData::GeneralSimulationData() :
 	_kernelMode{ Storm::KernelMode::CubicSpline },
 	_maxCFLTime{ 0.5f },
 	_recomputeNeighborhoodStep{ 1 },
-	_simulationNoWait{ false }
+	_simulationNoWait{ false },
+	_removeFluidParticleCollidingWithRb{ true }
 {
 
 }
