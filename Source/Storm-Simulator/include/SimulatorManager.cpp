@@ -139,7 +139,7 @@ namespace
 	void appendNewBlower(std::vector<std::unique_ptr<Storm::IBlower>> &inOutBlowerContainer, const Storm::BlowerData &blowerDataConfig)
 	{
 		std::string_view blowerIntroMsg;
-		if (type != Storm::BlowerType::PulseExplosionSphere)
+		if constexpr (type != Storm::BlowerType::PulseExplosionSphere)
 		{
 			if (blowerDataConfig._fadeInTimeInSeconds > 0.f && blowerDataConfig._fadeOutTimeInSeconds > 0.f)
 			{
@@ -174,6 +174,52 @@ namespace
 			" and a force of " << blowerDataConfig._blowerForce <<
 			" will start at " << blowerDataConfig._startTimeInSeconds << "s.";
 	}
+
+	void removeParticleInsideRbPosition(std::vector<Storm::Vector3> &inOutParticlePositions, const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystem, const float particleRadius)
+	{
+		std::vector<const std::vector<Storm::Vector3>*> allRbParticlePositions;
+		allRbParticlePositions.reserve(allParticleSystem.size());
+
+		for (const auto &particleSystemPair : allParticleSystem)
+		{
+			const Storm::ParticleSystem &currentPSystem = *particleSystemPair.second;
+			if (!currentPSystem.isFluids())
+			{
+				allRbParticlePositions.emplace_back(&currentPSystem.getPositions());
+			}
+		}
+
+		const auto thresholdToEliminate = std::stable_partition(std::execution::par, std::begin(inOutParticlePositions), std::end(inOutParticlePositions), [&allRbParticlePositions, &particleRadius](const Storm::Vector3 &particlePos)
+		{
+			for (const auto &rbAllPositions : allRbParticlePositions)
+			{
+				for (const Storm::Vector3 &rbPPosition : *rbAllPositions)
+				{
+					if (std::fabs(rbPPosition.x() - particlePos.x()) < particleRadius)
+					{
+						if (std::fabs(rbPPosition.y() - particlePos.y()) < particleRadius)
+						{
+							if (std::fabs(rbPPosition.z() - particlePos.z()) < particleRadius)
+							{
+								return false;
+							}
+						}
+					}
+				}
+			}
+
+			return true;
+		});
+
+		if (thresholdToEliminate != std::end(inOutParticlePositions))
+		{
+			while (std::end(inOutParticlePositions) != thresholdToEliminate)
+			{
+				inOutParticlePositions.pop_back();
+			}
+			inOutParticlePositions.pop_back();
+		}
+	}
 }
 
 Storm::SimulatorManager::SimulatorManager() = default;
@@ -191,20 +237,6 @@ void Storm::SimulatorManager::initialize_Implementation()
 
 	Storm::IInputManager &inputMgr = singletonHolder.getSingleton<Storm::IInputManager>();
 	inputMgr.bindKey(Storm::SpecialKey::KC_F1, [this]() { this->printFluidParticleData(); });
-
-	// First position update to regenerate the position of any particle according to its translation.
-	// This needs to be done only for rigid bodies. Fluids don't need it.
-	for (auto &particleSystem : _particleSystem)
-	{
-		Storm::ParticleSystem &pSystem = *particleSystem.second;
-		if (!pSystem.isFluids())
-		{
-			particleSystem.second->updatePosition(0.f);
-		}
-	}
-
-	// Load all blowers
-	this->loadBlowers();
 
 	/* Register this thread as the simulator thread for the speed profiler */
 	Storm::IProfilerManager &profilerMgr = singletonHolder.getSingleton<Storm::IProfilerManager>();
@@ -576,9 +608,29 @@ void Storm::SimulatorManager::initializePreSimulation()
 	}
 }
 
+void Storm::SimulatorManager::refreshParticlesPosition()
+{
+	for (auto &particleSystem : _particleSystem)
+	{
+		Storm::ParticleSystem &pSystem = *particleSystem.second;
+		pSystem.updatePosition(0.f);
+	}
+}
+
 void Storm::SimulatorManager::addFluidParticleSystem(unsigned int id, std::vector<Storm::Vector3> particlePositions)
 {
-	LOG_COMMENT << "Creating fluid particle system with " << particlePositions.size() << " particles.";
+	const std::size_t initialParticleCount = particlePositions.size();
+	LOG_COMMENT << "Creating fluid particle system with " << initialParticleCount << " particles.";
+
+	const Storm::GeneralSimulationData &generalConfigData = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().getGeneralSimulationData();
+	if (generalConfigData._removeFluidParticleCollidingWithRb)
+	{
+		LOG_COMMENT << "Removing fluid particles that collide with rigid bodies particles.";
+
+		removeParticleInsideRbPosition(particlePositions, _particleSystem, generalConfigData._particleRadius);
+
+		LOG_DEBUG << "We removed " << initialParticleCount - particlePositions.size() << " particle(s) after checking which collide with existing rigid bodies.";
+	}
 
 	addParticleSystemToMap<Storm::FluidParticleSystem>(_particleSystem, id, std::move(particlePositions));
 
@@ -599,42 +651,20 @@ std::vector<Storm::Vector3> Storm::SimulatorManager::getParticleSystemPositions(
 	return this->getParticleSystem(id).getPositions();
 }
 
-void Storm::SimulatorManager::loadBlowers()
+void Storm::SimulatorManager::loadBlower(const Storm::BlowerData &blowerData)
 {
-	const std::vector<Storm::BlowerData> &allBlowersData = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().getBlowersData();
-	
-	const std::size_t blowerCountToLoad = allBlowersData.size();
-
-	if (blowerCountToLoad != 0)
-	{
-		LOG_DEBUG << "Starting to load blowers";
-
-		decltype(_blowers) tmp;
-		tmp.reserve(allBlowersData.size());
-
 #define STORM_XMACRO_GENERATE_ELEMENTARY_BLOWER(BlowerTypeName, BlowerTypeXmlName, EffectAreaType, MeshMakerType) \
-case Storm::BlowerType::BlowerTypeName: appendNewBlower<Storm::BlowerType::BlowerTypeName, Storm::EffectAreaType>(tmp, blowerData); break;
+case Storm::BlowerType::BlowerTypeName: appendNewBlower<Storm::BlowerType::BlowerTypeName, Storm::EffectAreaType>(_blowers, blowerData); break;
 
-		for (const Storm::BlowerData &blowerData : allBlowersData)
+		switch (blowerData._blowerType)
 		{
-			switch (blowerData._blowerType)
-			{
-				STORM_XMACRO_GENERATE_BLOWERS_CODE;
+			STORM_XMACRO_GENERATE_BLOWERS_CODE;
 
-			default:
-				Storm::throwException<std::exception>("Unhandled Blower Type creation requested! Value was " + std::to_string(static_cast<int>(blowerData._blowerType)));
-			}
+		default:
+			Storm::throwException<std::exception>("Unhandled Blower Type creation requested! Value was " + std::to_string(static_cast<int>(blowerData._blowerType)));
 		}
+
 #undef STORM_XMACRO_GENERATE_ELEMENTARY_BLOWER
-
-		_blowers = std::move(tmp);
-
-		LOG_COMMENT << "Blowers loading finished";
-	}
-	else
-	{
-		LOG_DEBUG << "No blowers to load.";
-	}
 }
 
 float Storm::SimulatorManager::getKernelLength() const

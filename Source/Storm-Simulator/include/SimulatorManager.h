@@ -36,13 +36,16 @@ namespace Storm
 		void initializePreSimulation();
 
 	public:
+		void refreshParticlesPosition() final override;
+
+	public:
 		void addFluidParticleSystem(unsigned int id, std::vector<Storm::Vector3> particlePositions) final override;
 		void addRigidBodyParticleSystem(unsigned int id, std::vector<Storm::Vector3> particlePositions) final override;
 
 		std::vector<Storm::Vector3> getParticleSystemPositions(unsigned int id) const final override;
 
-	private:
-		void loadBlowers();
+	public:
+		void loadBlower(const Storm::BlowerData &blowerData) final override;
 
 	public:
 		void printFluidParticleData() const final override;

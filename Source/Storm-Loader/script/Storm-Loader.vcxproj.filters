@@ -45,6 +45,9 @@
     <ClCompile Include="..\include\BasicMeshGenerator.cpp">
       <Filter>Source Files\General</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\BlowerMeshMaker.cpp">
+      <Filter>Source Files\General</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-LoaderPCH.h">
@@ -63,6 +66,9 @@
       <Filter>Header Files\General</Filter>
     </ClInclude>
     <ClInclude Include="..\include\BasicMeshGenerator.h">
+      <Filter>Header Files\General</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\BlowerMeshMaker.h">
       <Filter>Header Files\General</Filter>
     </ClInclude>
   </ItemGroup>

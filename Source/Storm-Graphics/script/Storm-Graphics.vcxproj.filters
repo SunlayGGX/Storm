@@ -52,26 +52,8 @@
     <Filter Include="Header Files\Shaders\Component">
       <UniqueIdentifier>{b7d74502-69ef-4ffc-a7c3-c857b89ba8cd}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Rendered\Blowers">
-      <UniqueIdentifier>{f0c35cc2-f8ff-42f2-9423-8812a4becd02}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Basics">
-      <UniqueIdentifier>{b5d77d79-e0a5-4d39-9b56-8c3d0c064bb2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Basics">
-      <UniqueIdentifier>{72c55efc-39bd-4cbd-8721-764184e58173}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Basics\MeshMaker">
-      <UniqueIdentifier>{7bf2deee-dd51-4371-ad11-4083334ddeeb}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Basics\MeshMaker">
-      <UniqueIdentifier>{cb89a9c0-1806-4c1e-8c45-0cf87a87aef0}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\DirectX\Helper">
       <UniqueIdentifier>{19d65fe9-5db2-4476-ad7e-a7254a8dba9b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Rendered\Blowers">
-      <UniqueIdentifier>{9481d448-0739-4c03-a93c-0368e06cf101}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -123,11 +105,8 @@
     <ClCompile Include="..\include\XMStormHelpers.cpp">
       <Filter>Source Files\DirectX\Helper</Filter>
     </ClCompile>
-    <ClCompile Include="..\include\GraphicBlowerBase.cpp">
-      <Filter>Source Files\Rendered\Blowers</Filter>
-    </ClCompile>
-    <ClCompile Include="..\include\BlowerMeshMaker.cpp">
-      <Filter>Source Files\Basics\MeshMaker</Filter>
+    <ClCompile Include="..\include\GraphicBlower.cpp">
+      <Filter>Source Files\Rendered</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -194,14 +173,8 @@
     <ClInclude Include="..\include\BlowerShader.h">
       <Filter>Header Files\Shaders\Component</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\GraphicBlowerBase.h">
-      <Filter>Header Files\Rendered\Blowers</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\GraphicBlower.h">
-      <Filter>Header Files\Rendered\Blowers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\BlowerMeshMaker.h">
-      <Filter>Header Files\Basics\MeshMaker</Filter>
+      <Filter>Header Files\Rendered</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

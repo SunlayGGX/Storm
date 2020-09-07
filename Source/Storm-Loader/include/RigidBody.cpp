@@ -228,7 +228,7 @@ void Storm::RigidBody::load(const Storm::RigidBodySceneData &rbSceneData)
 			Storm::IPhysicsManager &physicsMgr = singletonHolder.getSingleton<Storm::IPhysicsManager>();
 
 			graphicsMgr.addMesh(_rbId, verticesPos, normalsPos, indexes);
-			physicsMgr.addPhysicalBody(rbSceneData, verticesPos);
+			physicsMgr.addPhysicalBody(rbSceneData, verticesPos, indexes);
 		}
 		else
 		{

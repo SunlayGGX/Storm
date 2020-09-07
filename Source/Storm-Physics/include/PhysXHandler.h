@@ -31,14 +31,18 @@ namespace Storm
 		Storm::UniquePointer<physx::PxRigidDynamic> createDynamicRigidBody(const Storm::RigidBodySceneData &rbSceneData);
 		
 		Storm::UniquePointer<physx::PxMaterial> createRigidBodyMaterial(const Storm::RigidBodySceneData &rbSceneData);
-		Storm::UniquePointer<physx::PxShape> createRigidBodyShape(const Storm::RigidBodySceneData &rbSceneData, const std::vector<Storm::Vector3> &vertices, physx::PxMaterial* rbMaterial);
+		Storm::UniquePointer<physx::PxShape> createRigidBodyShape(const Storm::RigidBodySceneData &rbSceneData, const std::vector<Storm::Vector3> &vertices, const std::vector<uint32_t> &indexes, physx::PxMaterial* rbMaterial);
 
 		Storm::UniquePointer<physx::PxJoint> createJoint(const Storm::ConstraintData &constraintData, physx::PxRigidActor* actor1, physx::PxRigidActor* actor2);
 
 	private:
 		Storm::UniquePointer<physx::PxFoundation> _foundationInstance;
 		Storm::UniquePointer<physx::PxPhysics> _physics;
+		Storm::UniquePointer<physx::PxCooking> _cooking;
 		Storm::UniquePointer<physx::PxDefaultCpuDispatcher> _cpuDispatcher;
 		Storm::UniquePointer<physx::PxScene> _scene;
+
+		// Since PhysX doesn't own it.
+		std::vector<Storm::UniquePointer<physx::PxTriangleMesh>> _triangleMeshReferences;
 	};
 }

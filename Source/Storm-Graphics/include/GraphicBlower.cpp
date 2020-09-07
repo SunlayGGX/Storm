@@ -1,4 +1,4 @@
-#include "GraphicBlowerBase.h"
+#include "GraphicBlower.h"
 
 #include "BlowerData.h"
 #include "BlowerState.h"
@@ -55,16 +55,17 @@ namespace
 }
 
 
-Storm::GraphicBlowerBase::GraphicBlowerBase(const Storm::BlowerData &blowerData) :
-	_id{ blowerData._id },
+Storm::GraphicBlower::GraphicBlower(const ComPtr<ID3D11Device> &device, const Storm::BlowerData &blowerData, const std::vector<Storm::Vector3> &vertexes, const std::vector<unsigned int> &indexes) :
+	_id{ blowerData._blowerId },
+	_type{ blowerData._blowerType },
 	_blowerState{ Storm::BlowerState::NotWorking }
 {
-
+	this->instantiateShader(device, vertexes, indexes);
 }
 
-Storm::GraphicBlowerBase::~GraphicBlowerBase() = default;
+Storm::GraphicBlower::~GraphicBlower() = default;
 
-void Storm::GraphicBlowerBase::instantiateShader(const ComPtr<ID3D11Device> &device, const std::vector<Storm::Vector3> &vertexes, const std::vector<uint32_t> &indexes)
+void Storm::GraphicBlower::instantiateShader(const ComPtr<ID3D11Device> &device, const std::vector<Storm::Vector3> &vertexes, const std::vector<uint32_t> &indexes)
 {
 	_indexCount = static_cast<uint32_t>(indexes.size());
 
@@ -108,14 +109,14 @@ void Storm::GraphicBlowerBase::instantiateShader(const ComPtr<ID3D11Device> &dev
 	_blowerShader = std::make_unique<Storm::BlowerShader>(device, _indexCount);
 }
 
-void Storm::GraphicBlowerBase::render(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera)
+void Storm::GraphicBlower::render(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera)
 {
 	_blowerShader->setup(device, deviceContext, currentCamera, convertStateToColor(_blowerState));
 	this->setupBlower(deviceContext);
 	_blowerShader->draw(_indexCount, deviceContext);
 }
 
-void Storm::GraphicBlowerBase::setupBlower(const ComPtr<ID3D11DeviceContext> &deviceContext)
+void Storm::GraphicBlower::setupBlower(const ComPtr<ID3D11DeviceContext> &deviceContext)
 {
 	constexpr UINT stride = sizeof(BlowerVertex);
 	constexpr UINT offset = 0;
@@ -128,12 +129,17 @@ void Storm::GraphicBlowerBase::setupBlower(const ComPtr<ID3D11DeviceContext> &de
 	deviceContext->IASetVertexBuffers(0, 1, &tmpVertexBuffer, &stride, &offset);
 }
 
-void Storm::GraphicBlowerBase::setBlowerState(const Storm::BlowerState newState)
+void Storm::GraphicBlower::setBlowerState(const Storm::BlowerState newState)
 {
 	_blowerState = newState;
 }
 
-std::size_t Storm::GraphicBlowerBase::getId() const
+std::size_t Storm::GraphicBlower::getId() const
 {
 	return _id;
+}
+
+Storm::BlowerType Storm::GraphicBlower::getType() const
+{
+	return _type;
 }

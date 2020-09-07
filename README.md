@@ -152,6 +152,7 @@ Unlike the others config files, it can be named as you want. Here the wml tags y
 - **maxPredictIteration (positive integer, facultative)**: This is the max iteration we're allowed to make inside one simulation loop when doing prediction iteration. It is to avoid infinite loop. It should be an integer strictly greater than 0. Default value is 150.
 - **maxDensityError (positive float, facultative)**: This is the max density error under which we would continue the prediction iteration (or until maxPredictIteration hit). It should be less or equal than 0. Default value is 0.01.
 - **neighborCheckStep (positive integer, facultative)**: This is a char between 1 and 255. This specify that we will recompute the neighborhood every neighborCheckStep step. Default is 1 (we recompute each step of the simulation).
+- **collidingFluidRemoval (boolean, facultative)**: If true, the fluid particle colliding with already existing rigid body particle will be removed at initialization time. This does not reproduce the behavior of SplishSplash. Default is true.
 
 
 #### Graphics
@@ -167,7 +168,7 @@ Unlike the others config files, it can be named as you want. Here the wml tags y
 
 #### Fluid
 This element is all setting appartaining to a fluid. Here the tag you can set inside :
-- **id (positive integer, mandatory)**: This is the unique id of the fluid. It should be unique (Note that it should not be equal to any rigid body id too).
+- **id (positive integer, mandatory)**: This is the unique id of the fluid. It should be unique (Note that it should not be equal to any rigid body id and blower id too).
 - **fluidBlock (tag, at least one)**: This is the fluid generator settings. There should be at least one.
 	+ **firstPoint (vector3, facultative)**: This is one of the corner of the box where fluid particle should be generated. It cannot have the same value than secondPoint, default value is { x=0.0, y=0.0, z=0.0 }.
 	+ **secondPoint (vector3, facultative)**: This is the opposite corner from firstPoint where fluid particle should be generated. It cannot have the same value than firstPoint, default value is { x=0.0, y=0.0, z=0.0 }.
@@ -183,11 +184,11 @@ This element is all setting appartaining to a fluid. Here the tag you can set in
 Inside this element should be put all rigidbodies. Each rigidbody should be specified under a tag named "RigidBody".
 
 ##### RigidBody
-- **id (positive integer, mandatory)**: This is the unique id of the rigid body.  It should be unique (Note that it should not be equal to any fluid id too).
+- **id (positive integer, mandatory)**: This is the unique id of the rigid body.  It should be unique (Note that it should not be equal to any fluid id and blower id too).
 - **meshFile (string, mandatory, accept macro)**: This is mesh file path this rigid body is bound to.
 - **isStatic (boolean, facultative)**: Specify this to tell the simulation that this object is fixed (won't move throughout the simulation). Default value is "true".
 - **wall (boolean, facultative)**: Specify that this object is the wall (considered to be a wall). By defainition, a wall is static so if the value is true, the object will be considered static no matter the value set to isStatic. Default value is "false".
-- **collisionType (string, facultative)**: Specify what is the collision shape should be handled. This is not case sensitive. Possible values are "None" (Default value), "Sphere", "Cube".
+- **collisionType (string, facultative)**: Specify what is the collision shape should be handled. This is not case sensitive. Possible values are "None" (Default value), "Sphere", "Cube" and "Custom".
 - **translation (vector3, facultative)**: The initial position in meters of the object. Default value is { x=0.0, y=0.0, z=0.0 }.
 - **rotation (vector3, facultative)**: The initial rotation in degrees of the object (this is euler angle : roll, pich, yaw). Default value is { x=0.0, y=0.0, z=0.0 }.
 - **scale (vector3, facultative)**: The initial scale of the object. Default value is { x=1.0, y=1.0, z=1.0 }.
@@ -209,6 +210,7 @@ Inside this element should be put all rigidbodies. Each rigidbody should be spec
 #### Blowers
 
 ##### Blower
+- **id (positive integer, mandatory)**: This is the blower id. This setting is mandatory. Note that this will also be the id of the blower rigid body that will be generated along your blower so it should also be unique with rigidbodies id and fluids id.
 - **type (string, mandatory)**: This is the blower type. This setting is non case sensitive and is mandatory. It defines what your underlying blower would be. For now, the accepted values are "Cube", "Sphere", "Cylinder", "RepulsionSphere", "PulseExplosion" and "Explosion".
 - **startTime (positive float, facultative)**: This defines the time in simulation second time your blower start working. Before this value, your blower will remain disabled. This value + fadeInTime shouldn't be greater than the endTime - fadeOutTime. Default value is 0.0 (the blower start right away).
 - **endTime (positive float, facultative)**: This defines the time in simulation second time your blower stop completely. After this value, your blower will remain disabled. This value minus fadeOutTime shouldn't be lesser than the start time + fadeInTime. If -1.0 is specified, the endTime will be ignored and the blower will continue indefinitely. Default value is -1.0.

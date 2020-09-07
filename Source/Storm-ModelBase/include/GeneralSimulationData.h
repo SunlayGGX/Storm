@@ -33,5 +33,7 @@ namespace Storm
 
 		Storm::SimulationMode _simulationMode;
 		Storm::KernelMode _kernelMode;
+
+		bool _removeFluidParticleCollidingWithRb;
 	};
 }

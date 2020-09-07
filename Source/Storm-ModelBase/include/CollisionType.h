@@ -8,5 +8,6 @@ namespace Storm
 		None,
 		Sphere,
 		Cube,
+		Custom,
 	};
 }

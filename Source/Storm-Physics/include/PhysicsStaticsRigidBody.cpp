@@ -19,8 +19,8 @@ namespace
 	}
 }
 
-Storm::PhysicsStaticsRigidBody::PhysicsStaticsRigidBody(const Storm::RigidBodySceneData &rbSceneData, const std::vector<Storm::Vector3> &vertices) :
-	Storm::PhysicalShape{ rbSceneData, vertices },
+Storm::PhysicsStaticsRigidBody::PhysicsStaticsRigidBody(const Storm::RigidBodySceneData &rbSceneData, const std::vector<Storm::Vector3> &vertices, const std::vector<uint32_t> &indexes) :
+	Storm::PhysicalShape{ rbSceneData, vertices, indexes },
 	_internalRb{ createStaticRigidBody(rbSceneData) },
 	_trans{ rbSceneData._translation },
 	_eulerRotation{ rbSceneData._rotation }

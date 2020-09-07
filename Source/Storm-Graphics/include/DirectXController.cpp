@@ -13,7 +13,7 @@
 
 #include "RenderModeState.h"
 
-#include "GraphicBlowerBase.h"
+#include "GraphicBlower.h"
 
 
 namespace
@@ -246,7 +246,7 @@ const ComPtr<ID3D11DeviceContext>& Storm::DirectXController::getImmediateContext
 	return _immediateContext;
 }
 
-void Storm::DirectXController::renderElements(const Storm::Camera &currentCamera, const std::vector<std::unique_ptr<Storm::IRenderedElement>> &renderedElementArrays, const std::map<unsigned int, std::unique_ptr<Storm::GraphicRigidBody>> &rbElementArrays, Storm::GraphicParticleSystem &particleSystem, const std::map<std::size_t, std::unique_ptr<Storm::GraphicBlowerBase>> &blowersMap) const
+void Storm::DirectXController::renderElements(const Storm::Camera &currentCamera, const std::vector<std::unique_ptr<Storm::IRenderedElement>> &renderedElementArrays, const std::map<unsigned int, std::unique_ptr<Storm::GraphicRigidBody>> &rbElementArrays, Storm::GraphicParticleSystem &particleSystem, const std::map<std::size_t, std::unique_ptr<Storm::GraphicBlower>> &blowersMap) const
 {
 	for (const auto &renderedElement : renderedElementArrays)
 	{

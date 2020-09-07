@@ -83,6 +83,74 @@ namespace
 
 		return physics.createShape(physx::PxBoxGeometry{ maxX / 2.f, maxY / 2.f, maxZ / 2.f }, &rbMaterial, 1, true);
 	}
+
+	Storm::UniquePointer<physx::PxShape> createCustomShape(physx::PxPhysics &physics, const physx::PxCooking &cooking, const Storm::RigidBodySceneData &rbSceneData, const std::vector<Storm::Vector3> &vertices, const std::vector<uint32_t> &indexes, physx::PxMaterial* rbMaterial, std::vector<Storm::UniquePointer<physx::PxTriangleMesh>> &inOutRegisteredRef)
+	{
+		physx::PxTriangleMeshDesc meshDesc;
+		meshDesc.points.count = static_cast<physx::PxU32>(vertices.size());
+		meshDesc.points.stride = sizeof(Storm::Vector3);
+		meshDesc.points.data = vertices.data();
+
+		// We need to invert the clock wise rotation of triangles if the rigid body collision is pointing inside (like in the case of a wall).
+		if (rbSceneData._isWall)
+		{
+			std::vector<uint32_t> indexSwapped;
+			indexSwapped.resize(indexes.size());
+			for (std::size_t index = 0; index < indexes.size(); index += 3)
+			{
+				indexSwapped[index] = indexes[index];
+				indexSwapped[index + 1] = indexes[index + 2];
+				indexSwapped[index + 2] = indexes[index + 1];
+			}
+
+			meshDesc.triangles.count = static_cast<physx::PxU32>(indexSwapped.size() / 3);
+			meshDesc.triangles.stride = 3 * sizeof(uint32_t);
+			meshDesc.triangles.data = indexSwapped.data();
+		}
+		else
+		{
+			meshDesc.triangles.count = static_cast<physx::PxU32>(indexes.size() / 3);
+			meshDesc.triangles.stride = 3 * sizeof(uint32_t);
+			meshDesc.triangles.data = indexes.data();
+		}
+
+		physx::PxDefaultMemoryOutputStream writeBuffer;
+		physx::PxTriangleMeshCookingResult::Enum res;
+
+		if (!cooking.cookTriangleMesh(meshDesc, writeBuffer, &res))
+		{
+			LOG_ERROR << "Cannot cook mesh... Res was " << res;
+			return nullptr;
+		}
+
+		switch (res)
+		{
+		case physx::PxTriangleMeshCookingResult::eFAILURE:
+			LOG_ERROR << "Mesh cooking result resulted in a failure " << res;
+			return nullptr;
+
+		case physx::PxTriangleMeshCookingResult::eLARGE_TRIANGLE:
+			LOG_WARNING << "Mesh will have large triangle resulting in poor performance (from the PhysX guide)... Beware. " << res;
+			break;
+		}
+
+		Storm::UniquePointer<physx::PxTriangleMesh> ownedPtr = cooking.createTriangleMesh(meshDesc, physics.getPhysicsInsertionCallback());
+
+		physx::PxTriangleMeshGeometry geometry;
+		geometry.triangleMesh = ownedPtr.get();
+
+		if (!geometry.isValid())
+		{
+			LOG_ERROR << "Triangle mesh geometry isn't valid!";
+			return nullptr;
+		}
+
+		Storm::UniquePointer<physx::PxShape> result = physics.createShape(geometry, *rbMaterial, true);
+
+		inOutRegisteredRef.emplace_back(std::move(ownedPtr));
+
+		return result;
+	}
 }
 
 Storm::PhysXHandler::PhysXHandler() :
@@ -117,6 +185,16 @@ Storm::PhysXHandler::PhysXHandler() :
 
 	_physics->registerDeletionListener(*this, physx::PxDeletionEventFlag::Enum::eUSER_RELEASE);
 
+	// Create the cooking object.
+	physx::PxTolerancesScale scale;
+	scale.length = 0.00001f;
+
+	physx::PxCookingParams cookingParams{ scale };
+	_cooking = PxCreateCooking(PX_PHYSICS_VERSION, *_foundationInstance, cookingParams);
+	if (!_cooking)
+	{
+		Storm::throwException<std::exception>("PxCreateCooking failed! We cannot use PhysX cooking, aborting!");
+	}
 
 	// Create the PhysX Scene
 
@@ -152,6 +230,8 @@ Storm::PhysXHandler::PhysXHandler() :
 
 Storm::PhysXHandler::~PhysXHandler()
 {
+	_triangleMeshReferences.clear();
+
 	_physics->unregisterDeletionListener(*this);
 }
 
@@ -222,7 +302,7 @@ Storm::UniquePointer<physx::PxMaterial> Storm::PhysXHandler::createRigidBodyMate
 	return Storm::UniquePointer<physx::PxMaterial>{ _physics->createMaterial(rbSceneData._staticFrictionCoefficient, rbSceneData._dynamicFrictionCoefficient, rbSceneData._restitutionCoefficient) };
 }
 
-Storm::UniquePointer<physx::PxShape> Storm::PhysXHandler::createRigidBodyShape(const Storm::RigidBodySceneData &rbSceneData, const std::vector<Storm::Vector3> &vertices, physx::PxMaterial* rbMaterial)
+Storm::UniquePointer<physx::PxShape> Storm::PhysXHandler::createRigidBodyShape(const Storm::RigidBodySceneData &rbSceneData, const std::vector<Storm::Vector3> &vertices, const std::vector<uint32_t> &indexes, physx::PxMaterial* rbMaterial)
 {
 	switch (rbSceneData._collisionShape)
 	{
@@ -231,6 +311,13 @@ Storm::UniquePointer<physx::PxShape> Storm::PhysXHandler::createRigidBodyShape(c
 
 	case Storm::CollisionType::Cube:
 		return createBoxShape(*_physics, rbSceneData, vertices, rbMaterial);
+
+	case Storm::CollisionType::Custom:
+		if (indexes.empty())
+		{
+			Storm::throwException<std::exception>("To create a custom shape, we need indexes set (like creating a custom mesh)!");
+		}
+		return createCustomShape(*_physics, *_cooking, rbSceneData, vertices, indexes, rbMaterial, _triangleMeshReferences);
 
 	case Storm::CollisionType::None:
 	default:
