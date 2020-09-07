@@ -328,8 +328,8 @@ Storm::UniquePointer<physx::PxShape> Storm::PhysXHandler::createRigidBodyShape(c
 Storm::UniquePointer<physx::PxJoint> Storm::PhysXHandler::createJoint(const Storm::ConstraintData &constraintData, physx::PxRigidActor* actor1, physx::PxRigidActor* actor2)
 {
 	physx::PxDistanceJoint* tmp = physx::PxDistanceJointCreate(*_physics,
-		actor1, physx::PxTransform{},
-		actor2, physx::PxTransform{}
+		actor1, actor1->getGlobalPose(),
+		actor2, actor2->getGlobalPose()
 	);
 
 	Storm::UniquePointer<physx::PxJoint> result{ tmp };
