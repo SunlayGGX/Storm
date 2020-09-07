@@ -113,7 +113,9 @@ copy "$(ProjectDir)../../../Dependencies\PhysX\physx\lib\$(Configuration)\PhysX_
 
 copy "$(ProjectDir)../../../Dependencies\PhysX\physx\lib\$(Configuration)\PhysXCommon_64.dll" "$(OutputPath)PhysXCommon_64.dll"
 copy "$(ProjectDir)../../../Dependencies\PhysX\physx\lib\$(Configuration)\PhysXCommon_64.pdb" "$(OutputPath)PhysXCommon_64.pdb"
-</Command>
+
+copy "$(ProjectDir)../../../Dependencies\PhysX\physx\lib\$(Configuration)\PhysXCooking_64.dll" "$(OutputPath)PhysXCooking_64.dll"
+copy "$(ProjectDir)../../../Dependencies\PhysX\physx\lib\$(Configuration)\PhysXCooking_64.pdb" "$(OutputPath)PhysXCooking_64.pdb"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -148,7 +150,9 @@ copy "$(ProjectDir)../../../Dependencies\PhysX\physx\lib\$(Configuration)\PhysX_
 
 copy "$(ProjectDir)../../../Dependencies\PhysX\physx\lib\$(Configuration)\PhysXCommon_64.dll" "$(OutputPath)PhysXCommon_64.dll"
 copy "$(ProjectDir)../../../Dependencies\PhysX\physx\lib\$(Configuration)\PhysXCommon_64.pdb" "$(OutputPath)PhysXCommon_64.pdb"
-</Command>
+
+copy "$(ProjectDir)../../../Dependencies\PhysX\physx\lib\$(Configuration)\PhysXCooking_64.dll" "$(OutputPath)PhysXCooking_64.dll"
+copy "$(ProjectDir)../../../Dependencies\PhysX\physx\lib\$(Configuration)\PhysXCooking_64.pdb" "$(OutputPath)PhysXCooking_64.pdb"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

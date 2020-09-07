@@ -36,7 +36,11 @@ namespace Storm
 	private:
 		Storm::UniquePointer<physx::PxFoundation> _foundationInstance;
 		Storm::UniquePointer<physx::PxPhysics> _physics;
+		Storm::UniquePointer<physx::PxCooking> _cooking;
 		Storm::UniquePointer<physx::PxDefaultCpuDispatcher> _cpuDispatcher;
 		Storm::UniquePointer<physx::PxScene> _scene;
+
+		// Since PhysX doesn't own it.
+		std::vector<Storm::UniquePointer<physx::PxTriangleMesh>> _triangleMeshReferences;
 	};
 }

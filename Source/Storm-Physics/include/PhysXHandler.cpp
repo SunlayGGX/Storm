@@ -84,7 +84,44 @@ namespace
 
 	Storm::UniquePointer<physx::PxShape> createCustomShape(physx::PxPhysics &physics, const physx::PxCooking &cooking, const Storm::RigidBodySceneData &rbSceneData, const std::vector<Storm::Vector3> &vertices, const std::vector<uint32_t> &indexes, physx::PxMaterial* rbMaterial, std::vector<Storm::UniquePointer<physx::PxTriangleMesh>> &inOutRegisteredRef)
 	{
+		physx::PxTriangleMeshDesc meshDesc;
+		meshDesc.points.count = static_cast<physx::PxU32>(vertices.size());
+		meshDesc.points.stride = sizeof(Storm::Vector3);
+		meshDesc.points.data = vertices.data();
+
+		meshDesc.triangles.count = static_cast<physx::PxU32>(indexes.size() / 3);
+		meshDesc.triangles.stride = 3 * sizeof(uint32_t);
+		meshDesc.triangles.data = indexes.data();
+
+		physx::PxDefaultMemoryOutputStream writeBuffer;
+		physx::PxTriangleMeshCookingResult::Enum res;
+
+		if (!cooking.cookTriangleMesh(meshDesc, writeBuffer, &res))
+		{
+			LOG_ERROR << "Cannot cook mesh... Res was " << res;
+			return nullptr;
+		}
+
+		switch (res)
+		{
+		case physx::PxTriangleMeshCookingResult::eFAILURE:
+			LOG_ERROR << "Mesh cooking result resulted in a failure " << res;
+			return nullptr;
+
+		case physx::PxTriangleMeshCookingResult::eLARGE_TRIANGLE:
+			LOG_WARNING << "Mesh will have large triangle resulting in poor performance (from the PhysX guide)... Beware. " << res;
+			break;
+		}
+
+		Storm::UniquePointer<physx::PxTriangleMesh> ownedPtr = cooking.createTriangleMesh(meshDesc, physics.getPhysicsInsertionCallback());
+
+		physx::PxTriangleMeshGeometry geometry;
+		geometry.triangleMesh = ownedPtr.get();
+
 		Storm::UniquePointer<physx::PxShape> result = physics.createShape(geometry, *rbMaterial);
+
+		inOutRegisteredRef.emplace_back(std::move(ownedPtr));
+
 		return result;
 	}
 }
@@ -121,6 +158,16 @@ Storm::PhysXHandler::PhysXHandler() :
 
 	_physics->registerDeletionListener(*this, physx::PxDeletionEventFlag::Enum::eUSER_RELEASE);
 
+	// Create the cooking object.
+	physx::PxTolerancesScale scale;
+	scale.length = 0.00001f;
+
+	physx::PxCookingParams cookingParams{ scale };
+	_cooking = PxCreateCooking(PX_PHYSICS_VERSION, *_foundationInstance, cookingParams);
+	if (!_cooking)
+	{
+		Storm::throwException<std::exception>("PxCreateCooking failed! We cannot use PhysX cooking, aborting!");
+	}
 
 	// Create the PhysX Scene
 
