@@ -34,6 +34,12 @@ Storm::PhysicsDynamicRigidBody::PhysicsDynamicRigidBody(const Storm::RigidBodySc
 	}
 }
 
+void Storm::PhysicsDynamicRigidBody::resetForce()
+{
+	const physx::PxVec3 zeroVec{ 0.f, 0.f, 0.f };
+	_internalRb->setForceAndTorque(zeroVec, zeroVec);
+}
+
 void Storm::PhysicsDynamicRigidBody::getMeshTransform(Storm::Vector3 &outTrans, Storm::Vector3 &outRot) const
 {
 	physx::PxTransform currentTransform;
