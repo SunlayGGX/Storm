@@ -203,6 +203,8 @@ Storm::PhysXHandler::PhysXHandler() :
 
 Storm::PhysXHandler::~PhysXHandler()
 {
+	_triangleMeshReferences.clear();
+
 	_physics->unregisterDeletionListener(*this);
 }
 
