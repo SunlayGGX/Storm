@@ -49,7 +49,7 @@ void Storm::PhysicsDynamicRigidBody::getMeshTransform(Storm::Vector3 &outTrans, 
 
 void Storm::PhysicsDynamicRigidBody::applyForce(const Storm::Vector3 &location, const Storm::Vector3 &force)
 {
-	// TODO
+	physx::PxRigidBodyExt::addForceAtLocalPos(*_internalRb, Storm::convertToPx(force), Storm::convertToPx(location));
 }
 
 void Storm::PhysicsDynamicRigidBody::getMeshTransform(Storm::Vector3 &outTrans, Storm::Quaternion &outQuatRot) const
