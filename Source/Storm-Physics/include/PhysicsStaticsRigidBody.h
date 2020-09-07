@@ -15,7 +15,7 @@ namespace Storm
 		public Storm::PhysicalShape
 	{
 	public:
-		PhysicsStaticsRigidBody(const Storm::RigidBodySceneData &rbSceneData, const std::vector<Storm::Vector3> &vertices);
+		PhysicsStaticsRigidBody(const Storm::RigidBodySceneData &rbSceneData, const std::vector<Storm::Vector3> &vertices, const std::vector<uint32_t> &indexes);
 
 	public:
 		void getMeshTransform(Storm::Vector3 &outTrans, Storm::Vector3 &outRot) const;

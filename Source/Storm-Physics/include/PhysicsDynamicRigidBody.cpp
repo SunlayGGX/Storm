@@ -19,8 +19,8 @@ namespace
 	}
 }
 
-Storm::PhysicsDynamicRigidBody::PhysicsDynamicRigidBody(const Storm::RigidBodySceneData &rbSceneData, const std::vector<Storm::Vector3> &vertices) :
-	Storm::PhysicalShape{ rbSceneData, vertices },
+Storm::PhysicsDynamicRigidBody::PhysicsDynamicRigidBody(const Storm::RigidBodySceneData &rbSceneData, const std::vector<Storm::Vector3> &vertices, const std::vector<uint32_t> &indexes) :
+	Storm::PhysicalShape{ rbSceneData, vertices, indexes },
 	_internalRb{ createDynamicRigidBody(rbSceneData) }
 {
 	if (!_internalRb)

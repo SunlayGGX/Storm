@@ -9,7 +9,7 @@
 #include "ThrowException.h"
 
 
-Storm::PhysicalShape::PhysicalShape(const Storm::RigidBodySceneData &rbSceneData, const std::vector<Storm::Vector3> &vertices)
+Storm::PhysicalShape::PhysicalShape(const Storm::RigidBodySceneData &rbSceneData, const std::vector<Storm::Vector3> &vertices, const std::vector<uint32_t> &indexes)
 {
 	auto &physicsHandler = Storm::PhysicsManager::instance().getPhysXHandler();
 	if (rbSceneData._collisionShape != Storm::CollisionType::None)
@@ -20,7 +20,7 @@ Storm::PhysicalShape::PhysicalShape(const Storm::RigidBodySceneData &rbSceneData
 			Storm::throwException<std::exception>("PhysX failed to create the internal rigid body material for object " + std::to_string(rbSceneData._rigidBodyID));
 		}
 
-		_internalRbShape = physicsHandler.createRigidBodyShape(rbSceneData, vertices, _internalRbMaterial.get());
+		_internalRbShape = physicsHandler.createRigidBodyShape(rbSceneData, vertices, indexes, _internalRbMaterial.get());
 		if (!_internalRbShape)
 		{
 			Storm::throwException<std::exception>("PhysX failed to create the internal rigid body shape for object " + std::to_string(rbSceneData._rigidBodyID));

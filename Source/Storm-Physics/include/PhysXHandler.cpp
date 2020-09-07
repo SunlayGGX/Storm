@@ -81,6 +81,12 @@ namespace
 
 		return physics.createShape(physx::PxBoxGeometry{ maxX / 2.f, maxY / 2.f, maxZ / 2.f }, &rbMaterial, 1, true);
 	}
+
+	Storm::UniquePointer<physx::PxShape> createCustomShape(physx::PxPhysics &physics, const physx::PxCooking &cooking, const Storm::RigidBodySceneData &rbSceneData, const std::vector<Storm::Vector3> &vertices, const std::vector<uint32_t> &indexes, physx::PxMaterial* rbMaterial, std::vector<Storm::UniquePointer<physx::PxTriangleMesh>> &inOutRegisteredRef)
+	{
+		Storm::UniquePointer<physx::PxShape> result = physics.createShape(geometry, *rbMaterial);
+		return result;
+	}
 }
 
 Storm::PhysXHandler::PhysXHandler() :
@@ -220,7 +226,7 @@ Storm::UniquePointer<physx::PxMaterial> Storm::PhysXHandler::createRigidBodyMate
 	return Storm::UniquePointer<physx::PxMaterial>{ _physics->createMaterial(rbSceneData._staticFrictionCoefficient, rbSceneData._dynamicFrictionCoefficient, rbSceneData._restitutionCoefficient) };
 }
 
-Storm::UniquePointer<physx::PxShape> Storm::PhysXHandler::createRigidBodyShape(const Storm::RigidBodySceneData &rbSceneData, const std::vector<Storm::Vector3> &vertices, physx::PxMaterial* rbMaterial)
+Storm::UniquePointer<physx::PxShape> Storm::PhysXHandler::createRigidBodyShape(const Storm::RigidBodySceneData &rbSceneData, const std::vector<Storm::Vector3> &vertices, const std::vector<uint32_t> &indexes, physx::PxMaterial* rbMaterial)
 {
 	switch (rbSceneData._collisionShape)
 	{
@@ -229,6 +235,13 @@ Storm::UniquePointer<physx::PxShape> Storm::PhysXHandler::createRigidBodyShape(c
 
 	case Storm::CollisionType::Cube:
 		return createBoxShape(*_physics, rbSceneData, vertices, rbMaterial);
+
+	case Storm::CollisionType::Custom:
+		if (indexes.empty())
+		{
+			Storm::throwException<std::exception>("To create a custom shape, we need indexes set (like creating a custom mesh)!");
+		}
+		return createCustomShape(*_physics, *_cooking, rbSceneData, vertices, indexes, rbMaterial, _triangleMeshReferences);
 
 	case Storm::CollisionType::None:
 	default:
