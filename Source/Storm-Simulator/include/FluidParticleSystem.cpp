@@ -57,8 +57,9 @@ void Storm::FluidParticleSystem::initializeIteration(const std::map<unsigned int
 
 	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
 	const Storm::GeneralSimulationData &generalSimulData = configMgr.getGeneralSimulationData();
+	const Storm::FluidData &fluidSimulData = configMgr.getFluidData();
 
-	const Storm::Vector3 &gravityAccel = generalSimulData._gravity;
+	const Storm::Vector3 gravityAccel = fluidSimulData._gravityEnabled ? generalSimulData._gravity : Storm::Vector3::Zero();
 
 	Storm::runParallel(_force, [this, &gravityAccel, &blowers](Storm::Vector3 &currentPForce, const std::size_t currentPIndex)
 	{

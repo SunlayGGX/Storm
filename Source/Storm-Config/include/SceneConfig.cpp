@@ -240,6 +240,7 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 				!Storm::XmlReader::handleXml(fluidXmlElement, "soundSpeed", fluidData._soundSpeed) &&
 				!Storm::XmlReader::handleXml(fluidXmlElement, "pressureK1", fluidData._kPressureStiffnessCoeff) &&
 				!Storm::XmlReader::handleXml(fluidXmlElement, "pressureK2", fluidData._kPressureExponentCoeff) &&
+				!Storm::XmlReader::handleXml(fluidXmlElement, "enableGravity", fluidData._gravityEnabled) &&
 				!Storm::XmlReader::handleXml(fluidXmlElement, "density", fluidData._density)
 				)
 			{
