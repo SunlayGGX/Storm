@@ -295,6 +295,8 @@ Storm::UniquePointer<physx::PxRigidDynamic> Storm::PhysXHandler::createDynamicRi
 	const physx::PxTransform initialPose = Storm::convertToPx(rbSceneData._translation, rbSceneData._rotation);
 
 	Storm::UniquePointer<physx::PxRigidDynamic> result{ _physics->createRigidDynamic(initialPose) };
+	result->setMass(rbSceneData._mass);
+
 	_scene->addActor(*result);
 
 	return result;
