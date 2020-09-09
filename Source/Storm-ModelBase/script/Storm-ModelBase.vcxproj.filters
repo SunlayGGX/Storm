@@ -73,6 +73,9 @@
     <Filter Include="Header Files\Modules\Simulation\Blowers">
       <UniqueIdentifier>{cea87c3b-959a-4f83-b57b-133280ae3049}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\General">
+      <UniqueIdentifier>{725c3bca-960f-4543-8058-412e00e6bf7c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-ModelBasePCH.cpp">
@@ -86,6 +89,9 @@
     </ClCompile>
     <ClCompile Include="..\include\UIField.cpp">
       <Filter>Source Files\Modules\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\ColorChecker.cpp">
+      <Filter>Source Files\General</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -226,6 +232,9 @@
     </ClInclude>
     <ClInclude Include="..\include\BlowerDef.h">
       <Filter>Header Files\Modules\Simulation\Blowers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ColorChecker.h">
+      <Filter>Header Files\General</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

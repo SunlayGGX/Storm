@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\include\ColorChecker.cpp" />
     <ClCompile Include="..\include\RigidBodyHolder.cpp" />
     <ClCompile Include="..\include\SceneData.cpp" />
     <ClCompile Include="..\include\Storm-ModelBasePCH.cpp">
@@ -26,6 +27,7 @@
     <ClInclude Include="..\include\BlowerState.h" />
     <ClInclude Include="..\include\BlowerType.h" />
     <ClInclude Include="..\include\CollisionType.h" />
+    <ClInclude Include="..\include\ColorChecker.h" />
     <ClInclude Include="..\include\ConstraintData.h" />
     <ClInclude Include="..\include\FluidParticleLoadDenseMode.h" />
     <ClInclude Include="..\include\GeneralSimulationData.h" />
