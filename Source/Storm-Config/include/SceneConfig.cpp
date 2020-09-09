@@ -194,6 +194,8 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 
 	/* Graphic */
 	Storm::GraphicData &graphicData = *_sceneData->_graphicData;
+	graphicData._constraintThickness = generalData._particleRadius / 4.f;
+
 	const auto &graphicTree = srcTree.get_child("Graphic");
 	for (const auto &graphicXmlElement : graphicTree)
 	{
