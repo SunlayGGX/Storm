@@ -1,5 +1,11 @@
 #include "ConstraintShader.h"
 
+#include "Camera.h"
+
+#include "SingletonHolder.h"
+#include "IConfigManager.h"
+
+#include "GraphicData.h"
 
 #include "ThrowIfFailed.h"
 #include "MemoryHelper.h"
@@ -7,6 +13,15 @@
 
 namespace
 {
+	struct ConstantBuffer
+	{
+		DirectX::XMMATRIX _viewMatrix;
+		DirectX::XMMATRIX _projMatrix;
+
+		float _midThickness;
+		DirectX::XMVECTOR _color;
+	};
+
 	static const std::string k_constraintShaderFilePath = "Shaders/ConstraintsDraw.hlsl";
 	static constexpr std::string_view k_constraintVertexShaderFuncName = "constraintVertexShader";
 	static constexpr std::string_view k_constraintGeometryShaderFuncName = "constraintGeometryShader";
@@ -45,5 +60,31 @@ Storm::ConstraintShader::ConstraintShader(const ComPtr<ID3D11Device> &device) :
 
 void Storm::ConstraintShader::setup(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera)
 {
+	// Setup the device context
+	this->setupDeviceContext(deviceContext);
+
+	// Write shaders parameters
+	D3D11_MAPPED_SUBRESOURCE constraintsConstantBufferRessource;
+	Storm::throwIfFailed(deviceContext->Map(_constantBuffer.Get(), 0, D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, &constraintsConstantBufferRessource));
 	
+	ConstantBuffer*const ressourceDataPtr = static_cast<ConstantBuffer*>(constraintsConstantBufferRessource.pData);
+
+	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
+
+	const Storm::GraphicData &graphicConfig = configMgr.getGraphicData();
+
+	ressourceDataPtr->_viewMatrix = currentCamera.getTransposedViewMatrix();
+	ressourceDataPtr->_projMatrix = currentCamera.getTransposedProjectionMatrix();
+	ressourceDataPtr->_midThickness = graphicConfig._constraintThickness / 2.f;
+	ressourceDataPtr->_color.m128_f32[0] = graphicConfig._constraintColor.x();
+	ressourceDataPtr->_color.m128_f32[1] = graphicConfig._constraintColor.y();
+	ressourceDataPtr->_color.m128_f32[2] = graphicConfig._constraintColor.z();
+	ressourceDataPtr->_color.m128_f32[3] = graphicConfig._constraintColor.w();
+
+	deviceContext->Unmap(_constantBuffer.Get(), 0);
+
+	ID3D11Buffer*const constantBufferTmp = _constantBuffer.Get();
+	deviceContext->VSSetConstantBuffers(0, 1, &constantBufferTmp);
+	deviceContext->GSSetConstantBuffers(0, 1, &constantBufferTmp);
+	deviceContext->PSSetConstantBuffers(0, 1, &constantBufferTmp);
 }
