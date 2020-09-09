@@ -18,6 +18,7 @@
 #include "BlowerType.h"
 #include "BlowerDef.h"
 
+#include "ColorChecker.h"
 #include "ThrowException.h"
 #include "XmlReader.h"
 
@@ -204,7 +205,7 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 	{
 		Storm::throwException<std::exception>("Min color value (" + std::to_string(graphicData._valueForMinColor) + ") is greater than Max color value (" + std::to_string(graphicData._valueForMaxColor) + "). It isn't allowed!");
 	}
-	else if (graphicData._blowerAlpha < 0.f || graphicData._blowerAlpha > 1.f)
+	else if (Storm::ColorCheckerHelper::channelIsInvalid(graphicData._blowerAlpha))
 	{
 		Storm::throwException<std::exception>("blower alpha channel value is invalid (" + std::to_string(graphicData._blowerAlpha) + "). It should be in the range 0.0 and 1.0 included!");
 	}
