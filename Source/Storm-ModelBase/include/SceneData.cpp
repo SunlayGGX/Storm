@@ -11,6 +11,7 @@
 #include "KernelMode.h"
 #include "FluidParticleLoadDenseMode.h"
 #include "BlowerType.h"
+#include "InsideParticleRemovalTechnique.h"
 
 
 Storm::GeneralSimulationData::GeneralSimulationData() :
@@ -42,6 +43,7 @@ Storm::RigidBodySceneData::RigidBodySceneData() :
 	_rotation{ 0.f, 0.f, 0.f },
 	_scale{ 1.f, 1.f, 1.f },
 	_collisionShape{ Storm::CollisionType::None },
+	_insideRbFluidDetectionMethodEnum{ Storm::InsideParticleRemovalTechnique::None },
 	_staticFrictionCoefficient{ 0.1f },
 	_dynamicFrictionCoefficient{ 0.f },
 	_restitutionCoefficient{ 0.1f },

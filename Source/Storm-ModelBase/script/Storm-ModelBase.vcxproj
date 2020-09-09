@@ -37,6 +37,7 @@
     <ClInclude Include="..\include\IGraphicsManager.h" />
     <ClInclude Include="..\include\IInputManager.h" />
     <ClInclude Include="..\include\InputEvents.h" />
+    <ClInclude Include="..\include\InsideParticleRemovalTechnique.h" />
     <ClInclude Include="..\include\IOSManager.h" />
     <ClInclude Include="..\include\IPhysicsManager.h" />
     <ClInclude Include="..\include\IProfilerManager.h" />

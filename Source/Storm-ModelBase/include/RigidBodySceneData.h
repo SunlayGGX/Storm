@@ -4,6 +4,7 @@
 namespace Storm
 {
 	enum class CollisionType;
+	enum class InsideParticleRemovalTechnique;
 
 	struct RigidBodySceneData
 	{
@@ -32,5 +33,7 @@ namespace Storm
 		float _staticFrictionCoefficient;
 		float _dynamicFrictionCoefficient;
 		float _restitutionCoefficient;
+
+		Storm::InsideParticleRemovalTechnique _insideRbFluidDetectionMethodEnum;
 	};
 }
