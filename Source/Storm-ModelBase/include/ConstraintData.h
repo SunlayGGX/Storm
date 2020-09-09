@@ -16,5 +16,7 @@ namespace Storm
 		float _constraintsLength;
 		Storm::Vector3 _rigidBody1LinkTranslationOffset;
 		Storm::Vector3 _rigidBody2LinkTranslationOffset;
+
+		bool _shouldVisualize;
 	};
 }

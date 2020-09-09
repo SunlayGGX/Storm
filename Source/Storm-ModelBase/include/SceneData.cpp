@@ -111,7 +111,8 @@ Storm::ConstraintData::ConstraintData() :
 	_rigidBodyId2{ std::numeric_limits<decltype(_rigidBodyId2)>::max() },
 	_constraintsLength{ 0.f },
 	_rigidBody1LinkTranslationOffset{ Storm::Vector3::Zero() },
-	_rigidBody2LinkTranslationOffset{ Storm::Vector3::Zero() }
+	_rigidBody2LinkTranslationOffset{ Storm::Vector3::Zero() },
+	_shouldVisualize{ true }
 {
 
 }

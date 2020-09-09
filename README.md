@@ -236,6 +236,7 @@ Inside this element should be put all rigidbodies. Each rigidbody should be spec
 - **length (positive float, facultative)**: This is the max length (in meter) of the contraints separating both rigid bodies (+ the initial distance between those rigidbodies). It should be a positive value and default is 0.0.
 - **rb1LinkOffset (vector3, facultative)**: This is the translation offset of the link endpoint on the rigid body 1 relative from its center. All coordinate are expressed in meters. Default is { x=0.0, y=0.0, z=0.0 } (the link end point is located at the center of the rigid body 1).
 - **rb2LinkOffset (vector3, facultative)**: This is the translation offset of the link endpoint on the rigid body 2 relative from its center. All coordinate are expressed in meters. Default is { x=0.0, y=0.0, z=0.0 } (the link end point is located at the center of the rigid body 2).
+- **visualize (boolean, facultative)**: If true, the Constraint will be displayed. Default is "true".
 
 
 #### Blowers
