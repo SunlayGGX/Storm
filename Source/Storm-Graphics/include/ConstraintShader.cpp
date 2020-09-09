@@ -18,8 +18,8 @@ namespace
 		DirectX::XMMATRIX _viewMatrix;
 		DirectX::XMMATRIX _projMatrix;
 
-		float _midThickness;
 		DirectX::XMVECTOR _color;
+		float _midThickness;
 	};
 
 	static const std::string k_constraintShaderFilePath = "Shaders/ConstraintsDraw.hlsl";
@@ -40,7 +40,7 @@ namespace
 			D3D11_INPUT_ELEMENT_DESC &currentVertexDataLayoutDesc = constraintVertexDataLayoutDesc[0];
 			currentVertexDataLayoutDesc.SemanticName = "POSITION";
 			currentVertexDataLayoutDesc.SemanticIndex = 0;
-			currentVertexDataLayoutDesc.Format = DXGI_FORMAT::DXGI_FORMAT_R32G32B32A32_FLOAT;
+			currentVertexDataLayoutDesc.Format = DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT;
 			currentVertexDataLayoutDesc.InputSlot = 0;
 			currentVertexDataLayoutDesc.AlignedByteOffset = 0;
 			currentVertexDataLayoutDesc.InputSlotClass = D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA;

@@ -4,13 +4,13 @@ cbuffer ConstantBuffer
     matrix _viewMatrix;
     matrix _projMatrix;
 
-    float _midThickness;
     float4 _color;
+    float _midThickness;
 };
 
 struct VertexInputType
 {
-    float4 _position : POSITION;
+    float3 _position : POSITION;
 };
 
 struct GeometryInputType
@@ -31,7 +31,7 @@ GeometryInputType constraintVertexShader(VertexInputType input)
 
     // Change the position vector to be 4 units for proper matrix calculations.
     //output._position = input._position;
-    output._position = mul(input._position, _viewMatrix);
+    output._position = mul(float4(input._position, 1.f), _viewMatrix);
 
     return output;
 }
