@@ -22,5 +22,9 @@ namespace Storm
 		float _valueForMaxColor;
 
 		float _blowerAlpha;
+
+		// Constraints
+		float _constraintThickness;
+		Storm::Vector4 _constraintColor;
 	};
 }

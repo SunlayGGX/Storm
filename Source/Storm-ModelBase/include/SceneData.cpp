@@ -60,7 +60,9 @@ Storm::GraphicData::GraphicData() :
 	_displaySolidAsParticles{ false },
 	_valueForMinColor{ 0.01f },
 	_valueForMaxColor{ 100.f },
-	_blowerAlpha{ 0.25f }
+	_blowerAlpha{ 0.25f },
+	_constraintThickness{ 2.f },
+	_constraintColor{ 1.f, 0.1f, 0.1f, 0.8f }
 {
 
 }

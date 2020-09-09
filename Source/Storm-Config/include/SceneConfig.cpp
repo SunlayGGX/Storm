@@ -40,6 +40,18 @@ namespace
 		return result;
 	}
 
+	Storm::Vector4 parseColor4Element(const boost::property_tree::ptree &tree)
+	{
+		Storm::Vector4 result;
+
+		Storm::XmlReader::sureReadXmlAttribute(tree, result.x(), "r");
+		Storm::XmlReader::sureReadXmlAttribute(tree, result.y(), "g");
+		Storm::XmlReader::sureReadXmlAttribute(tree, result.z(), "b");
+		Storm::XmlReader::sureReadXmlAttribute(tree, result.w(), "a");
+
+		return result;
+	}
+
 	Storm::CollisionType parseCollisionType(std::string collisionTypeStr)
 	{
 		boost::algorithm::to_lower(collisionTypeStr);
@@ -193,6 +205,8 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 			!Storm::XmlReader::handleXml(graphicXmlElement, "particleDisplay", graphicData._displaySolidAsParticles) &&
 			!Storm::XmlReader::handleXml(graphicXmlElement, "minColorValue", graphicData._valueForMinColor) &&
 			!Storm::XmlReader::handleXml(graphicXmlElement, "maxColorValue", graphicData._valueForMaxColor) &&
+			!Storm::XmlReader::handleXml(graphicXmlElement, "constraintThickness", graphicData._constraintThickness) &&
+			!Storm::XmlReader::handleXml(graphicXmlElement, "constraintColor", graphicData._constraintColor, parseColor4Element) &&
 			!Storm::XmlReader::handleXml(graphicXmlElement, "blowerAlpha", graphicData._blowerAlpha) &&
 			!Storm::XmlReader::handleXml(graphicXmlElement, "grid", graphicData._grid, parseVector3Element)
 			)
@@ -208,6 +222,14 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 	else if (Storm::ColorCheckerHelper::channelIsInvalid(graphicData._blowerAlpha))
 	{
 		Storm::throwException<std::exception>("blower alpha channel value is invalid (" + std::to_string(graphicData._blowerAlpha) + "). It should be in the range 0.0 and 1.0 included!");
+	}
+	else if (Storm::ColorCheckerHelper::isInvalid(graphicData._constraintColor))
+	{
+		Storm::throwException<std::exception>("Constraint color is invalid (" + Storm::toStdString(graphicData._constraintColor) + ")! Each channel must be between 0.0 and 1.0 included!");
+	}
+	else if (graphicData._constraintThickness <= 0.f)
+	{
+		Storm::throwException<std::exception>("Constraint thickness is invalid (" + Storm::toStdString(graphicData._constraintThickness) + ")! It must be a positive non zero value.");
 	}
 
 	/* Fluids */
