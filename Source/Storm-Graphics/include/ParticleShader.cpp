@@ -27,7 +27,7 @@ namespace
 		k_particleVertexDataLayoutDescCount = 2
 	};
 
-	inline D3D11_INPUT_ELEMENT_DESC* retrieveMeshInputLayoutElementDesc()
+	inline D3D11_INPUT_ELEMENT_DESC* retrieveParticleInputLayoutElementDesc()
 	{
 		static D3D11_INPUT_ELEMENT_DESC particleVertexDataLayoutDesc[k_particleVertexDataLayoutDescCount];
 
@@ -58,7 +58,7 @@ namespace
 
 
 Storm::ParticleShader::ParticleShader(const ComPtr<ID3D11Device> &device) :
-	Storm::VPShaderBase{ device, k_particleShaderFilePath, k_particleVertexShaderFuncName, k_particleShaderFilePath, k_particleGeometryShaderFuncName, k_particleShaderFilePath, k_particlePixelShaderFuncName, retrieveMeshInputLayoutElementDesc(), k_particleVertexDataLayoutDescCount }
+	Storm::VPShaderBase{ device, k_particleShaderFilePath, k_particleVertexShaderFuncName, k_particleShaderFilePath, k_particleGeometryShaderFuncName, k_particleShaderFilePath, k_particlePixelShaderFuncName, retrieveParticleInputLayoutElementDesc(), k_particleVertexDataLayoutDescCount }
 {
 	Storm::ConstantBufferHolder::initialize<ConstantBuffer>(device);
 }
@@ -69,10 +69,10 @@ void Storm::ParticleShader::setup(const ComPtr<ID3D11Device> &device, const ComP
 	this->setupDeviceContext(deviceContext);
 
 	// Write shaders parameters
-	D3D11_MAPPED_SUBRESOURCE meshConstantBufferRessource;
-	Storm::throwIfFailed(deviceContext->Map(_constantBuffer.Get(), 0, D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, &meshConstantBufferRessource));
+	D3D11_MAPPED_SUBRESOURCE particleConstantBufferRessource;
+	Storm::throwIfFailed(deviceContext->Map(_constantBuffer.Get(), 0, D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, &particleConstantBufferRessource));
 
-	ConstantBuffer*const ressourceDataPtr = static_cast<ConstantBuffer*>(meshConstantBufferRessource.pData);
+	ConstantBuffer*const ressourceDataPtr = static_cast<ConstantBuffer*>(particleConstantBufferRessource.pData);
 
 	ressourceDataPtr->_viewMatrix = currentCamera.getTransposedViewMatrix();
 	ressourceDataPtr->_projMatrix = currentCamera.getTransposedProjectionMatrix();
