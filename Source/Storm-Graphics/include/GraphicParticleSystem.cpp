@@ -5,8 +5,6 @@
 #include "GraphicParticleData.h"
 #include "GraphicParticleSystemModality.h"
 
-#include "GraphicManager.h"
-#include "DirectXController.h"
 #include "RenderModeState.h"
 
 
@@ -19,7 +17,7 @@ Storm::GraphicParticleSystem::GraphicParticleSystem(const ComPtr<ID3D11Device> &
 
 Storm::GraphicParticleSystem::~GraphicParticleSystem() = default;
 
-void Storm::GraphicParticleSystem::refreshParticleSystemData(unsigned int particleSystemId, std::vector<Storm::GraphicParticleData> &&particlePosition, bool isFluids, bool isWall)
+void Storm::GraphicParticleSystem::refreshParticleSystemData(const ComPtr<ID3D11Device> &device, unsigned int particleSystemId, std::vector<Storm::GraphicParticleData> &&particlePosition, bool isFluids, bool isWall)
 {
 	auto &currentPBuffer = _particleSystemVBuffer[particleSystemId];
 
@@ -62,8 +60,6 @@ void Storm::GraphicParticleSystem::refreshParticleSystemData(unsigned int partic
 	vertexData.pSysMem = particlePosition.data();
 	vertexData.SysMemPitch = 0;
 	vertexData.SysMemSlicePitch = 0;
-
-	auto &device = Storm::GraphicManager::instance().getController().getDirectXDevice();
 
 	Storm::throwIfFailed(device->CreateBuffer(&vertexBufferDesc, &vertexData, &currentPBuffer._vertexBuffer));
 

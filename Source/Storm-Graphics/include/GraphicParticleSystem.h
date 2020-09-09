@@ -28,7 +28,7 @@ namespace Storm
 		~GraphicParticleSystem();
 
 	public:
-		void refreshParticleSystemData(unsigned int particleSystemId, std::vector<Storm::GraphicParticleData> &&particlePosition, bool isFluids, bool isWall);
+		void refreshParticleSystemData(const ComPtr<ID3D11Device> &device, unsigned int particleSystemId, std::vector<Storm::GraphicParticleData> &&particlePosition, bool isFluids, bool isWall);
 
 	public:
 		void render(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera, Storm::RenderModeState currentRenderModeState);

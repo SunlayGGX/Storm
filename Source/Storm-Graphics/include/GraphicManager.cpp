@@ -349,7 +349,7 @@ void Storm::GraphicManager::pushParticlesData(unsigned int particleSystemId, con
 	singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(ThreadEnumeration::GraphicsThread,
 		[this, particleSystemId, particlePosDataCopy = fastOptimizedTransCopy(particlePosData, particleVelocityData, graphicDataConfig._valueForMinColor, graphicDataConfig._valueForMaxColor, isFluids), isFluids, isWall]() mutable
 	{
-		_graphicParticlesSystem->refreshParticleSystemData(particleSystemId, std::move(particlePosDataCopy), isFluids, isWall);
+		_graphicParticlesSystem->refreshParticleSystemData(_directXController->getDirectXDevice(), particleSystemId, std::move(particlePosDataCopy), isFluids, isWall);
 	});
 }
 
