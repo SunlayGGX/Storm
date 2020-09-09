@@ -355,7 +355,7 @@ void Storm::GraphicManager::pushParticlesData(unsigned int particleSystemId, con
 
 void Storm::GraphicManager::pushConstraintData(const std::vector<Storm::Vector3> &constraintsVisuData)
 {
-	STORM_NOT_IMPLEMENTED;
+	_graphicConstraintsSystem->refreshConstraintsData(_directXController->getDirectXDevice(), constraintsVisuData);
 }
 
 void Storm::GraphicManager::createGraphicsField(const std::wstring_view &fieldName, std::wstring &&fieldValueStr)
