@@ -194,7 +194,7 @@ void Storm::BasicMeshGenerator::generateSphere(const Storm::Vector3 &position, c
 	STORM_REGISTER_TRIANGLE_INDEX(upVertexIndex, static_cast<uint32_t>(lastRingStartOffset), static_cast<uint32_t>(lastRingStartOffset + k_ringsXIteration));
 }
 
-void Storm::BasicMeshGenerator::generateCylinder(const Storm::Vector3 &position, const float radius, const float height, std::vector<Storm::Vector3> &inOutVertexes, std::vector<uint32_t> &inOutIndexes)
+void Storm::BasicMeshGenerator::generateCone(const Storm::Vector3 &position, const float upRadius, const float downRadius, const float height, std::vector<Storm::Vector3> &inOutVertexes, std::vector<uint32_t> &inOutIndexes)
 {
 	enum : std::size_t
 	{
@@ -222,17 +222,17 @@ void Storm::BasicMeshGenerator::generateCylinder(const Storm::Vector3 &position,
 	const float downDiskY = position.y() - midHeight;
 
 	// Vertexes
-	
+
 	// Up disk
 	for (std::size_t iter = 0; iter < k_division; ++iter)
 	{
-		inOutVertexes.emplace_back(position.x() + radius * k_sinCosLUT.cosInLUT(iter), upDiskY, position.z() + radius * k_sinCosLUT.sinInLUT(iter));
+		inOutVertexes.emplace_back(position.x() + upRadius * k_sinCosLUT.cosInLUT(iter), upDiskY, position.z() + upRadius * k_sinCosLUT.sinInLUT(iter));
 	}
 
 	// Down disk
 	for (std::size_t iter = 0; iter < k_division; ++iter)
 	{
-		inOutVertexes.emplace_back(position.x() + radius * k_sinCosLUT.cosInLUT(iter), downDiskY, position.z() + radius * k_sinCosLUT.sinInLUT(iter));
+		inOutVertexes.emplace_back(position.x() + downRadius * k_sinCosLUT.cosInLUT(iter), downDiskY, position.z() + downRadius * k_sinCosLUT.sinInLUT(iter));
 	}
 
 	// The special points that are the center of each disks.
@@ -274,4 +274,9 @@ void Storm::BasicMeshGenerator::generateCylinder(const Storm::Vector3 &position,
 	// At last, the 2 last triangle that loops back
 	STORM_REGISTER_TRIANGLE_INDEX(upVertexIndex, static_cast<uint32_t>(k_divisionMinusOne), 0);
 	STORM_REGISTER_TRIANGLE_INDEX(downVertexIndex, static_cast<uint32_t>(k_division), static_cast<uint32_t>(k_division + k_divisionMinusOne));
+}
+
+void Storm::BasicMeshGenerator::generateCylinder(const Storm::Vector3 &position, const float radius, const float height, std::vector<Storm::Vector3> &inOutVertexes, std::vector<uint32_t> &inOutIndexes)
+{
+	Storm::BasicMeshGenerator::generateCone(position, radius, radius, height, inOutVertexes, inOutIndexes);
 }

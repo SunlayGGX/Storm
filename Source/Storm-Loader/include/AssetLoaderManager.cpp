@@ -315,3 +315,8 @@ void Storm::AssetLoaderManager::generateSimpleCylinder(const Storm::Vector3 &pos
 {
 	Storm::BasicMeshGenerator::generateCylinder(position, radius, height, inOutVertexes, inOutIndexes);
 }
+
+void Storm::AssetLoaderManager::generateSimpleCone(const Storm::Vector3 &position, const float upRadius, const float downRadius, const float height, std::vector<Storm::Vector3> &inOutVertexes, std::vector<uint32_t> &inOutIndexes) const
+{
+	Storm::BasicMeshGenerator::generateCone(position, upRadius, downRadius, height, inOutVertexes, inOutIndexes);
+}
