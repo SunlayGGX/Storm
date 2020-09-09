@@ -41,6 +41,8 @@ namespace Storm
 	private:
 		void pushPhysicsVisualizationData() const;
 
+		void pushConstraintsVisualizationData() const;
+
 	public:
 		const Storm::PhysXHandler& getPhysXHandler() const;
 		Storm::PhysXHandler& getPhysXHandler();

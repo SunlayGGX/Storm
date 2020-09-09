@@ -122,6 +122,9 @@ void Storm::PhysicsManager::loadConstraints(const std::vector<Storm::ConstraintD
 		{
 			this->addConstraint(constraint);
 		}
+
+		LOG_DEBUG << "Syncing constraint with Graphics modules.";
+		this->pushConstraintsVisualizationData();
 	}
 	else
 	{
@@ -131,10 +134,11 @@ void Storm::PhysicsManager::loadConstraints(const std::vector<Storm::ConstraintD
 
 void Storm::PhysicsManager::pushPhysicsVisualizationData() const
 {
-	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
-	Storm::IGraphicsManager &graphicMgr = singletonHolder.getSingleton<Storm::IGraphicsManager>();
-	Storm::IThreadManager &threadMgr = singletonHolder.getSingleton<Storm::IThreadManager>();
+	this->pushConstraintsVisualizationData();
+}
 
+void Storm::PhysicsManager::pushConstraintsVisualizationData() const
+{
 	// Push constraints visualization settings.
 	const std::size_t constraintCount = _constraints.size();
 	if (constraintCount > 0)
@@ -149,6 +153,10 @@ void Storm::PhysicsManager::pushPhysicsVisualizationData() const
 
 		if (!constraintsPositionsTmp.empty())
 		{
+			const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+			Storm::IGraphicsManager &graphicMgr = singletonHolder.getSingleton<Storm::IGraphicsManager>();
+			Storm::IThreadManager &threadMgr = singletonHolder.getSingleton<Storm::IThreadManager>();
+
 			threadMgr.executeOnThread(Storm::ThreadEnumeration::GraphicsThread, [&graphicMgr, constraintsPositions = std::move(constraintsPositionsTmp)]()
 			{
 				graphicMgr.pushConstraintData(constraintsPositions);
