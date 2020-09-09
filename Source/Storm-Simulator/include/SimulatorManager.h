@@ -46,6 +46,7 @@ namespace Storm
 
 	public:
 		void loadBlower(const Storm::BlowerData &blowerData) final override;
+		void tweekBlowerEnabling();
 
 	public:
 		void printFluidParticleData() const final override;

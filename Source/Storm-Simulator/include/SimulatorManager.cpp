@@ -233,6 +233,7 @@ void Storm::SimulatorManager::initialize_Implementation()
 
 	Storm::IInputManager &inputMgr = singletonHolder.getSingleton<Storm::IInputManager>();
 	inputMgr.bindKey(Storm::SpecialKey::KC_F1, [this]() { this->printFluidParticleData(); });
+	inputMgr.bindKey(Storm::SpecialKey::KC_E, [this]() { this->tweekBlowerEnabling(); });
 
 	/* Register this thread as the simulator thread for the speed profiler */
 	Storm::IProfilerManager &profilerMgr = singletonHolder.getSingleton<Storm::IProfilerManager>();
@@ -661,6 +662,14 @@ case Storm::BlowerType::BlowerTypeName: appendNewBlower<Storm::BlowerType::Blowe
 		}
 
 #undef STORM_XMACRO_GENERATE_ELEMENTARY_BLOWER
+}
+
+void Storm::SimulatorManager::tweekBlowerEnabling()
+{
+	for (auto &blower : _blowers)
+	{
+		blower->tweakEnabling();
+	}
 }
 
 float Storm::SimulatorManager::getKernelLength() const

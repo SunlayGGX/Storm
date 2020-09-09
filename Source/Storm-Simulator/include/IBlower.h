@@ -20,5 +20,7 @@ namespace Storm
 
 		virtual bool operator==(const std::size_t id) const = 0;
 		virtual bool operator<(const std::size_t id) const = 0;
+
+		virtual void tweakEnabling() = 0;
 	};
 }

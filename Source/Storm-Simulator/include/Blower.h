@@ -23,6 +23,7 @@ namespace Storm
 			BlowerEffectArea{ blowerDataConfig },
 			BlowerTimeHandler{ blowerDataConfig },
 			_id{ blowerDataConfig._blowerId },
+			_enabled{ true },
 			_srcForce{ blowerDataConfig._blowerForce },
 			_force{ Vector3::Zero() },
 			_forceNorm{ 0.f },
@@ -75,52 +76,55 @@ namespace Storm
 
 		void advanceTime(float deltaTime) final override
 		{
-			if (BlowerTimeHandler::advanceTime(deltaTime))
+			if (_enabled)
 			{
-				if constexpr (ThisType::hasFadeIn<BlowerTimeHandler>(0))
+				if (BlowerTimeHandler::advanceTime(deltaTime))
 				{
-					float fadeInCoefficient;
-					if (BlowerTimeHandler::shouldFadeIn(fadeInCoefficient))
+					if constexpr (ThisType::hasFadeIn<BlowerTimeHandler>(0))
 					{
-						if (_state != Storm::BlowerState::Fading)
+						float fadeInCoefficient;
+						if (BlowerTimeHandler::shouldFadeIn(fadeInCoefficient))
 						{
-							this->setAndNotifyStateChanged<Storm::BlowerState::Fading>();
-						}
+							if (_state != Storm::BlowerState::Fading)
+							{
+								this->setAndNotifyStateChanged<Storm::BlowerState::Fading>();
+							}
 
-						_force = _srcForce * fadeInCoefficient;
-						return;
+							_force = _srcForce * fadeInCoefficient;
+							return;
+						}
+					}
+
+					if constexpr (ThisType::hasFadeOut<BlowerTimeHandler>(0))
+					{
+						float fadeOutCoefficient;
+						if (BlowerTimeHandler::shouldFadeOut(fadeOutCoefficient))
+						{
+							if (_state != Storm::BlowerState::Fading)
+							{
+								this->setAndNotifyStateChanged<Storm::BlowerState::Fading>();
+							}
+
+							_force = _srcForce * fadeOutCoefficient;
+							return;
+						}
+					}
+
+					if (_state != Storm::BlowerState::FullyFonctional)
+					{
+						_force = _srcForce;
+						this->setAndNotifyStateChanged<Storm::BlowerState::FullyFonctional>();
+					}
+
+					if constexpr (ThisType::hasDistanceEffect<BlowerEffectArea>(0))
+					{
+						_forceNorm = _force.norm();
 					}
 				}
-
-				if constexpr (ThisType::hasFadeOut<BlowerTimeHandler>(0))
+				else if (_state != Storm::BlowerState::NotWorking)
 				{
-					float fadeOutCoefficient;
-					if (BlowerTimeHandler::shouldFadeOut(fadeOutCoefficient))
-					{
-						if (_state != Storm::BlowerState::Fading)
-						{
-							this->setAndNotifyStateChanged<Storm::BlowerState::Fading>();
-						}
-
-						_force = _srcForce * fadeOutCoefficient;
-						return;
-					}
+					this->setAndNotifyStateChanged<Storm::BlowerState::NotWorking>();
 				}
-
-				if (_state != Storm::BlowerState::FullyFonctional)
-				{
-					_force = _srcForce;
-					this->setAndNotifyStateChanged<Storm::BlowerState::FullyFonctional>();
-				}
-
-				if constexpr (ThisType::hasDistanceEffect<BlowerEffectArea>(0))
-				{
-					_forceNorm = _force.norm();
-				}
-			}
-			else if (_state != Storm::BlowerState::NotWorking)
-			{
-				this->setAndNotifyStateChanged<Storm::BlowerState::NotWorking>();
 			}
 		}
 
@@ -161,6 +165,20 @@ namespace Storm
 		}
 
 	public:
+		void tweakEnabling() final override
+		{
+			if (_enabled)
+			{
+				this->setAndNotifyStateChanged<Storm::BlowerState::NotWorking>();
+				_enabled = false;
+			}
+			else
+			{
+				_enabled = true;
+			}
+		}
+
+	public:
 		bool operator==(const std::size_t id) const final override
 		{
 			return _id == id;
@@ -173,6 +191,8 @@ namespace Storm
 
 	private:
 		std::size_t _id;
+
+		bool _enabled;
 
 		Storm::Vector3 _force;
 		const Storm::Vector3 _blowerPosition;

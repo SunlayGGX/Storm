@@ -254,5 +254,6 @@ Inside this element should be put all rigidbodies. Each rigidbody should be spec
 - **V**: Set wireframe.
 - **C**: Set rendering to display all particles.
 - **X**: Set particle state without rendering walls.
+- **E**: Enable all disabled blower, and disable all enabled ones.
 - **F1**: Debug command to print to a human readable text giving all position, velocity and force values of all fluid particles. The data is printed inside the output (temp) directory inside "Debug" folder.
 
