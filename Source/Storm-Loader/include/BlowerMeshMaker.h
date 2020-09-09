@@ -24,4 +24,10 @@ namespace Storm
 	public:
 		static void generate(const Storm::BlowerData &blowerData, std::vector<Storm::Vector3> &outVertexes, std::vector<uint32_t> &outIndexes);
 	};
+
+	class BlowerConeMeshMaker : private Storm::NonInstanciable
+	{
+	public:
+		static void generate(const Storm::BlowerData &blowerData, std::vector<Storm::Vector3> &outVertexes, std::vector<uint32_t> &outIndexes);
+	};
 }

@@ -22,6 +22,8 @@ namespace Storm
 
 		Storm::Vector3 _blowerDimension;
 		float _radius;
+		float _downRadius;
+		float _upRadius;
 		float _height;
 
 		Storm::Vector3 _blowerPosition;

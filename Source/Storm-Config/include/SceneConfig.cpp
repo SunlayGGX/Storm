@@ -412,6 +412,8 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 			Storm::XmlReader::handleXml(blowerDataXml, "fadeInTime", blowerData._fadeInTimeInSeconds) ||
 			Storm::XmlReader::handleXml(blowerDataXml, "fadeOutTime", blowerData._fadeOutTimeInSeconds) ||
 			Storm::XmlReader::handleXml(blowerDataXml, "radius", blowerData._radius) ||
+			Storm::XmlReader::handleXml(blowerDataXml, "upRadius", blowerData._upRadius) ||
+			Storm::XmlReader::handleXml(blowerDataXml, "downRadius", blowerData._downRadius) ||
 			Storm::XmlReader::handleXml(blowerDataXml, "height", blowerData._height) ||
 			Storm::XmlReader::handleXml(blowerDataXml, "dimension", blowerData._blowerDimension, parseVector3Element) ||
 			Storm::XmlReader::handleXml(blowerDataXml, "force", blowerData._blowerForce, parseVector3Element) ||
@@ -495,6 +497,14 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 			{
 				Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._blowerId) + " (a cube) cannot have a specific height (use the dimension for a cube, not the height tag (" + Storm::toStdString(blowerData._height) + "))!");
 			}
+			else if (blowerData._upRadius != -1.f)
+			{
+				Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._blowerId) + " (a cube) cannot have an up radius (" + Storm::toStdString(blowerData._upRadius) + ")!");
+			}
+			else if (blowerData._downRadius != -1.f)
+			{
+				Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._blowerId) + " (a cube) cannot have a down radius (" + Storm::toStdString(blowerData._downRadius) + ")!");
+			}
 			break;
 
 		case Storm::BlowerType::Sphere:
@@ -507,6 +517,14 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 			else if (blowerData._height != 0.f)
 			{
 				Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._blowerId) + " (a sphere) cannot have a specific height (this tag is reserved for cylinder derived blowers (" + Storm::toStdString(blowerData._height) + "))!");
+			}
+			else if (blowerData._upRadius != -1.f)
+			{
+				Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._blowerId) + " (a sphere) cannot have an up radius (" + Storm::toStdString(blowerData._upRadius) + ")!");
+			}
+			else if (blowerData._downRadius != -1.f)
+			{
+				Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._blowerId) + " (a sphere) cannot have a down radius (" + Storm::toStdString(blowerData._downRadius) + ")!");
 			}
 			blowerData._blowerDimension = Storm::Vector3{ blowerData._radius, blowerData._radius, blowerData._radius };
 			break;
@@ -532,6 +550,14 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 			{
 				Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._blowerId) + " (a pulse explosion) have its fadeInTime set in stone! You cannot override it (you've set " + std::to_string(blowerData._fadeOutTimeInSeconds) + "s).");
 			}
+			else if (blowerData._upRadius != -1.f)
+			{
+				Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._blowerId) + " (a pulse explosion) cannot have an up radius (" + Storm::toStdString(blowerData._upRadius) + ")!");
+			}
+			else if (blowerData._downRadius != -1.f)
+			{
+				Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._blowerId) + " (a pulse explosion) cannot have a down radius (" + Storm::toStdString(blowerData._downRadius) + ")!");
+			}
 
 			blowerData._blowerDimension = Storm::Vector3{ blowerData._radius, blowerData._radius, blowerData._radius };
 			break;
@@ -553,8 +579,64 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 			{
 				Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._blowerId) + " (a cylinder) shouldn't use dimension tag for the height but use height tag instead!");
 			}
+			else if (blowerData._upRadius != -1.f)
+			{
+				Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._blowerId) + " (a cylinder) cannot have an up radius (" + Storm::toStdString(blowerData._upRadius) + ")!");
+			}
+			else if (blowerData._downRadius != -1.f)
+			{
+				Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._blowerId) + " (a cylinder) cannot have a down radius (" + Storm::toStdString(blowerData._downRadius) + ")!");
+			}
 
 			blowerData._blowerDimension = Storm::Vector3{ 0.f, blowerData._height, 0.f };
+			break;
+
+		case Storm::BlowerType::Cone:
+			if (blowerData._radius != 0.f)
+			{
+				Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._blowerId) + " (a Cone) cannot have a radius (" + Storm::toStdString(blowerData._radius) + ")!");
+			}
+			else if (blowerData._height <= 0.f)
+			{
+				Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._blowerId) + " (a Cone) should have defined a positive non zero height!");
+			}
+			else if (blowerData._blowerDimension.x() != 0.f || blowerData._blowerDimension.z() != 0.f)
+			{
+				Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._blowerId) + " (a Cone) shouldn't use dimension tag to specify x and z width and depth but radius instead!");
+			}
+			else if (blowerData._blowerDimension.y() != 0.f && blowerData._blowerDimension.y() != blowerData._height)
+			{
+				Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._blowerId) + " (a Cone) shouldn't use dimension tag for the height but use height tag instead!");
+			}
+			else if (blowerData._upRadius == -1.f)
+			{
+				Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._blowerId) + " (a Cone) should have defined an up radius!");
+			}
+			else if (blowerData._downRadius == -1.f)
+			{
+				Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._blowerId) + " (a Cone) should have defined a down radius!");
+			}
+			else if (blowerData._upRadius < 0.f)
+			{
+				Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._blowerId) + "(a Cone) up radius is invalid. It should be a non negative value (" + Storm::toStdString(blowerData._upRadius) + ")!");
+			}
+			else if (blowerData._downRadius < 0.f)
+			{
+				Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._blowerId) + "(a Cone) down radius is invalid. It should be a non negative value (" + Storm::toStdString(blowerData._downRadius) + ")!");
+			}
+			else if (blowerData._downRadius == 0.f && blowerData._upRadius == 0.f)
+			{
+				Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._blowerId) + "(a Cone) down and up radius are both zero. It is forbidden!");
+			}
+
+			blowerData._blowerDimension = Storm::Vector3{ 0.f, blowerData._height, 0.f };
+			
+			if (blowerData._downRadius == blowerData._upRadius)
+			{
+				LOG_WARNING <<
+					"Blower " << std::to_string(blowerData._blowerId) << " have both the up and down radius equal (" << blowerData._downRadius << ").\n"
+					"It is allowed but note that it will be in fact a cylinder. Except that Cylinders are more optimized to compute a cylinder effect area.\n";
+			}
 			break;
 
 		case Storm::BlowerType::None:

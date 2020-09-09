@@ -95,6 +95,8 @@ Storm::BlowerData::BlowerData() :
 	_blowerType{ Storm::BlowerType::None },
 	_blowerDimension{ Storm::Vector3::Zero() },
 	_radius{ 0.f },
+	_downRadius{ -1.f },
+	_upRadius{ -1.f },
 	_height{ 0.f },
 	_blowerPosition{ Storm::Vector3::Zero() },
 	_blowerForce{ Storm::Vector3::Zero() }

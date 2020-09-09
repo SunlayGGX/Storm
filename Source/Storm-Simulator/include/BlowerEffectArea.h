@@ -108,4 +108,31 @@ namespace Storm
 		float _height;
 		float _radiusSquared;
 	};
+
+	class BlowerConeArea
+	{
+	public:
+		BlowerConeArea(const Storm::BlowerData &blowerDataConfig);
+
+	public:
+		__forceinline bool isInside(const Storm::Vector3 &relativePosDiff) const
+		{
+			const float yAbs = std::fabs(relativePosDiff.y());
+			if (yAbs < _height)
+			{
+				const float alpha = 2.f * yAbs / _height;
+				const float currentRadiusSquared = _downRadiusSquared + _diffRadiusSquared * alpha;
+
+				const float twoDRelativeLengthSquared = relativePosDiff.x() * relativePosDiff.x() + relativePosDiff.z() * relativePosDiff.z();
+				return twoDRelativeLengthSquared < currentRadiusSquared;
+			}
+
+			return false;
+		}
+
+	protected:
+		float _height;
+		float _diffRadiusSquared;
+		float _downRadiusSquared;
+	};
 }

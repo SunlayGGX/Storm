@@ -174,3 +174,13 @@ Storm::BlowerCylinderArea::BlowerCylinderArea(const Storm::BlowerData &blowerDat
 {
 	STORM_ENSURE_CONSTRUCTED_ON_RIGHT_SETTING(blowerDataConfig, Storm::BlowerType::Cylinder);
 }
+
+Storm::BlowerConeArea::BlowerConeArea(const Storm::BlowerData &blowerDataConfig) :
+	_downRadiusSquared{ blowerDataConfig._downRadius * blowerDataConfig._downRadius },
+	_height{ blowerDataConfig._height }
+{
+	STORM_ENSURE_CONSTRUCTED_ON_RIGHT_SETTING(blowerDataConfig, Storm::BlowerType::Cone);
+
+	const float upRadiusSquared = blowerDataConfig._upRadius * blowerDataConfig._upRadius;
+	_diffRadiusSquared = upRadiusSquared - _downRadiusSquared;
+}

@@ -34,3 +34,9 @@ void Storm::BlowerCylinderMeshMaker::generate(const Storm::BlowerData &blowerDat
 	STORM_ENSURE_MESH_MAKER_USED_ON_RIGHT_SETTING(blowerData, Storm::BlowerType::Cylinder);
 	Storm::AssetLoaderManager::instance().generateSimpleCylinder(blowerData._blowerPosition, blowerData._radius, blowerData._height, outVertexes, outIndexes);
 }
+
+void Storm::BlowerConeMeshMaker::generate(const Storm::BlowerData &blowerData, std::vector<Storm::Vector3> &outVertexes, std::vector<uint32_t> &outIndexes)
+{
+	STORM_ENSURE_MESH_MAKER_USED_ON_RIGHT_SETTING(blowerData, Storm::BlowerType::Cone);
+	Storm::AssetLoaderManager::instance().generateSimpleCone(blowerData._blowerPosition, blowerData._upRadius, blowerData._downRadius, blowerData._height, outVertexes, outIndexes);
+}
