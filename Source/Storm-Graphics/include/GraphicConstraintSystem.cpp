@@ -72,3 +72,23 @@ void Storm::GraphicConstraintSystem::refreshConstraintsData(const ComPtr<ID3D11D
 	}
 }
 
+void Storm::GraphicConstraintSystem::render(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera)
+{
+	_shader->setup(device, deviceContext, currentCamera);
+
+	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+
+	this->setupForRender(deviceContext);
+	_shader->draw(_constraintVertexCount, deviceContext);
+}
+
+void Storm::GraphicConstraintSystem::setupForRender(const ComPtr<ID3D11DeviceContext> &deviceContext)
+{
+	constexpr UINT stride = sizeof(Storm::Vector3);
+	constexpr UINT offset = 0;
+
+	deviceContext->IASetIndexBuffer(_indexBuffer.Get(), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
+
+	ID3D11Buffer*const tmpVertexBuffer = _vertexBuffer.Get();
+	deviceContext->IASetVertexBuffers(0, 1, &tmpVertexBuffer, &stride, &offset);
+}

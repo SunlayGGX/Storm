@@ -3,6 +3,9 @@
 
 namespace Storm
 {
+	class ConstraintShader;
+	class Camera;
+
 	class GraphicConstraintSystem
 	{
 	public:
@@ -11,6 +14,12 @@ namespace Storm
 
 	public:
 		void refreshConstraintsData(const ComPtr<ID3D11Device> &device, const std::vector<Storm::Vector3> &constraintsData);
+
+	public:
+		void render(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera);
+
+	private:
+		void setupForRender(const ComPtr<ID3D11DeviceContext> &deviceContext);
 
 	private:
 		ComPtr<ID3D11Buffer> _vertexBuffer;

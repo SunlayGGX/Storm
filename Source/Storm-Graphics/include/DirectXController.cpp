@@ -3,6 +3,8 @@
 #include "IRenderedElement.h"
 #include "GraphicRigidBody.h"
 #include "GraphicParticleSystem.h"
+#include "GraphicBlower.h"
+#include "GraphicConstraintSystem.h"
 
 #include "SingletonHolder.h"
 #include "IConfigManager.h"
@@ -12,8 +14,6 @@
 #include "DirectXHardwareInfo.h"
 
 #include "RenderModeState.h"
-
-#include "GraphicBlower.h"
 
 
 namespace
@@ -246,7 +246,7 @@ const ComPtr<ID3D11DeviceContext>& Storm::DirectXController::getImmediateContext
 	return _immediateContext;
 }
 
-void Storm::DirectXController::renderElements(const Storm::Camera &currentCamera, const std::vector<std::unique_ptr<Storm::IRenderedElement>> &renderedElementArrays, const std::map<unsigned int, std::unique_ptr<Storm::GraphicRigidBody>> &rbElementArrays, Storm::GraphicParticleSystem &particleSystem, const std::map<std::size_t, std::unique_ptr<Storm::GraphicBlower>> &blowersMap) const
+void Storm::DirectXController::renderElements(const Storm::Camera &currentCamera, const std::vector<std::unique_ptr<Storm::IRenderedElement>> &renderedElementArrays, const std::map<unsigned int, std::unique_ptr<Storm::GraphicRigidBody>> &rbElementArrays, Storm::GraphicParticleSystem &particleSystem, const std::map<std::size_t, std::unique_ptr<Storm::GraphicBlower>> &blowersMap, Storm::GraphicConstraintSystem &constraintSystem) const
 {
 	for (const auto &renderedElement : renderedElementArrays)
 	{
@@ -277,6 +277,8 @@ void Storm::DirectXController::renderElements(const Storm::Camera &currentCamera
 	{
 		graphicBlower.second->render(_device, _immediateContext, currentCamera);
 	}
+
+	constraintSystem.render(_device, _immediateContext, currentCamera);
 }
 
 float Storm::DirectXController::getViewportWidth() const noexcept

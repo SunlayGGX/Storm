@@ -11,6 +11,7 @@ namespace Storm
 	class GraphicRigidBody;
 	class GraphicParticleSystem;
 	class GraphicBlower;
+	class GraphicConstraintSystem;
 	enum class RenderModeState;
 
 	class DirectXController
@@ -33,7 +34,7 @@ namespace Storm
 		const ComPtr<ID3D11DeviceContext>& getImmediateContext() const noexcept;
 
 	public:
-		void renderElements(const Storm::Camera &currentCamera, const std::vector<std::unique_ptr<Storm::IRenderedElement>> &renderedElementArrays, const std::map<unsigned int, std::unique_ptr<Storm::GraphicRigidBody>> &rbElementArrays, Storm::GraphicParticleSystem &particleSystem, const std::map<std::size_t, std::unique_ptr<Storm::GraphicBlower>> &blowersMap) const;
+		void renderElements(const Storm::Camera &currentCamera, const std::vector<std::unique_ptr<Storm::IRenderedElement>> &renderedElementArrays, const std::map<unsigned int, std::unique_ptr<Storm::GraphicRigidBody>> &rbElementArrays, Storm::GraphicParticleSystem &particleSystem, const std::map<std::size_t, std::unique_ptr<Storm::GraphicBlower>> &blowersMap, Storm::GraphicConstraintSystem &constraintSystem) const;
 
 	public:
 		float getViewportWidth() const noexcept;
