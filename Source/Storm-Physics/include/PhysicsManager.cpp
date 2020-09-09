@@ -10,6 +10,14 @@
 #include "RigidBodySceneData.h"
 #include "ConstraintData.h"
 
+#include "ConstraintVisualizationItem.h"
+
+#include "SingletonHolder.h"
+#include "IGraphicsManager.h"
+#include "IThreadManager.h"
+
+#include "ThreadEnumeration.h"
+
 #include "ThrowException.h"
 #include "SearchAlgo.h"
 
@@ -43,6 +51,8 @@ void Storm::PhysicsManager::cleanUp_Implementation()
 void Storm::PhysicsManager::update(float deltaTime)
 {
 	_physXHandler->update(_simulationMutex, deltaTime);
+
+	this->pushPhysicsVisualizationData();
 }
 
 void Storm::PhysicsManager::addPhysicalBody(const Storm::RigidBodySceneData &rbSceneData, const std::vector<Storm::Vector3> &vertexes, const std::vector<uint32_t> &indexes)
@@ -118,6 +128,34 @@ void Storm::PhysicsManager::loadConstraints(const std::vector<Storm::ConstraintD
 	else
 	{
 		LOG_DEBUG << "No constraints to be load";
+	}
+}
+
+void Storm::PhysicsManager::pushPhysicsVisualizationData() const
+{
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	Storm::IGraphicsManager &graphicMgr = singletonHolder.getSingleton<Storm::IGraphicsManager>();
+	Storm::IThreadManager &threadMgr = singletonHolder.getSingleton<Storm::IThreadManager>();
+
+	// Push constraints visualization settings.
+	const std::size_t constraintCount = _constraints.size();
+	if (constraintCount > 0)
+	{
+		std::vector<Storm::ConstraintVisualizationItem> constraintsPositionsTmp;
+		constraintsPositionsTmp.reserve(constraintCount);
+
+		for (const auto &constraint : _constraints)
+		{
+			constraint->appendJointPositionToArray(constraintsPositionsTmp);
+		}
+
+		if (!constraintsPositionsTmp.empty())
+		{
+			threadMgr.executeOnThread(Storm::ThreadEnumeration::GraphicsThread, [&graphicMgr, constraintsPositions = std::move(constraintsPositionsTmp)]()
+			{
+				graphicMgr.pushConstraintData(constraintsPositions);
+			});
+		}
 	}
 }
 

@@ -7,6 +7,7 @@ namespace Storm
 {
 	enum class BlowerState;
 	struct BlowerData;
+	struct ConstraintVisualizationItem;
 	class IRigidBody;
 
 	class IGraphicsManager : public Storm::ISingletonHeldInterface<IGraphicsManager>
@@ -29,6 +30,7 @@ namespace Storm
 		// The caller (Simulation thread) will copy the data it has and push it by move to a staging location waiting for the graphic thread to retrieve it.
 		// When the Graphic thread begins its loop, it will move the staging data into its own data (no copy) and continue with it. No lock while copying is made so no bottleneck.
 		virtual void pushParticlesData(unsigned int particleSystemId, const std::vector<Storm::Vector3> &particlePosData, const std::vector<Storm::Vector3> &particlevelocityData, bool isFluids, bool isWall) = 0;
+		virtual void pushConstraintData(const std::vector<Storm::ConstraintVisualizationItem> &constraintsVisuData) = 0;
 
 	public:
 		virtual void createGraphicsField(const std::wstring_view &fieldName, std::wstring &&fieldValueStr) = 0;

@@ -351,6 +351,11 @@ void Storm::GraphicManager::pushParticlesData(unsigned int particleSystemId, con
 	});
 }
 
+void Storm::GraphicManager::pushConstraintData(const std::vector<Storm::ConstraintVisualizationItem> &constraintsVisuData)
+{
+	STORM_STRONG_NOT_IMPLEMENTED;
+}
+
 void Storm::GraphicManager::createGraphicsField(const std::wstring_view &fieldName, std::wstring &&fieldValueStr)
 {
 	assert(_fieldsMap.find(fieldName) == std::end(_fieldsMap) && "We shouldn't create another field with the same name!");

@@ -38,6 +38,9 @@ namespace Storm
 		void addConstraint(const Storm::ConstraintData &constraintData) final override;
 		void loadConstraints(const std::vector<Storm::ConstraintData> &constraintsToLoad) final override;
 
+	private:
+		void pushPhysicsVisualizationData() const;
+
 	public:
 		const Storm::PhysXHandler& getPhysXHandler() const;
 		Storm::PhysXHandler& getPhysXHandler();
