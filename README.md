@@ -191,6 +191,7 @@ Unlike the others config files, it can be named as you want. Here the wml tags y
 - **grid (vector3, facultative)**: Set the grid dimension. X coord will be the grid width, Z its depth and Y will be the height where the grid will be drawn. Note that X and Z will be ceiled. Default value is { x=10.0, y=0.0, z=10.0 }
 - **particleDisplay (boolean, facultative)**: Specify if Solids should be displayed as particle on start. If not, they will be displayed as meshes. "false" by default.
 - **constraintThickness (float, facultative)**: Specify the thickness of the line when visualizing the constraint. It should be a positive non-zero value. Default is "General.particleRadius / 4.0".
+- **constraintColor (RGBAcolor, facultative)**: Specify the color of the line when visualizing the constraint. Default is { r=1.0, g=0.1, b=0.1, a=0.8 }.
 
 
 #### Fluid
