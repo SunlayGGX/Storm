@@ -9,6 +9,8 @@ namespace Storm
 		ConstraintData();
 
 	public:
+		std::size_t _constraintId;
+
 		unsigned int _rigidBodyId1;
 		unsigned int _rigidBodyId2;
 		float _constraintsLength;

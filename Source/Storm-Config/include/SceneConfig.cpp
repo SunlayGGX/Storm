@@ -389,7 +389,7 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 	},
 		[&rigidBodiesDataArray, &contraintsIndex](Storm::ConstraintData &contraintData)
 	{
-		++contraintsIndex;
+		contraintData._constraintId = contraintsIndex++;
 		const auto lastToCheck = std::end(rigidBodiesDataArray);
 
 		if (contraintData._constraintsLength == -1.f)
