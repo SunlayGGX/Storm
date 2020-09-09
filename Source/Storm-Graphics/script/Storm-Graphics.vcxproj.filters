@@ -108,6 +108,12 @@
     <ClCompile Include="..\include\GraphicBlower.cpp">
       <Filter>Source Files\Rendered</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\GraphicConstraintSystem.cpp">
+      <Filter>Source Files\Rendered</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\ConstraintShader.cpp">
+      <Filter>Source Files\Shaders\Component</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-GraphicsPCH.h">
@@ -175,6 +181,12 @@
     </ClInclude>
     <ClInclude Include="..\include\GraphicBlower.h">
       <Filter>Header Files\Rendered</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\GraphicConstraintSystem.h">
+      <Filter>Header Files\Rendered</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ConstraintShader.h">
+      <Filter>Header Files\Shaders\Component</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

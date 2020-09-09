@@ -13,9 +13,11 @@
   <ItemGroup>
     <ClCompile Include="..\include\BlowerShader.cpp" />
     <ClCompile Include="..\include\Camera.cpp" />
+    <ClCompile Include="..\include\ConstraintShader.cpp" />
     <ClCompile Include="..\include\DirectXController.cpp" />
     <ClCompile Include="..\include\DirectXHardwareInfo.cpp" />
     <ClCompile Include="..\include\GraphicBlower.cpp" />
+    <ClCompile Include="..\include\GraphicConstraintSystem.cpp" />
     <ClCompile Include="..\include\GraphicManager.cpp" />
     <ClCompile Include="..\include\GraphicParticleData.cpp" />
     <ClCompile Include="..\include\GraphicParticleSystem.cpp" />
@@ -36,8 +38,10 @@
     <ClInclude Include="..\include\BlowerShader.h" />
     <ClInclude Include="..\include\Camera.h" />
     <ClInclude Include="..\include\ConstantBufferHolder.h" />
+    <ClInclude Include="..\include\ConstraintShader.h" />
     <ClInclude Include="..\include\DirectXController.h" />
     <ClInclude Include="..\include\DirectXHardwareInfo.h" />
+    <ClInclude Include="..\include\GraphicConstraintSystem.h" />
     <ClInclude Include="..\include\GraphicManager.h" />
     <ClInclude Include="..\include\GraphicParticleData.h" />
     <ClInclude Include="..\include\GraphicParticleSystem.h" />
