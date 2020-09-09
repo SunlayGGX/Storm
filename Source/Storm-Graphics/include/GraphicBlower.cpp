@@ -4,6 +4,11 @@
 #include "BlowerState.h"
 #include "BlowerShader.h"
 
+#include "SingletonHolder.h"
+#include "IConfigManager.h"
+
+#include "GraphicData.h"
+
 #include "XMStormHelpers.h"
 
 
@@ -40,15 +45,14 @@ namespace
 		}
 	}
 
-	DirectX::XMVECTOR convertStateToColor(const Storm::BlowerState blowerState)
+	DirectX::XMVECTOR convertStateToColor(const Storm::BlowerState blowerState, const float blowerAlpha)
 	{
-		constexpr const float k_alpha = 0.25f;
-		constexpr const float k_disabledAlpha = k_alpha / 2.f;
+		const float k_disabledAlpha = blowerAlpha / 2.f;
 		switch (blowerState)
 		{
 		case Storm::BlowerState::NotWorking:		return DirectX::XMVECTOR{ 0.2f, 0.2f, 0.2f, k_disabledAlpha };
-		case Storm::BlowerState::Fading:			return DirectX::XMVECTOR{ 1.f, 0.5f, 0.f, k_alpha };
-		case Storm::BlowerState::FullyFonctional:	return DirectX::XMVECTOR{ 0.1f, 8.f, 0.2f, k_alpha };
+		case Storm::BlowerState::Fading:			return DirectX::XMVECTOR{ 1.f, 0.5f, 0.f, blowerAlpha };
+		case Storm::BlowerState::FullyFonctional:	return DirectX::XMVECTOR{ 0.1f, 8.f, 0.2f, blowerAlpha };
 		default:									return DirectX::XMVECTOR{ 0.f, 0.f, 0.f, 0.f };
 		}
 	}
@@ -111,7 +115,8 @@ void Storm::GraphicBlower::instantiateShader(const ComPtr<ID3D11Device> &device,
 
 void Storm::GraphicBlower::render(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera)
 {
-	_blowerShader->setup(device, deviceContext, currentCamera, convertStateToColor(_blowerState));
+	const float blowerAlpha = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().getGraphicData()._blowerAlpha;
+	_blowerShader->setup(device, deviceContext, currentCamera, convertStateToColor(_blowerState, blowerAlpha));
 	this->setupBlower(deviceContext);
 	_blowerShader->draw(_indexCount, deviceContext);
 }

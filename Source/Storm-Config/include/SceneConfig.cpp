@@ -194,6 +194,7 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 			!Storm::XmlReader::handleXml(graphicXmlElement, "particleDisplay", graphicData._displaySolidAsParticles) &&
 			!Storm::XmlReader::handleXml(graphicXmlElement, "minColorValue", graphicData._valueForMinColor) &&
 			!Storm::XmlReader::handleXml(graphicXmlElement, "maxColorValue", graphicData._valueForMaxColor) &&
+			!Storm::XmlReader::handleXml(graphicXmlElement, "blowerAlpha", graphicData._blowerAlpha) &&
 			!Storm::XmlReader::handleXml(graphicXmlElement, "grid", graphicData._grid, parseVector3Element)
 			)
 		{
@@ -204,6 +205,10 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 	if (graphicData._valueForMinColor > graphicData._valueForMaxColor)
 	{
 		Storm::throwException<std::exception>("Min color value (" + std::to_string(graphicData._valueForMinColor) + ") is greater than Max color value (" + std::to_string(graphicData._valueForMaxColor) + "). It isn't allowed!");
+	}
+	else if (graphicData._blowerAlpha < 0.f || graphicData._blowerAlpha > 1.f)
+	{
+		Storm::throwException<std::exception>("blower alpha channel value is invalid (" + std::to_string(graphicData._blowerAlpha) + "). It should be in the range 0.0 and 1.0 included!");
 	}
 
 	/* Fluids */

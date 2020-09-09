@@ -59,7 +59,8 @@ Storm::GraphicData::GraphicData() :
 	_grid{ 10.f, 0.f, 10.f },
 	_displaySolidAsParticles{ false },
 	_valueForMinColor{ 0.01f },
-	_valueForMaxColor{ 100.f }
+	_valueForMaxColor{ 100.f },
+	_blowerAlpha{ 0.25f }
 {
 
 }

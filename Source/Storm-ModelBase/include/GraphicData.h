@@ -20,5 +20,7 @@ namespace Storm
 
 		float _valueForMinColor;
 		float _valueForMaxColor;
+
+		float _blowerAlpha;
 	};
 }
