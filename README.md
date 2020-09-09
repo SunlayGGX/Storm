@@ -69,6 +69,26 @@ I'm using catch2 as our main unit test library. But to be able to use it, you sh
 
 ## Config file
 
+### Generality
+When reading this section, all xml tags are described like this :
+- **tagName (type, modality:[mandatory/faculative/semi-faculative], ...)** : description<br>
+
+♦ <ins>tagName</ins> is the name of the xml tag.<br>
+♦ <ins>type</ins> is the value type of the xml value.<br>
+♦ <ins>modality</ins> is the importance the tag is.
+- If it is "mandatory" and the tag isn't set, the application will abort.
+- If it is "faculative", the default value will be chosen if the value isn't set.
+- If it is "semi-facultative", then the modality will depend on another setting : it could become mandatory or should remain unset.<br>
+<br>
+
+Except some exceptions described below, you should define the xml value for tagName like this : <br>
+> \<tagName>value<\tagName>
+
+
+<ins>Exceptions</ins>
+- if the type is "vector3", then the xml should be defined like this : \<tagName x="xValue" y="yValue" z="zValue" \\>
+- if the type is "RGBAcolor", then the xml should be defined like this : \<tagName r="rValue" g="gValue" b="bValue" a="aValue" \\>. Besides, all r, g, b, a values are to be float values between 0.0 and 1.0 included.
+
 
 ### Macro Configs
 
