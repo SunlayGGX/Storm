@@ -12,6 +12,7 @@ namespace Storm
 	class GraphicRigidBody;
 	class GraphicParticleSystem;
 	class GraphicBlower;
+	class GraphicConstraintSystem;
 
 	class GraphicManager :
 		private Storm::Singleton<GraphicManager>,
@@ -62,6 +63,7 @@ namespace Storm
 		std::map<unsigned int, std::unique_ptr<Storm::GraphicRigidBody>> _meshesMap;
 		std::unique_ptr<Storm::GraphicParticleSystem> _graphicParticlesSystem;
 		std::map<std::size_t, std::unique_ptr<Storm::GraphicBlower>> _blowersMap;
+		std::unique_ptr<Storm::GraphicConstraintSystem> _graphicConstraintsSystem;
 
 		std::map<std::wstring_view, std::wstring> _fieldsMap;
 

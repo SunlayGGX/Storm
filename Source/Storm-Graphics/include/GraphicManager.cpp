@@ -7,7 +7,10 @@
 #include "GraphicRigidBody.h"
 #include "GraphicParticleSystem.h"
 #include "GraphicParticleData.h"
+#include "GraphicConstraintSystem.h"
+#include "GraphicBlower.h"
 
+#include "BlowerData.h"
 #include "GraphicData.h"
 #include "GeneralSimulationData.h"
 
@@ -23,8 +26,6 @@
 
 #include "SpecialKey.h"
 
-#include "BlowerData.h"
-#include "GraphicBlower.h"
 
 
 namespace
@@ -219,6 +220,8 @@ void Storm::GraphicManager::initialize_Implementation(void* hwnd)
 
 	_graphicParticlesSystem = std::make_unique<Storm::GraphicParticleSystem>(device);
 
+	_graphicConstraintsSystem = std::make_unique<Storm::GraphicConstraintSystem>(device);
+
 	for (auto &meshesPair : _meshesMap)
 	{
 		meshesPair.second->initializeRendering(device);
@@ -298,7 +301,7 @@ void Storm::GraphicManager::update()
 		_directXController->clearView(g_defaultColor);
 		_directXController->initView();
 
-		_directXController->renderElements(this->getCamera(), _renderedElements, _meshesMap, *_graphicParticlesSystem, _blowersMap);
+		_directXController->renderElements(this->getCamera(), _renderedElements, _meshesMap, *_graphicParticlesSystem, _blowersMap, *_graphicConstraintsSystem);
 
 		_directXController->drawUI(_fieldsMap);
 
