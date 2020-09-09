@@ -114,7 +114,7 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 		if (errorMsg.empty())
 		{
 			_sceneFileName = sceneConfigFilePath.stem().string();
-			_sceneConfig.read(_sceneConfigFilePath, _macroConfig);
+			_sceneConfig.read(_sceneConfigFilePath, _macroConfig, _generalConfig);
 		}
 		else
 		{

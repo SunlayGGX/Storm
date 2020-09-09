@@ -43,7 +43,8 @@ Storm::GeneralConfig::GeneralConfig() :
 	_fontSize{ 17.f },
 	_shouldLogGraphicDeviceMessage{ false },
 	_shouldLogPhysics{ false },
-	_profileSimulationSpeed{ false }
+	_profileSimulationSpeed{ false },
+	_allowNoFluid{ false }
 {
 
 }
@@ -111,6 +112,22 @@ bool Storm::GeneralConfig::read(const std::string &generalConfigFilePathStr)
 						)
 					{
 						LOG_ERROR << profileXmlElement.first << " (inside General.Profile) is unknown, therefore it cannot be handled";
+					}
+				}
+			}
+
+			/* Simulation */
+			const auto &simulationTreeOpt = generalTree.get_child_optional("Simulation");
+			if (simulationTreeOpt.has_value())
+			{
+				const auto &simulationTree = simulationTreeOpt.value();
+				for (const auto &simulationXmlElement : simulationTree)
+				{
+					if (
+						!Storm::XmlReader::handleXml(simulationXmlElement, "allowNoFluid", _allowNoFluid)
+						)
+					{
+						LOG_ERROR << simulationXmlElement.first << " (inside General.Simulation) is unknown, therefore it cannot be handled";
 					}
 				}
 			}

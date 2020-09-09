@@ -1,6 +1,7 @@
 #include "SceneConfig.h"
 
 #include "MacroConfig.h"
+#include "GeneralConfig.h"
 
 #include "SceneData.h"
 #include "GeneralSimulationData.h"
@@ -125,7 +126,7 @@ if (blowerTypeStr == BlowerTypeXmlName) return Storm::BlowerType::BlowerTypeName
 }
 
 
-void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const Storm::MacroConfig &macroConfig)
+void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const Storm::MacroConfig &macroConfig, const Storm::GeneralConfig &generalConfig)
 {
 	_sceneData = std::make_unique<Storm::SceneData>();
 
@@ -133,8 +134,6 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 	boost::property_tree::read_xml(sceneConfigFilePathStr, xmlTree, boost::property_tree::xml_parser::no_comments);
 
 	const auto &srcTree = xmlTree.get_child("Scene");
-
-	bool allowNoFluid = false;
 
 	/* General */
 	// This is mandatory, so no optional
@@ -156,7 +155,6 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 			!Storm::XmlReader::handleXml(generalXmlElement, "maxDensityError", generalData._maxDensityError) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "neighborCheckStep", generalData._recomputeNeighborhoodStep) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "simulationNoWait", generalData._simulationNoWait) &&
-			!Storm::XmlReader::handleXml(generalXmlElement, "allowNoFluid", allowNoFluid) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "particleRadius", generalData._particleRadius)
 			)
 		{
@@ -284,7 +282,7 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 
 		fluidData._cinematicViscosity = fluidData._dynamicViscosity / fluidData._density;
 	}
-	else if (allowNoFluid)
+	else if (generalConfig._allowNoFluid)
 	{
 		generalData._hasFluid = false;
 	}

@@ -33,5 +33,8 @@ namespace Storm
 
 		// Profile
 		bool _profileSimulationSpeed;
+
+		// Simulation
+		bool _allowNoFluid;
 	};
 }
