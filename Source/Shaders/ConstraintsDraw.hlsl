@@ -37,26 +37,26 @@ GeometryInputType constraintVertexShader(VertexInputType input)
 }
 
 [maxvertexcount(6)]
-void constraintGeometryShader(point GeometryInputType inputRaw[2], inout TriangleStream<PixelInputType> outputStream)
+void constraintGeometryShader(line GeometryInputType inputRaw[2], inout TriangleStream<PixelInputType> outputStream)
 {
     GeometryInputType p0 = inputRaw[0];
     GeometryInputType p1 = inputRaw[1];
 
     PixelInputType corner1;
-    corner1._position = float4(p0._position.x + _midThickness, p1._position.yzw);
+    corner1._position = float4(p0._position.x + _midThickness, p0._position.yzw);
     corner1._position = mul(corner1._position, _projMatrix);
 
     PixelInputType corner2;
-    corner2._position = float4(p0._position.x - _midThickness, p1._position.yzw);
+    corner2._position = float4(p0._position.x - _midThickness, p0._position.yzw);
     corner2._position = mul(corner2._position, _projMatrix);
 
     PixelInputType corner3;
-    corner1._position = float4(p1._position.x + _midThickness, p1._position.yzw);
-    corner1._position = mul(corner1._position, _projMatrix);
+    corner3._position = float4(p1._position.x + _midThickness, p1._position.yzw);
+    corner3._position = mul(corner3._position, _projMatrix);
 
     PixelInputType corner4;
-    corner2._position = float4(p1._position.x - _midThickness, p1._position.yzw);
-    corner2._position = mul(corner2._position, _projMatrix);
+    corner4._position = float4(p1._position.x - _midThickness, p1._position.yzw);
+    corner4._position = mul(corner4._position, _projMatrix);
 
     outputStream.Append(corner2);
     outputStream.Append(corner1);
@@ -70,7 +70,7 @@ void constraintGeometryShader(point GeometryInputType inputRaw[2], inout Triangl
 }
 
 // Pixel shader
-float4 constraintPixelShader(PixelInputType) : SV_TARGET
+float4 constraintPixelShader(PixelInputType input) : SV_TARGET
 {
     return _color;
 }
