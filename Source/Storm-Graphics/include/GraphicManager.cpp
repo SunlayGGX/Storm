@@ -27,7 +27,6 @@
 #include "SpecialKey.h"
 
 
-
 namespace
 {
 #if false
@@ -354,7 +353,7 @@ void Storm::GraphicManager::pushParticlesData(unsigned int particleSystemId, con
 	});
 }
 
-void Storm::GraphicManager::pushConstraintData(const std::vector<Storm::ConstraintVisualizationItem> &constraintsVisuData)
+void Storm::GraphicManager::pushConstraintData(const std::vector<Storm::Vector3> &constraintsVisuData)
 {
 	STORM_NOT_IMPLEMENTED;
 }

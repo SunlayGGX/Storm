@@ -7,8 +7,6 @@
 
 #include "PhysXCoordHelpers.h"
 
-#include "ConstraintVisualizationItem.h"
-
 
 namespace
 {
@@ -30,7 +28,7 @@ Storm::PhysicsConstraint::PhysicsConstraint(const Storm::ConstraintData &data, p
 
 Storm::PhysicsConstraint::~PhysicsConstraint() = default;
 
-void Storm::PhysicsConstraint::appendJointPositionToArray(std::vector<Storm::ConstraintVisualizationItem> &inOutJointPosition) const
+void Storm::PhysicsConstraint::appendJointPositionToArray(std::vector<Storm::Vector3> &inOutJointPositions) const
 {
 	if (_shouldVisualize)
 	{
@@ -44,7 +42,8 @@ void Storm::PhysicsConstraint::appendJointPositionToArray(std::vector<Storm::Con
 		physx::PxTransform jointTransformActor0 = _internalJointPtr->getLocalPose(physx::PxJointActorIndex::Enum::eACTOR0);
 		physx::PxTransform jointTransformActor1 = _internalJointPtr->getLocalPose(physx::PxJointActorIndex::Enum::eACTOR1);
 
-		inOutJointPosition.emplace_back(_id, Storm::convertToStorm(actor0GlobalPos.p + jointTransformActor0.p), Storm::convertToStorm(jointTransformActor1.p + jointTransformActor1.p));
+		inOutJointPositions.emplace_back(Storm::convertToStorm(actor0GlobalPos.p + jointTransformActor0.p));
+		inOutJointPositions.emplace_back(Storm::convertToStorm(actor1GlobalPos.p + jointTransformActor1.p));
 	}
 }
 

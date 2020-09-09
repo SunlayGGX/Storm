@@ -10,8 +10,6 @@
 #include "RigidBodySceneData.h"
 #include "ConstraintData.h"
 
-#include "ConstraintVisualizationItem.h"
-
 #include "SingletonHolder.h"
 #include "IGraphicsManager.h"
 #include "IThreadManager.h"
@@ -141,8 +139,8 @@ void Storm::PhysicsManager::pushPhysicsVisualizationData() const
 	const std::size_t constraintCount = _constraints.size();
 	if (constraintCount > 0)
 	{
-		std::vector<Storm::ConstraintVisualizationItem> constraintsPositionsTmp;
-		constraintsPositionsTmp.reserve(constraintCount);
+		std::vector<Storm::Vector3> constraintsPositionsTmp;
+		constraintsPositionsTmp.reserve(constraintCount * 2);
 
 		for (const auto &constraint : _constraints)
 		{

@@ -6,7 +6,6 @@
 namespace Storm
 {
 	struct ConstraintData;
-	struct ConstraintVisualizationItem;
 
 	// Link constraint... Some other constraint type exist but won't I use them (I don't need them, YAGNI), so PhysicsConstraint == Distance joint.
 	class PhysicsConstraint
@@ -16,7 +15,7 @@ namespace Storm
 		~PhysicsConstraint();
 
 	public:
-		void appendJointPositionToArray(std::vector<Storm::ConstraintVisualizationItem> &inOutJointPosition) const;
+		void appendJointPositionToArray(std::vector<Storm::Vector3> &inOutJointPositions) const;
 		std::size_t getID() const noexcept;
 
 	private:

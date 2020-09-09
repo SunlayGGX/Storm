@@ -76,9 +76,6 @@
     <Filter Include="Source Files\General">
       <UniqueIdentifier>{725c3bca-960f-4543-8058-412e00e6bf7c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Modules\Physics">
-      <UniqueIdentifier>{7131d74d-577f-483d-81f8-30b732e6adb3}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-ModelBasePCH.cpp">
@@ -95,9 +92,6 @@
     </ClCompile>
     <ClCompile Include="..\include\ColorChecker.cpp">
       <Filter>Source Files\General</Filter>
-    </ClCompile>
-    <ClCompile Include="..\include\ConstraintVisualizationItem.cpp">
-      <Filter>Source Files\Modules\Physics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -241,9 +235,6 @@
     </ClInclude>
     <ClInclude Include="..\include\ColorChecker.h">
       <Filter>Header Files\General</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\ConstraintVisualizationItem.h">
-      <Filter>Header Files\Modules\Physics</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

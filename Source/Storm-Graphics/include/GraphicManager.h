@@ -37,7 +37,7 @@ namespace Storm
 
 	public:
 		void pushParticlesData(unsigned int particleSystemId, const std::vector<Storm::Vector3> &particlePosData, const std::vector<Storm::Vector3> &particlevelocityData, bool isFluids, bool isWall) final override;
-		void pushConstraintData(const std::vector<Storm::ConstraintVisualizationItem> &constraintsVisuData) final override;
+		void pushConstraintData(const std::vector<Storm::Vector3> &constraintsVisuData) final override;
 
 	public:
 		void createGraphicsField(const std::wstring_view &fieldName, std::wstring &&fieldValueStr) final override;
