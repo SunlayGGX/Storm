@@ -17,7 +17,7 @@ namespace Storm
 			Storm::ZeroMemories(constantBufferDesc);
 
 			constantBufferDesc.Usage = D3D11_USAGE::D3D11_USAGE_DYNAMIC;
-			constantBufferDesc.ByteWidth = sizeof(ConstantBuffer);
+			constantBufferDesc.ByteWidth = sizeof(ConstantBufferType);
 			constantBufferDesc.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_CONSTANT_BUFFER;
 			constantBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_FLAG::D3D11_CPU_ACCESS_WRITE;
 
