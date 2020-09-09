@@ -21,6 +21,17 @@ namespace
 	{
 		static D3D11_INPUT_ELEMENT_DESC constraintVertexDataLayoutDesc[k_constraintVertexDataLayoutDescCount];
 
+		{
+			D3D11_INPUT_ELEMENT_DESC &currentVertexDataLayoutDesc = constraintVertexDataLayoutDesc[0];
+			currentVertexDataLayoutDesc.SemanticName = "POSITION";
+			currentVertexDataLayoutDesc.SemanticIndex = 0;
+			currentVertexDataLayoutDesc.Format = DXGI_FORMAT::DXGI_FORMAT_R32G32B32A32_FLOAT;
+			currentVertexDataLayoutDesc.InputSlot = 0;
+			currentVertexDataLayoutDesc.AlignedByteOffset = 0;
+			currentVertexDataLayoutDesc.InputSlotClass = D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA;
+			currentVertexDataLayoutDesc.InstanceDataStepRate = 0;
+		}
+
 		return constraintVertexDataLayoutDesc;
 	}
 }
