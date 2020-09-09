@@ -468,6 +468,33 @@ namespace Storm
 				return result;
 			}
 
+			// Default policy for Storm::Vector4 that will be defined inside Storm-ModelBase library
+			template<class ValType>
+			static auto parseImpl(ValType &&val)
+				-> decltype(std::enable_if_t<std::is_same_v<std::remove_cv_t<std::remove_reference_t<ValType>>, Storm::Vector4>, std::true_type>::value, std::string{})
+			{
+				std::string result;
+
+				const std::string xStr = Storm::details::toStdString<Policy>(val.x());
+				const std::string yStr = Storm::details::toStdString<Policy>(val.y());
+				const std::string zStr = Storm::details::toStdString<Policy>(val.z());
+				const std::string wStr = Storm::details::toStdString<Policy>(val.w());
+
+				result.reserve(static_cast<std::size_t>(10) + xStr.size() + yStr.size() + zStr.size() + wStr.size());
+
+				result += "{ ";
+				result += xStr;
+				result += ", ";
+				result += yStr;
+				result += ", ";
+				result += zStr;
+				result += ", ";
+				result += wStr;
+				result += " }";
+
+				return result;
+			}
+
 		public:
 			template<class ValType>
 			static auto parse(ValType &&val) -> decltype(parseImpl(std::forward<ValType>(val)))
