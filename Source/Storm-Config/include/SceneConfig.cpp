@@ -17,6 +17,7 @@
 #include "FluidParticleLoadDenseMode.h"
 #include "BlowerType.h"
 #include "BlowerDef.h"
+#include "InsideParticleRemovalTechnique.h"
 
 #include "ColorChecker.h"
 #include "ThrowException.h"
@@ -135,6 +136,23 @@ if (blowerTypeStr == BlowerTypeXmlName) return Storm::BlowerType::BlowerTypeName
 #undef STORM_XMACRO_GENERATE_ELEMENTARY_BLOWER
 
 		Storm::throwException<std::exception>("BlowerType value is unknown : '" + blowerTypeStr + "'");
+	}
+
+	Storm::InsideParticleRemovalTechnique parseInsideRemovalTech(std::string techTypeStr)
+	{
+		boost::algorithm::to_lower(techTypeStr);
+		if (techTypeStr == "none")
+		{
+			return Storm::InsideParticleRemovalTechnique::None;
+		}
+		else if (techTypeStr == "normals")
+		{
+			return Storm::InsideParticleRemovalTechnique::Normals;
+		}
+		else
+		{
+			Storm::throwException<std::exception>("Fluid particle removal technique value is unknown : '" + techTypeStr + "'");
+		}
 	}
 }
 
@@ -332,6 +350,7 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 			Storm::XmlReader::handleXml(rigidBodyDataXml, "wall", rbData._isWall) ||
 			Storm::XmlReader::handleXml(rigidBodyDataXml, "mass", rbData._mass) ||
 			Storm::XmlReader::handleXml(rigidBodyDataXml, "viscosity", rbData._viscosity) ||
+			Storm::XmlReader::handleXml(rigidBodyDataXml, "pInsideRemovalTechnique", rbData._insideRbFluidDetectionMethodEnum, parseInsideRemovalTech) ||
 			Storm::XmlReader::handleXml(rigidBodyDataXml, "collisionType", rbData._collisionShape, parseCollisionType) ||
 			Storm::XmlReader::handleXml(rigidBodyDataXml, "translation", rbData._translation, parseVector3Element) ||
 			Storm::XmlReader::handleXml(rigidBodyDataXml, "rotation", rbData._rotation, parseVector3Element) ||
@@ -371,6 +390,10 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 		else if (rbData._viscosity < 0.f)
 		{
 			Storm::throwException<std::exception>("viscosity " + std::to_string(rbData._viscosity) + "Pa.s is invalid (rigid body " + std::to_string(rbData._rigidBodyID) + ")!");
+		}
+		else if (rbData._isWall && rbData._insideRbFluidDetectionMethodEnum != Storm::InsideParticleRemovalTechnique::None)
+		{
+			Storm::throwException<std::exception>("Setting a insider particles removal technique for a wall rigidbody is forbidden (rigid body " + std::to_string(rbData._rigidBodyID) + ")!");
 		}
 	});
 
