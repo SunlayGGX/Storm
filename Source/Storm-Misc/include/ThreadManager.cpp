@@ -54,14 +54,34 @@ void Storm::ThreadManager::executeOnThread(const std::thread::id &threadId, Asyn
 
 void Storm::ThreadManager::executeOnThread(Storm::ThreadEnumeration threadEnum, Storm::AsyncAction &&action)
 {
-	std::lock_guard<std::recursive_mutex> lock{ _mutex };
-	if (const auto found = _threadIdMapping.find(threadEnum); found != std::end(_threadIdMapping))
+	const auto thisThreadId = std::this_thread::get_id();
+	bool executeNow = false;
+
 	{
-		this->executeOnThreadInternal(found->second, std::move(action));
+		std::lock_guard<std::recursive_mutex> lock{ _mutex };
+		if (const auto found = _threadIdMapping.find(threadEnum); found != std::end(_threadIdMapping))
+		{
+			if (found->second != thisThreadId)
+			{
+				this->executeOnThreadInternal(found->second, std::move(action));
+			}
+			else
+			{
+				// If the current thread has requested to execute on itself... Do it right now.
+				executeNow = true;
+			}
+		}
+		else
+		{
+			_pendingThreadsRegisteringActions[threadEnum].emplace_back(std::move(action));
+		}
 	}
-	else
+
+	if (executeNow)
 	{
-		_pendingThreadsRegisteringActions[threadEnum].emplace_back(std::move(action));
+		Storm::AsyncActionExecutor tmpExecutor{};
+		tmpExecutor.bind(std::move(action));
+		tmpExecutor.execute();
 	}
 }
 
