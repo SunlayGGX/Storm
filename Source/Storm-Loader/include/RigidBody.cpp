@@ -145,7 +145,7 @@ void Storm::RigidBody::load(const Storm::RigidBodySceneData &rbSceneData)
 	};
 
 	Storm::AssetCacheDataOrder order{ rbSceneData, nullptr };
-	order._considerFinalInEquivalence = false;
+	order._considerFinalInEquivalence = true;
 
 	Storm::AssetLoaderManager &assetLoaderMgr = Storm::AssetLoaderManager::instance();
 
