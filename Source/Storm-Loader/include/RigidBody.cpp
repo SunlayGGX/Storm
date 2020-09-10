@@ -10,12 +10,16 @@
 #include "IPhysicsManager.h"
 #include "ISimulatorManager.h"
 
+#include "AssetLoaderManager.h"
+
 #include "MemoryHelper.h"
 #include "Version.h"
 
+#include "AssetCacheData.h"
+#include "AssetCacheDataOrder.h"
+
 #include <Assimp\Importer.hpp>
 #include <Assimp\scene.h>
-#include <Assimp\mesh.h>
 
 #include <boost\algorithm\string.hpp>
 
@@ -42,26 +46,6 @@ namespace
 
 		return Storm::RigidBody::retrieveParticleDataCacheFolder() / meshFileName;
 	}
-
-	class PrimitiveTypeParser
-	{
-	public:
-		template<class PolicyType>
-		static std::string parse(aiPrimitiveType primitive)
-		{
-			switch (primitive)
-			{
-			case aiPrimitiveType::aiPrimitiveType_POINT: return "Point";
-			case aiPrimitiveType::aiPrimitiveType_LINE: return "Line";
-			case aiPrimitiveType::aiPrimitiveType_TRIANGLE: return "Triangle";
-			case aiPrimitiveType::aiPrimitiveType_POLYGON: return "Polygon like Quads (not triangle)";
-
-			case aiPrimitiveType::_aiPrimitiveType_Force32Bit:
-			default:
-				return "Unknown primitive type";
-			}
-		}
-	};
 }
 
 
@@ -141,123 +125,71 @@ void Storm::RigidBody::load(const Storm::RigidBodySceneData &rbSceneData)
 	const std::wstring cachedPathStr = cachedPath.wstring();
 	constexpr const Storm::Version currentVersion = Storm::Version::retrieveCurrentStormVersion();
 
-	std::vector<Storm::Vector3> verticesPos;
-	std::vector<unsigned int> indexes;
+	std::shared_ptr<Storm::AssetCacheData> cachedDataPtr;
 	std::vector<Storm::Vector3> particlePos;
 
+	const auto pushDataToModules = 
+		[
+			this,
+			&graphicsMgr = singletonHolder.getSingleton<Storm::IGraphicsManager>(),
+			&physicsMgr = singletonHolder.getSingleton<Storm::IPhysicsManager>(),
+			&rbSceneData
+		](const std::shared_ptr<Storm::AssetCacheData> &cachedDataPtr)
+	{
+		const std::vector<Storm::Vector3> &verticesPos = cachedDataPtr->getScaledVertices();
+		const std::vector<Storm::Vector3> &normalsPos = cachedDataPtr->getScaledNormals();
+		const std::vector<uint32_t> &indexes = cachedDataPtr->getIndices();
+
+		graphicsMgr.addMesh(_rbId, verticesPos, normalsPos, indexes);
+		physicsMgr.addPhysicalBody(rbSceneData, verticesPos, indexes);
+	};
+
+	Storm::AssetCacheDataOrder order{ rbSceneData, nullptr };
+	order._considerFinalInEquivalence = false;
+
+	Storm::AssetLoaderManager &assetLoaderMgr = Storm::AssetLoaderManager::instance();
+
+	cachedDataPtr = assetLoaderMgr.retrieveAssetData(order);
+	if (cachedDataPtr == nullptr)
 	{
 		// The mesh is a separate entity, therefore we will load it with Assimp.
 		Assimp::Importer meshImporter;
-		const aiScene* meshScene = meshImporter.ReadFile(_meshPath, 0);
+		order._assimpScene = meshImporter.ReadFile(_meshPath, 0);
 
-		if (meshScene->HasMeshes())
+		if (order._assimpScene->HasMeshes())
 		{
-			if (meshScene->HasAnimations())
+			if (order._assimpScene->HasAnimations())
 			{
 				LOG_WARNING << "'" << _meshPath << "' contains animation. Animations aren't supported so they won't be handled!";
 			}
-			if (meshScene->HasCameras())
+			if (order._assimpScene->HasCameras())
 			{
 				LOG_WARNING << "'" << _meshPath << "' contains cameras. Embedded cameras aren't supported so they won't be handled!";
 			}
-			if (meshScene->HasLights())
+			if (order._assimpScene->HasLights())
 			{
 				LOG_WARNING << "'" << _meshPath << "' contains lights. Lights aren't supported so they won't be handled!";
 			}
-			if (meshScene->HasMaterials())
+			if (order._assimpScene->HasMaterials())
 			{
 				LOG_WARNING << "'" << _meshPath << "' contains materials. Materials aren't supported so they won't be handled!";
 			}
-			if (meshScene->HasTextures())
+			if (order._assimpScene->HasTextures())
 			{
 				LOG_WARNING << "'" << _meshPath << "' contains textures. Textures aren't supported so they won't be handled!";
 			}
 
-			std::size_t totalVertexCount = 0;
-			std::size_t totalNormalsCount = 0;
-			std::size_t totalIndexesCount = 0;
-			for (std::size_t iter = 0; iter < meshScene->mNumMeshes; ++iter)
-			{
-				const aiMesh* currentMesh = meshScene->mMeshes[iter];
-				if (!currentMesh->HasPositions())
-				{
-					Storm::throwException<std::exception>("The mesh '" + _meshPath + "' doesn't have vertices. This isn't allowed!");
-				}
-				else if (!currentMesh->HasFaces())
-				{
-					Storm::throwException<std::exception>("The mesh '" + _meshPath + "' doesn't have any faces. This isn't allowed!");
-				}
-				else if (currentMesh->mPrimitiveTypes != aiPrimitiveType::aiPrimitiveType_TRIANGLE)
-				{
-					Storm::throwException<std::exception>("The mesh '" + _meshPath + "' isn't constituted of triangles. We doesn't support non triangle meshes! Primitive type was '" + Storm::toStdString<PrimitiveTypeParser>(static_cast<aiPrimitiveType>(currentMesh->mPrimitiveTypes)) + "'");
-				}
-
-				totalVertexCount += currentMesh->mNumVertices;
-				for (std::size_t faceIter = 0; faceIter < currentMesh->mNumFaces; ++faceIter)
-				{
-					totalIndexesCount += currentMesh->mFaces[faceIter].mNumIndices;
-				}
-			}
-
-			// Oh my gosh... If you trigger this warning then your object will be awkward to render (I'm not optimizing anything (don't have time) so expect some lags)
-			if (totalVertexCount > 10000)
-			{
-				LOG_WARNING << "'" << _meshPath << "' contains more than 10000 vertices. Low performance, frame drop and high memory consumptions are to be expected. Solution : reduce the number of vertices.";
-			}
-
-			verticesPos.reserve(totalVertexCount);
-
-			std::vector<Storm::Vector3> normalsPos;
-			normalsPos.reserve(totalVertexCount);
-
-			indexes.reserve(totalIndexesCount);
-
-			for (std::size_t iter = 0; iter < meshScene->mNumMeshes; ++iter)
-			{
-				const aiMesh* currentMesh = meshScene->mMeshes[iter];
-
-				for (std::size_t verticeIter = 0; verticeIter < currentMesh->mNumVertices; ++verticeIter)
-				{
-					const aiVector3D &vertice = currentMesh->mVertices[verticeIter];
-					verticesPos.emplace_back(vertice.x * rbSceneData._scale.x(), vertice.y * rbSceneData._scale.y(), vertice.z * rbSceneData._scale.z());
-				}
-
-				if (currentMesh->mNormals != nullptr)
-				{
-					for (std::size_t normalsIter = 0; normalsIter < currentMesh->mNumVertices; ++normalsIter)
-					{
-						const aiVector3D &normals = currentMesh->mNormals[normalsIter];
-						normalsPos.emplace_back(normals.x, normals.y, normals.z);
-					}
-				}
-				else
-				{
-					for (std::size_t normalsIter = 0; normalsIter < currentMesh->mNumVertices; ++normalsIter)
-					{
-						normalsPos.emplace_back(0.f, 0.f, 0.f);
-					}
-				}
-
-				for (std::size_t faceIter = 0; faceIter < currentMesh->mNumFaces; ++faceIter)
-				{
-					const aiFace &currentFace = currentMesh->mFaces[faceIter];
-					for (std::size_t indiceIter = 0; indiceIter < currentFace.mNumIndices; ++indiceIter)
-					{
-						indexes.emplace_back(currentFace.mIndices[indiceIter]);
-					}
-				}
-			}
-
-			Storm::IGraphicsManager &graphicsMgr = singletonHolder.getSingleton<Storm::IGraphicsManager>();
-			Storm::IPhysicsManager &physicsMgr = singletonHolder.getSingleton<Storm::IPhysicsManager>();
-
-			graphicsMgr.addMesh(_rbId, verticesPos, normalsPos, indexes);
-			physicsMgr.addPhysicalBody(rbSceneData, verticesPos, indexes);
+			cachedDataPtr = assetLoaderMgr.retrieveAssetData(order);
+			pushDataToModules(cachedDataPtr);
 		}
 		else
 		{
 			Storm::throwException<std::exception>("The mesh '" + _meshPath + "' doesn't have a mesh inside (an empty mesh). This isn't allowed!");
 		}
+	}
+	else
+	{
+		pushDataToModules(cachedDataPtr);
 	}
 
 	const auto srcMeshWriteTime = std::filesystem::last_write_time(meshPath);
@@ -349,7 +281,7 @@ void Storm::RigidBody::load(const Storm::RigidBodySceneData &rbSceneData)
 		/* Generate the rb as if no cache data */
 
 		// Poisson Disk sampling
-		particlePos = Storm::PoissonDiskSampler::process_v2(30, currentParticleRadius, verticesPos);
+		particlePos = Storm::PoissonDiskSampler::process_v2(30, currentParticleRadius, cachedDataPtr->getScaledVertices());
 		
 		/* Cache writing */
 
