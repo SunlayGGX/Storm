@@ -16,6 +16,12 @@ namespace Storm
 
 	private:
 		template<class Field>
+		static auto parseToWString(const Field &val, int) -> decltype(CustomFieldParser::parseToWString(val))
+		{
+			return CustomFieldParser::parseToWString(val);
+		}
+
+		template<class Field>
 		static auto parseToWString(Field val, int) -> decltype(std::to_wstring(val))
 		{
 			return std::to_wstring(val);
