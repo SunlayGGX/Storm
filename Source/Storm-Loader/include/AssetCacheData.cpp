@@ -2,6 +2,8 @@
 
 #include "RigidBodySceneData.h"
 
+#include "InsideParticleRemovalTechnique.h"
+
 #include "ThrowException.h"
 #include "Vector3Utils.h"
 
@@ -76,6 +78,60 @@ bool Storm::AssetCacheData::isInsideFinalBoundingBox(const Storm::Vector3 &pos) 
 		pos.y() < _finalBoundingBoxMax.y() &&
 		pos.z() < _finalBoundingBoxMax.z()
 		;
+}
+
+void Storm::AssetCacheData::removeInsiderParticle(std::vector<Storm::Vector3> &inOutParticles) const
+{
+	switch (_rbConfig._insideRbFluidDetectionMethodEnum)
+	{
+	case Storm::InsideParticleRemovalTechnique::Normals:
+		this->removeInsiderParticleWithNormalsMethod(inOutParticles);
+		break;
+
+	default:
+		break;
+	}
+}
+
+void Storm::AssetCacheData::removeInsiderParticleWithNormalsMethod(std::vector<Storm::Vector3> &inOutParticles) const
+{
+	LOG_DEBUG << "Remove insider particles from rigid body " << _rbConfig._rigidBodyID << " using normals technique.";
+
+	const std::size_t normalCount = _finalCurrent._normals.size();
+
+	assert(_finalCurrent._vertices.size() == normalCount && "Vertices count mismatch Normals count!");
+
+	auto eraseIt = std::partition(std::execution::par, std::begin(inOutParticles), std::end(inOutParticles), [this, normalCount](const Storm::Vector3 &particlePos)
+	{
+		if (this->isInsideFinalBoundingBox(particlePos))
+		{
+			Storm::Vector3 relativePosToVertex;
+
+			for (std::size_t iter = 0; iter < normalCount; iter += 3)
+			{
+				const Storm::Vector3 &consideredVertex = _finalCurrent._vertices[iter];
+
+				relativePosToVertex.x() = consideredVertex.x() - particlePos.x();
+				relativePosToVertex.y() = consideredVertex.y() - particlePos.y();
+				relativePosToVertex.z() = consideredVertex.z() - particlePos.z();
+
+				// The point is in front of the face, therefore it is outside.
+				if (relativePosToVertex.dot(_finalCurrent._normals[iter]) < 0.f)
+				{
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		return true;
+	});
+
+	for (std::size_t toRemove = std::end(inOutParticles) - eraseIt; toRemove > 0; --toRemove)
+	{
+		inOutParticles.pop_back();
+	}
 }
 
 const std::vector<Storm::Vector3>& Storm::AssetCacheData::getSrcVertices() const noexcept

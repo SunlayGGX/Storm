@@ -25,6 +25,12 @@ namespace Storm
 		bool isInsideFinalBoundingBox(const Storm::Vector3 &pos) const;
 
 	public:
+		void removeInsiderParticle(std::vector<Storm::Vector3> &inOutParticles) const;
+
+	private:
+		void removeInsiderParticleWithNormalsMethod(std::vector<Storm::Vector3> &inOutParticles) const;
+
+	public:
 		const std::vector<Storm::Vector3>& getSrcVertices() const noexcept;
 		const std::vector<Storm::Vector3>& getSrcNormals() const noexcept;
 		const std::vector<Storm::Vector3>& getScaledVertices() const noexcept;

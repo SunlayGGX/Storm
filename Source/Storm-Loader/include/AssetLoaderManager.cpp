@@ -276,6 +276,8 @@ case Storm::BlowerType::BlowerTypeName: \
 			}
 		}
 
+		this->removeRbInsiderFluidParticle(fluidParticlePos);
+
 		// We need to update the position to regenerate the position of any rigid body particle according to its translation.
 		// This needs to be done only for rigid bodies. Fluids don't need it. 
 		simulMgr.refreshParticlesPosition();
@@ -357,4 +359,15 @@ std::shared_ptr<Storm::AssetCacheData> Storm::AssetLoaderManager::retrieveAssetD
 void Storm::AssetLoaderManager::clearCachedAssetData()
 {
 	_cachedAssetData.clear();
+}
+
+void Storm::AssetLoaderManager::removeRbInsiderFluidParticle(std::vector<Storm::Vector3> &inOutFluidParticles) const
+{
+	for (const auto &cachedDataArrayPair : _cachedAssetData)
+	{
+		for (const auto &rbCachedDataPtr : cachedDataArrayPair.second)
+		{
+			rbCachedDataPtr->removeInsiderParticle(inOutFluidParticles);
+		}
+	}
 }

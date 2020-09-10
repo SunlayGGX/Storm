@@ -38,6 +38,9 @@ namespace Storm
 		void clearCachedAssetData();
 
 	private:
+		void removeRbInsiderFluidParticle(std::vector<Storm::Vector3> &inOutFluidParticles) const;
+
+	private:
 		std::vector<std::shared_ptr<Storm::IRigidBody>> _rigidBodies;
 		std::map<std::string, std::vector<std::shared_ptr<Storm::AssetCacheData>>> _cachedAssetData;
 	};
