@@ -54,6 +54,9 @@
     <ClCompile Include="..\include\BlowerMeshMaker.cpp">
       <Filter>Source Files\General</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\AssetCacheData.cpp">
+      <Filter>Source Files\General\AssetCacheData</Filter>
+    </ClCompile>
     <ClCompile Include="..\include\AssetCacheDataOrder.cpp">
       <Filter>Source Files\General\AssetCacheData</Filter>
     </ClCompile>
@@ -79,6 +82,9 @@
     </ClInclude>
     <ClInclude Include="..\include\BlowerMeshMaker.h">
       <Filter>Header Files\General</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\AssetCacheData.h">
+      <Filter>Header Files\General\AssetCacheData</Filter>
     </ClInclude>
     <ClInclude Include="..\include\AssetCacheDataOrder.h">
       <Filter>Header Files\General\AssetCacheData</Filter>
