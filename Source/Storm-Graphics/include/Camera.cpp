@@ -5,6 +5,17 @@
 
 #include "GraphicData.h"
 
+#include "UIFieldBase.h"
+#include "UIFieldContainer.h"
+#include "UIField.h"
+
+#define STORM_CAMERA_POSITION_FIELD_NAME "Camera"
+#define STORM_TARGET_POSITION_FIELD_NAME "Target"
+#define STORM_ZNEAR_FIELD_NAME "zNear"
+#define STORM_ZFAR_FIELD_NAME "zFar"
+#define STORM_TRANSLATE_SPEED_FIELD_NAME "Cam trans. speed"
+#define STORM_ROTATE_SPEED_FIELD_NAME "Cam rot. speed"
+
 
 namespace
 {
@@ -154,22 +165,71 @@ namespace
 	{
 		return 0.001f;
 	}
+
+	struct CustomFieldParser
+	{
+	private:
+		static void removeUselessZeros(std::wstring &inOutValue)
+		{
+			while (inOutValue.back() == L'0')
+			{
+				inOutValue.pop_back();
+			}
+		}
+
+	public:
+		static std::wstring parseToWString(const DirectX::XMFLOAT3 &val)
+		{
+			std::wstring result;
+
+			std::wstring xWStr = std::to_wstring(val.x);
+			CustomFieldParser::removeUselessZeros(xWStr);
+
+			std::wstring yWStr = std::to_wstring(val.y);
+			CustomFieldParser::removeUselessZeros(yWStr);
+
+			std::wstring zWStr = std::to_wstring(val.z);
+			CustomFieldParser::removeUselessZeros(zWStr);
+
+			result.reserve(4 + xWStr.size() + yWStr.size() + zWStr.size());
+
+			result += xWStr;
+			result += L", ";
+			result += yWStr;
+			result += L", ";
+			result += zWStr;
+
+			return result;
+		}
+	};
 }
 
 
 Storm::Camera::Camera(float viewportWidth, float viewportHeight) :
 	_fieldOfView{ DirectX::XM_PI / 4.f },
 	_screenWidth{ viewportWidth },
-	_screenHeight{ viewportHeight }
+	_screenHeight{ viewportHeight },
+	_fields{ std::make_unique<Storm::UIFieldContainer>() }
 {
 	this->reset();
+
+	(*_fields)
+		.bindField(STORM_CAMERA_POSITION_FIELD_NAME, _position)
+		.bindField(STORM_TARGET_POSITION_FIELD_NAME, _target)
+		.bindField(STORM_TRANSLATE_SPEED_FIELD_NAME, _cameraMoveSpeed)
+		.bindField(STORM_ROTATE_SPEED_FIELD_NAME, _cameraRotateSpeed)
+		.bindField(STORM_ZNEAR_FIELD_NAME, _nearPlane)
+		.bindField(STORM_ZFAR_FIELD_NAME, _farPlane)
+		;
 }
+
+Storm::Camera::~Camera() = default;
 
 void Storm::Camera::reset()
 {
-	_cameraMoveSpeed = 1.f;
-	_cameraPlaneSpeed = 1.f;
-	_cameraRotateSpeed = 10.f; // In degrees
+	this->setCameraMoveSpeed(1.f);
+	this->setCameraPlaneSpeed(1.f);
+	this->setCameraRotateSpeed(10.f);
 
 	Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
 	const Storm::GraphicData &currentGraphicData = configMgr.getGraphicData();
@@ -260,33 +320,42 @@ float Storm::Camera::getCameraPlaneSpeed() const noexcept
 
 void Storm::Camera::increaseCameraSpeed()
 {
-	_cameraMoveSpeed *= 2.f;
+	this->setCameraMoveSpeed(_cameraMoveSpeed * 2.f);
 
 	// Don't go beyond 45 degrees...
-	_cameraRotateSpeed = std::min(_cameraRotateSpeed * 2.f, 45.f);
+	this->setCameraRotateSpeed(std::min(_cameraRotateSpeed * 2.f, 45.f));
 
-	_cameraPlaneSpeed *= 2.f;
+	this->setCameraPlaneSpeed(_cameraPlaneSpeed * 2.f);
 }
 
 void Storm::Camera::decreaseCameraSpeed()
 {
-	_cameraMoveSpeed = std::max(_cameraMoveSpeed / 2.f, getMinimalNearPlaneValue());
-	_cameraRotateSpeed = std::max(_cameraRotateSpeed / 2.f, 0.1f);
-	_cameraPlaneSpeed = std::max(_cameraPlaneSpeed / 2.f, getMinimalNearPlaneValue());
+	this->setCameraMoveSpeed(std::max(_cameraMoveSpeed / 2.f, getMinimalNearPlaneValue()));
+	this->setCameraRotateSpeed(std::max(_cameraRotateSpeed / 2.f, 0.1f));
+	this->setCameraPlaneSpeed(std::max(_cameraPlaneSpeed / 2.f, getMinimalNearPlaneValue()));
 }
 
 void Storm::Camera::setNearPlane(float nearPlane)
 {
-	_nearPlane = nearPlane;
-	this->buildProjectionMatrix();
-	this->buildOrthoMatrix();
+	if (_nearPlane != nearPlane)
+	{
+		_nearPlane = nearPlane;
+		this->buildProjectionMatrix();
+		this->buildOrthoMatrix();
+
+		_fields->pushField(STORM_ZNEAR_FIELD_NAME);
+	}
 }
 
 void Storm::Camera::setFarPlane(float farPlane)
 {
-	_farPlane = farPlane;
-	this->buildProjectionMatrix();
-	this->buildOrthoMatrix();
+	if (_farPlane != farPlane)
+	{
+		_farPlane = farPlane;
+		this->buildProjectionMatrix();
+		this->buildOrthoMatrix();
+		_fields->pushField(STORM_ZFAR_FIELD_NAME);
+	}
 }
 
 void Storm::Camera::increaseNearPlane()
@@ -432,16 +501,49 @@ void Storm::Camera::negativeRotateYAxis()
 
 void Storm::Camera::setPositionInternal(float x, float y, float z)
 {
-	_position.x = x;
-	_position.y = y;
-	_position.z = z;
+	if (_position.x != x || _position.y != y || _position.z != z)
+	{
+		_position.x = x;
+		_position.y = y;
+		_position.z = z;
+
+		_fields->pushField(STORM_CAMERA_POSITION_FIELD_NAME);
+	}
 }
 
 void Storm::Camera::setTargetInternal(float x, float y, float z)
 {
-	_target.x = x;
-	_target.y = y;
-	_target.z = z;
+	if (_target.x != x || _target.y != y || _target.z != z)
+	{
+		_target.x = x;
+		_target.y = y;
+		_target.z = z;
+
+		_fields->pushField(STORM_TARGET_POSITION_FIELD_NAME);
+	}
+}
+
+void Storm::Camera::setCameraMoveSpeed(float newSpeed)
+{
+	if (_cameraMoveSpeed != newSpeed)
+	{
+		_cameraMoveSpeed = newSpeed;
+		_fields->pushField(STORM_TRANSLATE_SPEED_FIELD_NAME);
+	}
+}
+
+void Storm::Camera::setCameraRotateSpeed(float newSpeed) // In degrees
+{
+	if (_cameraRotateSpeed != newSpeed)
+	{
+		_cameraRotateSpeed = newSpeed;
+		_fields->pushField(STORM_ROTATE_SPEED_FIELD_NAME);
+	}
+}
+
+void Storm::Camera::setCameraPlaneSpeed(float newSpeed)
+{
+	_cameraPlaneSpeed = newSpeed;
 }
 
 void Storm::Camera::translateRelative(const Storm::Vector3 &deltaTranslation)

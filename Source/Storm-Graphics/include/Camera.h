@@ -1,11 +1,16 @@
 #pragma once
 
+
+
 namespace Storm
 {
+	class UIFieldContainer;
+
 	class Camera
 	{
 	public:
 		Camera(float viewportWidth, float viewportHeight);
+		~Camera();
 
 	public:
 		void reset();
@@ -58,6 +63,10 @@ namespace Storm
 		void setPositionInternal(float x, float y, float z);
 		void setTargetInternal(float x, float y, float z);
 
+		void setCameraMoveSpeed(float newSpeed);
+		void setCameraRotateSpeed(float newSpeed);
+		void setCameraPlaneSpeed(float newSpeed);
+
 		void translateRelative(const Storm::Vector3 &deltaTranslation);
 
 		void buildProjectionMatrix();
@@ -86,5 +95,7 @@ namespace Storm
 		float _fieldOfView;
 		float _screenWidth;
 		float _screenHeight;
+
+		std::unique_ptr<Storm::UIFieldContainer> _fields;
 	};
 }
