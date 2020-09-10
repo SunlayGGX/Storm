@@ -32,6 +32,7 @@ namespace Storm
 		const std::vector<Storm::Vector3>& getFinalVertices() const noexcept;
 		const std::vector<Storm::Vector3>& getFinalNormals() const noexcept;
 		const std::vector<uint32_t>& getIndices() const noexcept;
+		const Storm::RigidBodySceneData& getAssociatedRbConfig() const noexcept;
 
 	private:
 		void generateCurrentData();

@@ -113,6 +113,11 @@ const std::vector<uint32_t>& Storm::AssetCacheData::getIndices() const noexcept
 	return *_indices;
 }
 
+const Storm::RigidBodySceneData& Storm::AssetCacheData::getAssociatedRbConfig() const noexcept
+{
+	return _rbConfig;
+}
+
 void Storm::AssetCacheData::generateCurrentData()
 {
 	const std::vector<Storm::Vector3> &srcVertices = _src->_vertices;
