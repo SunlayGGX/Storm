@@ -22,6 +22,7 @@ namespace Storm
 
 	public:
 		bool isEquivalentWith(const Storm::RigidBodySceneData &rbConfig, bool considerFinal) const;
+		bool isInsideFinalBoundingBox(const Storm::Vector3 &pos) const;
 
 	public:
 		const std::vector<Storm::Vector3>& getSrcVertices() const noexcept;
