@@ -15,6 +15,12 @@
 
 #include "ConstraintData.h"
 
+#define STORM_USE_FAST_SPHERE_SHAPE_ALGO true
+
+#if !STORM_USE_FAST_SPHERE_SHAPE_ALGO
+#	include "RunnerHelper.h"
+#endif
+
 
 namespace
 {
@@ -23,15 +29,32 @@ namespace
 
 	Storm::UniquePointer<physx::PxShape> createSphereShape(physx::PxPhysics &physics, const Storm::RigidBodySceneData &rbSceneData, const std::vector<Storm::Vector3> &vertices, physx::PxMaterial* rbMaterial)
 	{
-		std::mutex mutex;
-		float maxDistance = 0.f;
-
-		std::for_each(std::execution::par, std::begin(vertices), std::end(vertices), [&vertices, &mutex, &maxDistance](const Storm::Vector3 &vect)
+#if STORM_USE_FAST_SPHERE_SHAPE_ALGO
+		// This algo supposes the sphere is uniform.
+		auto oppositeVertexes = std::minmax_element(std::execution::par, std::begin(vertices), std::end(vertices), [](const Storm::Vector3 &vect1, const Storm::Vector3 &vect2)
 		{
+			return vect1.x() < vect2.x();
+		});
+
+		const float maxDistance = std::fabs(oppositeVertexes.first->x() - oppositeVertexes.second->x());
+		return physics.createShape(physx::PxSphereGeometry{ maxDistance / 2.f }, &rbMaterial, 1, true);
+
+#else
+		// This is the brute force algorithm that always works, but is really slow...
+
+		std::mutex mutex;
+		std::atomic<float> maxDistance = 0.f;
+
+		Storm::runParallel(vertices, [&vertices, &mutex, &maxDistance, vertexCount = vertices.size()](const Storm::Vector3 &vect, std::size_t verticeIndex)
+		{
+			// Skip the current.
+			++verticeIndex;
+
 			float maxDistanceTmp = 0.f;
 			float val;
-			for (const Storm::Vector3 &vertex : vertices)
+			for (; verticeIndex < vertexCount; ++verticeIndex)
 			{
+				const Storm::Vector3 &vertex = vertices[verticeIndex];
 				val = (vertex - vect).squaredNorm();
 				if (val > maxDistanceTmp)
 				{
@@ -39,14 +62,19 @@ namespace
 				}
 			}
 
-			std::lock_guard<std::mutex> lock{ mutex };
 			if (maxDistanceTmp > maxDistance)
 			{
-				maxDistance = maxDistanceTmp;
+				std::lock_guard<std::mutex> lock{ mutex };
+				if (maxDistanceTmp > maxDistance)
+				{
+					maxDistance = maxDistanceTmp;
+				}
 			}
 		});
 
-		return physics.createShape(physx::PxSphereGeometry{ std::sqrt(maxDistance) / 2.f }, &rbMaterial, 1, true);
+		maxDistance = std::sqrtf(maxDistance);
+		return physics.createShape(physx::PxSphereGeometry{ maxDistance / 2.f }, &rbMaterial, 1, true);
+#endif
 	}
 
 	Storm::UniquePointer<physx::PxShape> createBoxShape(physx::PxPhysics &physics, const Storm::RigidBodySceneData &rbSceneData, const std::vector<Storm::Vector3> &vertices, physx::PxMaterial* rbMaterial)
