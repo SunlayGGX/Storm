@@ -43,4 +43,16 @@ namespace Storm
 		minInPlace(toBeMin, other, selector);
 		maxInPlace(toBeMax, other, selector);
 	}
+
+	// Init the Vector3 to use into max algorithm (get the max value, so it is important that the value is the lowest possible value).
+	inline Storm::Vector3 initVector3ForMax()
+	{
+		return Storm::Vector3{ std::numeric_limits<Storm::Vector3::Scalar>::lowest(), std::numeric_limits<Storm::Vector3::Scalar>::lowest(), std::numeric_limits<Storm::Vector3::Scalar>::lowest() };
+	}
+
+	// Init the Vector3 to use into min algorithm (get the max value, so it is important that the value is the maximum possible value).
+	inline Storm::Vector3 initVector3ForMin()
+	{
+		return Storm::Vector3{ std::numeric_limits<Storm::Vector3::Scalar>::max(), std::numeric_limits<Storm::Vector3::Scalar>::max(), std::numeric_limits<Storm::Vector3::Scalar>::max() };
+	}
 }

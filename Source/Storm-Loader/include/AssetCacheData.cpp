@@ -3,6 +3,7 @@
 #include "RigidBodySceneData.h"
 
 #include "ThrowException.h"
+#include "Vector3Utils.h"
 
 #include <Assimp\scene.h>
 #include <Assimp\mesh.h>
@@ -35,7 +36,9 @@ namespace
 Storm::AssetCacheData::AssetCacheData(const Storm::RigidBodySceneData &rbConfig, const aiScene* meshScene) :
 	_rbConfig{ rbConfig },
 	_src{ std::make_shared<Storm::AssetCacheData::MeshData>() },
-	_indices{ std::make_shared<std::vector<uint32_t>>() }
+	_indices{ std::make_shared<std::vector<uint32_t>>() },
+	_finalBoundingBoxMin{ Storm::initVector3ForMin() },
+	_finalBoundingBoxMax{ Storm::initVector3ForMax() }
 {
 	this->buildSrc(meshScene);
 	this->generateCurrentData();
@@ -61,6 +64,18 @@ bool Storm::AssetCacheData::isEquivalentWith(const Storm::RigidBodySceneData &rb
 				_rbConfig._rotation == rbConfig._rotation
 			)
 		);
+}
+
+bool Storm::AssetCacheData::isInsideFinalBoundingBox(const Storm::Vector3 &pos) const
+{
+	return
+		pos.x() > _finalBoundingBoxMin.x() &&
+		pos.y() > _finalBoundingBoxMin.y() &&
+		pos.z() > _finalBoundingBoxMin.z() &&
+		pos.x() < _finalBoundingBoxMax.x() &&
+		pos.y() < _finalBoundingBoxMax.y() &&
+		pos.z() < _finalBoundingBoxMax.z()
+		;
 }
 
 const std::vector<Storm::Vector3>& Storm::AssetCacheData::getSrcVertices() const noexcept
@@ -128,7 +143,21 @@ void Storm::AssetCacheData::generateCurrentData()
 
 		// Apply the translation
 		finalCurrentVertex += _rbConfig._translation;
+
+		Storm::minMaxInPlace(_finalBoundingBoxMin, _finalBoundingBoxMax, finalCurrentVertex, [](auto &vect) -> auto& { return vect.x(); });
+		Storm::minMaxInPlace(_finalBoundingBoxMin, _finalBoundingBoxMax, finalCurrentVertex, [](auto &vect) -> auto& { return vect.y(); });
+		Storm::minMaxInPlace(_finalBoundingBoxMin, _finalBoundingBoxMax, finalCurrentVertex, [](auto &vect) -> auto& { return vect.z(); });
 	}
+
+	// Add a little margin to the bounding box to avoid making strict equality afterwards and ensure that the bounding box encloses the shape
+	// (because currently, the point used to compute this bounding box is right on the skin of the box, so not enclosed).
+	constexpr float margin = 0.0000001f;
+	_finalBoundingBoxMin.x() -= margin;
+	_finalBoundingBoxMin.y() -= margin;
+	_finalBoundingBoxMin.z() -= margin;
+	_finalBoundingBoxMax.x() += margin;
+	_finalBoundingBoxMax.y() += margin;
+	_finalBoundingBoxMax.z() += margin;
 
 	for (const Storm::Vector3 &normal : srcNormals)
 	{
