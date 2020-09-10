@@ -25,6 +25,12 @@
     <Filter Include="Header Files\General">
       <UniqueIdentifier>{f06cc711-59aa-4da3-a405-4c1bc2f4b30d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\General\AssetCacheData">
+      <UniqueIdentifier>{862b67ca-058b-4f46-8f8f-5213b9937e80}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\General\AssetCacheData">
+      <UniqueIdentifier>{c85a0d0e-c3c8-4969-8689-b877fe068f73}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-LoaderPCH.cpp">
@@ -48,6 +54,9 @@
     <ClCompile Include="..\include\BlowerMeshMaker.cpp">
       <Filter>Source Files\General</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\AssetCacheDataOrder.cpp">
+      <Filter>Source Files\General\AssetCacheData</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-LoaderPCH.h">
@@ -70,6 +79,9 @@
     </ClInclude>
     <ClInclude Include="..\include\BlowerMeshMaker.h">
       <Filter>Header Files\General</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\AssetCacheDataOrder.h">
+      <Filter>Header Files\General\AssetCacheData</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

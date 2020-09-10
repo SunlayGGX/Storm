@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\include\AssetCacheDataOrder.cpp" />
     <ClCompile Include="..\include\AssetLoaderManager.cpp" />
     <ClCompile Include="..\include\AssimpLoggingWrapper.cpp" />
     <ClCompile Include="..\include\BasicMeshGenerator.cpp" />
@@ -23,6 +24,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\include\AssetCacheDataOrder.h" />
     <ClInclude Include="..\include\AssetLoaderManager.h" />
     <ClInclude Include="..\include\AssimpLoggingWrapper.h" />
     <ClInclude Include="..\include\BasicMeshGenerator.h" />
