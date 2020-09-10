@@ -31,8 +31,11 @@ namespace Storm
 		void generateSimpleCone(const Storm::Vector3 &position, const float upRadius, const float downRadius, const float height, std::vector<Storm::Vector3> &inOutVertexes, std::vector<uint32_t> &inOutIndexes) const final override;
 
 	public:
-		// Retrieve the cached data asset. If the aiScene inside order is nullptr, then we would 
+		// Retrieve the cached data asset. If the aiScene inside order is nullptr, then we would not create an asset data if we don't find one (and would return nullptr instead).
 		std::shared_ptr<Storm::AssetCacheData> retrieveAssetData(const Storm::AssetCacheDataOrder &order);
+
+	private:
+		void clearCachedAssetData();
 
 	private:
 		std::vector<std::shared_ptr<Storm::IRigidBody>> _rigidBodies;

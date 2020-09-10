@@ -291,6 +291,9 @@ case Storm::BlowerType::BlowerTypeName: \
 		simulMgr.refreshParticlesPosition();
 	}
 
+	LOG_DEBUG << "Cleaning asset loading cache data";
+	this->clearCachedAssetData();
+
 	LOG_COMMENT << "Asset loading finished!";
 }
 
@@ -349,4 +352,9 @@ std::shared_ptr<Storm::AssetCacheData> Storm::AssetLoaderManager::retrieveAssetD
 	{
 		return nullptr;
 	}
+}
+
+void Storm::AssetLoaderManager::clearCachedAssetData()
+{
+	_cachedAssetData.clear();
 }
