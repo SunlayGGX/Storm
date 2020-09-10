@@ -182,7 +182,6 @@ void Storm::AssetCacheData::buildSrc(const aiScene* meshScene)
 	std::vector<uint32_t> &indices = *_indices;
 
 	std::size_t totalVertexCount = 0;
-	std::size_t totalNormalsCount = 0;
 	std::size_t totalIndexesCount = 0;
 	for (std::size_t iter = 0; iter < meshScene->mNumMeshes; ++iter)
 	{
@@ -217,6 +216,8 @@ void Storm::AssetCacheData::buildSrc(const aiScene* meshScene)
 	normalsPos.reserve(totalVertexCount);
 	indices.reserve(totalIndexesCount);
 
+	const bool shouldGenerateNormalsIfNot = _rbConfig._insideRbFluidDetectionMethodEnum == InsideParticleRemovalTechnique::Normals;
+
 	for (std::size_t iter = 0; iter < meshScene->mNumMeshes; ++iter)
 	{
 		const aiMesh* currentMesh = meshScene->mMeshes[iter];
@@ -235,13 +236,6 @@ void Storm::AssetCacheData::buildSrc(const aiScene* meshScene)
 				normalsPos.emplace_back(normals.x, normals.y, normals.z);
 			}
 		}
-		else
-		{
-			for (std::size_t normalsIter = 0; normalsIter < currentMesh->mNumVertices; ++normalsIter)
-			{
-				normalsPos.emplace_back(0.f, 0.f, 0.f);
-			}
-		}
 
 		for (std::size_t faceIter = 0; faceIter < currentMesh->mNumFaces; ++faceIter)
 		{
@@ -252,4 +246,32 @@ void Storm::AssetCacheData::buildSrc(const aiScene* meshScene)
 			}
 		}
 	}
+
+	if (normalsPos.size() != verticesPos.size())
+	{
+		if (shouldGenerateNormalsIfNot)
+		{
+			LOG_WARNING << "Rigid body " << _rbConfig._rigidBodyID << " doesn't have normals but we needs them (i.e to remove insider particles). Therefore we will generate them.";
+
+			for (std::size_t indicesIter = normalsPos.size(); indicesIter < totalIndexesCount; indicesIter += 3)
+			{
+				const Storm::Vector3 &p1 = verticesPos[indices[indicesIter]];
+				const Storm::Vector3 &p2 = verticesPos[indices[indicesIter + 1]];
+
+				const Storm::Vector3 normal = p1.cross(p2);
+				normalsPos.emplace_back(normal);
+				normalsPos.emplace_back(normal);
+				normalsPos.emplace_back(normal);
+			}
+		}
+		else
+		{
+			for (std::size_t normalsIter = normalsPos.size(); normalsIter < totalVertexCount; ++normalsIter)
+			{
+				normalsPos.emplace_back(0.f, 0.f, 0.f);
+			}
+		}
+	}
+
+	assert(normalsPos.size() == verticesPos.size() && "Vertices count mismatch Normals count!");
 }
