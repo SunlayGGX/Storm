@@ -42,6 +42,26 @@ namespace
 
 		return Storm::RigidBody::retrieveParticleDataCacheFolder() / meshFileName;
 	}
+
+	class PrimitiveTypeParser
+	{
+	public:
+		template<class PolicyType>
+		static std::string parse(aiPrimitiveType primitive)
+		{
+			switch (primitive)
+			{
+			case aiPrimitiveType::aiPrimitiveType_POINT: return "Point";
+			case aiPrimitiveType::aiPrimitiveType_LINE: return "Line";
+			case aiPrimitiveType::aiPrimitiveType_TRIANGLE: return "Triangle";
+			case aiPrimitiveType::aiPrimitiveType_POLYGON: return "Polygon like Quads (not triangle)";
+
+			case aiPrimitiveType::_aiPrimitiveType_Force32Bit:
+			default:
+				return "Unknown primitive type";
+			}
+		}
+	};
 }
 
 
@@ -163,9 +183,13 @@ void Storm::RigidBody::load(const Storm::RigidBodySceneData &rbSceneData)
 				{
 					Storm::throwException<std::exception>("The mesh '" + _meshPath + "' doesn't have vertices. This isn't allowed!");
 				}
-				if (!currentMesh->HasFaces())
+				else if (!currentMesh->HasFaces())
 				{
 					Storm::throwException<std::exception>("The mesh '" + _meshPath + "' doesn't have any faces. This isn't allowed!");
+				}
+				else if (currentMesh->mPrimitiveTypes != aiPrimitiveType::aiPrimitiveType_TRIANGLE)
+				{
+					Storm::throwException<std::exception>("The mesh '" + _meshPath + "' isn't constituted of triangles. We doesn't support non triangle meshes! Primitive type was '" + Storm::toStdString<PrimitiveTypeParser>(static_cast<aiPrimitiveType>(currentMesh->mPrimitiveTypes)) + "'");
 				}
 
 				totalVertexCount += currentMesh->mNumVertices;
