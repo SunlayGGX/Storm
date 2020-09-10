@@ -25,6 +25,9 @@
 
 #include "ThreadEnumeration.h"
 
+#include "AssetCacheData.h"
+#include "AssetCacheDataOrder.h"
+
 #include <Assimp\DefaultLogger.hpp>
 
 
@@ -319,4 +322,31 @@ void Storm::AssetLoaderManager::generateSimpleCylinder(const Storm::Vector3 &pos
 void Storm::AssetLoaderManager::generateSimpleCone(const Storm::Vector3 &position, const float upRadius, const float downRadius, const float height, std::vector<Storm::Vector3> &inOutVertexes, std::vector<uint32_t> &inOutIndexes) const
 {
 	Storm::BasicMeshGenerator::generateCone(position, upRadius, downRadius, height, inOutVertexes, inOutIndexes);
+}
+
+std::shared_ptr<Storm::AssetCacheData> Storm::AssetLoaderManager::retrieveAssetData(const Storm::AssetCacheDataOrder &order)
+{
+	auto &assetCacheDataArray = _cachedAssetData[order._rbConfig._meshFilePath];
+	if (!assetCacheDataArray.empty())
+	{
+		for (const std::shared_ptr<Storm::AssetCacheData> &assetCacheDataPtr : assetCacheDataArray)
+		{
+			if (assetCacheDataPtr->isEquivalentWith(order._rbConfig, order._considerFinalInEquivalence))
+			{
+				return assetCacheDataPtr;
+			}
+		}
+
+		// We already created a source so we can skip the mesh reimporting.
+		return assetCacheDataArray.emplace_back(std::make_shared<Storm::AssetCacheData>(order._rbConfig, *assetCacheDataArray.front()));
+	}
+
+	if (order._assimpScene)
+	{
+		return assetCacheDataArray.emplace_back(std::make_shared<Storm::AssetCacheData>(order._rbConfig, order._assimpScene));
+	}
+	else
+	{
+		return nullptr;
+	}
 }
