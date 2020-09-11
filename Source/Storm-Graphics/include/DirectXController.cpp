@@ -693,7 +693,7 @@ void Storm::DirectXController::internalCreateDirect2DDevices(HWND hwnd)
 	Storm::throwIfFailed(_direct2DRenderTarget->CreateSolidColorBrush(D2D1::ColorF{ D2D1::ColorF::Aquamarine, 0.6f }, &_direct2DRectSolidBrush));
 	Storm::throwIfFailed(_direct2DRenderTarget->CreateSolidColorBrush(D2D1::ColorF{ D2D1::ColorF::Black }, &_direct2DTextSolidBrush));
 
-	_writeRectLeft = _viewportWidth * 0.8f;
+	_writeRectLeft = _viewportWidth * 0.75f;
 	_writeRectRight = _viewportWidth;
 }
 
