@@ -76,6 +76,9 @@ bool Storm::AssetCacheData::isInsideFinalBoundingBox(const Storm::Vector3 &pos) 
 
 void Storm::AssetCacheData::removeInsiderParticle(std::vector<Storm::Vector3> &inOutParticles) const
 {
+	const std::size_t exParticleCount = inOutParticles.size();
+	bool hasRunRemovalAlgorithm = true;
+
 	switch (_rbConfig._insideRbFluidDetectionMethodEnum)
 	{
 	case Storm::InsideParticleRemovalTechnique::Normals:
@@ -83,7 +86,17 @@ void Storm::AssetCacheData::removeInsiderParticle(std::vector<Storm::Vector3> &i
 		break;
 
 	default:
+		hasRunRemovalAlgorithm = false;
 		break;
+	}
+
+	if (hasRunRemovalAlgorithm)
+	{
+		const std::size_t nowParticleCount = inOutParticles.size();
+		if (exParticleCount != nowParticleCount)
+		{
+			LOG_DEBUG << exParticleCount - nowParticleCount << " particle(s) were removed because they were inside rigid body " << _rbConfig._rigidBodyID;
+		}
 	}
 }
 
