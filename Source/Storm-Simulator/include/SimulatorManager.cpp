@@ -292,6 +292,11 @@ void Storm::SimulatorManager::run()
 		case TimeWaitResult::Pause:
 			// Takes time to process messages that came from other threads.
 			threadMgr.processCurrentThreadActions();
+			if (generalSimulationConfigData._simulationNoWait)
+			{
+				// Eh... this is paused so free a little Cpu will you ;)... No need to spin lock even though we said "run as fast as possible" when we're paused...
+				std::this_thread::sleep_for(std::chrono::milliseconds{ 1 });
+			}
 			continue;
 
 		case TimeWaitResult::Continue:
