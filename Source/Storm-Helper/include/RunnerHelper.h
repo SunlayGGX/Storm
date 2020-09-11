@@ -26,4 +26,11 @@ namespace Storm
 	{
 		std::for_each(std::execution::par, std::begin(container), std::end(container), func);
 	}
+
+#if _WIN32
+	__forceinline const unsigned int retrieveParallelPolicyExecThreadCount()
+	{
+		return __std_parallel_algorithms_hw_threads() * 4;
+	}
+#endif
 }
