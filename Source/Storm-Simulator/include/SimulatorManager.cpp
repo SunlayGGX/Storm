@@ -29,6 +29,8 @@
 #include "SpecialKey.h"
 
 #include "RunnerHelper.h"
+#include "Vector3Utils.h"
+#include "BoundingBox.h"
 
 #include "BlowerDef.h"
 #include "BlowerType.h"
@@ -177,39 +179,105 @@ namespace
 
 	void removeParticleInsideRbPosition(std::vector<Storm::Vector3> &inOutParticlePositions, const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystem, const float particleRadius)
 	{
-		std::vector<const std::vector<Storm::Vector3>*> allRbParticlePositions;
-		allRbParticlePositions.reserve(allParticleSystem.size());
+		const std::size_t particleSystemCount = allParticleSystem.size();
+
+		const auto computeBoxCoordinate = [particleRadiusPlusMargin = particleRadius + 0.0000001f](std::pair<Storm::Vector3, Storm::Vector3> &box, const std::vector<Storm::Vector3> &currentPSystemPositions, const auto &getterCoordFunc)
+		{
+			const auto minMaxElems = std::minmax_element(std::execution::par, std::begin(currentPSystemPositions), std::end(currentPSystemPositions), [&getterCoordFunc](const Storm::Vector3 &vect1, const Storm::Vector3 &vect2)
+			{
+				return getterCoordFunc(vect1) < getterCoordFunc(vect2);
+			});
+
+			getterCoordFunc(box.first) = getterCoordFunc(*minMaxElems.first) - particleRadiusPlusMargin;
+			getterCoordFunc(box.second) = getterCoordFunc(*minMaxElems.second) + particleRadiusPlusMargin;
+		};
+
+		auto thresholdToEliminate = std::end(inOutParticlePositions);
 
 		for (const auto &particleSystemPair : allParticleSystem)
 		{
 			const Storm::ParticleSystem &currentPSystem = *particleSystemPair.second;
 			if (!currentPSystem.isFluids())
 			{
-				allRbParticlePositions.emplace_back(&currentPSystem.getPositions());
-			}
-		}
+				const std::vector<Storm::Vector3> &currentPSystemPositions = currentPSystem.getPositions();
 
-		const auto thresholdToEliminate = std::partition(std::execution::par, std::begin(inOutParticlePositions), std::end(inOutParticlePositions), [&allRbParticlePositions, &particleRadius](const Storm::Vector3 &particlePos)
-		{
-			for (const auto &rbAllPositions : allRbParticlePositions)
-			{
-				for (const Storm::Vector3 &rbPPosition : *rbAllPositions)
+				LOG_DEBUG << "Processing solid particle system " << currentPSystem.getId() << " with " << currentPSystemPositions.size() << " particles";
+
+				std::pair<Storm::Vector3, Storm::Vector3> externalBoundingBox{ Storm::initVector3ForMin(), Storm::initVector3ForMax() };
+				computeBoxCoordinate(externalBoundingBox, currentPSystemPositions, [](auto &vect) -> auto& { return vect.x(); });
+				computeBoxCoordinate(externalBoundingBox, currentPSystemPositions, [](auto &vect) -> auto& { return vect.y(); });
+				computeBoxCoordinate(externalBoundingBox, currentPSystemPositions, [](auto &vect) -> auto& { return vect.z(); });
+
+				float coeff = 0.96f;
+				std::pair<Storm::Vector3, Storm::Vector3> internalBoundingBox{ externalBoundingBox.first * coeff, externalBoundingBox.second * coeff };
+
+				const auto currentPSystemPositionBegin = std::begin(currentPSystemPositions);
+				const auto currentPSystemPositionEnd = std::end(currentPSystemPositions);
+
+				bool hasInternalBoundingBox = false;
+
+				// Try to isolate an internal bounding box... Work only if the particle system is hollow (99% of the time).
+				// This is an optimization. Try 9 times with a smaller internal bounding box each time.
+				for (std::size_t iter = 0; iter < 9; ++iter)
 				{
-					if (std::fabs(rbPPosition.x() - particlePos.x()) < particleRadius)
+					if (std::find_if(std::execution::par, currentPSystemPositionBegin, currentPSystemPositionEnd, [&internalBoundingBox](const Storm::Vector3 &rbPPosition)
 					{
-						if (std::fabs(rbPPosition.y() - particlePos.y()) < particleRadius)
-						{
-							if (std::fabs(rbPPosition.z() - particlePos.z()) < particleRadius)
-							{
-								return false;
-							}
-						}
+						return Storm::isInsideBoundingBox(internalBoundingBox.first, internalBoundingBox.second, rbPPosition);
+					}) == currentPSystemPositionEnd)
+					{
+						hasInternalBoundingBox = true;
+						break;
 					}
+
+					coeff -= 1.f;
+
+					internalBoundingBox.first = externalBoundingBox.first * coeff;
+					internalBoundingBox.second = externalBoundingBox.second * coeff;
+				}
+
+				if (hasInternalBoundingBox)
+				{
+					LOG_DEBUG << "Solid particle system " << currentPSystem.getId() << " is hollow, we will optimize the skin colliding algorithm by using an internal bounding box";
+
+					thresholdToEliminate = std::partition(std::execution::par, std::begin(inOutParticlePositions), thresholdToEliminate, [&currentPSystemPositionBegin, &currentPSystemPositionEnd, &particleRadius, &externalBoundingBox, &internalBoundingBox](const Storm::Vector3 &particlePos)
+					{
+						if (
+							!Storm::isInsideBoundingBox(internalBoundingBox.first, internalBoundingBox.second, particlePos) &&
+							Storm::isInsideBoundingBox(externalBoundingBox.first, externalBoundingBox.second, particlePos)
+							)
+						{
+							return std::find_if(std::execution::par, currentPSystemPositionBegin, currentPSystemPositionEnd, [&particlePos, particleRadius](const Storm::Vector3 &rbPPosition)
+							{
+								return
+									std::fabs(rbPPosition.x() - particlePos.x()) < particleRadius &&
+									std::fabs(rbPPosition.y() - particlePos.y()) < particleRadius &&
+									std::fabs(rbPPosition.z() - particlePos.z()) < particleRadius;
+							}) == currentPSystemPositionEnd;
+						}
+
+						return true;
+					});
+				}
+				else
+				{
+					thresholdToEliminate = std::partition(std::execution::par, std::begin(inOutParticlePositions), thresholdToEliminate, [&currentPSystemPositionBegin, &currentPSystemPositionEnd, &particleRadius, &externalBoundingBox](const Storm::Vector3 &particlePos)
+					{
+						if (Storm::isInsideBoundingBox(externalBoundingBox.first, externalBoundingBox.second, particlePos))
+						{
+							return std::find_if(std::execution::par, currentPSystemPositionBegin, currentPSystemPositionEnd, [&particlePos, particleRadius](const Storm::Vector3 &rbPPosition)
+							{
+								return
+									std::fabs(rbPPosition.x() - particlePos.x()) < particleRadius &&
+									std::fabs(rbPPosition.y() - particlePos.y()) < particleRadius &&
+									std::fabs(rbPPosition.z() - particlePos.z()) < particleRadius;
+							}) == currentPSystemPositionEnd;
+						}
+
+						return true;
+					});
 				}
 			}
-
-			return true;
-		});
+		}
 
 		for (std::size_t toRemove = std::end(inOutParticlePositions) - thresholdToEliminate; toRemove > 0; --toRemove)
 		{
