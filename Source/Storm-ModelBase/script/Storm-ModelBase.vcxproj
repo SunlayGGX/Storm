@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
@@ -26,6 +26,7 @@
     <ClInclude Include="..\include\BlowerDef.h" />
     <ClInclude Include="..\include\BlowerState.h" />
     <ClInclude Include="..\include\BlowerType.h" />
+    <ClInclude Include="..\include\BoundingBox.h" />
     <ClInclude Include="..\include\CollisionType.h" />
     <ClInclude Include="..\include\ColorChecker.h" />
     <ClInclude Include="..\include\ConstraintData.h" />

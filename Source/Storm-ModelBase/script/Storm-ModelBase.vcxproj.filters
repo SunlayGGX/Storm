@@ -239,5 +239,8 @@
     <ClInclude Include="..\include\InsideParticleRemovalTechnique.h">
       <Filter>Header Files\Modules\Load</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\BoundingBox.h">
+      <Filter>Header Files\General</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

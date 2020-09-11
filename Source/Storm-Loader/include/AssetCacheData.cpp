@@ -6,6 +6,7 @@
 
 #include "ThrowException.h"
 #include "Vector3Utils.h"
+#include "BoundingBox.h"
 
 #include <Assimp\scene.h>
 #include <Assimp\mesh.h>
@@ -70,14 +71,7 @@ bool Storm::AssetCacheData::isEquivalentWith(const Storm::RigidBodySceneData &rb
 
 bool Storm::AssetCacheData::isInsideFinalBoundingBox(const Storm::Vector3 &pos) const
 {
-	return
-		pos.x() > _finalBoundingBoxMin.x() &&
-		pos.y() > _finalBoundingBoxMin.y() &&
-		pos.z() > _finalBoundingBoxMin.z() &&
-		pos.x() < _finalBoundingBoxMax.x() &&
-		pos.y() < _finalBoundingBoxMax.y() &&
-		pos.z() < _finalBoundingBoxMax.z()
-		;
+	return Storm::isInsideBoundingBox(_finalBoundingBoxMin, _finalBoundingBoxMax, pos);
 }
 
 void Storm::AssetCacheData::removeInsiderParticle(std::vector<Storm::Vector3> &inOutParticles) const
