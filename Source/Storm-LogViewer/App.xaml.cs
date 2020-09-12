@@ -1,4 +1,5 @@
-﻿using Storm_LogViewer.Source.Log;
+﻿using Storm_LogViewer.Source.General.Config;
+using Storm_LogViewer.Source.Log;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -18,16 +19,8 @@ namespace Storm_LogViewer
         {
             Console.WriteLine("Starting Storm Log Reader Application");
 
-            if (e.Args.Length == 0)
-            {
-                throw new System.Exception("We should have at least one argument which is the log file path!");
-            }
-
-            string logFilePath = e.Args.First(arg => arg.StartsWith("logfilepath", StringComparison.CurrentCultureIgnoreCase));
-            logFilePath = logFilePath.Split('=')[1];
-
             ConfigManager.Create(e.Args);
-            LogReaderManager.Instance.Init(logFilePath);
+            LogReaderManager.Instance.Init();
         }
     }
 }

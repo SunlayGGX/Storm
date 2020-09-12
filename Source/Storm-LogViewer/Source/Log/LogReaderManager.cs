@@ -1,4 +1,5 @@
 ﻿using Storm_LogViewer.Source.Converters;
+using Storm_LogViewer.Source.General.Config;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,12 +14,6 @@ namespace Storm_LogViewer.Source.Log
     class LogReaderManager
     {
         #region Members
-
-        private string _logFilePath = null;
-        public string LogFilePath
-        {
-            get => _logFilePath;
-        }
 
         private System.DateTime _lastLogFileWriteTime;
 
@@ -72,15 +67,14 @@ namespace Storm_LogViewer.Source.Log
 
         public LogReaderManager()
         {
+
         }
 
         #endregion
 
-        public void Init(string logFilePath)
+        public void Init()
         {
-            _logFilePath = logFilePath;
-
-            ParseLogFile(new FileInfo(logFilePath));
+            this.TryRunParsingOnce();
 
             _parserWatcherThread = new Thread(() => this.Run());
             _parserWatcherThread.Start();
@@ -98,10 +92,11 @@ namespace Storm_LogViewer.Source.Log
             return false;
         }
 
-        private void ParseLogFile(FileInfo fileInfo)
+        private void ParseLogFile(FileInfo logFileInfo)
         {
             XmlDocument doc = null;
 
+            int watchdog = 0;
             do
             {
                 if (!_isRunning)
@@ -111,18 +106,18 @@ namespace Storm_LogViewer.Source.Log
 
                 try
                 {
-                    fileInfo.Refresh();
+                    logFileInfo.Refresh();
 
-                    int initialFileSize = (int)fileInfo.Length;
-                    using (FileStream filestream = new FileStream(_logFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, initialFileSize, FileOptions.RandomAccess))
+                    int initialFileSize = (int)logFileInfo.Length;
+                    using (FileStream filestream = new FileStream(logFileInfo.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, initialFileSize, FileOptions.RandomAccess))
                     {
                         filestream.Position = _lastStreamPos;
 
                         string content = "<tmp>\n";
                         using (StreamReader reader = new StreamReader(filestream))
                         {
-                            fileInfo.Refresh();
-                            _lastLogFileWriteTime = fileInfo.LastWriteTime;
+                            logFileInfo.Refresh();
+                            _lastLogFileWriteTime = logFileInfo.LastWriteTime;
 
                             content += reader.ReadToEnd();
 
@@ -147,7 +142,12 @@ namespace Storm_LogViewer.Source.Log
                     }
                 }
 
-            } while (doc == null);
+            } while (doc == null && ++watchdog < 10);
+
+            if (watchdog == 10 && doc == null)
+            {
+                return;
+            }
 
             int preCollectionCount = _logItems.Count;
 
@@ -198,11 +198,29 @@ namespace Storm_LogViewer.Source.Log
 
                 if (_isRunning)
                 {
-                    FileInfo fileInfo = new FileInfo(_logFilePath);
-                    if (fileInfo.LastWriteTime != _lastLogFileWriteTime)
-                    {
-                        this.ParseLogFile(fileInfo);
-                    }
+                    this.TryRunParsingOnce();
+                }
+            }
+        }
+
+        private void TryRunParsingOnce()
+        {
+            string logFilePath;
+            if (ConfigManager.Instance.HasLogFilePath)
+            {
+                logFilePath = ConfigManager.Instance.LogFilePath;
+            }
+            else
+            {
+                logFilePath = RetrieveLastLogFile();
+            }
+
+            if (_isRunning && logFilePath != null)
+            {
+                FileInfo fileInfo = new FileInfo(logFilePath);
+                if (fileInfo.LastWriteTime != _lastLogFileWriteTime)
+                {
+                    this.ParseLogFile(fileInfo);
                 }
             }
         }
@@ -213,6 +231,56 @@ namespace Storm_LogViewer.Source.Log
             _parserWatcherThread.Join();
         }
 
+        public string RetrieveLastLogFile()
+        {
+            FileInfo lastFile = null;
+            DateTime lastDateTime = DateTime.MinValue;
+
+            const int k_watchdogLastCount = 10;
+
+            string logFileFolder = Path.Combine(ConfigManager.Instance.MacrosConfig.GetMacroEndValue("StormIntermediate"), "Logs");
+            foreach (FileInfo file in new DirectoryInfo(logFileFolder).EnumerateFiles())
+            {
+                if (file.Extension.ToLower() == ".xml")
+                {
+                    int watchdog = 0;
+                    do
+                    {
+                        try
+                        {
+                            if (lastFile == null || file.LastWriteTime > lastDateTime)
+                            {
+                                lastFile = file;
+                                lastDateTime = file.LastWriteTime;
+                                watchdog = k_watchdogLastCount;
+                            }
+                        }
+                        catch (System.Exception)
+                        {
+                            Thread.Sleep(100);
+
+                            if (!_isRunning)
+                            {
+                                return null;
+                            }
+
+                            file.Refresh();
+                        }
+
+                    } while (++watchdog < k_watchdogLastCount);
+                }
+            }
+
+            if (lastFile != null)
+            {
+                lastFile.Refresh();
+                return lastFile.Exists ? lastFile.FullName : null;
+            }
+            else
+            {
+                return null;
+            }
+        }
 
         #endregion
     }
