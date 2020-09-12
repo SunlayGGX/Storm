@@ -8,5 +8,22 @@ namespace Storm_LogViewer.Source.General
 {
     class ConfigManager
     {
+        #region Members
+
+        private static ConfigManager s_instance = null;
+        public static ConfigManager Instance
+        {
+            get
+            {
+                if (s_instance == null)
+                {
+                    s_instance = new ConfigManager();
+                }
+
+                return s_instance;
+            }
+        }
+
+        #endregion
     }
 }
