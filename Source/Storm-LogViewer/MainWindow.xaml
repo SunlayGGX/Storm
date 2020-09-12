@@ -23,10 +23,18 @@
 				<ColumnDefinition Width="500"/>
 				<ColumnDefinition Width="auto"/>
 				<ColumnDefinition Width="auto"/>
+				<ColumnDefinition Width="150"/>
 			</Grid.ColumnDefinitions>
 			<TextBlock VerticalAlignment="Center" Grid.Column="0">Filter :</TextBlock>
 			<TextBox x:Name="LogFilterField" Grid.Column="1" VerticalContentAlignment="Center" TextChanged="LogFilterField_TextChanged"/>
 			<CheckBox x:Name="FilterStrictEqualityCheckbox" Content="Filter Strict Equality" Grid.Column="2" VerticalAlignment="Center" IsChecked="{Binding FilterStrictEqualityCheckboxValue, Mode=TwoWay}" ToolTip="Checked if space character inside the filter textbox is considered to be part of the filter. If not, the space will be considered as an 'or' (||)"/>
+			<ComboBox x:Name="LogLevelsFilter" Grid.Column="3" VerticalAlignment="Center" Grid.ColumnSpan="3" Margin="10,2,10,1">
+				<ComboBox.ItemTemplate>
+					<DataTemplate>
+						<CheckBox Name="level" Content="{Binding LogLevel, Converter={ StaticResource LogLevelToStringConverter }}" IsChecked="{Binding Checked, Mode=TwoWay}"></CheckBox>
+					</DataTemplate>
+				</ComboBox.ItemTemplate>
+			</ComboBox>
 		</Grid>
 		<ListView Margin="4,4,4,4" Background="LightGray" Name="LogDisplayArea" Grid.Row="1" ScrollViewer.VerticalScrollBarVisibility="Visible" ScrollViewer.CanContentScroll="False" >
 			<ListView.View>

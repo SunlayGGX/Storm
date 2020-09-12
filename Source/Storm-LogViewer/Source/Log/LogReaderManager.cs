@@ -73,7 +73,7 @@ namespace Storm_LogViewer.Source.Log
 
         #region Constructor
 
-        public LogReaderManager()
+        private LogReaderManager()
         {
             _displayedLogItems = _logItems;
         }
@@ -83,6 +83,10 @@ namespace Storm_LogViewer.Source.Log
         public void Init()
         {
             ConfigManager.Instance._onFilterCheckboxChanged += this.OnFilterStrictEqualityChanged;
+            foreach (LogLevelFilterCheckboxValue checkboxValue in ConfigManager.Instance.LogLevelsFilter)
+            {
+                checkboxValue._onCheckedStateChanged += this.OnLogLevelCheckFilterChanged;
+            }
 
             this.TryRunParsingOnce();
 
@@ -245,6 +249,10 @@ namespace Storm_LogViewer.Source.Log
             _parserWatcherThread.Join();
 
             ConfigManager.Instance._onFilterCheckboxChanged -= this.OnFilterStrictEqualityChanged;
+            foreach (LogLevelFilterCheckboxValue checkboxValue in ConfigManager.Instance.LogLevelsFilter)
+            {
+                checkboxValue._onCheckedStateChanged -= this.OnLogLevelCheckFilterChanged;
+            }
         }
 
         public string RetrieveLastLogFile()
@@ -300,21 +308,49 @@ namespace Storm_LogViewer.Source.Log
 
         private void ApplyFilterInternalNoCheck(string filter)
         {
+            List<LogLevelFilterCheckboxValue> logLevelFilters = ConfigManager.Instance.LogLevelsFilter.Where(logLevelFilter => logLevelFilter.Checked).ToList();
+            bool hasLogLevelFilter = logLevelFilters.Count == ConfigManager.Instance.LogLevelsFilter.Count;
+
             _lastFilter = filter ?? string.Empty;
             if (_lastFilter == string.Empty)
             {
-                _displayedLogItems = _logItems;
+                if (hasLogLevelFilter)
+                {
+                    _displayedLogItems = _logItems;
+                }
+                else
+                {
+                    _displayedLogItems = _logItems.Where(item => logLevelFilters.Any(lvFilter => lvFilter.LogLevel == item.LogLevel)).ToList();
+                }
             }
             else
             {
                 if (ConfigManager.Instance.FilterStrictEquality)
                 {
-                    _displayedLogItems = _logItems.Where(item => item.Message.Contains(filter)).ToList();
+                    if (hasLogLevelFilter)
+                    {
+                        _displayedLogItems = _logItems
+                            .Where(item => logLevelFilters.Any(lvFilter => lvFilter.LogLevel == item.LogLevel))
+                            .Where(item => item.Message.Contains(filter)).ToList();
+                    }
+                    else
+                    {
+                        _displayedLogItems = _logItems.Where(item => item.Message.Contains(filter)).ToList();
+                    }
                 }
                 else
                 {
                     string[] split = filter.Split(' ');
-                    _displayedLogItems = _logItems.Where(item => split.Any(splitFilter => item.Message.Contains(splitFilter))).ToList();
+                    if (hasLogLevelFilter)
+                    {
+                        _displayedLogItems = _logItems
+                            .Where(item => logLevelFilters.Any(lvFilter => lvFilter.LogLevel == item.LogLevel))
+                            .Where(item => split.Any(splitFilter => item.Message.Contains(splitFilter))).ToList();
+                    }
+                    else
+                    {
+                        _displayedLogItems = _logItems.Where(item => split.Any(splitFilter => item.Message.Contains(splitFilter))).ToList();
+                    }
                 }
             }
         }
@@ -339,6 +375,15 @@ namespace Storm_LogViewer.Source.Log
         }
 
         public void OnFilterStrictEqualityChanged(bool value)
+        {
+            lock (_lastFilter)
+            {
+                this.ApplyFilterInternalNoCheck(_lastFilter);
+            }
+            this.NotifyLogItemsCollectionChanged();
+        }
+
+        public void OnLogLevelCheckFilterChanged()
         {
             lock (_lastFilter)
             {

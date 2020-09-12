@@ -62,6 +62,7 @@
     <Compile Include="Source\Helpers\XmlHelper.cs" />
     <Compile Include="Source\Log\LogItem.cs" />
     <Compile Include="Source\Log\LogLevelEnum.cs" />
+    <Compile Include="Source\Log\LogLevelFilterCheckboxValue.cs" />
     <Compile Include="Source\Log\LogReaderManager.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

@@ -36,11 +36,15 @@ namespace Storm_LogViewer
         {
             InitializeComponent();
 
-            LogDisplayArea.ItemsSource = LogReaderManager.Instance.DisplayedLogItems;
-            FilterStrictEqualityCheckbox.DataContext = this;
+            LogReaderManager loggerReaderMgr = LogReaderManager.Instance;
 
-            LogReaderManager.Instance._onDisplayedLogItemsCollectionChanged += OnDisplayedLogItemsCollectionChanged;
-            LogReaderManager.Instance.NotifyLogItemsCollectionChanged();
+            LogDisplayArea.ItemsSource = loggerReaderMgr.DisplayedLogItems;
+            FilterStrictEqualityCheckbox.DataContext = this;
+            LogLevelsFilter.DataContext = this;
+            LogLevelsFilter.ItemsSource = ConfigManager.Instance.LogLevelsFilter;
+
+            loggerReaderMgr._onDisplayedLogItemsCollectionChanged += OnDisplayedLogItemsCollectionChanged;
+            loggerReaderMgr.NotifyLogItemsCollectionChanged();
         }
 
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Storm_LogViewer.Source.Log;
+using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -47,6 +48,12 @@ namespace Storm_LogViewer.Source.General.Config
                     _onFilterCheckboxChanged?.Invoke(value);
                 }
             }
+        }
+
+        private List<LogLevelFilterCheckboxValue> _logLevelsFilter;
+        public List<LogLevelFilterCheckboxValue> LogLevelsFilter
+        {
+            get => _logLevelsFilter;
         }
 
 
@@ -130,6 +137,16 @@ namespace Storm_LogViewer.Source.General.Config
             {
                 _macrosConfig = new MacroConfig();
             }
+
+            _logLevelsFilter = new List<LogLevelFilterCheckboxValue>{
+                new LogLevelFilterCheckboxValue{ _level = LogLevelEnum.Debug },
+                new LogLevelFilterCheckboxValue{ _level = LogLevelEnum.DebugError },
+                new LogLevelFilterCheckboxValue{ _level = LogLevelEnum.Comment },
+                new LogLevelFilterCheckboxValue{ _level = LogLevelEnum.Warning },
+                new LogLevelFilterCheckboxValue{ _level = LogLevelEnum.Error },
+                new LogLevelFilterCheckboxValue{ _level = LogLevelEnum.Fatal },
+                new LogLevelFilterCheckboxValue{ _level = LogLevelEnum.Always }
+            };
         }
 
         private void ValidateSettings()
