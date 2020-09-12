@@ -69,6 +69,20 @@ namespace Storm_LogViewer.Source.General.Config
             }
         }
 
+        private bool _showEssentialOnly = false;
+        public bool ShowEssentialOnly
+        {
+            get => _showEssentialOnly;
+            set
+            {
+                if (_showEssentialOnly != value)
+                {
+                    _showEssentialOnly = value;
+                    _onShowEssentialCheckboxChanged?.Invoke(value);
+                }
+            }
+        }
+
 
         #region Events
 
@@ -77,6 +91,9 @@ namespace Storm_LogViewer.Source.General.Config
 
         public delegate void OnModuleFilterAdded(List<ModuleFilterCheckboxValue> moduleList);
         public event OnModuleFilterAdded _onModuleFilterAdded;
+
+        public delegate void OnShowEssentialCheckboxChanged(bool showEssential);
+        public event OnShowEssentialCheckboxChanged _onShowEssentialCheckboxChanged;
 
         #endregion
 

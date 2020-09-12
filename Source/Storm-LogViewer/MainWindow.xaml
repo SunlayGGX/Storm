@@ -27,6 +27,8 @@
 				<ColumnDefinition Width="100"/>
 				<ColumnDefinition Width="auto"/>
 				<ColumnDefinition Width="100"/>
+				<ColumnDefinition Width="auto"/>
+				<ColumnDefinition Width="auto"/>
 			</Grid.ColumnDefinitions>
 			<TextBlock Grid.Column="0" VerticalAlignment="Center">Filter :</TextBlock>
 			<TextBox Grid.Column="1" x:Name="LogFilterField" VerticalContentAlignment="Center" TextChanged="LogFilterField_TextChanged"/>
@@ -40,7 +42,7 @@
 					</DataTemplate>
 				</ComboBox.ItemTemplate>
 			</ComboBox>
-			<TextBlock Grid.Column="6" VerticalAlignment="Center" Margin="15,0,0,2">Module Filter :</TextBlock>
+			<TextBlock Grid.Column="6" VerticalAlignment="Center" Margin="15,0,2,0">Module Filter :</TextBlock>
 			<ComboBox Grid.Column="7" x:Name="ModuleLevelsFilter" VerticalAlignment="Center" Margin="10,2,10,1" ToolTip="Filters Log message by modules">
 				<ComboBox.ItemTemplate>
 					<DataTemplate>
@@ -48,6 +50,8 @@
 					</DataTemplate>
 				</ComboBox.ItemTemplate>
 			</ComboBox>
+			<TextBlock Grid.Column="8" VerticalAlignment="Center" Margin="15,0,2,0">Show essential :</TextBlock>
+			<CheckBox Grid.Column="9" x:Name="ShowEssentialOnlyCheckbox" VerticalAlignment="Center" IsChecked="{Binding ShowEssentialCheckboxValue, Mode=TwoWay}" ToolTip="If checked, we will hide the non essential log info (code location and thread). Uncheck if you want to see them again."/>
 		</Grid>
 		<ListView Margin="4,4,4,4" Background="LightGray" Name="LogDisplayArea" Grid.Row="1" ScrollViewer.VerticalScrollBarVisibility="Visible" ScrollViewer.CanContentScroll="False" >
 			<ListView.View>
