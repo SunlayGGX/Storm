@@ -83,6 +83,20 @@ namespace Storm_LogViewer.Source.General.Config
             }
         }
 
+        public bool _autoScrollEnabled = true;
+        public bool AutoScrollEnabled
+        {
+            get => _autoScrollEnabled;
+            set
+            {
+                if (_autoScrollEnabled != value)
+                {
+                    _autoScrollEnabled = value;
+                    _onAutoScrollCheckboxChanged?.Invoke();
+                }
+            }
+        }
+
 
         #region Events
 
@@ -94,6 +108,9 @@ namespace Storm_LogViewer.Source.General.Config
 
         public delegate void OnShowEssentialCheckboxChanged(bool showEssential);
         public event OnShowEssentialCheckboxChanged _onShowEssentialCheckboxChanged;
+
+        public delegate void OnAutoScrollCheckboxChanged();
+        public event OnAutoScrollCheckboxChanged _onAutoScrollCheckboxChanged;
 
         #endregion
 

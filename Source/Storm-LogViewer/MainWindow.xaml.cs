@@ -38,6 +38,12 @@ namespace Storm_LogViewer
             set => ConfigManager.Instance.ShowEssentialOnly = value;
         }
 
+        public bool AutoScrollCheckboxValue
+        {
+            get => ConfigManager.Instance.AutoScrollEnabled;
+            set => ConfigManager.Instance.AutoScrollEnabled = value;
+        }
+
         private List<GridViewColumn> _originalDisplayGridViewLayout = null;
 
         public MainWindow()
@@ -50,6 +56,7 @@ namespace Storm_LogViewer
 
             FilterStrictEqualityCheckbox.DataContext = this;
             ShowEssentialOnlyCheckbox.DataContext = this;
+            AutoScrollCheckbox.DataContext = this;
 
             LogLevelsFilter.DataContext = this;
             LogLevelsFilter.ItemsSource = ConfigManager.Instance.LogLevelsFilter;
@@ -59,6 +66,7 @@ namespace Storm_LogViewer
 
             ConfigManager.Instance._onModuleFilterAdded += OnModuleFilterAdded;
             ConfigManager.Instance._onShowEssentialCheckboxChanged += UpdateListViewEssentiality;
+            ConfigManager.Instance._onAutoScrollCheckboxChanged += AutoScrollUpdated;
             loggerReaderMgr._onDisplayedLogItemsCollectionChanged += OnDisplayedLogItemsCollectionChanged;
             loggerReaderMgr.NotifyLogItemsCollectionChanged();
         }
@@ -67,6 +75,7 @@ namespace Storm_LogViewer
         {
             ConfigManager.Instance._onModuleFilterAdded -= OnModuleFilterAdded;
             ConfigManager.Instance._onShowEssentialCheckboxChanged -= UpdateListViewEssentiality;
+            ConfigManager.Instance._onAutoScrollCheckboxChanged -= AutoScrollUpdated;
             LogReaderManager.Instance._onDisplayedLogItemsCollectionChanged -= OnDisplayedLogItemsCollectionChanged;
             LogReaderManager.Instance.Shutdown();
 
@@ -87,6 +96,8 @@ namespace Storm_LogViewer
                     LogDisplayArea.ItemsSource = displayedLogItems;
                     ICollectionView view = CollectionViewSource.GetDefaultView(LogDisplayArea.ItemsSource);
                     view.Refresh();
+
+                    ScrollToEndIfAutoScroll_UIThread();
                 }
             }));
         }
@@ -160,6 +171,22 @@ namespace Storm_LogViewer
                         view.Columns.Add(origColumns);
                     }
                 }
+            }));
+        }
+
+        private void ScrollToEndIfAutoScroll_UIThread()
+        {
+            if (ConfigManager.Instance.AutoScrollEnabled)
+            {
+                LogDisplayArea.ScrollIntoView(LogDisplayArea.Items[LogDisplayArea.Items.Count - 1]);
+            }
+        }
+
+        public void AutoScrollUpdated()
+        {
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                ScrollToEndIfAutoScroll_UIThread();
             }));
         }
     }
