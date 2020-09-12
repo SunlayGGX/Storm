@@ -35,7 +35,7 @@ namespace Storm_LogViewer.Source.General.Config
             this.AddPrebuiltMacro();
 
             const string k_macroConfigFileName = "Macro.xml";
-            string defaultGeneralConfigDirectoryFolder = Path.Combine(MacroConfig.Macroify("StormConfig"), "Custom", "General");
+            string defaultGeneralConfigDirectoryFolder = Path.Combine(this.GetMacroEndValue("StormConfig"), "Custom", "General");
             string macroConfigPath = Path.Combine(defaultGeneralConfigDirectoryFolder, k_macroConfigFileName);
             if (File.Exists(macroConfigPath))
             {
