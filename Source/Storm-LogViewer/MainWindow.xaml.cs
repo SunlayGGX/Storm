@@ -178,7 +178,11 @@ namespace Storm_LogViewer
         {
             if (ConfigManager.Instance.AutoScrollEnabled)
             {
-                LogDisplayArea.ScrollIntoView(LogDisplayArea.Items[LogDisplayArea.Items.Count - 1]);
+                int itemCount = LogDisplayArea.Items.Count;
+                if (itemCount > 0)
+                {
+                    LogDisplayArea.ScrollIntoView(LogDisplayArea.Items[itemCount - 1]);
+                }
             }
         }
 
@@ -188,6 +192,13 @@ namespace Storm_LogViewer
             {
                 ScrollToEndIfAutoScroll_UIThread();
             }));
+        }
+
+        private void ClearButton_Click(object sender, RoutedEventArgs e)
+        {
+            LogReaderManager.Instance.ClearLogs();
+
+            e.Handled = true;
         }
     }
 }

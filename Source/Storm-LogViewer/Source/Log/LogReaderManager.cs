@@ -43,6 +43,8 @@ namespace Storm_LogViewer.Source.Log
 
         List<string> _moduleList = new List<string>(12);
 
+        bool _shouldClearLogs = false;
+
         #endregion
 
         #region Events
@@ -222,6 +224,7 @@ namespace Storm_LogViewer.Source.Log
 
                 if (_isRunning)
                 {
+                    DoClearLogsIfNeeded();
                     this.TryRunParsingOnce();
                 }
             }
@@ -467,6 +470,27 @@ namespace Storm_LogViewer.Source.Log
             {
                 _moduleList.Add(item._moduleName);
                 newModuleAddedThisFrame.Add(item._moduleName);
+            }
+        }
+
+        public void ClearLogs()
+        {
+            // Async way
+            _shouldClearLogs = true;
+        }
+
+        private void DoClearLogsIfNeeded()
+        {
+            if (_isRunning && _shouldClearLogs)
+            {
+                _shouldClearLogs = false;
+
+                if (_logItems.Count > 0)
+                {
+                    _logItems.Clear();
+
+                    this.NotifyLogItemsCollectionChanged();
+                }
             }
         }
 
