@@ -16,7 +16,7 @@ Note that :
 - **Visual Studio 2017 toolsets (v141) and 2019 toolsets (v142)**
 - **cmake_gui 3.15.0-rc1 or later**. (3.15.0-rc1 is what I used. I can't guarantee for a version below this one)...
 - Because we use a lot of junctions and hardlinks to setup the project, we advise you to use an NTFS disk where everything are put together (or at least a disk format that supports it).
-- .NET Framework 4.7.2 if you want to compile and use the LogViewer tool.
+- **.NET Framework 4.7.2** if you want to compile and use the LogViewer tool.
 
 
 # Dependencies list
