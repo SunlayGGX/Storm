@@ -3,10 +3,11 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
         xmlns:local="clr-namespace:Storm_LogViewer"
         xmlns:converter="clr-namespace:Storm_LogViewer.Source.Converters"
         mc:Ignorable="d"
-        Title="Storm Log Viewer" Height="650" Width="1500" Background="Gray">
+        Title="Storm Log Viewer" Height="650" Width="1500" Background="Gray" >
 	<Window.Resources>
 		<converter:LogLevelToColorConverter x:Key="LogLevelToColorConverter"/>
 		<converter:LogLevelToStringConverter x:Key="LogLevelToStringConverter"/>
@@ -20,9 +21,12 @@
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition Width="40"/>
 				<ColumnDefinition Width="500"/>
+				<ColumnDefinition Width="auto"/>
+				<ColumnDefinition Width="auto"/>
 			</Grid.ColumnDefinitions>
 			<TextBlock VerticalAlignment="Center" Grid.Column="0">Filter :</TextBlock>
-			<TextBox Grid.Column="1" VerticalContentAlignment="Center"></TextBox>
+			<TextBox x:Name="LogFilterField" Grid.Column="1" VerticalContentAlignment="Center" TextChanged="LogFilterField_TextChanged"/>
+			<CheckBox x:Name="FilterStrictEqualityCheckbox" Content="Filter Strict Equality" Grid.Column="2" VerticalAlignment="Center" IsChecked="{Binding FilterStrictEqualityCheckboxValue, Mode=TwoWay}" ToolTip="Checked if space character inside the filter textbox is considered to be part of the filter. If not, the space will be considered as an 'or' (||)"/>
 		</Grid>
 		<ListView Margin="4,4,4,4" Background="LightGray" Name="LogDisplayArea" Grid.Row="1" ScrollViewer.VerticalScrollBarVisibility="Visible" ScrollViewer.CanContentScroll="False" >
 			<ListView.View>

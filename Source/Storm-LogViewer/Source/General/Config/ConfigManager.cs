@@ -35,6 +35,28 @@ namespace Storm_LogViewer.Source.General.Config
             get => !string.IsNullOrEmpty(_logFilePath);
         }
 
+        private bool _filterStrictEquality = true;
+        public bool FilterStrictEquality
+        {
+            get => _filterStrictEquality;
+            set
+            {
+                if (_filterStrictEquality != value)
+                {
+                    _filterStrictEquality = value;
+                    _onFilterCheckboxChanged?.Invoke(value);
+                }
+            }
+        }
+
+
+        #region Events
+
+        public delegate void OnFilterCheckboxChanged(bool newValue);
+        public event OnFilterCheckboxChanged _onFilterCheckboxChanged;
+
+        #endregion
+
         #endregion
 
         #region Methods

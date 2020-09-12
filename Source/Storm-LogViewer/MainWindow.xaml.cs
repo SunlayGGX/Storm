@@ -1,8 +1,10 @@
-﻿using Storm_LogViewer.Source.Log;
+﻿using Storm_LogViewer.Source.General.Config;
+using Storm_LogViewer.Source.Log;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -20,13 +22,23 @@ namespace Storm_LogViewer
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, INotifyPropertyChanged
     {
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public bool FilterStrictEqualityCheckboxValue
+        {
+            get => ConfigManager.Instance.FilterStrictEquality;
+            set => ConfigManager.Instance.FilterStrictEquality = value;
+        }
+
         public MainWindow()
         {
             InitializeComponent();
 
             LogDisplayArea.ItemsSource = LogReaderManager.Instance.DisplayedLogItems;
+            FilterStrictEqualityCheckbox.DataContext = this;
+
             LogReaderManager.Instance._onDisplayedLogItemsCollectionChanged += OnDisplayedLogItemsCollectionChanged;
             LogReaderManager.Instance.NotifyLogItemsCollectionChanged();
         }
@@ -44,13 +56,32 @@ namespace Storm_LogViewer
             // Environment.Exit(0);
         }
 
-        void OnDisplayedLogItemsCollectionChanged()
+        void OnDisplayedLogItemsCollectionChanged(List<LogItem> displayedLogItems)
         {
             Dispatcher.BeginInvoke(new Action(() =>
             {
-                ICollectionView view = CollectionViewSource.GetDefaultView(LogDisplayArea.ItemsSource);
-                view.Refresh();
+                lock (displayedLogItems)
+                {
+                    LogDisplayArea.ItemsSource = displayedLogItems;
+                    ICollectionView view = CollectionViewSource.GetDefaultView(LogDisplayArea.ItemsSource);
+                    view.Refresh();
+                }
             }));
+        }
+
+        private void LogFilterField_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if(sender is TextBox logFilterField)
+            {
+                LogReaderManager.Instance.ApplyFilter(LogFilterField.Text);
+            }
+
+            e.Handled = true;
+        }
+
+        protected void NotifyPropertyChanged([CallerMemberName] string name = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
     }
 }

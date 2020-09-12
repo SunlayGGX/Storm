@@ -39,11 +39,13 @@ namespace Storm_LogViewer.Source.Log
 
         long _lastStreamPos = 0;
 
+        string _lastFilter = string.Empty;
+
         #endregion
 
         #region Events
 
-        public delegate void OnDisplayedLogItemsCollectionChanged();
+        public delegate void OnDisplayedLogItemsCollectionChanged(List<LogItem> displayedLogItems);
         public event OnDisplayedLogItemsCollectionChanged _onDisplayedLogItemsCollectionChanged;
 
         #endregion
@@ -80,6 +82,8 @@ namespace Storm_LogViewer.Source.Log
 
         public void Init()
         {
+            ConfigManager.Instance._onFilterCheckboxChanged += this.OnFilterStrictEqualityChanged;
+
             this.TryRunParsingOnce();
 
             _parserWatcherThread = new Thread(() => this.Run());
@@ -187,13 +191,17 @@ namespace Storm_LogViewer.Source.Log
 
             if (preCollectionCount != _logItems.Count && _isRunning)
             {
+                lock(_lastFilter)
+                {
+                    this.ApplyFilterInternalNoCheck(_lastFilter);
+                }
                 this.NotifyLogItemsCollectionChanged();
             }
         }
 
         public void NotifyLogItemsCollectionChanged()
         {
-            _onDisplayedLogItemsCollectionChanged?.Invoke();
+            _onDisplayedLogItemsCollectionChanged?.Invoke(_displayedLogItems);
         }
 
         private void Run()
@@ -235,6 +243,8 @@ namespace Storm_LogViewer.Source.Log
         {
             _isRunning = false;
             _parserWatcherThread.Join();
+
+            ConfigManager.Instance._onFilterCheckboxChanged -= this.OnFilterStrictEqualityChanged;
         }
 
         public string RetrieveLastLogFile()
@@ -286,6 +296,55 @@ namespace Storm_LogViewer.Source.Log
             {
                 return null;
             }
+        }
+
+        private void ApplyFilterInternalNoCheck(string filter)
+        {
+            _lastFilter = filter ?? string.Empty;
+            if (_lastFilter == string.Empty)
+            {
+                _displayedLogItems = _logItems;
+            }
+            else
+            {
+                if (ConfigManager.Instance.FilterStrictEquality)
+                {
+                    _displayedLogItems = _logItems.Where(item => item.Message.Contains(filter)).ToList();
+                }
+                else
+                {
+                    string[] split = filter.Split(' ');
+                    _displayedLogItems = _logItems.Where(item => split.Any(splitFilter => item.Message.Contains(splitFilter))).ToList();
+                }
+            }
+        }
+
+        private void ApplyFilterInternal(string filter)
+        {
+            if (filter == _lastFilter)
+            {
+                return;
+            }
+
+            this.ApplyFilterInternalNoCheck(filter);
+        }
+
+        public void ApplyFilter(string filter)
+        {
+            lock(_lastFilter)
+            {
+                this.ApplyFilterInternal(filter);
+            }
+            this.NotifyLogItemsCollectionChanged();
+        }
+
+        public void OnFilterStrictEqualityChanged(bool value)
+        {
+            lock (_lastFilter)
+            {
+                this.ApplyFilterInternalNoCheck(_lastFilter);
+            }
+            this.NotifyLogItemsCollectionChanged();
         }
 
         #endregion
