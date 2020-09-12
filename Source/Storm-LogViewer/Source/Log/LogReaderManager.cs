@@ -15,7 +15,8 @@ namespace Storm_LogViewer.Source.Log
     {
         #region Members
 
-        private System.DateTime _lastLogFileWriteTime;
+        private System.DateTime _lastLogFileWriteTime = DateTime.MinValue;
+        private System.DateTime _lastLogFileCreationTime = DateTime.MinValue;
 
         private bool _isRunning = true;
         public bool IsRunning
@@ -125,6 +126,14 @@ namespace Storm_LogViewer.Source.Log
                 try
                 {
                     logFileInfo.Refresh();
+
+                    // If the Storm logger is set to override the file, then the last stream pos is invalid.
+                    DateTime logFileCreationTime = logFileInfo.CreationTime;
+                    if (_lastLogFileCreationTime < logFileCreationTime)
+                    {
+                        _lastLogFileCreationTime = logFileCreationTime;
+                        _lastStreamPos = 0;
+                    }
 
                     int initialFileSize = (int)logFileInfo.Length;
                     using (FileStream filestream = new FileStream(logFileInfo.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, initialFileSize, FileOptions.RandomAccess))
@@ -245,7 +254,7 @@ namespace Storm_LogViewer.Source.Log
             if (_isRunning && logFilePath != null)
             {
                 FileInfo fileInfo = new FileInfo(logFilePath);
-                if (fileInfo.LastWriteTime != _lastLogFileWriteTime)
+                if (fileInfo.LastWriteTime > _lastLogFileWriteTime)
                 {
                     this.ParseLogFile(fileInfo);
                 }
