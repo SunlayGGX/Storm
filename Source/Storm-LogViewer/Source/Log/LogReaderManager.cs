@@ -102,42 +102,52 @@ namespace Storm_LogViewer.Source.Log
         {
             XmlDocument doc = null;
 
-            int initialFileSize = (int)fileInfo.Length;
-            using (FileStream filestream = new FileStream(_logFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, initialFileSize, FileOptions.RandomAccess))
+            do
             {
-                filestream.Position = _lastStreamPos;
-
-                string content = "<tmp>\n";
-                do
+                if (!_isRunning)
                 {
-                    using (StreamReader reader = new StreamReader(filestream))
+                    return;
+                }
+
+                try
+                {
+                    fileInfo.Refresh();
+
+                    int initialFileSize = (int)fileInfo.Length;
+                    using (FileStream filestream = new FileStream(_logFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, initialFileSize, FileOptions.RandomAccess))
                     {
-                        fileInfo.Refresh();
-                        _lastLogFileWriteTime = fileInfo.LastWriteTime;
+                        filestream.Position = _lastStreamPos;
 
-                        content += reader.ReadToEnd();
+                        string content = "<tmp>\n";
+                        using (StreamReader reader = new StreamReader(filestream))
+                        {
+                            fileInfo.Refresh();
+                            _lastLogFileWriteTime = fileInfo.LastWriteTime;
 
-                        _lastStreamPos = filestream.Position;
-                    }
+                            content += reader.ReadToEnd();
 
-                    doc = new XmlDocument();
+                            _lastStreamPos = filestream.Position;
+                        }
 
-                    try
-                    {
+                        doc = new XmlDocument();
                         doc.LoadXml(content + "</tmp>");
                     }
-                    catch (System.Exception)
-                    {
-                        doc = null;
-                    }
+                }
+                catch (System.Exception)
+                {
+                    doc = null;
+                }
 
+                if (doc == null)
+                {
+                    Thread.Sleep(100);
                     if (!_isRunning)
                     {
                         return;
                     }
+                }
 
-                } while (doc == null);
-            }
+            } while (doc == null);
 
             int preCollectionCount = _logItems.Count;
 
