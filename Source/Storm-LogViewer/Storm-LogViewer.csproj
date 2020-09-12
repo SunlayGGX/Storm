@@ -57,6 +57,7 @@
     </ApplicationDefinition>
     <Compile Include="Source\Converters\LogLevelToColorConverter.cs" />
     <Compile Include="Source\Converters\LogLevelToStringConverter.cs" />
+    <Compile Include="Source\General\ConfigManager.cs" />
     <Compile Include="Source\Log\LogItem.cs" />
     <Compile Include="Source\Log\LogLevelEnum.cs" />
     <Compile Include="Source\Log\LogReaderManager.cs" />
