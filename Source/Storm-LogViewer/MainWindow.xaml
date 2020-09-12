@@ -23,12 +23,15 @@
 				<ColumnDefinition Width="500"/>
 				<ColumnDefinition Width="auto"/>
 				<ColumnDefinition Width="auto"/>
+				<ColumnDefinition Width="auto"/>
 				<ColumnDefinition Width="150"/>
 			</Grid.ColumnDefinitions>
-			<TextBlock VerticalAlignment="Center" Grid.Column="0">Filter :</TextBlock>
-			<TextBox x:Name="LogFilterField" Grid.Column="1" VerticalContentAlignment="Center" TextChanged="LogFilterField_TextChanged"/>
-			<CheckBox x:Name="FilterStrictEqualityCheckbox" Content="Filter Strict Equality" Grid.Column="2" VerticalAlignment="Center" IsChecked="{Binding FilterStrictEqualityCheckboxValue, Mode=TwoWay}" ToolTip="Checked if space character inside the filter textbox is considered to be part of the filter. If not, the space will be considered as an 'or' (||)"/>
-			<ComboBox x:Name="LogLevelsFilter" Grid.Column="3" VerticalAlignment="Center" Grid.ColumnSpan="3" Margin="10,2,10,1">
+			<TextBlock Grid.Column="0" VerticalAlignment="Center">Filter :</TextBlock>
+			<TextBox Grid.Column="1" x:Name="LogFilterField" VerticalContentAlignment="Center" TextChanged="LogFilterField_TextChanged"/>
+			<TextBlock Grid.Column="2" VerticalAlignment="Center" Margin="15,0,0,2">Filter Strict Equality :</TextBlock>
+			<CheckBox Grid.Column="3" x:Name="FilterStrictEqualityCheckbox" VerticalAlignment="Center" IsChecked="{Binding FilterStrictEqualityCheckboxValue, Mode=TwoWay}" ToolTip="Checked if space character inside the filter textbox is considered to be part of the filter. If not, the space will be considered as an 'or' (||)"/>
+			<TextBlock Grid.Column="4" VerticalAlignment="Center" Margin="15,0,0,2">Log Level Filter :</TextBlock>
+			<ComboBox Grid.Column="5" x:Name="LogLevelsFilter" VerticalAlignment="Center" Grid.ColumnSpan="3" Margin="10,2,10,1" ToolTip="Filters Log message by their log levels">
 				<ComboBox.ItemTemplate>
 					<DataTemplate>
 						<CheckBox Name="level" Content="{Binding LogLevel, Converter={ StaticResource LogLevelToStringConverter }}" IsChecked="{Binding Checked, Mode=TwoWay}"></CheckBox>
