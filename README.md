@@ -16,7 +16,7 @@ Note that :
 - **Visual Studio 2017 toolsets (v141) and 2019 toolsets (v142)**
 - **cmake_gui 3.15.0-rc1 or later**. (3.15.0-rc1 is what I used. I can't guarantee for a version below this one)...
 - Because we use a lot of junctions and hardlinks to setup the project, we advise you to use an NTFS disk where everything are put together (or at least a disk format that supports it).
-
+- .NET Framework 4.7.2 if you want to compile and use the LogViewer tool.
 
 
 # Dependencies list
@@ -45,6 +45,7 @@ I'm using catch2 as our main unit test library. But to be able to use it, you sh
 - Select your processor architecture : Go to Test -> Processor Architecture for AnyCPU Projects and select "x64". Though I don't think this step is really useful...
 - Maybe you'll have to disable Boost test adapter. Go to Extensions -> Manage Extensions -> Installed and search for "Test Adapter for Boost.Test". If it is enabled, you can disable it.
 
+
 # Modules
 - **Storm**: This is the executable that runs the SPH simulation.
 - **Storm-Config**: This is the configuration module.
@@ -60,6 +61,12 @@ I'm using catch2 as our main unit test library. But to be able to use it, you sh
 - **Storm-Space**: This module is where we implement the space vicualisation of the domain. Be it Voxels, Grids, octree, ... This is where we compute and store element for a fast neighborhood search.
 - **Storm-Simulator**: This module is where the Simulation classes would be. It is responsible to handle SPH.
 - **Storm-Windows**: This module is responsible for managing the Windows and everything related to it.
+
+
+# Tools
+Some Tools were developped to ease our life. Those tools are :
+- **Storm-LogViewer**: This is a little UI tool made with C# and WPF in an afternoon (sorry for the dirty code inside) those purpose is to make the log prettier to see, to read and to sort (to find the log we want easily and efficiently from the hundreds of logs hard to see on a command line windows).
+To use it, pass the xml log file you want to use as a command line argument (i.e : logFilePath="F:\Developper\Storm\Intermediate\Logs\log_Saturday_2020_09_12.xml").
 
 
 # Configuration
