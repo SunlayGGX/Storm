@@ -26,14 +26,14 @@ namespace Storm_LogViewer
         {
             InitializeComponent();
 
-            LogDisplayArea.ItemsSource = LogReaderManager.Instance.LogItems;
-            LogReaderManager.Instance._onLogItemsCollectionChanged += OnLogItemsCollectionChanged;
+            LogDisplayArea.ItemsSource = LogReaderManager.Instance.DisplayedLogItems;
+            LogReaderManager.Instance._onDisplayedLogItemsCollectionChanged += OnDisplayedLogItemsCollectionChanged;
             LogReaderManager.Instance.NotifyLogItemsCollectionChanged();
         }
 
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
         {
-            LogReaderManager.Instance._onLogItemsCollectionChanged -= OnLogItemsCollectionChanged;
+            LogReaderManager.Instance._onDisplayedLogItemsCollectionChanged -= OnDisplayedLogItemsCollectionChanged;
             LogReaderManager.Instance.Shutdown();
 
             Console.WriteLine("Ending Storm Log Reader Application");
@@ -44,7 +44,7 @@ namespace Storm_LogViewer
             // Environment.Exit(0);
         }
 
-        void OnLogItemsCollectionChanged()
+        void OnDisplayedLogItemsCollectionChanged()
         {
             Dispatcher.BeginInvoke(new Action(() =>
             {

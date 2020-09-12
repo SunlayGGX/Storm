@@ -29,6 +29,12 @@ namespace Storm_LogViewer.Source.Log
             get => _logItems;
         }
 
+        private List<LogItem> _displayedLogItems;
+        public List<LogItem> DisplayedLogItems
+        {
+            get => _displayedLogItems;
+        }
+
         Thread _parserWatcherThread = null;
 
         long _lastStreamPos = 0;
@@ -37,8 +43,8 @@ namespace Storm_LogViewer.Source.Log
 
         #region Events
 
-        public delegate void OnLogItemsCollectionChanged();
-        public event OnLogItemsCollectionChanged _onLogItemsCollectionChanged;
+        public delegate void OnDisplayedLogItemsCollectionChanged();
+        public event OnDisplayedLogItemsCollectionChanged _onDisplayedLogItemsCollectionChanged;
 
         #endregion
 
@@ -67,7 +73,7 @@ namespace Storm_LogViewer.Source.Log
 
         public LogReaderManager()
         {
-
+            _displayedLogItems = _logItems;
         }
 
         #endregion
@@ -187,7 +193,7 @@ namespace Storm_LogViewer.Source.Log
 
         public void NotifyLogItemsCollectionChanged()
         {
-            _onLogItemsCollectionChanged?.Invoke();
+            _onDisplayedLogItemsCollectionChanged?.Invoke();
         }
 
         private void Run()
