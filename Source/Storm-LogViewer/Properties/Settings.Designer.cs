@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace StormLogViewer.Properties
+namespace Storm_LogViewer.Properties
 {
 
 

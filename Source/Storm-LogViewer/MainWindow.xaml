@@ -1,0 +1,45 @@
+﻿<Window x:Class="Storm_LogViewer.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Storm_LogViewer"
+        xmlns:converter="clr-namespace:Storm_LogViewer.Source.Converters"
+        mc:Ignorable="d"
+        Title="Storm Log Viewer" Height="650" Width="1500" Background="Gray">
+	<Window.Resources>
+		<converter:LogLevelToColorConverter x:Key="LogLevelToColorConverter"/>
+		<converter:LogLevelToStringConverter x:Key="LogLevelToStringConverter"/>
+	</Window.Resources>
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="25"/>
+			<RowDefinition Height="1*"/>
+		</Grid.RowDefinitions>
+		<Grid Grid.Row="0">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="40"/>
+				<ColumnDefinition Width="500"/>
+			</Grid.ColumnDefinitions>
+			<TextBlock VerticalAlignment="Center" Grid.Column="0">Filter :</TextBlock>
+			<TextBox Grid.Column="1" VerticalContentAlignment="Center"></TextBox>
+		</Grid>
+		<ListView Margin="4,4,4,4" Background="LightGray" Name="LogDisplayArea" Grid.Row="1" ScrollViewer.VerticalScrollBarVisibility="Visible" ScrollViewer.CanContentScroll="False" >
+			<ListView.View>
+				<GridView>
+					<GridViewColumn Header="Time" Width="auto" DisplayMemberBinding="{Binding Timestamp}"/>
+					<GridViewColumn Header="Level" Width="auto" DisplayMemberBinding="{Binding LogLevel}"/>
+					<GridViewColumn Header="Module" Width="auto" DisplayMemberBinding="{Binding ModuleName}"/>
+					<GridViewColumn Header="Location" Width="auto" DisplayMemberBinding="{Binding CodeLocation}"/>
+					<GridViewColumn Header="Thread" Width="auto" DisplayMemberBinding="{Binding ThreadId}"/>
+					<GridViewColumn Header="Log" Width="auto" DisplayMemberBinding="{Binding Message}"/>
+				</GridView>
+			</ListView.View>
+			<ListView.ItemContainerStyle>
+				<Style TargetType="{x:Type ListViewItem}">
+					<Setter Property="Background" Value="{Binding LogLevel, Converter={ StaticResource LogLevelToColorConverter }}"/>
+				</Style>
+			</ListView.ItemContainerStyle>
+		</ListView>
+	</Grid>
+</Window>
