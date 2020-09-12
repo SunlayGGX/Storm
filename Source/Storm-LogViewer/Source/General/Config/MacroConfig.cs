@@ -156,7 +156,7 @@ namespace Storm_LogViewer.Source.General.Config
 
         private static bool MayContainMacro(string val)
         {
-            return val.Contains("$(");
+            return val.Contains("$[");
         }
 
         public string Resolve(string value)
@@ -179,8 +179,9 @@ namespace Storm_LogViewer.Source.General.Config
 
         public string GetMacroEndValue(string rawKey)
         {
-            string result = Resolve(MacroConfig.Macroify(rawKey));
-            return result != rawKey ? result : null;
+            string macroKey = MacroConfig.Macroify(rawKey);
+            string result = Resolve(macroKey);
+            return result != macroKey ? result : null;
         }
 
         #endregion
