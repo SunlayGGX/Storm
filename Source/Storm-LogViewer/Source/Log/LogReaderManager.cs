@@ -50,7 +50,7 @@ namespace Storm_LogViewer.Source.Log
 
         #region Events
 
-        public delegate void OnDisplayedLogItemsCollectionChanged(List<LogItem> displayedLogItems);
+        public delegate void OnDisplayedLogItemsCollectionChanged(List<LogItem> displayedLogItems, int maxLogCount);
         public event OnDisplayedLogItemsCollectionChanged _onDisplayedLogItemsCollectionChanged;
 
         #endregion
@@ -222,7 +222,7 @@ namespace Storm_LogViewer.Source.Log
 
         public void NotifyLogItemsCollectionChanged()
         {
-            _onDisplayedLogItemsCollectionChanged?.Invoke(_displayedLogItems);
+            _onDisplayedLogItemsCollectionChanged?.Invoke(_displayedLogItems, _logItems.Count);
         }
 
         private void Run()

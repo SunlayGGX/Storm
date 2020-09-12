@@ -46,6 +46,20 @@ namespace Storm_LogViewer
 
         private List<GridViewColumn> _originalDisplayGridViewLayout = null;
 
+        private string _logCountInfoStr;
+        public string LogCountInfoStr
+        {
+            get => _logCountInfoStr;
+            set
+            {
+                if (_logCountInfoStr != value)
+                {
+                    _logCountInfoStr = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
         public MainWindow()
         {
             InitializeComponent();
@@ -57,6 +71,7 @@ namespace Storm_LogViewer
             FilterStrictEqualityCheckbox.DataContext = this;
             ShowEssentialOnlyCheckbox.DataContext = this;
             AutoScrollCheckbox.DataContext = this;
+            LogCountDisplayInfo.DataContext = this;
 
             LogLevelsFilter.DataContext = this;
             LogLevelsFilter.ItemsSource = ConfigManager.Instance.LogLevelsFilter;
@@ -87,12 +102,16 @@ namespace Storm_LogViewer
             // Environment.Exit(0);
         }
 
-        void OnDisplayedLogItemsCollectionChanged(List<LogItem> displayedLogItems)
+        void OnDisplayedLogItemsCollectionChanged(List<LogItem> displayedLogItems, int maxLogCount)
         {
+            string logInfo = displayedLogItems.Count + "/" + maxLogCount + " logs displayed";
+
             Dispatcher.BeginInvoke(new Action(() =>
             {
                 lock (displayedLogItems)
                 {
+                    LogCountInfoStr = logInfo;
+
                     LogDisplayArea.ItemsSource = displayedLogItems;
                     ICollectionView view = CollectionViewSource.GetDefaultView(LogDisplayArea.ItemsSource);
                     view.Refresh();
