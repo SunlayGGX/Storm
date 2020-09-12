@@ -33,6 +33,7 @@
 
 # Visual Studio generated
 *.vcxproj.user
+*.csproj.user
 *.obj
 *.db
 **/.vs/**
