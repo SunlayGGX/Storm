@@ -43,12 +43,17 @@ namespace Storm_LogViewer
             LogLevelsFilter.DataContext = this;
             LogLevelsFilter.ItemsSource = ConfigManager.Instance.LogLevelsFilter;
 
+            ModuleLevelsFilter.DataContext = this;
+            ModuleLevelsFilter.ItemsSource = ConfigManager.Instance.ModuleFilters;
+
+            ConfigManager.Instance._onModuleFilterAdded += OnModuleFilterAdded;
             loggerReaderMgr._onDisplayedLogItemsCollectionChanged += OnDisplayedLogItemsCollectionChanged;
             loggerReaderMgr.NotifyLogItemsCollectionChanged();
         }
 
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
         {
+            ConfigManager.Instance._onModuleFilterAdded -= OnModuleFilterAdded;
             LogReaderManager.Instance._onDisplayedLogItemsCollectionChanged -= OnDisplayedLogItemsCollectionChanged;
             LogReaderManager.Instance.Shutdown();
 
@@ -70,6 +75,16 @@ namespace Storm_LogViewer
                     ICollectionView view = CollectionViewSource.GetDefaultView(LogDisplayArea.ItemsSource);
                     view.Refresh();
                 }
+            }));
+        }
+
+        void OnModuleFilterAdded(List<ModuleFilterCheckboxValue> newModuleCheckboxFilters)
+        {
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                ModuleLevelsFilter.ItemsSource = newModuleCheckboxFilters;
+                ICollectionView view = CollectionViewSource.GetDefaultView(ModuleLevelsFilter.ItemsSource);
+                view.Refresh();
             }));
         }
 

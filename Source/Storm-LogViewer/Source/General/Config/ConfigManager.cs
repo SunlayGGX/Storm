@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace Storm_LogViewer.Source.General.Config
 {
@@ -45,7 +46,7 @@ namespace Storm_LogViewer.Source.General.Config
                 if (_filterStrictEquality != value)
                 {
                     _filterStrictEquality = value;
-                    _onFilterCheckboxChanged?.Invoke(value);
+                    _onFilterCheckboxChanged?.Invoke();
                 }
             }
         }
@@ -56,11 +57,26 @@ namespace Storm_LogViewer.Source.General.Config
             get => _logLevelsFilter;
         }
 
+        private List<ModuleFilterCheckboxValue> _moduleFilters = new List<ModuleFilterCheckboxValue>(12);
+        public List<ModuleFilterCheckboxValue> ModuleFilters
+        {
+            get
+            {
+                lock (_moduleFilters)
+                {
+                    return _moduleFilters;
+                }
+            }
+        }
+
 
         #region Events
 
-        public delegate void OnFilterCheckboxChanged(bool newValue);
+        public delegate void OnFilterCheckboxChanged();
         public event OnFilterCheckboxChanged _onFilterCheckboxChanged;
+
+        public delegate void OnModuleFilterAdded(List<ModuleFilterCheckboxValue> moduleList);
+        public event OnModuleFilterAdded _onModuleFilterAdded;
 
         #endregion
 
@@ -154,6 +170,39 @@ namespace Storm_LogViewer.Source.General.Config
             if (_logFilePath != null && Path.GetExtension(_logFilePath).ToLower() != ".xml")
             {
                 throw new Exception("log file to parse should be an xml file : current is " + _logFilePath);
+            }
+        }
+
+        public void AddNewModuleFilters(List<string> modulesName)
+        {
+            if (modulesName.Count > 0)
+            {
+                List<ModuleFilterCheckboxValue> otherTmpSoThreadSafe;
+
+                lock (_moduleFilters)
+                {
+                    foreach (string moduleName in modulesName)
+                    {
+                        ModuleFilterCheckboxValue newModuleFilter = new ModuleFilterCheckboxValue { _moduleName = moduleName };
+                        LogReaderManager.Instance.ListenModuleFilterCheckedChangedEvent(newModuleFilter);
+                        try
+                        {
+                            _moduleFilters.Add(newModuleFilter);
+                        }
+                        catch (System.Exception)
+                        {
+                            LogReaderManager.Instance.UnregisterFromModuleFilterCheckedChangedEvent(newModuleFilter);
+                            throw;
+                        }
+                    }
+
+                    otherTmpSoThreadSafe = _moduleFilters;
+                }
+
+                // Send the current state of the _moduleFilters... Not directly the reference of _moduleFilters...
+                // It allows to unlock the call and only working with a snapshot of the module filter, in case this one is updated in another thread.
+                // We won't have a data race (but we would work with deprecated data)... A tocttou can still happen but I don't care...
+                _onModuleFilterAdded?.Invoke(otherTmpSoThreadSafe);
             }
         }
 

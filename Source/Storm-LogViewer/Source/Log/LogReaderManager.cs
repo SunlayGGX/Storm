@@ -41,6 +41,8 @@ namespace Storm_LogViewer.Source.Log
 
         string _lastFilter = string.Empty;
 
+        List<string> _moduleList = new List<string>(12);
+
         #endregion
 
         #region Events
@@ -82,10 +84,10 @@ namespace Storm_LogViewer.Source.Log
 
         public void Init()
         {
-            ConfigManager.Instance._onFilterCheckboxChanged += this.OnFilterStrictEqualityChanged;
+            ConfigManager.Instance._onFilterCheckboxChanged += this.OnFiltersChanged;
             foreach (LogLevelFilterCheckboxValue checkboxValue in ConfigManager.Instance.LogLevelsFilter)
             {
-                checkboxValue._onCheckedStateChanged += this.OnLogLevelCheckFilterChanged;
+                checkboxValue._onCheckedStateChanged += this.OnFiltersChanged;
             }
 
             this.TryRunParsingOnce();
@@ -165,6 +167,8 @@ namespace Storm_LogViewer.Source.Log
 
             int preCollectionCount = _logItems.Count;
 
+            List<string> newModuleAddedThisFrame = new List<string>(12);
+
             foreach (XmlNode logItemXml in doc.ChildNodes[0].ChildNodes)
             {
                 LogItem item = new LogItem();
@@ -183,15 +187,17 @@ namespace Storm_LogViewer.Source.Log
                         item.Message = logItemXml.InnerText;
                         if (item.Message != null)
                         {
-                            _logItems.Add(item);
+                            this.AddLogItem(item, ref newModuleAddedThisFrame);
                         }
                     }
                 }
                 else
                 {
-                    _logItems.Add(item);
+                    this.AddLogItem(item, ref newModuleAddedThisFrame);
                 }
             }
+
+            ConfigManager.Instance.AddNewModuleFilters(newModuleAddedThisFrame);
 
             if (preCollectionCount != _logItems.Count && _isRunning)
             {
@@ -248,10 +254,14 @@ namespace Storm_LogViewer.Source.Log
             _isRunning = false;
             _parserWatcherThread.Join();
 
-            ConfigManager.Instance._onFilterCheckboxChanged -= this.OnFilterStrictEqualityChanged;
+            ConfigManager.Instance._onFilterCheckboxChanged -= this.OnFiltersChanged;
             foreach (LogLevelFilterCheckboxValue checkboxValue in ConfigManager.Instance.LogLevelsFilter)
             {
-                checkboxValue._onCheckedStateChanged -= this.OnLogLevelCheckFilterChanged;
+                checkboxValue._onCheckedStateChanged -= this.OnFiltersChanged;
+            }
+            foreach (ModuleFilterCheckboxValue checkboxValue in ConfigManager.Instance.ModuleFilters)
+            {
+                checkboxValue._onCheckedStateChanged -= this.OnFiltersChanged;
             }
         }
 
@@ -309,47 +319,103 @@ namespace Storm_LogViewer.Source.Log
         private void ApplyFilterInternalNoCheck(string filter)
         {
             List<LogLevelFilterCheckboxValue> logLevelFilters = ConfigManager.Instance.LogLevelsFilter.Where(logLevelFilter => logLevelFilter.Checked).ToList();
-            bool hasLogLevelFilter = logLevelFilters.Count == ConfigManager.Instance.LogLevelsFilter.Count;
+            bool hasNotLogLevelFilter = logLevelFilters.Count == ConfigManager.Instance.LogLevelsFilter.Count;
+            List<ModuleFilterCheckboxValue> modulesFilters = ConfigManager.Instance.ModuleFilters.Where(moduleFilter => moduleFilter.Checked).ToList();
+            bool hasNotModuleFilter = modulesFilters.Count == ConfigManager.Instance.ModuleFilters.Count;
 
             _lastFilter = filter ?? string.Empty;
             if (_lastFilter == string.Empty)
             {
-                if (hasLogLevelFilter)
+                if (hasNotLogLevelFilter)
                 {
-                    _displayedLogItems = _logItems;
+                    if (hasNotModuleFilter)
+                    {
+                        _displayedLogItems = _logItems;
+                    }
+                    else
+                    {
+                        _displayedLogItems = _logItems.Where(item => modulesFilters.Any(modFilter => modFilter.ModuleName == item.ModuleName)).ToList();
+                    }
                 }
                 else
                 {
-                    _displayedLogItems = _logItems.Where(item => logLevelFilters.Any(lvFilter => lvFilter.LogLevel == item.LogLevel)).ToList();
+                    if (hasNotModuleFilter)
+                    {
+                        _displayedLogItems = _logItems.Where(item => logLevelFilters.Any(lvFilter => lvFilter.LogLevel == item.LogLevel)).ToList();
+                    }
+                    else
+                    {
+                        _displayedLogItems = _logItems
+                            .Where(item => logLevelFilters.Any(lvFilter => lvFilter.LogLevel == item.LogLevel))
+                            .Where(item => modulesFilters.Any(modFilter => modFilter.ModuleName == item.ModuleName)).ToList();
+                    }
                 }
             }
             else
             {
                 if (ConfigManager.Instance.FilterStrictEquality)
                 {
-                    if (hasLogLevelFilter)
+                    if (hasNotLogLevelFilter)
                     {
-                        _displayedLogItems = _logItems
-                            .Where(item => logLevelFilters.Any(lvFilter => lvFilter.LogLevel == item.LogLevel))
-                            .Where(item => item.Message.Contains(filter)).ToList();
+                        if (hasNotModuleFilter)
+                        {
+                            _displayedLogItems = _logItems
+                                .Where(item => logLevelFilters.Any(lvFilter => lvFilter.LogLevel == item.LogLevel))
+                                .Where(item => item.Message.Contains(filter)).ToList();
+                        }
+                        else
+                        {
+                            _displayedLogItems = _logItems
+                                .Where(item => logLevelFilters.Any(lvFilter => lvFilter.LogLevel == item.LogLevel))
+                                .Where(item => modulesFilters.Any(modFilter => modFilter.ModuleName == item.ModuleName))
+                                .Where(item => item.Message.Contains(filter)).ToList();
+                        }
                     }
                     else
                     {
-                        _displayedLogItems = _logItems.Where(item => item.Message.Contains(filter)).ToList();
+                        if (hasNotModuleFilter)
+                        {
+                            _displayedLogItems = _logItems.Where(item => item.Message.Contains(filter)).ToList();
+                        }
+                        else
+                        {
+                            _displayedLogItems = _logItems
+                                .Where(item => modulesFilters.Any(modFilter => modFilter.ModuleName == item.ModuleName))
+                                .Where(item => item.Message.Contains(filter)).ToList();
+                        }
                     }
                 }
                 else
                 {
                     string[] split = filter.Split(' ');
-                    if (hasLogLevelFilter)
+                    if (hasNotLogLevelFilter)
                     {
-                        _displayedLogItems = _logItems
-                            .Where(item => logLevelFilters.Any(lvFilter => lvFilter.LogLevel == item.LogLevel))
-                            .Where(item => split.Any(splitFilter => item.Message.Contains(splitFilter))).ToList();
+                        if (hasNotModuleFilter)
+                        {
+                            _displayedLogItems = _logItems
+                                .Where(item => logLevelFilters.Any(lvFilter => lvFilter.LogLevel == item.LogLevel))
+                                .Where(item => split.Any(splitFilter => item.Message.Contains(splitFilter))).ToList();
+                        }
+                        else
+                        {
+                            _displayedLogItems = _logItems
+                                .Where(item => logLevelFilters.Any(lvFilter => lvFilter.LogLevel == item.LogLevel))
+                                .Where(item => modulesFilters.Any(modFilter => modFilter.ModuleName == item.ModuleName))
+                                .Where(item => split.Any(splitFilter => item.Message.Contains(splitFilter))).ToList();
+                        }
                     }
                     else
                     {
-                        _displayedLogItems = _logItems.Where(item => split.Any(splitFilter => item.Message.Contains(splitFilter))).ToList();
+                        if (hasNotModuleFilter)
+                        {
+                            _displayedLogItems = _logItems.Where(item => split.Any(splitFilter => item.Message.Contains(splitFilter))).ToList();
+                        }
+                        else
+                        {
+                            _displayedLogItems = _logItems
+                                .Where(item => modulesFilters.Any(modFilter => modFilter.ModuleName == item.ModuleName))
+                                .Where(item => split.Any(splitFilter => item.Message.Contains(splitFilter))).ToList();
+                        }
                     }
                 }
             }
@@ -374,7 +440,7 @@ namespace Storm_LogViewer.Source.Log
             this.NotifyLogItemsCollectionChanged();
         }
 
-        public void OnFilterStrictEqualityChanged(bool value)
+        public void OnFiltersChanged()
         {
             lock (_lastFilter)
             {
@@ -383,13 +449,25 @@ namespace Storm_LogViewer.Source.Log
             this.NotifyLogItemsCollectionChanged();
         }
 
-        public void OnLogLevelCheckFilterChanged()
+        public void ListenModuleFilterCheckedChangedEvent(ModuleFilterCheckboxValue moduleFilter)
         {
-            lock (_lastFilter)
+            moduleFilter._onCheckedStateChanged += this.OnFiltersChanged;
+        }
+
+        public void UnregisterFromModuleFilterCheckedChangedEvent(ModuleFilterCheckboxValue moduleFilter)
+        {
+            moduleFilter._onCheckedStateChanged -= this.OnFiltersChanged;
+        }
+
+        public void AddLogItem(LogItem item, ref List<string> newModuleAddedThisFrame)
+        {
+            _logItems.Add(item);
+
+            if (!_moduleList.Any(moduleName => moduleName == item._moduleName))
             {
-                this.ApplyFilterInternalNoCheck(_lastFilter);
+                _moduleList.Add(item._moduleName);
+                newModuleAddedThisFrame.Add(item._moduleName);
             }
-            this.NotifyLogItemsCollectionChanged();
         }
 
         #endregion
