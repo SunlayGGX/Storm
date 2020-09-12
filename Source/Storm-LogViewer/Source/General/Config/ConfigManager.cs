@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace Storm_LogViewer.Source.General.Config
 {
@@ -12,15 +13,7 @@ namespace Storm_LogViewer.Source.General.Config
         private static ConfigManager s_instance = null;
         public static ConfigManager Instance
         {
-            get
-            {
-                if (s_instance == null)
-                {
-                    s_instance = new ConfigManager();
-                }
-
-                return s_instance;
-            }
+            get => s_instance;
         }
 
         #endregion
@@ -48,10 +41,11 @@ namespace Storm_LogViewer.Source.General.Config
 
         #region Constructor
 
-        public ConfigManager(List<string> args)
+        private ConfigManager(string[] args)
         {
             this.ParseCommandLines(args);
             this.ApplyDefaultSettingToRemainingConfig();
+            this.ValidateSettings();
         }
 
         #endregion
@@ -76,10 +70,22 @@ namespace Storm_LogViewer.Source.General.Config
             return arg.StartsWith(key, StringComparison.InvariantCultureIgnoreCase);
         }
 
+        public static void Create(string[] args)
+        {
+            if (s_instance == null)
+            {
+                s_instance = new ConfigManager(args);
+            }
+            else
+            {
+                throw new Exception("Cannot create twice a Singleton!");
+            }
+        }
+
 
         #endregion
 
-        private void ParseCommandLines(List<string> args)
+        private void ParseCommandLines(string[] args)
         {
             foreach (string arg in args)
             {
@@ -101,6 +107,14 @@ namespace Storm_LogViewer.Source.General.Config
             if (_macrosConfig == null)
             {
                 _macrosConfig = new MacroConfig();
+            }
+        }
+
+        private void ValidateSettings()
+        {
+            if (_logFilePath != null && Path.GetExtension(_logFilePath).ToLower() != ".xml")
+            {
+                throw new Exception("log file to parse should be an xml file : current is " + _logFilePath);
             }
         }
 

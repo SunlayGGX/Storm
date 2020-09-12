@@ -26,6 +26,7 @@ namespace Storm_LogViewer
             string logFilePath = e.Args.First(arg => arg.StartsWith("logfilepath", StringComparison.CurrentCultureIgnoreCase));
             logFilePath = logFilePath.Split('=')[1];
 
+            ConfigManager.Create(e.Args);
             LogReaderManager.Instance.Init(logFilePath);
         }
     }
