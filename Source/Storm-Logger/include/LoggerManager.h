@@ -27,7 +27,7 @@ namespace Storm
 		Storm::LogLevel getLogLevel() const final override;
 
 	private:
-		void writeLogs(const LogArray &logArray) const;
+		void writeLogs(LogArray &logArray) const;
 
 	public:
 		void logToTempFile(const std::string &fileName, const std::string &msg) const final override;
@@ -43,5 +43,6 @@ namespace Storm
 		LogArray _buffer;
 
 		std::string _logFilePath;
+		std::string _xmlLogFilePath;
 	};
 }

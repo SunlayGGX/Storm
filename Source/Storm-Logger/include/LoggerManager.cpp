@@ -60,6 +60,7 @@ void Storm::LoggerManager::initialize_Implementation()
 	if (!logFileName.empty())
 	{
 		const std::filesystem::path logExtension{ ".log" };
+		const std::filesystem::path xmlLogExtension{ ".xml" };
 
 		const std::string &logFolderPathStr = configMgr->getLogFolderPath();
 		const std::filesystem::path logFolderPath = std::filesystem::path{ logFolderPathStr.empty() ? configMgr->getTemporaryPath() : logFolderPathStr };
@@ -68,13 +69,20 @@ void Storm::LoggerManager::initialize_Implementation()
 		std::filesystem::path logFilePath = logFolderPath / logFileName;
 		logFilePath.replace_extension(logExtension);
 
+		const std::filesystem::path xmlLogFilePath = std::filesystem::path{ logFilePath }.replace_extension(xmlLogExtension);
+
+		_logFilePath = logFilePath.string();
+		_xmlLogFilePath = xmlLogFilePath.string();
+
 		if (configMgr->getShouldOverrideOldLog())
 		{
 			std::filesystem::remove(logFilePath);
+			std::filesystem::remove(xmlLogFilePath);
 		}
 		else
 		{
 			std::ofstream{ _logFilePath, std::ios_base::out | std::ios_base::app } << "\n\n\n---------------------------------------------\n\n\n";
+			std::ofstream{ _xmlLogFilePath, std::ios_base::out | std::ios_base::app } << "<separator/>";
 		}
 
 		if (removeLogOlderThanDay > 0)
@@ -83,7 +91,8 @@ void Storm::LoggerManager::initialize_Implementation()
 
 			for (const std::filesystem::directory_entry &logsFile : std::filesystem::recursive_directory_iterator{ logFolderPath })
 			{
-				if (logsFile.path().extension() == logExtension && (logsFile.is_character_file() || logsFile.is_regular_file()))
+				const std::filesystem::path currentExtension = logsFile.path().extension();
+				if ((currentExtension == logExtension || currentExtension == xmlLogExtension) && (logsFile.is_character_file() || logsFile.is_regular_file()))
 				{
 					auto writeTime = logsFile.last_write_time();
 					if (writeTime <= threadhold)
@@ -93,8 +102,6 @@ void Storm::LoggerManager::initialize_Implementation()
 				}
 			}
 		}
-
-		_logFilePath = logFilePath.string();
 	}
 
 	bool canLeaveTmp = false;
@@ -189,18 +196,21 @@ Storm::LogLevel Storm::LoggerManager::getLogLevel() const
 	return _level;
 }
 
-void Storm::LoggerManager::writeLogs(const LogArray &logArray) const
+void Storm::LoggerManager::writeLogs(LogArray &logArray) const
 {
 	const bool debuggerAttached = ::IsDebuggerPresent();
 
 	if (!_logFilePath.empty())
 	{
 		std::ofstream logFile{ _logFilePath, std::ios_base::out | std::ios_base::app };
-		for (const auto &logItem : logArray)
+		std::ofstream xmlLogFile{ _xmlLogFilePath, std::ios_base::out | std::ios_base::app };
+		for (auto &logItem : logArray)
 		{
 			if (logItem._level >= _level)
 			{
-				const std::string fullLogMsg{ logItem };
+				logItem.prepare(true);
+
+				const std::string &fullLogMsg = logItem.rawMessage();
 				std::cout << fullLogMsg;
 				logFile << fullLogMsg;
 
@@ -208,16 +218,20 @@ void Storm::LoggerManager::writeLogs(const LogArray &logArray) const
 				{
 					logToVisualStudioOutput(fullLogMsg);
 				}
+
+				xmlLogFile << logItem.toXml();
 			}
 		}
 	}
 	else
 	{
-		for (const auto &logItem : logArray)
+		for (auto &logItem : logArray)
 		{
 			if (logItem._level >= _level)
 			{
-				const std::string fullLogMsg{ logItem };
+				logItem.prepare(true);
+
+				const std::string &fullLogMsg = logItem.rawMessage();
 				std::cout << fullLogMsg;
 				if (debuggerAttached)
 				{

@@ -58,6 +58,74 @@ Storm::LogItem::LogItem(const std::string_view &moduleName, const Storm::LogLeve
 
 }
 
+void Storm::LogItem::prepare(bool xmlToo)
+{
+	const std::string_view levelStr = Storm::LogItem::parseLogLevel(_level);
+	const std::string timestampStr = timeStampToString(_timestamp);
+	const std::string codeLocationStr = _function + " - " + std::to_string(_line);
+	const std::string lineStr = std::to_string(_line);
+	const std::string threadIdStr = Storm::toStdString<LogThreadIdParserPolicy>(_threadId);
+
+	const std::size_t levelStrSize = levelStr.size();
+	const std::size_t timestampStrSize = timestampStr.size();
+	const std::size_t codeLocationStrSize = codeLocationStr.size();
+	const std::size_t threadIdStrSize = threadIdStr.size();
+	const std::size_t msgSize = _msg.size();
+	const std::size_t moduleNameStrSize = _moduleName.size();
+
+	if (_finalMsg.empty())
+	{
+		_finalMsg.reserve(msgSize + moduleNameStrSize + codeLocationStrSize + levelStrSize + timestampStrSize + threadIdStrSize + 18);
+
+		_finalMsg += '[';
+		_finalMsg += levelStr;
+		_finalMsg += "][";
+		_finalMsg += _moduleName;
+		_finalMsg += "][";
+		_finalMsg += timestampStr;
+		_finalMsg += "][";
+		_finalMsg += codeLocationStr;
+		_finalMsg += "][";
+		_finalMsg += threadIdStr;
+		_finalMsg += "] : ";
+
+		_finalMsg += _msg;
+
+		_finalMsg += '\n';
+	}
+
+	if (xmlToo && _finalXml.empty())
+	{
+		_finalXml.reserve(80 + levelStrSize + timestampStrSize + codeLocationStrSize + threadIdStrSize + msgSize + moduleNameStrSize);
+
+		_finalXml += "<log logLevel=\"";
+		_finalXml += levelStr;
+		_finalXml += "\" module=\"";
+		_finalXml += _moduleName;
+		_finalXml += "\" timestamp=\"";
+		_finalXml += timestampStr;
+		_finalXml += "\" codeLocation=\"";
+		_finalXml += codeLocationStr;
+		_finalXml += "\" thread=\"";
+		_finalXml += threadIdStr;
+		_finalXml += "\">";
+		_finalXml += _msg;
+		_finalXml += "</log>\n";
+	}
+}
+
+const std::string& Storm::LogItem::rawMessage() const
+{
+	assert(!_finalMsg.empty() && "The LogItem should have been prepared before coming here!");
+	return _finalMsg;
+}
+
+const std::string& Storm::LogItem::toXml() const
+{
+	assert(!_finalXml.empty() && "The LogItem should have been prepared before coming here!");
+	return _finalXml;
+}
+
 const std::string_view Storm::LogItem::parseLogLevel(const Storm::LogLevel logLevel)
 {
 #define STORM_SWITCH_CASE_STRINGIFY(CaseStatement) case Storm::LogLevel::CaseStatement: return #CaseStatement;
@@ -74,44 +142,4 @@ const std::string_view Storm::LogItem::parseLogLevel(const Storm::LogLevel logLe
 #undef STORM_SWITCH_CASE_STRINGIFY
 
 	Storm::throwException<std::exception>("Unknown Level!");
-}
-
-Storm::LogItem::operator std::string() const
-{
-	std::string result;
-
-	const std::string_view levelStr = Storm::LogItem::parseLogLevel(_level);
-	const std::string timestampStr = timeStampToString(_timestamp);
-	const std::string lineStr = std::to_string(_line);
-	const std::string threadIdStr = Storm::toStdString<LogThreadIdParserPolicy>(_threadId);
-
-	result.reserve(_msg.size() + _moduleName.size() + _function.size() + levelStr.size() + timestampStr.size() + lineStr.size() + threadIdStr.size() + 16);
-
-	result += '[';
-	result += levelStr;
-	result += ']';
-
-	result += '[';
-	result += _moduleName;
-	result += ']';
-
-	result += '[';
-	result += timestampStr;
-	result += ']';
-
-	result += '[';
-	result += _function;
-	result += " - ";
-	result += lineStr;
-	result += ']';
-
-	result += '[';
-	result += threadIdStr;
-	result += "] : ";
-
-	result += _msg;
-
-	result += '\n';
-
-	return result;
 }

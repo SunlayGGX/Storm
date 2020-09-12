@@ -10,7 +10,12 @@ namespace Storm
 	public:
 		LogItem(const std::string_view &moduleName, const Storm::LogLevel level, const std::string_view &function, const int line, std::string &&msg);
 
-		operator std::string() const;
+	public:
+		void prepare(bool xmlToo);
+
+	public:
+		const std::string& rawMessage() const;
+		const std::string& toXml() const;
 
 	public:
 		static const std::string_view parseLogLevel(const Storm::LogLevel logLevel);
@@ -23,5 +28,8 @@ namespace Storm
 		const std::chrono::system_clock::time_point _timestamp;
 		const std::thread::id _threadId;
 		const std::string _msg;
+
+		std::string _finalMsg;
+		std::string _finalXml;
 	};
 }
