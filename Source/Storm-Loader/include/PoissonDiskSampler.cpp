@@ -142,26 +142,29 @@ namespace
 
 		std::vector<Storm::Vector3> denseSamplingResult;
 
-		const std::size_t expectedPopulationCount = k_allParticleCluteringCoefficient * expectedSampleFinalCount;
-
-		denseSamplingResult.resize(expectedPopulationCount);
-
-		Storm::runParallel(denseSamplingResult, [&randMgr, &allTriangles, &maxArea, triangleCount = static_cast<int64_t>(allTriangles.size())](Storm::Vector3 &currentPointSample)
+		if (!allTriangles.empty())
 		{
-			std::size_t selectedTriangleIndex;
-			do
+			const std::size_t expectedPopulationCount = k_allParticleCluteringCoefficient * expectedSampleFinalCount;
+
+			denseSamplingResult.resize(expectedPopulationCount);
+
+			Storm::runParallel(denseSamplingResult, [&randMgr, &allTriangles, &maxArea, triangleLastIndex = static_cast<int64_t>(allTriangles.size() - 1)](Storm::Vector3 &currentPointSample)
 			{
-				selectedTriangleIndex = randMgr.randomizeInteger(static_cast<int64_t>(0), triangleCount);
-
-				const Triangle &triangle = allTriangles[selectedTriangleIndex];
-				if (randMgr.randomizeFloat() < (triangle._area / maxArea))
+				std::size_t selectedTriangleIndex;
+				do
 				{
-					triangle.producePoint(randMgr, currentPointSample);
-					return;
-				}
+					selectedTriangleIndex = randMgr.randomizeInteger(triangleLastIndex);
 
-			} while (true);
-		});
+					const Triangle &triangle = allTriangles[selectedTriangleIndex];
+					if (randMgr.randomizeFloat() < (triangle._area / maxArea))
+					{
+						triangle.producePoint(randMgr, currentPointSample);
+						return;
+					}
+
+				} while (true);
+			});
+		}
 
 		return denseSamplingResult;
 	}
