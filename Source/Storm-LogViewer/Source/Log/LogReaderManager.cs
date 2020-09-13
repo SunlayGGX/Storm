@@ -133,6 +133,11 @@ namespace Storm_LogViewer.Source.Log
                     {
                         _lastLogFileCreationTime = logFileCreationTime;
                         _lastStreamPos = 0;
+
+                        if (_logItems.Count > 0)
+                        {
+                            _logItems.Add(new LogItem { _level = LogLevelEnum.NewSession });
+                        }
                     }
 
                     int initialFileSize = (int)logFileInfo.Length;
@@ -332,6 +337,10 @@ namespace Storm_LogViewer.Source.Log
         {
             List<LogLevelFilterCheckboxValue> logLevelFilters = ConfigManager.Instance.LogLevelsFilter.Where(logLevelFilter => logLevelFilter.Checked).ToList();
             bool hasNotLogLevelFilter = logLevelFilters.Count == ConfigManager.Instance.LogLevelsFilter.Count;
+
+            // Add the NewSession since it isn't really a log to be filtered (this is a separator).
+            logLevelFilters.Add(new LogLevelFilterCheckboxValue{ _level = LogLevelEnum.NewSession });
+
             List<ModuleFilterCheckboxValue> modulesFilters = ConfigManager.Instance.ModuleFilters.Where(moduleFilter => moduleFilter.Checked).ToList();
             bool hasNotModuleFilter = modulesFilters.Count == ConfigManager.Instance.ModuleFilters.Count;
 

@@ -8,7 +8,7 @@ namespace Storm_LogViewer.Source.Log
 {
     class LogLevelFilterCheckboxValue
     {
-        public LogLevelEnum _level = LogLevelEnum.None;
+        public LogLevelEnum _level = LogLevelEnum.Unknown;
         public LogLevelEnum LogLevel
         {
             get => _level;

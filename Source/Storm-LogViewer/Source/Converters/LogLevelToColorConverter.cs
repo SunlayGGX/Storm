@@ -21,7 +21,7 @@ namespace Storm_LogViewer.Source.Converters
             case Log.LogLevelEnum.Error: return new SolidColorBrush(Color.FromRgb(220, 90, 50));
             case Log.LogLevelEnum.Fatal: return new SolidColorBrush(Color.FromRgb(225, 5, 5));
             case Log.LogLevelEnum.Always: return new SolidColorBrush(Color.FromRgb(200, 200, 200));
-            case Log.LogLevelEnum.None: return new SolidColorBrush(Color.FromRgb(0, 0, 0));
+            case Log.LogLevelEnum.NewSession: return new SolidColorBrush(Color.FromRgb(0, 0, 0));
             default: return new SolidColorBrush(Color.FromRgb(255, 255, 255));
             }
         }

@@ -195,7 +195,8 @@ namespace Storm_LogViewer.Source.General.Config
                 new LogLevelFilterCheckboxValue{ _level = LogLevelEnum.Warning },
                 new LogLevelFilterCheckboxValue{ _level = LogLevelEnum.Error },
                 new LogLevelFilterCheckboxValue{ _level = LogLevelEnum.Fatal },
-                new LogLevelFilterCheckboxValue{ _level = LogLevelEnum.Always }
+                new LogLevelFilterCheckboxValue{ _level = LogLevelEnum.Always },
+                new LogLevelFilterCheckboxValue{ _level = LogLevelEnum.Unknown }
             };
         }
 

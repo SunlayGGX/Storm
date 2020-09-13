@@ -22,7 +22,7 @@ namespace Storm_LogViewer.Source.Log
             set => _moduleName = value;
         }
 
-        public LogLevelEnum _level = LogLevelEnum.None;
+        public LogLevelEnum _level = LogLevelEnum.Unknown;
         public LogLevelEnum LogLevel
         {
             get => _level;

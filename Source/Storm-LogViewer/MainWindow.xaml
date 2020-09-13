@@ -7,7 +7,7 @@
         xmlns:local="clr-namespace:Storm_LogViewer"
         xmlns:converter="clr-namespace:Storm_LogViewer.Source.Converters"
         mc:Ignorable="d"
-        Title="Storm Log Viewer" Height="650" Width="1500" Background="Gray" >
+        Title="Storm Log Viewer" Height="650" Width="1650" Background="Gray" >
 	<Window.Resources>
 		<converter:LogLevelToColorConverter x:Key="LogLevelToColorConverter"/>
 		<converter:LogLevelToStringConverter x:Key="LogLevelToStringConverter"/>
@@ -65,7 +65,7 @@
 			<ListView.View>
 				<GridView>
 					<GridViewColumn Header="Time" Width="auto" DisplayMemberBinding="{Binding Timestamp}"/>
-					<GridViewColumn Header="Level" Width="auto" DisplayMemberBinding="{Binding LogLevel}"/>
+					<GridViewColumn Header="Level" Width="85" DisplayMemberBinding="{Binding LogLevel}"/>
 					<GridViewColumn Header="Module" Width="auto" DisplayMemberBinding="{Binding ModuleName}"/>
 					<GridViewColumn Header="Location" Width="auto" DisplayMemberBinding="{Binding CodeLocation}"/>
 					<GridViewColumn Header="Thread" Width="auto" DisplayMemberBinding="{Binding ThreadId}"/>

@@ -16,6 +16,11 @@ namespace Storm_LogViewer.Source.Log
         Fatal,
         Always,
 
-        None
+        // Special Level that expresses that the log is unknown.
+        Unknown,
+
+        // Special level that isn't really a level (not defined inside the real Storm application).
+        // It is used to show a black line on the log viewer, telling us that the logs afterwards are from another sessions.
+        NewSession
     }
 }
