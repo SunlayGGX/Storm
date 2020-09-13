@@ -59,6 +59,7 @@
     <Compile Include="Source\Converters\LogLevelToStringConverter.cs" />
     <Compile Include="Source\General\Config\ConfigManager.cs" />
     <Compile Include="Source\General\Config\MacroConfig.cs" />
+    <Compile Include="Source\General\Filterer\FiltererManager.cs" />
     <Compile Include="Source\Helpers\XmlHelper.cs" />
     <Compile Include="Source\Log\LogItem.cs" />
     <Compile Include="Source\Log\LogLevelEnum.cs" />
