@@ -66,6 +66,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{F79A0D9C
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Storm-LogViewer", "Source\Storm-LogViewer\Storm-LogViewer.csproj", "{5B489712-203D-4E22-817C-89244DCF9434}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Storm-Packager", "Source\Storm-Packager\script\Storm-Packager.vcxproj", "{83D868D9-6524-4208-9714-1949A878BC86}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -144,6 +146,10 @@ Global
 		{5B489712-203D-4E22-817C-89244DCF9434}.Debug|x64.Build.0 = Debug|Any CPU
 		{5B489712-203D-4E22-817C-89244DCF9434}.Release|x64.ActiveCfg = Release|Any CPU
 		{5B489712-203D-4E22-817C-89244DCF9434}.Release|x64.Build.0 = Release|Any CPU
+		{83D868D9-6524-4208-9714-1949A878BC86}.Debug|x64.ActiveCfg = Debug|x64
+		{83D868D9-6524-4208-9714-1949A878BC86}.Debug|x64.Build.0 = Debug|x64
+		{83D868D9-6524-4208-9714-1949A878BC86}.Release|x64.ActiveCfg = Release|x64
+		{83D868D9-6524-4208-9714-1949A878BC86}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -169,6 +175,7 @@ Global
 		{58D7C87A-DCB4-42DC-8575-4F416154F226} = {9ACB8D28-162B-4B97-A55B-3360CBF1F8BC}
 		{66664E96-F4E4-4C82-9B7B-A6E8CCD92069} = {71FDD4FA-5CB7-4461-A3FD-A8818CF6C865}
 		{5B489712-203D-4E22-817C-89244DCF9434} = {F79A0D9C-2055-4FD3-89F6-A901CD582DBD}
+		{83D868D9-6524-4208-9714-1949A878BC86} = {F79A0D9C-2055-4FD3-89F6-A901CD582DBD}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {AC48B795-9776-4952-84E0-CE8AB938B72B}
