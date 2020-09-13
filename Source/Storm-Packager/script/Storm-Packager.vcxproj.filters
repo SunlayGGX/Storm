@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\Packager">
+      <UniqueIdentifier>{1ba4da1f-212c-4c91-94ab-9de2e6f08007}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Packager">
+      <UniqueIdentifier>{579ffdb1-72d5-412c-aea7-1574f47c346c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-Packager.cpp">
@@ -21,9 +27,15 @@
     <ClCompile Include="..\include\Storm-PackagerPCH.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\Application.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-PackagerPCH.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Application.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
