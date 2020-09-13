@@ -3,6 +3,10 @@
 #include "LogLevel.h"
 #include "ThrowException.h"
 
+#include <boost\property_tree\detail\xml_parser_write.hpp>
+#include <boost\property_tree\xml_parser.hpp>
+
+
 namespace
 {
 	const std::string timeStampToString(std::chrono::system_clock::time_point timeStamp)
@@ -96,21 +100,19 @@ void Storm::LogItem::prepare(bool xmlToo)
 
 	if (xmlToo && _finalXml.empty())
 	{
-		_finalXml.reserve(80 + levelStrSize + timestampStrSize + codeLocationStrSize + threadIdStrSize + msgSize + moduleNameStrSize);
+		std::stringstream str;
+		boost::property_tree::ptree logXml;
 
-		_finalXml += "<log logLevel=\"";
-		_finalXml += levelStr;
-		_finalXml += "\" module=\"";
-		_finalXml += _moduleName;
-		_finalXml += "\" timestamp=\"";
-		_finalXml += timestampStr;
-		_finalXml += "\" codeLocation=\"";
-		_finalXml += codeLocationStr;
-		_finalXml += "\" thread=\"";
-		_finalXml += threadIdStr;
-		_finalXml += "\">";
-		_finalXml += _msg;
-		_finalXml += "</log>\n";
+		logXml.add<decltype(levelStr)>("<xmlattr>.logLevel", levelStr);
+		logXml.add<decltype(_moduleName)>("<xmlattr>.module", _moduleName);
+		logXml.add<decltype(timestampStr)>("<xmlattr>.timestamp", timestampStr);
+		logXml.add<decltype(threadIdStr)>("<xmlattr>.thread", threadIdStr);
+		logXml.add<decltype(codeLocationStr)>("<xmlattr>.codeLocation", codeLocationStr);
+		logXml.put_value(_msg);
+
+		boost::property_tree::xml_parser::write_xml_element(str, "log", logXml, 0, boost::property_tree::xml_writer_make_settings<std::string>());
+
+		_finalXml = str.str();
 	}
 }
 
