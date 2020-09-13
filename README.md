@@ -66,12 +66,27 @@ I'm using catch2 as our main unit test library. But to be able to use it, you sh
 # Tools
 Some Tools were developped to ease our life. Those tools are :
 - **Storm-LogViewer**: This is a little UI tool made with C# and WPF in an afternoon (sorry for the dirty code inside) those purpose is to make the log prettier to see, to read and to sort (to find the log we want easily and efficiently from the hundreds of logs hard to see on a command line windows).
-To use it, pass the xml log file you want to use as a command line argument (i.e : logFilePath="F:\Developper\Storm\Intermediate\Logs\log_Saturday_2020_09_12.xml").
 
 
 # Configuration
 
 ## Command line
+Here are the command lines allowed values for the different executables. Command line keys are case unsensitive.
+
+### Storm.exe
+This is the simulation application. Command lines are exposed like this : --key=value or --key.
+- **help (no value, facultative)**: Displays the help. The simulation won't be run and the other command line argument won't have any effect.
+- **scene (string, facultative)**: This is the scene config file path to use. If there is none, then we will ask the user to choose one at the start of the application with the default installed file explorer.
+- **macroConfig (string, facultative)**: This is the macro config file path to use. If there is none, then we will select the one inside the default Config folder (the one inside Custom/General takes precedence over the one inside Custom/General/Original).
+- **generalConfig (string, facultative)**: This is the general config file path to use. If there is none, then we will select the one inside the default Config folder (the one inside Custom/General takes precedence over the one inside Custom/General/Original).
+- **tempPath (string, facultative)**: This is the temporary path to use (to a folder). If there is none, then we will select the default temporary path folder.
+- **regenPCache (no value, facultative)**: Specify this flag and we will regenerate the rigid body particle cache data.
+
+
+### Storm-LogViewer.exe
+This is the application to see logs in a more friendly manner. The accepted command line arguments are :
+- **MacroConfigFilePath (string, facultative)**: This is the macro config file path to use. If there is none, then we will select the one inside the default Config folder (the one inside Custom/General takes precedence over the one inside Custom/General/Original).
+- **LogFilePath**: This is the log file to display. If there is none, then we will select the one latest inside the default Log folder (located inside the default temporary folder). By not setting it, we also allow the LogViewer to parse the next log when the day change (we will always select the latest file at runtime, at the moment we check for the file modification)...
 
 
 ## Config file
