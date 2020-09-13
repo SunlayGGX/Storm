@@ -78,6 +78,9 @@
     <ClCompile Include="..\include\CordJoint.cpp">
       <Filter>Source Files\PhysicsComponent\Constraint\Joints</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\JointBase.cpp">
+      <Filter>Source Files\PhysicsComponent\Constraint\Joints</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-PhysicsPCH.h">

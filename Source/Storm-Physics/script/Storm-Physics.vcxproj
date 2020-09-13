@@ -13,6 +13,7 @@
   <ItemGroup>
     <ClCompile Include="..\include\CordJoint.cpp" />
     <ClCompile Include="..\include\CustomPhysXLogger.cpp" />
+    <ClCompile Include="..\include\JointBase.cpp" />
     <ClCompile Include="..\include\PhysicalShape.cpp" />
     <ClCompile Include="..\include\PhysicsConstraint.cpp" />
     <ClCompile Include="..\include\PhysicsManager.cpp" />
