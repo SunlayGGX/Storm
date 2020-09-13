@@ -54,7 +54,7 @@ namespace Storm_LogViewer.Source.General.Config
         public MacroConfig(string xmlPath)
         {
             this.AddPrebuiltMacro();
-            this.ReadFromXml(xmlPath);
+            this.ReadFromXml(this.Resolve(xmlPath));
         }
 
         #endregion
