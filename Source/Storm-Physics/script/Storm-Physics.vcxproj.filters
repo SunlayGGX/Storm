@@ -25,6 +25,30 @@
     <Filter Include="Source Files\PhysicsComponent">
       <UniqueIdentifier>{6a0cc625-eaf8-4efc-85a0-34ce2888f5ea}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\PhysicsComponent\Constraint">
+      <UniqueIdentifier>{5d4c5d1b-9346-4469-9f6d-1c1bd4640371}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\PhysicsComponent\Constraint\Joints">
+      <UniqueIdentifier>{6bcabb4c-1bc9-46d1-9cb1-722cbd3b3ff8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\PhysicsComponent\RigidBodies">
+      <UniqueIdentifier>{61301ebb-8cfd-45ac-96c2-2dc8270b6a3b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\PhysicsComponent\Constraint">
+      <UniqueIdentifier>{19aa6591-516e-475d-a6b8-736dc64c6ad8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\PhysicsComponent\Constraint\Joints">
+      <UniqueIdentifier>{c1452f4a-5f98-4cec-844c-6449105660ec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\PhysicsComponent\RigidBodies">
+      <UniqueIdentifier>{84d0cda4-8c75-4419-924e-2507e3fb8a47}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\PhysicsComponent\Shape">
+      <UniqueIdentifier>{641713f3-9729-474e-81c5-882784cd916f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\PhysicsComponent\Shape">
+      <UniqueIdentifier>{25b15487-ac4d-4a85-94ab-3cd9000c4416}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-PhysicsPCH.cpp">
@@ -39,17 +63,17 @@
     <ClCompile Include="..\include\PhysicsManager.cpp">
       <Filter>Source Files\PhysicsComponent</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\PhysicsConstraint.cpp">
+      <Filter>Source Files\PhysicsComponent\Constraint</Filter>
+    </ClCompile>
     <ClCompile Include="..\include\PhysicsDynamicRigidBody.cpp">
-      <Filter>Source Files\PhysicsComponent</Filter>
+      <Filter>Source Files\PhysicsComponent\RigidBodies</Filter>
     </ClCompile>
     <ClCompile Include="..\include\PhysicsStaticsRigidBody.cpp">
-      <Filter>Source Files\PhysicsComponent</Filter>
+      <Filter>Source Files\PhysicsComponent\RigidBodies</Filter>
     </ClCompile>
     <ClCompile Include="..\include\PhysicalShape.cpp">
-      <Filter>Source Files\PhysicsComponent</Filter>
-    </ClCompile>
-    <ClCompile Include="..\include\PhysicsConstraint.cpp">
-      <Filter>Source Files\PhysicsComponent</Filter>
+      <Filter>Source Files\PhysicsComponent\Shape</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -65,20 +89,20 @@
     <ClInclude Include="..\include\PhysicsManager.h">
       <Filter>Header Files\PhysicsComponent</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\PhysicsDynamicRigidBody.h">
-      <Filter>Header Files\PhysicsComponent</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\PhysicsStaticsRigidBody.h">
-      <Filter>Header Files\PhysicsComponent</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\PhysXCoordHelpers.h">
       <Filter>Header Files\PhysX</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\PhysicalShape.h">
-      <Filter>Header Files\PhysicsComponent</Filter>
+    <ClInclude Include="..\include\PhysicsDynamicRigidBody.h">
+      <Filter>Header Files\PhysicsComponent\RigidBodies</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\PhysicsStaticsRigidBody.h">
+      <Filter>Header Files\PhysicsComponent\RigidBodies</Filter>
     </ClInclude>
     <ClInclude Include="..\include\PhysicsConstraint.h">
-      <Filter>Header Files\PhysicsComponent</Filter>
+      <Filter>Header Files\PhysicsComponent\Constraint</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\PhysicalShape.h">
+      <Filter>Header Files\PhysicsComponent\Shape</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
