@@ -22,9 +22,9 @@ int main(int argc, const char* argv[]) try
 }
 catch (const std::exception &ex)
 {
-	return processEarlyExitAnswer(Storm::Application::ensureCleanStateAfterException("Fatal error (std::exception received) : " + std::string{ ex.what() } +'\n', true));
+	return processEarlyExitAnswer(Storm::Application::ensureCleanStateAfterException("Fatal error (std::exception received) : " + std::string{ ex.what() }, true));
 }
 catch (...)
 {
-	return processEarlyExitAnswer(Storm::Application::ensureCleanStateAfterException("Fatal error (unknown exception received)\n", false));
+	return processEarlyExitAnswer(Storm::Application::ensureCleanStateAfterException("Fatal error (unknown exception received)", false));
 }
