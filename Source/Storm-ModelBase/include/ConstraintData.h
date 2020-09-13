@@ -17,6 +17,7 @@ namespace Storm
 		Storm::Vector3 _rigidBody1LinkTranslationOffset;
 		Storm::Vector3 _rigidBody2LinkTranslationOffset;
 
+		bool _preventRotations;
 		bool _shouldVisualize;
 	};
 }

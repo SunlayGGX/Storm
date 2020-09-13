@@ -114,7 +114,8 @@ Storm::ConstraintData::ConstraintData() :
 	_constraintsLength{ 0.f },
 	_rigidBody1LinkTranslationOffset{ Storm::Vector3::Zero() },
 	_rigidBody2LinkTranslationOffset{ Storm::Vector3::Zero() },
-	_shouldVisualize{ true }
+	_shouldVisualize{ true },
+	_preventRotations{ true }
 {
 
 }

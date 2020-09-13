@@ -407,6 +407,7 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 			Storm::XmlReader::handleXml(constraintDataXml, "rbId2", contraintData._rigidBodyId2) ||
 			Storm::XmlReader::handleXml(constraintDataXml, "length", contraintData._constraintsLength) ||
 			Storm::XmlReader::handleXml(constraintDataXml, "visualize", contraintData._shouldVisualize) ||
+			Storm::XmlReader::handleXml(constraintDataXml, "noRotation", contraintData._preventRotations) ||
 			Storm::XmlReader::handleXml(constraintDataXml, "rb1LinkOffset", contraintData._rigidBody1LinkTranslationOffset, parseVector3Element) ||
 			Storm::XmlReader::handleXml(constraintDataXml, "rb2LinkOffset", contraintData._rigidBody2LinkTranslationOffset, parseVector3Element)
 			;
