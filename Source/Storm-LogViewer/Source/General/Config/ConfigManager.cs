@@ -202,9 +202,14 @@ namespace Storm_LogViewer.Source.General.Config
 
         private void ValidateSettings()
         {
-            if (_logFilePath != null && Path.GetExtension(_logFilePath).ToLower() != ".xml")
+            if (_logFilePath != null)
             {
-                throw new Exception("log file to parse should be an xml file : current is " + _logFilePath);
+                MacrosConfig.ResolveInPlace(ref _logFilePath);
+
+                if (Path.GetExtension(_logFilePath).ToLower() != ".xml")
+                {
+                    throw new Exception("log file to parse should be an xml file : current is " + _logFilePath);
+                }
             }
         }
 
