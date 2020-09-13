@@ -10,17 +10,17 @@
 
 namespace
 {
-	Storm::UniquePointer<physx::PxJoint> makeJoint(const Storm::ConstraintData &data, physx::PxRigidActor* actor1, physx::PxRigidActor* actor2)
+	Storm::UniquePointer<physx::PxJoint> makeDistanceJoint(const Storm::ConstraintData &data, physx::PxRigidActor* actor1, physx::PxRigidActor* actor2)
 	{
 		Storm::PhysXHandler &physxHandler = Storm::PhysicsManager::instance().getPhysXHandler();
-		return physxHandler.createJoint(data, actor1, actor2);
+		return physxHandler.createDistanceJoint(data, actor1, actor2);
 	}
 }
 
 
 Storm::PhysicsConstraint::PhysicsConstraint(const Storm::ConstraintData &data, physx::PxRigidActor* actor1, physx::PxRigidActor* actor2) :
 	_id{ data._constraintId },
-	_internalJointPtr{ makeJoint(data, actor1, actor2) },
+	_internalJointPtr{ makeDistanceJoint(data, actor1, actor2) },
 	_shouldVisualize{ data._shouldVisualize }
 {
 

@@ -358,7 +358,7 @@ Storm::UniquePointer<physx::PxShape> Storm::PhysXHandler::createRigidBodyShape(c
 	}
 }
 
-Storm::UniquePointer<physx::PxJoint> Storm::PhysXHandler::createJoint(const Storm::ConstraintData &constraintData, physx::PxRigidActor* actor1, physx::PxRigidActor* actor2)
+Storm::UniquePointer<physx::PxJoint> Storm::PhysXHandler::createDistanceJoint(const Storm::ConstraintData &constraintData, physx::PxRigidActor* actor1, physx::PxRigidActor* actor2)
 {
 	physx::PxTransform actor1LinkTransformFrame = physx::PxTransform{ physx::PxIDENTITY::PxIdentity };
 	actor1LinkTransformFrame.p += Storm::convertToPx(constraintData._rigidBody1LinkTranslationOffset);
