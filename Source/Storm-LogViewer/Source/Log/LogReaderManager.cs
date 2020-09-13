@@ -222,9 +222,10 @@ namespace Storm_LogViewer.Source.Log
                         _lastStreamPos = tmpPosition;
                     }
                 }
-                catch (System.Exception)
+                catch (System.Exception ex)
                 {
                     doc = null;
+                    Console.WriteLine("Log parsing failed, reason was " + ex.Message);
                 }
 
                 if (doc == null)
