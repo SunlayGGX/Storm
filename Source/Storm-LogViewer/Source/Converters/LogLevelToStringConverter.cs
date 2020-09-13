@@ -9,7 +9,13 @@ namespace Storm_LogViewer.Source.Converters
     {
         public static LogLevelEnum FromString(string value)
         {
-            return (LogLevelEnum)Enum.Parse(typeof(LogLevelEnum), value);
+            LogLevelEnum level;
+            if (Enum.TryParse<LogLevelEnum>(value, true, out level))
+            {
+                return level;
+            }
+
+            return LogLevelEnum.Unknown;
         }
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
