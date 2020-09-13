@@ -93,7 +93,19 @@ namespace Storm_LogViewer.Source.Log
                 checkboxValue._onCheckedStateChanged += this.OnFiltersChanged;
             }
 
-            this.TryRunParsingOnce();
+            if (configMgr.NoInitialRead)
+            {
+                string logFileToRead = this.GetLogFileToRead();
+                FileInfo logFileToReadInfo = new FileInfo(logFileToRead);
+
+                _lastLogFileWriteTime = logFileToReadInfo.LastWriteTime;
+                _lastLogFileCreationTime = logFileToReadInfo.CreationTime;
+                _lastStreamPos = logFileToReadInfo.Length;
+            }
+            else
+            {
+                this.TryRunParsingOnce();
+            }
 
             _parserWatcherThread = new Thread(() => this.Run());
             _parserWatcherThread.Start();
@@ -132,18 +144,22 @@ namespace Storm_LogViewer.Source.Log
             }
         }
 
-        private void TryRunParsingOnce()
+        private string GetLogFileToRead()
         {
             ConfigManager configMgr = ConfigManager.Instance;
-            string logFilePath;
             if (configMgr.HasLogFilePath)
             {
-                logFilePath = configMgr.LogFilePath;
+                return configMgr.LogFilePath;
             }
             else
             {
-                logFilePath = RetrieveLastLogFile();
+                return RetrieveLastLogFile();
             }
+        }
+
+        private void TryRunParsingOnce()
+        {
+            string logFilePath = this.GetLogFileToRead();
 
             if (_isRunning && logFilePath != null)
             {
