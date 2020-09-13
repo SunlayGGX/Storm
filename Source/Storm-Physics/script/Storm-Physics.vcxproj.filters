@@ -75,6 +75,9 @@
     <ClCompile Include="..\include\PhysicalShape.cpp">
       <Filter>Source Files\PhysicsComponent\Shape</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\CordJoint.cpp">
+      <Filter>Source Files\PhysicsComponent\Constraint\Joints</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-PhysicsPCH.h">
@@ -105,6 +108,9 @@
       <Filter>Header Files\PhysicsComponent\Shape</Filter>
     </ClInclude>
     <ClInclude Include="..\include\JointBase.h">
+      <Filter>Header Files\PhysicsComponent\Constraint\Joints</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\CordJoint.h">
       <Filter>Header Files\PhysicsComponent\Constraint\Joints</Filter>
     </ClInclude>
   </ItemGroup>

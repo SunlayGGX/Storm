@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\include\CordJoint.cpp" />
     <ClCompile Include="..\include\CustomPhysXLogger.cpp" />
     <ClCompile Include="..\include\PhysicalShape.cpp" />
     <ClCompile Include="..\include\PhysicsConstraint.cpp" />
@@ -24,6 +25,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\include\CordJoint.h" />
     <ClInclude Include="..\include\CustomPhysXLogger.h" />
     <ClInclude Include="..\include\JointBase.h" />
     <ClInclude Include="..\include\PhysicalShape.h" />
