@@ -85,6 +85,9 @@
     <Filter Include="Source Files\OS\Debugging">
       <UniqueIdentifier>{9f2eb400-a64b-445a-a9c8-07aa6fc104d8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\General\Xml">
+      <UniqueIdentifier>{b04d4822-c895-42df-a656-4ce479ac0002}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-HelperPCH.cpp">
@@ -235,6 +238,9 @@
     </ClInclude>
     <ClInclude Include="..\include\DebuggerHelper.h">
       <Filter>Header Files\OS\Debugging</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\XmlReader.h">
+      <Filter>Header Files\General\Xml</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

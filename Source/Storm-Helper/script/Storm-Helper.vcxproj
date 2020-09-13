@@ -65,6 +65,7 @@
     <ClInclude Include="..\include\ValueGuard.h" />
     <ClInclude Include="..\include\Version.h" />
     <ClInclude Include="..\include\VersionMacro.h" />
+    <ClInclude Include="..\include\XmlReader.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
