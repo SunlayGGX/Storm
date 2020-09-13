@@ -1,11 +1,10 @@
 #pragma once
 
-#include "UniquePointer.h"
-
 
 namespace Storm
 {
 	struct ConstraintData;
+	class CordJoint;
 
 	// Link constraint... Some other constraint type exist but won't I use them (I don't need them, YAGNI), so PhysicsConstraint == Distance joint.
 	class PhysicsConstraint
@@ -20,7 +19,7 @@ namespace Storm
 
 	private:
 		const std::size_t _id;
-		Storm::UniquePointer<physx::PxJoint> _internalJointPtr;
+		std::unique_ptr<Storm::CordJoint> _cordJointPtr;
 		bool _shouldVisualize;
 	};
 }
