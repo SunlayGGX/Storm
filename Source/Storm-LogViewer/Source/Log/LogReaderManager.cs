@@ -205,6 +205,8 @@ namespace Storm_LogViewer.Source.Log
                     {
                         filestream.Position = _lastStreamPos;
 
+                        long tmpPosition;
+
                         string content = "<tmp>\n";
                         using (StreamReader reader = new StreamReader(filestream))
                         {
@@ -213,10 +215,11 @@ namespace Storm_LogViewer.Source.Log
 
                             content += reader.ReadToEnd();
 
-                            _lastStreamPos = filestream.Position;
+                            tmpPosition = filestream.Position;
                         }
 
-                        doc = XDocument.Parse(content + "</tmp>");
+                        doc = XDocument.Parse(content + "\n</tmp>");
+                        _lastStreamPos = tmpPosition;
                     }
                 }
                 catch (System.Exception)
