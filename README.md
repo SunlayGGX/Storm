@@ -77,7 +77,7 @@ Here are the command lines allowed values for the different executables. Command
 This is the simulation application. Command lines are exposed like this : --key=value or --key.
 - **help (no value, facultative)**: Displays the help. The simulation won't be run and the other command line argument won't have any effect.
 - **scene (string, facultative)**: This is the scene config file path to use. If there is none, then we will ask the user to choose one at the start of the application with the default installed file explorer.
-- **macroConfig (string, facultative)**: This is the macro config file path to use. If there is none, then we will select the one inside the default Config folder (the one inside Custom/General takes precedence over the one inside Custom/General/Original).
+- **macroConfig (string, facultative, accept built-in only macros)**: This is the macro config file path to use. If there is none, then we will select the one inside the default Config folder (the one inside Custom/General takes precedence over the one inside Custom/General/Original).
 - **generalConfig (string, facultative)**: This is the general config file path to use. If there is none, then we will select the one inside the default Config folder (the one inside Custom/General takes precedence over the one inside Custom/General/Original).
 - **tempPath (string, facultative)**: This is the temporary path to use (to a folder). If there is none, then we will select the default temporary path folder.
 - **regenPCache (no value, facultative)**: Specify this flag and we will regenerate the rigid body particle cache data.
@@ -85,8 +85,9 @@ This is the simulation application. Command lines are exposed like this : --key=
 
 ### Storm-LogViewer.exe
 This is the application to see logs in a more friendly manner. Command lines are exposed like this : key=value. The accepted command line arguments are :
-- **MacroConfigFilePath (string, facultative)**: This is the macro config file path to use. If there is none, then we will select the one inside the default Config folder (the one inside Custom/General takes precedence over the one inside Custom/General/Original).
+- **MacroConfigFilePath (string, facultative, accept built-in only macros)**: This is the macro config file path to use. If there is none, then we will select the one inside the default Config folder (the one inside Custom/General takes precedence over the one inside Custom/General/Original).
 - **LogFilePath (string, facultative, accept macro)**: This is the log file to display. If there is none, then we will select the one latest inside the default Log folder (located inside the default temporary folder). By not setting it, we also allow the LogViewer to parse the next log when the day change (we will always select the latest file at runtime, at the moment we check for the file modification)...
+- **NoInitialRead (no value, facultative)**: Prevent to read a log file when starting the log viewer. It will only display the next logs entered after the application start up...
 
 
 ## Config file
