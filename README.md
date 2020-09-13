@@ -87,6 +87,7 @@ This is the simulation application. Command lines are exposed like this : --key=
 This is the application to see logs in a more friendly manner. Command lines are exposed like this : key=value. The accepted command line arguments are :
 - **MacroConfigFilePath (string, facultative)**: This is the macro config file path to use. If there is none, then we will select the one inside the default Config folder (the one inside Custom/General takes precedence over the one inside Custom/General/Original).
 - **LogFilePath (string, facultative, accept macro)**: This is the log file to display. If there is none, then we will select the one latest inside the default Log folder (located inside the default temporary folder). By not setting it, we also allow the LogViewer to parse the next log when the day change (we will always select the latest file at runtime, at the moment we check for the file modification)...
+- **NoInitialRead (no value, facultative)**: Prevent to read a log file when starting the log viewer. It will only display the next logs entered after the application start up...
 
 
 ## Config file

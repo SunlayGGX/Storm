@@ -37,6 +37,12 @@ namespace Storm_LogViewer.Source.General.Config
             get => !string.IsNullOrEmpty(_logFilePath);
         }
 
+        private bool _noInitialRead = false;
+        public bool NoInitialRead
+        {
+            get => _noInitialRead;
+        }
+
         private bool _filterStrictEquality = true;
         public bool FilterStrictEquality
         {
@@ -156,6 +162,10 @@ namespace Storm_LogViewer.Source.General.Config
                 else if (ConfigManager.IsCommandLine(arg, "LogFilePath"))
                 {
                     _logFilePath = value;
+                }
+                else if (ConfigManager.IsCommandLine(arg, "NoInitialRead"))
+                {
+                    _noInitialRead = true;
                 }
             }
         }
