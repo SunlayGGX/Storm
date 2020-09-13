@@ -104,7 +104,8 @@ namespace Storm_LogViewer
 
         void OnDisplayedLogItemsCollectionChanged(List<LogItem> displayedLogItems, int maxLogCount)
         {
-            string logInfo = displayedLogItems.Count + "/" + maxLogCount + " logs displayed";
+            int displayedLogCount = displayedLogItems.Count;
+            string logInfo = displayedLogCount + "/" + maxLogCount + " logs displayed (" + ((float)displayedLogCount / (float)maxLogCount).ToString("P3") + ")";
 
             Dispatcher.BeginInvoke(new Action(() =>
             {
