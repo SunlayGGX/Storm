@@ -1,13 +1,12 @@
 ﻿using Storm_LogViewer.Source.Converters;
 using Storm_LogViewer.Source.General.Config;
+using Storm_LogViewer.Source.Helpers;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
-using System.Xml;
+using System.Xml.Linq;
 
 namespace Storm_LogViewer.Source.Log
 {
@@ -17,6 +16,14 @@ namespace Storm_LogViewer.Source.Log
 
         private System.DateTime _lastLogFileWriteTime = DateTime.MinValue;
         private System.DateTime _lastLogFileCreationTime = DateTime.MinValue;
+        private long _lastStreamPos = 0;
+
+        private Thread _parserWatcherThread = null;
+
+        private string _lastFilter = string.Empty;
+        private List<string> _moduleList = new List<string>(12);
+
+        bool _shouldClearLogs = false;
 
         private bool _isRunning = true;
         public bool IsRunning
@@ -35,16 +42,6 @@ namespace Storm_LogViewer.Source.Log
         {
             get => _displayedLogItems;
         }
-
-        Thread _parserWatcherThread = null;
-
-        long _lastStreamPos = 0;
-
-        string _lastFilter = string.Empty;
-
-        List<string> _moduleList = new List<string>(12);
-
-        bool _shouldClearLogs = false;
 
         #endregion
 
@@ -99,21 +96,64 @@ namespace Storm_LogViewer.Source.Log
             _parserWatcherThread.Start();
         }
 
-        private static bool HandleAttributeRead<Converter, ValueType>(XmlNode xmlNode, string attributeTag, ref ValueType value, Converter converter) where Converter : System.Delegate
+        public void Shutdown()
         {
-            var attrib = xmlNode.Attributes[attributeTag];
-            if (attrib != null)
+            _isRunning = false;
+            _parserWatcherThread.Join();
+
+            ConfigManager configMgr = ConfigManager.Instance;
+
+            configMgr._onFilterCheckboxChanged -= this.OnFiltersChanged;
+            foreach (LogLevelFilterCheckboxValue checkboxValue in configMgr.LogLevelsFilter)
             {
-                value = (ValueType)converter.DynamicInvoke(attrib.Value);
-                return true;
+                checkboxValue._onCheckedStateChanged -= this.OnFiltersChanged;
+            }
+            foreach (ModuleFilterCheckboxValue checkboxValue in configMgr.ModuleFilters)
+            {
+                checkboxValue._onCheckedStateChanged -= this.OnFiltersChanged;
+            }
+        }
+
+        private void Run()
+        {
+            while (_isRunning)
+            {
+                Thread.Sleep(500);
+
+                if (_isRunning)
+                {
+                    DoClearLogsIfNeeded();
+                    this.TryRunParsingOnce();
+                }
+            }
+        }
+
+        private void TryRunParsingOnce()
+        {
+            ConfigManager configMgr = ConfigManager.Instance;
+            string logFilePath;
+            if (configMgr.HasLogFilePath)
+            {
+                logFilePath = configMgr.LogFilePath;
+            }
+            else
+            {
+                logFilePath = RetrieveLastLogFile();
             }
 
-            return false;
+            if (_isRunning && logFilePath != null)
+            {
+                FileInfo fileInfo = new FileInfo(logFilePath);
+                if (fileInfo.LastWriteTime > _lastLogFileWriteTime)
+                {
+                    this.ParseLogFile(fileInfo);
+                }
+            }
         }
 
         private void ParseLogFile(FileInfo logFileInfo)
         {
-            XmlDocument doc = null;
+            XDocument doc = null;
 
             int watchdog = 0;
             do
@@ -156,8 +196,7 @@ namespace Storm_LogViewer.Source.Log
                             _lastStreamPos = filestream.Position;
                         }
 
-                        doc = new XmlDocument();
-                        doc.LoadXml(content + "</tmp>");
+                        doc = XDocument.Parse(content + "</tmp>");
                     }
                 }
                 catch (System.Exception)
@@ -185,33 +224,34 @@ namespace Storm_LogViewer.Source.Log
 
             List<string> newModuleAddedThisFrame = new List<string>(12);
 
-            foreach (XmlNode logItemXml in doc.ChildNodes[0].ChildNodes)
+            XmlHelper.LoadAnyElementsXMLFrom(doc.Root, elem => 
             {
-                LogItem item = new LogItem();
+                LogItem item = new LogItem { _level = LogLevelEnum.NewSession };
 
-                if (logItemXml.Name != "separator")
-                {
-                    if (
-                        logItemXml.InnerText != null &&
-                        HandleAttributeRead<Func<string, LogLevelEnum>, LogLevelEnum>(logItemXml, "logLevel", ref item._level, (string val) => LogLevelToStringConverter.FromString(val)) &&
-                        HandleAttributeRead<Func<string, string>, string>(logItemXml, "module", ref item._moduleName, (string val) => val) &&
-                        HandleAttributeRead<Func<string, string>, string>(logItemXml, "timestamp", ref item._timestamp, (string val) => val) &&
-                        HandleAttributeRead<Func<string, string>, string>(logItemXml, "codeLocation", ref item._codeLocation, (string val) => val) &&
-                        HandleAttributeRead<Func<string, string>, string>(logItemXml, "thread", ref item._threadId, (string val) => val)
-                        )
-                    {
-                        item.Message = logItemXml.InnerText;
-                        if (item.Message != null)
-                        {
-                            this.AddLogItem(item, ref newModuleAddedThisFrame);
-                        }
-                    }
-                }
-                else
+                if (elem.Name == "separator")
                 {
                     this.AddLogItem(item, ref newModuleAddedThisFrame);
                 }
-            }
+                else if(!string.IsNullOrEmpty(elem.Value))
+                {
+                    elem.LoadAttributeIfExist("logLevel", value => item._level = LogLevelToStringConverter.FromString(value))
+                        .LoadAttributeIfExist("module", value => item._moduleName = value)
+                        .LoadAttributeIfExist("timestamp", value => item._timestamp = value)
+                        .LoadAttributeIfExist("codeLocation", value => item._codeLocation = value)
+                        .LoadAttributeIfExist("thread", value => item._threadId = value)
+                        ;
+                    if (
+                        !string.IsNullOrEmpty(item._moduleName) &&
+                        !string.IsNullOrEmpty(item._timestamp) &&
+                        !string.IsNullOrEmpty(item._codeLocation) &&
+                        !string.IsNullOrEmpty(item._threadId)
+                        )
+                    {
+                        item._msg = elem.Value;
+                        this.AddLogItem(item, ref newModuleAddedThisFrame);
+                    }
+                }
+            });
 
             ConfigManager.Instance.AddNewModuleFilters(newModuleAddedThisFrame);
 
@@ -225,60 +265,14 @@ namespace Storm_LogViewer.Source.Log
             }
         }
 
-        public void NotifyLogItemsCollectionChanged()
+        public void AddLogItem(LogItem item, ref List<string> newModuleAddedThisFrame)
         {
-            _onDisplayedLogItemsCollectionChanged?.Invoke(_displayedLogItems, _logItems.Count);
-        }
+            _logItems.Add(item);
 
-        private void Run()
-        {
-            while (_isRunning)
+            if (!_moduleList.Any(moduleName => moduleName == item._moduleName))
             {
-                Thread.Sleep(500);
-
-                if (_isRunning)
-                {
-                    DoClearLogsIfNeeded();
-                    this.TryRunParsingOnce();
-                }
-            }
-        }
-
-        private void TryRunParsingOnce()
-        {
-            string logFilePath;
-            if (ConfigManager.Instance.HasLogFilePath)
-            {
-                logFilePath = ConfigManager.Instance.LogFilePath;
-            }
-            else
-            {
-                logFilePath = RetrieveLastLogFile();
-            }
-
-            if (_isRunning && logFilePath != null)
-            {
-                FileInfo fileInfo = new FileInfo(logFilePath);
-                if (fileInfo.LastWriteTime > _lastLogFileWriteTime)
-                {
-                    this.ParseLogFile(fileInfo);
-                }
-            }
-        }
-
-        public void Shutdown()
-        {
-            _isRunning = false;
-            _parserWatcherThread.Join();
-
-            ConfigManager.Instance._onFilterCheckboxChanged -= this.OnFiltersChanged;
-            foreach (LogLevelFilterCheckboxValue checkboxValue in ConfigManager.Instance.LogLevelsFilter)
-            {
-                checkboxValue._onCheckedStateChanged -= this.OnFiltersChanged;
-            }
-            foreach (ModuleFilterCheckboxValue checkboxValue in ConfigManager.Instance.ModuleFilters)
-            {
-                checkboxValue._onCheckedStateChanged -= this.OnFiltersChanged;
+                _moduleList.Add(item._moduleName);
+                newModuleAddedThisFrame.Add(item._moduleName);
             }
         }
 
@@ -335,14 +329,15 @@ namespace Storm_LogViewer.Source.Log
 
         private void ApplyFilterInternalNoCheck(string filter)
         {
-            List<LogLevelFilterCheckboxValue> logLevelFilters = ConfigManager.Instance.LogLevelsFilter.Where(logLevelFilter => logLevelFilter.Checked).ToList();
-            bool hasNotLogLevelFilter = logLevelFilters.Count == ConfigManager.Instance.LogLevelsFilter.Count;
+            ConfigManager configMgr = ConfigManager.Instance;
+            List<LogLevelFilterCheckboxValue> logLevelFilters = configMgr.LogLevelsFilter.Where(logLevelFilter => logLevelFilter.Checked).ToList();
+            bool hasNotLogLevelFilter = logLevelFilters.Count == configMgr.LogLevelsFilter.Count;
 
             // Add the NewSession since it isn't really a log to be filtered (this is a separator).
             logLevelFilters.Add(new LogLevelFilterCheckboxValue{ _level = LogLevelEnum.NewSession });
 
-            List<ModuleFilterCheckboxValue> modulesFilters = ConfigManager.Instance.ModuleFilters.Where(moduleFilter => moduleFilter.Checked).ToList();
-            bool hasNotModuleFilter = modulesFilters.Count == ConfigManager.Instance.ModuleFilters.Count;
+            List<ModuleFilterCheckboxValue> modulesFilters = configMgr.ModuleFilters.Where(moduleFilter => moduleFilter.Checked).ToList();
+            bool hasNotModuleFilter = modulesFilters.Count == configMgr.ModuleFilters.Count;
 
             _lastFilter = filter ?? string.Empty;
             if (_lastFilter == string.Empty)
@@ -374,7 +369,7 @@ namespace Storm_LogViewer.Source.Log
             }
             else
             {
-                if (ConfigManager.Instance.FilterStrictEquality)
+                if (configMgr.FilterStrictEquality)
                 {
                     if (hasNotLogLevelFilter)
                     {
@@ -480,15 +475,9 @@ namespace Storm_LogViewer.Source.Log
             moduleFilter._onCheckedStateChanged -= this.OnFiltersChanged;
         }
 
-        public void AddLogItem(LogItem item, ref List<string> newModuleAddedThisFrame)
+        public void NotifyLogItemsCollectionChanged()
         {
-            _logItems.Add(item);
-
-            if (!_moduleList.Any(moduleName => moduleName == item._moduleName))
-            {
-                _moduleList.Add(item._moduleName);
-                newModuleAddedThisFrame.Add(item._moduleName);
-            }
+            _onDisplayedLogItemsCollectionChanged?.Invoke(_displayedLogItems, _logItems.Count);
         }
 
         public void ClearLogs()

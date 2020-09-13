@@ -145,6 +145,21 @@ namespace Storm_LogViewer.Source.Helpers
             }
         }
 
+        static public void LoadAnyElementsXMLFrom(XElement root, HandleLoadXMLDelegate loader)
+        {
+            if (root != null)
+            {
+                var nodeToLoad = root.Elements();
+                foreach (var node in nodeToLoad)
+                {
+                    if (node != null)
+                    {
+                        loader(node);
+                    }
+                }
+            }
+        }
+
         static public XElement AddSubElement(this XElement root, XName subElementName, object value)
         {
             root.Add(new XElement(subElementName, value));
