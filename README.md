@@ -68,6 +68,17 @@ Some Tools were developped to ease our life. Those tools are :
 - **Storm-LogViewer**: This is a little UI tool made with C# and WPF in an afternoon (sorry for the dirty code inside) those purpose is to make the log prettier to see, to read and to sort (to find the log we want easily and efficiently from the hundreds of logs hard to see on a command line windows).
 
 
+# Launcher
+Inside "Launcher" folder present into the Storm root folder, you'll find some utility scripts (batch) to easy start applications from built executable.
+To use them, you need to have built all Storm projects once, and have all dependencies setup.
+- **Storm**: This folder contains script to start the simulator (Storm.exe).
+   - **Storm_Release.bat**: Start Release version of the simulator with default settings.  
+   - **Storm_Debug.bat**: Start Debug version of the simulator with default settings. 
+- **Storm-LogViewer**: This folder contains script to start the log viewer (Storm-LogViewer.exe).
+   - **Storm-LogViewer.bat**: Start Storm-LogViewer.exe with default setting.
+   - **Storm-LogViewer_NoInitRead.bat**: Start Storm-LogViewer.exe without initial read... The Storm-LogViewer will begin reading the last wrote log file from the moment where it was launched.
+
+
 # Configuration
 
 ## Command line
