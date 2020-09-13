@@ -3,6 +3,8 @@
 
 #include "StormStdPrerequisite.h"
 
+#include "DebuggerHelper.h"
+
 
 
 // 4624: 'XXXXXX': destructor was implicitly defined as deleted => Yes it is intended for classes that shouldn't be instantiated (abstract classes). NonInstanciable would always fire this warning so we need to disable it.

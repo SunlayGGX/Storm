@@ -79,6 +79,12 @@
     <Filter Include="Header Files\General\Algorithm">
       <UniqueIdentifier>{f0a01266-ee0f-45a4-b5a7-2c84061bf491}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\OS\Debugging">
+      <UniqueIdentifier>{fa012e68-97ef-4902-9717-5b46106cbac3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\OS\Debugging">
+      <UniqueIdentifier>{9f2eb400-a64b-445a-a9c8-07aa6fc104d8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-HelperPCH.cpp">
@@ -101,6 +107,9 @@
     </ClCompile>
     <ClCompile Include="..\include\TimeHelper.cpp">
       <Filter>Source Files\General\Chrono</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\DebuggerHelper.cpp">
+      <Filter>Source Files\OS\Debugging</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -223,6 +232,9 @@
     </ClInclude>
     <ClInclude Include="..\include\CorrectSettingChecker.h">
       <Filter>Header Files\MetaP</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\DebuggerHelper.h">
+      <Filter>Header Files\OS\Debugging</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -12,6 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\CoInitializerRAII.cpp" />
+    <ClCompile Include="..\include\DebuggerHelper.cpp" />
     <ClCompile Include="..\include\Logging.cpp" />
     <ClCompile Include="..\include\SerializePackage.cpp" />
     <ClCompile Include="..\include\SingletonHolder.cpp" />
@@ -27,6 +28,7 @@
     <ClInclude Include="..\include\CoInitializerRAII.h" />
     <ClInclude Include="..\include\CorrectSettingChecker.h" />
     <ClInclude Include="..\include\CRTPHierarchy.h" />
+    <ClInclude Include="..\include\DebuggerHelper.h" />
     <ClInclude Include="..\include\ExitCode.h" />
     <ClInclude Include="..\include\Facets.h" />
     <ClInclude Include="..\include\FacetsContainer.h" />
