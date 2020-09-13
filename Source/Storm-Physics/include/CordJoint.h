@@ -18,5 +18,7 @@ namespace Storm
 
 	private:
 		Storm::UniquePointer<physx::PxJoint> _internalDistanceJointPtr;
+		Storm::UniquePointer<physx::PxJoint> _internalRevoluteJoint0Ptr;
+		Storm::UniquePointer<physx::PxJoint> _internalRevoluteJoint1Ptr;
 	};
 }

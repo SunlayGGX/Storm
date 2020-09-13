@@ -34,6 +34,7 @@ namespace Storm
 		Storm::UniquePointer<physx::PxShape> createRigidBodyShape(const Storm::RigidBodySceneData &rbSceneData, const std::vector<Storm::Vector3> &vertices, const std::vector<uint32_t> &indexes, physx::PxMaterial* rbMaterial);
 
 		Storm::UniquePointer<physx::PxJoint> createDistanceJoint(const Storm::ConstraintData &constraintData, physx::PxRigidActor* actor1, physx::PxRigidActor* actor2);
+		std::pair<Storm::UniquePointer<physx::PxJoint>, Storm::UniquePointer<physx::PxJoint>> createSpinnableJoint(const Storm::ConstraintData &constraintData, physx::PxRigidActor* actor1, physx::PxRigidActor* actor2);
 
 	private:
 		Storm::UniquePointer<physx::PxFoundation> _foundationInstance;

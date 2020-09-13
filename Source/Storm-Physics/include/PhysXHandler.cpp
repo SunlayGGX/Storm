@@ -383,3 +383,10 @@ Storm::UniquePointer<physx::PxJoint> Storm::PhysXHandler::createDistanceJoint(co
 
 	return result;
 }
+
+std::pair<Storm::UniquePointer<physx::PxJoint>, Storm::UniquePointer<physx::PxJoint>> Storm::PhysXHandler::createSpinnableJoint(const Storm::ConstraintData &constraintData, physx::PxRigidActor* actor1, physx::PxRigidActor* actor2)
+{
+	std::pair<Storm::UniquePointer<physx::PxJoint>, Storm::UniquePointer<physx::PxJoint>> result;
+
+	return result;
+}

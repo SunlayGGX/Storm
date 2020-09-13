@@ -1,12 +1,19 @@
 #include "CordJoint.h"
 
+#include "ConstraintData.h"
+
 #include "PhysXCoordHelpers.h"
 
 
 Storm::CordJoint::CordJoint(const Storm::ConstraintData &data, physx::PxRigidActor* actor1, physx::PxRigidActor* actor2) :
 	_internalDistanceJointPtr{ Storm::JointBase::makeDistanceJoint(data, actor1, actor2) }
 {
-
+	if (data._preventRotations)
+	{
+		auto spinnableJoints = Storm::JointBase::makeSpinnableJoint(data, actor1, actor2);
+		_internalRevoluteJoint0Ptr = std::move(spinnableJoints.first);
+		_internalRevoluteJoint1Ptr = std::move(spinnableJoints.second);
+	}
 }
 
 void Storm::CordJoint::appendJointPositionToArray(std::vector<Storm::Vector3> &inOutJointPositions) const
