@@ -506,7 +506,10 @@ namespace Storm_LogViewer.Source.Log
                 if (_logItems.Count > 0)
                 {
                     _logItems.Clear();
-
+                    if (!object.ReferenceEquals(_logItems, _displayedLogItems))
+                    {
+                        _displayedLogItems.Clear();
+                    }
                     this.NotifyLogItemsCollectionChanged();
                 }
             }
