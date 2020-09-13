@@ -55,7 +55,7 @@ namespace Storm_LogViewer.Source.Log
 
         #region Singleton
 
-        static LogReaderManager s_instance = null;
+        private static LogReaderManager s_instance = null;
         public static LogReaderManager Instance
         {
             get
