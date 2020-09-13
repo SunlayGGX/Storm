@@ -25,6 +25,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\CustomPhysXLogger.h" />
+    <ClInclude Include="..\include\JointBase.h" />
     <ClInclude Include="..\include\PhysicalShape.h" />
     <ClInclude Include="..\include\PhysicsConstraint.h" />
     <ClInclude Include="..\include\PhysicsManager.h" />

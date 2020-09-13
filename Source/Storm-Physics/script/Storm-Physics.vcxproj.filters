@@ -104,5 +104,8 @@
     <ClInclude Include="..\include\PhysicalShape.h">
       <Filter>Header Files\PhysicsComponent\Shape</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\JointBase.h">
+      <Filter>Header Files\PhysicsComponent\Constraint\Joints</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
