@@ -51,24 +51,6 @@ namespace Storm_LogViewer.Source.General.Config
             }
         }
 
-        private List<LogLevelFilterCheckboxValue> _logLevelsFilter;
-        public List<LogLevelFilterCheckboxValue> LogLevelsFilter
-        {
-            get => _logLevelsFilter;
-        }
-
-        private List<ModuleFilterCheckboxValue> _moduleFilters = new List<ModuleFilterCheckboxValue>(12);
-        public List<ModuleFilterCheckboxValue> ModuleFilters
-        {
-            get
-            {
-                lock (_moduleFilters)
-                {
-                    return _moduleFilters;
-                }
-            }
-        }
-
         private bool _showEssentialOnly = false;
         public bool ShowEssentialOnly
         {
@@ -102,9 +84,6 @@ namespace Storm_LogViewer.Source.General.Config
 
         public delegate void OnFilterCheckboxChanged();
         public event OnFilterCheckboxChanged _onFilterCheckboxChanged;
-
-        public delegate void OnModuleFilterAdded(List<ModuleFilterCheckboxValue> moduleList);
-        public event OnModuleFilterAdded _onModuleFilterAdded;
 
         public delegate void OnShowEssentialCheckboxChanged(bool showEssential);
         public event OnShowEssentialCheckboxChanged _onShowEssentialCheckboxChanged;
@@ -187,17 +166,6 @@ namespace Storm_LogViewer.Source.General.Config
             {
                 _macrosConfig = new MacroConfig();
             }
-
-            _logLevelsFilter = new List<LogLevelFilterCheckboxValue>{
-                new LogLevelFilterCheckboxValue{ _level = LogLevelEnum.Debug },
-                new LogLevelFilterCheckboxValue{ _level = LogLevelEnum.DebugError },
-                new LogLevelFilterCheckboxValue{ _level = LogLevelEnum.Comment },
-                new LogLevelFilterCheckboxValue{ _level = LogLevelEnum.Warning },
-                new LogLevelFilterCheckboxValue{ _level = LogLevelEnum.Error },
-                new LogLevelFilterCheckboxValue{ _level = LogLevelEnum.Fatal },
-                new LogLevelFilterCheckboxValue{ _level = LogLevelEnum.Always },
-                new LogLevelFilterCheckboxValue{ _level = LogLevelEnum.Unknown }
-            };
         }
 
         private void ValidateSettings()
@@ -210,39 +178,6 @@ namespace Storm_LogViewer.Source.General.Config
                 {
                     throw new Exception("log file to parse should be an xml file : current is " + _logFilePath);
                 }
-            }
-        }
-
-        public void AddNewModuleFilters(List<string> modulesName)
-        {
-            if (modulesName.Count > 0)
-            {
-                List<ModuleFilterCheckboxValue> otherTmpSoThreadSafe;
-
-                lock (_moduleFilters)
-                {
-                    foreach (string moduleName in modulesName)
-                    {
-                        ModuleFilterCheckboxValue newModuleFilter = new ModuleFilterCheckboxValue { _moduleName = moduleName };
-                        LogReaderManager.Instance.ListenModuleFilterCheckedChangedEvent(newModuleFilter);
-                        try
-                        {
-                            _moduleFilters.Add(newModuleFilter);
-                        }
-                        catch (System.Exception)
-                        {
-                            LogReaderManager.Instance.UnregisterFromModuleFilterCheckedChangedEvent(newModuleFilter);
-                            throw;
-                        }
-                    }
-
-                    otherTmpSoThreadSafe = _moduleFilters;
-                }
-
-                // Send the current state of the _moduleFilters... Not directly the reference of _moduleFilters...
-                // It allows to unlock the call and only working with a snapshot of the module filter, in case this one is updated in another thread.
-                // We won't have a data race (but we would work with deprecated data)... A tocttou can still happen but I don't care...
-                _onModuleFilterAdded?.Invoke(otherTmpSoThreadSafe);
             }
         }
 

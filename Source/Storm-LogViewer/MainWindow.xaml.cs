@@ -1,4 +1,5 @@
 ﻿using Storm_LogViewer.Source.General.Config;
+using Storm_LogViewer.Source.General.Filterer;
 using Storm_LogViewer.Source.Log;
 using System;
 using System.Collections.Generic;
@@ -64,6 +65,8 @@ namespace Storm_LogViewer
         {
             InitializeComponent();
 
+            ConfigManager configMgr = ConfigManager.Instance;
+            FiltererManager filterMgr = FiltererManager.Instance;
             LogReaderManager loggerReaderMgr = LogReaderManager.Instance;
 
             LogDisplayArea.ItemsSource = loggerReaderMgr.DisplayedLogItems;
@@ -74,25 +77,29 @@ namespace Storm_LogViewer
             LogCountDisplayInfo.DataContext = this;
 
             LogLevelsFilter.DataContext = this;
-            LogLevelsFilter.ItemsSource = ConfigManager.Instance.LogLevelsFilter;
+            LogLevelsFilter.ItemsSource = filterMgr.LogLevelsFilter;
 
             ModuleLevelsFilter.DataContext = this;
-            ModuleLevelsFilter.ItemsSource = ConfigManager.Instance.ModuleFilters;
+            ModuleLevelsFilter.ItemsSource = filterMgr.ModuleFilters;
 
-            ConfigManager.Instance._onModuleFilterAdded += OnModuleFilterAdded;
-            ConfigManager.Instance._onShowEssentialCheckboxChanged += UpdateListViewEssentiality;
-            ConfigManager.Instance._onAutoScrollCheckboxChanged += AutoScrollUpdated;
+            filterMgr._onModuleFilterAdded += OnModuleFilterAdded;
+            configMgr._onShowEssentialCheckboxChanged += UpdateListViewEssentiality;
+            configMgr._onAutoScrollCheckboxChanged += AutoScrollUpdated;
             loggerReaderMgr._onDisplayedLogItemsCollectionChanged += OnDisplayedLogItemsCollectionChanged;
             loggerReaderMgr.NotifyLogItemsCollectionChanged();
         }
 
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
         {
-            ConfigManager.Instance._onModuleFilterAdded -= OnModuleFilterAdded;
-            ConfigManager.Instance._onShowEssentialCheckboxChanged -= UpdateListViewEssentiality;
-            ConfigManager.Instance._onAutoScrollCheckboxChanged -= AutoScrollUpdated;
-            LogReaderManager.Instance._onDisplayedLogItemsCollectionChanged -= OnDisplayedLogItemsCollectionChanged;
-            LogReaderManager.Instance.Shutdown();
+            ConfigManager configMgr = ConfigManager.Instance;
+            FiltererManager filterMgr = FiltererManager.Instance;
+            LogReaderManager loggerReaderMgr = LogReaderManager.Instance;
+
+            filterMgr._onModuleFilterAdded -= OnModuleFilterAdded;
+            configMgr._onShowEssentialCheckboxChanged -= UpdateListViewEssentiality;
+            configMgr._onAutoScrollCheckboxChanged -= AutoScrollUpdated;
+            loggerReaderMgr._onDisplayedLogItemsCollectionChanged -= OnDisplayedLogItemsCollectionChanged;
+            loggerReaderMgr.Shutdown();
 
             Console.WriteLine("Ending Storm Log Reader Application");
 
