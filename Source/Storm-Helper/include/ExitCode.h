@@ -6,6 +6,7 @@ namespace Storm
 	enum class ExitCode : int
 	{
 		k_success = 0,
+		k_failure = 1,
 
 		k_termination = 100,
 
