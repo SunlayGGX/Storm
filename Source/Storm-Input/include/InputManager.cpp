@@ -11,18 +11,14 @@
 
 #include "Version.h"
 
+#include "LeanWindowsInclude.h"
+
 #include <OISInputManager.h>
 #include <OISException.h>
 #include <OISKeyboard.h>
 #include <OISMouse.h>
 #include <OISJoyStick.h>
 #include <OISEvents.h>
-
-#define WIN32_LEAN_AND_MEAN
-#define NOMINMAX
-#	include <Windows.h>
-#undef NOMINMAX
-#undef WIN32_LEAN_AND_MEAN
 
 
 namespace Storm

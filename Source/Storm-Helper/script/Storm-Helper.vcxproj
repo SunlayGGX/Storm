@@ -34,6 +34,7 @@
     <ClInclude Include="..\include\FacetsContainer.h" />
     <ClInclude Include="..\include\ILoggerManager.h" />
     <ClInclude Include="..\include\InvertPeriod.h" />
+    <ClInclude Include="..\include\LeanWindowsInclude.h" />
     <ClInclude Include="..\include\Logging.h" />
     <ClInclude Include="..\include\LogLevel.h" />
     <ClInclude Include="..\include\MacroConfig.h" />

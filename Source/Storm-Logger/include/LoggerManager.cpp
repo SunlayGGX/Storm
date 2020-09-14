@@ -9,14 +9,10 @@
 #include "ThreadHelper.h"
 #include "ThreadEnumeration.h"
 
+#include "LeanWindowsInclude.h"
+
 #include <iostream>
 #include <fstream>
-
-#define WIN32_LEAN_AND_MEAN
-#define NOMINMAX
-#   include <Windows.h>
-#undef NOMINMAX
-#undef WIN32_LEAN_AND_MEAN
 
 
 namespace

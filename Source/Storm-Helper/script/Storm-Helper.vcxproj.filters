@@ -242,5 +242,8 @@
     <ClInclude Include="..\include\XmlReader.h">
       <Filter>Header Files\General\Xml</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\LeanWindowsInclude.h">
+      <Filter>Header Files\OS</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
