@@ -343,6 +343,7 @@ namespace Storm_LogViewer.Source.Log
             DateTime lastDateTime = DateTime.MinValue;
 
             this.GetLastLogFileFromFolder(Path.Combine(ConfigManager.Instance.MacrosConfig.GetMacroEndValue("StormIntermediate"), "Logs"), ref lastFile, ref lastDateTime);
+            this.GetLastLogFileFromFolder(Path.Combine(Path.GetTempPath(), "Storm", "Logs"), ref lastFile, ref lastDateTime);
 
             if (_isRunning && lastFile != null)
             {
