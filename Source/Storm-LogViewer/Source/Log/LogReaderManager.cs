@@ -296,47 +296,55 @@ namespace Storm_LogViewer.Source.Log
             }
         }
 
+        private void GetLastLogFileFromFolder(string logFileFolder, ref FileInfo lastFile, ref DateTime lastDateTime)
+        {
+            const int k_watchdogLastCount = 10;
+
+            DirectoryInfo logFolderInfo = new DirectoryInfo(logFileFolder);
+            if (logFolderInfo.Exists)
+            {
+                foreach (FileInfo file in logFolderInfo.EnumerateFiles())
+                {
+                    if (file.Extension.ToLower() == ".xml")
+                    {
+                        int watchdog = 0;
+                        do
+                        {
+                            try
+                            {
+                                if (lastFile == null || file.LastWriteTime > lastDateTime)
+                                {
+                                    lastFile = file;
+                                    lastDateTime = file.LastWriteTime;
+                                    watchdog = k_watchdogLastCount;
+                                }
+                            }
+                            catch (System.Exception)
+                            {
+                                Thread.Sleep(100);
+
+                                if (!_isRunning)
+                                {
+                                    return;
+                                }
+
+                                file.Refresh();
+                            }
+
+                        } while (++watchdog < k_watchdogLastCount);
+                    }
+                }
+            }
+        }
+
         public string RetrieveLastLogFile()
         {
             FileInfo lastFile = null;
             DateTime lastDateTime = DateTime.MinValue;
 
-            const int k_watchdogLastCount = 10;
+            this.GetLastLogFileFromFolder(Path.Combine(ConfigManager.Instance.MacrosConfig.GetMacroEndValue("StormIntermediate"), "Logs"), ref lastFile, ref lastDateTime);
 
-            string logFileFolder = Path.Combine(ConfigManager.Instance.MacrosConfig.GetMacroEndValue("StormIntermediate"), "Logs");
-            foreach (FileInfo file in new DirectoryInfo(logFileFolder).EnumerateFiles())
-            {
-                if (file.Extension.ToLower() == ".xml")
-                {
-                    int watchdog = 0;
-                    do
-                    {
-                        try
-                        {
-                            if (lastFile == null || file.LastWriteTime > lastDateTime)
-                            {
-                                lastFile = file;
-                                lastDateTime = file.LastWriteTime;
-                                watchdog = k_watchdogLastCount;
-                            }
-                        }
-                        catch (System.Exception)
-                        {
-                            Thread.Sleep(100);
-
-                            if (!_isRunning)
-                            {
-                                return null;
-                            }
-
-                            file.Refresh();
-                        }
-
-                    } while (++watchdog < k_watchdogLastCount);
-                }
-            }
-
-            if (lastFile != null)
+            if (_isRunning && lastFile != null)
             {
                 lastFile.Refresh();
                 return lastFile.Exists ? lastFile.FullName : null;
