@@ -47,6 +47,19 @@ StormPackager::Application::~Application()
 
 Storm::ExitCode StormPackager::Application::run()
 {
-	return Storm::ExitCode::k_success;
+	bool success;
+
+	const StormPackager::ConfigManager &configMgr = StormPackager::ConfigManager::instance();
+	if (configMgr.helpRequested())
+	{
+		configMgr.printHelp();
+		success = true;
+	}
+	else
+	{
+		success = PackagerManager::instance().run();
+	}
+
+	return success ? Storm::ExitCode::k_success : Storm::ExitCode::k_failure;
 }
 
