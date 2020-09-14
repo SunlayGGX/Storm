@@ -21,7 +21,7 @@ bool StormPackager::PackagerHelper::createDirectory(const std::filesystem::path 
 
 bool StormPackager::PackagerHelper::copy(const std::filesystem::path &from, const std::filesystem::path &to)
 {
-	std::filesystem::copy(from, to, std::filesystem::copy_options::recursive & std::filesystem::copy_options::overwrite_existing);
+	std::filesystem::copy(from, to, std::filesystem::copy_options::recursive | std::filesystem::copy_options::overwrite_existing);
 	if (std::filesystem::exists(to))
 	{
 		LOG_DEBUG << "'" << from << "' successfully copied to '" << to << "'.";
