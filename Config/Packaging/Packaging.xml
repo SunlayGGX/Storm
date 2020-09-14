@@ -13,4 +13,5 @@
 	<copy>Config/Custom/Scenes/Original</copy>
 	<copy>Launcher</copy>
 	<copy>Resource</copy>
+	<copy>bin/Shaders</copy>
 </Package>
