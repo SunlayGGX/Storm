@@ -14,6 +14,11 @@ namespace StormPackager
 		void initialize_Implementation(int argc, const char*const argv[]);
 
 	public:
+		bool helpRequested() const noexcept;
+		void printHelp() const;
 
+	private:
+		bool _helpRequested;
+		std::string _help;
 	};
 }
