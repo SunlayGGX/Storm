@@ -1,6 +1,8 @@
 #include "LogItem.h"
 
 #include "LogLevel.h"
+#include "LogHelper.h"
+
 #include "ThrowException.h"
 
 #include <boost\property_tree\detail\xml_parser_write.hpp>
@@ -64,7 +66,7 @@ Storm::LogItem::LogItem(const std::string_view &moduleName, const Storm::LogLeve
 
 void Storm::LogItem::prepare(bool xmlToo)
 {
-	const std::string_view levelStr = Storm::LogItem::parseLogLevel(_level);
+	const std::string_view levelStr = Storm::parseLogLevel(_level);
 	const std::string timestampStr = timeStampToString(_timestamp);
 	const std::string codeLocationStr = _function + " - " + std::to_string(_line);
 	const std::string lineStr = std::to_string(_line);
@@ -126,22 +128,4 @@ const std::string& Storm::LogItem::toXml() const
 {
 	assert(!_finalXml.empty() && "The LogItem should have been prepared before coming here!");
 	return _finalXml;
-}
-
-const std::string_view Storm::LogItem::parseLogLevel(const Storm::LogLevel logLevel)
-{
-#define STORM_SWITCH_CASE_STRINGIFY(CaseStatement) case Storm::LogLevel::CaseStatement: return #CaseStatement;
-	switch (logLevel)
-	{
-		STORM_SWITCH_CASE_STRINGIFY(Debug);
-		STORM_SWITCH_CASE_STRINGIFY(DebugError);
-		STORM_SWITCH_CASE_STRINGIFY(Comment);
-		STORM_SWITCH_CASE_STRINGIFY(Warning);
-		STORM_SWITCH_CASE_STRINGIFY(Error);
-		STORM_SWITCH_CASE_STRINGIFY(Fatal);
-		STORM_SWITCH_CASE_STRINGIFY(Always);
-	}
-#undef STORM_SWITCH_CASE_STRINGIFY
-
-	Storm::throwException<std::exception>("Unknown Level!");
 }

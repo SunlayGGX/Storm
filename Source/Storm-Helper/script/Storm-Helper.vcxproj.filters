@@ -114,6 +114,9 @@
     <ClCompile Include="..\include\DebuggerHelper.cpp">
       <Filter>Source Files\OS\Debugging</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\LogHelper.cpp">
+      <Filter>Source Files\LoggerBase</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-HelperPCH.h">
@@ -241,6 +244,9 @@
     </ClInclude>
     <ClInclude Include="..\include\XmlReader.h">
       <Filter>Header Files\General\Xml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\LogHelper.h">
+      <Filter>Header Files\LoggerBase</Filter>
     </ClInclude>
     <ClInclude Include="..\include\LeanWindowsInclude.h">
       <Filter>Header Files\OS</Filter>

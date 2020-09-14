@@ -1,6 +1,7 @@
 #include "LoggerManager.h"
 #include "LogLevel.h"
 #include "LogItem.h"
+#include "LogHelper.h"
 
 #include "SingletonHolder.h"
 #include "IConfigManager.h"
@@ -137,7 +138,7 @@ void Storm::LoggerManager::initialize_Implementation()
 	lock.unlock();
 
 	// Time to log everything we wanted inside this init method.
-	LOG_ALWAYS << "Set the log level to '" << Storm::LogItem::parseLogLevel(_level) << "'. It means we wont log message under this level.";
+	LOG_ALWAYS << "Set the log level to '" << Storm::parseLogLevel(_level) << "'. It means we wont log message under this level.";
 	
 	const std::size_t toBeRemovedCount = logsToBeRemoved.size();
 	if (toBeRemovedCount > 0)

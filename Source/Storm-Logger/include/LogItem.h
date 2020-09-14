@@ -18,9 +18,6 @@ namespace Storm
 		const std::string& toXml() const;
 
 	public:
-		static const std::string_view parseLogLevel(const Storm::LogLevel logLevel);
-
-	public:
 		const std::string_view _moduleName;
 		const Storm::LogLevel _level;
 		const std::string_view _function;
