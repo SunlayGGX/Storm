@@ -31,6 +31,12 @@
     <Filter Include="Source Files\Packager\Logic">
       <UniqueIdentifier>{f408357f-a687-475b-a0d8-5fdf0c6bbab4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Logger">
+      <UniqueIdentifier>{16d40687-7804-4cc7-aea6-87b46ad7408e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\LoggerManager">
+      <UniqueIdentifier>{1ad0e4e9-3e3a-43fa-bebb-724ee454f85c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-Packager.cpp">
@@ -57,6 +63,9 @@
     <ClCompile Include="..\include\ZipperPackager.cpp">
       <Filter>Source Files\Packager\Logic</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\LoggerManager.cpp">
+      <Filter>Source Files\LoggerManager</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-PackagerPCH.h">
@@ -82,6 +91,9 @@
     </ClInclude>
     <ClInclude Include="..\include\IPackagingLogic.h">
       <Filter>Header Files\Packager\Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\LoggerManager.h">
+      <Filter>Header Files\Logger</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

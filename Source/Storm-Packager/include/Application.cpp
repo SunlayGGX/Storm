@@ -3,12 +3,16 @@
 #include "SingletonAllocator.h"
 #include "PackagerManager.h"
 #include "ConfigManager.h"
+#include "LoggerManager.h"
+#include "SingletonHolder.h"
 
 #include "ExitCode.h"
 
 namespace
 {
 	using SingletonAllocatorAlias = Storm::SingletonAllocator<
+		Storm::SingletonHolder,
+		StormPackager::LoggerManager,
 		StormPackager::ConfigManager,
 		StormPackager::PackagerManager
 	>;
