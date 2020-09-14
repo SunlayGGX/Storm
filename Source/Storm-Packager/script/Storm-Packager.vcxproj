@@ -13,19 +13,25 @@
   <ItemGroup>
     <ClCompile Include="..\include\Application.cpp" />
     <ClCompile Include="..\include\ConfigManager.cpp" />
+    <ClCompile Include="..\include\CopierPackager.cpp" />
     <ClCompile Include="..\include\PackagerManager.cpp" />
     <ClCompile Include="..\include\Storm-Packager.cpp" />
     <ClCompile Include="..\include\Storm-PackagerPCH.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\include\ValidaterPackager.cpp" />
+    <ClCompile Include="..\include\ZipperPackager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Application.h" />
     <ClInclude Include="..\include\ConfigManager.h" />
+    <ClInclude Include="..\include\CopierPackager.h" />
     <ClInclude Include="..\include\IPackagingLogic.h" />
     <ClInclude Include="..\include\PackagerManager.h" />
     <ClInclude Include="..\include\Storm-PackagerPCH.h" />
+    <ClInclude Include="..\include\ValidaterPackager.h" />
+    <ClInclude Include="..\include\ZipperPackager.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Storm-Helper\script\Storm-Helper.vcxproj">

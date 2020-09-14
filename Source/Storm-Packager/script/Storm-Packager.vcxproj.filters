@@ -48,6 +48,15 @@
     <ClCompile Include="..\include\PackagerManager.cpp">
       <Filter>Source Files\Packager</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\CopierPackager.cpp">
+      <Filter>Source Files\Packager\Logic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\ValidaterPackager.cpp">
+      <Filter>Source Files\Packager\Logic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\ZipperPackager.cpp">
+      <Filter>Source Files\Packager\Logic</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-PackagerPCH.h">
@@ -61,6 +70,15 @@
     </ClInclude>
     <ClInclude Include="..\include\PackagerManager.h">
       <Filter>Header Files\Packager</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\CopierPackager.h">
+      <Filter>Header Files\Packager\Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ZipperPackager.h">
+      <Filter>Header Files\Packager\Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ValidaterPackager.h">
+      <Filter>Header Files\Packager\Logic</Filter>
     </ClInclude>
     <ClInclude Include="..\include\IPackagingLogic.h">
       <Filter>Header Files\Packager\Logic</Filter>
