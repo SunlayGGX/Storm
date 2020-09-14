@@ -15,6 +15,7 @@
     <ClCompile Include="..\include\ConfigManager.cpp" />
     <ClCompile Include="..\include\CopierPackager.cpp" />
     <ClCompile Include="..\include\LoggerManager.cpp" />
+    <ClCompile Include="..\include\PackagerHelper.cpp" />
     <ClCompile Include="..\include\PackagerManager.cpp" />
     <ClCompile Include="..\include\Storm-Packager.cpp" />
     <ClCompile Include="..\include\Storm-PackagerPCH.cpp">
@@ -30,6 +31,7 @@
     <ClInclude Include="..\include\CopierPackager.h" />
     <ClInclude Include="..\include\IPackagingLogic.h" />
     <ClInclude Include="..\include\LoggerManager.h" />
+    <ClInclude Include="..\include\PackagerHelper.h" />
     <ClInclude Include="..\include\PackagerManager.h" />
     <ClInclude Include="..\include\Storm-PackagerPCH.h" />
     <ClInclude Include="..\include\ValidaterPackager.h" />
