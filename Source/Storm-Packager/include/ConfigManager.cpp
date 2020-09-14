@@ -2,11 +2,14 @@
 
 #include "ThrowException.h"
 
+#include "XmlReader.h"
+
 #include <boost\program_options\variables_map.hpp>
 #include <boost\program_options\parsers.hpp>
 #include <boost\program_options\options_description.hpp>
 
-#include <iostream>
+#include <boost\property_tree\ptree_fwd.hpp>
+#include <boost\property_tree\xml_parser.hpp>
 
 
 #define STORM_XMACRO_COMMANDLINE
@@ -19,19 +22,61 @@
 
 namespace
 {
-	template<class CommandLineMap, class Type>
-	bool extractIfExist(const CommandLineMap &commandlineMap, const std::string &val, Type &outVar)
+	static boost::program_options::variables_map g_commandlineMap;
+
+	template<class Type>
+	bool extractIfExist(const std::string &val, Type &outVar)
 	{
-		if (commandlineMap.count(val))
+		if (g_commandlineMap.count(val))
 		{
-			outVar = commandlineMap[val].as<Type>();
+			outVar = g_commandlineMap[val].as<Type>();
 			return true;
 		}
 
 		return false;
 	}
 
-	static boost::program_options::variables_map g_commandlineMap;
+	void readPackagerConfigFile(const std::filesystem::path &configFilePath, std::vector<std::string> &inOutCopyVect)
+	{
+		LOG_DEBUG << "Reading the packager config file located at " << configFilePath;
+
+		const std::string configFilePathStr = Storm::toStdString(configFilePath);
+		if (!std::filesystem::is_regular_file(configFilePath))
+		{
+			Storm::throwException<std::exception>(configFilePathStr + " doesn't exist or isn't a file!");
+		}
+
+		boost::property_tree::ptree xmlTree;
+		boost::property_tree::read_xml(configFilePathStr, xmlTree, boost::property_tree::xml_parser::no_comments);
+
+		boost::property_tree::ptree child = xmlTree.get_child("Package");
+
+		inOutCopyVect.reserve(child.size() + 1);
+
+		inOutCopyVect.emplace_back();
+
+		for (const auto &logicXmlElement : child)
+		{
+			std::string &toCopy = inOutCopyVect.back();
+
+			if (!Storm::XmlReader::handleXml(logicXmlElement, "copy", toCopy))
+			{
+				LOG_ERROR << "tag '" << logicXmlElement.first << "' (inside Packaging.xml) is unknown, therefore it cannot be handled";
+			}
+
+			if (!toCopy.empty())
+			{
+				inOutCopyVect.emplace_back();
+			}
+		}
+
+		inOutCopyVect.pop_back();
+
+		if (inOutCopyVect.empty())
+		{
+			Storm::throwException<std::exception>("Something went wrong when reading " + configFilePathStr);
+		}
+	}
 }
 
 
@@ -63,14 +108,44 @@ void StormPackager::ConfigManager::initialize_Implementation(int argc, const cha
 	boost::program_options::notify(g_commandlineMap);
 
 	_help = (std::stringstream{} << desc).str();
-	extractIfExist(g_commandlineMap, "help", _helpRequested);
+	extractIfExist("help", _helpRequested);
+
+	_currentExePath = argv[0];
+	const std::filesystem::path exePath{ _currentExePath };
+	if (!exePath.is_absolute())
+	{
+		_currentExePath = (std::filesystem::current_path() / exePath.filename()).string();
+	}
+
+	const std::filesystem::path rootPath = exePath.parent_path().parent_path();
+	_stormRootPath = rootPath.string();
+
+	const std::filesystem::path destinationPackageFolderPath = rootPath / "Intermediate" / "Package";
+	_destinationPackageFolderPath = destinationPackageFolderPath.string();
+
+	_destinationPackageName = "Storm";
+
+	readPackagerConfigFile(rootPath / "Config" / "Packaging" / "Packaging.xml", _toCopyPath);
+
+	const std::filesystem::path tmpPath = std::filesystem::temp_directory_path() / "Storm_Packager";
+	_tmpPath = tmpPath.string();
+}
+
+void StormPackager::ConfigManager::cleanUp_Implementation()
+{
+	const std::filesystem::path tmpPath = _tmpPath;
+	if (std::filesystem::exists(tmpPath))
+	{
+		LOG_DEBUG << "Removing " << _tmpPath << " folder";
+		std::filesystem::remove_all(tmpPath);
+	}
 }
 
 #define STORM_XMACRO_COMMANDLINE_ELEM(tag, type, defaultValue, helpMsg, funcName)	\
 type StormPackager::ConfigManager::funcName() const									\
 {																					\
 	type result = defaultValue;														\
-	extractIfExist(g_commandlineMap, tag, result);									\
+	extractIfExist(tag, result);													\
 	return result;																	\
 }
 STORM_XMACRO_COMMANDLINE
@@ -83,6 +158,36 @@ bool StormPackager::ConfigManager::helpRequested() const noexcept
 
 void StormPackager::ConfigManager::printHelp() const
 {
-	std::cout << "Storm-Packager help requested : \n" << _help;
+	LOG_ALWAYS << "Storm-Packager help requested : \n" << _help;
+}
+
+const std::string& StormPackager::ConfigManager::getCurrentExePath() const noexcept
+{
+	return _currentExePath;
+}
+
+const std::string& StormPackager::ConfigManager::getStormRootPath() const noexcept
+{
+	return _stormRootPath;
+}
+
+const std::string& StormPackager::ConfigManager::getTmpPath() const noexcept
+{
+	return _tmpPath;
+}
+
+const std::string& StormPackager::ConfigManager::getDestinationPackageFolderPath() const noexcept
+{
+	return _destinationPackageFolderPath;
+}
+
+const std::string& StormPackager::ConfigManager::getDestinationPackageName() const noexcept
+{
+	return _destinationPackageName;
+}
+
+const std::vector<std::string>& StormPackager::ConfigManager::getToCopyPath() const noexcept
+{
+	return _toCopyPath;
 }
 

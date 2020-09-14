@@ -37,6 +37,12 @@
     <Filter Include="Source Files\LoggerManager">
       <UniqueIdentifier>{1ad0e4e9-3e3a-43fa-bebb-724ee454f85c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Helper">
+      <UniqueIdentifier>{ce753c2e-3ff0-4830-ac41-2ccefac67ca4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Helper">
+      <UniqueIdentifier>{b75be6fa-10bb-4c22-96ff-2ee3f724d675}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-Packager.cpp">
@@ -54,17 +60,20 @@
     <ClCompile Include="..\include\PackagerManager.cpp">
       <Filter>Source Files\Packager</Filter>
     </ClCompile>
-    <ClCompile Include="..\include\CopierPackager.cpp">
-      <Filter>Source Files\Packager\Logic</Filter>
-    </ClCompile>
-    <ClCompile Include="..\include\ValidaterPackager.cpp">
-      <Filter>Source Files\Packager\Logic</Filter>
-    </ClCompile>
-    <ClCompile Include="..\include\ZipperPackager.cpp">
-      <Filter>Source Files\Packager\Logic</Filter>
-    </ClCompile>
     <ClCompile Include="..\include\LoggerManager.cpp">
       <Filter>Source Files\LoggerManager</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\PackagerHelper.cpp">
+      <Filter>Source Files\Helper</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\CopierTask.cpp">
+      <Filter>Source Files\Packager\Logic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\CleanTask.cpp">
+      <Filter>Source Files\Packager\Logic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\ZipperTask.cpp">
+      <Filter>Source Files\Packager\Logic</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -80,20 +89,23 @@
     <ClInclude Include="..\include\PackagerManager.h">
       <Filter>Header Files\Packager</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\CopierPackager.h">
-      <Filter>Header Files\Packager\Logic</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\ZipperPackager.h">
-      <Filter>Header Files\Packager\Logic</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\ValidaterPackager.h">
-      <Filter>Header Files\Packager\Logic</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\IPackagingLogic.h">
-      <Filter>Header Files\Packager\Logic</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\LoggerManager.h">
       <Filter>Header Files\Logger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\PackagerHelper.h">
+      <Filter>Header Files\Helper</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\CleanTask.h">
+      <Filter>Header Files\Packager\Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ZipperTask.h">
+      <Filter>Header Files\Packager\Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\CopierTask.h">
+      <Filter>Header Files\Packager\Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ITaskLogic.h">
+      <Filter>Header Files\Packager\Logic</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

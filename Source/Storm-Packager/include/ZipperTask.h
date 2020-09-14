@@ -1,11 +1,11 @@
 #pragma once
 
-#include "IPackagingLogic.h"
+#include "ITaskLogic.h"
 
 
 namespace StormPackager
 {
-	class ZipperPackager : public StormPackager::IPackagingLogic
+	class ZipperTask : public StormPackager::ITaskLogic
 	{
 	public:
 		std::string_view getName() const final override;

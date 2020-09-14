@@ -1,18 +1,18 @@
 #include "PackagerManager.h"
 
-#include "IPackagingLogic.h"
-#include "ValidaterPackager.h"
-#include "CopierPackager.h"
-#include "ZipperPackager.h"
+#include "ITaskLogic.h"
+#include "CleanTask.h"
+#include "CopierTask.h"
+#include "ZipperTask.h"
 
 
 StormPackager::PackagerManager::PackagerManager() :
 	_prepared{ false }
 {
-	_packagerList.reserve(3);
-	_packagerList.emplace_back(std::make_unique<StormPackager::ValidaterPackager>());
-	_packagerList.emplace_back(std::make_unique<StormPackager::CopierPackager>());
-	_packagerList.emplace_back(std::make_unique<StormPackager::ZipperPackager>());
+	_taskList.reserve(3);
+	_taskList.emplace_back(std::make_unique<StormPackager::CleanTask>());
+	_taskList.emplace_back(std::make_unique<StormPackager::CopierTask>());
+	_taskList.emplace_back(std::make_unique<StormPackager::ZipperTask>());
 }
 
 StormPackager::PackagerManager::~PackagerManager() = default;
@@ -22,12 +22,15 @@ void StormPackager::PackagerManager::initialize_Implementation()
 	LOG_COMMENT << "Preparing packaging";
 
 	std::string errorMsg;
-	for (auto &packagerLogic : _packagerList)
+	for (auto &packagerLogic : _taskList)
 	{
+		const std::string_view packagerName = packagerLogic->getName();
+		LOG_COMMENT << "Executing " << packagerName << " preparation.";
+
 		errorMsg = packagerLogic->prepare();
 		if (!errorMsg.empty())
 		{
-			LOG_ERROR << "Packager " << packagerLogic->getName() << " logic failed to prepare. We will abort packaging. Error was " << errorMsg;
+			LOG_ERROR << "Packager " << packagerName << " logic failed to prepare. We will abort packaging. Error was " << errorMsg;
 			return;
 		}
 	}
@@ -44,14 +47,17 @@ void StormPackager::PackagerManager::cleanUp_Implementation()
 	using ErrorInfo = std::pair<std::string, std::string>;
 
 	std::vector<ErrorInfo> errorMsgList;
-	errorMsgList.reserve(_packagerList.size());
+	errorMsgList.reserve(_taskList.size());
 
-	for (auto &packagerLogic : _packagerList)
+	for (auto &packagerLogic : _taskList)
 	{
+		const std::string_view packagerName = packagerLogic->getName();
+		LOG_COMMENT << "Executing " << packagerName << " cleanUp.";
+
 		std::string errorMsg = packagerLogic->cleanUp();
 		if (!errorMsg.empty())
 		{
-			errorMsgList.emplace_back(packagerLogic->getName(), std::move(errorMsg));
+			errorMsgList.emplace_back(packagerName, std::move(errorMsg));
 		}
 	}
 
@@ -74,12 +80,15 @@ bool StormPackager::PackagerManager::run()
 	LOG_COMMENT << "Starting packaging run";
 
 	std::string errorMsg;
-	for (auto &packagerLogic : _packagerList)
+	for (auto &packagerLogic : _taskList)
 	{
+		const std::string_view packagerName = packagerLogic->getName();
+		LOG_COMMENT << "Running " << packagerName << ".";
+
 		errorMsg = packagerLogic->execute();
 		if (!errorMsg.empty())
 		{
-			LOG_ERROR << "Packager " << packagerLogic->getName() << " logic failed to execute. We will abort packaging. Error was " << errorMsg;
+			LOG_ERROR << "Packager " << packagerName << " logic failed to execute. We will abort packaging. Error was " << errorMsg;
 			return false;
 		}
 	}

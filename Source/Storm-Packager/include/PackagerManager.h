@@ -5,14 +5,14 @@
 
 namespace StormPackager
 {
-	class IPackagingLogic;
+	class ITaskLogic;
 
 	class PackagerManager : private Storm::Singleton<StormPackager::PackagerManager>
 	{
 		STORM_DECLARE_SINGLETON(PackagerManager);
 
 	private:
-		using PackagerContainer = std::vector<std::unique_ptr<StormPackager::IPackagingLogic>>;
+		using PackagerContainer = std::vector<std::unique_ptr<StormPackager::ITaskLogic>>;
 
 	private:
 		void initialize_Implementation();
@@ -22,7 +22,7 @@ namespace StormPackager
 		bool run();
 
 	private:
-		PackagerContainer _packagerList;
+		PackagerContainer _taskList;
 		bool _prepared;
 	};
 }

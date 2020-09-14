@@ -13,7 +13,7 @@
   <ItemGroup>
     <ClCompile Include="..\include\Application.cpp" />
     <ClCompile Include="..\include\ConfigManager.cpp" />
-    <ClCompile Include="..\include\CopierPackager.cpp" />
+    <ClCompile Include="..\include\CopierTask.cpp" />
     <ClCompile Include="..\include\LoggerManager.cpp" />
     <ClCompile Include="..\include\PackagerHelper.cpp" />
     <ClCompile Include="..\include\PackagerManager.cpp" />
@@ -22,20 +22,20 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\include\ValidaterPackager.cpp" />
-    <ClCompile Include="..\include\ZipperPackager.cpp" />
+    <ClCompile Include="..\include\CleanTask.cpp" />
+    <ClCompile Include="..\include\ZipperTask.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Application.h" />
     <ClInclude Include="..\include\ConfigManager.h" />
-    <ClInclude Include="..\include\CopierPackager.h" />
-    <ClInclude Include="..\include\IPackagingLogic.h" />
+    <ClInclude Include="..\include\CopierTask.h" />
+    <ClInclude Include="..\include\ITaskLogic.h" />
     <ClInclude Include="..\include\LoggerManager.h" />
     <ClInclude Include="..\include\PackagerHelper.h" />
     <ClInclude Include="..\include\PackagerManager.h" />
     <ClInclude Include="..\include\Storm-PackagerPCH.h" />
-    <ClInclude Include="..\include\ValidaterPackager.h" />
-    <ClInclude Include="..\include\ZipperPackager.h" />
+    <ClInclude Include="..\include\CleanTask.h" />
+    <ClInclude Include="..\include\ZipperTask.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Storm-Helper\script\Storm-Helper.vcxproj">

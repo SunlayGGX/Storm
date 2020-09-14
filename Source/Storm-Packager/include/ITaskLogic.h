@@ -3,10 +3,10 @@
 
 namespace StormPackager
 {
-	class IPackagingLogic
+	class ITaskLogic
 	{
 	public:
-		virtual ~IPackagingLogic() = default;
+		virtual ~ITaskLogic() = default;
 
 	public:
 		virtual std::string_view getName() const = 0;
