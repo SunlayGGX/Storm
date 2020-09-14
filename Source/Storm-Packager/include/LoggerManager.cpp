@@ -23,8 +23,8 @@ void StormPackager::LoggerManager::log(const std::string_view &moduleName, Storm
 	totalMsg += moduleName;
 	totalMsg += "][";
 	totalMsg += function;
-	totalMsg += "(";
-	totalMsg += line;
+	totalMsg += " (";
+	totalMsg += std::to_string(line);
 	totalMsg += ")]: ";
 	totalMsg += msg;
 	totalMsg += "\n";
