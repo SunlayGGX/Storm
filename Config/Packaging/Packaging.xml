@@ -1,0 +1,16 @@
+<Package>
+	<copy>bin/Storm.exe</copy>
+	<copy>bin/Storm-LogViewer.exe</copy>
+	<copy>bin/Storm-LogViewer.exe.config</copy>
+	<copy>bin/OIS.dll</copy>
+	<copy>bin/assimp.dll</copy>
+	<copy>bin/PhysX_64.dll</copy>
+	<copy>bin/PhysXCommon_64.dll</copy>
+	<copy>bin/PhysXCooking_64.dll</copy>
+	<copy>bin/PhysXFoundation_64.dll</copy>
+	<copy>Config/Template</copy>
+	<copy>Config/Custom/General/Original</copy>
+	<copy>Config/Custom/Scenes/Original</copy>
+	<copy>Launcher</copy>
+	<copy>Resource</copy>
+</Package>
