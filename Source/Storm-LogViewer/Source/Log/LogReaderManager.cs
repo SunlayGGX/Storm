@@ -203,7 +203,7 @@ namespace Storm_LogViewer.Source.Log
                     int initialFileSize = (int)logFileInfo.Length;
                     using (FileStream filestream = new FileStream(logFileInfo.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, initialFileSize, FileOptions.RandomAccess))
                     {
-                        filestream.Position = _lastStreamPos;
+                        filestream.Position = _lastStreamPos <= initialFileSize ? _lastStreamPos : 0;
 
                         long tmpPosition;
 
