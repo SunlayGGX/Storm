@@ -25,6 +25,12 @@
     <Filter Include="Source Files\Config">
       <UniqueIdentifier>{fef7b68a-0400-48f5-8fef-96dfa2166f86}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Packager\Logic">
+      <UniqueIdentifier>{fb6754ef-090b-4611-9291-bd4cb0224fc8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Packager\Logic">
+      <UniqueIdentifier>{f408357f-a687-475b-a0d8-5fdf0c6bbab4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-Packager.cpp">
@@ -55,6 +61,9 @@
     </ClInclude>
     <ClInclude Include="..\include\PackagerManager.h">
       <Filter>Header Files\Packager</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\IPackagingLogic.h">
+      <Filter>Header Files\Packager\Logic</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

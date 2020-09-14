@@ -23,6 +23,7 @@
   <ItemGroup>
     <ClInclude Include="..\include\Application.h" />
     <ClInclude Include="..\include\ConfigManager.h" />
+    <ClInclude Include="..\include\IPackagingLogic.h" />
     <ClInclude Include="..\include\PackagerManager.h" />
     <ClInclude Include="..\include\Storm-PackagerPCH.h" />
   </ItemGroup>
