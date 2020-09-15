@@ -15,7 +15,10 @@ namespace Storm
 		STORM_DECLARE_SINGLETON(RaycastManager);
 
 	public:
-		void queryRayCast(const Storm::Vector3 &origin, const Storm::Vector3 &direction, const std::vector<Storm::PartitionSelection> &hitFlag, HitResponseCallback callback) const final override;
-		void queryRayCast(const Storm::Vector2 &pixelScreenPos, const std::vector<Storm::PartitionSelection> &hitFlag, HitResponseCallback callback) const override;
+		void queryRayCast(const Storm::Vector3 &origin, const Storm::Vector3 &direction, std::vector<Storm::PartitionSelection> &&hitFlag, HitResponseCallback callback) const final override;
+		void queryRayCast(const Storm::Vector2 &pixelScreenPos, std::vector<Storm::PartitionSelection> &&hitFlag, HitResponseCallback callback) const override;
+
+	private:
+		void executeRaycast(const Storm::Vector3 &origin, const Storm::Vector3 &direction, const std::vector<Storm::PartitionSelection> &hitFlag, const HitResponseCallback &callback) const;
 	};
 }

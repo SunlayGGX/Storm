@@ -16,7 +16,7 @@ namespace Storm
 		virtual ~IRaycastManager() = default;
 
 	public:
-		virtual void queryRayCast(const Storm::Vector3 &origin, const Storm::Vector3 &direction, const std::vector<Storm::PartitionSelection> &hitFlag, HitResponseCallback callback) const = 0;
-		virtual void queryRayCast(const Storm::Vector2 &pixelScreenPos, const std::vector<Storm::PartitionSelection> &hitFlag, HitResponseCallback callback) const = 0;
+		virtual void queryRayCast(const Storm::Vector3 &origin, const Storm::Vector3 &direction, std::vector<Storm::PartitionSelection> &&hitFlag, HitResponseCallback callback) const = 0;
+		virtual void queryRayCast(const Storm::Vector2 &pixelScreenPos, std::vector<Storm::PartitionSelection> &&hitFlag, HitResponseCallback callback) const = 0;
 	};
 }
