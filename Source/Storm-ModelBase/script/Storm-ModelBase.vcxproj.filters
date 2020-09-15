@@ -76,6 +76,12 @@
     <Filter Include="Source Files\General">
       <UniqueIdentifier>{725c3bca-960f-4543-8058-412e00e6bf7c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Modules\Raycasting">
+      <UniqueIdentifier>{51c7f1f9-a5cd-43e3-b0b2-a0aca8939c8d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Modules\Raycasting">
+      <UniqueIdentifier>{cfd4c7e8-8cc5-4926-b342-15e56821e05e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-ModelBasePCH.cpp">
@@ -92,6 +98,9 @@
     </ClCompile>
     <ClCompile Include="..\include\ColorChecker.cpp">
       <Filter>Source Files\General</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\RaycastRequestObject.cpp">
+      <Filter>Source Files\Modules\Raycasting</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -244,6 +253,12 @@
     </ClInclude>
     <ClInclude Include="..\include\IRaycastManager.h">
       <Filter>Header Files\Singleton</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\RaycastHitResult.h">
+      <Filter>Header Files\Modules\Raycasting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\RaycastQueryRequest.h">
+      <Filter>Header Files\Modules\Raycasting</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -5,22 +5,24 @@
 
 #include "ThreadEnumeration.h"
 
+#include "RaycastQueryRequest.h"
+
 #include "ThrowException.h"
 
 
 Storm::RaycastManager::RaycastManager() = default;
 Storm::RaycastManager::~RaycastManager() = default;
 
-void Storm::RaycastManager::queryRayCast(const Storm::Vector3 &origin, const Storm::Vector3 &direction, std::vector<Storm::PartitionSelection> &&hitFlag, HitResponseCallback callback) const
+void Storm::RaycastManager::queryRaycast(const Storm::Vector3 &origin, const Storm::Vector3 &direction, Storm::RaycastQueryRequest &&queryRequest) const
 {
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
-	singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::MainThread, [this, origin, direction, flag = std::move(hitFlag), cb = std::move(callback)]()
+	singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::MainThread, [this, origin, direction, queryReq = std::move(queryRequest)]()
 	{
-		this->executeRaycast(origin, direction, flag, cb);
+		this->executeRaycast(origin, direction, queryReq);
 	});
 }
 
-void Storm::RaycastManager::queryRayCast(const Storm::Vector2 &pixelScreenPos, std::vector<Storm::PartitionSelection> &&hitFlag, HitResponseCallback callback) const
+void Storm::RaycastManager::queryRaycast(const Storm::Vector2 &pixelScreenPos, Storm::RaycastQueryRequest &&queryRequest) const
 {
 	STORM_NOT_IMPLEMENTED;
 
@@ -30,18 +32,20 @@ void Storm::RaycastManager::queryRayCast(const Storm::Vector2 &pixelScreenPos, s
 	// Therefore, we accept the downside of such a query.
 
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
-	singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::GraphicsThread, [this, flag = std::move(hitFlag), cb = std::move(callback)]() mutable
+	singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::GraphicsThread, [this, queryReq = std::move(queryRequest)]() mutable
 	{
 		Storm::Vector3 origin;
 		Storm::Vector3 direction;
 
 		// TODO : Convert the 2D pos into a 3D pos and direction using the Camera present in the graphic module.
 
-		this->queryRayCast(origin, direction, std::move(flag), std::move(cb));
+		this->queryRaycast(origin, direction, std::move(queryReq));
 	});
 }
 
-void Storm::RaycastManager::executeRaycast(const Storm::Vector3 &origin, const Storm::Vector3 &direction, const std::vector<Storm::PartitionSelection> &hitFlag, const HitResponseCallback &callback) const
+void Storm::RaycastManager::executeRaycast(const Storm::Vector3 &origin, const Storm::Vector3 &direction, const Storm::RaycastQueryRequest &queryRequest) const
 {
 	STORM_NOT_IMPLEMENTED;
+
+
 }

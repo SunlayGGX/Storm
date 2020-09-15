@@ -12,6 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\ColorChecker.cpp" />
+    <ClCompile Include="..\include\RaycastRequestObject.cpp" />
     <ClCompile Include="..\include\RigidBodyHolder.cpp" />
     <ClCompile Include="..\include\SceneData.cpp" />
     <ClCompile Include="..\include\Storm-ModelBasePCH.cpp">
@@ -52,6 +53,8 @@
     <ClInclude Include="..\include\KernelMode.h" />
     <ClInclude Include="..\include\NeighborParticleReferral.h" />
     <ClInclude Include="..\include\PartitionSelection.h" />
+    <ClInclude Include="..\include\RaycastHitResult.h" />
+    <ClInclude Include="..\include\RaycastQueryRequest.h" />
     <ClInclude Include="..\include\RigidBodyHolder.h" />
     <ClInclude Include="..\include\RigidBodySceneData.h" />
     <ClInclude Include="..\include\ISimulatorManager.h" />
