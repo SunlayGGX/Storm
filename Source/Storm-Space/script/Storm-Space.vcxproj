@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\include\RaycastManager.cpp" />
     <ClCompile Include="..\include\SpacePartitionerManager.cpp" />
     <ClCompile Include="..\include\Storm-SpacePCH.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -20,6 +21,7 @@
     <ClCompile Include="..\include\VoxelGrid.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\include\RaycastManager.h" />
     <ClInclude Include="..\include\SpacePartitionerManager.h" />
     <ClInclude Include="..\include\Storm-SpacePCH.h" />
     <ClInclude Include="..\include\Voxel.h" />

@@ -39,6 +39,9 @@
     <ClCompile Include="..\include\SpacePartitionerManager.cpp">
       <Filter>Source Files\General</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\RaycastManager.cpp">
+      <Filter>Source Files\General</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-SpacePCH.h">
@@ -51,6 +54,9 @@
       <Filter>Header Files\Voxel</Filter>
     </ClInclude>
     <ClInclude Include="..\include\SpacePartitionerManager.h">
+      <Filter>Header Files\General</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\RaycastManager.h">
       <Filter>Header Files\General</Filter>
     </ClInclude>
   </ItemGroup>

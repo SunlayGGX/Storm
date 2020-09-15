@@ -16,6 +16,7 @@
 #include "PhysicsManager.h"
 #include "ThreadManager.h"
 #include "SpacePartitionerManager.h"
+#include "RaycastManager.h"
 #include "ProfilerManager.h"
 
 #include "Version.h"
@@ -40,6 +41,7 @@ namespace
 		Storm::GraphicManager,
 		Storm::PhysicsManager,
 		Storm::SpacePartitionerManager,
+		Storm::RaycastManager,
 		Storm::SimulatorManager
 	>;
 
@@ -90,6 +92,8 @@ namespace
 
 			Storm::SpacePartitionerManager::instance().initialize(Storm::SimulatorManager::instance().getKernelLength());
 
+			Storm::RaycastManager::instance().initialize();
+
 			Storm::ProfilerManager::instance().initialize();
 		}
 
@@ -104,6 +108,7 @@ namespace
 
 			Storm::TimeManager::instance().cleanUp();
 			Storm::SimulatorManager::instance().cleanUp();
+			Storm::RaycastManager::instance().cleanUp();
 			Storm::SpacePartitionerManager::instance().cleanUp();
 			Storm::ThreadManager::instance().cleanUp();
 			Storm::InputManager::instance().cleanUp();
