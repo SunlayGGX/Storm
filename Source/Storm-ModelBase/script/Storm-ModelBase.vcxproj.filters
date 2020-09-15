@@ -242,5 +242,8 @@
     <ClInclude Include="..\include\BoundingBox.h">
       <Filter>Header Files\General</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\IRaycastManager.h">
+      <Filter>Header Files\Singleton</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
