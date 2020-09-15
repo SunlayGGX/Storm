@@ -2,6 +2,7 @@
 
 #include "SingletonHolder.h"
 #include "IThreadManager.h"
+#include "IGraphicsManager.h"
 
 #include "ThreadEnumeration.h"
 
@@ -24,20 +25,19 @@ void Storm::RaycastManager::queryRaycast(const Storm::Vector3 &origin, const Sto
 
 void Storm::RaycastManager::queryRaycast(const Storm::Vector2 &pixelScreenPos, Storm::RaycastQueryRequest &&queryRequest) const
 {
-	STORM_NOT_IMPLEMENTED;
-
 	// Since this part is queried inside the graphic thread, we can access the Camera data without locking.
 	// The downside is that the raycast query is async and will answer some frame later, like many other engine implementation.
 	// The raycast query is so rare that it isn't worth to lock objects that shouldn't be shared from thread to thread at normal time...
 	// Therefore, we accept the downside of such a query.
 
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
-	singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::GraphicsThread, [this, queryReq = std::move(queryRequest)]() mutable
+	singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::GraphicsThread, [this, pixelScreenPos, queryReq = std::move(queryRequest), &singletonHolder]() mutable
 	{
 		Storm::Vector3 origin;
 		Storm::Vector3 direction;
 
-		// TODO : Convert the 2D pos into a 3D pos and direction using the Camera present in the graphic module.
+		const Storm::IGraphicsManager &graphicMgr = singletonHolder.getSingleton<Storm::IGraphicsManager>();
+		graphicMgr.convertScreenPositionToRay(pixelScreenPos, origin, direction);
 
 		this->queryRaycast(origin, direction, std::move(queryReq));
 	});

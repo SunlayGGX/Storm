@@ -374,6 +374,11 @@ void Storm::GraphicManager::updateGraphicsField(std::vector<std::pair<std::wstri
 	}
 }
 
+void Storm::GraphicManager::convertScreenPositionToRay(const Storm::Vector2 &screenPos, Storm::Vector3 &outRayOrigin, Storm::Vector3 &outRayDirection) const
+{
+	STORM_NOT_IMPLEMENTED;
+}
+
 void Storm::GraphicManager::updateGraphicsField(const std::wstring_view &fieldName, std::wstring &&fieldValue)
 {
 	if (auto found = _fieldsMap.find(fieldName); found != std::end(_fieldsMap))

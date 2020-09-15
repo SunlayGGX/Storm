@@ -45,6 +45,9 @@ namespace Storm
 		void updateGraphicsField(const std::wstring_view &fieldName, std::wstring &&fieldValue) final override;
 
 	public:
+		void convertScreenPositionToRay(const Storm::Vector2 &screenPos, Storm::Vector3 &outRayOrigin, Storm::Vector3 &outRayDirection) const final override;
+
+	public:
 		const Storm::Camera& getCamera() const;
 		const Storm::DirectXController& getController() const;
 

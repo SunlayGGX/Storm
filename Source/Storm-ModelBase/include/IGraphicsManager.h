@@ -37,6 +37,10 @@ namespace Storm
 		virtual void updateGraphicsField(const std::wstring_view &fieldName, std::wstring &&fieldValue) = 0;
 
 	public:
+		// For picking algorithm. Transform a 2D position into a 3D ray vector. This method isn't thread safe, therefore should only be executed inside the Graphic thread.
+		virtual void convertScreenPositionToRay(const Storm::Vector2 &screenPos, Storm::Vector3 &outRayOrigin, Storm::Vector3 &outRayDirection) const = 0;
+
+	public:
 		virtual void changeBlowerState(const std::size_t blowerId, const Storm::BlowerState newState) = 0;
 	};
 }
