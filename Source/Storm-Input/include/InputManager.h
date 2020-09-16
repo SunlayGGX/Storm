@@ -26,11 +26,11 @@ namespace Storm
 	public:
 		Storm::CallbackIdType bindKey(Storm::SpecialKey key, Storm::KeyBinding &&binding) final override;
 		void unbindKey(Storm::SpecialKey key, Storm::CallbackIdType callbackId) final override;
-		Storm::CallbackIdType bindMouseRightClick(Storm::KeyBinding &&binding) final override;
+		Storm::CallbackIdType bindMouseRightClick(Storm::MouseBinding &&binding) final override;
 		void unbindMouseRightClick(Storm::CallbackIdType callbackId) final override;
-		Storm::CallbackIdType bindMouseLeftClick(Storm::KeyBinding &&binding) final override;
+		Storm::CallbackIdType bindMouseLeftClick(Storm::MouseBinding &&binding) final override;
 		void unbindMouseLeftClick(Storm::CallbackIdType callbackId);
-		Storm::CallbackIdType bindMouseMiddleClick(Storm::KeyBinding &&binding) final override;
+		Storm::CallbackIdType bindMouseMiddleClick(Storm::MouseBinding &&binding) final override;
 		void unbindMouseMiddleClick(Storm::CallbackIdType callbackId) final override;
 		Storm::CallbackIdType bindMouseWheel(Storm::WheelBinding &&binding) final override;
 		void unbindMouseWheel(Storm::CallbackIdType callbackId) final override;

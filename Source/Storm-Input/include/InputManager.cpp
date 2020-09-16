@@ -325,7 +325,7 @@ void Storm::InputManager::unbindKey(Storm::SpecialKey key, Storm::CallbackIdType
 	_inputHandler->unbindKey(traduce(key), callbackId);
 }
 
-Storm::CallbackIdType Storm::InputManager::bindMouseRightClick(Storm::KeyBinding &&binding)
+Storm::CallbackIdType Storm::InputManager::bindMouseRightClick(Storm::MouseBinding &&binding)
 {
 	return _inputHandler->bindMouseRightClick(std::move(binding));
 }
@@ -335,7 +335,7 @@ void Storm::InputManager::unbindMouseRightClick(Storm::CallbackIdType callbackId
 	_inputHandler->unbindMouseRightClick(callbackId);
 }
 
-Storm::CallbackIdType Storm::InputManager::bindMouseLeftClick(Storm::KeyBinding &&binding)
+Storm::CallbackIdType Storm::InputManager::bindMouseLeftClick(Storm::MouseBinding &&binding)
 {
 	return _inputHandler->bindMouseLeftClick(std::move(binding));
 }
@@ -345,7 +345,7 @@ void Storm::InputManager::unbindMouseLeftClick(Storm::CallbackIdType callbackId)
 	_inputHandler->unbindMouseLeftClick(callbackId);
 }
 
-Storm::CallbackIdType Storm::InputManager::bindMouseMiddleClick(Storm::KeyBinding &&binding)
+Storm::CallbackIdType Storm::InputManager::bindMouseMiddleClick(Storm::MouseBinding &&binding)
 {
 	return _inputHandler->bindMouseMiddleClick(std::move(binding));
 }

@@ -58,15 +58,15 @@ bool Storm::InputHandler::mousePressed(const OIS::MouseEvent &arg, OIS::MouseBut
 	switch (id)
 	{
 	case OIS::MB_Left:
-		Storm::prettyCallMultiCallback(_leftMouseButton._onClick);
+		Storm::prettyCallMultiCallback(_leftMouseButton._onClick, arg.state.X.abs, arg.state.Y.abs, arg.state.width, arg.state.height);
 		break;
 
 	case OIS::MB_Right:
-		Storm::prettyCallMultiCallback(_rightMouseButton._onClick);
+		Storm::prettyCallMultiCallback(_rightMouseButton._onClick, arg.state.X.abs, arg.state.Y.abs, arg.state.width, arg.state.height);
 		break;
 
 	case OIS::MB_Middle:
-		Storm::prettyCallMultiCallback(_middleMouseButton._onClick);
+		Storm::prettyCallMultiCallback(_middleMouseButton._onClick, arg.state.X.abs, arg.state.Y.abs, arg.state.width, arg.state.height);
 		break;
 
 	case OIS::MB_Button3:
@@ -99,10 +99,10 @@ void Storm::InputHandler::unbindKey(OIS::KeyCode key, Storm::CallbackIdType call
 	_keyBindings[key]._onKeyPressed.remove(callbackId);
 }
 
-Storm::CallbackIdType Storm::InputHandler::bindMouseRightClick(Storm::KeyBinding &&binding)
+Storm::CallbackIdType Storm::InputHandler::bindMouseRightClick(Storm::MouseBinding &&binding)
 {
 	std::lock_guard<std::mutex> lock{ _bindingMutex };
-	return _rightMouseButton._onClick.add(makeForwardToSimulationLoopCallback(std::move(binding)));
+	return _rightMouseButton._onClick.add(makeForwardToSimulationLoopCallback<int, int, int, int>(std::move(binding)));
 }
 
 void Storm::InputHandler::unbindMouseRightClick(Storm::CallbackIdType callbackId)
@@ -111,10 +111,10 @@ void Storm::InputHandler::unbindMouseRightClick(Storm::CallbackIdType callbackId
 	_rightMouseButton._onClick.remove(callbackId);
 }
 
-Storm::CallbackIdType Storm::InputHandler::bindMouseLeftClick(Storm::KeyBinding &&binding)
+Storm::CallbackIdType Storm::InputHandler::bindMouseLeftClick(Storm::MouseBinding &&binding)
 {
 	std::lock_guard<std::mutex> lock{ _bindingMutex };
-	return _leftMouseButton._onClick.add(makeForwardToSimulationLoopCallback(std::move(binding)));
+	return _leftMouseButton._onClick.add(makeForwardToSimulationLoopCallback<int, int, int, int>(std::move(binding)));
 }
 
 void Storm::InputHandler::unbindMouseLeftClick(Storm::CallbackIdType callbackId)
@@ -123,10 +123,10 @@ void Storm::InputHandler::unbindMouseLeftClick(Storm::CallbackIdType callbackId)
 	_leftMouseButton._onClick.remove(callbackId);
 }
 
-Storm::CallbackIdType Storm::InputHandler::bindMouseMiddleClick(Storm::KeyBinding &&binding)
+Storm::CallbackIdType Storm::InputHandler::bindMouseMiddleClick(Storm::MouseBinding &&binding)
 {
 	std::lock_guard<std::mutex> lock{ _bindingMutex };
-	return _middleMouseButton._onClick.add(makeForwardToSimulationLoopCallback(std::move(binding)));
+	return _middleMouseButton._onClick.add(makeForwardToSimulationLoopCallback<int, int, int, int>(std::move(binding)));
 }
 
 void Storm::InputHandler::unbindMouseMiddleClick(Storm::CallbackIdType callbackId)

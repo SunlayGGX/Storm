@@ -45,11 +45,11 @@ namespace Storm
 	public:
 		Storm::CallbackIdType bindKey(OIS::KeyCode key, Storm::KeyBinding &&binding);
 		void unbindKey(OIS::KeyCode key, Storm::CallbackIdType callbackId);
-		Storm::CallbackIdType bindMouseRightClick(Storm::KeyBinding &&binding);
+		Storm::CallbackIdType bindMouseRightClick(Storm::MouseBinding &&binding);
 		void unbindMouseRightClick(Storm::CallbackIdType callbackId);
-		Storm::CallbackIdType bindMouseLeftClick(Storm::KeyBinding &&binding);
+		Storm::CallbackIdType bindMouseLeftClick(Storm::MouseBinding &&binding);
 		void unbindMouseLeftClick(Storm::CallbackIdType callbackId);
-		Storm::CallbackIdType bindMouseMiddleClick(Storm::KeyBinding &&binding);
+		Storm::CallbackIdType bindMouseMiddleClick(Storm::MouseBinding &&binding);
 		void unbindMouseMiddleClick(Storm::CallbackIdType callbackId);
 		Storm::CallbackIdType bindMouseWheelMoved(Storm::WheelBinding &&binding);
 		void unbindMouseWheelMoved(Storm::CallbackIdType callbackId);
