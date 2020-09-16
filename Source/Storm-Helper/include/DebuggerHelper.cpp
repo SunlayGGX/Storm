@@ -15,3 +15,12 @@ void Storm::waitForDebuggerToAttach(bool breakAfter /*= false*/)
 		__debugbreak();
 	}
 }
+
+void Storm::setupFullAssertionBox()
+{
+	// assert is useless in release.
+
+#if defined(DEBUG) || defined(_DEBUG)
+	::_set_error_mode(_OUT_TO_MSGBOX);
+#endif
+}

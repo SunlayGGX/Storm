@@ -23,6 +23,7 @@
 #include "TimeHelper.h"
 #include "ThreadEnumeration.h"
 
+
 namespace
 {
 	using SingletonAllocatorAlias = Storm::SingletonAllocator<
@@ -130,6 +131,8 @@ namespace
 
 Storm::Application::Application(int argc, const char* argv[])
 {
+	Storm::setupFullAssertionBox();
+
 	initializeStormApplication(argc, argv);
 }
 
