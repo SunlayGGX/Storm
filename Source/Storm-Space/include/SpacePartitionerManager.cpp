@@ -115,6 +115,12 @@ void Storm::SpacePartitionerManager::getAllBundles(const std::vector<Storm::Neig
 	spacePartition->getVoxelsDataAtPosition(this->getPartitionLength(), _gridShiftOffset, outContainingBundlePtr, outNeighborBundle, particlePosition);
 }
 
+void Storm::SpacePartitionerManager::getContainingBundle(const std::vector<Storm::NeighborParticleReferral>* &outContainingBundlePtr, const Storm::Vector3 &particlePosition, Storm::PartitionSelection modality) const
+{
+	const std::unique_ptr<Storm::VoxelGrid> &spacePartition = this->getSpacePartition(modality);
+	spacePartition->getVoxelsDataAtPosition(this->getPartitionLength(), _gridShiftOffset, outContainingBundlePtr, particlePosition);
+}
+
 float Storm::SpacePartitionerManager::getPartitionLength() const
 {
 	return _partitionLength;
