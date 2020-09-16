@@ -82,6 +82,9 @@
     <Filter Include="Source Files\Modules\Raycasting">
       <UniqueIdentifier>{cfd4c7e8-8cc5-4926-b342-15e56821e05e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Modules\Threading">
+      <UniqueIdentifier>{049fbe60-4987-4f53-adb2-00a913fe2ca3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-ModelBasePCH.cpp">
@@ -101,6 +104,9 @@
     </ClCompile>
     <ClCompile Include="..\include\RaycastRequestObject.cpp">
       <Filter>Source Files\Modules\Raycasting</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\ThreadingSafety.cpp">
+      <Filter>Source Files\Modules\Threading</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -259,6 +265,9 @@
     </ClInclude>
     <ClInclude Include="..\include\RaycastQueryRequest.h">
       <Filter>Header Files\Modules\Raycasting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ThreadingSafety.h">
+      <Filter>Header Files\Modules\Threading</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

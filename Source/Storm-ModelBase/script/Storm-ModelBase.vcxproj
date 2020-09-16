@@ -19,6 +19,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\include\ThreadingSafety.cpp" />
     <ClCompile Include="..\include\UIField.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -34,6 +35,7 @@
     <ClInclude Include="..\include\FluidParticleLoadDenseMode.h" />
     <ClInclude Include="..\include\GeneralSimulationData.h" />
     <ClInclude Include="..\include\GraphicData.h" />
+    <ClInclude Include="..\include\ThreadingSafety.h" />
     <ClInclude Include="..\include\IAssetLoaderManager.h" />
     <ClInclude Include="..\include\IConfigManager.h" />
     <ClInclude Include="..\include\IGraphicsManager.h" />
