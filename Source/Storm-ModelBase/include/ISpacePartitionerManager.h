@@ -31,6 +31,9 @@ namespace Storm
 		// Note that inOutContainingBundlePtr can also contain the particle at particlePosition.
 		virtual void getAllBundles(const std::vector<Storm::NeighborParticleReferral>* &outContainingBundlePtr, const std::vector<Storm::NeighborParticleReferral>*(&outNeighborBundle)[Storm::k_neighborLinkedBunkCount], const Storm::Vector3 &particlePosition, Storm::PartitionSelection modality) const = 0;
 
+		// Get the containing bundle containing particlePosition.
+		virtual void getContainingBundle(const std::vector<Storm::NeighborParticleReferral>* &containingBundlePtr, const Storm::Vector3 &particlePosition, Storm::PartitionSelection modality) const = 0;
+
 		// Set the partition length used when partitioning the space. The length is the length of one partition.
 		// Beware since setting it will automatically reset the partitioning (recreate all partitions and clear the particle referrals).
 		virtual void setPartitionLength(float length) = 0;
