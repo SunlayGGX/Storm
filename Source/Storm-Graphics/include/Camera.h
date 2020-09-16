@@ -59,6 +59,8 @@ namespace Storm
 		void negativeRotateXAxis();
 		void negativeRotateYAxis();
 
+		void convertScreenPositionToRay(const Storm::Vector2 &screenPos, Storm::Vector3 &outRayOrigin, Storm::Vector3 &outRayDirection) const;
+
 	private:
 		void setPositionInternal(float x, float y, float z);
 		void setTargetInternal(float x, float y, float z);

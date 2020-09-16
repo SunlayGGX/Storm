@@ -9,6 +9,8 @@
 #include "UIFieldContainer.h"
 #include "UIField.h"
 
+#include "XMStormHelpers.h"
+
 #define STORM_CAMERA_POSITION_FIELD_NAME "Camera"
 #define STORM_TARGET_POSITION_FIELD_NAME "Target"
 #define STORM_ZNEAR_FIELD_NAME "zNear"
@@ -497,6 +499,22 @@ void Storm::Camera::negativeRotateYAxis()
 	const float rotateDegrees = -_cameraRotateSpeed * getRotationAngleRadCoeff();
 	const Storm::Vector3 newPosition = rotateToNewPosition<RotateAxis::Y>(_position, _target, rotateDegrees);
 	this->setPosition(newPosition.x(), newPosition.y(), newPosition.z());
+}
+
+void Storm::Camera::convertScreenPositionToRay(const Storm::Vector2 &screenPos, Storm::Vector3 &outRayOrigin, Storm::Vector3 &outRayDirection) const
+{
+	const DirectX::XMMATRIX &matView = this->getViewMatrix();
+	const DirectX::XMMATRIX &matProj = this->getProjectionMatrix();
+
+	DirectX::XMMATRIX matVPInverse = DirectX::XMMatrixInverse(nullptr, matView * matProj);
+
+	DirectX::XMVECTOR screenPosTo3DPoint{ screenPos.x(), screenPos.y(), 0.f, 1.f };
+	DirectX::XMVector4Transform(screenPosTo3DPoint, matVPInverse);
+	outRayOrigin = Storm::convertToStorm(screenPosTo3DPoint);
+
+	DirectX::XMVECTOR screenPosTo3DVector{ screenPos.x(), screenPos.y(), 1.f, 0.f };
+	DirectX::XMVector4Transform(screenPosTo3DVector, matVPInverse);
+	outRayDirection = Storm::convertToStorm(screenPosTo3DVector);
 }
 
 void Storm::Camera::setPositionInternal(float x, float y, float z)

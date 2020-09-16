@@ -46,6 +46,9 @@ namespace Storm
 
 	public:
 		void convertScreenPositionToRay(const Storm::Vector2 &screenPos, Storm::Vector3 &outRayOrigin, Storm::Vector3 &outRayDirection) const final override;
+		void getClippingPlaneValues(float &outZNear, float &outZFar) const final override;
+
+		Storm::Vector3 get3DPosOfScreenPixel(const Storm::Vector2 &screenPos) const final override;
 
 	public:
 		const Storm::Camera& getCamera() const;

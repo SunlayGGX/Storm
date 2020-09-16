@@ -23,6 +23,7 @@
 
 #include "ThreadHelper.h"
 #include "ThreadEnumeration.h"
+#include "ThreadingSafety.h"
 
 #include "SpecialKey.h"
 
@@ -375,6 +376,21 @@ void Storm::GraphicManager::updateGraphicsField(std::vector<std::pair<std::wstri
 }
 
 void Storm::GraphicManager::convertScreenPositionToRay(const Storm::Vector2 &screenPos, Storm::Vector3 &outRayOrigin, Storm::Vector3 &outRayDirection) const
+{
+	assert(Storm::isGraphicThread() && "this method should only be executed on graphic thread.");
+
+	_camera->convertScreenPositionToRay(screenPos, outRayOrigin, outRayDirection);
+}
+
+void Storm::GraphicManager::getClippingPlaneValues(float &outZNear, float &outZFar) const
+{
+	assert(Storm::isGraphicThread() && "this method should only be executed on graphic thread.");
+
+	outZNear = _camera->getNearPlane();
+	outZFar = _camera->getFarPlane();
+}
+
+Storm::Vector3 Storm::GraphicManager::get3DPosOfScreenPixel(const Storm::Vector2 &screenPos) const
 {
 	STORM_NOT_IMPLEMENTED;
 }
