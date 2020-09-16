@@ -6,6 +6,11 @@ DirectX::FXMVECTOR Storm::convertToXM(const Storm::Vector3 &trans)
 	return DirectX::FXMVECTOR{ trans.x(), trans.y(), trans.z(), 1.f };
 }
 
+Storm::Vector3 Storm::convertToStorm(const DirectX::XMVECTOR &vect)
+{
+	return Storm::Vector3{ vect.m128_f32[0], vect.m128_f32[1], vect.m128_f32[2] };
+}
+
 DirectX::XMMATRIX Storm::makeTransform(const Storm::Vector3 &trans, const Storm::Quaternion &rot)
 {
 	return DirectX::XMMatrixTranspose(DirectX::XMMatrixAffineTransformation(
