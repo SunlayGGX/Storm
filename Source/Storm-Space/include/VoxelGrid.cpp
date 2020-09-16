@@ -699,6 +699,16 @@ void Storm::VoxelGrid::getVoxelsDataAtPosition(float voxelEdgeLength, const Stor
 	*iter = nullptr;
 }
 
+void Storm::VoxelGrid::getVoxelsDataAtPosition(float voxelEdgeLength, const Storm::Vector3 &voxelShift, const std::vector<Storm::NeighborParticleReferral>* &outContainingVoxelPtr, const Storm::Vector3 &particlePosition) const
+{
+	unsigned int xIndex;
+	unsigned int yIndex;
+	unsigned int zIndex;
+
+	const std::size_t voxelIndex = static_cast<std::size_t>(this->computeRawIndexFromPosition(_gridBoundary, voxelEdgeLength, voxelShift, particlePosition, xIndex, yIndex, zIndex));
+	outContainingVoxelPtr = &_voxels[voxelIndex].getData();
+}
+
 void Storm::VoxelGrid::fill(float voxelEdgeLength, const Storm::Vector3 &voxelShift, const std::vector<Storm::Vector3> &particlePositions, const unsigned int systemId)
 {
 	unsigned int dummy1;

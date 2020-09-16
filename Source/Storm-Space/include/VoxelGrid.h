@@ -17,6 +17,7 @@ namespace Storm
 
 	public:
 		void getVoxelsDataAtPosition(float voxelEdgeLength, const Storm::Vector3 &voxelShift, const std::vector<Storm::NeighborParticleReferral>* &outContainingVoxelPtr, const std::vector<Storm::NeighborParticleReferral>*(&outNeighborData)[Storm::k_neighborLinkedBunkCount], const Storm::Vector3 &particlePosition) const;
+		void getVoxelsDataAtPosition(float voxelEdgeLength, const Storm::Vector3 &voxelShift, const std::vector<Storm::NeighborParticleReferral>* &outContainingVoxelPtr, const Storm::Vector3 &particlePosition) const;
 
 		void fill(float voxelEdgeLength, const Storm::Vector3 &voxelShift, const std::vector<Storm::Vector3> &particlePositions, const unsigned int systemId);
 
