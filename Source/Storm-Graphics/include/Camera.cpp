@@ -517,6 +517,24 @@ void Storm::Camera::convertScreenPositionToRay(const Storm::Vector2 &screenPos, 
 	outRayDirection = Storm::convertToStorm(screenPosTo3DVector);
 }
 
+Storm::Vector3 Storm::Camera::convertScreenPositionTo3DPosition(const Storm::Vector3 &screenPos3D) const
+{
+	const DirectX::XMMATRIX &matView = this->getViewMatrix();
+	const DirectX::XMMATRIX &matProj = this->getProjectionMatrix();
+
+	// The vector in 3D
+	DirectX::XMVECTOR vectClipSpace = Storm::convertToXM(screenPos3D);
+
+	// Revert the z coming from the Z-buffer (therefore a normalized value between (0.f (the near plane) and 1.f (the far plane)) into a real depth z.
+	const float z = matProj.r[3].m128_f32[2] / (screenPos3D.z() - matProj.r[2].m128_f32[2]);
+	vectClipSpace.m128_f32[2] = z;
+
+	// Unproject the screen pos into the world pos (normaly, this method is meant to revert to object space, but using the identity matrix as the world pos makes the object space into the world space).
+	const DirectX::XMVECTOR unprojected = DirectX::XMVector3Unproject(vectClipSpace, 0.f, 0.f, _screenWidth, _screenHeight, _nearPlane, _farPlane, matProj, matView, DirectX::XMMatrixIdentity());
+
+	return Storm::convertToStorm(unprojected);
+}
+
 void Storm::Camera::setPositionInternal(float x, float y, float z)
 {
 	if (_position.x != x || _position.y != y || _position.z != z)
