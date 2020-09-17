@@ -74,6 +74,9 @@ namespace Storm
 		void internalCreateDirect2DDevices(HWND hwnd);
 		void internalCreateDirectWrite();
 
+	public:
+		float getDepthBufferAtPixel(int xPos, int yPos);
+
 	private:
 		// 3D
 		ComPtr<ID3D11Device> _device;
@@ -83,6 +86,7 @@ namespace Storm
 
 		ComPtr<ID3D11DepthStencilView> _depthStencilView;
 		ComPtr<ID3D11Texture2D> _depthTexture;
+		ComPtr<ID3D11Texture2D> _depthTextureCpuSide;
 
 		ComPtr<ID3D11DepthStencilState> _zBufferEnabled;
 		ComPtr<ID3D11DepthStencilState> _zBufferDisabled;

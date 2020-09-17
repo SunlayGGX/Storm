@@ -12,6 +12,7 @@
 
 #include "MemoryHelper.h"
 #include "DirectXHardwareInfo.h"
+#include "ResourceMapperGuard.h"
 
 #include "RenderModeState.h"
 
@@ -136,6 +137,7 @@ void Storm::DirectXController::cleanUp()
 	_zBufferDisable.Reset();
 
 	_depthTexture.Reset();
+	_depthTextureCpuSide.Reset();
 	_depthStencilView.Reset();
 	
 	_renderTargetView.Reset();
@@ -546,6 +548,11 @@ void Storm::DirectXController::internalInitializeDepthBuffer()
 
 	Storm::throwIfFailed(_device->CreateTexture2D(&depthTextureDesc, nullptr, &_depthTexture));
 
+	depthTextureDesc.Usage = D3D11_USAGE::D3D11_USAGE_STAGING;
+	depthTextureDesc.BindFlags = 0;
+	depthTextureDesc.CPUAccessFlags = D3D11_CPU_ACCESS_FLAG::D3D11_CPU_ACCESS_READ;
+	Storm::throwIfFailed(_device->CreateTexture2D(&depthTextureDesc, nullptr, &_depthTextureCpuSide));
+
 	descStencilView.Format = depthTextureDesc.Format;
 	descStencilView.ViewDimension = D3D11_DSV_DIMENSION::D3D11_DSV_DIMENSION_TEXTURE2D;
 	descStencilView.Texture2D.MipSlice = 0;
@@ -716,4 +723,17 @@ void Storm::DirectXController::internalCreateDirectWrite()
 	));
 
 	this->setTextHeightCoeff(_textHeightCoeff + 1.f);
+}
+
+float Storm::DirectXController::getDepthBufferAtPixel(int xPos, int yPos)
+{
+	using DepthType = float;
+
+	_immediateContext->CopyResource(_depthTextureCpuSide.Get(), _depthTexture.Get());
+
+	D3D11_MAPPED_SUBRESOURCE mapSubressource;
+	Storm::ResourceMapperGuard mapper{ _immediateContext, _depthTextureCpuSide.Get(), 0, D3D11_MAP::D3D11_MAP_READ, 0, mapSubressource };
+
+	std::size_t offset = yPos * static_cast<int>(_viewportWidth) + xPos;
+	return *(reinterpret_cast<float*>(mapSubressource.pData) + offset);
 }
