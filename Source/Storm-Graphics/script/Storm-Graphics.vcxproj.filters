@@ -114,6 +114,9 @@
     <ClCompile Include="..\include\ConstraintShader.cpp">
       <Filter>Source Files\Shaders\Component</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\ResourceMapperGuard.cpp">
+      <Filter>Source Files\DirectX\Helper</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-GraphicsPCH.h">
@@ -187,6 +190,9 @@
     </ClInclude>
     <ClInclude Include="..\include\ConstraintShader.h">
       <Filter>Header Files\Shaders\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ResourceMapperGuard.h">
+      <Filter>Header Files\DirectX\Helper</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
