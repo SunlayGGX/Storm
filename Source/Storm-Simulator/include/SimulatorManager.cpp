@@ -292,7 +292,12 @@ namespace
 	}
 }
 
-Storm::SimulatorManager::SimulatorManager() = default;
+Storm::SimulatorManager::SimulatorManager() :
+	_selectedParticle{ std::numeric_limits<decltype(_selectedParticle.first)>::max(), 0 }
+{
+
+}
+
 Storm::SimulatorManager::~SimulatorManager() = default;
 
 void Storm::SimulatorManager::initialize_Implementation()
@@ -305,30 +310,37 @@ void Storm::SimulatorManager::initialize_Implementation()
 
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 
-	Storm::IGraphicsManager &graphicMgr = singletonHolder.getSingleton<Storm::IGraphicsManager>();
-
 	Storm::IInputManager &inputMgr = singletonHolder.getSingleton<Storm::IInputManager>();
 	inputMgr.bindKey(Storm::SpecialKey::KC_F1, [this]() { this->printFluidParticleData(); });
 	inputMgr.bindKey(Storm::SpecialKey::KC_E, [this]() { this->tweekBlowerEnabling(); });
 
 	Storm::IRaycastManager &raycastMgr = singletonHolder.getSingleton<Storm::IRaycastManager>();
-	inputMgr.bindMouseLeftClick([this, &raycastMgr, &graphicMgr](int xPos, int yPos, int width, int height)
+	inputMgr.bindMouseLeftClick([this, &raycastMgr, &singletonHolder](int xPos, int yPos, int width, int height)
 	{
-		raycastMgr.queryRaycast(Storm::Vector2{ xPos, yPos }, std::move(Storm::RaycastQueryRequest{ [&graphicMgr](std::vector<Storm::RaycastHitResult> &&result)
+		raycastMgr.queryRaycast(Storm::Vector2{ xPos, yPos }, std::move(Storm::RaycastQueryRequest{ [this, &singletonHolder](std::vector<Storm::RaycastHitResult> &&result)
 		{
+			bool hasMadeSelectionChanges;
+
+			Storm::IGraphicsManager &graphicMgr = singletonHolder.getSingleton<Storm::IGraphicsManager>();
 			if (result.empty())
 			{
-				graphicMgr.safeClearSelectedParticle();
+				hasMadeSelectionChanges = this->clearParticleSelection();
 				LOG_DEBUG << "No particle touched";
 			}
 			else
 			{
 				const Storm::RaycastHitResult &firstHit = result[0];
-				graphicMgr.safeSetSelectedParticle(firstHit._systemId, firstHit._particleId);
+
+				hasMadeSelectionChanges = this->setParticleSelection(firstHit._systemId, firstHit._particleId);
 
 				LOG_DEBUG <<
 					"Raycast touched particle " << firstHit._particleId << " inside system id " << firstHit._systemId << "\n"
 					"Hit Position : " << firstHit._hitPosition;
+			}
+
+			if (hasMadeSelectionChanges && singletonHolder.getSingleton<Storm::ITimeManager>().getStateNoSyncWait() == Storm::TimeWaitResult::Pause)
+			{
+				this->pushParticlesToGraphicModule(true, false);
 			}
 		} }
 		.addPartitionFlag(Storm::PartitionSelection::DynamicRigidBody)
@@ -804,17 +816,66 @@ float Storm::SimulatorManager::getKernelLength() const
 	return generalSimulData._particleRadius * generalSimulData._kernelCoefficient;
 }
 
-void Storm::SimulatorManager::pushParticlesToGraphicModule(bool ignoreDirty) const
+void Storm::SimulatorManager::pushParticlesToGraphicModule(bool ignoreDirty, bool pushParallel /*= true*/) const
 {
 	Storm::IGraphicsManager &graphicMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IGraphicsManager>();
-	Storm::runParallel(_particleSystem, [&graphicMgr, ignoreDirty](const auto &particleSystemPair)
+	
+	const auto pushActionLambda = [&graphicMgr, ignoreDirty](const auto &particleSystemPair)
 	{
 		const Storm::ParticleSystem &currentParticleSystem = *particleSystemPair.second;
 		if (ignoreDirty || currentParticleSystem.isDirty() || currentParticleSystem.isFluids())
 		{
 			graphicMgr.pushParticlesData(particleSystemPair.first, currentParticleSystem.getPositions(), currentParticleSystem.getVelocity(), currentParticleSystem.isFluids(), currentParticleSystem.isWall());
 		}
-	});
+	};
+
+	if (pushParallel)
+	{
+		Storm::runParallel(_particleSystem, pushActionLambda);
+	}
+	else
+	{
+		for (const auto &particleSystPtr : _particleSystem)
+		{
+			pushActionLambda(particleSystPtr);
+		}
+	}
+}
+
+bool Storm::SimulatorManager::hasSelectedParticle() const noexcept
+{
+	return _selectedParticle.first != std::numeric_limits<decltype(_selectedParticle.first)>::max();
+}
+
+bool Storm::SimulatorManager::setParticleSelection(unsigned int particleSystemId, std::size_t particleIndex)
+{
+	if (_selectedParticle.first != particleSystemId || _selectedParticle.second != particleIndex)
+	{
+		Storm::IGraphicsManager &graphicMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IGraphicsManager>();
+		graphicMgr.safeSetSelectedParticle(particleSystemId, particleIndex);
+
+		_selectedParticle.first = particleSystemId;
+		_selectedParticle.second = particleIndex;
+
+		return true;
+	}
+
+	return false;
+}
+
+bool Storm::SimulatorManager::clearParticleSelection()
+{
+	if (this->hasSelectedParticle())
+	{
+		Storm::IGraphicsManager &graphicMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IGraphicsManager>();
+		graphicMgr.safeClearSelectedParticle();
+
+		_selectedParticle.first = std::numeric_limits<decltype(_selectedParticle.first)>::max();
+
+		return true;
+	}
+
+	return false;
 }
 
 Storm::ParticleSystem& Storm::SimulatorManager::getParticleSystem(unsigned int id)
