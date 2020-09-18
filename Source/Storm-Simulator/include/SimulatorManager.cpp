@@ -336,20 +336,33 @@ void Storm::SimulatorManager::run()
 
 	this->pushParticlesToGraphicModule(true);
 	
-	// Register the positions of static rigid bodies inside the space partition. Since this is static rigid bodies, they don't move so we wouldn't need to regenerate them again afterwards. 
 	for (auto &particleSystem : _particleSystem)
 	{
 		Storm::ParticleSystem &pSystem = *particleSystem.second;
-		if (pSystem.isStatic())
+
+		Storm::PartitionSelection selection;
+		if (pSystem.isFluids())
 		{
-			spacePartitionerMgr.computeSpaceReordering(pSystem.getPositions(), Storm::PartitionSelection::StaticRigidBody, pSystem.getId());
+			selection = Storm::PartitionSelection::Fluid;
 		}
+		else if (pSystem.isStatic())
+		{
+			selection = Storm::PartitionSelection::StaticRigidBody;
+		}
+		else
+		{
+			selection = Storm::PartitionSelection::DynamicRigidBody;
+		}
+
+		spacePartitionerMgr.computeSpaceReordering(pSystem.getPositions(), selection, pSystem.getId());
 	}
 
 	this->initializePreSimulation();
 
 	// A fast iterator that loops every 256 iterations.
 	unsigned char _forcedPushFrameIterator = 0;
+
+	bool firstFrame = true;
 
 	do
 	{
@@ -381,11 +394,12 @@ void Storm::SimulatorManager::run()
 		// initialize for current iteration. I.e. Initializing with gravity and resetting current iteration velocity.
 		// Also build neighborhood.
 
-		if (_forcedPushFrameIterator % generalSimulationConfigData._recomputeNeighborhoodStep == 0)
+		if (!firstFrame && _forcedPushFrameIterator % generalSimulationConfigData._recomputeNeighborhoodStep == 0)
 		{
 			spacePartitionerMgr.clearSpaceReorderingNoStatic();
 			for (auto &particleSystem : _particleSystem)
 			{
+				// We don't need to regenerate statics rigid bodies.
 				Storm::ParticleSystem &pSystem = *particleSystem.second;
 				if (!pSystem.isStatic())
 				{
@@ -445,6 +459,7 @@ void Storm::SimulatorManager::run()
 		threadMgr.processCurrentThreadActions();
 
 		++_forcedPushFrameIterator;
+		firstFrame = false;
 
 	} while (true);
 }
