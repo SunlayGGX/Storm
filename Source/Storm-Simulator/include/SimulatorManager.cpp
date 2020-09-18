@@ -9,6 +9,7 @@
 #include "IInputManager.h"
 #include "ISpacePartitionerManager.h"
 #include "ITimeManager.h"
+#include "IRaycastManager.h"
 #include "TimeWaitResult.h"
 
 #include "ParticleSystem.h"
@@ -40,6 +41,9 @@
 #include "Blower.h"
 
 #include "ThreadingSafety.h"
+
+#include "RaycastQueryRequest.h"
+#include "RaycastHitResult.h"
 
 #include <fstream>
 
@@ -304,6 +308,27 @@ void Storm::SimulatorManager::initialize_Implementation()
 	Storm::IInputManager &inputMgr = singletonHolder.getSingleton<Storm::IInputManager>();
 	inputMgr.bindKey(Storm::SpecialKey::KC_F1, [this]() { this->printFluidParticleData(); });
 	inputMgr.bindKey(Storm::SpecialKey::KC_E, [this]() { this->tweekBlowerEnabling(); });
+
+	Storm::IRaycastManager &raycastMgr = singletonHolder.getSingleton<Storm::IRaycastManager>();
+	inputMgr.bindMouseLeftClick([this, &raycastMgr](int xPos, int yPos, int width, int height)
+	{
+		raycastMgr.queryRaycast(Storm::Vector2{ xPos, yPos }, std::move(Storm::RaycastQueryRequest{ [](std::vector<Storm::RaycastHitResult> &&result)
+		{
+			if (result.empty())
+			{
+				LOG_DEBUG << "No particle touched";
+			}
+			else
+			{
+				const Storm::RaycastHitResult &firstHit = result[0];
+				LOG_DEBUG <<
+					"Raycast touched particle " << firstHit._particleId << " inside system id " << firstHit._systemId << "\n"
+					"Hit Position : " << firstHit._hitPosition;
+			}
+		} }
+		.addPartitionFlag(Storm::PartitionSelection::DynamicRigidBody)
+		.firstHitOnly()));
+	});
 
 	/* Register this thread as the simulator thread for the speed profiler */
 	Storm::IProfilerManager &profilerMgr = singletonHolder.getSingleton<Storm::IProfilerManager>();
