@@ -20,5 +20,6 @@ namespace Storm
 
 	private:
 		void executeRaycast(const Storm::Vector3 &origin, const Storm::Vector3 &direction, const Storm::RaycastQueryRequest &queryRequest) const;
+		void searchForNearestParticle(const Storm::Vector3 &position, Storm::RaycastQueryRequest &&queryRequest) const;
 	};
 }

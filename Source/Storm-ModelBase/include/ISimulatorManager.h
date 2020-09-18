@@ -20,6 +20,9 @@ namespace Storm
 		// Warning : returns a copy to avoid data races so be careful when using it...
 		virtual std::vector<Storm::Vector3> getParticleSystemPositions(unsigned int id) const = 0;
 
+		// This one returns a reference so be careful of data races. Use it only in simulation thread
+		virtual const std::vector<Storm::Vector3>& getParticleSystemPositionsReferences(unsigned int id) const = 0;
+
 	public:
 		virtual void refreshParticlesPosition() = 0;
 

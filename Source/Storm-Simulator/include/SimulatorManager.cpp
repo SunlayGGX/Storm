@@ -39,6 +39,8 @@
 #include "BlowerEffectArea.h"
 #include "Blower.h"
 
+#include "ThreadingSafety.h"
+
 #include <fstream>
 
 
@@ -718,6 +720,12 @@ void Storm::SimulatorManager::addRigidBodyParticleSystem(unsigned int id, std::v
 
 std::vector<Storm::Vector3> Storm::SimulatorManager::getParticleSystemPositions(unsigned int id) const
 {
+	return this->getParticleSystemPositionsReferences(id);
+}
+
+const std::vector<Storm::Vector3>& Storm::SimulatorManager::getParticleSystemPositionsReferences(unsigned int id) const
+{
+	assert(Storm::isSimulationThread() && "this method should only be called from simulation thread!");
 	return this->getParticleSystem(id).getPositions();
 }
 

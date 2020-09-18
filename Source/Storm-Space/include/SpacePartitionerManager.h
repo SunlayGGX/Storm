@@ -31,7 +31,7 @@ namespace Storm
 		float getPartitionLength() const final override;
 		void setPartitionLength(float length) final override;
 
-	private:
+	public:
 		const std::unique_ptr<Storm::VoxelGrid>& getSpacePartition(Storm::PartitionSelection modality) const;
 
 	private:

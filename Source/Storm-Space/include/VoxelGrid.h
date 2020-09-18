@@ -32,6 +32,9 @@ namespace Storm
 		unsigned int computeRawIndexFromCoordIndex(unsigned int xIndex, unsigned int yIndex, unsigned int zIndex) const;
 		unsigned int computeRawIndexFromPosition(const Storm::Vector3ui &maxValue, const float voxelEdgeLength, const Storm::Vector3 &voxelShift, const Storm::Vector3 &position, unsigned int &outXIndex, unsigned int &outYIndex, unsigned int &outZIndex) const;
 
+	public:
+		std::vector<Storm::Voxel*> getVoxelsUnderRaycast(const Storm::Vector3 &origin, const Storm::Vector3 &direction, const float minDist, const float maxDist, const float voxelEdgeLength) const;
+
 	private:
 		Storm::Vector3ui _gridBoundary;
 

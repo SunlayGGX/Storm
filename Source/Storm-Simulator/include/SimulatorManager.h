@@ -43,6 +43,7 @@ namespace Storm
 		void addRigidBodyParticleSystem(unsigned int id, std::vector<Storm::Vector3> particlePositions) final override;
 
 		std::vector<Storm::Vector3> getParticleSystemPositions(unsigned int id) const final override;
+		const std::vector<Storm::Vector3>& getParticleSystemPositionsReferences(unsigned int id) const final override;
 
 	public:
 		void loadBlower(const Storm::BlowerData &blowerData) final override;
