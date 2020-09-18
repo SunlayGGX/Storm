@@ -392,7 +392,13 @@ void Storm::GraphicManager::getClippingPlaneValues(float &outZNear, float &outZF
 
 Storm::Vector3 Storm::GraphicManager::get3DPosOfScreenPixel(const Storm::Vector2 &screenPos) const
 {
-	STORM_NOT_IMPLEMENTED;
+	Storm::Vector3 vectClipSpace3DPos{
+		screenPos.x(),
+		screenPos.y(),
+		_directXController->getDepthBufferAtPixel(static_cast<int>(screenPos.x()), static_cast<int>(screenPos.y()))
+	};
+
+	return _camera->convertScreenPositionTo3DPosition(vectClipSpace3DPos);
 }
 
 void Storm::GraphicManager::updateGraphicsField(const std::wstring_view &fieldName, std::wstring &&fieldValue)
