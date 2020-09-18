@@ -51,6 +51,10 @@ namespace Storm
 		Storm::Vector3 get3DPosOfScreenPixel(const Storm::Vector2 &screenPos) const final override;
 
 	public:
+		void safeSetSelectedParticle(unsigned int particleSystemId, std::size_t particleIndex) final override;
+		void safeClearSelectedParticle() final override;
+
+	public:
 		const Storm::Camera& getCamera() const;
 		const Storm::DirectXController& getController() const;
 
@@ -72,6 +76,8 @@ namespace Storm
 		std::unique_ptr<Storm::GraphicConstraintSystem> _graphicConstraintsSystem;
 
 		std::map<std::wstring_view, std::wstring> _fieldsMap;
+
+		std::pair<unsigned int, std::size_t> _selectedParticle;
 
 		std::thread _renderThread;
 	};

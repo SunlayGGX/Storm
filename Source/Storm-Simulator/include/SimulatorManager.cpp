@@ -305,22 +305,27 @@ void Storm::SimulatorManager::initialize_Implementation()
 
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 
+	Storm::IGraphicsManager &graphicMgr = singletonHolder.getSingleton<Storm::IGraphicsManager>();
+
 	Storm::IInputManager &inputMgr = singletonHolder.getSingleton<Storm::IInputManager>();
 	inputMgr.bindKey(Storm::SpecialKey::KC_F1, [this]() { this->printFluidParticleData(); });
 	inputMgr.bindKey(Storm::SpecialKey::KC_E, [this]() { this->tweekBlowerEnabling(); });
 
 	Storm::IRaycastManager &raycastMgr = singletonHolder.getSingleton<Storm::IRaycastManager>();
-	inputMgr.bindMouseLeftClick([this, &raycastMgr](int xPos, int yPos, int width, int height)
+	inputMgr.bindMouseLeftClick([this, &raycastMgr, &graphicMgr](int xPos, int yPos, int width, int height)
 	{
-		raycastMgr.queryRaycast(Storm::Vector2{ xPos, yPos }, std::move(Storm::RaycastQueryRequest{ [](std::vector<Storm::RaycastHitResult> &&result)
+		raycastMgr.queryRaycast(Storm::Vector2{ xPos, yPos }, std::move(Storm::RaycastQueryRequest{ [&graphicMgr](std::vector<Storm::RaycastHitResult> &&result)
 		{
 			if (result.empty())
 			{
+				graphicMgr.safeClearSelectedParticle();
 				LOG_DEBUG << "No particle touched";
 			}
 			else
 			{
 				const Storm::RaycastHitResult &firstHit = result[0];
+				graphicMgr.safeSetSelectedParticle(firstHit._systemId, firstHit._particleId);
+
 				LOG_DEBUG <<
 					"Raycast touched particle " << firstHit._particleId << " inside system id " << firstHit._systemId << "\n"
 					"Hit Position : " << firstHit._hitPosition;

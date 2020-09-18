@@ -17,7 +17,7 @@ Storm::GraphicParticleSystem::GraphicParticleSystem(const ComPtr<ID3D11Device> &
 
 Storm::GraphicParticleSystem::~GraphicParticleSystem() = default;
 
-void Storm::GraphicParticleSystem::refreshParticleSystemData(const ComPtr<ID3D11Device> &device, unsigned int particleSystemId, std::vector<Storm::GraphicParticleData> &&particlePosition, bool isFluids, bool isWall)
+void Storm::GraphicParticleSystem::refreshParticleSystemData(const ComPtr<ID3D11Device> &device, unsigned int particleSystemId, std::vector<Storm::GraphicParticleData> &&particlePosition, bool isFluids, bool isWall, const std::pair<unsigned int, std::size_t> &selectedParticle)
 {
 	auto &currentPBuffer = _particleSystemVBuffer[particleSystemId];
 
@@ -38,6 +38,14 @@ void Storm::GraphicParticleSystem::refreshParticleSystemData(const ComPtr<ID3D11
 	if (newParticleCount == 0)
 	{
 		return;
+	}
+
+	if (particleSystemId == selectedParticle.first)
+	{
+		Storm::GraphicParticleData::ColorType &selectedParticleColor = particlePosition[selectedParticle.second]._color;
+		selectedParticleColor.m128_f32[0] = 255.f;
+		selectedParticleColor.m128_f32[1] = 255.f;
+		selectedParticleColor.m128_f32[2] = 255.f;
 	}
 
 	const bool shouldRegenIndexBuffer = currentPBuffer._indexBuffer == nullptr || currentPBuffer._vertexCount != newParticleCount;

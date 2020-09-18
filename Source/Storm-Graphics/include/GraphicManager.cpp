@@ -163,7 +163,8 @@ namespace
 
 Storm::GraphicManager::GraphicManager() :
 	_renderCounter{ 0 },
-	_directXController{ std::make_unique<Storm::DirectXController>() }
+	_directXController{ std::make_unique<Storm::DirectXController>() },
+	_selectedParticle{ std::numeric_limits<decltype(_selectedParticle.first)>::max(), 0 }
 {
 
 }
@@ -350,7 +351,7 @@ void Storm::GraphicManager::pushParticlesData(unsigned int particleSystemId, con
 	singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(ThreadEnumeration::GraphicsThread,
 		[this, particleSystemId, particlePosDataCopy = fastOptimizedTransCopy(particlePosData, particleVelocityData, graphicDataConfig._valueForMinColor, graphicDataConfig._valueForMaxColor, isFluids), isFluids, isWall]() mutable
 	{
-		_graphicParticlesSystem->refreshParticleSystemData(_directXController->getDirectXDevice(), particleSystemId, std::move(particlePosDataCopy), isFluids, isWall);
+		_graphicParticlesSystem->refreshParticleSystemData(_directXController->getDirectXDevice(), particleSystemId, std::move(particlePosDataCopy), isFluids, isWall, _selectedParticle);
 	});
 }
 
@@ -399,6 +400,23 @@ Storm::Vector3 Storm::GraphicManager::get3DPosOfScreenPixel(const Storm::Vector2
 	};
 
 	return _camera->convertScreenPositionTo3DPosition(vectClipSpace3DPos);
+}
+
+void Storm::GraphicManager::safeSetSelectedParticle(unsigned int particleSystemId, std::size_t particleIndex)
+{
+	Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(ThreadEnumeration::GraphicsThread, [this, particleSystemId, particleIndex]()
+	{
+		_selectedParticle.first = particleSystemId;
+		_selectedParticle.second = particleIndex;
+	});
+}
+
+void Storm::GraphicManager::safeClearSelectedParticle()
+{
+	Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(ThreadEnumeration::GraphicsThread, [this]()
+	{
+		_selectedParticle.first = std::numeric_limits<decltype(_selectedParticle.first)>::max();
+	});
 }
 
 void Storm::GraphicManager::updateGraphicsField(const std::wstring_view &fieldName, std::wstring &&fieldValue)
