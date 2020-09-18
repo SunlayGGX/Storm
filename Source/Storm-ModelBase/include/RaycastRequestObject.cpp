@@ -2,10 +2,10 @@
 #include "RaycastQueryRequest.h"
 
 
-Storm::RaycastHitResult::RaycastHitResult(std::size_t particleId, unsigned int systemId, float hitDistance) :
+Storm::RaycastHitResult::RaycastHitResult(std::size_t particleId, unsigned int systemId, const Storm::Vector3 &hitPosition) :
 	_particleId{ particleId },
 	_systemId{ systemId },
-	_hitDistance{ hitDistance }
+	_hitPosition{ hitPosition }
 {
 
 }

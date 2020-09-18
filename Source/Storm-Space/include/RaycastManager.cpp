@@ -24,7 +24,7 @@
 
 namespace
 {
-	float raySphereCollisionHit(const Storm::Vector3 &rayOrigin, const Storm::Vector3 &rayDirection, const Storm::Vector3 &particleCenter, const float particleRadiusSquared)
+	Storm::Vector3 raySphereCollisionHit(const Storm::Vector3 &rayOrigin, const Storm::Vector3 &rayDirection, const Storm::Vector3 &particleCenter, const float particleRadiusSquared)
 	{
 		STORM_NOT_IMPLEMENTED;
 	}
@@ -125,6 +125,10 @@ void Storm::RaycastManager::executeRaycast(const Storm::Vector3 &origin, const S
 		const auto &partition = spacePartitionMgr.getSpacePartition(selection);
 		
 		std::vector<Storm::Voxel*> voxelsUnderRaycast = partition->getVoxelsUnderRaycast(origin, direction, queryRequest._minDistance, queryRequest._maxDistance, voxelLength);
+
+		const float minDistSquared = queryRequest._minDistance * queryRequest._minDistance;
+		const float maxDistSquared = queryRequest._maxDistance * queryRequest._maxDistance;
+
 		for (const Storm::Voxel* voxelPtr : voxelsUnderRaycast)
 		{
 			const Storm::Voxel &voxel = *voxelPtr;
@@ -143,10 +147,11 @@ void Storm::RaycastManager::executeRaycast(const Storm::Vector3 &origin, const S
 
 				 const Storm::Vector3 &particleCenter = (*particleSystemPositions)[particleReferral._particleIndex];
 
-				 float distCollision = raySphereCollisionHit(origin, direction, particleCenter, particleRadiusSquared);
-				 if (distCollision > queryRequest._minDistance && distCollision < queryRequest._maxDistance)
+				 Storm::Vector3 hitPosition = raySphereCollisionHit(origin, direction, particleCenter, particleRadiusSquared);
+				 const float distCollisionSquared = (hitPosition - origin).squaredNorm();
+				 if (distCollisionSquared > minDistSquared && distCollisionSquared < maxDistSquared)
 				 {
-					 results.emplace_back(particleReferral._particleIndex, particleReferral._systemId, distCollision);
+					 results.emplace_back(particleReferral._particleIndex, particleReferral._systemId, hitPosition);
 				 }
 			}
 		}
@@ -208,7 +213,7 @@ void Storm::RaycastManager::searchForNearestParticle(const Storm::Vector3 &posit
 
 		if (resultReferral != nullptr)
 		{
-			result.emplace_back(resultReferral->_particleIndex, resultReferral->_systemId, std::sqrtf(minDistSquaredFound));
+			result.emplace_back(resultReferral->_particleIndex, resultReferral->_systemId, position);
 		}
 
 		queryReq._hitResponseCallback(std::move(result));
