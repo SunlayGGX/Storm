@@ -319,34 +319,37 @@ void Storm::SimulatorManager::initialize_Implementation()
 	Storm::IRaycastManager &raycastMgr = singletonHolder.getSingleton<Storm::IRaycastManager>();
 	inputMgr.bindMouseLeftClick([this, &raycastMgr, &singletonHolder](int xPos, int yPos, int width, int height)
 	{
-		raycastMgr.queryRaycast(Storm::Vector2{ xPos, yPos }, std::move(Storm::RaycastQueryRequest{ [this, &singletonHolder](std::vector<Storm::RaycastHitResult> &&result)
+		if (_raycastEnabled)
 		{
-			bool hasMadeSelectionChanges;
-
-			Storm::IGraphicsManager &graphicMgr = singletonHolder.getSingleton<Storm::IGraphicsManager>();
-			if (result.empty())
+			raycastMgr.queryRaycast(Storm::Vector2{ xPos, yPos }, std::move(Storm::RaycastQueryRequest{ [this, &singletonHolder](std::vector<Storm::RaycastHitResult> &&result)
 			{
-				hasMadeSelectionChanges = this->clearParticleSelection();
-				LOG_DEBUG << "No particle touched";
-			}
-			else
-			{
-				const Storm::RaycastHitResult &firstHit = result[0];
+				bool hasMadeSelectionChanges;
 
-				hasMadeSelectionChanges = this->setParticleSelection(firstHit._systemId, firstHit._particleId);
+				Storm::IGraphicsManager &graphicMgr = singletonHolder.getSingleton<Storm::IGraphicsManager>();
+				if (result.empty())
+				{
+					hasMadeSelectionChanges = this->clearParticleSelection();
+					LOG_DEBUG << "No particle touched";
+				}
+				else
+				{
+					const Storm::RaycastHitResult &firstHit = result[0];
 
-				LOG_DEBUG <<
-					"Raycast touched particle " << firstHit._particleId << " inside system id " << firstHit._systemId << "\n"
-					"Hit Position : " << firstHit._hitPosition;
-			}
+					hasMadeSelectionChanges = this->setParticleSelection(firstHit._systemId, firstHit._particleId);
 
-			if (hasMadeSelectionChanges && singletonHolder.getSingleton<Storm::ITimeManager>().getStateNoSyncWait() == Storm::TimeWaitResult::Pause)
-			{
-				this->pushParticlesToGraphicModule(true, false);
-			}
-		} }
-		.addPartitionFlag(Storm::PartitionSelection::DynamicRigidBody)
-		.firstHitOnly()));
+					LOG_DEBUG <<
+						"Raycast touched particle " << firstHit._particleId << " inside system id " << firstHit._systemId << "\n"
+						"Hit Position : " << firstHit._hitPosition;
+				}
+
+				if (hasMadeSelectionChanges && singletonHolder.getSingleton<Storm::ITimeManager>().getStateNoSyncWait() == Storm::TimeWaitResult::Pause)
+				{
+					this->pushParticlesToGraphicModule(true, false);
+				}
+			} }.addPartitionFlag(Storm::PartitionSelection::DynamicRigidBody)
+			   .firstHitOnly())
+			);
+		}
 	});
 
 	/* Register this thread as the simulator thread for the speed profiler */
