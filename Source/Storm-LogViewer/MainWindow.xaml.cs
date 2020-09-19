@@ -216,7 +216,14 @@ namespace Storm_LogViewer
                 int itemCount = LogDisplayArea.Items.Count;
                 if (itemCount > 0)
                 {
-                    LogDisplayArea.ScrollIntoView(LogDisplayArea.Items[itemCount - 1]);
+                    try
+                    {
+                        LogDisplayArea.ScrollIntoView(LogDisplayArea.Items[itemCount - 1]);
+                    }
+                    catch (System.Exception ex)
+                    {
+                        Console.WriteLine("Exception happened while scrolling to the end : " + ex.Message + ".\nStack Trace : " + ex.StackTrace);
+                    }
                 }
             }
         }
