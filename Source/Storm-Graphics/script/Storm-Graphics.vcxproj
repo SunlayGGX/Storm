@@ -26,6 +26,7 @@
     <ClCompile Include="..\include\GridShader.cpp" />
     <ClCompile Include="..\include\MeshShader.cpp" />
     <ClCompile Include="..\include\ParticleForceRenderer.cpp" />
+    <ClCompile Include="..\include\ParticleForceShader.cpp" />
     <ClCompile Include="..\include\ParticleShader.cpp" />
     <ClCompile Include="..\include\ResourceMapperGuard.cpp" />
     <ClCompile Include="..\include\ShaderManager.cpp" />
@@ -55,6 +56,7 @@
     <ClInclude Include="..\include\IRenderedElement.h" />
     <ClInclude Include="..\include\MeshShader.h" />
     <ClInclude Include="..\include\ParticleForceRenderer.h" />
+    <ClInclude Include="..\include\ParticleForceShader.h" />
     <ClInclude Include="..\include\ParticleShader.h" />
     <ClInclude Include="..\include\RenderModeState.h" />
     <ClInclude Include="..\include\ResourceMapperGuard.h" />

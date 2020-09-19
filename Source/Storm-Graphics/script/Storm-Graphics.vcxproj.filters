@@ -120,6 +120,9 @@
     <ClCompile Include="..\include\ParticleForceRenderer.cpp">
       <Filter>Source Files\Rendered</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\ParticleForceShader.cpp">
+      <Filter>Source Files\Shaders\Component</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-GraphicsPCH.h">
@@ -199,6 +202,9 @@
     </ClInclude>
     <ClInclude Include="..\include\ParticleForceRenderer.h">
       <Filter>Header Files\Rendered</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ParticleForceShader.h">
+      <Filter>Header Files\Shaders\Component</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
