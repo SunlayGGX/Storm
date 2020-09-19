@@ -117,6 +117,9 @@
     <ClCompile Include="..\include\ResourceMapperGuard.cpp">
       <Filter>Source Files\DirectX\Helper</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\ParticleForceRenderer.cpp">
+      <Filter>Source Files\Rendered</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-GraphicsPCH.h">
@@ -193,6 +196,9 @@
     </ClInclude>
     <ClInclude Include="..\include\ResourceMapperGuard.h">
       <Filter>Header Files\DirectX\Helper</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ParticleForceRenderer.h">
+      <Filter>Header Files\Rendered</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
