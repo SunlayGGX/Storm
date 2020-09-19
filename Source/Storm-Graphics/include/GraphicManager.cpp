@@ -290,6 +290,13 @@ void Storm::GraphicManager::cleanUp_Implementation()
 	LOG_COMMENT << "Starting to clean up the Graphic Manager.";
 	Storm::join(_renderThread);
 
+	_blowersMap.clear();
+	_graphicConstraintsSystem.reset();
+	_graphicParticlesSystem.reset();
+	_meshesMap.clear();
+	_renderedElements.clear();
+	_fieldsMap.clear();
+
 	_directXController->cleanUp();
 }
 
