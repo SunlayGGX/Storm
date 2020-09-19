@@ -63,6 +63,9 @@ namespace Storm
 	public:
 		void changeBlowerState(const std::size_t blowerId, const Storm::BlowerState newState) final override;
 
+	public:
+		bool hasSelectedParticle() const;
+
 	private:
 		unsigned char _renderCounter;
 

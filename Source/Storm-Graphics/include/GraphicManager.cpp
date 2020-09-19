@@ -290,6 +290,8 @@ void Storm::GraphicManager::cleanUp_Implementation()
 	LOG_COMMENT << "Starting to clean up the Graphic Manager.";
 	Storm::join(_renderThread);
 
+	_selectedParticle.first = std::numeric_limits<decltype(_selectedParticle.first)>::max();
+
 	_blowersMap.clear();
 	_graphicConstraintsSystem.reset();
 	_graphicParticlesSystem.reset();
@@ -455,4 +457,9 @@ void Storm::GraphicManager::changeBlowerState(const std::size_t blowerId, const 
 	{
 		_blowersMap[blowerId]->setBlowerState(newState);
 	});
+}
+
+bool Storm::GraphicManager::hasSelectedParticle() const
+{
+	return _selectedParticle.first != std::numeric_limits<decltype(_selectedParticle.first)>::max();
 }
