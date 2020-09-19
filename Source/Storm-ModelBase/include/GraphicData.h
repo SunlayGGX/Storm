@@ -26,5 +26,9 @@ namespace Storm
 		// Constraints
 		float _constraintThickness;
 		Storm::Vector4 _constraintColor;
+
+		// Force
+		float _forceThickness;
+		Storm::Vector4 _forceColor;
 	};
 }

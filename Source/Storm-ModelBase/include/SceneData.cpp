@@ -64,7 +64,9 @@ Storm::GraphicData::GraphicData() :
 	_valueForMaxColor{ 100.f },
 	_blowerAlpha{ 0.25f },
 	//_constraintThickness{}, => Defined from Storm::GeneralSimulationData::_particleRadius
-	_constraintColor{ 1.f, 0.1f, 0.1f, 0.8f }
+	_constraintColor{ 1.f, 0.1f, 0.1f, 0.8f },
+	// _forceThickness{}, => Defined from Storm::GeneralSimulationData::_particleRadius
+	_forceColor{ 0.f, 1.f, 1.f, 0.8f }
 {
 
 }

@@ -213,6 +213,7 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 	/* Graphic */
 	Storm::GraphicData &graphicData = *_sceneData->_graphicData;
 	graphicData._constraintThickness = generalData._particleRadius / 3.f;
+	graphicData._forceThickness = generalData._particleRadius / 4.f;
 
 	const auto &graphicTree = srcTree.get_child("Graphic");
 	for (const auto &graphicXmlElement : graphicTree)
@@ -227,6 +228,8 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 			!Storm::XmlReader::handleXml(graphicXmlElement, "maxColorValue", graphicData._valueForMaxColor) &&
 			!Storm::XmlReader::handleXml(graphicXmlElement, "constraintThickness", graphicData._constraintThickness) &&
 			!Storm::XmlReader::handleXml(graphicXmlElement, "constraintColor", graphicData._constraintColor, parseColor4Element) &&
+			!Storm::XmlReader::handleXml(graphicXmlElement, "forceThickness", graphicData._forceThickness) &&
+			!Storm::XmlReader::handleXml(graphicXmlElement, "forceColor", graphicData._forceColor, parseColor4Element) &&
 			!Storm::XmlReader::handleXml(graphicXmlElement, "blowerAlpha", graphicData._blowerAlpha) &&
 			!Storm::XmlReader::handleXml(graphicXmlElement, "grid", graphicData._grid, parseVector3Element)
 			)
@@ -250,6 +253,14 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 	else if (graphicData._constraintThickness <= 0.f)
 	{
 		Storm::throwException<std::exception>("Constraint thickness is invalid (" + Storm::toStdString(graphicData._constraintThickness) + ")! It must be a positive non zero value.");
+	}
+	else if (Storm::ColorCheckerHelper::isInvalid(graphicData._forceColor))
+	{
+		Storm::throwException<std::exception>("Selected particle force color is invalid (" + Storm::toStdString(graphicData._forceColor) + ")! Each channel must be between 0.0 and 1.0 included!");
+	}
+	else if (graphicData._forceThickness <= 0.f)
+	{
+		Storm::throwException<std::exception>("Selected particle force thickness is invalid (" + Storm::toStdString(graphicData._forceThickness) + ")! It must be a positive non zero value.");
 	}
 
 	/* Fluids */

@@ -226,6 +226,8 @@ Unlike the others config files, it can be named as you want. Here the wml tags y
 - **particleDisplay (boolean, facultative)**: Specify if Solids should be displayed as particle on start. If not, they will be displayed as meshes. "false" by default.
 - **constraintThickness (float, facultative)**: Specify the thickness of the line when visualizing the constraint. It should be a positive non-zero value. Default is "General.particleRadius / 3.0".
 - **constraintColor (RGBAcolor, facultative)**: Specify the color of the line when visualizing the constraint. Default is { r=1.0, g=0.1, b=0.1, a=0.8 }.
+- **forceThickness (float, facultative)**: Specify the thickness of the line when visualizing the selected particle force. It should be a positive non-zero value. Default is "General.particleRadius / 4.0".
+- **forceColor (RGBAcolor, facultative)**: Specify the color of the line when visualizing the selected particle force. Default is { r=0.0, g=1.0, b=1.0, a=0.8 }.
 
 
 #### Fluid
