@@ -17,7 +17,7 @@ Storm::GraphicParticleSystem::GraphicParticleSystem(const ComPtr<ID3D11Device> &
 
 Storm::GraphicParticleSystem::~GraphicParticleSystem() = default;
 
-void Storm::GraphicParticleSystem::refreshParticleSystemData(const ComPtr<ID3D11Device> &device, unsigned int particleSystemId, std::vector<Storm::GraphicParticleData> &&particlePosition, bool isFluids, bool isWall, const std::pair<unsigned int, std::size_t> &selectedParticle)
+void Storm::GraphicParticleSystem::refreshParticleSystemData(const ComPtr<ID3D11Device> &device, unsigned int particleSystemId, std::vector<Storm::GraphicParticleData> &&particlePosition, bool isFluids, bool isWall)
 {
 	auto &currentPBuffer = _particleSystemVBuffer[particleSystemId];
 
@@ -35,18 +35,7 @@ void Storm::GraphicParticleSystem::refreshParticleSystemData(const ComPtr<ID3D11
 	}
 
 	const std::size_t newParticleCount = particlePosition.size();
-	if (newParticleCount == 0)
-	{
-		return;
-	}
-
-	if (particleSystemId == selectedParticle.first)
-	{
-		Storm::GraphicParticleData::ColorType &selectedParticleColor = particlePosition[selectedParticle.second]._color;
-		selectedParticleColor.m128_f32[0] = 255.f;
-		selectedParticleColor.m128_f32[1] = 255.f;
-		selectedParticleColor.m128_f32[2] = 255.f;
-	}
+	assert(newParticleCount != 0 && "particle count should be strictly greater than 0 when entering this method");
 
 	const bool shouldRegenIndexBuffer = currentPBuffer._indexBuffer == nullptr || currentPBuffer._vertexCount != newParticleCount;
 	currentPBuffer._vertexCount = newParticleCount;

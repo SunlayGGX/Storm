@@ -9,6 +9,7 @@
 #include "GraphicParticleData.h"
 #include "GraphicConstraintSystem.h"
 #include "GraphicBlower.h"
+#include "ParticleForceRenderer.h"
 
 #include "BlowerData.h"
 #include "GraphicData.h"
@@ -223,6 +224,8 @@ void Storm::GraphicManager::initialize_Implementation(void* hwnd)
 
 	_graphicConstraintsSystem = std::make_unique<Storm::GraphicConstraintSystem>(device);
 
+	_forceRenderer = std::make_unique<Storm::ParticleForceRenderer>(device);
+
 	for (auto &meshesPair : _meshesMap)
 	{
 		meshesPair.second->initializeRendering(device);
@@ -293,6 +296,7 @@ void Storm::GraphicManager::cleanUp_Implementation()
 	_selectedParticle.first = std::numeric_limits<decltype(_selectedParticle.first)>::max();
 
 	_blowersMap.clear();
+	_forceRenderer.reset();
 	_graphicConstraintsSystem.reset();
 	_graphicParticlesSystem.reset();
 	_meshesMap.clear();
@@ -360,7 +364,10 @@ void Storm::GraphicManager::pushParticlesData(unsigned int particleSystemId, con
 	singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(ThreadEnumeration::GraphicsThread,
 		[this, particleSystemId, particlePosDataCopy = fastOptimizedTransCopy(particlePosData, particleVelocityData, graphicDataConfig._valueForMinColor, graphicDataConfig._valueForMaxColor, isFluids), isFluids, isWall]() mutable
 	{
-		_graphicParticlesSystem->refreshParticleSystemData(_directXController->getDirectXDevice(), particleSystemId, std::move(particlePosDataCopy), isFluids, isWall, _selectedParticle);
+		if (_forceRenderer->prepareData(particleSystemId, particlePosDataCopy, _selectedParticle))
+		{
+			_graphicParticlesSystem->refreshParticleSystemData(_directXController->getDirectXDevice(), particleSystemId, std::move(particlePosDataCopy), isFluids, isWall);
+		}
 	});
 }
 
