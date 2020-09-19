@@ -819,6 +819,15 @@ float Storm::SimulatorManager::getKernelLength() const
 void Storm::SimulatorManager::pushParticlesToGraphicModule(bool ignoreDirty, bool pushParallel /*= true*/) const
 {
 	Storm::IGraphicsManager &graphicMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IGraphicsManager>();
+
+	if (this->hasSelectedParticle())
+	{
+		if (auto found = _particleSystem.find(_selectedParticle.first); found != std::end(_particleSystem))
+		{
+			const Storm::ParticleSystem &selectedParticleSystem = *found->second;
+			graphicMgr.pushParticleSelectionForceData(selectedParticleSystem.getPositions()[_selectedParticle.second], selectedParticleSystem.getForces()[_selectedParticle.second]);
+		}
+	}
 	
 	const auto pushActionLambda = [&graphicMgr, ignoreDirty](const auto &particleSystemPair)
 	{

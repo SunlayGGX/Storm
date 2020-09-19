@@ -30,6 +30,7 @@ namespace Storm
 		// When the Graphic thread begins its loop, it will move the staging data into its own data (no copy) and continue with it. No lock while copying is made so no bottleneck.
 		virtual void pushParticlesData(unsigned int particleSystemId, const std::vector<Storm::Vector3> &particlePosData, const std::vector<Storm::Vector3> &particlevelocityData, bool isFluids, bool isWall) = 0;
 		virtual void pushConstraintData(const std::vector<Storm::Vector3> &constraintsVisuData) = 0;
+		virtual void pushParticleSelectionForceData(const Storm::Vector3 &selectedParticlePos, const Storm::Vector3 &selectedParticleForce) = 0;
 
 	public:
 		virtual void createGraphicsField(const std::wstring_view &fieldName, std::wstring &&fieldValueStr) = 0;
