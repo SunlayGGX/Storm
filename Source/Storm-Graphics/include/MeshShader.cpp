@@ -1,9 +1,9 @@
 #include "MeshShader.h"
 
-#include "MemoryHelper.h"
-#include "throwIfFailed.h"
-
 #include "Camera.h"
+
+#include "MemoryHelper.h"
+#include "ResourceMapperGuard.h"
 
 namespace
 {
@@ -54,18 +54,18 @@ void Storm::MeshShader::setup(const ComPtr<ID3D11Device> &device, const ComPtr<I
 	this->setupDeviceContext(deviceContext);
 
 	// Write shaders parameters
-	D3D11_MAPPED_SUBRESOURCE meshConstantBufferRessource;
-	Storm::throwIfFailed(deviceContext->Map(_constantBuffer.Get(), 0, D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, &meshConstantBufferRessource));
+	{
+		D3D11_MAPPED_SUBRESOURCE meshConstantBufferRessource;
+		Storm::ResourceMapperGuard mapGuard{ deviceContext, _constantBuffer.Get(), 0, D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, meshConstantBufferRessource };
 
-	ConstantBuffer*const ressourceDataPtr = static_cast<ConstantBuffer*>(meshConstantBufferRessource.pData);
+		ConstantBuffer*const ressourceDataPtr = static_cast<ConstantBuffer*>(meshConstantBufferRessource.pData);
 
-	ressourceDataPtr->_worldMatrix = transposedTransform;
-	ressourceDataPtr->_viewMatrix = currentCamera.getTransposedViewMatrix();
-	ressourceDataPtr->_projectionMatrix = currentCamera.getTransposedProjectionMatrix();
+		ressourceDataPtr->_worldMatrix = transposedTransform;
+		ressourceDataPtr->_viewMatrix = currentCamera.getTransposedViewMatrix();
+		ressourceDataPtr->_projectionMatrix = currentCamera.getTransposedProjectionMatrix();
 
-	ressourceDataPtr->_meshColor = DirectX::XMVECTOR{ 0.2f, 0.6f, 0.6f, 1.f };
-
-	deviceContext->Unmap(_constantBuffer.Get(), 0);
+		ressourceDataPtr->_meshColor = DirectX::XMVECTOR{ 0.2f, 0.6f, 0.6f, 1.f };
+	}
 
 	ID3D11Buffer*const constantBufferTmp = _constantBuffer.Get();
 	deviceContext->VSSetConstantBuffers(0, 1, &constantBufferTmp);

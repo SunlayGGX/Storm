@@ -3,6 +3,7 @@
 #include "Camera.h"
 
 #include "MemoryHelper.h"
+#include "ResourceMapperGuard.h"
 
 
 namespace
@@ -60,17 +61,17 @@ void Storm::GridShader::setup(const ComPtr<ID3D11Device> &device, const ComPtr<I
 	this->setupDeviceContext(deviceContext);
 
 	// Write shaders parameters
-	D3D11_MAPPED_SUBRESOURCE gridConstantBufferRessource;
-	Storm::throwIfFailed(deviceContext->Map(_constantBuffer.Get(), 0, D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, &gridConstantBufferRessource));
+	{
+		D3D11_MAPPED_SUBRESOURCE gridConstantBufferRessource;
+		Storm::ResourceMapperGuard mapGuard{ deviceContext, _constantBuffer.Get(), 0, D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, gridConstantBufferRessource };
 
-	ConstantBuffer*const ressourceDataPtr = static_cast<ConstantBuffer*>(gridConstantBufferRessource.pData);
+		ConstantBuffer*const ressourceDataPtr = static_cast<ConstantBuffer*>(gridConstantBufferRessource.pData);
 
-	ressourceDataPtr->_viewMatrix = currentCamera.getTransposedViewMatrix();
-	ressourceDataPtr->_projectionMatrix = currentCamera.getTransposedProjectionMatrix();
+		ressourceDataPtr->_viewMatrix = currentCamera.getTransposedViewMatrix();
+		ressourceDataPtr->_projectionMatrix = currentCamera.getTransposedProjectionMatrix();
 
-	ressourceDataPtr->_gridColor = DirectX::XMVECTOR{ 0.7f, 0.7f, 0.7f, 1.f };
-
-	deviceContext->Unmap(_constantBuffer.Get(), 0);
+		ressourceDataPtr->_gridColor = DirectX::XMVECTOR{ 0.7f, 0.7f, 0.7f, 1.f };
+	}
 
 	ID3D11Buffer*const constantBufferTmp = _constantBuffer.Get();
 	deviceContext->VSSetConstantBuffers(0, 1, &constantBufferTmp);

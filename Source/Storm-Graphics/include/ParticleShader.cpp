@@ -1,11 +1,13 @@
 #include "ParticleShader.h"
-
-#include "MemoryHelper.h"
 #include "Camera.h"
 
 #include "SingletonHolder.h"
 #include "IConfigManager.h"
+
 #include "GeneralSimulationData.h"
+
+#include "MemoryHelper.h"
+#include "ResourceMapperGuard.h"
 
 
 namespace
@@ -69,16 +71,16 @@ void Storm::ParticleShader::setup(const ComPtr<ID3D11Device> &device, const ComP
 	this->setupDeviceContext(deviceContext);
 
 	// Write shaders parameters
-	D3D11_MAPPED_SUBRESOURCE particleConstantBufferRessource;
-	Storm::throwIfFailed(deviceContext->Map(_constantBuffer.Get(), 0, D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, &particleConstantBufferRessource));
+	{
+		D3D11_MAPPED_SUBRESOURCE particleConstantBufferRessource;
+		Storm::ResourceMapperGuard mapGuard{ deviceContext, _constantBuffer.Get(), 0, D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, particleConstantBufferRessource };
 
-	ConstantBuffer*const ressourceDataPtr = static_cast<ConstantBuffer*>(particleConstantBufferRessource.pData);
+		ConstantBuffer*const ressourceDataPtr = static_cast<ConstantBuffer*>(particleConstantBufferRessource.pData);
 
-	ressourceDataPtr->_viewMatrix = currentCamera.getTransposedViewMatrix();
-	ressourceDataPtr->_projMatrix = currentCamera.getTransposedProjectionMatrix();
-	ressourceDataPtr->_pointSize = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().getGeneralSimulationData()._particleRadius;
-
-	deviceContext->Unmap(_constantBuffer.Get(), 0);
+		ressourceDataPtr->_viewMatrix = currentCamera.getTransposedViewMatrix();
+		ressourceDataPtr->_projMatrix = currentCamera.getTransposedProjectionMatrix();
+		ressourceDataPtr->_pointSize = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().getGeneralSimulationData()._particleRadius;
+	}
 
 	ID3D11Buffer*const constantBufferTmp = _constantBuffer.Get();
 	deviceContext->VSSetConstantBuffers(0, 1, &constantBufferTmp);

@@ -6,7 +6,7 @@ Storm::ResourceMapperGuard::ResourceMapperGuard(const ComPtr<ID3D11DeviceContext
 	_resource{ resource },
 	_subresource{ subresource }
 {
-	_immediateContext->Map(resource, subresource, mapType, mapFlags, &mappedResource);
+	Storm::throwIfFailed(_immediateContext->Map(resource, subresource, mapType, mapFlags, &mappedResource));
 }
 
 Storm::ResourceMapperGuard::~ResourceMapperGuard()

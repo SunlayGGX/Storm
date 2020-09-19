@@ -7,8 +7,8 @@
 
 #include "GraphicData.h"
 
-#include "ThrowIfFailed.h"
 #include "MemoryHelper.h"
+#include "ResourceMapperGuard.h"
 
 
 namespace
@@ -63,25 +63,24 @@ void Storm::ConstraintShader::setup(const ComPtr<ID3D11Device> &device, const Co
 	// Setup the device context
 	this->setupDeviceContext(deviceContext);
 
-	// Write shaders parameters
-	D3D11_MAPPED_SUBRESOURCE constraintsConstantBufferRessource;
-	Storm::throwIfFailed(deviceContext->Map(_constantBuffer.Get(), 0, D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, &constraintsConstantBufferRessource));
-	
-	ConstantBuffer*const ressourceDataPtr = static_cast<ConstantBuffer*>(constraintsConstantBufferRessource.pData);
-
 	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
-
 	const Storm::GraphicData &graphicConfig = configMgr.getGraphicData();
 
-	ressourceDataPtr->_viewMatrix = currentCamera.getTransposedViewMatrix();
-	ressourceDataPtr->_projMatrix = currentCamera.getTransposedProjectionMatrix();
-	ressourceDataPtr->_midThickness = graphicConfig._constraintThickness / 2.f;
-	ressourceDataPtr->_color.m128_f32[0] = graphicConfig._constraintColor.x();
-	ressourceDataPtr->_color.m128_f32[1] = graphicConfig._constraintColor.y();
-	ressourceDataPtr->_color.m128_f32[2] = graphicConfig._constraintColor.z();
-	ressourceDataPtr->_color.m128_f32[3] = graphicConfig._constraintColor.w();
+	// Write shaders parameters
+	{
+		D3D11_MAPPED_SUBRESOURCE constraintsConstantBufferRessource;
+		Storm::ResourceMapperGuard mapGuard{ deviceContext, _constantBuffer.Get(), 0, D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, constraintsConstantBufferRessource };
 
-	deviceContext->Unmap(_constantBuffer.Get(), 0);
+		ConstantBuffer*const ressourceDataPtr = static_cast<ConstantBuffer*>(constraintsConstantBufferRessource.pData);
+
+		ressourceDataPtr->_viewMatrix = currentCamera.getTransposedViewMatrix();
+		ressourceDataPtr->_projMatrix = currentCamera.getTransposedProjectionMatrix();
+		ressourceDataPtr->_midThickness = graphicConfig._constraintThickness / 2.f;
+		ressourceDataPtr->_color.m128_f32[0] = graphicConfig._constraintColor.x();
+		ressourceDataPtr->_color.m128_f32[1] = graphicConfig._constraintColor.y();
+		ressourceDataPtr->_color.m128_f32[2] = graphicConfig._constraintColor.z();
+		ressourceDataPtr->_color.m128_f32[3] = graphicConfig._constraintColor.w();
+	}
 
 	ID3D11Buffer*const constantBufferTmp = _constantBuffer.Get();
 	deviceContext->VSSetConstantBuffers(0, 1, &constantBufferTmp);
