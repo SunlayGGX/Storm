@@ -50,6 +50,9 @@ namespace Storm
 		void tweekBlowerEnabling();
 
 	public:
+		void tweekRaycastEnabling();
+
+	public:
 		void printFluidParticleData() const final override;
 
 	public:
@@ -71,6 +74,8 @@ namespace Storm
 	private:
 		std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> _particleSystem;
 		std::vector<std::unique_ptr<Storm::IBlower>> _blowers;
+
 		std::pair<unsigned int, std::size_t> _selectedParticle;
+		bool _raycastEnabled;
 	};
 }

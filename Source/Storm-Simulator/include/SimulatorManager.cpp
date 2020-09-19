@@ -293,7 +293,8 @@ namespace
 }
 
 Storm::SimulatorManager::SimulatorManager() :
-	_selectedParticle{ std::numeric_limits<decltype(_selectedParticle.first)>::max(), 0 }
+	_selectedParticle{ std::numeric_limits<decltype(_selectedParticle.first)>::max(), 0 },
+	_raycastEnabled{ false }
 {
 
 }
@@ -313,6 +314,7 @@ void Storm::SimulatorManager::initialize_Implementation()
 	Storm::IInputManager &inputMgr = singletonHolder.getSingleton<Storm::IInputManager>();
 	inputMgr.bindKey(Storm::SpecialKey::KC_F1, [this]() { this->printFluidParticleData(); });
 	inputMgr.bindKey(Storm::SpecialKey::KC_E, [this]() { this->tweekBlowerEnabling(); });
+	inputMgr.bindKey(Storm::SpecialKey::KC_R, [this]() { this->tweekRaycastEnabling(); });
 
 	Storm::IRaycastManager &raycastMgr = singletonHolder.getSingleton<Storm::IRaycastManager>();
 	inputMgr.bindMouseLeftClick([this, &raycastMgr, &singletonHolder](int xPos, int yPos, int width, int height)
@@ -807,6 +809,20 @@ void Storm::SimulatorManager::tweekBlowerEnabling()
 	for (auto &blower : _blowers)
 	{
 		blower->tweakEnabling();
+	}
+}
+
+void Storm::SimulatorManager::tweekRaycastEnabling()
+{
+	if (_raycastEnabled)
+	{
+		LOG_DEBUG << "Disabling Raycast";
+		_raycastEnabled = false;
+	}
+	else
+	{
+		LOG_DEBUG << "Enabling Raycast";
+		_raycastEnabled = true;
 	}
 }
 
