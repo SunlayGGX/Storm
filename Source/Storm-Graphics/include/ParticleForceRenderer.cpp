@@ -1,12 +1,17 @@
 #include "ParticleForceRenderer.h"
 
+#include "GraphicManager.h"
+
 #include "GraphicParticleData.h"
+
+#include "ParticleForceShader.h"
 
 #include "XMStormHelpers.h"
 #include "ThrowIfFailed.h"
 
 
-Storm::ParticleForceRenderer::ParticleForceRenderer(const ComPtr<ID3D11Device> &device)
+Storm::ParticleForceRenderer::ParticleForceRenderer(const ComPtr<ID3D11Device> &device) :
+	_shader{ std::make_unique<Storm::ParticleForceShader>(device) }
 {
 
 }
@@ -41,10 +46,10 @@ void Storm::ParticleForceRenderer::refreshForceData(const ComPtr<ID3D11Device> &
 		_lastParticlePositionCached = selectedParticlePosition;
 		_lastParticleForceCached = selectedParticleForce;
 
-		const DirectX::XMVECTOR force[2] =
+		const Storm::Vector3 force[2] =
 		{
-			Storm::convertToXM(selectedParticlePosition), // Origin
-			Storm::convertToXM(selectedParticlePosition + selectedParticleForce) // End of the vector arrow
+			selectedParticlePosition, // Origin
+			selectedParticlePosition + selectedParticleForce // End of the vector arrow
 		};
 
 		// In case it has a vertex buffer set (most of the time)
@@ -89,5 +94,29 @@ void Storm::ParticleForceRenderer::refreshForceData(const ComPtr<ID3D11Device> &
 			Storm::throwIfFailed(device->CreateBuffer(&indexBufferDesc, &indexData, &_indexBuffer));
 		}
 	}
+}
+
+void Storm::ParticleForceRenderer::render(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera)
+{
+	if (Storm::GraphicManager::instance().hasSelectedParticle())
+	{
+		_shader->setup(device, deviceContext, currentCamera);
+
+		deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+
+		this->setupForRender(deviceContext);
+		_shader->draw(2, deviceContext);
+	}
+}
+
+void Storm::ParticleForceRenderer::setupForRender(const ComPtr<ID3D11DeviceContext> &deviceContext)
+{
+	constexpr UINT stride = sizeof(Storm::Vector3);
+	constexpr UINT offset = 0;
+
+	deviceContext->IASetIndexBuffer(_indexBuffer.Get(), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
+
+	ID3D11Buffer*const tmpVertexBuffer = _vertexBuffer.Get();
+	deviceContext->IASetVertexBuffers(0, 1, &tmpVertexBuffer, &stride, &offset);
 }
 

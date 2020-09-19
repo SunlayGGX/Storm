@@ -4,7 +4,8 @@
 namespace Storm
 {
 	struct GraphicParticleData;
-
+	class ParticleForceShader;
+	class Camera;
 
 	class ParticleForceRenderer
 	{
@@ -17,11 +18,19 @@ namespace Storm
 
 		void refreshForceData(const ComPtr<ID3D11Device> &device, const Storm::Vector3 &selectedParticlePosition, const Storm::Vector3 &selectedParticleForce);
 
+	public:
+		void render(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera);
+
 	private:
+		void setupForRender(const ComPtr<ID3D11DeviceContext> &deviceContext);
+
+	private:
+		Storm::Vector3 _lastParticlePositionCached;
+		Storm::Vector3 _lastParticleForceCached;
+
 		ComPtr<ID3D11Buffer> _vertexBuffer;
 		ComPtr<ID3D11Buffer> _indexBuffer;
 
-		Storm::Vector3 _lastParticlePositionCached;
-		Storm::Vector3 _lastParticleForceCached;
+		std::unique_ptr<Storm::ParticleForceShader> _shader;
 	};
 }
