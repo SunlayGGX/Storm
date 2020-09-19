@@ -175,11 +175,14 @@ void Storm::RaycastManager::searchForNearestParticle(const Storm::Vector3 &posit
 		for (const Storm::PartitionSelection modality : queryReq._particleSystemSelectionFlag)
 		{
 			const std::vector<Storm::NeighborParticleReferral>* containingBundlePtr = nullptr;
-			spaceMgr.getContainingBundle(containingBundlePtr, position, modality);
+			const std::vector<Storm::NeighborParticleReferral>* neighborhoodBundles[Storm::k_neighborLinkedBunkCount];
+
+			spaceMgr.getAllBundles(containingBundlePtr, neighborhoodBundles, position, modality);
 
 			const std::vector<Storm::Vector3>* particleSystemPositions = nullptr;
 			unsigned int lastId = std::numeric_limits<decltype(lastId)>::max();
-			for (const Storm::NeighborParticleReferral &particleReferral : *containingBundlePtr)
+
+			auto searchLambda = [&particleSystemPositions, &lastId, &simulatorMgr, &position, &minDistSquaredFound, &resultReferral](const Storm::NeighborParticleReferral &particleReferral)
 			{
 				if (lastId != particleReferral._systemId)
 				{
@@ -205,6 +208,19 @@ void Storm::RaycastManager::searchForNearestParticle(const Storm::Vector3 &posit
 							resultReferral = &particleReferral;
 						}
 					}
+				}
+			};
+
+			for (const Storm::NeighborParticleReferral &particleReferral : *containingBundlePtr)
+			{
+				searchLambda(particleReferral);
+			}
+
+			for (const std::vector<Storm::NeighborParticleReferral>** neighborBundle = neighborhoodBundles; *neighborBundle != nullptr; ++neighborBundle)
+			{
+				for (const Storm::NeighborParticleReferral &particleReferral : **neighborBundle)
+				{
+					searchLambda(particleReferral);
 				}
 			}
 		}
