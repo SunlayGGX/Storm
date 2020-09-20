@@ -183,6 +183,14 @@ namespace
 			" will start at " << blowerDataConfig._startTimeInSeconds << "s.";
 	}
 
+	inline Storm::Vector3 computeInternalBoundingBoxCorner(const Storm::Vector3 &externalBoundingBoxCorner, const Storm::Vector3 &externalBoundingBoxTranslation, const float coeff)
+	{
+		// First we need to center the bounding box around { 0, 0, 0 } or it won't scale correctly
+		// (the scale will translate/shift the internal bounding box, or the coeff will be applied differently depending on how far we are from 0).
+		// Second, we apply back the shift once the scaling was done.
+		return (externalBoundingBoxCorner - externalBoundingBoxTranslation) * coeff + externalBoundingBoxTranslation;
+	}
+
 	void removeParticleInsideRbPosition(std::vector<Storm::Vector3> &inOutParticlePositions, const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystem, const float particleRadius)
 	{
 		const std::size_t particleSystemCount = allParticleSystem.size();
@@ -214,8 +222,13 @@ namespace
 				computeBoxCoordinate(externalBoundingBox, currentPSystemPositions, [](auto &vect) -> auto& { return vect.y(); });
 				computeBoxCoordinate(externalBoundingBox, currentPSystemPositions, [](auto &vect) -> auto& { return vect.z(); });
 
+				const Storm::Vector3 externalBoundingBoxTranslation = (externalBoundingBox.second + externalBoundingBox.first) / 2.f;
+
 				float coeff = 0.96f;
-				std::pair<Storm::Vector3, Storm::Vector3> internalBoundingBox{ externalBoundingBox.first * coeff, externalBoundingBox.second * coeff };
+				std::pair<Storm::Vector3, Storm::Vector3> internalBoundingBox{ 
+					computeInternalBoundingBoxCorner(externalBoundingBox.first, externalBoundingBoxTranslation, coeff),
+					computeInternalBoundingBoxCorner(externalBoundingBox.second, externalBoundingBoxTranslation, coeff)
+				};
 
 				const auto currentPSystemPositionBegin = std::begin(currentPSystemPositions);
 				const auto currentPSystemPositionEnd = std::end(currentPSystemPositions);
@@ -237,8 +250,8 @@ namespace
 
 					coeff -= 1.f;
 
-					internalBoundingBox.first = externalBoundingBox.first * coeff;
-					internalBoundingBox.second = externalBoundingBox.second * coeff;
+					internalBoundingBox.first = computeInternalBoundingBoxCorner(externalBoundingBox.first, externalBoundingBoxTranslation, coeff);
+					internalBoundingBox.second = computeInternalBoundingBoxCorner(externalBoundingBox.second, externalBoundingBoxTranslation, coeff);
 				}
 
 				if (hasInternalBoundingBox)
