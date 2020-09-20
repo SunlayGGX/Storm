@@ -248,7 +248,7 @@ namespace
 						break;
 					}
 
-					coeff -= 1.f;
+					coeff -= 0.1f;
 
 					internalBoundingBox.first = computeInternalBoundingBoxCorner(externalBoundingBox.first, externalBoundingBoxTranslation, coeff);
 					internalBoundingBox.second = computeInternalBoundingBoxCorner(externalBoundingBox.second, externalBoundingBoxTranslation, coeff);
