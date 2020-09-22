@@ -28,6 +28,8 @@
 
 #include "SpecialKey.h"
 
+#include "RunnerHelper.h"
+
 
 namespace
 {
@@ -87,14 +89,11 @@ namespace
 	void fastTransCopyImpl(const std::vector<Storm::Vector3> &particlePosData, const std::vector<Storm::Vector3> &particleVelocityData, const float valueToMinColor, const float valueToMaxColor, std::vector<Storm::GraphicParticleData> &inOutDxParticlePosDataTmp)
 	{
 		const DirectX::XMVECTOR defaultColor = getDefaultParticleColor<enableDifferentColoring>();
-
 		const float deltaColorRChan = 1.f - defaultColor.m128_f32[0];
 		const float deltaValueForColor = valueToMaxColor - valueToMinColor;
 
-		const std::size_t particleCount = particlePosData.size();
-		for (std::size_t iter = 0; iter < particleCount; ++iter)
+		const auto copyLambda = [&particlePosData, &particleVelocityData, &defaultColor, deltaColorRChan, deltaValueForColor, valueToMinColor](Storm::GraphicParticleData &current, const std::size_t iter)
 		{
-			Storm::GraphicParticleData &current = inOutDxParticlePosDataTmp[iter];
 			memcpy(&current._pos, &particlePosData[iter], sizeof(Storm::Vector3));
 			reinterpret_cast<float*>(&current._pos)[3] = 1.f;
 
@@ -122,6 +121,21 @@ namespace
 			else
 			{
 				current._color = defaultColor;
+			}
+		};
+
+		const std::size_t thresholdMultiThread = std::thread::hardware_concurrency() * 1500;
+
+		const std::size_t particleCount = particlePosData.size();
+		if (particleCount > thresholdMultiThread)
+		{
+			Storm::runParallel(inOutDxParticlePosDataTmp, copyLambda);
+		}
+		else
+		{
+			for (std::size_t iter = 0; iter < particleCount; ++iter)
+			{
+				copyLambda(inOutDxParticlePosDataTmp[iter], iter);
 			}
 		}
 	}
