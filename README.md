@@ -3,7 +3,8 @@ SPH reimplementation for fluids simulation
 
 
 # Setup
-From the root folder containing this README. Modify the Build\Script\Internal\UserSettings.bat to match the path of each dependencies in your workstation.
+From the root folder containing this README. Execute once Build\Script\Internal\Setup.bat, then modify the newly created Build\Script\Internal\UserSettings.bat to match the path of each dependencies in your workstation.
+Reexecute Build\Script\Internal\Setup.bat once all paths inside Build\Script\Internal\UserSettings.bat are ok.
 Note that : 
 - you should have downloaded all dependencies beforehand and have done all setup that was specified (see next section).
 - We rely on junctions. It means that all your dependencies folder and Storm project should be on compatible disks format (i.e. NTFS). But if junctions don't work, we advise to copy your dependencies under the Storm's root "Dependencies" folder after calling Setup (also change the way the batch file are executed or you will remove those dependencies each time).
