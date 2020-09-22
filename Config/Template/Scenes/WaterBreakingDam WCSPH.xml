@@ -35,7 +35,7 @@
 	<RigidBodies>
 		<RigidBody>
 			<id>1</id>
-			<meshFile>$[SplishSplashFolder]/data/models/UnitBox.obj</meshFile>
+			<meshFile>$[StormResource]/Meshes/cube.obj</meshFile>
 			<isStatic>true</isStatic>
 			<wall>true</wall>
 			<collisionType>Custom</collisionType>

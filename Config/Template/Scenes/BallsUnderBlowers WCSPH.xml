@@ -36,7 +36,7 @@
 	<RigidBodies>
 		<RigidBody>
 			<id>1</id>
-			<meshFile>$[SplishSplashFolder]/data/models/UnitBox.obj</meshFile>
+			<meshFile>$[StormResource]/Meshes/cube.obj</meshFile>
 			<isStatic>true</isStatic>
 			<wall>true</wall>
 			<collisionType>Custom</collisionType>
@@ -56,7 +56,7 @@
 		</RigidBody>
 		<RigidBody>
 			<id>3</id>
-			<meshFile>$[SplishSplashFolder]/data/models/sphere.obj</meshFile>
+			<meshFile>$[StormResource]/Meshes/sphere.obj</meshFile>
 			<isStatic>false</isStatic>
 			<wall>false</wall>
 			<collisionType>Sphere</collisionType>
@@ -67,7 +67,7 @@
 		</RigidBody>
 		<RigidBody>
 			<id>4</id>
-			<meshFile>$[SplishSplashFolder]/data/models/sphere.obj</meshFile>
+			<meshFile>$[StormResource]/Meshes/sphere.obj</meshFile>
 			<isStatic>false</isStatic>
 			<wall>false</wall>
 			<collisionType>Sphere</collisionType>
