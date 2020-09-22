@@ -1,0 +1,109 @@
+<Scene>
+	<General>
+		<fps>90</fps>
+		<gravity x="0.0" y="-9.81" z="0.0" />
+		<particleRadius>0.015</particleRadius>
+		<kernelCoeff>4.0</kernelCoeff>
+		<startPaused>false</startPaused>
+		<simulation>WCSPH</simulation>
+		<kernel>CubicSpline</kernel>
+		<physicsTime>0.0005</physicsTime>
+		<startPaused>true</startPaused>
+		<neighborCheckStep>1</neighborCheckStep>
+		<simulationNoWait>true</simulationNoWait>
+		<allowNoFluid>true</allowNoFluid>
+	</General>
+	<Graphic>
+		<cameraPosition x="0.0" y="1.0" z="-3.0" />
+		<cameraLookAt x="0.0" y="1.0" z="0.0" />
+		<zNear>3.0</zNear>
+		<zFar>20.0</zFar>
+		<particleDisplay>true</particleDisplay>
+		<maxColorValue>5.0</maxColorValue>
+	</Graphic>
+	<Fluid>
+		<id>0</id>
+		<fluidBlock>
+			<firstPoint x="-1.5" y="-1.0" z="-0.5" />
+			<secondPoint x="1.5" y="2.0" z="0.5" />
+			<denseMode>SplishSplash</denseMode>
+		</fluidBlock>
+		<density>1000</density>
+		<viscosity>0.1</viscosity>
+		<pressureK1>50000.0</pressureK1>
+		<pressureK2>7.0</pressureK2>
+	</Fluid>
+	<RigidBodies>
+		<RigidBody>
+			<id>1</id>
+			<meshFile>$[SplishSplashFolder]/data/models/UnitBox.obj</meshFile>
+			<isStatic>true</isStatic>
+			<wall>true</wall>
+			<collisionType>Custom</collisionType>
+			<mass>1.0</mass>
+			<translation x="0.0" y="0.5" z="0.0"/>
+			<scale x="3.0" y="3.0" z="1.0"/>
+		</RigidBody>
+		<RigidBody>
+			<id>2</id>
+			<meshFile>$[StormResource]/Meshes/cylindricTube.obj</meshFile>
+			<isStatic>true</isStatic>
+			<wall>false</wall>
+			<collisionType>Custom</collisionType>
+			<mass>10.0</mass>
+			<translation x="0.0" y="1.2" z="0.0"/>
+			<scale x="0.25" y="0.4" z="0.25"/>
+		</RigidBody>
+		<RigidBody>
+			<id>3</id>
+			<meshFile>$[SplishSplashFolder]/data/models/sphere.obj</meshFile>
+			<isStatic>false</isStatic>
+			<wall>false</wall>
+			<collisionType>Sphere</collisionType>
+			<mass>1.0</mass>
+			<translation x="-0.25" y="0.5" z="0.0"/>
+			<scale x="0.05" y="0.05" z="0.05"/>
+			<pInsideRemovalTechnique>Normals</pInsideRemovalTechnique>
+		</RigidBody>
+		<RigidBody>
+			<id>4</id>
+			<meshFile>$[SplishSplashFolder]/data/models/sphere.obj</meshFile>
+			<isStatic>false</isStatic>
+			<wall>false</wall>
+			<collisionType>Sphere</collisionType>
+			<mass>1.0</mass>
+			<translation x="0.25" y="0.5" z="0.0"/>
+			<scale x="0.05" y="0.05" z="0.05"/>
+			<pInsideRemovalTechnique>Normals</pInsideRemovalTechnique>
+		</RigidBody>
+	</RigidBodies>
+	<Constraints>
+		<Constraint>
+			<rbId1>2</rbId1>
+			<rbId2>3</rbId2>
+			<length>0.5</length>
+			<rb1LinkOffset x="-0.25" y="-0.4" z="0.0"/>
+			<rb2LinkOffset x="0.0" y="0.05" z="0.0"/>
+		</Constraint>
+		<Constraint>
+			<rbId1>2</rbId1>
+			<rbId2>4</rbId2>
+			<length>0.5</length>
+			<rb1LinkOffset x="0.25" y="-0.4" z="0.0"/>
+			<rb2LinkOffset x="0.0" y="0.05" z="0.0"/>
+		</Constraint>
+	</Constraints>
+	<Blowers>
+		<Blower>
+			<id>5</id>
+			<type>Cylinder</type>
+			<startTime>0.1</startTime>
+			<fadeInTime>0.5</fadeInTime>
+			<makeRigidbody>true</makeRigidbody>
+			<position x="0.0" y="1.4" z="0.0" />
+			<radius>0.2</radius>
+			<height>0.4</height>
+			<force x="0.0" y="-20.0" z="0.0" />
+		</Blower>
+	</Blowers>
+</Scene>
