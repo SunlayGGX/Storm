@@ -10,7 +10,7 @@ namespace Storm
 	struct NoDefaultImplementation {};
 
 	/*
-	All singletons should inherit from this base class (better be in private) and then, use XMARTY_DECLARE_SINGLETON inside the ChildSingletonType class body.
+	All singletons should inherit from this base class (better be in private) and then, use STORM_DECLARE_SINGLETON inside the ChildSingletonType class body.
 	- This is a CRTP pattern so Child should the Singleton type that inherits from Singleton.
 	- DefaultImplementationTraits is what specify if what is the default implementation of initialize_Implementation and cleanUp_Implementation are (or if there is any). By default, we don't define them. But you can define an empty implementation by using DefineDefaultInitAndCleanupImplementation instead.
 	*/
