@@ -24,7 +24,7 @@ namespace Storm
 		friend SingletonAllocatorHelper<Child>;
 
 	protected:
-		// Defining those aliases allow the Child to call Singleton explicitly (to know about its grand fathers) (used in XMARTY_DECLARE_SINGLETON).
+		// Defining those aliases allow the Child to call Singleton explicitly (to know about its grand fathers) (used in STORM_DECLARE_SINGLETON).
 		using DefaultImplementationTraitsType = DefaultImplementationTraits;
 
 	private:
