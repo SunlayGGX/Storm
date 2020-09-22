@@ -24,7 +24,8 @@
 Storm::FluidParticleSystem::FluidParticleSystem(unsigned int particleSystemIndex, std::vector<Storm::Vector3> &&worldPositions) :
 	Storm::ParticleSystem{ particleSystemIndex, std::move(worldPositions) }
 {
-	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
 	const Storm::GeneralSimulationData &generalSimulDataConfig = configMgr.getGeneralSimulationData();
 	const Storm::FluidData &fluidDataConfig = configMgr.getFluidData();
 
@@ -33,6 +34,7 @@ Storm::FluidParticleSystem::FluidParticleSystem(unsigned int particleSystemIndex
 	const std::size_t particleCount = _positions.size();
 
 	const float particleDiameter = generalSimulDataConfig._particleRadius * 2.f;
+
 	_particleVolume = particleDiameter * particleDiameter * particleDiameter;
 
 	_masses.resize(particleCount, _particleVolume * _restDensity);
