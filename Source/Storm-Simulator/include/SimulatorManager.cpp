@@ -497,11 +497,11 @@ void Storm::SimulatorManager::run()
 		switch (generalSimulationConfigData._simulationMode)
 		{
 		case Storm::SimulationMode::WCSPH:
-			this->executeWCSPH(physicsElapsedDeltaTime);
+			this->executeWCSPH();
 			break;
 
 		case Storm::SimulationMode::PCISPH:
-			this->executePCISPH(physicsElapsedDeltaTime);
+			this->executePCISPH();
 			break;
 		}
 
@@ -535,7 +535,7 @@ void Storm::SimulatorManager::run()
 	} while (true);
 }
 
-void Storm::SimulatorManager::executeWCSPH(float physicsElapsedDeltaTime)
+void Storm::SimulatorManager::executeWCSPH()
 {
 	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
 	const Storm::GeneralSimulationData &generalSimulData = configMgr.getGeneralSimulationData();
@@ -689,7 +689,7 @@ void Storm::SimulatorManager::executeWCSPH(float physicsElapsedDeltaTime)
 	}
 }
 
-void Storm::SimulatorManager::executePCISPH(float physicsElapsedDeltaTime)
+void Storm::SimulatorManager::executePCISPH()
 {
 	STORM_NOT_IMPLEMENTED;
 }
