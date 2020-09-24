@@ -133,22 +133,33 @@ void Storm::RigidBodyParticleSystem::initializeIteration(const std::map<unsigned
 	const float currentKernelZero = Storm::retrieveKernelZeroValue(generalSimulDataConfig._kernelMode);
 	const Storm::RawKernelMethodDelegate rawKernelMeth = Storm::retrieveRawKernelMethod(generalSimulDataConfig._kernelMode);
 
-	const bool isStaticRigidBody = this->isStatic();
-
-	Storm::runParallel(_force, [this, currentKernelZero, rawKernelMeth, k_kernelLength, isStaticRigidBody](Storm::Vector3 &force, const std::size_t currentPIndex)
+	if (this->isStatic())
 	{
-		// Initialize forces to 0
-		force.setZero();
-
-		// Compute the current boundary particle volume.
+		Storm::runParallel(_volumes, [this, currentKernelZero, rawKernelMeth, k_kernelLength](float &currentPVolume, const std::size_t currentPIndex)
+		{
+			// Compute the current boundary particle volume.
 #if STORM_USE_OPTIMIZED_NEIGHBORHOOD_ALGORITHM
-		const float initialVolumeValue = isStaticRigidBody ? _staticVolumesInitValue[currentPIndex] : currentKernelZero;
+			const float initialVolumeValue = _staticVolumesInitValue[currentPIndex];
 #else
-		const float initialVolumeValue = currentKernelZero;
+			const float initialVolumeValue = currentKernelZero;
 #endif
-		float &currentPVolume = _volumes[currentPIndex];
-		currentPVolume = 1.f / computeParticleDeltaVolume(_neighborhood[currentPIndex], k_kernelLength, initialVolumeValue, rawKernelMeth); // ???
-	});
+			currentPVolume = 1.f / computeParticleDeltaVolume(_neighborhood[currentPIndex], k_kernelLength, initialVolumeValue, rawKernelMeth); // ???
+		});
+	}
+	else
+	{
+		Storm::runParallel(_force, [this, currentKernelZero, rawKernelMeth, k_kernelLength](Storm::Vector3 &force, const std::size_t currentPIndex)
+		{
+			// Initialize forces to 0
+			force.setZero();
+
+			// Compute the current boundary particle volume.
+			const float initialVolumeValue = currentKernelZero;
+
+			float &currentPVolume = _volumes[currentPIndex];
+			currentPVolume = 1.f / computeParticleDeltaVolume(_neighborhood[currentPIndex], k_kernelLength, initialVolumeValue, rawKernelMeth); // ???
+		});
+	}
 }
 
 const std::vector<float>& Storm::RigidBodyParticleSystem::getVolumes() const noexcept
@@ -272,49 +283,65 @@ void Storm::RigidBodyParticleSystem::buildNeighborhoodOnParticleSystemUsingSpace
 	}
 }
 
-void Storm::RigidBodyParticleSystem::updatePosition(float deltaTimeInSec)
+bool Storm::RigidBodyParticleSystem::computeVelocityChange(float, float)
 {
-	Storm::Vector3 currentPosition;
-	Storm::Quaternion currentQuatRotation;
-	Storm::SingletonHolder::instance().getSingleton<Storm::IPhysicsManager>().getMeshTransform(_particleSystemIndex, currentPosition, currentQuatRotation);
+	return false;
+}
 
-	if (currentPosition != _cachedTrackedRbPosition || currentQuatRotation.x() != _cachedTrackedRbRotationQuat.x() || currentQuatRotation.y() != _cachedTrackedRbRotationQuat.y() || currentQuatRotation.z() != _cachedTrackedRbRotationQuat.z() || currentQuatRotation.w() != _cachedTrackedRbRotationQuat.w())
+void Storm::RigidBodyParticleSystem::updatePosition(float deltaTimeInSec, bool force)
+{
+	if (!_isStatic || force)
 	{
-		_isDirty = true;
+		Storm::Vector3 currentPosition;
+		Storm::Quaternion currentQuatRotation;
+		Storm::SingletonHolder::instance().getSingleton<Storm::IPhysicsManager>().getMeshTransform(_particleSystemIndex, currentPosition, currentQuatRotation);
 
-		const Storm::Quaternion oldRbRotationConjugateQuat = _cachedTrackedRbRotationQuat.conjugate();
-		const Storm::Quaternion currentConjugateQuatRotation = currentQuatRotation.conjugate();
-
-		Storm::runParallel(_positions, [&](Storm::Vector3 &currentParticlePosition)
+		if (currentPosition != _cachedTrackedRbPosition || currentQuatRotation.x() != _cachedTrackedRbRotationQuat.x() || currentQuatRotation.y() != _cachedTrackedRbRotationQuat.y() || currentQuatRotation.z() != _cachedTrackedRbRotationQuat.z() || currentQuatRotation.w() != _cachedTrackedRbRotationQuat.w())
 		{
-			/* First, remove the current world space coordinate to revert to the object space coordinate (where particle were defined initially and on which PhysX was initialized). */
+			_isDirty = true;
 
-			// 1- Remove the translation
-			Storm::Quaternion currentPosAsPureQuat{ 0.f, currentParticlePosition.x() - _cachedTrackedRbPosition.x(), currentParticlePosition.y() - _cachedTrackedRbPosition.y(), currentParticlePosition.z() - _cachedTrackedRbPosition.z() };
+			const Storm::Quaternion oldRbRotationConjugateQuat = _cachedTrackedRbRotationQuat.conjugate();
+			const Storm::Quaternion currentConjugateQuatRotation = currentQuatRotation.conjugate();
 
-			// 2- Remove the rotation
-			currentPosAsPureQuat = oldRbRotationConjugateQuat * currentPosAsPureQuat * _cachedTrackedRbRotationQuat;
+			Storm::runParallel(_positions, [&](Storm::Vector3 &currentParticlePosition)
+			{
+				/* First, remove the current world space coordinate to revert to the object space coordinate (where particle were defined initially and on which PhysX was initialized). */
+
+				// 1- Remove the translation
+				Storm::Quaternion currentPosAsPureQuat{ 0.f, currentParticlePosition.x() - _cachedTrackedRbPosition.x(), currentParticlePosition.y() - _cachedTrackedRbPosition.y(), currentParticlePosition.z() - _cachedTrackedRbPosition.z() };
+
+				// 2- Remove the rotation
+				currentPosAsPureQuat = oldRbRotationConjugateQuat * currentPosAsPureQuat * _cachedTrackedRbRotationQuat;
 
 
-			/* Finally, once we're in object space coordinate, reapply the correct transformation to go back to the world coordinate (with correct transformation) */
+				/* Finally, once we're in object space coordinate, reapply the correct transformation to go back to the world coordinate (with correct transformation) */
 
-			// 1- Apply the rotation
-			currentPosAsPureQuat = currentQuatRotation * currentPosAsPureQuat * currentConjugateQuatRotation;
+				// 1- Apply the rotation
+				currentPosAsPureQuat = currentQuatRotation * currentPosAsPureQuat * currentConjugateQuatRotation;
 
-			// 2- Apply the translation
-			currentParticlePosition = currentPosAsPureQuat.vec() + currentPosition;
-		});
+				// 2- Apply the translation
+				currentParticlePosition = currentPosAsPureQuat.vec() + currentPosition;
+			});
 
-		_cachedTrackedRbPosition = currentPosition;
-		_cachedTrackedRbRotationQuat = currentQuatRotation;
+			_cachedTrackedRbPosition = currentPosition;
+			_cachedTrackedRbRotationQuat = currentQuatRotation;
+		}
 	}
 }
 
-void Storm::RigidBodyParticleSystem::postApplySPH()
+void Storm::RigidBodyParticleSystem::postApplySPH(float)
 {
 	if (!_isStatic)
 	{
 		Storm::IPhysicsManager &physicMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IPhysicsManager>();
 		physicMgr.applyLocalForces(_particleSystemIndex, _positions, _force);
+	}
+}
+
+void Storm::RigidBodyParticleSystem::revertToCurrentTimestep(const std::vector<std::unique_ptr<Storm::IBlower>> &)
+{
+	if (!_isStatic)
+	{
+		Storm::runParallel(_force, [](Storm::Vector3 &force) { force.setZero(); });
 	}
 }

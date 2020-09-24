@@ -40,6 +40,8 @@ Storm::FluidParticleSystem::FluidParticleSystem(unsigned int particleSystemIndex
 	_masses.resize(particleCount, _particleVolume * _restDensity);
 	_densities.resize(particleCount);
 	_pressure.resize(particleCount);
+
+	_velocityPreTimestep.resize(particleCount);
 }
 
 void Storm::FluidParticleSystem::initializeIteration(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const std::vector<std::unique_ptr<Storm::IBlower>> &blowers)
@@ -52,6 +54,7 @@ void Storm::FluidParticleSystem::initializeIteration(const std::map<unsigned int
 	assert(
 		_masses.size() == particleCount &&
 		_densities.size() == particleCount &&
+		_velocityPreTimestep.size() == particleCount &&
 		_pressure.size() == particleCount &&
 		"Particle count mismatch detected! An array of particle property has not the same particle count than the other!"
 	);
@@ -65,14 +68,9 @@ void Storm::FluidParticleSystem::initializeIteration(const std::map<unsigned int
 
 	Storm::runParallel(_force, [this, &gravityAccel, &blowers](Storm::Vector3 &currentPForce, const std::size_t currentPIndex)
 	{
-		const float currentPMass = _masses[currentPIndex];
-		currentPForce = currentPMass * gravityAccel;
+		this->internalInitializeForce(gravityAccel, blowers, currentPForce, currentPIndex);
 
-		const Storm::Vector3 &currentPPosition = _positions[currentPIndex];
-		for (const std::unique_ptr<Storm::IBlower> &blowerUPtr : blowers)
-		{
-			blowerUPtr->applyForce(currentPPosition, currentPForce);
-		}
+		_velocityPreTimestep[currentPIndex] = _velocity[currentPIndex];
 	});
 }
 
@@ -239,15 +237,32 @@ void Storm::FluidParticleSystem::buildNeighborhoodOnParticleSystemUsingSpacePart
 	});
 }
 
-void Storm::FluidParticleSystem::updatePosition(float deltaTimeInSec)
+bool Storm::FluidParticleSystem::computeVelocityChange(float deltaTimeInSec, float highVelocityThresholdSquared)
 {
-	Storm::runParallel(_force, [this, deltaTimeInSec](const Storm::Vector3 &currentForce, const std::size_t currentPIndex)
+	std::atomic<bool> highSpeed = false;
+
+	Storm::runParallel(_force, [this, deltaTimeInSec, &highSpeed, highVelocityThresholdSquared](const Storm::Vector3 &currentForce, const std::size_t currentPIndex)
 	{
 		Storm::Vector3 &currentPVelocity = _velocity[currentPIndex];
 
-		Storm::SemiImplicitEulerSolver solver{ _masses[currentPIndex], currentForce, currentPVelocity, deltaTimeInSec };
+		Storm::SemiImplicitEulerVelocitySolver solver{ _masses[currentPIndex], currentForce, currentPVelocity, deltaTimeInSec };
 
 		currentPVelocity += solver._velocityVariation;
+		if (currentPVelocity.squaredNorm() > highVelocityThresholdSquared)
+		{
+			highSpeed = true;
+		}
+	});
+
+	return highSpeed;
+}
+
+void Storm::FluidParticleSystem::updatePosition(float deltaTimeInSec, bool)
+{
+	Storm::runParallel(_velocity, [this, deltaTimeInSec](Storm::Vector3 &currentPVelocity, const std::size_t currentPIndex)
+	{
+		Storm::SemiImplicitEulerPositionSolver solver{ currentPVelocity, deltaTimeInSec };
+
 		_positions[currentPIndex] += solver._positionDisplacment;
 
 		if (!_isDirty)
@@ -263,4 +278,36 @@ void Storm::FluidParticleSystem::updatePosition(float deltaTimeInSec)
 			}
 		}
 	});
+}
+
+void Storm::FluidParticleSystem::postApplySPH(float)
+{
+
+}
+
+void Storm::FluidParticleSystem::revertToCurrentTimestep(const std::vector<std::unique_ptr<Storm::IBlower>> &blowers)
+{
+	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
+	const Storm::GeneralSimulationData &generalSimulData = configMgr.getGeneralSimulationData();
+	const Storm::FluidData &fluidSimulData = configMgr.getFluidData();
+
+	const Storm::Vector3 gravityAccel = fluidSimulData._gravityEnabled ? generalSimulData._gravity : Storm::Vector3::Zero();
+
+	Storm::runParallel(_force, [this, &blowers, &gravityAccel](Storm::Vector3 &force, const std::size_t currentPIndex)
+	{
+		this->internalInitializeForce(gravityAccel, blowers, force, currentPIndex);
+		_velocity[currentPIndex] = _velocityPreTimestep[currentPIndex];
+	});
+}
+
+void Storm::FluidParticleSystem::internalInitializeForce(const Storm::Vector3 &gravityAccel, const std::vector<std::unique_ptr<Storm::IBlower>> &blowers, Storm::Vector3 &force, const std::size_t currentPIndex)
+{
+	const float currentPMass = _masses[currentPIndex];
+	force = currentPMass * gravityAccel;
+
+	const Storm::Vector3 &currentPPosition = _positions[currentPIndex];
+	for (const std::unique_ptr<Storm::IBlower> &blowerUPtr : blowers)
+	{
+		blowerUPtr->applyForce(currentPPosition, force);
+	}
 }

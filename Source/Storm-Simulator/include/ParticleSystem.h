@@ -39,19 +39,25 @@ namespace Storm
 		virtual void buildNeighborhoodOnParticleSystemUsingSpacePartition(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const float kernelLengthSquared) = 0;
 
 	public:
-		virtual void postApplySPH();
+		virtual void updatePosition(float deltaTimeInSec, bool force) = 0;
+		virtual void postApplySPH(float deltaTimeInSec) = 0;
 
 	public:
 		virtual void initializePreSimulation(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const float kernelLength);
 
 		virtual void initializeIteration(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const std::vector<std::unique_ptr<Storm::IBlower>> &blowers);
-		virtual void updatePosition(float deltaTimeInSec) = 0;
+
+	public:
+		virtual bool computeVelocityChange(float deltaTimeInSec, float highVelocityThresholdSquared) = 0;
 
 	public:
 		static float computeParticleDefaultVolume();
 
 	protected:
 		static bool isElligibleNeighborParticle(const float kernelLengthSquared, const float normSquared);
+
+	public:
+		virtual void revertToCurrentTimestep(const std::vector<std::unique_ptr<Storm::IBlower>> &blowers) = 0;
 
 	protected:
 		std::vector<Storm::Vector3> _positions;
@@ -66,6 +72,8 @@ namespace Storm
 
 		unsigned int _particleSystemIndex;
 		std::atomic<bool> _isDirty;
+
+		float _maxVelocityNorm;
 
 	public:
 		mutable std::mutex _mutex;

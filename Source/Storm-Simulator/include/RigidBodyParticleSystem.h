@@ -30,10 +30,14 @@ namespace Storm
 		void buildNeighborhoodOnParticleSystemUsingSpacePartition(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const float kernelLengthSquared) final override;
 
 	public:
-		void updatePosition(float deltaTimeInSec) final override;
+		bool computeVelocityChange(float deltaTimeInSec, float highVelocityThresholdSquared) final override;
 
 	public:
-		void postApplySPH() final override;
+		void updatePosition(float deltaTimeInSec, bool force) final override;
+		void postApplySPH(float deltaTimeInSec) final override;
+
+	public:
+		void revertToCurrentTimestep(const std::vector<std::unique_ptr<Storm::IBlower>> &blowers) final override;
 
 	private:
 		// Volumes got from the computation of static rigid bodies neighbor for a rigid body (So useful only for Rigid bodies) !

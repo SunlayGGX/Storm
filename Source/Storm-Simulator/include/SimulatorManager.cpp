@@ -431,7 +431,7 @@ void Storm::SimulatorManager::run()
 	this->initializePreSimulation();
 
 	// A fast iterator that loops every 256 iterations.
-	unsigned char _forcedPushFrameIterator = 0;
+	unsigned char forcedPushFrameIterator = 0;
 
 	bool firstFrame = true;
 
@@ -460,37 +460,88 @@ void Storm::SimulatorManager::run()
 
 		SpeedProfileBalist simulationSpeedProfile{ profilerMgrNullablePtr };
 
-		const float physicsElapsedDeltaTime = timeMgr.getCurrentPhysicsDeltaTime();
+		this->executeIteration(firstFrame, forcedPushFrameIterator);
 
-		// initialize for current iteration. I.e. Initializing with gravity and resetting current iteration velocity.
-		// Also build neighborhood.
+		// Push all particle data to the graphic module to be rendered...
+		this->pushParticlesToGraphicModule(forcedPushFrameIterator == 0);
 
-		if (!firstFrame && _forcedPushFrameIterator % generalSimulationConfigData._recomputeNeighborhoodStep == 0)
-		{
-			spacePartitionerMgr.clearSpaceReorderingNoStatic();
-			for (auto &particleSystem : _particleSystem)
-			{
-				// We don't need to regenerate statics rigid bodies.
-				Storm::ParticleSystem &pSystem = *particleSystem.second;
-				if (!pSystem.isStatic())
-				{
-					spacePartitionerMgr.computeSpaceReordering(
-						pSystem.getPositions(),
-						pSystem.isFluids() ? Storm::PartitionSelection::Fluid : Storm::PartitionSelection::DynamicRigidBody,
-						pSystem.getId()
-					);
-				}
-			}
-		}
+		// Takes time to process messages that came from other threads.
+		threadMgr.processCurrentThreadActions();
 
-		for (const std::unique_ptr<Storm::IBlower> &blowerUPtr : _blowers)
-		{
-			blowerUPtr->advanceTime(physicsElapsedDeltaTime);
-		}
+		timeMgr.advanceCurrentPhysicsElapsedTime();
 
+		++forcedPushFrameIterator;
+		firstFrame = false;
+
+	} while (true);
+}
+
+void Storm::SimulatorManager::executeIteration(bool firstFrame, unsigned char forcedPushFrameIterator)
+{
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+
+	Storm::ITimeManager &timeMgr = singletonHolder.getSingleton<Storm::ITimeManager>();
+	Storm::IPhysicsManager &physicsMgr = singletonHolder.getSingleton<Storm::IPhysicsManager>();
+	Storm::IThreadManager &threadMgr = singletonHolder.getSingleton<Storm::IThreadManager>();
+	Storm::ISpacePartitionerManager &spacePartitionerMgr = singletonHolder.getSingleton<Storm::ISpacePartitionerManager>();
+
+	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
+	const Storm::GeneralSimulationData &generalSimulationConfigData = configMgr.getGeneralSimulationData();
+
+	float physicsElapsedDeltaTime = timeMgr.getCurrentPhysicsDeltaTime();
+	const float physicsCurrentTime = timeMgr.getCurrentPhysicsElapsedTime();
+
+	// initialize for current iteration. I.e. Initializing with gravity and resetting current iteration velocity.
+	// Also build neighborhood.
+
+	if (!firstFrame && forcedPushFrameIterator % generalSimulationConfigData._recomputeNeighborhoodStep == 0)
+	{
+		spacePartitionerMgr.clearSpaceReorderingNoStatic();
 		for (auto &particleSystem : _particleSystem)
 		{
-			particleSystem.second->initializeIteration(_particleSystem, _blowers);
+			// We don't need to regenerate statics rigid bodies.
+			Storm::ParticleSystem &pSystem = *particleSystem.second;
+			if (!pSystem.isStatic())
+			{
+				spacePartitionerMgr.computeSpaceReordering(
+					pSystem.getPositions(),
+					pSystem.isFluids() ? Storm::PartitionSelection::Fluid : Storm::PartitionSelection::DynamicRigidBody,
+					pSystem.getId()
+				);
+			}
+		}
+	}
+
+	for (const std::unique_ptr<Storm::IBlower> &blowerUPtr : _blowers)
+	{
+		blowerUPtr->advanceTime(physicsElapsedDeltaTime);
+	}
+
+	for (auto &particleSystem : _particleSystem)
+	{
+		particleSystem.second->initializeIteration(_particleSystem, _blowers);
+	}
+
+	bool runIterationAgain;
+
+	int maxCFLIteration = generalSimulationConfigData._maxCFLIteration;
+	int iter = 0;
+
+	float exDeltaTime = physicsElapsedDeltaTime;
+
+	bool hasRunIterationBefore = false;
+	do 
+	{
+		if (hasRunIterationBefore)
+		{
+			for (auto &particleSystem : _particleSystem)
+			{
+				particleSystem.second->revertToCurrentTimestep(_blowers);
+			}
+		}
+		else
+		{
+			hasRunIterationBefore = true;
 		}
 
 		// Compute the simulation
@@ -505,34 +556,52 @@ void Storm::SimulatorManager::run()
 			break;
 		}
 
-		for (auto &particleSystem : _particleSystem)
-		{
-			particleSystem.second->postApplySPH();
-		}
+		float velocityThresholdSquaredForCFL = computeCFLDistance(generalSimulationConfigData) / physicsElapsedDeltaTime;
+		velocityThresholdSquaredForCFL = velocityThresholdSquaredForCFL * velocityThresholdSquaredForCFL;
 
-		// Update the Rigid bodies positions in scene
-		physicsMgr.update(physicsElapsedDeltaTime);
-
+		bool shouldApplyCFL = false;
 
 		// Semi implicit Euler to update the particle position
 		for (auto &particleSystem : _particleSystem)
 		{
-			particleSystem.second->updatePosition(physicsElapsedDeltaTime);
+			shouldApplyCFL |= particleSystem.second->computeVelocityChange(physicsElapsedDeltaTime, velocityThresholdSquaredForCFL);
 		}
 
-		// Apply CFL (???)
-		this->applyCFLIfNeeded(generalSimulationConfigData);
+		runIterationAgain = this->applyCFLIfNeeded(generalSimulationConfigData);
+		if (runIterationAgain)
+		{
+			physicsElapsedDeltaTime = timeMgr.getCurrentPhysicsDeltaTime();
+			
+			if (physicsElapsedDeltaTime != exDeltaTime)
+			{
+				// Correct the blower time to the corrected time
+				float correctionDeltaTime = physicsElapsedDeltaTime - exDeltaTime;
+				exDeltaTime = physicsElapsedDeltaTime;
+				for (const std::unique_ptr<Storm::IBlower> &blowerUPtr : _blowers)
+				{
+					blowerUPtr->advanceTime(correctionDeltaTime);
+				}
+			}
+		}
 
-		// Push all particle data to the graphic module to be rendered...
-		this->pushParticlesToGraphicModule(_forcedPushFrameIterator == 0);
+		++iter;
 
-		// Takes time to process messages that came from other threads.
-		threadMgr.processCurrentThreadActions();
+	} while (runIterationAgain && iter < maxCFLIteration && physicsElapsedDeltaTime < generalSimulationConfigData._maxCFLTime && physicsElapsedDeltaTime > getMinCLFTime());
 
-		++_forcedPushFrameIterator;
-		firstFrame = false;
+	// Update everything that should be updated once CFL iteration finished. 
+	for (auto &particleSystem : _particleSystem)
+	{
+		particleSystem.second->postApplySPH(physicsElapsedDeltaTime);
+	}
 
-	} while (true);
+	// Update the Rigid bodies positions in scene
+	physicsMgr.update(physicsElapsedDeltaTime);
+
+	// Update the position of every particles. 
+	for (auto &particleSystem : _particleSystem)
+	{
+		particleSystem.second->updatePosition(physicsElapsedDeltaTime, false);
+	}
 }
 
 void Storm::SimulatorManager::executeWCSPH()
@@ -694,11 +763,8 @@ void Storm::SimulatorManager::executePCISPH()
 	STORM_NOT_IMPLEMENTED;
 }
 
-void Storm::SimulatorManager::applyCFLIfNeeded(const Storm::GeneralSimulationData &generalSimulationDataConfig)
+bool Storm::SimulatorManager::applyCFLIfNeeded(const Storm::GeneralSimulationData &generalSimulationDataConfig)
 {
-	Storm::ITimeManager &timeMgr = Storm::SingletonHolder::instance().getSingleton<Storm::ITimeManager>();
-	timeMgr.advanceCurrentPhysicsElapsedTime();
-
 	if (generalSimulationDataConfig._computeCFL)
 	{
 		// 500ms by default seems fine (this time will be the one set if no particle moves)...
@@ -750,9 +816,13 @@ void Storm::SimulatorManager::applyCFLIfNeeded(const Storm::GeneralSimulationDat
 			newDeltaTimeStep = generalSimulationDataConfig._maxCFLTime;
 		}
 
+		Storm::ITimeManager &timeMgr = Storm::SingletonHolder::instance().getSingleton<Storm::ITimeManager>();
+
 		/* Apply the new timestep */
-		timeMgr.setCurrentPhysicsDeltaTime(newDeltaTimeStep);
+		return timeMgr.setCurrentPhysicsDeltaTime(newDeltaTimeStep);
 	}
+
+	return false;
 }
 
 void Storm::SimulatorManager::initializePreSimulation()
@@ -770,7 +840,7 @@ void Storm::SimulatorManager::refreshParticlesPosition()
 	for (auto &particleSystem : _particleSystem)
 	{
 		Storm::ParticleSystem &pSystem = *particleSystem.second;
-		pSystem.updatePosition(0.f);
+		pSystem.updatePosition(0.f, true);
 	}
 }
 

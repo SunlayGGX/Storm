@@ -24,13 +24,15 @@ namespace Storm
 	public:
 		void run();
 
+		void executeIteration(bool firstFrame, unsigned char forcedPushFrameIterator);
+
 	private:
 		void executeWCSPH();
 		void executePCISPH();
 
 	private:
 		// CFL : Courant-Friedrich-Levy
-		void applyCFLIfNeeded(const Storm::GeneralSimulationData &generalSimulationDataConfig);
+		bool applyCFLIfNeeded(const Storm::GeneralSimulationData &generalSimulationDataConfig);
 
 	private:
 		void initializePreSimulation();

@@ -103,11 +103,6 @@ void Storm::ParticleSystem::buildNeighborhood(const std::map<unsigned int, std::
 #endif
 }
 
-void Storm::ParticleSystem::postApplySPH()
-{
-
-}
-
 void Storm::ParticleSystem::initializePreSimulation(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const float kernelLengthSquared)
 {
 
