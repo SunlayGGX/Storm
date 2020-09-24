@@ -53,10 +53,9 @@ void Storm::TimeManager::initialize_Implementation()
 	_isRunning = true;
 
 	const Storm::GeneralSimulationData &generalSimulationData = configMgr.getGeneralSimulationData();
-	const float requestedPhysicsTimeInSeconds = generalSimulationData._physicsTimeInSeconds;
-	if (requestedPhysicsTimeInSeconds > 0.f)
+	if (generalSimulationData._physicsTimeInSec > 0.f)
 	{
-		_physicsTimeInSeconds = requestedPhysicsTimeInSeconds;
+		this->_physicsTimeInSeconds = generalSimulationData._physicsTimeInSec;
 	}
 
 	_isPaused = generalSimulationData._startPaused;
@@ -71,7 +70,7 @@ void Storm::TimeManager::initialize_Implementation()
 
 	_fields
 		.bindField(STORM_ELAPSED_TIME_FIELD_NAME, _physicsElapsedTimeInSeconds)
-		.bindField(STORM_DELTA_TIME_FIELD_NAME, _physicsTimeInSeconds)
+		.bindField(STORM_DELTA_TIME_FIELD_NAME, this->_physicsTimeInSeconds)
 		.bindField(STORM_PAUSE_FIELD_NAME, _isPaused)
 		;
 
@@ -181,13 +180,19 @@ std::chrono::milliseconds Storm::TimeManager::getCurrentSimulationElapsedTime() 
 
 float Storm::TimeManager::getCurrentPhysicsDeltaTime() const
 {
-	return _physicsTimeInSeconds;
+	return this->_physicsTimeInSeconds;
 }
 
-void Storm::TimeManager::setCurrentPhysicsDeltaTime(float deltaTimeInSeconds)
+bool Storm::TimeManager::setCurrentPhysicsDeltaTime(float deltaTimeInSeconds)
 {
-	_physicsTimeInSeconds = deltaTimeInSeconds;
-	_fields.pushField(STORM_DELTA_TIME_FIELD_NAME);
+	if (this->_physicsTimeInSeconds != deltaTimeInSeconds)
+	{
+		this->_physicsTimeInSeconds = deltaTimeInSeconds;
+		_fields.pushField(STORM_DELTA_TIME_FIELD_NAME);
+		return true;
+	}
+
+	return false;
 }
 
 float Storm::TimeManager::getCurrentPhysicsElapsedTime() const
@@ -203,7 +208,7 @@ void Storm::TimeManager::increaseCurrentPhysicsElapsedTime(float timeIncreaseInS
 
 void Storm::TimeManager::advanceCurrentPhysicsElapsedTime()
 {
-	this->increaseCurrentPhysicsElapsedTime(_physicsTimeInSeconds);
+	this->increaseCurrentPhysicsElapsedTime(this->_physicsTimeInSeconds);
 }
 
 void Storm::TimeManager::quit()

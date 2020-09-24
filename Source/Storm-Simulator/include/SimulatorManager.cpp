@@ -688,11 +688,10 @@ void Storm::SimulatorManager::applyCFLIfNeeded(const Storm::GeneralSimulationDat
 	Storm::ITimeManager &timeMgr = Storm::SingletonHolder::instance().getSingleton<Storm::ITimeManager>();
 	timeMgr.advanceCurrentPhysicsElapsedTime();
 
-	float newDeltaTimeStep = generalSimulationDataConfig._physicsTimeInSeconds;
-	if (newDeltaTimeStep <= 0.f)
+	if (generalSimulationDataConfig._computeCFL)
 	{
 		// 500ms by default seems fine (this time will be the one set if no particle moves)...
-		newDeltaTimeStep = 0.500f;
+		float newDeltaTimeStep = 0.500f;
 
 		/* Compute the max velocity norm during this timestep. */
 		float currentStepMaxVelocityNorm = 0.f;

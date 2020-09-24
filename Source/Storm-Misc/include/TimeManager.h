@@ -40,7 +40,7 @@ namespace Storm
 
 		std::chrono::milliseconds getCurrentSimulationElapsedTime() const final override;
 		float getCurrentPhysicsDeltaTime() const override;
-		void setCurrentPhysicsDeltaTime(float deltaTimeInSeconds) override;
+		bool setCurrentPhysicsDeltaTime(float deltaTimeInSeconds) final override;
 		float getCurrentPhysicsElapsedTime() const override;
 		void increaseCurrentPhysicsElapsedTime(float timeIncreaseInSeconds) final override;
 		void advanceCurrentPhysicsElapsedTime() final override;

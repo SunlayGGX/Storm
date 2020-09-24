@@ -89,7 +89,8 @@ namespace Storm
 		virtual float getCurrentPhysicsDeltaTime() const = 0;
 
 		// Set the simulation physics time in seconds.
-		virtual void setCurrentPhysicsDeltaTime(float deltaTimeInSeconds) = 0;
+		// Returns if the physics time changed from what was before.
+		virtual bool setCurrentPhysicsDeltaTime(float deltaTimeInSeconds) = 0;
 
 		// Get the simulation physics time elapsed in seconds.
 		virtual float getCurrentPhysicsElapsedTime() const = 0;

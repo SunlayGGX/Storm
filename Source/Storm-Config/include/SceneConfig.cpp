@@ -180,7 +180,7 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 			!Storm::XmlReader::handleXml(generalXmlElement, "kernelCoeff", generalData._kernelCoefficient) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "CFLCoeff", generalData._cflCoeff) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "MaxCFLTime", generalData._maxCFLTime) &&
-			!Storm::XmlReader::handleXml(generalXmlElement, "physicsTime", generalData._physicsTimeInSeconds) &&
+			!Storm::XmlReader::handleXml(generalXmlElement, "physicsTime", generalData._physicsTimeInSec) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "fps", generalData._expectedFps) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "maxPredictIteration", generalData._maxPredictIteration) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "maxDensityError", generalData._maxDensityError) &&
@@ -201,14 +201,23 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 	{
 		Storm::throwException<std::exception>("Max density error cannot be negative or equal to 0.f!");
 	}
-	else if (generalData._cflCoeff <= 0.f && generalData._physicsTimeInSeconds <= 0.f)
+	else if (generalData._physicsTimeInSec <= 0.f)
 	{
-		Storm::throwException<std::exception>("CFL was enabled but CFL coefficient is less or equal than 0 (value is " + std::to_string(generalData._cflCoeff) + "). It isn't allowed!");
+		if (generalData._cflCoeff <= 0.f)
+		{
+			Storm::throwException<std::exception>("CFL was enabled but CFL coefficient is less or equal than 0 (value is " + std::to_string(generalData._cflCoeff) + "). It isn't allowed!");
+		}
+		else if (generalData._maxCFLIteration <= 0)
+		{
+			Storm::throwException<std::exception>("CFL iteration should be greater or equal than 1 (value is " + std::to_string(generalData._maxCFLIteration) + ").");
+		}
 	}
-	else if (generalData._recomputeNeighborhoodStep == 0)
+	if (generalData._recomputeNeighborhoodStep == 0)
 	{
 		Storm::throwException<std::exception>("neighborCheckStep is equal to 0 which isn't allowed (we must recompute neighborhood at least one time)!");
 	}
+
+	generalData._computeCFL = generalData._physicsTimeInSec <= 0.f;
 
 	/* Graphic */
 	const float defaultLineThickness = generalData._particleRadius / 3.f;

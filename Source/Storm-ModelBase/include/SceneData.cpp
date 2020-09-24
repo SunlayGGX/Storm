@@ -20,7 +20,7 @@ Storm::GeneralSimulationData::GeneralSimulationData() :
 	_kernelCoefficient{ 4.f },
 	_cflCoeff{ 0.4f },
 	_startPaused{ false },
-	_physicsTimeInSeconds{ -1.f },
+	_physicsTimeInSec{ -1.f },
 	_expectedFps{ -1.f },
 	_simulationMode{ Storm::SimulationMode::None },
 	_maxPredictIteration{ 150 },
@@ -30,7 +30,8 @@ Storm::GeneralSimulationData::GeneralSimulationData() :
 	_recomputeNeighborhoodStep{ 1 },
 	_simulationNoWait{ false },
 	_removeFluidParticleCollidingWithRb{ true },
-	_hasFluid{ true }
+	_hasFluid{ true },
+	_computeCFL{ false }
 {
 
 }

@@ -18,8 +18,9 @@ namespace Storm
 
 		float _cflCoeff;
 		float _maxCFLTime;
+		bool _computeCFL;
 
-		float _physicsTimeInSeconds;
+		float _physicsTimeInSec;
 		float _expectedFps;
 
 		unsigned int _maxPredictIteration;
