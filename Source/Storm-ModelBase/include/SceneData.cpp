@@ -19,6 +19,7 @@ Storm::GeneralSimulationData::GeneralSimulationData() :
 	_particleRadius{ 0.05f },
 	_kernelCoefficient{ 4.f },
 	_cflCoeff{ 0.4f },
+	_maxCFLIteration{ 2 },
 	_startPaused{ false },
 	_physicsTimeInSec{ -1.f },
 	_expectedFps{ -1.f },
