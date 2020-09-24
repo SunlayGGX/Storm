@@ -303,6 +303,17 @@ namespace
 			inOutParticlePositions.pop_back();
 		}
 	}
+
+	float computeCFLDistance(const Storm::GeneralSimulationData &generalConfig)
+	{
+		const float maxDistanceAllowed = generalConfig._particleRadius * 2.f;
+		return generalConfig._cflCoeff * maxDistanceAllowed;
+	}
+
+	constexpr float getMinCLFTime()
+	{
+		return 0.0000001f;
+	}
 }
 
 Storm::SimulatorManager::SimulatorManager() :
@@ -720,7 +731,7 @@ void Storm::SimulatorManager::applyCFLIfNeeded(const Storm::GeneralSimulationDat
 
 			/* Compute the CFL Coefficient */
 			const float maxDistanceAllowed = generalSimulationDataConfig._particleRadius * 2.f;
-			newDeltaTimeStep = generalSimulationDataConfig._kernelCoefficient * maxDistanceAllowed / currentStepMaxVelocityNorm;
+			newDeltaTimeStep = computeCFLDistance(generalSimulationDataConfig) / currentStepMaxVelocityNorm;
 		}
 		else if (std::isinf(currentStepMaxVelocityNorm) || std::isnan(currentStepMaxVelocityNorm))
 		{
@@ -728,7 +739,7 @@ void Storm::SimulatorManager::applyCFLIfNeeded(const Storm::GeneralSimulationDat
 		}
 
 		// The physics engine doesn't like when the timestep is below some value...
-		constexpr float minDeltaTime = 0.0000001f;
+		constexpr float minDeltaTime = getMinCLFTime();
 		if (newDeltaTimeStep < minDeltaTime)
 		{
 			newDeltaTimeStep = minDeltaTime;
