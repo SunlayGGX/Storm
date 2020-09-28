@@ -355,7 +355,6 @@ void Storm::SimulatorManager::initialize_Implementation()
 			{
 				bool hasMadeSelectionChanges;
 
-				Storm::IGraphicsManager &graphicMgr = singletonHolder.getSingleton<Storm::IGraphicsManager>();
 				if (result.empty())
 				{
 					hasMadeSelectionChanges = _particleSelector.clearParticleSelection();
