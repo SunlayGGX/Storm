@@ -63,6 +63,9 @@ namespace Storm
 		std::size_t getFieldCount() const;
 
 	public:
+		void setTargetPositionTo(const Storm::Vector3 &newTargetPosition) final override;
+
+	public:
 		void changeBlowerState(const std::size_t blowerId, const Storm::BlowerState newState) final override;
 
 	public:

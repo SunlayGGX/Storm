@@ -50,6 +50,9 @@ namespace Storm
 		virtual void safeClearSelectedParticle() = 0;
 
 	public:
+		virtual void setTargetPositionTo(const Storm::Vector3 &newTargetPosition) = 0;
+
+	public:
 		virtual void changeBlowerState(const std::size_t blowerId, const Storm::BlowerState newState) = 0;
 	};
 }

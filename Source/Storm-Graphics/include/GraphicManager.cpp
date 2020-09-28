@@ -482,6 +482,14 @@ std::size_t Storm::GraphicManager::getFieldCount() const
 	return _fieldsMap.size();
 }
 
+void Storm::GraphicManager::setTargetPositionTo(const Storm::Vector3 &newTargetPosition)
+{
+	Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::GraphicsThread, [this, newTargetPosition]()
+	{
+		_camera->setTarget(newTargetPosition.x(), newTargetPosition.y(), newTargetPosition.z());
+	});
+}
+
 void Storm::GraphicManager::changeBlowerState(const std::size_t blowerId, const Storm::BlowerState newState)
 {
 	Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::GraphicsThread, [this, blowerId, newState]()
