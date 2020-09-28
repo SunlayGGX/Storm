@@ -4,6 +4,8 @@
 #include "Singleton.h"
 #include "ISimulatorManager.h"
 
+#include "ParticleSelector.h"
+
 
 namespace Storm
 {
@@ -59,11 +61,6 @@ namespace Storm
 	private:
 		void pushParticlesToGraphicModule(bool ignoreDirty, bool pushParallel = true) const;
 
-	private:
-		bool hasSelectedParticle() const noexcept;
-		bool setParticleSelection(unsigned int particleSystemId, std::size_t particleIndex);
-		bool clearParticleSelection();
-
 	public:
 		// Not from interface because they are intended to be used within simulation only (non thread safe)!
 		Storm::ParticleSystem& getParticleSystem(unsigned int id);
@@ -73,7 +70,7 @@ namespace Storm
 		std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> _particleSystem;
 		std::vector<std::unique_ptr<Storm::IBlower>> _blowers;
 
-		std::pair<unsigned int, std::size_t> _selectedParticle;
+		Storm::ParticleSelector _particleSelector;
 		bool _raycastEnabled;
 	};
 }
