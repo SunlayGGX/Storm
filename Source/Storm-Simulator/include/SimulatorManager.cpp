@@ -330,6 +330,10 @@ void Storm::SimulatorManager::initialize_Implementation()
 {
 	LOG_COMMENT << "Initializing the simulator";
 
+	/* initialize the Selector */
+
+	_particleSelector.initialize();
+
 	/* Initialize kernels */
 
 	Storm::initializeKernels(this->getKernelLength());
@@ -824,7 +828,7 @@ void Storm::SimulatorManager::pushParticlesToGraphicModule(bool ignoreDirty, boo
 
 void Storm::SimulatorManager::cycleSelectedParticleDisplayMode()
 {
-	_particleSelector.cycleParticleSelection();
+	_particleSelector.cycleParticleSelectionDisplayMode();
 
 	if (_particleSelector.hasSelectedParticle())
 	{

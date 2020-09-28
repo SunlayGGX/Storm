@@ -4,6 +4,7 @@
 namespace Storm
 {
 	enum class ParticleSelectionMode : uint8_t;
+	class UIFieldContainer;
 
 	class ParticleSelector
 	{
@@ -18,6 +19,10 @@ namespace Storm
 
 	public:
 		ParticleSelector();
+		~ParticleSelector();
+
+	public:
+		void initialize();
 
 	public:
 		bool hasSelectedParticle() const noexcept;
@@ -25,7 +30,8 @@ namespace Storm
 		bool clearParticleSelection();
 
 	public:
-		void cycleParticleSelection();
+		void setParticleSelectionDisplayMode(const Storm::ParticleSelectionMode newMode);
+		void cycleParticleSelectionDisplayMode();
 
 	public:
 		void setSelectedParticlePressureForce(const Storm::Vector3 &pressureForce);
@@ -41,5 +47,8 @@ namespace Storm
 		SelectedParticleData _selectedParticleData;
 
 		Storm::ParticleSelectionMode _currentParticleSelectionMode;
+
+		std::wstring _selectionModeStr;
+		std::unique_ptr<Storm::UIFieldContainer> _fields;
 	};
 }

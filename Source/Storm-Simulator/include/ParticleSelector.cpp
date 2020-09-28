@@ -5,11 +5,47 @@
 
 #include "ParticleSelectionMode.h"
 
+#include "UIField.h"
+#include "UIFieldContainer.h"
+
+#define STORM_SELECTED_PARTICLE_DISPLAY_MODE_FIELD_NAME "Selected P. Mode"
+
+
+namespace
+{
+	std::wstring parseSelectedParticleMode(const Storm::ParticleSelectionMode mode)
+	{
+		switch (mode)
+		{
+		case Storm::ParticleSelectionMode::Pressure: return L"Pressure";
+		case Storm::ParticleSelectionMode::Viscosity: return L"Viscosity";
+		case Storm::ParticleSelectionMode::ViscosityAndPressure: return L"All";
+
+		case Storm::ParticleSelectionMode::SelectionModeCount:
+		default:
+			Storm::throwException<std::exception>("Unknown particle selection mode. Mode was " + Storm::toStdString(mode));
+			break;
+		}
+	}
+}
+
 
 Storm::ParticleSelector::ParticleSelector() :
 	_currentParticleSelectionMode{ Storm::ParticleSelectionMode::ViscosityAndPressure }
 {
+	_selectionModeStr = parseSelectedParticleMode(_currentParticleSelectionMode);
 	_selectedParticleData._selectedParticle = std::make_pair(std::numeric_limits<decltype(_selectedParticleData._selectedParticle.first)>::max(), 0);
+}
+
+Storm::ParticleSelector::~ParticleSelector() = default;
+
+void Storm::ParticleSelector::initialize()
+{
+	_fields = std::make_unique<Storm::UIFieldContainer>();
+
+	(*_fields)
+		.bindField(STORM_SELECTED_PARTICLE_DISPLAY_MODE_FIELD_NAME, _selectionModeStr)
+		;
 }
 
 bool Storm::ParticleSelector::hasSelectedParticle() const noexcept
@@ -48,10 +84,18 @@ bool Storm::ParticleSelector::clearParticleSelection()
 	return false;
 }
 
-void Storm::ParticleSelector::cycleParticleSelection()
+void Storm::ParticleSelector::setParticleSelectionDisplayMode(const Storm::ParticleSelectionMode newMode)
+{
+	_selectionModeStr = parseSelectedParticleMode(newMode);
+	_currentParticleSelectionMode = newMode;
+
+	_fields->pushField(STORM_SELECTED_PARTICLE_DISPLAY_MODE_FIELD_NAME);
+}
+
+void Storm::ParticleSelector::cycleParticleSelectionDisplayMode()
 {
 	const uint8_t cycledValue = (static_cast<uint8_t>(_currentParticleSelectionMode) + 1) % static_cast<uint8_t>(Storm::ParticleSelectionMode::SelectionModeCount);
-	_currentParticleSelectionMode = static_cast<Storm::ParticleSelectionMode>(cycledValue);
+	this->setParticleSelectionDisplayMode(static_cast<Storm::ParticleSelectionMode>(cycledValue));
 }
 
 void Storm::ParticleSelector::setSelectedParticlePressureForce(const Storm::Vector3 &pressureForce)
