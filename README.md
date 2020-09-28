@@ -55,11 +55,11 @@ I'm using catch2 as our main unit test library. But to be able to use it, you sh
 - **Storm-Input**: This module is for managing inputs, bindings and their callback.
 - **Storm-Loader**: This module's purpose is to load external object like meshes.
 - **Storm-Logger**: This module is for logging.
-- **Storm-Misc**: This module is intended to gather module manager helper that shouldn't be made into helpers since they are Storm project implementation related but cannot be put into any other modules. Example are the RandomManager (that should be deterministic), the TimeManager (that should be compliant with Storm simulator), the AsyncManager (that is intended to be executed in the main Simulation loop like Unreal's Async method), ... .
-- **Storm-ModelBase**: This module is the base for each modules. It ontains everything that could be used to bind the modules together without the need to reference each other.
+- **Storm-Misc**: This module is intended to gather module manager helper that shouldn't be made into helpers since they are Storm project implementation related but cannot be put into any other modules. Example are the RandomManager (that should be deterministic), the TimeManager (that should be compliant with Storm simulator), the ThreadManager (that is intended to be executed in the main Simulation loop like Unreal's Async method), ... .
+- **Storm-ModelBase**: This module is the base for each modules. It contains everything that could be used to bind the modules together without the need to reference each other.
 - **Storm-Physics**: This module is responsible for initializing and managing Physics computations.
 - **Storm-Profiler**: This module is to allow getting some profiling data. This does not intend to replace the Visual Studio buit-in tool or any other external library, but just a way to register times, speed, ... and display it inside the Storm application UI or logging it.
-- **Storm-Space**: This module is where we implement the space vicualisation of the domain. Be it Voxels, Grids, octree, ... This is where we compute and store element for a fast neighborhood search.
+- **Storm-Space**: This module is where we implement the space visualisation of the domain. Be it Voxels, Grids, octree, ... This is where we compute and store element for a fast neighborhood search.
 - **Storm-Simulator**: This module is where the Simulation classes would be. It is responsible to handle SPH.
 - **Storm-Windows**: This module is responsible for managing the Windows and everything related to it.
 
@@ -194,7 +194,7 @@ Note that the maximum value you can set is Fatal, it means that no matter what l
 ### Scene Config
 
 Scene configuration files contains all the data for running a simulation, therefore it is mandatory to specify one. If it was not set from the command line, Storm application will open an explorer windows to allow you to choose one.
-Unlike the others config files, it can be named as you want. Here the wml tags you can set :
+Unlike the others config files, it can be named as you want. Here the xml tags you can set :
 
 
 #### General
@@ -252,7 +252,7 @@ This element is all setting appartaining to a fluid. Here the tag you can set in
 Inside this element should be put all rigidbodies. Each rigidbody should be specified under a tag named "RigidBody".
 
 ##### RigidBody
-- **id (positive integer, mandatory)**: This is the unique id of the rigid body.  It should be unique (Note that it should not be equal to any fluid id and blower id too).
+- **id (positive integer, mandatory)**: This is the unique id of the rigid body.  It should be unique (Note that it should not be equal to any fluid id or blower id).
 - **meshFile (string, mandatory, accept macro)**: This is mesh file path this rigid body is bound to.
 - **isStatic (boolean, facultative)**: Specify this to tell the simulation that this object is fixed (won't move throughout the simulation). Default value is "true".
 - **wall (boolean, facultative)**: Specify that this object is the wall (considered to be a wall). By defainition, a wall is static so if the value is true, the object will be considered static no matter the value set to isStatic. Default value is "false".
