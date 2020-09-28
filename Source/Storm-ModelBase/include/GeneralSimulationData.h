@@ -39,5 +39,7 @@ namespace Storm
 		bool _removeFluidParticleCollidingWithRb;
 
 		bool _hasFluid;
+
+		bool _fixRigidBodyAtStartTime;
 	};
 }

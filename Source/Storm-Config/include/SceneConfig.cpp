@@ -187,7 +187,8 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 			!Storm::XmlReader::handleXml(generalXmlElement, "maxDensityError", generalData._maxDensityError) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "neighborCheckStep", generalData._recomputeNeighborhoodStep) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "simulationNoWait", generalData._simulationNoWait) &&
-			!Storm::XmlReader::handleXml(generalXmlElement, "particleRadius", generalData._particleRadius)
+			!Storm::XmlReader::handleXml(generalXmlElement, "particleRadius", generalData._particleRadius) &&
+			!Storm::XmlReader::handleXml(generalXmlElement, "startFixRigidBodies", generalData._fixRigidBodyAtStartTime)
 			)
 		{
 			LOG_ERROR << "tag '" << generalXmlElement.first << "' (inside Scene.General) is unknown, therefore it cannot be handled";

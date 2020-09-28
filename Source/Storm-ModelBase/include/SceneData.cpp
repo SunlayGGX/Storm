@@ -32,7 +32,8 @@ Storm::GeneralSimulationData::GeneralSimulationData() :
 	_simulationNoWait{ false },
 	_removeFluidParticleCollidingWithRb{ true },
 	_hasFluid{ true },
-	_computeCFL{ false }
+	_computeCFL{ false },
+	_fixRigidBodyAtStartTime{ false }
 {
 
 }
