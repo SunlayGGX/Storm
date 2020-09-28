@@ -340,6 +340,7 @@ void Storm::SimulatorManager::initialize_Implementation()
 	inputMgr.bindKey(Storm::SpecialKey::KC_F1, [this]() { this->printFluidParticleData(); });
 	inputMgr.bindKey(Storm::SpecialKey::KC_E, [this]() { this->tweekBlowerEnabling(); });
 	inputMgr.bindKey(Storm::SpecialKey::KC_R, [this]() { this->tweekRaycastEnabling(); });
+	inputMgr.bindKey(Storm::SpecialKey::KC_Y, [this]() { this->cycleSelectedParticleDisplayMode(); });
 
 	Storm::IRaycastManager &raycastMgr = singletonHolder.getSingleton<Storm::IRaycastManager>();
 	inputMgr.bindMouseLeftClick([this, &raycastMgr, &singletonHolder](int xPos, int yPos, int width, int height)
@@ -817,6 +818,20 @@ void Storm::SimulatorManager::pushParticlesToGraphicModule(bool ignoreDirty, boo
 		for (const auto &particleSystPtr : _particleSystem)
 		{
 			pushActionLambda(particleSystPtr);
+		}
+	}
+}
+
+void Storm::SimulatorManager::cycleSelectedParticleDisplayMode()
+{
+	_particleSelector.cycleParticleSelection();
+
+	if (_particleSelector.hasSelectedParticle())
+	{
+		const Storm::ITimeManager &timeMgr = Storm::SingletonHolder::instance().getSingleton<Storm::ITimeManager>();
+		if (timeMgr.getStateNoSyncWait() == Storm::TimeWaitResult::Pause)
+		{
+			this->pushParticlesToGraphicModule(true, false);
 		}
 	}
 }

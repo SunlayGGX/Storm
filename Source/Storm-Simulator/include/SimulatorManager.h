@@ -61,6 +61,9 @@ namespace Storm
 	private:
 		void pushParticlesToGraphicModule(bool ignoreDirty, bool pushParallel = true) const;
 
+	private:
+		void cycleSelectedParticleDisplayMode();
+
 	public:
 		// Not from interface because they are intended to be used within simulation only (non thread safe)!
 		Storm::ParticleSystem& getParticleSystem(unsigned int id);
