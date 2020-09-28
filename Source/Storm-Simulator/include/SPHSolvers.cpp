@@ -9,13 +9,15 @@
 #include "FluidParticleSystem.h"
 #include "RigidBodyParticleSystem.h"
 
+#include "ParticleSelector.h"
+
 #include "Kernel.h"
 
 #include "RunnerHelper.h"
 
 
 
-void Storm::WCSPHSolver::execute(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &particleSystems, const float k_kernelLength)
+void Storm::WCSPHSolver::execute(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &particleSystems, const float k_kernelLength, Storm::ParticleSelector &selectorParticle)
 {
 	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
 	const Storm::GeneralSimulationData &generalSimulData = configMgr.getGeneralSimulationData();
@@ -77,6 +79,8 @@ void Storm::WCSPHSolver::execute(const std::map<unsigned int, std::unique_ptr<St
 		}
 	}
 
+	const bool hasSelectedParticle = selectorParticle.hasSelectedParticle();
+
 	// Second : Compute forces : pressure and viscosity
 	for (auto &particleSystemPair : particleSystems)
 	{
@@ -107,6 +111,9 @@ void Storm::WCSPHSolver::execute(const std::map<unsigned int, std::unique_ptr<St
 
 				const float viscoPrecoeff = 0.01f * k_kernelLength * k_kernelLength;
 
+				Storm::Vector3 totalPressureForceOnParticle = Storm::Vector3::Zero();
+				Storm::Vector3 totalViscosityForceOnParticle = Storm::Vector3::Zero();
+
 				const Storm::ParticleNeighborhoodArray &currentPNeighborhood = neighborhoodArrays[currentPIndex];
 				for (const Storm::NeighborParticleInfo &neighbor : currentPNeighborhood)
 				{
@@ -117,7 +124,8 @@ void Storm::WCSPHSolver::execute(const std::map<unsigned int, std::unique_ptr<St
 					const float vijDotXij = vij.dot(neighbor._positionDifferenceVector);
 					const float viscoGlobalCoeff = currentPMass * 10.f * vijDotXij / (neighbor._vectToParticleSquaredNorm + viscoPrecoeff);
 
-					Storm::Vector3 forceAdded = Storm::Vector3::Zero();
+					Storm::Vector3 pressureComponent;
+					Storm::Vector3 viscosityComponent;
 
 					if (neighbor._isFluidParticle)
 					{
@@ -130,10 +138,10 @@ void Storm::WCSPHSolver::execute(const std::map<unsigned int, std::unique_ptr<St
 
 						// Pressure
 						const float neighborPressureCoeff = neighborPSystemAsFluid->getPressures()[neighbor._particleIndex] / (neighborDensity * neighborDensity);
-						forceAdded -= (restMassDensity * neighborVolume * (currentPFluidPressureCoeff + neighborPressureCoeff)) * gradKernel_NablaWij;
+						pressureComponent = -(restMassDensity * neighborVolume * (currentPFluidPressureCoeff + neighborPressureCoeff)) * gradKernel_NablaWij;
 
 						// Viscosity
-						forceAdded += (viscoGlobalCoeff * fluidConfigData._dynamicViscosity * neighborMass / neighborRawDensity) * gradKernel_NablaWij;
+						viscosityComponent = (viscoGlobalCoeff * fluidConfigData._dynamicViscosity * neighborMass / neighborRawDensity) * gradKernel_NablaWij;
 					}
 					else
 					{
@@ -143,12 +151,16 @@ void Storm::WCSPHSolver::execute(const std::map<unsigned int, std::unique_ptr<St
 						const float rbViscosity = neighborPSystemAsBoundary->getViscosity();
 
 						// Pressure
-						forceAdded -= (currentPRestMassDensityBoundaryPressureCoeff * neighborVolume) * gradKernel_NablaWij;
+						pressureComponent = -(currentPRestMassDensityBoundaryPressureCoeff * neighborVolume) * gradKernel_NablaWij;
 
 						// Viscosity
 						if (rbViscosity > 0.f)
 						{
-							forceAdded += (viscoGlobalCoeff * rbViscosity * neighborVolume * density0 / currentPDensity) * gradKernel_NablaWij;
+							viscosityComponent = (viscoGlobalCoeff * rbViscosity * neighborVolume * density0 / currentPDensity) * gradKernel_NablaWij;
+						}
+						else
+						{
+							viscosityComponent = Storm::Vector3::Zero();
 						}
 
 						// Mirror the force on the boundary solid following the 3rd newton law
@@ -156,19 +168,31 @@ void Storm::WCSPHSolver::execute(const std::map<unsigned int, std::unique_ptr<St
 						{
 							Storm::Vector3 &boundaryNeighborForce = neighbor._containingParticleSystem->getForces()[neighbor._particleIndex];
 
+							const Storm::Vector3 sumForces = pressureComponent + viscosityComponent;
+
 							std::lock_guard<std::mutex> lock{ neighbor._containingParticleSystem->_mutex };
-							boundaryNeighborForce -= forceAdded;
+							boundaryNeighborForce -= sumForces;
 						}
 					}
 
-					currentPForce += forceAdded;
+					totalPressureForceOnParticle += pressureComponent;
+					totalViscosityForceOnParticle += viscosityComponent;
+				}
+
+				currentPForce += totalPressureForceOnParticle;
+				currentPForce += totalViscosityForceOnParticle;
+
+				if (hasSelectedParticle && selectorParticle.getSelectedParticleIndex() == currentPIndex)
+				{
+					selectorParticle.setSelectedParticlePressureForce(totalPressureForceOnParticle);
+					selectorParticle.setSelectedParticleViscosityForce(totalViscosityForceOnParticle);
 				}
 			});
 		}
 	}
 }
 
-void Storm::PCISPHSolver::execute(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &particleSystems, const float kernelLength)
+void Storm::PCISPHSolver::execute(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &particleSystems, const float k_kernelLength, Storm::ParticleSelector &selectorParticle)
 {
 	STORM_NOT_IMPLEMENTED;
 }

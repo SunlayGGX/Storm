@@ -560,11 +560,11 @@ void Storm::SimulatorManager::executeIteration(bool firstFrame, unsigned char fo
 		switch (generalSimulationConfigData._simulationMode)
 		{
 		case Storm::SimulationMode::WCSPH:
-			Storm::WCSPHSolver::execute(_particleSystem, kernelLength);
+			Storm::WCSPHSolver::execute(_particleSystem, kernelLength, _particleSelector);
 			break;
 
 		case Storm::SimulationMode::PCISPH:
-			Storm::PCISPHSolver::execute(_particleSystem, kernelLength);
+			Storm::PCISPHSolver::execute(_particleSystem, kernelLength, _particleSelector);
 			break;
 
 		default:
