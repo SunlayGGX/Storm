@@ -381,6 +381,34 @@ void Storm::SimulatorManager::initialize_Implementation()
 		}
 	});
 
+	inputMgr.bindMouseMiddleClick([this, &raycastMgr, &singletonHolder](int xPos, int yPos, int width, int height)
+	{
+		if (_raycastEnabled)
+		{
+			raycastMgr.queryRaycast(Storm::Vector2{ xPos, yPos }, std::move(Storm::RaycastQueryRequest{ [this, &singletonHolder](std::vector<Storm::RaycastHitResult> &&result)
+			{
+				if (result.empty())
+				{
+					LOG_DEBUG << "No particle touched";
+				}
+				else
+				{
+					const Storm::RaycastHitResult &firstHit = result[0];
+
+					Storm::IGraphicsManager &graphicMgr = singletonHolder.getSingleton<Storm::IGraphicsManager>();
+					graphicMgr.setTargetPositionTo(firstHit._hitPosition);
+
+					LOG_DEBUG << "Camera target set to " << firstHit._hitPosition;
+				}
+			} }
+				.addPartitionFlag(Storm::PartitionSelection::DynamicRigidBody)
+				.addPartitionFlag(Storm::PartitionSelection::StaticRigidBody)
+				.addPartitionFlag(Storm::PartitionSelection::Fluid)
+				.firstHitOnly())
+			);
+		}
+	});
+
 	/* Register this thread as the simulator thread for the speed profiler */
 	Storm::IProfilerManager &profilerMgr = singletonHolder.getSingleton<Storm::IProfilerManager>();
 	profilerMgr.registerCurrentThreadAsSimulationThread(k_simulationSpeedBalistName);

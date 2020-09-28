@@ -338,3 +338,5 @@ Inside this element should be put all rigidbodies. Each rigidbody should be spec
 ## Mouse bindings
 - **Left click on dynamic rigid body particle**:
     - Select the particle to display either its Pressure force, Viscosity force or the sum of those force (see "Cycle the particle selection force to display" key binding). This binding is only valid if the raycast is enabled (see "Enable/Disable raycasts system" key binding).
+- **Middle click on particle**:
+    - Set the camera target to the particle position. This binding is only valid if the raycast is enabled (see "Enable/Disable raycasts system" key binding).
