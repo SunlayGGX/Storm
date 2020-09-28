@@ -9,10 +9,12 @@
 
 #include "RigidBodySceneData.h"
 #include "ConstraintData.h"
+#include "GeneralSimulationData.h"
 
 #include "SingletonHolder.h"
 #include "IGraphicsManager.h"
 #include "IThreadManager.h"
+#include "IConfigManager.h"
 
 #include "ThreadEnumeration.h"
 
@@ -20,7 +22,12 @@
 #include "SearchAlgo.h"
 
 
-Storm::PhysicsManager::PhysicsManager() = default;
+Storm::PhysicsManager::PhysicsManager() :
+	_rigidBodiesFixated{ false }
+{
+
+}
+
 Storm::PhysicsManager::~PhysicsManager() = default;
 
 void Storm::PhysicsManager::initialize_Implementation()
@@ -28,6 +35,11 @@ void Storm::PhysicsManager::initialize_Implementation()
 	LOG_COMMENT << "PhysX initialization started";
 
 	_physXHandler = std::make_unique<Storm::PhysXHandler>();
+
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
+
+	_rigidBodiesFixated = configMgr.getGeneralSimulationData()._fixRigidBodyAtStartTime;
 
 	LOG_COMMENT << "PhysX initialization ended";
 }
@@ -48,9 +60,12 @@ void Storm::PhysicsManager::cleanUp_Implementation()
 
 void Storm::PhysicsManager::update(float deltaTime)
 {
-	_physXHandler->update(_simulationMutex, deltaTime);
+	if (!_rigidBodiesFixated)
+	{
+		_physXHandler->update(_simulationMutex, deltaTime);
 
-	this->pushPhysicsVisualizationData();
+		this->pushPhysicsVisualizationData();
+	}
 }
 
 void Storm::PhysicsManager::addPhysicalBody(const Storm::RigidBodySceneData &rbSceneData, const std::vector<Storm::Vector3> &vertexes, const std::vector<uint32_t> &indexes)
@@ -175,20 +190,23 @@ void Storm::PhysicsManager::getMeshTransform(unsigned int meshId, Storm::Vector3
 
 void Storm::PhysicsManager::applyLocalForces(unsigned int particleSystemId, const std::vector<Storm::Vector3> &position, const std::vector<Storm::Vector3> &force)
 {
-	if (const auto dynamicFound = _dynamicsRbMap.find(particleSystemId); dynamicFound != std::end(_dynamicsRbMap))
+	if (!_rigidBodiesFixated)
 	{
-		Storm::PhysicsDynamicRigidBody &dynamicRb = *dynamicFound->second;
-		const std::size_t applyCount = position.size();
-
-		assert(applyCount == force.size() && "Mismatch detected between position and force apply count.");
-		for (std::size_t iter = 0; iter < applyCount; ++iter)
+		if (const auto dynamicFound = _dynamicsRbMap.find(particleSystemId); dynamicFound != std::end(_dynamicsRbMap))
 		{
-			dynamicRb.applyForce(position[iter], force[iter]);
+			Storm::PhysicsDynamicRigidBody &dynamicRb = *dynamicFound->second;
+			const std::size_t applyCount = position.size();
+
+			assert(applyCount == force.size() && "Mismatch detected between position and force apply count.");
+			for (std::size_t iter = 0; iter < applyCount; ++iter)
+			{
+				dynamicRb.applyForce(position[iter], force[iter]);
+			}
 		}
-	}
-	else
-	{
-		assert(_staticsRbMap.find(particleSystemId) != std::end(_staticsRbMap) && "Cannot find requested physics rigid body!");
+		else
+		{
+			assert(_staticsRbMap.find(particleSystemId) != std::end(_staticsRbMap) && "Cannot find requested physics rigid body!");
+		}
 	}
 }
 

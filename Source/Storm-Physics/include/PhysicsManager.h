@@ -57,5 +57,7 @@ namespace Storm
 		std::map<unsigned int, std::unique_ptr<Storm::PhysicsDynamicRigidBody>> _dynamicsRbMap;
 
 		std::vector<std::unique_ptr<Storm::PhysicsConstraint>> _constraints;
+
+		bool _rigidBodiesFixated;
 	};
 }
