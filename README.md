@@ -327,5 +327,6 @@ Inside this element should be put all rigidbodies. Each rigidbody should be spec
 - **X**: Set particle state without rendering walls.
 - **E**: Enable all disabled blower, and disable all enabled ones.
 - **R**: Enable (if disabled)/Disable (if enabled) raycasts system.
+- **L**: Fix (if unfixed)/Unfix (if fixed) rigid bodies.
 - **F1**: Debug command to print to a human readable text giving all position, velocity and force values of all fluid particles. The data is printed inside the output (temp) directory inside "Debug" folder.
 

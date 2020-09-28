@@ -15,8 +15,10 @@
 #include "IGraphicsManager.h"
 #include "IThreadManager.h"
 #include "IConfigManager.h"
+#include "IInputManager.h"
 
 #include "ThreadEnumeration.h"
+#include "SpecialKey.h"
 
 #include "ThrowException.h"
 #include "SearchAlgo.h"
@@ -40,6 +42,9 @@ void Storm::PhysicsManager::initialize_Implementation()
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
 
 	_rigidBodiesFixated = configMgr.getGeneralSimulationData()._fixRigidBodyAtStartTime;
+
+	Storm::IInputManager &inputMgr = singletonHolder.getSingleton<Storm::IInputManager>();
+	inputMgr.bindKey(Storm::SpecialKey::KC_L, [this]() { _rigidBodiesFixated = !_rigidBodiesFixated; });
 
 	LOG_COMMENT << "PhysX initialization ended";
 }
