@@ -463,6 +463,15 @@ void Storm::SimulatorManager::run()
 
 		this->executeIteration(firstFrame, forcedPushFrameIterator);
 
+		// Update the particle selector data with the external sum force.
+		if (_particleSelector.hasSelectedParticle())
+		{
+			if (auto found = _particleSystem.find(_particleSelector.getSelectedParticleSystemId()); found != std::end(_particleSystem))
+			{
+				_particleSelector.setSelectedParticleSumForce(found->second->getForces()[_particleSelector.getSelectedParticleIndex()]);
+			}
+		}
+
 		// Push all particle data to the graphic module to be rendered...
 		this->pushParticlesToGraphicModule(forcedPushFrameIterator == 0);
 
