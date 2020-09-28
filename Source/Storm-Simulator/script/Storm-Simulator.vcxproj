@@ -22,7 +22,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\include\WCSPHSolver.cpp" />
+    <ClCompile Include="..\include\SPHSolvers.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Blower.h" />
@@ -39,7 +39,7 @@
     <ClInclude Include="..\include\SemiImplicitEulerSolver.h" />
     <ClInclude Include="..\include\SimulatorManager.h" />
     <ClInclude Include="..\include\Storm-SimulatorPCH.h" />
-    <ClInclude Include="..\include\WCSPHSolver.h" />
+    <ClInclude Include="..\include\SPHSolvers.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Storm-Helper\script\Storm-Helper.vcxproj">

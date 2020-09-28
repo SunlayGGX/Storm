@@ -27,7 +27,7 @@
 #include "SemiImplicitEulerSolver.h"
 #include "Kernel.h"
 
-#include "WCSPHSolver.h"
+#include "SPHSolvers.h"
 
 #include "SpecialKey.h"
 

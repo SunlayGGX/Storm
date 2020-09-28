@@ -37,18 +37,6 @@
     <Filter Include="Source Files\Blowers">
       <UniqueIdentifier>{dcfc1944-4431-485b-89b9-079b1cb14d9f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Solver\SPHSolver">
-      <UniqueIdentifier>{1e93371f-6849-4984-b58e-74b4dafb87a8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Solver\EulerSolver">
-      <UniqueIdentifier>{15f0f064-a969-47b3-bd74-73b826edac19}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Solver\EulerSolver">
-      <UniqueIdentifier>{01ef924f-f645-4cc4-8d46-0d35c50d6c80}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Solver\SPHSolver">
-      <UniqueIdentifier>{34cacfe1-ff3e-4edc-92a5-4ddad944473e}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-SimulatorPCH.cpp">
@@ -73,10 +61,10 @@
       <Filter>Source Files\Blowers</Filter>
     </ClCompile>
     <ClCompile Include="..\include\SemiImplicitEulerSolver.cpp">
-      <Filter>Source Files\Solver\EulerSolver</Filter>
+      <Filter>Source Files\Solver</Filter>
     </ClCompile>
-    <ClCompile Include="..\include\WCSPHSolver.cpp">
-      <Filter>Source Files\Solver\SPHSolver</Filter>
+    <ClCompile Include="..\include\SPHSolvers.cpp">
+      <Filter>Source Files\Solver</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -119,11 +107,11 @@
     <ClInclude Include="..\include\BlowerEffectArea.h">
       <Filter>Header Files\Blowers</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\WCSPHSolver.h">
-      <Filter>Header Files\Solver\SPHSolver</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\SemiImplicitEulerSolver.h">
-      <Filter>Header Files\Solver\EulerSolver</Filter>
+      <Filter>Header Files\Solver</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SPHSolvers.h">
+      <Filter>Header Files\Solver</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

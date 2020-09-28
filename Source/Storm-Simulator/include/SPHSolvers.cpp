@@ -1,4 +1,4 @@
-#include "WCSPHSolver.h"
+#include "SPHSolvers.h"
 
 #include "SingletonHolder.h"
 #include "IConfigManager.h"
@@ -168,3 +168,7 @@ void Storm::WCSPHSolver::execute(const std::map<unsigned int, std::unique_ptr<St
 	}
 }
 
+void Storm::PCISPHSolver::execute(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &particleSystems, const float kernelLength)
+{
+	STORM_NOT_IMPLEMENTED;
+}
