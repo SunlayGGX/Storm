@@ -37,6 +37,12 @@
     <Filter Include="Source Files\Blowers">
       <UniqueIdentifier>{dcfc1944-4431-485b-89b9-079b1cb14d9f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\General">
+      <UniqueIdentifier>{d8ed9387-1195-49ea-b4ec-636358e49308}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\General">
+      <UniqueIdentifier>{ba2452b7-d414-4dcf-97b1-52604bdfbd7d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-SimulatorPCH.cpp">
@@ -65,6 +71,9 @@
     </ClCompile>
     <ClCompile Include="..\include\SPHSolvers.cpp">
       <Filter>Source Files\Solver</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\ParticleSelector.cpp">
+      <Filter>Source Files\General</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -112,6 +121,12 @@
     </ClInclude>
     <ClInclude Include="..\include\SPHSolvers.h">
       <Filter>Header Files\Solver</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ParticleSelector.h">
+      <Filter>Header Files\General</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ParticleSelectionMode.h">
+      <Filter>Header Files\General</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

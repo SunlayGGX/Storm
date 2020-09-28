@@ -14,6 +14,7 @@
     <ClCompile Include="..\include\Blower.cpp" />
     <ClCompile Include="..\include\FluidParticleSystem.cpp" />
     <ClCompile Include="..\include\Kernel.cpp" />
+    <ClCompile Include="..\include\ParticleSelector.cpp" />
     <ClCompile Include="..\include\ParticleSystem.cpp" />
     <ClCompile Include="..\include\RigidBodyParticleSystem.cpp" />
     <ClCompile Include="..\include\SemiImplicitEulerSolver.cpp" />
@@ -33,6 +34,8 @@
     <ClInclude Include="..\include\IBlower.h" />
     <ClInclude Include="..\include\Kernel.h" />
     <ClInclude Include="..\include\NeighborParticleInfo.h" />
+    <ClInclude Include="..\include\ParticleSelectionMode.h" />
+    <ClInclude Include="..\include\ParticleSelector.h" />
     <ClInclude Include="..\include\ParticleSystem.h" />
     <ClInclude Include="..\include\ParticleSystemUtils.h" />
     <ClInclude Include="..\include\RigidBodyParticleSystem.h" />
