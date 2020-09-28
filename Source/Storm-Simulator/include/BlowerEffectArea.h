@@ -118,9 +118,11 @@ namespace Storm
 		__forceinline bool isInside(const Storm::Vector3 &relativePosDiff) const
 		{
 			const float yAbs = std::fabs(relativePosDiff.y());
-			if (yAbs < _height)
+			if (yAbs < _midHeight)
 			{
-				const float alpha = 2.f * yAbs / _height;
+				const float alpha = yAbs / _midHeight;
+
+				// This is a LERP
 				const float currentRadiusSquared = _downRadiusSquared + _diffRadiusSquared * alpha;
 
 				const float twoDRelativeLengthSquared = relativePosDiff.x() * relativePosDiff.x() + relativePosDiff.z() * relativePosDiff.z();
@@ -131,7 +133,7 @@ namespace Storm
 		}
 
 	protected:
-		float _height;
+		float _midHeight;
 		float _diffRadiusSquared;
 		float _downRadiusSquared;
 	};

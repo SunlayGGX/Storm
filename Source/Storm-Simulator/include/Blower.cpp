@@ -177,7 +177,7 @@ Storm::BlowerCylinderArea::BlowerCylinderArea(const Storm::BlowerData &blowerDat
 
 Storm::BlowerConeArea::BlowerConeArea(const Storm::BlowerData &blowerDataConfig) :
 	_downRadiusSquared{ blowerDataConfig._downRadius * blowerDataConfig._downRadius },
-	_height{ blowerDataConfig._height }
+	_midHeight{ blowerDataConfig._height / 2.f }
 {
 	STORM_ENSURE_CONSTRUCTED_ON_RIGHT_SETTING(blowerDataConfig, Storm::BlowerType::Cone);
 
