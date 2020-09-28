@@ -530,6 +530,8 @@ void Storm::SimulatorManager::executeIteration(bool firstFrame, unsigned char fo
 	int iter = 0;
 
 	float exDeltaTime = physicsElapsedDeltaTime;
+	
+	const float kernelLength = this->getKernelLength();
 
 	bool hasRunIterationBefore = false;
 	do 
@@ -550,12 +552,15 @@ void Storm::SimulatorManager::executeIteration(bool firstFrame, unsigned char fo
 		switch (generalSimulationConfigData._simulationMode)
 		{
 		case Storm::SimulationMode::WCSPH:
-			this->executeWCSPH();
+			Storm::WCSPHSolver::execute(_particleSystem, kernelLength);
 			break;
 
 		case Storm::SimulationMode::PCISPH:
-			this->executePCISPH();
+			Storm::PCISPHSolver::execute(_particleSystem, kernelLength);
 			break;
+
+		default:
+			Storm::throwException<std::exception>("Unknown simulation mode!");
 		}
 
 		float velocityThresholdSquaredForCFL = computeCFLDistance(generalSimulationConfigData) / physicsElapsedDeltaTime;
@@ -604,16 +609,6 @@ void Storm::SimulatorManager::executeIteration(bool firstFrame, unsigned char fo
 	{
 		particleSystem.second->updatePosition(physicsElapsedDeltaTime, false);
 	}
-}
-
-void Storm::SimulatorManager::executeWCSPH()
-{
-	Storm::WCSPHSolver::execute(_particleSystem, this->getKernelLength());
-}
-
-void Storm::SimulatorManager::executePCISPH()
-{
-	Storm::PCISPHSolver::execute(_particleSystem, this->getKernelLength());
 }
 
 bool Storm::SimulatorManager::applyCFLIfNeeded(const Storm::GeneralSimulationData &generalSimulationDataConfig)

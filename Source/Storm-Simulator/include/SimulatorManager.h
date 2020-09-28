@@ -27,10 +27,6 @@ namespace Storm
 		void executeIteration(bool firstFrame, unsigned char forcedPushFrameIterator);
 
 	private:
-		void executeWCSPH();
-		void executePCISPH();
-
-	private:
 		// CFL : Courant-Friedrich-Levy
 		bool applyCFLIfNeeded(const Storm::GeneralSimulationData &generalSimulationDataConfig);
 
