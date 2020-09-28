@@ -301,6 +301,9 @@ Inside this element should be put all rigidbodies. Each rigidbody should be spec
 
 
 # Input bindings
+
+
+## Key bindings
 - **Escape key (ESC)**: Leave the application.
 - **Space bar**: Pause application if it is running. Unpause if it is paused.
 - **+ (Numpad)**: Move near clipping plane forward.
@@ -331,3 +334,7 @@ Inside this element should be put all rigidbodies. Each rigidbody should be spec
 - **Y**: Cycle the particle selection force to display (between [...] -> Pressure -> Viscosity -> AllForces (except gravity) -> [...]).
 - **F1**: Debug command to print to a human readable text giving all position, velocity and force values of all fluid particles. The data is printed inside the output (temp) directory inside "Debug" folder.
 
+
+## Mouse bindings
+- **Left click on dynamic rigid body particle**:
+    - Select the particle to display either its Pressure force, Viscosity force or the sum of those force (see "Cycle the particle selection force to display" key binding). This binding is only valid if the raycast is enabled (see "Enable/Disable raycasts system" key binding).
