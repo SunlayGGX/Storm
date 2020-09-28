@@ -504,6 +504,24 @@ namespace Storm
 		};
 
 		template<class Policy, class ValueType>
+		struct EnumerationParser
+		{
+		private:
+			template<class ValType>
+			static auto parseImpl(const ValType val, int) -> decltype(Storm::details::toStdString<Policy>(static_cast<int64_t>(val)))
+			{
+				return Storm::details::toStdString<Policy>(static_cast<int64_t>(val));
+			}
+
+		public:
+			template<class ValType>
+			static auto parse(const ValType val) -> decltype(parseImpl(val, 0))
+			{
+				return parseImpl(val, 0);
+			}
+		};
+
+		template<class Policy, class ValueType>
 		struct NonParser
 		{
 			template<class ValType>
@@ -529,8 +547,9 @@ namespace Storm
 				STORM_CHECK_AND_RETURN_IF_SHOULD_USE(NativeParser),
 				STORM_CHECK_AND_RETURN_IF_SHOULD_USE(CastableParser),
 				STORM_CHECK_AND_RETURN_IF_SHOULD_USE(MiscParser),
+				STORM_CHECK_AND_RETURN_IF_SHOULD_USE(EnumerationParser),
 				Storm::details::NonParser<Policy, ValueType>
-				>>>>>>>>>;
+				>>>>>>>>>>;
 
 #undef STORM_CHECK_AND_RETURN_IF_SHOULD_USE
 
