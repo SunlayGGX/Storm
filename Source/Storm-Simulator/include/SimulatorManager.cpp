@@ -613,10 +613,7 @@ void Storm::SimulatorManager::executeWCSPH()
 
 void Storm::SimulatorManager::executePCISPH()
 {
-	STORM_NOT_IMPLEMENTED;
-
-
-
+	Storm::PCISPHSolver::execute(_particleSystem, this->getKernelLength());
 }
 
 bool Storm::SimulatorManager::applyCFLIfNeeded(const Storm::GeneralSimulationData &generalSimulationDataConfig)
