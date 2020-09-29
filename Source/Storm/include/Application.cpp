@@ -18,6 +18,7 @@
 #include "SpacePartitionerManager.h"
 #include "RaycastManager.h"
 #include "ProfilerManager.h"
+#include "SerializerManager.h"
 
 #include "Version.h"
 #include "TimeHelper.h"
@@ -30,6 +31,7 @@ namespace
 		Storm::SingletonHolder,
 		Storm::ConfigManager,
 		Storm::LoggerManager,
+		Storm::SerializerManager,
 		Storm::ProfilerManager,
 		Storm::ThreadManager,
 		Storm::RandomManager,
@@ -80,6 +82,8 @@ namespace
 
 			Storm::InputManager::instance().initialize();
 
+			Storm::SerializerManager::instance().initialize();
+
 			Storm::PhysicsManager::instance().initialize();
 
 			Storm::ShaderManager::instance().initialize();
@@ -121,6 +125,7 @@ namespace
 			Storm::WindowsManager::instance().cleanUp();
 			Storm::OSManager::instance().cleanUp();
 			Storm::RandomManager::instance().cleanUp();
+			Storm::SerializerManager::instance().cleanUp();
 			Storm::ConfigManager::instance().cleanUp();
 			Storm::LoggerManager::instance().cleanUp();
 
