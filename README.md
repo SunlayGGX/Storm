@@ -59,6 +59,7 @@ I'm using catch2 as our main unit test library. But to be able to use it, you sh
 - **Storm-ModelBase**: This module is the base for each modules. It contains everything that could be used to bind the modules together without the need to reference each other.
 - **Storm-Physics**: This module is responsible for initializing and managing Physics computations.
 - **Storm-Profiler**: This module is to allow getting some profiling data. This does not intend to replace the Visual Studio buit-in tool or any other external library, but just a way to register times, speed, ... and display it inside the Storm application UI or logging it.
+- **Storm-Serializer**: This module is to handle serialization process. Serialization for cooking the simulation into real time replay for example.
 - **Storm-Space**: This module is where we implement the space visualisation of the domain. Be it Voxels, Grids, octree, ... This is where we compute and store element for a fast neighborhood search.
 - **Storm-Simulator**: This module is where the Simulation classes would be. It is responsible to handle SPH.
 - **Storm-Windows**: This module is responsible for managing the Windows and everything related to it.
