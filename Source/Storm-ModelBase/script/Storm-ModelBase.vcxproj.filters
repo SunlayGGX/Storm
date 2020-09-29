@@ -269,5 +269,8 @@
     <ClInclude Include="..\include\ThreadingSafety.h">
       <Filter>Header Files\Modules\Threading</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\ISerializerManager.h">
+      <Filter>Header Files\Singleton</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
