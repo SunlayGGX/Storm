@@ -4,6 +4,9 @@
 
 #include "LeanWindowsInclude.h"
 
+#include "ThrowException.h"
+#include "StormMacro.h"
+
 #include <iostream>
 
 
@@ -45,5 +48,5 @@ Storm::LogLevel StormPackager::LoggerManager::getLogLevel() const
 
 void StormPackager::LoggerManager::logToTempFile(const std::string &fileName, const std::string &msg) const
 {
-	throw std::logic_error("The method or operation is not implemented.");
+	STORM_NOT_IMPLEMENTED;
 }
