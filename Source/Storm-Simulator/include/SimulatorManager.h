@@ -24,7 +24,7 @@ namespace Storm
 		void cleanUp_Implementation();
 
 	public:
-		void run();
+		Storm::ExitCode run();
 
 		void executeIteration(bool firstFrame, unsigned char forcedPushFrameIterator);
 
@@ -65,6 +65,9 @@ namespace Storm
 		void cycleSelectedParticleDisplayMode();
 
 	public:
+		void exitWithCode(Storm::ExitCode code) final override;
+
+	public:
 		// Not from interface because they are intended to be used within simulation only (non thread safe)!
 		Storm::ParticleSystem& getParticleSystem(unsigned int id);
 		const Storm::ParticleSystem& getParticleSystem(unsigned int id) const;
@@ -75,5 +78,7 @@ namespace Storm
 
 		Storm::ParticleSelector _particleSelector;
 		bool _raycastEnabled;
+
+		Storm::ExitCode _runExitCode;
 	};
 }

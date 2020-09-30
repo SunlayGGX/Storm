@@ -148,12 +148,14 @@ Storm::Application::~Application()
 
 Storm::ExitCode Storm::Application::run()
 {
+	Storm::ExitCode result = ExitCode::k_success;
+
 	try
 	{
 		if (shouldRunSimulation())
 		{
 			LOG_COMMENT << "Start Application Run";
-			Storm::SimulatorManager::instance().run();
+			result = Storm::SimulatorManager::instance().run();
 		}
 		else
 		{
@@ -171,7 +173,7 @@ Storm::ExitCode Storm::Application::run()
 		throw;
 	}
 
-	return ExitCode::k_success;
+	return result;
 }
 
 Storm::EarlyExitAnswer Storm::Application::ensureCleanStateAfterException(const std::string &errorMsg, bool wasStdException)
