@@ -21,6 +21,18 @@ namespace Storm
 		void execute();
 
 	private:
+		void clearRecordQueue();
+		void processRecordQueue_Unchecked();
+		void processRecord(const Storm::SerializeRecordPendingData &record);
+
+	public:
+		void recordFrame(Storm::SerializeRecordPendingData &&frameRecord) final override;
+
+	private:
 		std::thread _serializeThread;
+
+		std::queue<std::unique_ptr<Storm::SerializeRecordPendingData>> _pendingRecord;
+
+		bool _hasRecordHeader;
 	};
 }

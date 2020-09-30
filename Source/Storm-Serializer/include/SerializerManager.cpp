@@ -4,10 +4,15 @@
 #include "IThreadManager.h"
 #include "ITimeManager.h"
 #include "IConfigManager.h"
+#include "ISimulatorManager.h"
 
 #include "GeneralSimulationData.h"
 
 #include "ThreadEnumeration.h"
+
+#include "ExitCode.h"
+
+#include "SerializeRecordPendingData.h"
 
 #include "ThreadHelper.h"
 #include "InvertPeriod.h"
@@ -36,7 +41,12 @@ namespace
 }
 
 
-Storm::SerializerManager::SerializerManager() = default;
+Storm::SerializerManager::SerializerManager() :
+	_hasRecordHeader{ false }
+{
+
+}
+
 Storm::SerializerManager::~SerializerManager() = default;
 
 void Storm::SerializerManager::initialize_Implementation()
@@ -61,29 +71,87 @@ void Storm::SerializerManager::cleanUp_Implementation()
 void Storm::SerializerManager::run()
 {
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
-	Storm::ITimeManager &timeMgr = singletonHolder.getSingleton<Storm::ITimeManager>();
+	bool normalExit;
 
-	const std::chrono::milliseconds serializerRefreshTime = computeSerializerThreadRefreshDuration();
-
-	const auto serializingIterationExecutorLambda = [this, &threadMgr = singletonHolder.getSingleton<Storm::IThreadManager>()]()
+	try
 	{
-		// processing the current thread action (which is the serializer actions) will fetch the data to serialize.
-		threadMgr.processCurrentThreadActions();
+		Storm::ITimeManager &timeMgr = singletonHolder.getSingleton<Storm::ITimeManager>();
 
-		// Execute the serializing actions on the data we just fetched.
-		this->execute();
-	};
+		const std::chrono::milliseconds serializerRefreshTime = computeSerializerThreadRefreshDuration();
 
-	while (timeMgr.waitForTimeOrExit(serializerRefreshTime))
-	{
+		const auto serializingIterationExecutorLambda = [this, &threadMgr = singletonHolder.getSingleton<Storm::IThreadManager>()]()
+		{
+			// processing the current thread action (which is the serializer actions) will fetch the data to serialize.
+			threadMgr.processCurrentThreadActions();
+
+			// Execute the serializing actions on the data we just fetched.
+			this->execute();
+		};
+
+		while (timeMgr.waitForTimeOrExit(serializerRefreshTime))
+		{
+			serializingIterationExecutorLambda();
+		}
+
+		// One last time to ensure there is no more data in the queue to be serialized that was pushed when we waited.
 		serializingIterationExecutorLambda();
+
+		normalExit = true;
+	}
+	catch (const std::exception &e)
+	{
+		LOG_FATAL << "Serializer thread unexpected exit (with std::exception) : " << e.what();
+		normalExit = false;
+	}
+	catch (...)
+	{
+		LOG_FATAL << "Serializer thread unexpected exit (with unknown exception)";
+		normalExit = false;
 	}
 
-	// One last time to ensure there is no more data in the queue to be serialized that was pushed when we waited.
-	serializingIterationExecutorLambda();
+	if (!normalExit)
+	{
+		singletonHolder.getSingleton<Storm::ISimulatorManager>().exitWithCode(Storm::ExitCode::k_otherThreadTermination);
+		this->clearRecordQueue();
+	}
 }
 
 void Storm::SerializerManager::execute()
 {
+	if (!_pendingRecord.empty())
+	{
+		if (!_hasRecordHeader)
+		{
+			Storm::throwException<std::exception>("Cannot process recording if header isn't set! Aborting!");
+		}
 
+		this->processRecordQueue_Unchecked();
+	}
+}
+
+void Storm::SerializerManager::clearRecordQueue()
+{
+	_pendingRecord = decltype(_pendingRecord){};
+}
+
+void Storm::SerializerManager::processRecordQueue_Unchecked()
+{
+	do
+	{
+		this->processRecord(*_pendingRecord.front());
+		_pendingRecord.pop();
+	} while(!_pendingRecord.empty());
+}
+
+void Storm::SerializerManager::processRecord(const Storm::SerializeRecordPendingData &record)
+{
+	STORM_NOT_IMPLEMENTED;
+}
+
+void Storm::SerializerManager::recordFrame(Storm::SerializeRecordPendingData &&frameRecord)
+{
+	Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::SerializerThread, [this, rec = std::move(frameRecord)]()
+	{
+		_pendingRecord.emplace(std::make_unique<Storm::SerializeRecordPendingData>(std::move(rec)));
+	});
 }
