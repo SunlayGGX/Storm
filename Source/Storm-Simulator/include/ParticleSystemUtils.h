@@ -26,10 +26,55 @@ namespace Storm
 		return false;
 	}
 
+#if STORM_USE_INTRINSICS
+
+	__forceinline bool isNeighborhood_Intrinsics(const __m128 &currentPPos, const Storm::Vector3 &toCheckPPos, const float kernelLengthSquared, __m128 &outPosDiff, float &normSquared)
+	{
+		enum : int
+		{
+			// Masks are for those component, in this order : wzyx
+
+			broadcastMask = 0b0001,
+			conditionMask = 0b0111,
+
+			dotProductMask = conditionMask << 4 | broadcastMask
+		};
+
+		outPosDiff = _mm_sub_ps(currentPPos, _mm_setr_ps(toCheckPPos.x(), toCheckPPos.y(), toCheckPPos.z(), 0.f));
+
+		normSquared = _mm_dp_ps(outPosDiff, outPosDiff, dotProductMask).m128_f32[0];
+		return normSquared > 0.000000001f && normSquared < kernelLengthSquared;
+	}
+
+#endif
+
+	template<bool isFluid, class VectOrIntrinsType, class NeighborhoodArray>
+	__forceinline void addIfNeighbor(NeighborhoodArray &currentPNeighborhood, const VectOrIntrinsType &currentPPos, const Storm::Vector3 &otherPPos, const float kernelLengthSquared,  Storm::ParticleSystem* particleSystem, const Storm::NeighborParticleReferral &particleReferral, VectOrIntrinsType &posDiff, float &normSquared)
+	{
+#if STORM_USE_INTRINSICS
+		if (Storm::isNeighborhood_Intrinsics(currentPPos, otherPPos, kernelLengthSquared, posDiff, normSquared))
+		{
+			currentPNeighborhood.emplace_back(particleSystem, particleReferral._particleIndex, posDiff.m128_f32[0], posDiff.m128_f32[1], posDiff.m128_f32[2], normSquared, isFluid);
+		}
+#else
+		if (Storm::isNeighborhood(currentPPos, otherPPos, kernelLengthSquared, posDiff, normSquared))
+		{
+			currentPNeighborhood.emplace_back(particleSystem, particleReferral._particleIndex, posDiff, normSquared, isFluid);
+		}
+#endif
+	}
+
 	template<bool isFluid, bool containingBundleIsSameTypeThanThisSystemP, class NeighborhoodArray, std::size_t outLinkedNeighborBundleSize>
 	void searchForNeighborhood(Storm::ParticleSystem* thisParticleSystem, const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const float kernelLengthSquared, const unsigned int currentSystemId, NeighborhoodArray &currentPNeighborhood, const std::size_t particleIndex, const Storm::Vector3 &currentPPosition, const std::vector<Storm::NeighborParticleReferral> &containingBundleReferrals, const std::vector<Storm::NeighborParticleReferral>*(&outLinkedNeighborBundle)[outLinkedNeighborBundleSize])
 	{
+#if STORM_USE_INTRINSICS
+		const __m128 currentPPosTmp = _mm_setr_ps(currentPPosition.x(), currentPPosition.y(), currentPPosition.z(), 0.f);
+		__m128 posDiff;
+#else
+		const Storm::Vector3 &currentPPosTmp = currentPPosition;
 		Storm::Vector3 posDiff;
+#endif
+
 		float normSquared;
 
 		Storm::ParticleSystem* otherPSystem = nullptr;
@@ -54,10 +99,7 @@ namespace Storm
 						break;
 					}
 
-					if (Storm::isNeighborhood(currentPPosition, thisSystemAllPPosition[particleReferral._particleIndex], kernelLengthSquared, posDiff, normSquared))
-					{
-						currentPNeighborhood.emplace_back(thisParticleSystem, particleReferral._particleIndex, posDiff, normSquared, isFluid);
-					}
+					Storm::addIfNeighbor<isFluid>(currentPNeighborhood, currentPPosTmp, thisSystemAllPPosition[particleReferral._particleIndex], kernelLengthSquared, thisParticleSystem, particleReferral, posDiff, normSquared);
 				}
 				else
 				{
@@ -67,11 +109,7 @@ namespace Storm
 						otherPSystem = allParticleSystems.find(particleReferral._systemId)->second.get();
 					}
 
-					const Storm::Vector3 &otherParticlePos = otherPSystem->getPositions()[particleReferral._particleIndex];
-					if (Storm::isNeighborhood(currentPPosition, otherParticlePos, kernelLengthSquared, posDiff, normSquared))
-					{
-						currentPNeighborhood.emplace_back(otherPSystem, particleReferral._particleIndex, posDiff, normSquared, isFluid);
-					}
+					Storm::addIfNeighbor<isFluid>(currentPNeighborhood, currentPPosTmp, otherPSystem->getPositions()[particleReferral._particleIndex], kernelLengthSquared, otherPSystem, particleReferral, posDiff, normSquared);
 				}
 			}
 
@@ -81,10 +119,8 @@ namespace Storm
 
 				if (particleReferral._systemId == currentSystemId)
 				{
-					if (Storm::isNeighborhood(currentPPosition, thisSystemAllPPosition[particleReferral._particleIndex], kernelLengthSquared, posDiff, normSquared))
-					{
-						currentPNeighborhood.emplace_back(thisParticleSystem, particleReferral._particleIndex, posDiff, normSquared, isFluid);
-					}
+
+					Storm::addIfNeighbor<isFluid>(currentPNeighborhood, currentPPosTmp, thisSystemAllPPosition[particleReferral._particleIndex], kernelLengthSquared, thisParticleSystem, particleReferral, posDiff, normSquared);
 				}
 				else
 				{
@@ -94,11 +130,7 @@ namespace Storm
 						otherPSystem = allParticleSystems.find(particleReferral._systemId)->second.get();
 					}
 
-					const Storm::Vector3 &otherParticlePos = otherPSystem->getPositions()[particleReferral._particleIndex];
-					if (Storm::isNeighborhood(currentPPosition, otherParticlePos, kernelLengthSquared, posDiff, normSquared))
-					{
-						currentPNeighborhood.emplace_back(otherPSystem, particleReferral._particleIndex, posDiff, normSquared, isFluid);
-					}
+					Storm::addIfNeighbor<isFluid>(currentPNeighborhood, currentPPosTmp, otherPSystem->getPositions()[particleReferral._particleIndex], kernelLengthSquared, otherPSystem, particleReferral, posDiff, normSquared);
 				}
 			}
 
@@ -108,10 +140,7 @@ namespace Storm
 				{
 					if (particleReferral._systemId == currentSystemId)
 					{
-						if (Storm::isNeighborhood(currentPPosition, thisSystemAllPPosition[particleReferral._particleIndex], kernelLengthSquared, posDiff, normSquared))
-						{
-							currentPNeighborhood.emplace_back(thisParticleSystem, particleReferral._particleIndex, posDiff, normSquared, isFluid);
-						}
+						Storm::addIfNeighbor<isFluid>(currentPNeighborhood, currentPPosTmp, thisSystemAllPPosition[particleReferral._particleIndex], kernelLengthSquared, thisParticleSystem, particleReferral, posDiff, normSquared);
 					}
 					else
 					{
@@ -121,11 +150,7 @@ namespace Storm
 							otherPSystem = allParticleSystems.find(particleReferral._systemId)->second.get();
 						}
 
-						const Storm::Vector3 &otherParticlePos = otherPSystem->getPositions()[particleReferral._particleIndex];
-						if (Storm::isNeighborhood(currentPPosition, otherParticlePos, kernelLengthSquared, posDiff, normSquared))
-						{
-							currentPNeighborhood.emplace_back(otherPSystem, particleReferral._particleIndex, posDiff, normSquared, isFluid);
-						}
+						Storm::addIfNeighbor<isFluid>(currentPNeighborhood, currentPPosTmp, otherPSystem->getPositions()[particleReferral._particleIndex], kernelLengthSquared, otherPSystem, particleReferral, posDiff, normSquared);
 					}
 				}
 			}
@@ -140,11 +165,7 @@ namespace Storm
 					otherPSystem = allParticleSystems.find(particleReferral._systemId)->second.get();
 				}
 
-				const Storm::Vector3 &otherParticlePos = otherPSystem->getPositions()[particleReferral._particleIndex];
-				if (Storm::isNeighborhood(currentPPosition, otherParticlePos, kernelLengthSquared, posDiff, normSquared))
-				{
-					currentPNeighborhood.emplace_back(otherPSystem, particleReferral._particleIndex, posDiff, normSquared, isFluid);
-				}
+				Storm::addIfNeighbor<isFluid>(currentPNeighborhood, currentPPosTmp, otherPSystem->getPositions()[particleReferral._particleIndex], kernelLengthSquared, otherPSystem, particleReferral, posDiff, normSquared);
 			}
 
 			for (const std::vector<Storm::NeighborParticleReferral>** linkedNeighborReferralsIter = outLinkedNeighborBundle; *linkedNeighborReferralsIter != nullptr; ++linkedNeighborReferralsIter)
@@ -157,11 +178,7 @@ namespace Storm
 						otherPSystem = allParticleSystems.find(particleReferral._systemId)->second.get();
 					}
 
-					const Storm::Vector3 &otherParticlePos = otherPSystem->getPositions()[particleReferral._particleIndex];
-					if (Storm::isNeighborhood(currentPPosition, otherParticlePos, kernelLengthSquared, posDiff, normSquared))
-					{
-						currentPNeighborhood.emplace_back(otherPSystem, particleReferral._particleIndex, posDiff, normSquared, isFluid);
-					}
+					Storm::addIfNeighbor<isFluid>(currentPNeighborhood, currentPPosTmp, otherPSystem->getPositions()[particleReferral._particleIndex], kernelLengthSquared, otherPSystem, particleReferral, posDiff, normSquared);
 				}
 			}
 		}
