@@ -30,7 +30,7 @@ namespace
 		}
 		else
 		{
-			return std::chrono::milliseconds{ 200 };
+			return std::chrono::milliseconds{ 100 };
 		}
 	}
 }
