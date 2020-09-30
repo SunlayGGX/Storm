@@ -18,6 +18,7 @@ namespace Storm
 
 	private:
 		void run();
+		void execute();
 
 	private:
 		std::thread _serializeThread;

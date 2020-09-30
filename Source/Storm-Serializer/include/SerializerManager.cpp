@@ -62,11 +62,28 @@ void Storm::SerializerManager::run()
 {
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 	Storm::ITimeManager &timeMgr = singletonHolder.getSingleton<Storm::ITimeManager>();
-	Storm::IThreadManager &threadMgr = singletonHolder.getSingleton<Storm::IThreadManager>();
 
 	const std::chrono::milliseconds serializerRefreshTime = computeSerializerThreadRefreshDuration();
+
+	const auto serializingIterationExecutorLambda = [this, &threadMgr = singletonHolder.getSingleton<Storm::IThreadManager>()]()
+	{
+		// processing the current thread action (which is the serializer actions) will fetch the data to serialize.
+		threadMgr.processCurrentThreadActions();
+
+		// Execute the serializing actions on the data we just fetched.
+		this->execute();
+	};
+
 	while (timeMgr.waitForTimeOrExit(serializerRefreshTime))
 	{
-		threadMgr.processCurrentThreadActions();
+		serializingIterationExecutorLambda();
 	}
+
+	// One last time to ensure there is no more data in the queue to be serialized that was pushed when we waited.
+	serializingIterationExecutorLambda();
+}
+
+void Storm::SerializerManager::execute()
+{
+
 }
