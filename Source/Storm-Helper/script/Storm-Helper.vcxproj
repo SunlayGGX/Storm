@@ -25,6 +25,7 @@
     <ClCompile Include="..\include\Version.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\include\ArchitectureMacros.h" />
     <ClInclude Include="..\include\CallbackIdType.h" />
     <ClInclude Include="..\include\CoInitializerRAII.h" />
     <ClInclude Include="..\include\CorrectSettingChecker.h" />
