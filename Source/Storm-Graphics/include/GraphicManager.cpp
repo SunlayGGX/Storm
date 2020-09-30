@@ -100,13 +100,13 @@ namespace
 			if constexpr (enableDifferentColoring)
 			{
 				float coeff = particleVelocityData[iter].squaredNorm() - valueToMinColor;
-				if (coeff < 0.f)
-				{
-					current._color = defaultColor;
-				}
-				else
+
+				current._color = defaultColor;
+
+				if (coeff > 0.f)
 				{
 					coeff = coeff / deltaValueForColor;
+
 					if (coeff > 1.f)
 					{
 						current._color.m128_f32[0] = 1.f;
@@ -115,7 +115,6 @@ namespace
 					{
 						current._color.m128_f32[0] = defaultColor.m128_f32[0] + deltaColorRChan * coeff;
 					}
-					memcpy(&current._color.m128_f32[1], &defaultColor.m128_f32[1], sizeof(float) * 3);
 				}
 			}
 			else
