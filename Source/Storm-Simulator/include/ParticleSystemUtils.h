@@ -3,6 +3,15 @@
 
 namespace Storm
 {
+#if STORM_USE_INTRINSICS
+#	if false
+#		define STORM_INTRINSICS_LOAD_PS_FROM_VECT3(vect3) _mm_setr_ps(vect3.x(), vect3.y(), vect3.z(), 0.f)
+#	else
+#		define STORM_INTRINSICS_LOAD_PS_FROM_VECT3(vect3) _mm_loadu_ps(reinterpret_cast<const float*>(&vect3[0]))
+#	endif
+#endif
+
+
 #if !STORM_USE_INTRINSICS
 	__forceinline bool isNeighborhood(const Storm::Vector3 &currentPPos, const Storm::Vector3 &toCheckPPos, const float kernelLengthSquared, Storm::Vector3 &outPosDiff, float &normSquared)
 	{
@@ -39,7 +48,7 @@ namespace Storm
 			dotProductMask = conditionMask << 4 | broadcastMask
 		};
 
-		outPosDiff = _mm_sub_ps(currentPPos, _mm_setr_ps(toCheckPPos.x(), toCheckPPos.y(), toCheckPPos.z(), 0.f));
+		outPosDiff = _mm_sub_ps(currentPPos, STORM_INTRINSICS_LOAD_PS_FROM_VECT3(toCheckPPos));
 
 		normSquared = _mm_dp_ps(outPosDiff, outPosDiff, dotProductMask).m128_f32[0];
 		return normSquared > 0.000000001f && normSquared < kernelLengthSquared;
@@ -63,7 +72,7 @@ namespace Storm
 	void searchForNeighborhood(Storm::ParticleSystem* thisParticleSystem, const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const float kernelLengthSquared, const unsigned int currentSystemId, NeighborhoodArray &currentPNeighborhood, const std::size_t particleIndex, const Storm::Vector3 &currentPPosition, const std::vector<Storm::NeighborParticleReferral> &containingBundleReferrals, const std::vector<Storm::NeighborParticleReferral>*(&outLinkedNeighborBundle)[outLinkedNeighborBundleSize])
 	{
 #if STORM_USE_INTRINSICS
-		const __m128 currentPPosTmp = _mm_setr_ps(currentPPosition.x(), currentPPosition.y(), currentPPosition.z(), 0.f);
+		const __m128 currentPPosTmp = STORM_INTRINSICS_LOAD_PS_FROM_VECT3(currentPPosition);
 		__m128 posDiff;
 #else
 		const Storm::Vector3 &currentPPosTmp = currentPPosition;
