@@ -85,6 +85,12 @@
     <Filter Include="Source Files\Modules\Threading">
       <UniqueIdentifier>{049fbe60-4987-4f53-adb2-00a913fe2ca3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Modules\Serializer">
+      <UniqueIdentifier>{e47ae686-652d-441f-a396-a854e28f1aea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Modules\Serializer\Record">
+      <UniqueIdentifier>{469d0aab-ec58-4bca-b8f9-37a68064112e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-ModelBasePCH.cpp">
@@ -271,6 +277,12 @@
     </ClInclude>
     <ClInclude Include="..\include\ISerializerManager.h">
       <Filter>Header Files\Singleton</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SerializeRecordHeader.h">
+      <Filter>Header Files\Modules\Serializer\Record</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SerializeRecordPendingData.h">
+      <Filter>Header Files\Modules\Serializer\Record</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
