@@ -25,3 +25,11 @@ TEST_CASE("ChronoTester.ChronoHelper.toFps", "[classic]")
 	CHECK(isAlmostEqual(Storm::ChronoHelper::toFps(std::chrono::nanoseconds{ 16666667 }), 60.f));
 	CHECK(isAlmostEqual(Storm::ChronoHelper::toFps(std::chrono::nanoseconds{ 33333333 }), 30.f));
 }
+
+TEST_CASE("ChronoTester.ChronoHelper.toFrameDuration", "[classic]")
+{
+	CHECK(Storm::ChronoHelper::toFrameDuration<std::chrono::milliseconds>(60.f) == std::chrono::milliseconds{ 16 });
+	CHECK(Storm::ChronoHelper::toFrameDuration<std::chrono::milliseconds>(30.f) == std::chrono::milliseconds{ 33 });
+	CHECK(Storm::ChronoHelper::toFrameDuration<std::chrono::milliseconds>(10.f) == std::chrono::milliseconds{ 100 });
+	CHECK(Storm::ChronoHelper::toFrameDuration<std::chrono::microseconds>(120.f) == std::chrono::microseconds{ 8333 });
+}
