@@ -3,6 +3,7 @@
 
 namespace Storm
 {
+#if !STORM_USE_INTRINSICS
 	__forceinline bool isNeighborhood(const Storm::Vector3 &currentPPos, const Storm::Vector3 &toCheckPPos, const float kernelLengthSquared, Storm::Vector3 &outPosDiff, float &normSquared)
 	{
 		float &outX = outPosDiff.x();
@@ -25,10 +26,8 @@ namespace Storm
 
 		return false;
 	}
-
-#if STORM_USE_INTRINSICS
-
-	__forceinline bool isNeighborhood_Intrinsics(const __m128 &currentPPos, const Storm::Vector3 &toCheckPPos, const float kernelLengthSquared, __m128 &outPosDiff, float &normSquared)
+#else
+	__forceinline bool isNeighborhood(const __m128 &currentPPos, const Storm::Vector3 &toCheckPPos, const float kernelLengthSquared, __m128 &outPosDiff, float &normSquared)
 	{
 		enum : int
 		{
@@ -45,23 +44,19 @@ namespace Storm
 		normSquared = _mm_dp_ps(outPosDiff, outPosDiff, dotProductMask).m128_f32[0];
 		return normSquared > 0.000000001f && normSquared < kernelLengthSquared;
 	}
-
 #endif
 
 	template<bool isFluid, class VectOrIntrinsType, class NeighborhoodArray>
 	__forceinline void addIfNeighbor(NeighborhoodArray &currentPNeighborhood, const VectOrIntrinsType &currentPPos, const Storm::Vector3 &otherPPos, const float kernelLengthSquared,  Storm::ParticleSystem* particleSystem, const Storm::NeighborParticleReferral &particleReferral, VectOrIntrinsType &posDiff, float &normSquared)
 	{
-#if STORM_USE_INTRINSICS
-		if (Storm::isNeighborhood_Intrinsics(currentPPos, otherPPos, kernelLengthSquared, posDiff, normSquared))
-		{
-			currentPNeighborhood.emplace_back(particleSystem, particleReferral._particleIndex, posDiff.m128_f32[0], posDiff.m128_f32[1], posDiff.m128_f32[2], normSquared, isFluid);
-		}
-#else
 		if (Storm::isNeighborhood(currentPPos, otherPPos, kernelLengthSquared, posDiff, normSquared))
 		{
+#if STORM_USE_INTRINSICS
+			currentPNeighborhood.emplace_back(particleSystem, particleReferral._particleIndex, posDiff.m128_f32[0], posDiff.m128_f32[1], posDiff.m128_f32[2], normSquared, isFluid);
+#else
 			currentPNeighborhood.emplace_back(particleSystem, particleReferral._particleIndex, posDiff, normSquared, isFluid);
-		}
 #endif
+		}
 	}
 
 	template<bool isFluid, bool containingBundleIsSameTypeThanThisSystemP, class NeighborhoodArray, std::size_t outLinkedNeighborBundleSize>
