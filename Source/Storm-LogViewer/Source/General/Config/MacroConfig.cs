@@ -126,7 +126,13 @@ namespace Storm_LogViewer.Source.General.Config
         {
             string exePath = System.Reflection.Assembly.GetExecutingAssembly().Location;
             string exeFolderPath = Path.GetDirectoryName(exePath);
-            string rootPath = new DirectoryInfo(exeFolderPath).Parent.FullName;
+            DirectoryInfo rootPathDirInfo = new DirectoryInfo(exeFolderPath).Parent;
+            while (rootPathDirInfo != null && rootPathDirInfo.Name != "Storm")
+            {
+                rootPathDirInfo = rootPathDirInfo.Parent;
+            }
+
+            string rootPath = rootPathDirInfo.FullName;
             string outputPath = Path.Combine(rootPath, "Intermediate");
 
             _macros.Add(new Macro { _key = MacroConfig.Macroify("StormExe"), _value = exePath });
