@@ -82,9 +82,6 @@ namespace Storm
 			currentPNeighbor._containingParticleSystem = particleSystem;
 			currentPNeighbor._particleIndex = particleReferral._particleIndex;
 			_mm_storeu_ps(reinterpret_cast<float*>(&currentPNeighbor._positionDifferenceVector[0]), posDiff);
-			/*currentPNeighbor._positionDifferenceVector.x() = posDiff.m128_f32[0];
-			currentPNeighbor._positionDifferenceVector.y() = posDiff.m128_f32[1];
-			currentPNeighbor._positionDifferenceVector.z() = posDiff.m128_f32[2];*/
 			currentPNeighbor._vectToParticleSquaredNorm = normSquared;
 			currentPNeighbor._vectToParticleNorm = std::sqrtf(normSquared); // the version non squared of _vectToParticleSquaredNorm
 			currentPNeighbor._isFluidParticle = isFluid;
