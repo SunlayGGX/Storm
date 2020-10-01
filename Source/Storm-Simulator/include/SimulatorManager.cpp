@@ -510,7 +510,11 @@ void Storm::SimulatorManager::run()
 		// Takes time to process messages that came from other threads.
 		threadMgr.processCurrentThreadActions();
 
-		timeMgr.advanceCurrentPhysicsElapsedTime();
+		float currentPhysicsTime = timeMgr.advanceCurrentPhysicsElapsedTime();
+		if (generalSimulationConfigData._endSimulationPhysicsTimeInSeconds != -1.f && currentPhysicsTime > generalSimulationConfigData._endSimulationPhysicsTimeInSeconds)
+		{
+			timeMgr.quit();
+		}
 
 		++forcedPushFrameIterator;
 		firstFrame = false;
