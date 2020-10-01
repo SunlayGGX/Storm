@@ -8,10 +8,18 @@
 
 namespace Storm
 {
+	enum class SerializePackageCreationModality
+	{
+		Loading,
+		SavingNew,
+		SavingAppend,
+		SavingAppendPreheaderProvidedAfter,
+	};
+
 	class SerializePackage
 	{
 	public:
-		SerializePackage(bool isSaving, const std::string &packageFilePath);
+		SerializePackage(Storm::SerializePackageCreationModality modality, const std::string &packageFilePath);
 
 	private:
 		template<class Type>
