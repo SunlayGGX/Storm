@@ -40,6 +40,7 @@ namespace Storm
 		bool operator<(const std::string &versionStr) const;
 
 		void serialize(Storm::SerializePackage &package);
+		static std::size_t getSizeInSerializePacket();
 
 		explicit operator std::string() const;
 
