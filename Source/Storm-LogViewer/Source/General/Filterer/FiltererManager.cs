@@ -100,7 +100,7 @@ namespace Storm_LogViewer.Source.General.Filterer
             List<ModuleFilterCheckboxValue> modulesFilters = _moduleFilters.Where(moduleFilter => moduleFilter.Checked).ToList();
             if (modulesFilters.Count != _moduleFilters.Count)
             {
-                logItemsEnumerable = logItemsEnumerable.Where(item => modulesFilters.Any(modFilter => modFilter.ModuleName == item.ModuleName));
+                logItemsEnumerable = logItemsEnumerable.Where(item => item.LogLevel == LogLevelEnum.NewSession || modulesFilters.Any(modFilter => modFilter.ModuleName == item.ModuleName));
 
                 return true;
             }
@@ -115,12 +115,12 @@ namespace Storm_LogViewer.Source.General.Filterer
                 ConfigManager configMgr = ConfigManager.Instance;
                 if (configMgr.FilterStrictEquality)
                 {
-                    logItemsEnumerable = logItemsEnumerable.Where(item => item.Message.Contains(newFilterText)).ToList();
+                    logItemsEnumerable = logItemsEnumerable.Where(item => item.LogLevel == LogLevelEnum.NewSession || item.Message.Contains(newFilterText)).ToList();
                 }
                 else
                 {
                     string[] split = newFilterText.Split(' ');
-                    logItemsEnumerable = logItemsEnumerable.Where(item => split.Any(splitFilter => item.Message.Contains(splitFilter)));
+                    logItemsEnumerable = logItemsEnumerable.Where(item => split.Any(splitFilter => item.LogLevel == LogLevelEnum.NewSession || item.Message.Contains(splitFilter)));
                 }
 
                 return true;
