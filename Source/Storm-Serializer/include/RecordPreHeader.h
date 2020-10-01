@@ -12,6 +12,6 @@ namespace Storm
 	public:
 		uint32_t _magicWordChecksum; // Not a real checksum, just a magic word to tell us the record file was completed.
 		Storm::Version _recordVersion;
-		std::size_t _recordFileSize;
+		uint64_t _recordFileSize = 0;
 	};
 }
