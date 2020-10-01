@@ -111,8 +111,16 @@ namespace Storm
 		// true if serializing (saving/writing), false if deserializing (loading/reading)
 		bool isSerializing() const noexcept;
 
+		const std::fstream& getUnderlyingStream() const noexcept;
+		std::fstream& getUnderlyingStream() noexcept;
+
+		void seekAbsolute(std::size_t newPos);
+
+		const std::string& getFilePath() const noexcept;
+
 	private:
 		bool _isSaving;
 		std::fstream _file;
+		const std::string _filePath;
 	};
 }

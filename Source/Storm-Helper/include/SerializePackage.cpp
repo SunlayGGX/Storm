@@ -162,3 +162,23 @@ bool Storm::SerializePackage::isSerializing() const noexcept
 {
 	return _isSaving;
 }
+
+const std::fstream& Storm::SerializePackage::getUnderlyingStream() const noexcept
+{
+	return _file;
+}
+
+std::fstream& Storm::SerializePackage::getUnderlyingStream() noexcept
+{
+	return _file;
+}
+
+void Storm::SerializePackage::seekAbsolute(std::size_t newPos)
+{
+	_file.seekp(newPos);
+}
+
+const std::string& Storm::SerializePackage::getFilePath() const noexcept
+{
+	return _filePath;
+}
