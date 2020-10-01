@@ -27,12 +27,12 @@ namespace Storm
 
 	public:
 		void recordFrame(Storm::SerializeRecordPendingData &&frameRecord) final override;
+		void beginRecord(Storm::SerializeRecordHeader &&recordHeader) final override;
 
 	private:
 		std::thread _serializeThread;
 
+		std::unique_ptr<Storm::SerializeRecordHeader> _recordHeader;
 		std::queue<std::unique_ptr<Storm::SerializeRecordPendingData>> _pendingRecord;
-
-		bool _hasRecordHeader;
 	};
 }

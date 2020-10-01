@@ -13,6 +13,7 @@
 #include "ExitCode.h"
 
 #include "SerializeRecordPendingData.h"
+#include "SerializeRecordHeader.h"
 
 #include "ThreadHelper.h"
 #include "InvertPeriod.h"
@@ -41,12 +42,7 @@ namespace
 }
 
 
-Storm::SerializerManager::SerializerManager() :
-	_hasRecordHeader{ false }
-{
-
-}
-
+Storm::SerializerManager::SerializerManager() = default;
 Storm::SerializerManager::~SerializerManager() = default;
 
 void Storm::SerializerManager::initialize_Implementation()
@@ -120,12 +116,14 @@ void Storm::SerializerManager::execute()
 {
 	if (!_pendingRecord.empty())
 	{
-		if (!_hasRecordHeader)
+		if (_recordHeader)
 		{
-			Storm::throwException<std::exception>("Cannot process recording if header isn't set! Aborting!");
+			this->processRecordQueue_Unchecked();
 		}
-
-		this->processRecordQueue_Unchecked();
+		else
+		{
+			Storm::throwException<std::exception>("Cannot process recording if header isn't set (we haven't called beginRecord before)! Aborting!");
+		}
 	}
 }
 
@@ -153,5 +151,13 @@ void Storm::SerializerManager::recordFrame(Storm::SerializeRecordPendingData &&f
 	Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::SerializerThread, [this, rec = std::move(frameRecord)]()
 	{
 		_pendingRecord.emplace(std::make_unique<Storm::SerializeRecordPendingData>(std::move(rec)));
+	});
+}
+
+void Storm::SerializerManager::beginRecord(Storm::SerializeRecordHeader &&recordHeader)
+{
+	Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::SerializerThread, [this, rec = std::move(recordHeader)]()
+	{
+		_recordHeader = std::make_unique<Storm::SerializeRecordHeader>(std::move(rec));
 	});
 }
