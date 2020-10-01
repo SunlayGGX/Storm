@@ -31,12 +31,12 @@ namespace Storm
 		~NeighborParticleInfo() = default;
 
 	public:
-		Storm::ParticleSystem* _containingParticleSystem;
-		std::size_t _particleIndex;
-		Storm::Vector3 _positionDifferenceVector; // currentP_position - neighborhoodP_Position
-		float _vectToParticleSquaredNorm; // Norm squared of _positionDifferenceVector
-		float _vectToParticleNorm; // the version non squared of _vectToParticleSquaredNorm
-		bool _isFluidParticle;
+		Storm::ParticleSystem*const _containingParticleSystem;
+		const std::size_t _particleIndex;
+		const Storm::Vector3 _positionDifferenceVector; // currentP_position - neighborhoodP_Position
+		const float _vectToParticleSquaredNorm; // Norm squared of _positionDifferenceVector
+		const float _vectToParticleNorm; // the version non squared of _vectToParticleSquaredNorm
+		const bool _isFluidParticle;
 	};
 
 	using ParticleNeighborhoodArray = std::vector<Storm::NeighborParticleInfo>;
