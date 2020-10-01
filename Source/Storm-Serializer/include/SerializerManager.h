@@ -6,6 +6,9 @@
 
 namespace Storm
 {
+	class RecordReader;
+	class RecordWriter;
+
 	class SerializerManager :
 		private Storm::Singleton<Storm::SerializerManager>,
 		public Storm::ISerializerManager
@@ -32,7 +35,9 @@ namespace Storm
 	private:
 		std::thread _serializeThread;
 
-		std::unique_ptr<Storm::SerializeRecordHeader> _recordHeader;
+		// Recorder
+		std::unique_ptr<Storm::RecordReader> _recordReader;
+		std::unique_ptr<Storm::RecordWriter> _recordWriter;
 		std::queue<std::unique_ptr<Storm::SerializeRecordPendingData>> _pendingRecord;
 	};
 }

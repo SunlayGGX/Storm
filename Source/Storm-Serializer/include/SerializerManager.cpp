@@ -15,6 +15,9 @@
 #include "SerializeRecordPendingData.h"
 #include "SerializeRecordHeader.h"
 
+#include "RecordWriter.h"
+#include "RecordReader.h"
+
 #include "ThreadHelper.h"
 #include "InvertPeriod.h"
 
@@ -116,7 +119,7 @@ void Storm::SerializerManager::execute()
 {
 	if (!_pendingRecord.empty())
 	{
-		if (_recordHeader)
+		if (_recordWriter)
 		{
 			this->processRecordQueue_Unchecked();
 		}
@@ -148,7 +151,7 @@ void Storm::SerializerManager::processRecord(const Storm::SerializeRecordPending
 
 void Storm::SerializerManager::recordFrame(Storm::SerializeRecordPendingData &&frameRecord)
 {
-	Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::SerializerThread, [this, rec = std::move(frameRecord)]()
+	Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::SerializerThread, [this, rec = std::move(frameRecord)]() mutable
 	{
 		_pendingRecord.emplace(std::make_unique<Storm::SerializeRecordPendingData>(std::move(rec)));
 	});
@@ -156,8 +159,22 @@ void Storm::SerializerManager::recordFrame(Storm::SerializeRecordPendingData &&f
 
 void Storm::SerializerManager::beginRecord(Storm::SerializeRecordHeader &&recordHeader)
 {
-	Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::SerializerThread, [this, rec = std::move(recordHeader)]()
+	Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::SerializerThread, [this, rec = std::move(recordHeader)]() mutable
 	{
-		_recordHeader = std::make_unique<Storm::SerializeRecordHeader>(std::move(rec));
+		if (!_recordReader)
+		{
+			if (!_recordWriter)
+			{
+				_recordWriter = std::make_unique<Storm::RecordWriter>(std::move(rec));
+			}
+			else
+			{
+				Storm::throwException<std::exception>("We are already recording. Stop the current recording before starting another one!");
+			}
+		}
+		else
+		{
+			Storm::throwException<std::exception>("Cannot record and replay at the same time!");
+		}
 	});
 }
