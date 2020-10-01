@@ -88,6 +88,9 @@
     <Filter Include="Header Files\General\Xml">
       <UniqueIdentifier>{b04d4822-c895-42df-a656-4ce479ac0002}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\General\Misc\Hijack">
+      <UniqueIdentifier>{3fb2e90f-607e-466a-8a3f-43e140186cc3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-HelperPCH.cpp">
@@ -221,9 +224,6 @@
     <ClInclude Include="..\include\StringOperator.h">
       <Filter>Header Files\Prerequisite</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\StringHijack.h">
-      <Filter>Header Files\General\Misc</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\UniversalString.h">
       <Filter>Header Files\General\Misc</Filter>
     </ClInclude>
@@ -253,6 +253,12 @@
     </ClInclude>
     <ClInclude Include="..\include\ArchitectureMacros.h">
       <Filter>Header Files\Prerequisite</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\StringHijack.h">
+      <Filter>Header Files\General\Misc\Hijack</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\VectHijack.h">
+      <Filter>Header Files\General\Misc\Hijack</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
