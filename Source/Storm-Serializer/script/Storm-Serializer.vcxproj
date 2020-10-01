@@ -11,6 +11,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\include\RecordHandlerBase.cpp" />
+    <ClCompile Include="..\include\RecordReader.cpp" />
+    <ClCompile Include="..\include\RecordWriter.cpp" />
     <ClCompile Include="..\include\SerializerManager.cpp" />
     <ClCompile Include="..\include\Storm-SerializerPCH.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -18,7 +21,10 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\include\RecordHandlerBase.h" />
     <ClInclude Include="..\include\RecordPreHeader.h" />
+    <ClInclude Include="..\include\RecordReader.h" />
+    <ClInclude Include="..\include\RecordWriter.h" />
     <ClInclude Include="..\include\SerializerManager.h" />
     <ClInclude Include="..\include\Storm-SerializerPCH.h" />
   </ItemGroup>
