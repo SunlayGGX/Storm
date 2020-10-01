@@ -8,6 +8,9 @@
 
 #include "SceneData.h"
 #include "RigidBodySceneData.h"
+#include "RecordConfigData.h"
+
+#include "RecordMode.h"
 
 #include <boost/algorithm/string.hpp>
 
@@ -156,6 +159,65 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 		}
 
 		_shouldRegenerateParticleCache = parser.getShouldRegenerateParticleCache();
+
+		std::string recordModeStr = parser.getRecordModeStr();
+		boost::algorithm::to_lower(recordModeStr);
+
+		Storm::RecordConfigData &recordConfigData = *_sceneConfig.getSceneData()._recordConfigData;
+		recordConfigData._recordMode =
+			recordModeStr == "record" ? Storm::RecordMode::Record :
+			recordModeStr == "replay" ? Storm::RecordMode::Replay :
+			Storm::RecordMode::None;
+
+		if (!recordModeStr.empty() && recordConfigData._recordMode != Storm::RecordMode::None)
+		{
+			Storm::throwException<std::exception>("Unknown record mode command line tag \"" + recordModeStr + '"');
+		}
+
+		std::string recordFilePath;
+		switch (recordConfigData._recordMode)
+		{
+		case Storm::RecordMode::Record:
+			recordFilePath = parser.getRecordFilePath();
+			if (!recordFilePath.empty())
+			{
+				recordConfigData._recordFilePath = std::move(recordFilePath);
+			}
+			_macroConfig(recordConfigData._recordFilePath);
+			if (recordConfigData._recordFilePath.empty())
+			{
+				Storm::throwException<std::exception>("Record file path should be set when in record mode!");
+			}
+			else if (recordConfigData._recordFps == -1.f) // Check manually set invalid values was done before. Here we check the unset.
+			{
+				Storm::throwException<std::exception>("Record fps wasn't set while we should be recording. We should always set one!");
+			}
+			std::filesystem::remove_all(recordConfigData._recordFilePath);
+			break;
+
+		case Storm::RecordMode::Replay:
+			recordFilePath = parser.getRecordFilePath();
+			if (!recordFilePath.empty())
+			{
+				recordConfigData._recordFilePath = std::move(recordFilePath);
+			}
+			_macroConfig(recordConfigData._recordFilePath);
+			if (!std::filesystem::is_regular_file(recordConfigData._recordFilePath))
+			{
+				Storm::throwException<std::exception>(recordConfigData._recordFilePath + " doesn't exist or isn't a regular record file!");
+			}
+			break;
+
+		case Storm::RecordMode::None:
+		default:
+			recordFilePath = parser.getRecordFilePath();
+			if (!recordFilePath.empty())
+			{
+				Storm::throwException<std::exception>("A record file from command line has been set (" + recordFilePath + "). But we're not recording or replaying, it is forbidden!");
+			}
+			// No need to check the one coming from the scene config file because it is just a placeholder in case the command line one isn't set.
+			break;
+		}
 	}
 	else
 	{
@@ -238,6 +300,11 @@ const std::vector<Storm::RigidBodySceneData>& Storm::ConfigManager::getRigidBodi
 const Storm::FluidData& Storm::ConfigManager::getFluidData() const
 {
 	return *_sceneConfig.getSceneData()._fluidData;
+}
+
+const Storm::RecordConfigData& Storm::ConfigManager::getRecordConfigData() const
+{
+	return *_sceneConfig.getSceneData()._recordConfigData;
 }
 
 const std::vector<Storm::BlowerData>& Storm::ConfigManager::getBlowersData() const

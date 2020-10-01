@@ -94,6 +94,8 @@ This is the simulation application. Command lines are exposed like this : --key=
 - **generalConfig (string, facultative)**: This is the general config file path to use. If there is none, then we will select the one inside the default Config folder (the one inside Custom/General takes precedence over the one inside Custom/General/Original).
 - **tempPath (string, facultative)**: This is the temporary path to use (to a folder). If there is none, then we will select the default temporary path folder.
 - **regenPCache (no value, facultative)**: Specify this flag and we will regenerate the rigid body particle cache data.
+- **recordMode (string, facultative)**: Specify the record/replay mode of the simulator. Accepted (case unsensitive) values are "Record" or "Replay". If the simulator is in record mode, then the simulation played will be recorded for a future replay. Default is unset, which means the application will just simulate without doing anything.
+- **recordFile (string, facultative)**: Specify the path the recording will be. Record file path should remain unset if record mode is left unset, otherwise it should reference a valid record file in case we're in Replay mode (Note that this setting can be left Unset if there is a path inside the scene config loaded).
 
 
 ### Storm-LogViewer.exe
@@ -233,6 +235,11 @@ Unlike the others config files, it can be named as you want. Here the xml tags y
 - **constraintColor (RGBAcolor, facultative)**: Specify the color of the line when visualizing the constraint. Default is { r=1.0, g=0.1, b=0.1, a=0.8 }.
 - **forceThickness (float, facultative)**: Specify the thickness of the line when visualizing the selected particle force. It should be a positive non-zero value. Default is "General.particleRadius / 3.0".
 - **forceColor (RGBAcolor, facultative)**: Specify the color of the line when visualizing the selected particle force. Default is { r=0.0, g=1.0, b=1.0, a=0.8 }.
+
+
+#### Record
+- **recordFps (float, semi-facultative)**: This is the record fps. It becomes mandatory if the Simulator is started in Record mode.
+- **recordFile (string, facultative, accept macros)**: Specify the path the recording will be. This path will be used in case it wasn't set from the command line.
 
 
 #### Fluid

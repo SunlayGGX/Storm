@@ -10,6 +10,7 @@
 #include "FluidData.h"
 #include "BlowerData.h"
 #include "ConstraintData.h"
+#include "RecordConfigData.h"
 
 #include "CollisionType.h"
 #include "SimulationMode.h"
@@ -279,6 +280,32 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 	else if (graphicData._forceThickness <= 0.f)
 	{
 		Storm::throwException<std::exception>("Selected particle force thickness is invalid (" + Storm::toStdString(graphicData._forceThickness) + ")! It must be a positive non zero value.");
+	}
+
+	/* Record */
+	const auto &recordTreeOpt = srcTree.get_child_optional("Record");
+	if (recordTreeOpt.has_value())
+	{
+		Storm::RecordConfigData &recordConfigData = *_sceneData->_recordConfigData;
+
+		const auto &recordTree = recordTreeOpt.value();
+		for (const auto &recordXmlElement : recordTree)
+		{
+			if (
+				!Storm::XmlReader::handleXml(recordXmlElement, "recordFps", recordConfigData._recordFps) &&
+				!Storm::XmlReader::handleXml(recordXmlElement, "recordFile", recordConfigData._recordFilePath)
+				)
+			{
+				LOG_ERROR << "tag '" << recordXmlElement.first << "' (inside Scene.Record) is unknown, therefore it cannot be handled";
+			}
+		}
+
+		if (recordConfigData._recordFps <= 0.f && recordConfigData._recordFps != -1.f)
+		{
+			Storm::throwException<std::exception>("Record fps should remain unset or should be a positive value (currently " + std::to_string(recordConfigData._recordFps) + ")");
+		}
+
+		// The other validations will be done later.
 	}
 
 	/* Fluids */

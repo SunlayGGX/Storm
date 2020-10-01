@@ -284,5 +284,11 @@
     <ClInclude Include="..\include\SerializeRecordPendingData.h">
       <Filter>Header Files\Modules\Serializer\Record</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\RecordMode.h">
+      <Filter>Header Files\Modules\Serializer\Record</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\RecordConfigData.h">
+      <Filter>Header Files\Modules\Config</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
