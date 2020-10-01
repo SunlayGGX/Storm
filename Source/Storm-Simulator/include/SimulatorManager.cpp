@@ -463,8 +463,10 @@ void Storm::SimulatorManager::run()
 
 	this->initializePreSimulation();
 
-	// A fast iterator that loops every 256 iterations.
-	unsigned char forcedPushFrameIterator = 0;
+	const bool autoEndSimulation = generalSimulationConfigData._endSimulationPhysicsTimeInSeconds != -1.f;
+	bool hasAutoEndSimulation = false;
+
+	unsigned int forcedPushFrameIterator = 0;
 
 	bool firstFrame = true;
 
@@ -474,6 +476,12 @@ void Storm::SimulatorManager::run()
 		switch (simulationState)
 		{
 		case Storm::TimeWaitResult::Exit:
+			if (hasAutoEndSimulation && profilerMgrNullablePtr)
+			{
+				LOG_COMMENT <<
+					"Simulation average speed was " << 
+					profilerMgrNullablePtr->getSpeedProfileAccumulatedTime() / static_cast<float>(forcedPushFrameIterator);
+			}
 			return;
 
 		case TimeWaitResult::Pause:
@@ -505,13 +513,14 @@ void Storm::SimulatorManager::run()
 		}
 
 		// Push all particle data to the graphic module to be rendered...
-		this->pushParticlesToGraphicModule(forcedPushFrameIterator == 0);
+		this->pushParticlesToGraphicModule(forcedPushFrameIterator % 256);
 
 		// Takes time to process messages that came from other threads.
 		threadMgr.processCurrentThreadActions();
 
 		float currentPhysicsTime = timeMgr.advanceCurrentPhysicsElapsedTime();
-		if (generalSimulationConfigData._endSimulationPhysicsTimeInSeconds != -1.f && currentPhysicsTime > generalSimulationConfigData._endSimulationPhysicsTimeInSeconds)
+		hasAutoEndSimulation = autoEndSimulation && currentPhysicsTime > generalSimulationConfigData._endSimulationPhysicsTimeInSeconds;
+		if (hasAutoEndSimulation)
 		{
 			timeMgr.quit();
 		}
@@ -522,7 +531,7 @@ void Storm::SimulatorManager::run()
 	} while (true);
 }
 
-void Storm::SimulatorManager::executeIteration(bool firstFrame, unsigned char forcedPushFrameIterator)
+void Storm::SimulatorManager::executeIteration(bool firstFrame, unsigned int forcedPushFrameIterator)
 {
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 
