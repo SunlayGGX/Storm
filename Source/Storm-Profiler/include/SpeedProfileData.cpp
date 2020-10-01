@@ -31,10 +31,8 @@ void Storm::SpeedProfileData::stopTime()
 	const float elapsedVirtualPhysicsTimeMillisec = timeMgr.getCurrentPhysicsDeltaTime() * 1000.f;
 
 	*_bufferPtr = elapsedVirtualPhysicsTimeMillisec / elapsedRealTime.count();
-	if (++_bufferPtr - _lastSpeedBuffer == Storm::SpeedProfileData::k_speedBufferCount)
-	{
-		_bufferPtr = _lastSpeedBuffer;
-	}
+
+	_bufferPtr = _lastSpeedBuffer + ((_bufferPtr - _lastSpeedBuffer) + 1) % Storm::SpeedProfileData::k_speedBufferCount;
 
 	for (const float registeredTime : _lastSpeedBuffer)
 	{

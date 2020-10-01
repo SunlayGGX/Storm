@@ -25,6 +25,7 @@ namespace Storm
 		// Profiling methods
 		void startSpeedProfile(const std::wstring_view &profileName) final override;
 		void endSpeedProfile(const std::wstring_view &profileName) final override;
+		float getSpeedProfileAccumulatedTime() const final override;
 
 	private:
 		bool _speedProfile;

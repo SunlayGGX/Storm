@@ -38,40 +38,16 @@ namespace
 #else
 	const float g_defaultColor[4] = { 0.f, 0.f, 0.f, 1.f };
 #endif
-
-#if _WIN32
-	struct VectorHijacker
-	{
-		std::size_t _newSize;
-	};
-
-	using VectorHijackerMakeBelieve = const VectorHijacker &;
-
-	using HijackedType = Storm::GraphicParticleData;
-#endif
 }
 
 #if _WIN32
-// (   - _ - |||)
-// Ugly but super efficient...
-template<>
-template<>
-decltype(auto) std::vector<HijackedType, std::allocator<HijackedType>>::emplace_back<VectorHijackerMakeBelieve>(VectorHijackerMakeBelieve first)
-{
-	// We're modifying directly the size of the vector without passing by the extra initialization.
-	_Mypair._Myval2._Mylast = _Mypair._Myval2._Myfirst + first._newSize;
-}
+#	define STORM_HIJACKED_TYPE Storm::GraphicParticleData
+#	include "VectHijack.h"
+#	undef STORM_HIJACKED_TYPE
 #endif
 
 namespace
 {
-#if _WIN32
-	void setNumUninitialized_hijack(std::vector<HijackedType> &hijackedVector, VectorHijackerMakeBelieve hijacker)
-	{
-		hijackedVector.emplace_back<VectorHijackerMakeBelieve>(hijacker);
-	}
-#endif
-
 	template<bool isFluids>
 	constexpr DirectX::XMVECTOR getDefaultParticleColor()
 	{
@@ -145,12 +121,12 @@ namespace
 
 #if _WIN32
 
-		const VectorHijackerMakeBelieve hijacker{ particlePosData.size() };
+		const Storm::VectorHijackerMakeBelieve hijacker{ particlePosData.size() };
 		dxParticlePosDataTmp.reserve(hijacker._newSize);
 
 		// Huge optimization that completely destroys resize method... Cannot be much faster than this, it is like Unreal technology (TArray provides a SetNumUninitialized).
 		// (Except that Unreal implemented their own TArray instead of using std::vector. Since I'm stuck with this, I didn't have much choice than to hijack... Note that this code isn't portable because it relies heavily on how Microsoft implemented std::vector (to find out the breach in the armor, we must know whose armor it is ;) )).
-		setNumUninitialized_hijack(dxParticlePosDataTmp, hijacker);
+		Storm::setNumUninitialized_hijack(dxParticlePosDataTmp, hijacker);
 
 		if (enableDifferentColoring)
 		{

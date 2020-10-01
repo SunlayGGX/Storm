@@ -188,6 +188,7 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 			!Storm::XmlReader::handleXml(generalXmlElement, "neighborCheckStep", generalData._recomputeNeighborhoodStep) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "simulationNoWait", generalData._simulationNoWait) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "particleRadius", generalData._particleRadius) &&
+			!Storm::XmlReader::handleXml(generalXmlElement, "endPhysicsTime", generalData._endSimulationPhysicsTimeInSeconds) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "startFixRigidBodies", generalData._fixRigidBodyAtStartTime)
 			)
 		{
@@ -217,6 +218,10 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 	if (generalData._recomputeNeighborhoodStep == 0)
 	{
 		Storm::throwException<std::exception>("neighborCheckStep is equal to 0 which isn't allowed (we must recompute neighborhood at least one time)!");
+	}
+	else if (generalData._endSimulationPhysicsTimeInSeconds != -1.f && generalData._endSimulationPhysicsTimeInSeconds <= 0.f)
+	{
+		Storm::throwException<std::exception>("end simulation time was set to a negative or zero time (" + std::to_string(generalData._endSimulationPhysicsTimeInSeconds) + "). It isn't allowed!");
 	}
 
 	generalData._computeCFL = generalData._physicsTimeInSec <= 0.f;

@@ -26,7 +26,7 @@ namespace Storm
 	public:
 		Storm::ExitCode run();
 
-		void executeIteration(bool firstFrame, unsigned char forcedPushFrameIterator);
+		void executeIteration(bool firstFrame, unsigned int forcedPushFrameIterator);
 
 	private:
 		// CFL : Courant-Friedrich-Levy

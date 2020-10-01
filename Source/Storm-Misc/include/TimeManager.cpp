@@ -206,9 +206,10 @@ void Storm::TimeManager::increaseCurrentPhysicsElapsedTime(float timeIncreaseInS
 	_fields.pushField(STORM_ELAPSED_TIME_FIELD_NAME);
 }
 
-void Storm::TimeManager::advanceCurrentPhysicsElapsedTime()
+float Storm::TimeManager::advanceCurrentPhysicsElapsedTime()
 {
 	this->increaseCurrentPhysicsElapsedTime(this->_physicsTimeInSeconds);
+	return _physicsElapsedTimeInSeconds;
 }
 
 void Storm::TimeManager::quit()
