@@ -19,6 +19,9 @@
     <Filter Include="Source Files\General">
       <UniqueIdentifier>{235a3396-10a8-4d4a-ab9b-d7d412fe7374}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Record">
+      <UniqueIdentifier>{96e968bb-1066-43c9-b92b-17798b1f4e17}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-SerializerPCH.cpp">
@@ -34,6 +37,9 @@
     </ClInclude>
     <ClInclude Include="..\include\SerializerManager.h">
       <Filter>Header Files\General</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\RecordPreHeader.h">
+      <Filter>Header Files\Record</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

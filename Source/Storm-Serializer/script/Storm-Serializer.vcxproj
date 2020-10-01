@@ -18,6 +18,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\include\RecordPreHeader.h" />
     <ClInclude Include="..\include\SerializerManager.h" />
     <ClInclude Include="..\include\Storm-SerializerPCH.h" />
   </ItemGroup>
