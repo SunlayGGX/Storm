@@ -67,3 +67,14 @@ void Storm::ProfilerManager::endSpeedProfile(const std::wstring_view &profileNam
 		}
 	}
 }
+
+float Storm::ProfilerManager::getSpeedProfileAccumulatedTime() const
+{
+	if (_speedProfile)
+	{
+		const Storm::SpeedProfileHandler &speedProfileHandler = _speedProfileHandlerMap.find(std::this_thread::get_id())->second;
+		return speedProfileHandler.getAccumulatedTime();
+	}
+
+	return 0.f;
+}
