@@ -146,7 +146,7 @@ void Storm::SerializerManager::processRecordQueue_Unchecked()
 
 void Storm::SerializerManager::processRecord(const Storm::SerializeRecordPendingData &record)
 {
-	STORM_NOT_IMPLEMENTED;
+	_recordWriter->write(record);
 }
 
 void Storm::SerializerManager::recordFrame(Storm::SerializeRecordPendingData &&frameRecord)
