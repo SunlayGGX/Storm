@@ -22,6 +22,24 @@
     <Filter Include="Header Files\Record">
       <UniqueIdentifier>{96e968bb-1066-43c9-b92b-17798b1f4e17}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Record\Data">
+      <UniqueIdentifier>{dd195b9f-6cde-4d63-9174-bf6a6126acb5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Record\Serializer">
+      <UniqueIdentifier>{958e9a44-61de-4756-8b4a-18c9ee3ce325}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Record">
+      <UniqueIdentifier>{9f715ec2-79d1-49ba-953d-fe2902d1d353}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Record\Serializer">
+      <UniqueIdentifier>{42c29151-1861-4490-96b6-2fdf2e3f1f1b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Record\Handler">
+      <UniqueIdentifier>{6af6caec-0f51-4ac5-8adc-007e5250c453}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Record\Handler">
+      <UniqueIdentifier>{486ba608-59f9-4c15-b8c7-b9f5b311e0c6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-SerializerPCH.cpp">
@@ -29,6 +47,15 @@
     </ClCompile>
     <ClCompile Include="..\include\SerializerManager.cpp">
       <Filter>Source Files\General</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\RecordReader.cpp">
+      <Filter>Source Files\Record\Handler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\RecordWriter.cpp">
+      <Filter>Source Files\Record\Handler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\RecordHandlerBase.cpp">
+      <Filter>Source Files\Record\Handler</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -39,7 +66,16 @@
       <Filter>Header Files\General</Filter>
     </ClInclude>
     <ClInclude Include="..\include\RecordPreHeader.h">
-      <Filter>Header Files\Record</Filter>
+      <Filter>Header Files\Record\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\RecordReader.h">
+      <Filter>Header Files\Record\Handler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\RecordWriter.h">
+      <Filter>Header Files\Record\Handler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\RecordHandlerBase.h">
+      <Filter>Header Files\Record\Handler</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
