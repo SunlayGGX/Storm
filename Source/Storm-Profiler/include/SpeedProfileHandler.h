@@ -16,9 +16,13 @@ namespace Storm
 		void addProfileData(const std::wstring_view &name);
 		void removeProfileData(const std::wstring_view &name);
 
+		float getAccumulatedTime() const;
+
 	private:
 		const std::wstring_view _name;
 		Storm::SpeedProfileData _speedProfile;
+
+		float _allTimesAccumulated;
 
 		unsigned int _pushStep;
 		Storm::UIFieldContainer _profileDataField;

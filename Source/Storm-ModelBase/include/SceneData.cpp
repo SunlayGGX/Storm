@@ -5,6 +5,7 @@
 #include "FluidData.h"
 #include "BlowerData.h"
 #include "ConstraintData.h"
+#include "RecordConfigData.h"
 
 #include "CollisionType.h"
 #include "SimulationMode.h"
@@ -12,6 +13,7 @@
 #include "FluidParticleLoadDenseMode.h"
 #include "BlowerType.h"
 #include "InsideParticleRemovalTechnique.h"
+#include "RecordMode.h"
 
 
 Storm::GeneralSimulationData::GeneralSimulationData() :
@@ -33,7 +35,8 @@ Storm::GeneralSimulationData::GeneralSimulationData() :
 	_removeFluidParticleCollidingWithRb{ true },
 	_hasFluid{ true },
 	_computeCFL{ false },
-	_fixRigidBodyAtStartTime{ false }
+	_fixRigidBodyAtStartTime{ false },
+	_endSimulationPhysicsTimeInSeconds{ -1.f }
 {
 
 }
@@ -125,10 +128,19 @@ Storm::ConstraintData::ConstraintData() :
 
 }
 
+Storm::RecordConfigData::RecordConfigData() :
+	_recordMode{ Storm::RecordMode::None },
+	_recordFps{ -1.f },
+	_recordFilePath{}
+{
+
+}
+
 Storm::SceneData::SceneData() :
 	_generalSimulationData{ std::make_unique<Storm::GeneralSimulationData>() },
 	_graphicData{ std::make_unique<Storm::GraphicData>() },
-	_fluidData{ std::make_unique<Storm::FluidData>() }
+	_fluidData{ std::make_unique<Storm::FluidData>() },
+	_recordConfigData{ std::make_unique<Storm::RecordConfigData>() }
 {
 
 }

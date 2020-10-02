@@ -7,6 +7,7 @@ namespace Storm
 {
 	using SimulationCallback = std::function<void()>;
 	struct BlowerData;
+	enum class ExitCode;
 
 	class ISimulatorManager : public Storm::ISingletonHeldInterface<ISimulatorManager>
 	{
@@ -34,5 +35,8 @@ namespace Storm
 
 	public:
 		virtual void printFluidParticleData() const = 0;
+
+	public:
+		virtual void exitWithCode(Storm::ExitCode code) = 0;
 	};
 }

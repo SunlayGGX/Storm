@@ -54,6 +54,9 @@
     <ProjectReference Include="..\..\Storm-Profiler\script\Storm-Profiler.vcxproj">
       <Project>{66664e96-f4e4-4c82-9b7b-a6e8ccd92069}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\..\Storm-Serializer\script\Storm-Serializer.vcxproj">
+      <Project>{02eaf0aa-deff-4c09-80a7-70a413568897}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\..\Storm-Simulator\script\Storm-Simulator.vcxproj">
       <Project>{c115891c-7bdb-4a4c-b19c-24e39536a051}</Project>
     </ProjectReference>
@@ -118,7 +121,7 @@
       <PrecompiledHeaderFile>StormPCH.h</PrecompiledHeaderFile>
       <ForcedIncludeFiles>%(PrecompiledHeaderFile);%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <LanguageStandard>stdcpplatest</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)../../Storm-ModelBase/include;$(ProjectDir)../../Storm-Loader/include;$(ProjectDir)../../Storm-Logger/include;$(ProjectDir)../../Storm-Config/include;$(ProjectDir)../../Storm-Windows/include;$(ProjectDir)../../Storm-Input/include;$(ProjectDir)../../Storm-Graphics/include;$(ProjectDir)../../Storm-Physics/include;$(ProjectDir)../../Storm-Profiler/include;$(ProjectDir)../../Storm-Misc/include;$(ProjectDir)../../Storm-Space/include;$(ProjectDir)../../Storm-Simulator/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)../../Storm-ModelBase/include;$(ProjectDir)../../Storm-Loader/include;$(ProjectDir)../../Storm-Logger/include;$(ProjectDir)../../Storm-Config/include;$(ProjectDir)../../Storm-Windows/include;$(ProjectDir)../../Storm-Input/include;$(ProjectDir)../../Storm-Graphics/include;$(ProjectDir)../../Storm-Physics/include;$(ProjectDir)../../Storm-Profiler/include;$(ProjectDir)../../Storm-Misc/include;$(ProjectDir)../../Storm-Serializer/include;$(ProjectDir)../../Storm-Space/include;$(ProjectDir)../../Storm-Simulator/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -140,7 +143,7 @@
       <PrecompiledHeaderFile>StormPCH.h</PrecompiledHeaderFile>
       <ForcedIncludeFiles>%(PrecompiledHeaderFile);%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <LanguageStandard>stdcpplatest</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)../../Storm-ModelBase/include;$(ProjectDir)../../Storm-Loader/include;$(ProjectDir)../../Storm-Logger/include;$(ProjectDir)../../Storm-Config/include;$(ProjectDir)../../Storm-Windows/include;$(ProjectDir)../../Storm-Input/include;$(ProjectDir)../../Storm-Graphics/include;$(ProjectDir)../../Storm-Physics/include;$(ProjectDir)../../Storm-Profiler/include;$(ProjectDir)../../Storm-Misc/include;$(ProjectDir)../../Storm-Space/include;$(ProjectDir)../../Storm-Simulator/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)../../Storm-ModelBase/include;$(ProjectDir)../../Storm-Loader/include;$(ProjectDir)../../Storm-Logger/include;$(ProjectDir)../../Storm-Config/include;$(ProjectDir)../../Storm-Windows/include;$(ProjectDir)../../Storm-Input/include;$(ProjectDir)../../Storm-Graphics/include;$(ProjectDir)../../Storm-Physics/include;$(ProjectDir)../../Storm-Profiler/include;$(ProjectDir)../../Storm-Misc/include;$(ProjectDir)../../Storm-Serializer/include;$(ProjectDir)../../Storm-Space/include;$(ProjectDir)../../Storm-Simulator/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

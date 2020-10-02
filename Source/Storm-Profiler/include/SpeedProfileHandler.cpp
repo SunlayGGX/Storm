@@ -5,7 +5,8 @@
 
 Storm::SpeedProfileHandler::SpeedProfileHandler(const std::wstring_view &name) :
 	_name{ name },
-	_pushStep{ 0 }
+	_pushStep{ 0 },
+	_allTimesAccumulated{ 0.f }
 {
 	_profileDataField
 		.bindFieldW(_name, _speedProfile.computationSpeed())
@@ -24,10 +25,17 @@ void Storm::SpeedProfileHandler::removeProfileData(const std::wstring_view &name
 {
 	_speedProfile.stopTime();
 
+	_allTimesAccumulated += _speedProfile.computationSpeed();
+
 	assert(_name == name && "Speed profiling is specific to the Simulator loop and only one should exist!");
 
 	if (++_pushStep % 10 == 0)
 	{
 		_profileDataField.pushFieldW(_name);
 	}
+}
+
+float Storm::SpeedProfileHandler::getAccumulatedTime() const
+{
+	return _allTimesAccumulated;
 }

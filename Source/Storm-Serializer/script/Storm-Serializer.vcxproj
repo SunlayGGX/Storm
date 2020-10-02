@@ -11,72 +11,36 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\include\CoInitializerRAII.cpp" />
-    <ClCompile Include="..\include\DebuggerHelper.cpp" />
-    <ClCompile Include="..\include\Logging.cpp" />
-    <ClCompile Include="..\include\LogHelper.cpp" />
-    <ClCompile Include="..\include\SerializePackage.cpp" />
-    <ClCompile Include="..\include\SingletonHolder.cpp" />
-    <ClCompile Include="..\include\Storm-HelperPCH.cpp">
+    <ClCompile Include="..\include\RecordHandlerBase.cpp" />
+    <ClCompile Include="..\include\RecordReader.cpp" />
+    <ClCompile Include="..\include\RecordWriter.cpp" />
+    <ClCompile Include="..\include\SerializerManager.cpp" />
+    <ClCompile Include="..\include\Storm-SerializerPCH.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\include\TimeHelper.cpp" />
-    <ClCompile Include="..\include\Version.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\include\ArchitectureMacros.h" />
-    <ClInclude Include="..\include\CallbackIdType.h" />
-    <ClInclude Include="..\include\CoInitializerRAII.h" />
-    <ClInclude Include="..\include\CorrectSettingChecker.h" />
-    <ClInclude Include="..\include\CRTPHierarchy.h" />
-    <ClInclude Include="..\include\DebuggerHelper.h" />
-    <ClInclude Include="..\include\ExitCode.h" />
-    <ClInclude Include="..\include\Facets.h" />
-    <ClInclude Include="..\include\FacetsContainer.h" />
-    <ClInclude Include="..\include\ILoggerManager.h" />
-    <ClInclude Include="..\include\InvertPeriod.h" />
-    <ClInclude Include="..\include\LeanWindowsInclude.h" />
-    <ClInclude Include="..\include\Logging.h" />
-    <ClInclude Include="..\include\LogHelper.h" />
-    <ClInclude Include="..\include\LogLevel.h" />
-    <ClInclude Include="..\include\MacroConfig.h" />
-    <ClInclude Include="..\include\MemoryHelper.h" />
-    <ClInclude Include="..\include\MultiCallback.h" />
-    <ClInclude Include="..\include\NonInstanciable.h" />
-    <ClInclude Include="..\include\RunnerHelper.h" />
-    <ClInclude Include="..\include\SearchAlgo.h" />
-    <ClInclude Include="..\include\SerializePackage.h" />
-    <ClInclude Include="..\include\Singleton.h" />
-    <ClInclude Include="..\include\SingletonAllocator.h" />
-    <ClInclude Include="..\include\SingletonDefaultImplementation.h" />
-    <ClInclude Include="..\include\SingletonHolder.h" />
-    <ClInclude Include="..\include\SingletonHeldInterfaceBase.h" />
-    <ClInclude Include="..\include\SizeCounter.h" />
-    <ClInclude Include="..\include\StaticAssertionsMacros.h" />
-    <ClInclude Include="..\include\Storm-HelperPCH.h" />
-    <ClInclude Include="..\include\StormHelperPrerequisite.h" />
-    <ClInclude Include="..\include\StormMacro.h" />
-    <ClInclude Include="..\include\StormStdPrerequisite.h" />
-    <ClInclude Include="..\include\StringHijack.h" />
-    <ClInclude Include="..\include\StringOperator.h" />
-    <ClInclude Include="..\include\ThreadHelper.h" />
-    <ClInclude Include="..\include\ThrowException.h" />
-    <ClInclude Include="..\include\TimeHelper.h" />
-    <ClInclude Include="..\include\TraitsHelper.h" />
-    <ClInclude Include="..\include\UniquePointer.h" />
-    <ClInclude Include="..\include\UniversalString.h" />
-    <ClInclude Include="..\include\ValueGuard.h" />
-    <ClInclude Include="..\include\VectHijack.h" />
-    <ClInclude Include="..\include\Version.h" />
-    <ClInclude Include="..\include\VersionMacro.h" />
-    <ClInclude Include="..\include\XmlReader.h" />
+    <ClInclude Include="..\include\RecordHandlerBase.h" />
+    <ClInclude Include="..\include\RecordPreHeader.h" />
+    <ClInclude Include="..\include\RecordReader.h" />
+    <ClInclude Include="..\include\RecordWriter.h" />
+    <ClInclude Include="..\include\SerializerManager.h" />
+    <ClInclude Include="..\include\Storm-SerializerPCH.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Storm-Helper\script\Storm-Helper.vcxproj">
+      <Project>{30709355-d527-4faa-9c02-1f64129968e5}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Storm-ModelBase\script\Storm-ModelBase.vcxproj">
+      <Project>{bb52fd96-f795-463d-8ad1-392b37344a7d}</Project>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
-    <ProjectGuid>{30709355-D527-4FAA-9C02-1F64129968E5}</ProjectGuid>
+    <ProjectGuid>{02EAF0AA-DEFF-4C09-80A7-70A413568897}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>StormHelper</RootNamespace>
+    <RootNamespace>StormProfiler</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -123,9 +87,10 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>
-      <PrecompiledHeaderFile>Storm-HelperPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile>Storm-SerializerPCH.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <ForcedIncludeFiles>%(PrecompiledHeaderFile);%(ForcedIncludeFiles)</ForcedIncludeFiles>
+      <AdditionalIncludeDirectories>$(ProjectDir)../../Storm-ModelBase/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -142,9 +107,10 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>
-      <PrecompiledHeaderFile>Storm-HelperPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile>Storm-SerializerPCH.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <ForcedIncludeFiles>%(PrecompiledHeaderFile);%(ForcedIncludeFiles)</ForcedIncludeFiles>
+      <AdditionalIncludeDirectories>$(ProjectDir)../../Storm-ModelBase/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

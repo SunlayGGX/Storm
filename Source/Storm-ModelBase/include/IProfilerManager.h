@@ -19,5 +19,6 @@ namespace Storm
 		// This method is specific for the Simulator, else it is not useful.
 		virtual void startSpeedProfile(const std::wstring_view &profileName) = 0;
 		virtual void endSpeedProfile(const std::wstring_view &profileName) = 0;
+		virtual float getSpeedProfileAccumulatedTime() const = 0;
 	};
 }

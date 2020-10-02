@@ -55,8 +55,9 @@ namespace Storm
 	}
 #endif
 
+
 	template<bool isFluid, class VectOrIntrinsType, class NeighborhoodArray>
-	__forceinline void addIfNeighbor(NeighborhoodArray &currentPNeighborhood, const VectOrIntrinsType &currentPPos, const Storm::Vector3 &otherPPos, const float kernelLengthSquared,  Storm::ParticleSystem* particleSystem, const Storm::NeighborParticleReferral &particleReferral, VectOrIntrinsType &posDiff, float &normSquared)
+	__forceinline void addIfNeighbor(NeighborhoodArray &currentPNeighborhood, const VectOrIntrinsType &currentPPos, const Storm::Vector3 &otherPPos, const float kernelLengthSquared, Storm::ParticleSystem* particleSystem, const Storm::NeighborParticleReferral &particleReferral, VectOrIntrinsType &posDiff, float &normSquared)
 	{
 		if (Storm::isNeighborhood(currentPPos, otherPPos, kernelLengthSquared, posDiff, normSquared))
 		{
@@ -97,13 +98,15 @@ namespace Storm
 
 				if (particleReferral._systemId == currentSystemId)
 				{
-					if (particleReferral._particleIndex == particleIndex)
+					if (particleReferral._particleIndex != particleIndex)
+					{
+						Storm::addIfNeighbor<isFluid>(currentPNeighborhood, currentPPosTmp, thisSystemAllPPosition[particleReferral._particleIndex], kernelLengthSquared, thisParticleSystem, particleReferral, posDiff, normSquared);
+					}
+					else
 					{
 						++iter; //Skip it... Current particle shouldn't be part of its own neighborhood
 						break;
 					}
-
-					Storm::addIfNeighbor<isFluid>(currentPNeighborhood, currentPPosTmp, thisSystemAllPPosition[particleReferral._particleIndex], kernelLengthSquared, thisParticleSystem, particleReferral, posDiff, normSquared);
 				}
 				else
 				{

@@ -12,5 +12,6 @@ namespace Storm
 		LoggerThread,
 		TimeThread,
 		WindowsAndInputThread,
+		SerializerThread,
 	};
 }

@@ -17,6 +17,9 @@ namespace Storm
 		std::string getMacroConfigFilePath() const;
 		std::string getGeneralConfigFilePath() const;
 
+		std::string getRecordModeStr() const;
+		std::string getRecordFilePath() const;
+
 		bool getShouldRegenerateParticleCache() const;
 
 	public:

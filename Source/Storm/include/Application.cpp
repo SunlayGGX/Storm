@@ -18,6 +18,7 @@
 #include "SpacePartitionerManager.h"
 #include "RaycastManager.h"
 #include "ProfilerManager.h"
+#include "SerializerManager.h"
 
 #include "Version.h"
 #include "TimeHelper.h"
@@ -30,6 +31,7 @@ namespace
 		Storm::SingletonHolder,
 		Storm::ConfigManager,
 		Storm::LoggerManager,
+		Storm::SerializerManager,
 		Storm::ProfilerManager,
 		Storm::ThreadManager,
 		Storm::RandomManager,
@@ -80,6 +82,8 @@ namespace
 
 			Storm::InputManager::instance().initialize();
 
+			Storm::SerializerManager::instance().initialize();
+
 			Storm::PhysicsManager::instance().initialize();
 
 			Storm::ShaderManager::instance().initialize();
@@ -121,6 +125,7 @@ namespace
 			Storm::WindowsManager::instance().cleanUp();
 			Storm::OSManager::instance().cleanUp();
 			Storm::RandomManager::instance().cleanUp();
+			Storm::SerializerManager::instance().cleanUp();
 			Storm::ConfigManager::instance().cleanUp();
 			Storm::LoggerManager::instance().cleanUp();
 
@@ -143,12 +148,14 @@ Storm::Application::~Application()
 
 Storm::ExitCode Storm::Application::run()
 {
+	Storm::ExitCode result = ExitCode::k_success;
+
 	try
 	{
 		if (shouldRunSimulation())
 		{
 			LOG_COMMENT << "Start Application Run";
-			Storm::SimulatorManager::instance().run();
+			result = Storm::SimulatorManager::instance().run();
 		}
 		else
 		{
@@ -166,7 +173,7 @@ Storm::ExitCode Storm::Application::run()
 		throw;
 	}
 
-	return ExitCode::k_success;
+	return result;
 }
 
 Storm::EarlyExitAnswer Storm::Application::ensureCleanStateAfterException(const std::string &errorMsg, bool wasStdException)

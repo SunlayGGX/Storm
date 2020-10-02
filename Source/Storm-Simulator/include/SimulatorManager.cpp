@@ -43,9 +43,12 @@
 #include "Blower.h"
 
 #include "ThreadingSafety.h"
+#include "ThreadEnumeration.h"
 
 #include "RaycastQueryRequest.h"
 #include "RaycastHitResult.h"
+
+#include "ExitCode.h"
 
 #include <fstream>
 
@@ -319,7 +322,8 @@ namespace
 }
 
 Storm::SimulatorManager::SimulatorManager() :
-	_raycastEnabled{ false }
+	_raycastEnabled{ false },
+	_runExitCode{ Storm::ExitCode::k_success }
 {
 
 }
@@ -419,7 +423,7 @@ void Storm::SimulatorManager::cleanUp_Implementation()
 	// TODO
 }
 
-void Storm::SimulatorManager::run()
+Storm::ExitCode Storm::SimulatorManager::run()
 {
 	LOG_COMMENT << "Starting simulation loop";
 
@@ -463,8 +467,10 @@ void Storm::SimulatorManager::run()
 
 	this->initializePreSimulation();
 
-	// A fast iterator that loops every 256 iterations.
-	unsigned char forcedPushFrameIterator = 0;
+	const bool autoEndSimulation = generalSimulationConfigData._endSimulationPhysicsTimeInSeconds != -1.f;
+	bool hasAutoEndSimulation = false;
+
+	unsigned int forcedPushFrameIterator = 0;
 
 	bool firstFrame = true;
 
@@ -474,7 +480,13 @@ void Storm::SimulatorManager::run()
 		switch (simulationState)
 		{
 		case Storm::TimeWaitResult::Exit:
-			return;
+			if (hasAutoEndSimulation && profilerMgrNullablePtr)
+			{
+				LOG_COMMENT <<
+					"Simulation average speed was " << 
+					profilerMgrNullablePtr->getSpeedProfileAccumulatedTime() / static_cast<float>(forcedPushFrameIterator);
+			}
+			return _runExitCode;
 
 		case TimeWaitResult::Pause:
 			// Takes time to process messages that came from other threads.
@@ -505,12 +517,17 @@ void Storm::SimulatorManager::run()
 		}
 
 		// Push all particle data to the graphic module to be rendered...
-		this->pushParticlesToGraphicModule(forcedPushFrameIterator == 0);
+		this->pushParticlesToGraphicModule(forcedPushFrameIterator % 256);
 
 		// Takes time to process messages that came from other threads.
 		threadMgr.processCurrentThreadActions();
 
-		timeMgr.advanceCurrentPhysicsElapsedTime();
+		float currentPhysicsTime = timeMgr.advanceCurrentPhysicsElapsedTime();
+		hasAutoEndSimulation = autoEndSimulation && currentPhysicsTime > generalSimulationConfigData._endSimulationPhysicsTimeInSeconds;
+		if (hasAutoEndSimulation)
+		{
+			timeMgr.quit();
+		}
 
 		++forcedPushFrameIterator;
 		firstFrame = false;
@@ -518,7 +535,7 @@ void Storm::SimulatorManager::run()
 	} while (true);
 }
 
-void Storm::SimulatorManager::executeIteration(bool firstFrame, unsigned char forcedPushFrameIterator)
+void Storm::SimulatorManager::executeIteration(bool firstFrame, unsigned int forcedPushFrameIterator)
 {
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 
@@ -865,6 +882,16 @@ void Storm::SimulatorManager::cycleSelectedParticleDisplayMode()
 			this->pushParticlesToGraphicModule(true, false);
 		}
 	}
+}
+
+void Storm::SimulatorManager::exitWithCode(Storm::ExitCode code)
+{
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::MainThread, [this, code, &singletonHolder]()
+	{
+		_runExitCode = code;
+		singletonHolder.getSingleton<Storm::ITimeManager>().quit();
+	});
 }
 
 Storm::ParticleSystem& Storm::SimulatorManager::getParticleSystem(unsigned int id)

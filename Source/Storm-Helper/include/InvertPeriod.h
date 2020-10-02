@@ -23,5 +23,11 @@ namespace Storm
 			constexpr float coefficientDurationToFps = Storm::InvertPeriod<DurationType::period>::value * static_cast<float>(bufferAverizeSize);
 			return coefficientDurationToFps / static_cast<float>(duration.count());
 		}
+
+		template<class DurationType>
+		static DurationType toFrameDuration(const float fps)
+		{
+			return std::chrono::duration_cast<DurationType>(std::chrono::duration<float, std::chrono::seconds::period>{ 1.f / fps });
+		}
 	};
 }

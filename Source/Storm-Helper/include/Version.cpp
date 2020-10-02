@@ -49,6 +49,11 @@ void Storm::Version::serialize(Storm::SerializePackage &package)
 	package << _value._bunk;
 }
 
+std::size_t Storm::Version::getSizeInSerializePacket()
+{
+	return sizeof(Storm::Version::_value._bunk);
+}
+
 Storm::Version::operator std::string() const
 {
 	std::string result;
