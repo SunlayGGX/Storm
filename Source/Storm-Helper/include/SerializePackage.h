@@ -52,7 +52,14 @@ namespace Storm
 		template<class Type>
 		SerializePackage* doSerialize(Type &, ...)
 		{
-			STORM_COMPILE_ERROR("Type isn't defined to be a serializable type. Put a public method named 'serialize' inside that takes a SerializePackage reference as argument!");
+			if constexpr (std::is_const_v<Type>)
+			{
+				STORM_COMPILE_ERROR("Object Type to be serialized shouldn't be const since we know only if we write or read at runtime");
+			}
+			else
+			{
+				STORM_COMPILE_ERROR("Type isn't defined to be a serializable type. Put a public method named 'serialize' inside that takes a SerializePackage reference as argument!");
+			}
 			return this;
 		}
 
