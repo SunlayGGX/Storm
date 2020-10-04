@@ -48,6 +48,9 @@
     <ClCompile Include="..\include\SerializerManager.cpp">
       <Filter>Source Files\General</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\RecordPreHeaderSerializer.cpp">
+      <Filter>Source Files\Record\Serializer</Filter>
+    </ClCompile>
     <ClCompile Include="..\include\RecordReader.cpp">
       <Filter>Source Files\Record\Handler</Filter>
     </ClCompile>
@@ -67,6 +70,9 @@
     </ClInclude>
     <ClInclude Include="..\include\RecordPreHeader.h">
       <Filter>Header Files\Record\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\RecordPreHeaderSerializer.h">
+      <Filter>Header Files\Record\Serializer</Filter>
     </ClInclude>
     <ClInclude Include="..\include\RecordReader.h">
       <Filter>Header Files\Record\Handler</Filter>
