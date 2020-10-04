@@ -14,6 +14,9 @@ namespace Storm
 	public:
 		virtual ~RecordHandlerBase() = default;
 
+	public:
+		void serializeHeader();
+
 	protected:
 		Storm::SerializePackage _package;
 		Storm::SerializeRecordHeader _header;
