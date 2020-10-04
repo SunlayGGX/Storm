@@ -6,6 +6,7 @@
 namespace Storm
 {
 	struct SerializeRecordPendingData;
+	class RecordPreHeaderSerializer;
 
 	class RecordWriter : public Storm::RecordHandlerBase
 	{
@@ -17,6 +18,8 @@ namespace Storm
 		void write(/*const*/ Storm::SerializeRecordPendingData &data);
 
 	private:
+		std::unique_ptr<Storm::RecordPreHeaderSerializer> _preheaderSerializer;
+
 		uint64_t _frameNumber;
 	};
 }

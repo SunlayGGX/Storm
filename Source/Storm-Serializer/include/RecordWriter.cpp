@@ -1,7 +1,6 @@
 #include "RecordWriter.h"
 
-#include "SingletonHolder.h"
-#include "IConfigManager.h"
+#include "RecordPreHeaderSerializer.h"
 
 #include "Version.h"
 
@@ -22,8 +21,12 @@ namespace
 
 Storm::RecordWriter::RecordWriter(Storm::SerializeRecordHeader &&header) :
 	Storm::RecordHandlerBase{ std::move(header), Storm::SerializePackageCreationModality::SavingAppendPreheaderProvidedAfter },
+	_preheaderSerializer{ std::make_unique<Storm::RecordPreHeaderSerializer>(retrieveRecordPacketVersion()) },
 	_frameNumber{ 0 }
 {
+	_package << *_preheaderSerializer;
+
+	Storm::RecordHandlerBase::serializeHeader();
 }
 
 Storm::RecordWriter::~RecordWriter() = default;
