@@ -87,3 +87,8 @@ void Storm::RecordPreHeaderSerializer::endSerializing(Storm::SerializePackage &p
 	uint64_t goodMagicWord = static_cast<MagicWordChecksumType>(RecordMagicWord::k_badMagicWord);
 	package << goodMagicWord;
 }
+
+const Storm::Version& Storm::RecordPreHeaderSerializer::getRecordVersion() const noexcept
+{
+	return _preHeader._recordVersion;
+}

@@ -16,6 +16,7 @@ namespace Storm
 
 	public:
 		void serializeHeader();
+		const Storm::SerializeRecordHeader& getHeader() const noexcept;
 
 	protected:
 		Storm::SerializePackage _package;

@@ -22,6 +22,9 @@ namespace Storm
 
 		void endSerializing(Storm::SerializePackage &package);
 
+	public:
+		const Storm::Version& getRecordVersion() const noexcept;
+
 	private:
 		Storm::RecordPreHeader _preHeader;
 	};

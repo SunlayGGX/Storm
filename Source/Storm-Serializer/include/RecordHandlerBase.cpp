@@ -96,3 +96,7 @@ void Storm::RecordHandlerBase::serializeHeader()
 	}
 }
 
+const Storm::SerializeRecordHeader& Storm::RecordHandlerBase::getHeader() const noexcept
+{
+	return _header;
+}
