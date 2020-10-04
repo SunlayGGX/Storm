@@ -1,5 +1,8 @@
 #include "RecordHandlerBase.h"
 
+#include "SingletonHolder.h"
+#include "IConfigManager.h"
+
 #include "ThrowException.h"
 
 
@@ -7,7 +10,8 @@ namespace
 {
 	inline std::string retrieveRecordFilePath()
 	{
-		STORM_NOT_IMPLEMENTED;
+		const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
+		return configMgr.getRecordConfigData()._recordFilePath;
 	}
 }
 
