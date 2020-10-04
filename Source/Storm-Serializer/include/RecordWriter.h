@@ -16,6 +16,6 @@ namespace Storm
 		void write(const Storm::SerializeRecordPendingData &data);
 
 	private:
-		std::size_t _frameNumber;
+		uint64_t _frameNumber;
 	};
 }
