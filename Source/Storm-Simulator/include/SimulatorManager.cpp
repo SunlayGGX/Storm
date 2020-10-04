@@ -18,9 +18,11 @@
 
 #include "GeneralSimulationData.h"
 #include "FluidData.h"
+#include "RecordConfigData.h"
 
 #include "SimulationMode.h"
 #include "KernelMode.h"
+#include "RecordMode.h"
 
 #include "PartitionSelection.h"
 
@@ -425,6 +427,34 @@ void Storm::SimulatorManager::cleanUp_Implementation()
 
 Storm::ExitCode Storm::SimulatorManager::run()
 {
+	switch (Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().getRecordConfigData()._recordMode)
+	{
+	case Storm::RecordMode::None:
+	case Storm::RecordMode::Record:
+		return this->runSimulation_Internal();
+
+	case Storm::RecordMode::Replay:
+		return this->runRecord_Internal();
+
+	default:
+		__assume(false);
+		Storm::throwException<std::exception>("Unknown record mode!");
+	}
+}
+
+Storm::ExitCode Storm::SimulatorManager::runRecord_Internal()
+{
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+
+	LOG_COMMENT << "Starting replay loop";
+
+	STORM_NOT_IMPLEMENTED;
+
+	return _runExitCode;
+}
+
+Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
+{
 	LOG_COMMENT << "Starting simulation loop";
 
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
@@ -436,14 +466,14 @@ Storm::ExitCode Storm::SimulatorManager::run()
 
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
 	const Storm::GeneralSimulationData &generalSimulationConfigData = configMgr.getGeneralSimulationData();
-	
+
 	Storm::IProfilerManager* profilerMgrNullablePtr = configMgr.getShouldProfileSimulationSpeed() ? singletonHolder.getFacet<Storm::IProfilerManager>() : nullptr;
-	
+
 	std::vector<Storm::SimulationCallback> tmpSimulationCallback;
 	tmpSimulationCallback.reserve(8);
 
 	this->pushParticlesToGraphicModule(true);
-	
+
 	for (auto &particleSystem : _particleSystem)
 	{
 		Storm::ParticleSystem &pSystem = *particleSystem.second;
@@ -483,7 +513,7 @@ Storm::ExitCode Storm::SimulatorManager::run()
 			if (hasAutoEndSimulation && profilerMgrNullablePtr)
 			{
 				LOG_COMMENT <<
-					"Simulation average speed was " << 
+					"Simulation average speed was " <<
 					profilerMgrNullablePtr->getSpeedProfileAccumulatedTime() / static_cast<float>(forcedPushFrameIterator);
 			}
 			return _runExitCode;

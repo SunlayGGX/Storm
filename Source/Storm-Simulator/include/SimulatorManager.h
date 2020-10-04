@@ -25,6 +25,10 @@ namespace Storm
 
 	public:
 		Storm::ExitCode run();
+		
+	private:
+		Storm::ExitCode runSimulation_Internal();
+		Storm::ExitCode runRecord_Internal();
 
 		void executeIteration(bool firstFrame, unsigned int forcedPushFrameIterator);
 
