@@ -156,6 +156,8 @@ void Storm::SerializerManager::beginRecord(Storm::SerializeRecordHeader &&record
 {
 	Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::SerializerThread, [this, rec = std::move(recordHeader)]() mutable
 	{
+		std::lock_guard<std::mutex> lock{ _mutex };
+
 		if (!_recordReader)
 		{
 			if (!_recordWriter)
@@ -172,4 +174,33 @@ void Storm::SerializerManager::beginRecord(Storm::SerializeRecordHeader &&record
 			Storm::throwException<std::exception>("Cannot record and replay at the same time!");
 		}
 	});
+}
+
+void Storm::SerializerManager::beginReplay(const Storm::SerializeRecordHeader* &outRecordHeaderPtr)
+{
+	assert(isSimulationThread() && "this method should only be called from simulation thread.");
+
+	std::lock_guard<std::mutex> lock{ _mutex };
+	if (!_recordWriter)
+	{
+		if (!_recordReader)
+		{
+			_recordReader = std::make_unique<Storm::RecordReader>();
+			outRecordHeaderPtr = &_recordReader->getHeader();
+		}
+		else
+		{
+			Storm::throwException<std::exception>("We are already reading!");
+		}
+	}
+	else
+	{
+		Storm::throwException<std::exception>("Cannot record and replay at the same time!");
+	}
+}
+
+bool Storm::SerializerManager::obtainNextFrame(Storm::SerializeRecordPendingData &outPendingData) const
+{
+	assert(isSimulationThread() && "this method should only be called from simulation thread.");
+	return _recordReader->readNextFrame(outPendingData);
 }
