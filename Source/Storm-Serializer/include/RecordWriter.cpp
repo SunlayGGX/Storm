@@ -36,3 +36,33 @@ void Storm::RecordWriter::write(/*const*/ Storm::SerializeRecordPendingData &dat
 	STORM_NOT_IMPLEMENTED;
 }
 
+void Storm::RecordWriter::ensureFrameDataCoherency(const Storm::SerializeRecordElementsData &frameData)
+{
+	const std::size_t positionsCount = frameData._positions.size();
+	const std::size_t velocitiesCount = frameData._velocities.size();
+	const std::size_t forcesCount = frameData._forces.size();
+	if (positionsCount != velocitiesCount || positionsCount != forcesCount)
+	{
+		Storm::throwException<std::exception>("Frame " + std::to_string(_frameNumber) + " data particle count mismatches!");
+	}
+
+	const auto endHeaderParticleSystemLayout = std::end(_header._particleSystemLayouts);
+	const auto associatedLayout = std::find_if(std::begin(_header._particleSystemLayouts), endHeaderParticleSystemLayout, [sysId = frameData._systemId](const Storm::SerializeParticleSystemLayout &layout)
+	{
+		return layout._particleSystemId == sysId;
+	});
+
+	if (associatedLayout == endHeaderParticleSystemLayout)
+	{
+		Storm::throwException<std::exception>("Frame " + std::to_string(_frameNumber) + ": Unknown frame system id to record (" + std::to_string(frameData._systemId) + ")");
+	}
+
+	if (associatedLayout->_particlesCount != positionsCount)
+	{
+		Storm::throwException<std::exception>("Frame " + std::to_string(_frameNumber) + ", particle system " + std::to_string(frameData._systemId) + ": The particle count to record does not match what was registered as layout\n"
+			"We should have " + std::to_string(associatedLayout->_particlesCount) + " particles.\n"
+			"This frame contains " + std::to_string(positionsCount) + " particles.\n"
+			"Note that we don't support particles added to simulation when recording.");
+	}
+}
+

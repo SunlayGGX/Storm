@@ -6,6 +6,7 @@
 namespace Storm
 {
 	struct SerializeRecordPendingData;
+	struct SerializeRecordElementsData;
 	class RecordPreHeaderSerializer;
 
 	class RecordWriter : public Storm::RecordHandlerBase
@@ -16,6 +17,8 @@ namespace Storm
 
 	public:
 		void write(/*const*/ Storm::SerializeRecordPendingData &data);
+
+		void ensureFrameDataCoherency(const Storm::SerializeRecordElementsData &frameData);
 
 	private:
 		std::unique_ptr<Storm::RecordPreHeaderSerializer> _preheaderSerializer;
