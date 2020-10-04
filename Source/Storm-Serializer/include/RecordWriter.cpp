@@ -1,6 +1,7 @@
 #include "RecordWriter.h"
 
 #include "RecordPreHeaderSerializer.h"
+#include "SerializeRecordPendingData.h"
 
 #include "Version.h"
 
@@ -33,7 +34,33 @@ Storm::RecordWriter::~RecordWriter() = default;
 
 void Storm::RecordWriter::write(/*const*/ Storm::SerializeRecordPendingData &data)
 {
-	STORM_NOT_IMPLEMENTED;
+	if (data._elements.size() != _header._particleSystemLayouts.size())
+	{
+		Storm::throwException<std::exception>(
+			"Layout of what to be recorded doesn't match the frame data.\n"
+			"We should have " + std::to_string(_header._particleSystemLayouts.size()) + " particle systems.\n"
+			"But for this frame, we have " + std::to_string(data._elements.size()) + " particle systems."
+		);
+	}
+
+	_package << 
+		_frameNumber <<
+		data._physicsTime
+		;
+
+	for (Storm::SerializeRecordElementsData &frameData : data._elements)
+	{
+		this->ensureFrameDataCoherency(frameData);
+
+		_package <<
+			frameData._systemId <<
+			frameData._positions <<
+			frameData._velocities <<
+			frameData._forces
+			;
+	}
+
+	++_frameNumber;
 }
 
 void Storm::RecordWriter::ensureFrameDataCoherency(const Storm::SerializeRecordElementsData &frameData)
