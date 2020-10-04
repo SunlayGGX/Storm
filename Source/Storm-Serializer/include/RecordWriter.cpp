@@ -26,6 +26,8 @@ Storm::RecordWriter::RecordWriter(Storm::SerializeRecordHeader &&header) :
 {
 }
 
+Storm::RecordWriter::~RecordWriter() = default;
+
 void Storm::RecordWriter::write(/*const*/ Storm::SerializeRecordPendingData &data)
 {
 	STORM_NOT_IMPLEMENTED;

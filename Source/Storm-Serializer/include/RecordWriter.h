@@ -11,6 +11,7 @@ namespace Storm
 	{
 	public:
 		RecordWriter(Storm::SerializeRecordHeader &&header);
+		~RecordWriter();
 
 	public:
 		void write(/*const*/ Storm::SerializeRecordPendingData &data);
