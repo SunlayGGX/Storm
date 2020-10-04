@@ -26,7 +26,6 @@ namespace Storm
 	private:
 		void clearRecordQueue();
 		void processRecordQueue_Unchecked();
-		void processRecord(const Storm::SerializeRecordPendingData &record);
 
 	public:
 		void recordFrame(Storm::SerializeRecordPendingData &&frameRecord) final override;
