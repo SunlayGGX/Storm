@@ -13,7 +13,7 @@ namespace Storm
 		RecordWriter(Storm::SerializeRecordHeader &&header);
 
 	public:
-		void write(const Storm::SerializeRecordPendingData &data);
+		void write(/*const*/ Storm::SerializeRecordPendingData &data);
 
 	private:
 		uint64_t _frameNumber;
