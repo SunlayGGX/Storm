@@ -29,6 +29,16 @@ namespace Storm
 			return this;
 		}
 
+		// For later to be defined Vector3
+		template<class Vector3Type>
+		auto doSerialize(Vector3Type &vect3, int) -> decltype(vect3.x(), vect3.y(), vect3.z(), static_cast<SerializePackage*>(nullptr))
+		{
+			this->operator <<(vect3.x());
+			this->operator <<(vect3.y());
+			this->operator <<(vect3.z());
+			return this;
+		}
+
 		template<class ContainerType>
 		auto doSerialize(ContainerType &container, void*) -> decltype(std::end(container), std::declval<SerializePackage>() << *std::begin(container), static_cast<SerializePackage*>(nullptr))
 		{
