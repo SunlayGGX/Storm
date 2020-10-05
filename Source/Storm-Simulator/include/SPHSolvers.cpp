@@ -17,7 +17,7 @@
 
 
 
-void Storm::WCSPHSolver::execute(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &particleSystems, const float k_kernelLength, Storm::ParticleSelector &selectorParticle)
+void Storm::WCSPHSolver::execute(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &particleSystems, const float k_kernelLength, bool shouldRegisterTemporaryForces)
 {
 	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
 	const Storm::GeneralSimulationData &generalSimulData = configMgr.getGeneralSimulationData();
@@ -79,8 +79,6 @@ void Storm::WCSPHSolver::execute(const std::map<unsigned int, std::unique_ptr<St
 		}
 	}
 
-	const bool hasSelectedParticle = selectorParticle.hasSelectedParticle();
-
 	// Second : Compute forces : pressure and viscosity
 	for (auto &particleSystemPair : particleSystems)
 	{
@@ -96,6 +94,8 @@ void Storm::WCSPHSolver::execute(const std::map<unsigned int, std::unique_ptr<St
 			const std::vector<float> &densities = fluidParticleSystem.getDensities();
 			const std::vector<float> &pressures = fluidParticleSystem.getPressures();
 			const std::vector<Storm::Vector3> &velocities = fluidParticleSystem.getVelocity();
+			std::vector<Storm::Vector3> &temporaryPPressureForce = fluidParticleSystem.getTemporaryPressureForces();
+			std::vector<Storm::Vector3> &temporaryPViscoForce = fluidParticleSystem.getTemporaryViscosityForces();
 
 			Storm::runParallel(fluidParticleSystem.getForces(), [&](Storm::Vector3 &currentPForce, const std::size_t currentPIndex)
 			{
@@ -167,11 +167,19 @@ void Storm::WCSPHSolver::execute(const std::map<unsigned int, std::unique_ptr<St
 						if (!neighborPSystemAsBoundary->isStatic())
 						{
 							Storm::Vector3 &boundaryNeighborForce = neighbor._containingParticleSystem->getForces()[neighbor._particleIndex];
+							Storm::Vector3 &boundaryNeighborTmpPressureForce = neighbor._containingParticleSystem->getTemporaryPressureForces()[neighbor._particleIndex];
+							Storm::Vector3 &boundaryNeighborTmpViscosityForce = neighbor._containingParticleSystem->getTemporaryViscosityForces()[neighbor._particleIndex];
 
 							const Storm::Vector3 sumForces = pressureComponent + viscosityComponent;
 
 							std::lock_guard<std::mutex> lock{ neighbor._containingParticleSystem->_mutex };
 							boundaryNeighborForce -= sumForces;
+
+							if (shouldRegisterTemporaryForces)
+							{
+								boundaryNeighborTmpPressureForce -= pressureComponent;
+								boundaryNeighborTmpViscosityForce -= viscosityComponent;
+							}
 						}
 					}
 
@@ -182,17 +190,17 @@ void Storm::WCSPHSolver::execute(const std::map<unsigned int, std::unique_ptr<St
 				currentPForce += totalPressureForceOnParticle;
 				currentPForce += totalViscosityForceOnParticle;
 
-				if (hasSelectedParticle && selectorParticle.getSelectedParticleIndex() == currentPIndex)
+				if (shouldRegisterTemporaryForces)
 				{
-					selectorParticle.setSelectedParticlePressureForce(totalPressureForceOnParticle);
-					selectorParticle.setSelectedParticleViscosityForce(totalViscosityForceOnParticle);
+					temporaryPPressureForce[currentPIndex] = totalPressureForceOnParticle;
+					temporaryPViscoForce[currentPIndex] = totalViscosityForceOnParticle;
 				}
 			});
 		}
 	}
 }
 
-void Storm::PCISPHSolver::execute(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &particleSystems, const float k_kernelLength, Storm::ParticleSelector &selectorParticle)
+void Storm::PCISPHSolver::execute(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &particleSystems, const float k_kernelLength, bool shouldRegisterTemporaryForces)
 {
 	STORM_NOT_IMPLEMENTED;
 }

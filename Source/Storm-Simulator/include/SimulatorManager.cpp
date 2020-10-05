@@ -686,11 +686,11 @@ void Storm::SimulatorManager::executeIteration(bool firstFrame, unsigned int for
 		switch (generalSimulationConfigData._simulationMode)
 		{
 		case Storm::SimulationMode::WCSPH:
-			Storm::WCSPHSolver::execute(_particleSystem, kernelLength, _particleSelector);
+			Storm::WCSPHSolver::execute(_particleSystem, kernelLength, shouldRegisterTemporaryForce);
 			break;
 
 		case Storm::SimulationMode::PCISPH:
-			Storm::PCISPHSolver::execute(_particleSystem, kernelLength, _particleSelector);
+			Storm::PCISPHSolver::execute(_particleSystem, kernelLength, shouldRegisterTemporaryForce);
 			break;
 
 		default:
@@ -728,6 +728,15 @@ void Storm::SimulatorManager::executeIteration(bool firstFrame, unsigned int for
 		++iter;
 
 	} while (runIterationAgain && iter < maxCFLIteration && physicsElapsedDeltaTime < generalSimulationConfigData._maxCFLTime && physicsElapsedDeltaTime > getMinCLFTime());
+
+	if (_particleSelector.hasSelectedParticle())
+	{
+		const Storm::ParticleSystem &pSystem = *_particleSystem[_particleSelector.getSelectedParticleSystemId()];
+
+		const std::size_t selectedParticleIndex = _particleSelector.getSelectedParticleIndex();
+		_particleSelector.setSelectedParticlePressureForce(pSystem.getTemporaryPressureForces()[selectedParticleIndex]);
+		_particleSelector.setSelectedParticleViscosityForce(pSystem.getTemporaryViscosityForces()[selectedParticleIndex]);
+	}
 
 	// Update everything that should be updated once CFL iteration finished. 
 	for (auto &particleSystem : _particleSystem)
