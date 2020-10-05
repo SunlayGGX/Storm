@@ -25,6 +25,9 @@ namespace Storm
 		void flush();
 
 	private:
+		uint64_t _headerPosition;
+		uint64_t _recordBodyPosition;
+
 		std::unique_ptr<Storm::RecordPreHeaderSerializer> _preheaderSerializer;
 
 		uint64_t _frameNumber;

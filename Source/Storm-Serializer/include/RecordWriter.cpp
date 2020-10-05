@@ -17,6 +17,12 @@ namespace
 	{
 		return Storm::Version{ 1, 0, 0 };
 	}
+
+	void recordStreamPosition(Storm::RecordWriter*const recordWriter, uint64_t &outPosition, const std::filesystem::path &recordFilePath)
+	{
+		recordWriter->flush();
+		outPosition = std::filesystem::file_size(recordFilePath);
+	}
 }
 
 
@@ -27,7 +33,13 @@ Storm::RecordWriter::RecordWriter(Storm::SerializeRecordHeader &&header) :
 {
 	_package << *_preheaderSerializer;
 
+	const std::filesystem::path recordFilePath = _package.getFilePath();
+
+	recordStreamPosition(this, _headerPosition, recordFilePath);
+
 	Storm::RecordHandlerBase::serializeHeader();
+
+	recordStreamPosition(this, _recordBodyPosition, recordFilePath);
 }
 
 Storm::RecordWriter::~RecordWriter() = default;
