@@ -27,10 +27,10 @@ Storm::SerializePackage::SerializePackage(Storm::SerializePackageCreationModalit
 	_isSaving{ modality != SerializePackageCreationModality::Loading },
 	_filePath{ packageFilePath }
 {
-	if (std::filesystem::exists(packageFilePath))
+	if (_isSaving || std::filesystem::exists(packageFilePath))
 	{
 		int openFlag = std::ios_base::binary;
-		openFlag |= (_isSaving ? std::ios_base::in : std::ios_base::out);
+		openFlag |= (_isSaving ? std::ios_base::out : std::ios_base::in);
 
 		switch (modality)
 		{
@@ -47,6 +47,13 @@ Storm::SerializePackage::SerializePackage(Storm::SerializePackageCreationModalit
 		}
 
 		_file.open(packageFilePath, openFlag);
+
+		if (!_file.is_open())
+		{
+			std::string errorMsg = "Unexpected error happened when trying to open " + packageFilePath + "!";
+			LOG_ERROR << errorMsg;
+			Storm::throwException<std::exception>(errorMsg);
+		}
 	}
 	else
 	{
