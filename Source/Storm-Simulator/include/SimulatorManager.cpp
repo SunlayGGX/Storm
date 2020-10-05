@@ -824,6 +824,17 @@ void Storm::SimulatorManager::refreshParticlesPosition()
 	}
 }
 
+bool Storm::SimulatorManager::shouldRegisterTemporaryForces() const
+{
+	if (!_particleSelector.hasSelectedParticle())
+	{
+		const Storm::RecordConfigData &recordConfig = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().getRecordConfigData();
+		return recordConfig._recordMode == Storm::RecordMode::Record;
+	}
+
+	return true;
+}
+
 void Storm::SimulatorManager::addFluidParticleSystem(unsigned int id, std::vector<Storm::Vector3> particlePositions)
 {
 	const std::size_t initialParticleCount = particlePositions.size();
