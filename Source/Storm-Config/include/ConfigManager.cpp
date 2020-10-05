@@ -171,7 +171,18 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 
 		if (!recordModeStr.empty() && recordConfigData._recordMode != Storm::RecordMode::None)
 		{
-			Storm::throwException<std::exception>("Unknown record mode command line tag \"" + recordModeStr + '"');
+			switch (recordConfigData._recordMode)
+			{
+			case Storm::RecordMode::None:
+			case Storm::RecordMode::Record:
+				break;
+
+			case Storm::RecordMode::Replay:
+				Storm::throwException<std::exception>("Replay mode is not implemented yet");
+
+			default:
+				Storm::throwException<std::exception>("Unknown record mode command line tag \"" + recordModeStr + '"');
+			}
 		}
 
 		std::string recordFilePath;
