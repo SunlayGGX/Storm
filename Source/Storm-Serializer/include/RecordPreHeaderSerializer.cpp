@@ -68,6 +68,16 @@ void Storm::RecordPreHeaderSerializer::serialize(Storm::SerializePackage &packag
 				"Size value was " + Storm::toStdString(_preHeader._recordFileSize)
 			);
 		}
+
+		const std::uintmax_t currentFileSizeInBytes = std::filesystem::file_size(package.getFilePath());
+		if (_preHeader._recordFileSize != currentFileSizeInBytes)
+		{
+			Storm::throwException<std::exception>(
+				"Wrong record file size mismatch. The file is corrupted.\n"
+				"Expected : " + std::to_string(_preHeader._recordFileSize) + " bytes.\n"
+				"Current : " + std::to_string(currentFileSizeInBytes) + " bytes."
+			);
+		}
 	}
 
 	package << _preHeader._recordVersion;
