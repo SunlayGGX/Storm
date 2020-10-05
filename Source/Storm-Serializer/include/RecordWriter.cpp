@@ -93,3 +93,8 @@ void Storm::RecordWriter::ensureFrameDataCoherency(const Storm::SerializeRecordE
 	}
 }
 
+void Storm::RecordWriter::flush()
+{
+	_package.flush();
+}
+

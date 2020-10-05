@@ -135,6 +135,8 @@ namespace Storm
 
 		const std::string& getFilePath() const noexcept;
 
+		void flush();
+
 	private:
 		bool _isSaving;
 		std::fstream _file;

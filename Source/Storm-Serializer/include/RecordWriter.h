@@ -20,6 +20,8 @@ namespace Storm
 
 		void ensureFrameDataCoherency(const Storm::SerializeRecordElementsData &frameData);
 
+		void flush();
+
 	private:
 		std::unique_ptr<Storm::RecordPreHeaderSerializer> _preheaderSerializer;
 

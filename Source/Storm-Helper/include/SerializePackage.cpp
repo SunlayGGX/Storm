@@ -182,3 +182,8 @@ const std::string& Storm::SerializePackage::getFilePath() const noexcept
 {
 	return _filePath;
 }
+
+void Storm::SerializePackage::flush()
+{
+	_file.flush();
+}
