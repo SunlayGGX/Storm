@@ -27,7 +27,7 @@ Storm::RecordHandlerBase::RecordHandlerBase(Storm::SerializeRecordHeader &&heade
 
 void Storm::RecordHandlerBase::serializeHeader()
 {
-	_package << _header._recordFrameRate;
+	_package << _header._recordFrameRate << _header._frameCount;
 
 #define XMACRO_STORM_SERIALIZE_VECTOR3_TYPE			\
 	STORM_SERIALIZE_VECTOR3_TYPE_SPECIFIC(float)	\
@@ -80,7 +80,6 @@ void Storm::RecordHandlerBase::serializeHeader()
 	uint32_t particleSystemCount = static_cast<uint32_t>(_header._particleSystemLayouts.size());
 	_package << particleSystemCount;
 
-
 	if (!_package.isSerializing())
 	{
 		_header._particleSystemLayouts.resize(particleSystemCount);
@@ -99,4 +98,10 @@ void Storm::RecordHandlerBase::serializeHeader()
 const Storm::SerializeRecordHeader& Storm::RecordHandlerBase::getHeader() const noexcept
 {
 	return _header;
+}
+
+void Storm::RecordHandlerBase::endWriteHeader(uint64_t headerPos, uint64_t frameCount)
+{
+	_package.seekAbsolute(headerPos + sizeof(_header._recordFrameRate));
+	_package << frameCount;
 }

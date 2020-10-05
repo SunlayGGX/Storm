@@ -112,6 +112,8 @@ void Storm::RecordWriter::ensureFrameDataCoherency(const Storm::SerializeRecordE
 
 void Storm::RecordWriter::endWrite()
 {
+	Storm::RecordHandlerBase::endWriteHeader(_headerPosition, _frameNumber);
+
 	_preheaderSerializer->endSerializing(_package);
 	_preheaderSerializer.reset();
 

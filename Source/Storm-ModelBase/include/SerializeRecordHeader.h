@@ -14,6 +14,7 @@ namespace Storm
 	{
 	public:
 		float _recordFrameRate;
+		uint64_t _frameCount;
 		std::vector<Storm::SerializeParticleSystemLayout> _particleSystemLayouts;
 	};
 }
