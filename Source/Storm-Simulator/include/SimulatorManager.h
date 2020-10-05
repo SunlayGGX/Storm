@@ -72,6 +72,10 @@ namespace Storm
 		void exitWithCode(Storm::ExitCode code) final override;
 
 	public:
+		void beginRecord() const;
+		void pushRecord(float currentPhysicsTime) const;
+
+	public:
 		// Not from interface because they are intended to be used within simulation only (non thread safe)!
 		Storm::ParticleSystem& getParticleSystem(unsigned int id);
 		const Storm::ParticleSystem& getParticleSystem(unsigned int id) const;

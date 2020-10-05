@@ -10,6 +10,8 @@
 #include "ISpacePartitionerManager.h"
 #include "ITimeManager.h"
 #include "IRaycastManager.h"
+#include "ISerializerManager.h"
+
 #include "TimeWaitResult.h"
 
 #include "ParticleSystem.h"
@@ -49,6 +51,9 @@
 
 #include "RaycastQueryRequest.h"
 #include "RaycastHitResult.h"
+
+#include "SerializeRecordHeader.h"
+#include "SerializeRecordPendingData.h"
 
 #include "ExitCode.h"
 
@@ -321,6 +326,18 @@ namespace
 	{
 		return 0.0000001f;
 	}
+
+	void computeNextRecordTime(float &inOutNextRecordTime, const float currentPhysicsTime, const Storm::RecordConfigData &recordConfig)
+	{
+		inOutNextRecordTime = std::ceilf(currentPhysicsTime * recordConfig._recordFps) / recordConfig._recordFps;
+
+		// If currentPhysicsTime was a multiple of recordConfig._recordFps (first frame, or with extreme bad luck), then inOutNextRecordTime would be equal to the currentPhysicsTime.
+		// We need to increase the record time to the next frame time.
+		if (inOutNextRecordTime == currentPhysicsTime)
+		{
+			inOutNextRecordTime += (1.f / recordConfig._recordFps);
+		}
+	}
 }
 
 Storm::SimulatorManager::SimulatorManager() :
@@ -497,6 +514,19 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 
 	this->initializePreSimulation();
 
+	const Storm::RecordConfigData &recordConfig = configMgr.getRecordConfigData();
+	const bool shouldBeRecording = recordConfig._recordMode == Storm::RecordMode::Record;
+	float nextRecordTime = -1.f;
+	if (shouldBeRecording)
+	{
+		this->beginRecord();
+
+		// Record the first frame which is the time 0 (the start).
+		const float currentPhysicsTime = timeMgr.getCurrentPhysicsElapsedTime();
+		this->pushRecord(currentPhysicsTime);
+		computeNextRecordTime(nextRecordTime, currentPhysicsTime, recordConfig);
+	}
+
 	const bool autoEndSimulation = generalSimulationConfigData._endSimulationPhysicsTimeInSeconds != -1.f;
 	bool hasAutoEndSimulation = false;
 
@@ -515,6 +545,11 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 				LOG_COMMENT <<
 					"Simulation average speed was " <<
 					profilerMgrNullablePtr->getSpeedProfileAccumulatedTime() / static_cast<float>(forcedPushFrameIterator);
+			}
+			if (shouldBeRecording)
+			{
+				Storm::ISerializerManager &serializerMgr = singletonHolder.getSingleton<Storm::ISerializerManager>();
+				serializerMgr.endRecord();
 			}
 			return _runExitCode;
 
@@ -553,6 +588,16 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 		threadMgr.processCurrentThreadActions();
 
 		float currentPhysicsTime = timeMgr.advanceCurrentPhysicsElapsedTime();
+
+		if (shouldBeRecording)
+		{
+			if (currentPhysicsTime >= nextRecordTime)
+			{
+				this->pushRecord(currentPhysicsTime);
+				computeNextRecordTime(nextRecordTime, currentPhysicsTime, recordConfig);
+			}
+		}
+
 		hasAutoEndSimulation = autoEndSimulation && currentPhysicsTime > generalSimulationConfigData._endSimulationPhysicsTimeInSeconds;
 		if (hasAutoEndSimulation)
 		{
@@ -922,6 +967,55 @@ void Storm::SimulatorManager::exitWithCode(Storm::ExitCode code)
 		_runExitCode = code;
 		singletonHolder.getSingleton<Storm::ITimeManager>().quit();
 	});
+}
+
+void Storm::SimulatorManager::beginRecord() const
+{
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+
+	const Storm::RecordConfigData &recordConfig = singletonHolder.getSingleton<Storm::IConfigManager>().getRecordConfigData();
+
+	Storm::SerializeRecordHeader recordHeader;
+	recordHeader._recordFrameRate = recordConfig._recordFps;
+
+	recordHeader._particleSystemLayouts.reserve(_particleSystem.size());
+	for (const auto &particleSystemPair : _particleSystem)
+	{
+		const Storm::ParticleSystem &pSystemRef = *particleSystemPair.second;
+
+		Storm::SerializeParticleSystemLayout &pSystemLayoutRef = recordHeader._particleSystemLayouts.emplace_back();
+
+		pSystemLayoutRef._particleSystemId = particleSystemPair.first;
+		pSystemLayoutRef._particlesCount = pSystemRef.getPositions().size();
+		pSystemLayoutRef._isFluid = pSystemRef.isFluids();
+	}
+
+	Storm::ISerializerManager &serializerMgr = singletonHolder.getSingleton<Storm::ISerializerManager>();
+	serializerMgr.beginRecord(std::move(recordHeader));
+}
+
+void Storm::SimulatorManager::pushRecord(float currentPhysicsTime) const
+{
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	const Storm::RecordConfigData &recordConfig = singletonHolder.getSingleton<Storm::IConfigManager>().getRecordConfigData();
+
+	Storm::SerializeRecordPendingData currentFrameData;
+	currentFrameData._physicsTime = currentPhysicsTime;
+
+	for (const auto &particleSystemPair : _particleSystem)
+	{
+		const Storm::ParticleSystem &pSystemRef = *particleSystemPair.second;
+
+		Storm::SerializeRecordElementsData &framePSystemElementData = currentFrameData._elements.emplace_back();
+
+		framePSystemElementData._systemId = particleSystemPair.first;
+		framePSystemElementData._positions = pSystemRef.getPositions();
+		framePSystemElementData._velocities = pSystemRef.getVelocity();
+		framePSystemElementData._forces = pSystemRef.getForces();
+	}
+
+	Storm::ISerializerManager &serializerMgr = singletonHolder.getSingleton<Storm::ISerializerManager>();
+	serializerMgr.recordFrame(std::move(currentFrameData));
 }
 
 Storm::ParticleSystem& Storm::SimulatorManager::getParticleSystem(unsigned int id)
