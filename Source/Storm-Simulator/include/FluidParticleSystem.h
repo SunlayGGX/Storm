@@ -18,6 +18,12 @@ namespace Storm
 		bool isStatic() const noexcept final override;
 		bool isWall() const noexcept final override;
 
+		void setPositions(std::vector<Storm::Vector3> &&positions) final override;
+		void setVelocity(std::vector<Storm::Vector3> &&velocities) final override;
+		void setForces(std::vector<Storm::Vector3> &&forces) final override;
+		void setTmpPressureForces(std::vector<Storm::Vector3> &&tmpPressureForces) final override;
+		void setTmpViscosityForces(std::vector<Storm::Vector3> &&tmpViscoForces) final override;
+
 	public:
 		// Accessible by dynamic casting.
 		float getRestDensity() const noexcept;

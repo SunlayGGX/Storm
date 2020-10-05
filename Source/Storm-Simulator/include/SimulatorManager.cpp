@@ -461,13 +461,135 @@ Storm::ExitCode Storm::SimulatorManager::run()
 
 Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 {
-	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	STORM_NOT_IMPLEMENTED;
+
 
 	LOG_COMMENT << "Starting replay loop";
 
-	STORM_NOT_IMPLEMENTED;
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 
-	return _runExitCode;
+	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
+	const Storm::GeneralSimulationData &generalSimulationConfigData = configMgr.getGeneralSimulationData();
+
+	Storm::ITimeManager &timeMgr = singletonHolder.getSingleton<Storm::ITimeManager>();
+	Storm::IThreadManager &threadMgr = singletonHolder.getSingleton<Storm::IThreadManager>();
+	Storm::IProfilerManager* profilerMgrNullablePtr = configMgr.getShouldProfileSimulationSpeed() ? singletonHolder.getFacet<Storm::IProfilerManager>() : nullptr;
+
+	const Storm::RecordConfigData &recordConfig = singletonHolder.getSingleton<Storm::IConfigManager>().getRecordConfigData();
+	Storm::ISerializerManager &serializerMgr = singletonHolder.getSingleton<Storm::ISerializerManager>();
+
+	const bool autoEndSimulation = generalSimulationConfigData._endSimulationPhysicsTimeInSeconds != -1.f;
+	bool hasAutoEndSimulation = false;
+
+	unsigned int forcedPushFrameIterator = 0;
+
+	Storm::SerializeRecordPendingData frameBefore;
+	Storm::SerializeRecordPendingData currentFrame;
+	Storm::SerializeRecordPendingData frameAfter;
+
+	if (!serializerMgr.obtainNextFrame(frameBefore))
+	{
+		LOG_ERROR << "There is no frame to simulate inside the current record. The application will stop.";
+		return Storm::ExitCode::k_success;
+	}
+
+	for (auto &currentFrameElement : currentFrame._elements)
+	{
+		Storm::ParticleSystem &particleSystem = *_particleSystem[currentFrameElement._systemId];
+		particleSystem.setPositions(std::move(currentFrameElement._positions));
+		particleSystem.setVelocity(std::move(currentFrameElement._velocities));
+		particleSystem.setForces(std::move(currentFrameElement._forces));
+		particleSystem.setTmpPressureForces(std::move(currentFrameElement._pressureComponentforces));
+		particleSystem.setTmpViscosityForces(std::move(currentFrameElement._viscosityComponentforces));
+	}
+
+	this->pushParticlesToGraphicModule(true);
+
+	frameAfter._physicsTime = frameBefore._physicsTime;
+	currentFrame._physicsTime = frameBefore._physicsTime;
+	timeMgr.setCurrentPhysicsElapsedTime(currentFrame._physicsTime);
+
+	const float expectedReplayFps = timeMgr.getExpectedFrameFPS();
+
+	do
+	{
+		Storm::TimeWaitResult simulationState = generalSimulationConfigData._simulationNoWait ? timeMgr.getStateNoSyncWait() : timeMgr.waitNextFrame();
+		switch (simulationState)
+		{
+		case Storm::TimeWaitResult::Exit:
+			if (hasAutoEndSimulation && profilerMgrNullablePtr)
+			{
+				LOG_COMMENT <<
+					"Simulation average speed was " <<
+					profilerMgrNullablePtr->getSpeedProfileAccumulatedTime() / static_cast<float>(forcedPushFrameIterator);
+			}
+
+			return _runExitCode;
+
+		case TimeWaitResult::Pause:
+			// Takes time to process messages that came from other threads.
+			threadMgr.processCurrentThreadActions();
+			if (generalSimulationConfigData._simulationNoWait)
+			{
+				// Eh... this is paused so free a little Cpu will you ;)... No need to spin lock even though we said "run as fast as possible" when we're paused...
+				std::this_thread::sleep_for(std::chrono::milliseconds{ 1 });
+			}
+			continue;
+
+		case TimeWaitResult::Continue:
+		default:
+			break;
+		}
+
+		SpeedProfileBalist simulationSpeedProfile{ profilerMgrNullablePtr };
+
+		float currentPhysicsTime = timeMgr.getCurrentPhysicsElapsedTime();
+
+		if (serializerMgr.obtainNextFrame(currentFrame))
+		{
+			for (auto &currentFrameElement : currentFrame._elements)
+			{
+				Storm::ParticleSystem &particleSystem = *_particleSystem[currentFrameElement._systemId];
+				particleSystem.setPositions(std::move(currentFrameElement._positions));
+				particleSystem.setVelocity(std::move(currentFrameElement._velocities));
+				particleSystem.setForces(std::move(currentFrameElement._forces));
+				particleSystem.setTmpPressureForces(std::move(currentFrameElement._pressureComponentforces));
+				particleSystem.setTmpViscosityForces(std::move(currentFrameElement._viscosityComponentforces));
+			}
+
+			this->pushParticlesToGraphicModule(false);
+
+			timeMgr.setCurrentPhysicsElapsedTime(currentFrame._physicsTime);
+			hasAutoEndSimulation = autoEndSimulation && currentPhysicsTime > generalSimulationConfigData._endSimulationPhysicsTimeInSeconds;
+		}
+		else if (autoEndSimulation)
+		{
+			hasAutoEndSimulation = true;
+		}
+		else
+		{
+			timeMgr.changeSimulationPauseState();
+		}
+
+		if (hasAutoEndSimulation)
+		{
+			timeMgr.quit();
+		}
+		else
+		{
+			if (_particleSelector.hasSelectedParticle())
+			{
+				const Storm::ParticleSystem &pSystem = *_particleSystem[_particleSelector.getSelectedParticleSystemId()];
+
+				const std::size_t selectedParticleIndex = _particleSelector.getSelectedParticleIndex();
+				_particleSelector.setSelectedParticlePressureForce(pSystem.getTemporaryPressureForces()[selectedParticleIndex]);
+				_particleSelector.setSelectedParticleViscosityForce(pSystem.getTemporaryViscosityForces()[selectedParticleIndex]);
+			}
+		}
+
+		++forcedPushFrameIterator;
+
+	} while (true);
 }
 
 Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()

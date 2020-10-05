@@ -102,6 +102,9 @@ namespace Storm
 		// Returns the current time after advancing
 		virtual float advanceCurrentPhysicsElapsedTime() = 0;
 
+		// Manually set the physics elapsed time.
+		virtual void setCurrentPhysicsElapsedTime(float physicsElapsedTimeInSeconds) = 0;
+
 
 		/************************************************************************/
 		/*							TimeManager controls                        */
