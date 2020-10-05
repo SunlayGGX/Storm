@@ -434,7 +434,7 @@ Storm::ExitCode Storm::SimulatorManager::run()
 		return this->runSimulation_Internal();
 
 	case Storm::RecordMode::Replay:
-		return this->runRecord_Internal();
+		return this->runReplay_Internal();
 
 	default:
 		__assume(false);
@@ -442,7 +442,7 @@ Storm::ExitCode Storm::SimulatorManager::run()
 	}
 }
 
-Storm::ExitCode Storm::SimulatorManager::runRecord_Internal()
+Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 {
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 

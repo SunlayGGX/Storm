@@ -28,7 +28,7 @@ namespace Storm
 		
 	private:
 		Storm::ExitCode runSimulation_Internal();
-		Storm::ExitCode runRecord_Internal();
+		Storm::ExitCode runReplay_Internal();
 
 		void executeIteration(bool firstFrame, unsigned int forcedPushFrameIterator);
 
