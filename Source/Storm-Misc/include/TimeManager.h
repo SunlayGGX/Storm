@@ -42,6 +42,7 @@ namespace Storm
 		float getCurrentPhysicsDeltaTime() const override;
 		bool setCurrentPhysicsDeltaTime(float deltaTimeInSeconds) final override;
 		float getCurrentPhysicsElapsedTime() const override;
+		void setCurrentPhysicsElapsedTime(float physicsElapsedTimeInSeconds) final override;
 		void increaseCurrentPhysicsElapsedTime(float timeIncreaseInSeconds) final override;
 		float advanceCurrentPhysicsElapsedTime() final override;
 

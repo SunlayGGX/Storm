@@ -200,10 +200,15 @@ float Storm::TimeManager::getCurrentPhysicsElapsedTime() const
 	return _physicsElapsedTimeInSeconds;
 }
 
+void Storm::TimeManager::setCurrentPhysicsElapsedTime(float physicsElapsedTimeInSeconds)
+{
+	_physicsElapsedTimeInSeconds = physicsElapsedTimeInSeconds;
+	_fields.pushField(STORM_ELAPSED_TIME_FIELD_NAME);
+}
+
 void Storm::TimeManager::increaseCurrentPhysicsElapsedTime(float timeIncreaseInSeconds)
 {
-	_physicsElapsedTimeInSeconds += timeIncreaseInSeconds;
-	_fields.pushField(STORM_ELAPSED_TIME_FIELD_NAME);
+	this->setCurrentPhysicsElapsedTime(_physicsElapsedTimeInSeconds + timeIncreaseInSeconds);
 }
 
 float Storm::TimeManager::advanceCurrentPhysicsElapsedTime()
