@@ -499,6 +499,8 @@ Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 		particleSystem.setPositions(std::move(currentFrameElement._positions));
 		particleSystem.setVelocity(std::move(currentFrameElement._velocities));
 		particleSystem.setForces(std::move(currentFrameElement._forces));
+		particleSystem.setTmpPressureForces(std::move(currentFrameElement._pressureComponentforces));
+		particleSystem.setTmpViscosityForces(std::move(currentFrameElement._viscosityComponentforces));
 	}
 
 	this->pushParticlesToGraphicModule(true);
@@ -551,6 +553,8 @@ Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 				particleSystem.setPositions(std::move(currentFrameElement._positions));
 				particleSystem.setVelocity(std::move(currentFrameElement._velocities));
 				particleSystem.setForces(std::move(currentFrameElement._forces));
+				particleSystem.setTmpPressureForces(std::move(currentFrameElement._pressureComponentforces));
+				particleSystem.setTmpViscosityForces(std::move(currentFrameElement._viscosityComponentforces));
 			}
 
 			this->pushParticlesToGraphicModule(false);

@@ -217,6 +217,22 @@ void Storm::RigidBodyParticleSystem::setForces(std::vector<Storm::Vector3> &&for
 	}
 }
 
+void Storm::RigidBodyParticleSystem::setTmpPressureForces(std::vector<Storm::Vector3> &&tmpPressureForces)
+{
+	if (!this->isStatic())
+	{
+		_tmpPressureForce = std::move(tmpPressureForces);
+	}
+}
+
+void Storm::RigidBodyParticleSystem::setTmpViscosityForces(std::vector<Storm::Vector3> &&tmpViscoForces)
+{
+	if (!this->isStatic())
+	{
+		_tmpViscosityForce = std::move(tmpViscoForces);
+	}
+}
+
 void Storm::RigidBodyParticleSystem::buildNeighborhoodOnParticleSystem(const Storm::ParticleSystem &otherParticleSystem, const float kernelLengthSquared)
 {
 	if (!otherParticleSystem.isFluids())

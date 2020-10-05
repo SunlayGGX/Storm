@@ -62,7 +62,9 @@ bool Storm::RecordReader::readNextFrame_v1_0_0(Storm::SerializeRecordPendingData
 			frameData._systemId <<
 			frameData._positions <<
 			frameData._velocities <<
-			frameData._forces
+			frameData._forces <<
+			frameData._pressureComponentforces <<
+			frameData._viscosityComponentforces
 			;
 	}
 
