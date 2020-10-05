@@ -189,6 +189,7 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 		switch (recordConfigData._recordMode)
 		{
 		case Storm::RecordMode::Record:
+		{
 			recordFilePath = parser.getRecordFilePath();
 			if (!recordFilePath.empty())
 			{
@@ -203,8 +204,12 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 			{
 				Storm::throwException<std::exception>("Record fps wasn't set while we should be recording. We should always set one!");
 			}
-			std::filesystem::remove_all(recordConfigData._recordFilePath);
+
+			const std::filesystem::path recordFilePath{ recordConfigData._recordFilePath };
+			std::filesystem::remove_all(recordFilePath);
+			std::filesystem::create_directories(recordFilePath.parent_path());
 			break;
+		}
 
 		case Storm::RecordMode::Replay:
 			recordFilePath = parser.getRecordFilePath();
