@@ -67,6 +67,9 @@ void Storm::SerializerManager::cleanUp_Implementation()
 {
 	LOG_COMMENT << "Serializer module Cleanup";
 	Storm::join(_serializeThread);
+
+	Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().processActionsOfThread(Storm::ThreadEnumeration::SerializerThread);
+	this->execute();
 }
 
 void Storm::SerializerManager::run()
