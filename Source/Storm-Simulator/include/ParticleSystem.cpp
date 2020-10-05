@@ -29,6 +29,12 @@ Storm::ParticleSystem::ParticleSystem(unsigned int particleSystemIndex, std::vec
 	{
 		neighborHoodArray.reserve(64);
 	}
+
+	if (Storm::SimulatorManager::instance().shouldRegisterTemporaryForces())
+	{
+		_tmpPressureForce.resize(particleCount, Storm::Vector3::Zero());
+		_tmpViscosityForce.resize(particleCount, Storm::Vector3::Zero());
+	}
 }
 
 std::vector<Storm::Vector3>& Storm::ParticleSystem::getPositions() noexcept
@@ -54,6 +60,26 @@ std::vector<Storm::Vector3>& Storm::ParticleSystem::getVelocity() noexcept
 const std::vector<Storm::Vector3>& Storm::ParticleSystem::getForces() const noexcept
 {
 	return _force;
+}
+
+const std::vector<Storm::Vector3>& Storm::ParticleSystem::getTemporaryPressureForces() const noexcept
+{
+	return _tmpPressureForce;
+}
+
+std::vector<Storm::Vector3>& Storm::ParticleSystem::getTemporaryPressureForces() noexcept
+{
+	return _tmpPressureForce;
+}
+
+const std::vector<Storm::Vector3>& Storm::ParticleSystem::getTemporaryViscosityForces() const noexcept
+{
+	return _tmpViscosityForce;
+}
+
+std::vector<Storm::Vector3>& Storm::ParticleSystem::getTemporaryViscosityForces() noexcept
+{
+	return _tmpViscosityForce;
 }
 
 std::vector<Storm::Vector3>& Storm::ParticleSystem::getForces() noexcept
@@ -108,12 +134,17 @@ void Storm::ParticleSystem::initializePreSimulation(const std::map<unsigned int,
 
 }
 
-void Storm::ParticleSystem::initializeIteration(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const std::vector<std::unique_ptr<Storm::IBlower>> &)
+void Storm::ParticleSystem::initializeIteration(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const std::vector<std::unique_ptr<Storm::IBlower>> &, const bool shouldRegisterTemporaryForce)
 {
 	_isDirty = false;
 
-#if defined(DEBUG) || defined(_DEBUG)
 	const std::size_t particleCount = _positions.size();
+
+	if (shouldRegisterTemporaryForce)
+	{
+		_tmpPressureForce.resize(particleCount);
+		_tmpViscosityForce.resize(particleCount);
+	}
 
 	assert(
 		particleCount == _positions.size() &&
@@ -122,8 +153,6 @@ void Storm::ParticleSystem::initializeIteration(const std::map<unsigned int, std
 		particleCount == _neighborhood.size() &&
 		"Particle count mismatch detected! An array of particle property has not the same particle count than the other!"
 	);
-	
-#endif
 
 	this->buildNeighborhood(allParticleSystems);
 }

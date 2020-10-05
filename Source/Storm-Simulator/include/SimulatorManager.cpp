@@ -651,9 +651,11 @@ void Storm::SimulatorManager::executeIteration(bool firstFrame, unsigned int for
 		blowerUPtr->advanceTime(physicsElapsedDeltaTime);
 	}
 
+	const bool shouldRegisterTemporaryForce = this->shouldRegisterTemporaryForces();
+
 	for (auto &particleSystem : _particleSystem)
 	{
-		particleSystem.second->initializeIteration(_particleSystem, _blowers);
+		particleSystem.second->initializeIteration(_particleSystem, _blowers, shouldRegisterTemporaryForce);
 	}
 
 	bool runIterationAgain;
@@ -672,7 +674,7 @@ void Storm::SimulatorManager::executeIteration(bool firstFrame, unsigned int for
 		{
 			for (auto &particleSystem : _particleSystem)
 			{
-				particleSystem.second->revertToCurrentTimestep(_blowers);
+				particleSystem.second->revertToCurrentTimestep(_blowers, shouldRegisterTemporaryForce);
 			}
 		}
 		else

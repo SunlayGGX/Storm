@@ -20,6 +20,11 @@ namespace Storm
 		const std::vector<Storm::Vector3>& getForces() const noexcept;
 		std::vector<Storm::Vector3>& getForces() noexcept;
 
+		const std::vector<Storm::Vector3>& getTemporaryPressureForces() const noexcept;
+		std::vector<Storm::Vector3>& getTemporaryPressureForces() noexcept;
+		const std::vector<Storm::Vector3>& getTemporaryViscosityForces() const noexcept;
+		std::vector<Storm::Vector3>& getTemporaryViscosityForces() noexcept;
+
 		const std::vector<Storm::ParticleNeighborhoodArray>& getNeighborhoodArrays() const noexcept;
 		std::vector<Storm::ParticleNeighborhoodArray>& getNeighborhoodArrays() noexcept;
 
@@ -45,7 +50,7 @@ namespace Storm
 	public:
 		virtual void initializePreSimulation(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const float kernelLength);
 
-		virtual void initializeIteration(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const std::vector<std::unique_ptr<Storm::IBlower>> &blowers);
+		virtual void initializeIteration(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const std::vector<std::unique_ptr<Storm::IBlower>> &blowers, const bool shouldRegisterTemporaryForce);
 
 	public:
 		virtual bool computeVelocityChange(float deltaTimeInSec, float highVelocityThresholdSquared) = 0;
@@ -57,12 +62,16 @@ namespace Storm
 		static bool isElligibleNeighborParticle(const float kernelLengthSquared, const float normSquared);
 
 	public:
-		virtual void revertToCurrentTimestep(const std::vector<std::unique_ptr<Storm::IBlower>> &blowers) = 0;
+		virtual void revertToCurrentTimestep(const std::vector<std::unique_ptr<Storm::IBlower>> &blowers, const bool shouldRegisterTemporaryForce) = 0;
 
 	protected:
 		std::vector<Storm::Vector3> _positions;
 		std::vector<Storm::Vector3> _velocity;
 		std::vector<Storm::Vector3> _force;
+
+		// Tmp force value only valid if we're selecting a force, or if we are recording.
+		std::vector<Storm::Vector3> _tmpPressureForce;
+		std::vector<Storm::Vector3> _tmpViscosityForce;
 
 		// This contains the neighborhood per particle.
 		// Note : For static rigid body, it does not contain the static particles neighborhood because we use it only one time (when initializing the volume) and this is a huge lost of computation time !
