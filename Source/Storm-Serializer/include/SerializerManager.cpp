@@ -18,7 +18,9 @@
 #include "RecordWriter.h"
 #include "RecordReader.h"
 
+#include "ThreadingSafety.h"
 #include "ThreadHelper.h"
+
 #include "InvertPeriod.h"
 
 
