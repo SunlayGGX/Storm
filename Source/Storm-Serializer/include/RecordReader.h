@@ -26,5 +26,7 @@ namespace Storm
 	public:
 		std::unique_ptr<Storm::RecordPreHeaderSerializer> _preheaderSerializer;
 		ReadMethodDelegate _readMethodToUse;
+
+		bool _noMoreFrame;
 	};
 }

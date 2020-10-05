@@ -2,8 +2,12 @@
 
 #include "SerializeRecordHeader.h"
 #include "RecordPreHeaderSerializer.h"
+#include "SerializeRecordPendingData.h"
 
 #include "ThrowException.h"
+
+#define STORM_HIJACKED_TYPE Storm::Vector3
+#include "VectHijack.h"
 
 
 Storm::RecordReader::RecordReader() :
@@ -23,6 +27,8 @@ Storm::RecordReader::RecordReader() :
 	}
 
 	Storm::RecordHandlerBase::serializeHeader();
+
+	_noMoreFrame = _header._frameCount == 0;
 }
 
 Storm::RecordReader::~RecordReader() = default;
@@ -34,5 +40,31 @@ bool Storm::RecordReader::readNextFrame(Storm::SerializeRecordPendingData &outPe
 
 bool Storm::RecordReader::readNextFrame_v1_0_0(Storm::SerializeRecordPendingData &outPendingData)
 {
-	STORM_NOT_IMPLEMENTED;
+	if (_noMoreFrame)
+	{
+		return false;
+	}
+
+	uint64_t frameNumber;
+
+	_package <<
+		frameNumber <<
+		outPendingData._physicsTime
+		;
+
+	_noMoreFrame = frameNumber == _header._frameCount;
+
+	outPendingData._elements.resize(_header._particleSystemLayouts.size());
+
+	for (Storm::SerializeRecordElementsData &frameData : outPendingData._elements)
+	{
+		_package <<
+			frameData._systemId <<
+			frameData._positions <<
+			frameData._velocities <<
+			frameData._forces
+			;
+	}
+
+	return true;
 }
