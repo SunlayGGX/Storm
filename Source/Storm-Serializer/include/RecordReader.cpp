@@ -27,12 +27,12 @@ Storm::RecordReader::RecordReader() :
 
 Storm::RecordReader::~RecordReader() = default;
 
-bool Storm::RecordReader::readNextFrame(Storm::SerializeRecordPendingData &outPendingData) const
+bool Storm::RecordReader::readNextFrame(Storm::SerializeRecordPendingData &outPendingData)
 {
 	return (this->*_readMethodToUse)(outPendingData);
 }
 
-bool Storm::RecordReader::readNextFrame_v1_0_0(Storm::SerializeRecordPendingData &outPendingData) const
+bool Storm::RecordReader::readNextFrame_v1_0_0(Storm::SerializeRecordPendingData &outPendingData)
 {
 	STORM_NOT_IMPLEMENTED;
 }
