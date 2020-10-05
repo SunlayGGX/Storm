@@ -18,6 +18,7 @@ namespace Storm
 		virtual void executeOnThread(const std::thread::id &threadId, Storm::AsyncAction &&action) = 0;
 		virtual void executeOnThread(Storm::ThreadEnumeration threadEnum, Storm::AsyncAction &&action) = 0;
 		virtual void processCurrentThreadActions() = 0;
+		virtual void processActionsOfThread(Storm::ThreadEnumeration threadEnum) = 0; // This is only to be used if you know what you are doing.
 
 		virtual bool isExecutingOnThread(Storm::ThreadEnumeration threadEnum) const = 0;
 	};
