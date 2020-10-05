@@ -192,6 +192,31 @@ bool Storm::RigidBodyParticleSystem::isWall() const noexcept
 	return _isWall;
 }
 
+void Storm::RigidBodyParticleSystem::setPositions(std::vector<Storm::Vector3> &&positions)
+{
+	if (!this->isStatic())
+	{
+		_positions = std::move(positions);
+		_isDirty = true;
+	}
+}
+
+void Storm::RigidBodyParticleSystem::setVelocity(std::vector<Storm::Vector3> &&velocities)
+{
+	if (!this->isStatic())
+	{
+		_velocity = std::move(velocities);
+	}
+}
+
+void Storm::RigidBodyParticleSystem::setForces(std::vector<Storm::Vector3> &&forces)
+{
+	if (!this->isStatic())
+	{
+		_force = std::move(forces);
+	}
+}
+
 void Storm::RigidBodyParticleSystem::buildNeighborhoodOnParticleSystem(const Storm::ParticleSystem &otherParticleSystem, const float kernelLengthSquared)
 {
 	if (!otherParticleSystem.isFluids())

@@ -89,6 +89,22 @@ bool Storm::FluidParticleSystem::isWall() const noexcept
 	return false;
 }
 
+void Storm::FluidParticleSystem::setPositions(std::vector<Storm::Vector3> &&positions)
+{
+	_positions = std::move(positions);
+	_isDirty = true;
+}
+
+void Storm::FluidParticleSystem::setVelocity(std::vector<Storm::Vector3> &&velocities)
+{
+	_velocity = std::move(velocities);
+}
+
+void Storm::FluidParticleSystem::setForces(std::vector<Storm::Vector3> &&forces)
+{
+	_force = std::move(forces);
+}
+
 float Storm::FluidParticleSystem::getRestDensity() const noexcept
 {
 	return _restDensity;

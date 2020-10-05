@@ -60,7 +60,7 @@ void Storm::RecordWriter::write(/*const*/ Storm::SerializeRecordPendingData &dat
 		);
 	}
 
-	_package << 
+	_package <<
 		_frameNumber <<
 		data._physicsTime
 		;

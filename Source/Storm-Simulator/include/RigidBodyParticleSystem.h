@@ -19,6 +19,10 @@ namespace Storm
 		bool isStatic() const noexcept final override;
 		bool isWall() const noexcept final override;
 
+		void setPositions(std::vector<Storm::Vector3> &&positions) final override;
+		void setVelocity(std::vector<Storm::Vector3> &&velocities) final override;
+		void setForces(std::vector<Storm::Vector3> &&forces) final override;
+
 	public:
 		const std::vector<float>& getVolumes() const noexcept;
 		std::vector<float>& getVolumes() noexcept;
