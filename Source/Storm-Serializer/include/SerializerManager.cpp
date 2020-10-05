@@ -147,6 +147,8 @@ void Storm::SerializerManager::processRecordQueue_Unchecked()
 		_recordWriter->write(*_pendingRecord.front());
 		_pendingRecord.pop();
 	} while(!_pendingRecord.empty());
+
+	_recordWriter->flush();
 }
 
 void Storm::SerializerManager::recordFrame(Storm::SerializeRecordPendingData &&frameRecord)
