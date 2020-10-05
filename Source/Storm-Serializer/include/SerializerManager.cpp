@@ -181,6 +181,17 @@ void Storm::SerializerManager::beginRecord(Storm::SerializeRecordHeader &&record
 	});
 }
 
+void Storm::SerializerManager::endRecord()
+{
+	Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::SerializerThread, [this]() mutable
+	{
+		if (_recordWriter)
+		{
+			_recordWriter->endWrite();
+		}
+	});
+}
+
 void Storm::SerializerManager::beginReplay(const Storm::SerializeRecordHeader* &outRecordHeaderPtr)
 {
 	assert(isSimulationThread() && "this method should only be called from simulation thread.");

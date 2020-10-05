@@ -20,6 +20,8 @@ namespace Storm
 
 		void ensureFrameDataCoherency(const Storm::SerializeRecordElementsData &frameData);
 
+		void endWrite();
+
 		void flush();
 
 	private:

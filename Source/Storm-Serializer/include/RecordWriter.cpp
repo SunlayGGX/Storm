@@ -34,6 +34,11 @@ Storm::RecordWriter::~RecordWriter() = default;
 
 void Storm::RecordWriter::write(/*const*/ Storm::SerializeRecordPendingData &data)
 {
+	if (!_preheaderSerializer)
+	{
+		Storm::throwException<std::exception>("We cannot write after we have ended the write!");
+	}
+
 	if (data._elements.size() != _header._particleSystemLayouts.size())
 	{
 		Storm::throwException<std::exception>(
@@ -91,6 +96,14 @@ void Storm::RecordWriter::ensureFrameDataCoherency(const Storm::SerializeRecordE
 			"This frame contains " + std::to_string(positionsCount) + " particles.\n"
 			"Note that we don't support particles added to simulation when recording.");
 	}
+}
+
+void Storm::RecordWriter::endWrite()
+{
+	_preheaderSerializer->endSerializing(_package);
+	_preheaderSerializer.reset();
+
+	this->flush();
 }
 
 void Storm::RecordWriter::flush()

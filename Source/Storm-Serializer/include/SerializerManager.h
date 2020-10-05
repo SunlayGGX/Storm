@@ -30,6 +30,7 @@ namespace Storm
 	public:
 		void recordFrame(Storm::SerializeRecordPendingData &&frameRecord) final override;
 		void beginRecord(Storm::SerializeRecordHeader &&recordHeader) final override;
+		void endRecord() final override;
 
 	public:
 		void beginReplay(const Storm::SerializeRecordHeader* &outRecordHeaderPtr) final override;
