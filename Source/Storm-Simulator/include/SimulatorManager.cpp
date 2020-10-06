@@ -568,6 +568,7 @@ Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 		}
 		else
 		{
+			LOG_COMMENT << "Simulation has come to an halt because there is no more frame to replay.";
 			timeMgr.changeSimulationPauseState();
 		}
 
