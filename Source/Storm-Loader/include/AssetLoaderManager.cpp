@@ -8,6 +8,7 @@
 #include "IPhysicsManager.h"
 #include "ISimulatorManager.h"
 #include "IThreadManager.h"
+#include "ISerializerManager.h"
 
 #include "GeneralSimulationData.h"
 #include "FluidData.h"
@@ -30,6 +31,7 @@
 
 #include "RecordConfigData.h"
 #include "RecordMode.h"
+#include "SerializeRecordHeader.h"
 
 #include <Assimp\DefaultLogger.hpp>
 
@@ -187,7 +189,72 @@ void Storm::AssetLoaderManager::cleanUp_Implementation()
 
 void Storm::AssetLoaderManager::initializeForReplay()
 {
-	STORM_NOT_IMPLEMENTED;
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	Storm::ISerializerManager &serializerMgr = singletonHolder.getSingleton<Storm::ISerializerManager>();
+	Storm::ISimulatorManager &simulMgr = singletonHolder.getSingleton<Storm::ISimulatorManager>();
+	Storm::IGraphicsManager &graphicsMgr = singletonHolder.getSingleton<Storm::IGraphicsManager>();
+	//Storm::IPhysicsManager &physicsMgr = singletonHolder.getSingleton<Storm::IPhysicsManager>();
+	Storm::IThreadManager &threadMgr = singletonHolder.getSingleton<Storm::IThreadManager>();
+	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
+
+	const Storm::SerializeRecordHeader &recordHeader = serializerMgr.beginReplay();
+
+	LOG_COMMENT << "Record header read. There is " << recordHeader._frameCount << " frames recorded at " << recordHeader._recordFrameRate << " fps.";
+
+	for (const Storm::SerializeParticleSystemLayout &systemLayout : recordHeader._particleSystemLayouts)
+	{
+		if (systemLayout._isFluid)
+		{
+			simulMgr.addFluidParticleSystem(systemLayout._particleSystemId, systemLayout._particlesCount);
+		}
+		else
+		{
+			// It is also a way to find out that the recording to be replayed match a minima the scene we use to load it (we should have at least the right rigid bodies).
+			const Storm::RigidBodySceneData &associatedRbData = configMgr.getRigidBodyData(systemLayout._particleSystemId);
+			auto &emplacedRb = _rigidBodies.emplace_back(std::static_pointer_cast<Storm::IRigidBody>(std::make_shared<Storm::RigidBody>(associatedRbData, Storm::RigidBody::ReplayMode{})));
+
+			graphicsMgr.bindParentRbToMesh(systemLayout._particleSystemId, emplacedRb);
+			//physicsMgr.bindParentRbToPhysicalBody(associatedRbData, emplacedRb);
+
+			simulMgr.addRigidBodyParticleSystem(systemLayout._particleSystemId, systemLayout._particlesCount);
+		}
+	}
+
+	/* Loading Blowers */
+	const auto &blowersDataToLoad = configMgr.getBlowersData();
+
+	std::vector<Storm::Vector3> areaVertexesTmp;
+	std::vector<uint32_t> areaIndexesTmp;
+	for (const Storm::BlowerData &blowerToLoad : blowersDataToLoad)
+	{
+		// Generate the mesh area data to pass to the graphical resources.
+#define STORM_XMACRO_GENERATE_ELEMENTARY_BLOWER(BlowerTypeName, BlowerTypeXmlName, EffectAreaType, MeshMakerType) \
+case Storm::BlowerType::BlowerTypeName: \
+	Storm::MeshMakerType::generate(blowerToLoad, areaVertexesTmp, areaIndexesTmp); \
+	break;
+
+		switch (blowerToLoad._blowerType)
+		{
+			STORM_XMACRO_GENERATE_BLOWERS_CODE;
+
+		default:
+		case Storm::BlowerType::None:
+			Storm::throwException<std::exception>("Unknown Blower to be created!");
+			break;
+		}
+
+#undef STORM_XMACRO_GENERATE_ELEMENTARY_BLOWER
+
+		threadMgr.executeOnThread(Storm::ThreadEnumeration::GraphicsThread, [&graphicsMgr, &blowerToLoad, areaVertexes = std::move(areaVertexesTmp), areaIndexes = std::move(areaIndexesTmp)]()
+		{
+			graphicsMgr.loadBlower(blowerToLoad, areaVertexes, areaIndexes);
+		});
+
+		simulMgr.loadBlower(blowerToLoad);
+	}
+
+	// FIXME
+	// Load the constraints for them to be visible
 }
 
 void Storm::AssetLoaderManager::initializeForSimulation()
