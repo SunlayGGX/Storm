@@ -182,7 +182,8 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 				break;
 
 			case Storm::RecordMode::Replay:
-				Storm::throwException<std::exception>("Replay mode is not implemented yet");
+				LOG_COMMENT << "Simulator in replay mode requested.";
+				break;
 
 			default:
 				Storm::throwException<std::exception>("Unknown record mode command line tag \"" + recordModeStr + '"');
