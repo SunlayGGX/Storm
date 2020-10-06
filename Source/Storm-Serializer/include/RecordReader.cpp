@@ -47,12 +47,15 @@ bool Storm::RecordReader::readNextFrame_v1_0_0(Storm::SerializeRecordPendingData
 
 	uint64_t frameNumber;
 
-	_package <<
-		frameNumber <<
-		outPendingData._physicsTime
-		;
+	_package << frameNumber;
 
-	_noMoreFrame = frameNumber == _header._frameCount;
+	_noMoreFrame = frameNumber >= _header._frameCount;
+	if (_noMoreFrame)
+	{
+		return false;
+	}
+
+	_package << outPendingData._physicsTime;
 
 	outPendingData._elements.resize(_header._particleSystemLayouts.size());
 
