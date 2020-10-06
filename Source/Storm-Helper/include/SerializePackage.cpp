@@ -20,11 +20,28 @@ namespace
 			Storm::binaryRead(inOutStream, outVal);
 		}
 	}
+
+	bool modalityIsSaving(Storm::SerializePackageCreationModality modality)
+	{
+		switch (modality)
+		{
+		case Storm::SerializePackageCreationModality::SavingNew:
+		case Storm::SerializePackageCreationModality::SavingAppend:
+		case Storm::SerializePackageCreationModality::SavingAppendPreheaderProvidedAfter:
+			return true;
+		case Storm::SerializePackageCreationModality::Loading:
+		case Storm::SerializePackageCreationModality::LoadingManual:
+			return false;
+
+		default:
+			Storm::throwException<std::exception>("Unknown serialize package creation modality");
+		}
+	}
 }
 
 
 Storm::SerializePackage::SerializePackage(Storm::SerializePackageCreationModality modality, const std::string &packageFilePath) :
-	_isSaving{ modality != SerializePackageCreationModality::Loading },
+	_isSaving{ modalityIsSaving(modality) },
 	_filePath{ packageFilePath }
 {
 	if (_isSaving || std::filesystem::exists(packageFilePath))
@@ -42,6 +59,7 @@ Storm::SerializePackage::SerializePackage(Storm::SerializePackageCreationModalit
 
 		case Storm::SerializePackageCreationModality::SavingNew:
 		case Storm::SerializePackageCreationModality::Loading:
+		case Storm::SerializePackageCreationModality::LoadingManual:
 		default:
 			break;
 		}
@@ -62,7 +80,7 @@ Storm::SerializePackage::SerializePackage(Storm::SerializePackageCreationModalit
 		Storm::throwException<std::exception>(errorMsg);
 	}
 
-	if (modality != SerializePackageCreationModality::SavingAppendPreheaderProvidedAfter)
+	if (modality != SerializePackageCreationModality::SavingAppendPreheaderProvidedAfter && modality != SerializePackageCreationModality::LoadingManual)
 	{
 		Storm::Version currentVersion = Storm::Version::retrieveCurrentStormVersion();
 		if (_isSaving)
