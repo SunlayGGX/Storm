@@ -6,11 +6,16 @@
 namespace Storm
 {
 	struct RigidBodySceneData;
+	class AssetCacheData;
 
 	class RigidBody : public Storm::IRigidBody
 	{
 	public:
+		struct ReplayMode{};
+
+	public:
 		RigidBody(const Storm::RigidBodySceneData &rbSceneData);
+		RigidBody(const Storm::RigidBodySceneData &rbSceneData, ReplayMode);
 
 	public:
 		const std::string& getRigidBodyName() const final override;
@@ -28,6 +33,7 @@ namespace Storm
 		std::shared_ptr<Storm::AssetCacheData> baseLoadAssimp(const Storm::RigidBodySceneData &rbSceneData);
 
 		void load(const Storm::RigidBodySceneData &rbSceneData);
+		void loadForReplay(const Storm::RigidBodySceneData &rbSceneData);
 
 	private:
 		std::string _meshPath;

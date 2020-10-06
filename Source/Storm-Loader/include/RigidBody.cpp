@@ -56,6 +56,13 @@ Storm::RigidBody::RigidBody(const Storm::RigidBodySceneData &rbSceneData) :
 	this->load(rbSceneData);
 }
 
+Storm::RigidBody::RigidBody(const Storm::RigidBodySceneData &rbSceneData, ReplayMode) :
+	_meshPath{ rbSceneData._meshFilePath },
+	_rbId{ rbSceneData._rigidBodyID }
+{
+	this->loadForReplay(rbSceneData);
+}
+
 const std::string& Storm::RigidBody::getRigidBodyName() const
 {
 	return _meshPath;
@@ -319,5 +326,16 @@ void Storm::RigidBody::load(const Storm::RigidBodySceneData &rbSceneData)
 
 	Storm::ISimulatorManager &simulMgr = singletonHolder.getSingleton<Storm::ISimulatorManager>();
 	simulMgr.addRigidBodyParticleSystem(_rbId, std::move(particlePos));
+}
+
+void Storm::RigidBody::loadForReplay(const Storm::RigidBodySceneData &rbSceneData)
+{
+	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
+	if (!configMgr.isInReplayMode())
+	{
+		Storm::throwException<std::exception>(__FUNCSIG__ " should only be used in replay mode!");
+	}
+
+	this->baseLoadAssimp(rbSceneData);
 }
 
