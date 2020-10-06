@@ -34,6 +34,41 @@ namespace
 }
 
 
+void Storm::ReplaySolver::transferFrameToParticleSystem_move(std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &particleSystems, Storm::SerializeRecordPendingData &frameFrom)
+{
+	for (auto &currentFrameElement : frameFrom._elements)
+	{
+		Storm::ParticleSystem &particleSystem = *particleSystems[currentFrameElement._systemId];
+		particleSystem.setPositions(std::move(currentFrameElement._positions));
+		particleSystem.setVelocity(std::move(currentFrameElement._velocities));
+		particleSystem.setForces(std::move(currentFrameElement._forces));
+		particleSystem.setTmpPressureForces(std::move(currentFrameElement._pressureComponentforces));
+		particleSystem.setTmpViscosityForces(std::move(currentFrameElement._viscosityComponentforces));
+	}
+}
+
+void Storm::ReplaySolver::transferFrameToParticleSystem_copy(std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &particleSystems, const Storm::SerializeRecordPendingData &frameFrom)
+{
+	for (const auto &frameElement : frameFrom._elements)
+	{
+		Storm::ParticleSystem &currentPSystem = *particleSystems[frameElement._systemId];
+		std::vector<Storm::Vector3> &allPositions = currentPSystem.getPositions();
+		std::vector<Storm::Vector3> &allVelocities = currentPSystem.getVelocity();
+		std::vector<Storm::Vector3> &allForces = currentPSystem.getForces();
+		std::vector<Storm::Vector3> &allPressureForce = currentPSystem.getTemporaryPressureForces();
+		std::vector<Storm::Vector3> &allViscosityForce = currentPSystem.getTemporaryViscosityForces();
+
+		Storm::runParallel(frameElement._positions, [&](const Storm::Vector3 &currentPPosition, const std::size_t currentPIndex)
+		{
+			allPositions[currentPIndex] = currentPPosition;
+			allVelocities[currentPIndex] = frameElement._velocities[currentPIndex];
+			allForces[currentPIndex] = frameElement._forces[currentPIndex];
+			allPressureForce[currentPIndex] = frameElement._pressureComponentforces[currentPIndex];
+			allViscosityForce[currentPIndex] = frameElement._viscosityComponentforces[currentPIndex];
+		});
+	}
+}
+
 void Storm::ReplaySolver::computeNextRecordTime(float &inOutNextRecordTime, const float currentPhysicsTime, const Storm::RecordConfigData &recordConfig)
 {
 	inOutNextRecordTime = std::ceilf(currentPhysicsTime * recordConfig._recordFps) / recordConfig._recordFps;
@@ -61,15 +96,7 @@ bool Storm::ReplaySolver::replayCurrentNextFrame(std::map<unsigned int, std::uni
 			return false;
 		}
 
-		for (auto &currentFrameElement : frameBefore._elements)
-		{
-			Storm::ParticleSystem &particleSystem = *particleSystems[currentFrameElement._systemId];
-			particleSystem.setPositions(std::move(currentFrameElement._positions));
-			particleSystem.setVelocity(std::move(currentFrameElement._velocities));
-			particleSystem.setForces(std::move(currentFrameElement._forces));
-			particleSystem.setTmpPressureForces(std::move(currentFrameElement._pressureComponentforces));
-			particleSystem.setTmpViscosityForces(std::move(currentFrameElement._viscosityComponentforces));
-		}
+		Storm::ReplaySolver::transferFrameToParticleSystem_move(particleSystems, frameBefore);
 
 		Storm::ReplaySolver::computeNextRecordTime(nextFrameTime, frameBefore._physicsTime, recordConfig);
 	}
