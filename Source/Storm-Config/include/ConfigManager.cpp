@@ -174,7 +174,11 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 			switch (recordConfigData._recordMode)
 			{
 			case Storm::RecordMode::None:
+				LOG_COMMENT << "Simulator in normal mode requested (no record or replay).";
+				break;
+
 			case Storm::RecordMode::Record:
+				LOG_COMMENT << "Simulator in record mode requested.";
 				break;
 
 			case Storm::RecordMode::Replay:
