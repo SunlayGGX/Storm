@@ -174,6 +174,9 @@ void Storm::AssetLoaderManager::initialize_Implementation()
 		Storm::throwException<std::exception>("Unhandled initialization mode from specified record mode!");
 	}
 
+	LOG_DEBUG << "Cleaning asset loading cache data";
+	this->clearCachedAssetData();
+
 	LOG_COMMENT << "Asset loading finished!";
 }
 
@@ -328,9 +331,6 @@ case Storm::BlowerType::BlowerTypeName: \
 
 		simulMgr.refreshParticlesPosition();
 	}
-
-	LOG_DEBUG << "Cleaning asset loading cache data";
-	this->clearCachedAssetData();
 }
 
 const std::vector<std::shared_ptr<Storm::IRigidBody>>& Storm::AssetLoaderManager::getRigidBodyArray() const
