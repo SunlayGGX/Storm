@@ -962,7 +962,16 @@ bool Storm::SimulatorManager::shouldRegisterTemporaryForces() const
 	if (!_particleSelector.hasSelectedParticle())
 	{
 		const Storm::RecordConfigData &recordConfig = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().getRecordConfigData();
-		return recordConfig._recordMode == Storm::RecordMode::Record;
+		switch (recordConfig._recordMode)
+		{
+		case Storm::RecordMode::None:
+			return false;
+
+		case Storm::RecordMode::Record:
+		case Storm::RecordMode::Replay:
+		default:
+			return true;
+		}
 	}
 
 	return true;
