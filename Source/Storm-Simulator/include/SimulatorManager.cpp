@@ -25,6 +25,7 @@
 #include "SimulationMode.h"
 #include "KernelMode.h"
 #include "RecordMode.h"
+#include "ReplaySolver.h"
 
 #include "PartitionSelection.h"
 
@@ -326,18 +327,6 @@ namespace
 	{
 		return 0.0000001f;
 	}
-
-	void computeNextRecordTime(float &inOutNextRecordTime, const float currentPhysicsTime, const Storm::RecordConfigData &recordConfig)
-	{
-		inOutNextRecordTime = std::ceilf(currentPhysicsTime * recordConfig._recordFps) / recordConfig._recordFps;
-
-		// If currentPhysicsTime was a multiple of recordConfig._recordFps (first frame, or with extreme bad luck), then inOutNextRecordTime would be equal to the currentPhysicsTime.
-		// We need to increase the record time to the next frame time.
-		if (inOutNextRecordTime == currentPhysicsTime)
-		{
-			inOutNextRecordTime += (1.f / recordConfig._recordFps);
-		}
-	}
 }
 
 Storm::SimulatorManager::SimulatorManager() :
@@ -483,8 +472,10 @@ Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 
 	unsigned int forcedPushFrameIterator = 0;
 
+	const float physicsFixedElpasedTime = 1.f / recordConfig._recordFps;
+	timeMgr.setCurrentPhysicsDeltaTime(physicsFixedElpasedTime);
+
 	Storm::SerializeRecordPendingData frameBefore;
-	Storm::SerializeRecordPendingData currentFrame;
 	Storm::SerializeRecordPendingData frameAfter;
 
 	if (!serializerMgr.obtainNextFrame(frameBefore))
@@ -493,21 +484,14 @@ Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 		return Storm::ExitCode::k_success;
 	}
 
-	for (auto &currentFrameElement : currentFrame._elements)
+	frameAfter._physicsTime = frameBefore._physicsTime;
+	if (!Storm::ReplaySolver::replayCurrentNextFrame(_particleSystem, frameBefore, frameAfter, recordConfig))
 	{
-		Storm::ParticleSystem &particleSystem = *_particleSystem[currentFrameElement._systemId];
-		particleSystem.setPositions(std::move(currentFrameElement._positions));
-		particleSystem.setVelocity(std::move(currentFrameElement._velocities));
-		particleSystem.setForces(std::move(currentFrameElement._forces));
-		particleSystem.setTmpPressureForces(std::move(currentFrameElement._pressureComponentforces));
-		particleSystem.setTmpViscosityForces(std::move(currentFrameElement._viscosityComponentforces));
+		LOG_ERROR << "There is only one frame to simulate. No need to replay. We exit now...";
+		return Storm::ExitCode::k_success;
 	}
 
 	this->pushParticlesToGraphicModule(true);
-
-	frameAfter._physicsTime = frameBefore._physicsTime;
-	currentFrame._physicsTime = frameBefore._physicsTime;
-	timeMgr.setCurrentPhysicsElapsedTime(currentFrame._physicsTime);
 
 	const float expectedReplayFps = timeMgr.getExpectedFrameFPS();
 
@@ -543,24 +527,15 @@ Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 
 		SpeedProfileBalist simulationSpeedProfile{ profilerMgrNullablePtr };
 
-		float currentPhysicsTime = timeMgr.getCurrentPhysicsElapsedTime();
-
-		if (serializerMgr.obtainNextFrame(currentFrame))
+		if (Storm::ReplaySolver::replayCurrentNextFrame(_particleSystem, frameBefore, frameAfter, recordConfig))
 		{
-			for (auto &currentFrameElement : currentFrame._elements)
-			{
-				Storm::ParticleSystem &particleSystem = *_particleSystem[currentFrameElement._systemId];
-				particleSystem.setPositions(std::move(currentFrameElement._positions));
-				particleSystem.setVelocity(std::move(currentFrameElement._velocities));
-				particleSystem.setForces(std::move(currentFrameElement._forces));
-				particleSystem.setTmpPressureForces(std::move(currentFrameElement._pressureComponentforces));
-				particleSystem.setTmpViscosityForces(std::move(currentFrameElement._viscosityComponentforces));
-			}
-
 			this->pushParticlesToGraphicModule(false);
 
-			timeMgr.setCurrentPhysicsElapsedTime(currentFrame._physicsTime);
-			hasAutoEndSimulation = autoEndSimulation && currentPhysicsTime > generalSimulationConfigData._endSimulationPhysicsTimeInSeconds;
+			if (autoEndSimulation)
+			{
+				const float currentPhysicsTime = timeMgr.getCurrentPhysicsElapsedTime();
+				hasAutoEndSimulation = currentPhysicsTime > generalSimulationConfigData._endSimulationPhysicsTimeInSeconds;
+			}
 		}
 		else if (autoEndSimulation)
 		{
@@ -647,7 +622,7 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 		// Record the first frame which is the time 0 (the start).
 		const float currentPhysicsTime = timeMgr.getCurrentPhysicsElapsedTime();
 		this->pushRecord(currentPhysicsTime);
-		computeNextRecordTime(nextRecordTime, currentPhysicsTime, recordConfig);
+		Storm::ReplaySolver::computeNextRecordTime(nextRecordTime, currentPhysicsTime, recordConfig);
 	}
 
 	const bool autoEndSimulation = generalSimulationConfigData._endSimulationPhysicsTimeInSeconds != -1.f;
@@ -717,7 +692,7 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 			if (currentPhysicsTime >= nextRecordTime)
 			{
 				this->pushRecord(currentPhysicsTime);
-				computeNextRecordTime(nextRecordTime, currentPhysicsTime, recordConfig);
+				Storm::ReplaySolver::computeNextRecordTime(nextRecordTime, currentPhysicsTime, recordConfig);
 			}
 		}
 
