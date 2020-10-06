@@ -60,6 +60,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Storm-Profiler", "Source\St
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Repo", "Repo", "{F3761E77-B57B-4CCF-AF7F-C97830641E49}"
 	ProjectSection(SolutionItems) = preProject
+		Doc\Known issues.txt = Doc\Known issues.txt
 		README.md = README.md
 	EndProjectSection
 EndProject
