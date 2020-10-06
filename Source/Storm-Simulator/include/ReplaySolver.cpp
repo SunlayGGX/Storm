@@ -102,10 +102,11 @@ bool Storm::ReplaySolver::replayCurrentNextFrame(std::map<unsigned int, std::uni
 	}
 	else // The frame rates don't match. We need to interpolate between the frames.
 	{
-		const float currentTime = timeMgr.getCurrentPhysicsElapsedTime();
+		float currentTime = timeMgr.getCurrentPhysicsElapsedTime();
 		Storm::ReplaySolver::computeNextRecordTime(nextFrameTime, currentTime, recordConfig);
+		currentTime = nextFrameTime;
 
-		if (frameAfter._physicsTime < nextFrameTime)
+		while (frameAfter._physicsTime < currentTime)
 		{
 			frameBefore = std::move(frameAfter);
 			if (!serializerMgr.obtainNextFrame(frameAfter))
@@ -118,9 +119,9 @@ bool Storm::ReplaySolver::replayCurrentNextFrame(std::map<unsigned int, std::uni
 
 		// Lerp coeff
 #if STORM_USE_INTRINSICS
-		const __m128 coefficient = _mm_set1_ps((frameAfter._physicsTime - currentTime) / frameDiffTime);
+		const __m128 coefficient = _mm_set1_ps(1.f - ((frameAfter._physicsTime - currentTime) / frameDiffTime));
 #else
-		const float coefficient = (frameAfter._physicsTime - currentTime) / frameDiffTime;
+		const float coefficient = 1.f - ((frameAfter._physicsTime - currentTime) / frameDiffTime);
 #endif
 
 		const std::size_t frameElementCount = frameBefore._elements.size();
