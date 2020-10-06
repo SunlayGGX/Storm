@@ -986,6 +986,26 @@ void Storm::SimulatorManager::addRigidBodyParticleSystem(unsigned int id, std::v
 	LOG_DEBUG << "Rigid body particle system " << id << " was created and successfully registered in simulator!";
 }
 
+void Storm::SimulatorManager::addFluidParticleSystem(unsigned int id, const std::size_t particleCount)
+{
+	LOG_COMMENT << "Creating fluid particle system with " << particleCount << " particles.";
+
+	assert(Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().isInReplayMode() && "This method is only to be used in replay mode!");
+	addParticleSystemToMap<Storm::FluidParticleSystem>(_particleSystem, id, particleCount);
+
+	LOG_DEBUG << "Fluid particle system " << id << " was created and successfully registered in simulator!";
+}
+
+void Storm::SimulatorManager::addRigidBodyParticleSystem(unsigned int id, const std::size_t particleCount)
+{
+	LOG_COMMENT << "Creating rigid body particle system with " << particleCount << " particles.";
+
+	assert(Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().isInReplayMode() && "This method is only to be used in replay mode!");
+	addParticleSystemToMap<Storm::RigidBodyParticleSystem>(_particleSystem, id, particleCount);
+
+	LOG_DEBUG << "Rigid body particle system " << id << " was created and successfully registered in simulator!";
+}
+
 std::vector<Storm::Vector3> Storm::SimulatorManager::getParticleSystemPositions(unsigned int id) const
 {
 	return this->getParticleSystemPositionsReferences(id);

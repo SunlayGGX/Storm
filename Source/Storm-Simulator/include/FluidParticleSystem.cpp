@@ -44,23 +44,33 @@ Storm::FluidParticleSystem::FluidParticleSystem(unsigned int particleSystemIndex
 	_velocityPreTimestep.resize(particleCount);
 }
 
+Storm::FluidParticleSystem::FluidParticleSystem(unsigned int particleSystemIndex, std::size_t particleCount) :
+	Storm::ParticleSystem{ particleSystemIndex, particleCount }
+{
+	// No need to init the other thing since this constructor is only to be used in replay mode and we won't use them.
+}
+
 void Storm::FluidParticleSystem::initializeIteration(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const std::vector<std::unique_ptr<Storm::IBlower>> &blowers, const bool shouldRegisterTemporaryForce)
 {
 	Storm::ParticleSystem::initializeIteration(allParticleSystems, blowers, shouldRegisterTemporaryForce);
 
-#if defined(DEBUG) || defined(_DEBUG)
-	const std::size_t particleCount = _positions.size();
+	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
 
-	assert(
-		_masses.size() == particleCount &&
-		_densities.size() == particleCount &&
-		_velocityPreTimestep.size() == particleCount &&
-		_pressure.size() == particleCount &&
-		"Particle count mismatch detected! An array of particle property has not the same particle count than the other!"
-	);
+#if defined(DEBUG) || defined(_DEBUG)
+	if (!configMgr.isInReplayMode())
+	{
+		const std::size_t particleCount = _positions.size();
+
+		assert(
+			_masses.size() == particleCount &&
+			_densities.size() == particleCount &&
+			_velocityPreTimestep.size() == particleCount &&
+			_pressure.size() == particleCount &&
+			"Particle count mismatch detected! An array of particle property has not the same particle count than the other!"
+		);
+	}
 #endif
 
-	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
 	const Storm::GeneralSimulationData &generalSimulData = configMgr.getGeneralSimulationData();
 	const Storm::FluidData &fluidSimulData = configMgr.getFluidData();
 

@@ -57,6 +57,18 @@ Storm::RigidBodyParticleSystem::RigidBodyParticleSystem(unsigned int particleSys
 	_volumes.resize(particleCount);
 }
 
+Storm::RigidBodyParticleSystem::RigidBodyParticleSystem(unsigned int particleSystemIndex, const std::size_t particleCount) :
+	Storm::ParticleSystem{ particleSystemIndex, particleCount },
+	_cachedTrackedRbRotationQuat{ Storm::Quaternion::Identity() }
+{
+	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
+	const Storm::RigidBodySceneData &currentRbData = configMgr.getRigidBodyData(particleSystemIndex);
+	_isWall = currentRbData._isWall;
+	_isStatic = _isWall || currentRbData._static;
+
+	// No need to initialize the other arrays since we won't use them in replay mode.
+}
+
 void Storm::RigidBodyParticleSystem::initializePreSimulation(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const float kernelLength)
 {
 	Storm::ParticleSystem::initializePreSimulation(allParticleSystems, kernelLength);
@@ -110,22 +122,26 @@ void Storm::RigidBodyParticleSystem::initializeIteration(const std::map<unsigned
 {
 	Storm::ParticleSystem::initializeIteration(allParticleSystems, blowers, shouldRegisterTemporaryForce);
 
+	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
+
 #if defined(_DEBUG) || defined(DEBUG)
-	const std::size_t particleCount = _positions.size();
-	assert(
-		_volumes.size() == particleCount &&
-		"Particle count mismatch detected! An array of particle property has not the same particle count than the other!"
-	);
-	if (this->isStatic())
+	if (!configMgr.isInReplayMode())
 	{
+		const std::size_t particleCount = _positions.size();
 		assert(
-			_staticVolumesInitValue.size() == particleCount &&
+			_volumes.size() == particleCount &&
 			"Particle count mismatch detected! An array of particle property has not the same particle count than the other!"
 		);
+		if (this->isStatic())
+		{
+			assert(
+				_staticVolumesInitValue.size() == particleCount &&
+				"Particle count mismatch detected! An array of particle property has not the same particle count than the other!"
+			);
+		}
 	}
 #endif
 
-	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
 	const Storm::GeneralSimulationData &generalSimulDataConfig = configMgr.getGeneralSimulationData();
 
 	const float k_kernelLength = Storm::SimulatorManager::instance().getKernelLength();

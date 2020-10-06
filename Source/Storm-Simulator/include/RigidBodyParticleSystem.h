@@ -9,6 +9,7 @@ namespace Storm
 	{
 	public:
 		RigidBodyParticleSystem(unsigned int particleSystemIndex, std::vector<Storm::Vector3> &&worldPositions);
+		RigidBodyParticleSystem(unsigned int particleSystemIndex, const std::size_t particleCount);
 
 	public:
 		void initializePreSimulation(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const float kernelLength) final override;

@@ -10,7 +10,12 @@ namespace Storm
 	{
 	public:
 		ParticleSystem(unsigned int particleSystemIndex, std::vector<Storm::Vector3> &&worldPositions);
+		ParticleSystem(unsigned int particleSystemIndex, const std::size_t particleCount);
 		virtual ~ParticleSystem() = default;
+
+	private:
+		void initParticlesCount(const std::size_t particleCount);
+		void resizeParticlesCount(const std::size_t particleCount);
 
 	public:
 		const std::vector<Storm::Vector3>& getPositions() const noexcept;

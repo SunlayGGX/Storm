@@ -18,6 +18,10 @@ namespace Storm
 		virtual void addFluidParticleSystem(unsigned int id, std::vector<Storm::Vector3> particlePositions) = 0;
 		virtual void addRigidBodyParticleSystem(unsigned int id, std::vector<Storm::Vector3> particlePositions) = 0;
 
+		// For replay.
+		virtual void addFluidParticleSystem(unsigned int id, const std::size_t particleCount) = 0;
+		virtual void addRigidBodyParticleSystem(unsigned int id, const std::size_t particleCount) = 0;
+
 		// Warning : returns a copy to avoid data races so be careful when using it...
 		virtual std::vector<Storm::Vector3> getParticleSystemPositions(unsigned int id) const = 0;
 

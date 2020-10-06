@@ -9,6 +9,7 @@ namespace Storm
 	{
 	public:
 		FluidParticleSystem(unsigned int particleSystemIndex, std::vector<Storm::Vector3> &&worldPositions);
+		FluidParticleSystem(unsigned int particleSystemIndex, std::size_t particleCount);
 
 	public:
 		void initializeIteration(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const std::vector<std::unique_ptr<Storm::IBlower>> &blowers, const bool shouldRegisterTemporaryForce) final override;
