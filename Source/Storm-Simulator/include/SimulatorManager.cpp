@@ -487,9 +487,8 @@ Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 	}
 	else
 	{
-		frameAfter._physicsTime = frameBefore._physicsTime;
-
 		// We need the frameBefore afterward, therefore we will make copy...
+		frameAfter = frameBefore;
 		Storm::ReplaySolver::transferFrameToParticleSystem_copy(_particleSystem, frameBefore);
 	}
 
