@@ -1140,6 +1140,8 @@ void Storm::SimulatorManager::pushRecord(float currentPhysicsTime) const
 		framePSystemElementData._positions = pSystemRef.getPositions();
 		framePSystemElementData._velocities = pSystemRef.getVelocity();
 		framePSystemElementData._forces = pSystemRef.getForces();
+		framePSystemElementData._pressureComponentforces = pSystemRef.getTemporaryPressureForces();
+		framePSystemElementData._viscosityComponentforces = pSystemRef.getTemporaryViscosityForces();
 	}
 
 	Storm::ISerializerManager &serializerMgr = singletonHolder.getSingleton<Storm::ISerializerManager>();
