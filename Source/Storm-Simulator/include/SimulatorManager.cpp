@@ -481,11 +481,16 @@ Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 		return Storm::ExitCode::k_success;
 	}
 
-	frameAfter._physicsTime = frameBefore._physicsTime;
-	if (!Storm::ReplaySolver::replayCurrentNextFrame(_particleSystem, frameBefore, frameAfter, recordConfig))
+	if (timeMgr.getExpectedFrameFPS() == recordConfig._recordFps)
 	{
-		LOG_ERROR << "There is only one frame to simulate. No need to replay. We exit now...";
-		return Storm::ExitCode::k_success;
+		Storm::ReplaySolver::transferFrameToParticleSystem_move(_particleSystem, frameBefore);
+	}
+	else
+	{
+		frameAfter._physicsTime = frameBefore._physicsTime;
+
+		// We need the frameBefore afterward, therefore we will make copy...
+		Storm::ReplaySolver::transferFrameToParticleSystem_copy(_particleSystem, frameBefore);
 	}
 
 	this->pushParticlesToGraphicModule(true);
