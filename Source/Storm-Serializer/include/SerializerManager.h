@@ -33,7 +33,7 @@ namespace Storm
 		void endRecord() final override;
 
 	public:
-		void beginReplay(const Storm::SerializeRecordHeader* &outRecordHeaderPtr) final override;
+		const Storm::SerializeRecordHeader& beginReplay() final override;
 		bool obtainNextFrame(Storm::SerializeRecordPendingData &outPendingData) const final override;
 
 	private:

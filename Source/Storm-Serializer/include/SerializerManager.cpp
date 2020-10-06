@@ -194,7 +194,7 @@ void Storm::SerializerManager::endRecord()
 	});
 }
 
-void Storm::SerializerManager::beginReplay(const Storm::SerializeRecordHeader* &outRecordHeaderPtr)
+const Storm::SerializeRecordHeader& Storm::SerializerManager::beginReplay()
 {
 	assert(isSimulationThread() && "this method should only be called from simulation thread.");
 
@@ -204,7 +204,7 @@ void Storm::SerializerManager::beginReplay(const Storm::SerializeRecordHeader* &
 		if (!_recordReader)
 		{
 			_recordReader = std::make_unique<Storm::RecordReader>();
-			outRecordHeaderPtr = &_recordReader->getHeader();
+			return _recordReader->getHeader();
 		}
 		else
 		{
