@@ -469,8 +469,8 @@ Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 
 	unsigned int forcedPushFrameIterator = 0;
 
-	const float physicsFixedElpasedTime = 1.f / recordConfig._recordFps;
-	timeMgr.setCurrentPhysicsDeltaTime(physicsFixedElpasedTime);
+	const float physicsFixedElapsedTime = 1.f / recordConfig._recordFps;
+	timeMgr.setCurrentPhysicsDeltaTime(physicsFixedElapsedTime);
 
 	Storm::SerializeRecordPendingData frameBefore;
 	Storm::SerializeRecordPendingData frameAfter;
