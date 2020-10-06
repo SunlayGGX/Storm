@@ -57,5 +57,8 @@ namespace Storm
 		virtual const std::vector<Storm::BlowerData>& getBlowersData() const = 0;
 		virtual const std::vector<Storm::ConstraintData>& getConstraintsData() const = 0;
 		virtual const Storm::RigidBodySceneData& getRigidBodyData(unsigned int rbId) const = 0;
+
+		// Special highly used method
+		virtual bool isInReplayMode() const noexcept = 0;
 	};
 }
