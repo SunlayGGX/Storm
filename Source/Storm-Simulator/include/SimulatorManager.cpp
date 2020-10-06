@@ -579,6 +579,8 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
 	const Storm::GeneralSimulationData &generalSimulationConfigData = configMgr.getGeneralSimulationData();
 
+	assert(!configMgr.isInReplayMode() && "runSimulation_Internal shouldn't be used in replay mode!");
+
 	Storm::IProfilerManager* profilerMgrNullablePtr = configMgr.getShouldProfileSimulationSpeed() ? singletonHolder.getFacet<Storm::IProfilerManager>() : nullptr;
 
 	std::vector<Storm::SimulationCallback> tmpSimulationCallback;
