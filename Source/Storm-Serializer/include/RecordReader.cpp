@@ -11,7 +11,7 @@
 
 
 Storm::RecordReader::RecordReader() :
-	Storm::RecordHandlerBase{ Storm::SerializeRecordHeader{}, Storm::SerializePackageCreationModality::Loading },
+	Storm::RecordHandlerBase{ Storm::SerializeRecordHeader{}, Storm::SerializePackageCreationModality::LoadingManual },
 	_preheaderSerializer{ std::make_unique<Storm::RecordPreHeaderSerializer>() }
 {
 	_package << *_preheaderSerializer;
