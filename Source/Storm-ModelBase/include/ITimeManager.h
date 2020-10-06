@@ -57,7 +57,6 @@ namespace Storm
 		virtual void setExpectedFrameFPS(float fps) = 0;
 
 		// Get the expected frame rate of the caller thread. This is not the physics frame rate but more like the simulation expected frame rate (the main thread run loop frame rate).
-		// Note that if the thread doesn't use the TimeManager to manage its loop, its fps would be equal to 0.
 		virtual float getExpectedFrameFPS() const = 0;
 
 		// Get the expected frame rate of the caller thread. This is not the physics frame rate but more like the simulation expected frame rate (the main thread run loop frame rate).
