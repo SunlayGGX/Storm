@@ -88,14 +88,15 @@ void Storm::RecordPreHeaderSerializer::endSerializing(Storm::SerializePackage &p
 	using MagicWordChecksumType = decltype(_preHeader._magicWordChecksum);
 
 	// Seek back to the beginning of the file to overwrite the Preheader data with the real data.
-	package.seekAbsolute(sizeof(MagicWordChecksumType));
-
-	uint64_t realPacketSize = std::filesystem::file_size(package.getFilePath());
-	package << realPacketSize;
 
 	package.seekAbsolute(0);
-	uint64_t goodMagicWord = static_cast<MagicWordChecksumType>(RecordMagicWord::k_badMagicWord);
-	package << goodMagicWord;
+
+	uint64_t realPacketSize = std::filesystem::file_size(package.getFilePath());
+	MagicWordChecksumType goodMagicWord = static_cast<MagicWordChecksumType>(RecordMagicWord::k_goodMagicWord);
+	package 
+		<< goodMagicWord
+		<< realPacketSize
+		;
 }
 
 const Storm::Version& Storm::RecordPreHeaderSerializer::getRecordVersion() const noexcept
