@@ -28,6 +28,9 @@
 #include "AssetCacheData.h"
 #include "AssetCacheDataOrder.h"
 
+#include "RecordConfigData.h"
+#include "RecordMode.h"
+
 #include <Assimp\DefaultLogger.hpp>
 
 
@@ -154,7 +157,40 @@ void Storm::AssetLoaderManager::initialize_Implementation()
 	initializeAssimpLogger();
 
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
-	
+	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
+
+	switch (configMgr.getRecordConfigData()._recordMode)
+	{
+	case Storm::RecordMode::Replay:
+		this->initializeForReplay();
+		break;
+
+	case Storm::RecordMode::Record:
+	case Storm::RecordMode::None:
+		this->initializeForSimulation();
+		break;
+
+	default:
+		Storm::throwException<std::exception>("Unhandled initialization mode from specified record mode!");
+	}
+
+	LOG_COMMENT << "Asset loading finished!";
+}
+
+void Storm::AssetLoaderManager::cleanUp_Implementation()
+{
+	Assimp::DefaultLogger::kill();
+}
+
+void Storm::AssetLoaderManager::initializeForReplay()
+{
+	STORM_NOT_IMPLEMENTED;
+}
+
+void Storm::AssetLoaderManager::initializeForSimulation()
+{
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+
 	std::filesystem::create_directories(Storm::RigidBody::retrieveParticleDataCacheFolder());
 
 	Storm::IGraphicsManager &graphicsMgr = singletonHolder.getSingleton<Storm::IGraphicsManager>();
@@ -286,7 +322,7 @@ case Storm::BlowerType::BlowerTypeName: \
 	}
 	else
 	{
-		LOG_WARNING << 
+		LOG_WARNING <<
 			"No fluid was present and we allowed it... Therefore, we would skip fluid loading to concentrate on rigid body interactions.\n"
 			"It is a debug/development helper feature so don't let this setting remains because this isn't the purpose of the application...";
 
@@ -295,13 +331,6 @@ case Storm::BlowerType::BlowerTypeName: \
 
 	LOG_DEBUG << "Cleaning asset loading cache data";
 	this->clearCachedAssetData();
-
-	LOG_COMMENT << "Asset loading finished!";
-}
-
-void Storm::AssetLoaderManager::cleanUp_Implementation()
-{
-	Assimp::DefaultLogger::kill();
 }
 
 const std::vector<std::shared_ptr<Storm::IRigidBody>>& Storm::AssetLoaderManager::getRigidBodyArray() const

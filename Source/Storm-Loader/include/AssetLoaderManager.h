@@ -21,6 +21,10 @@ namespace Storm
 		void initialize_Implementation();
 		void cleanUp_Implementation();
 
+	private:
+		void initializeForReplay();
+		void initializeForSimulation();
+
 	public:
 		const std::vector<std::shared_ptr<Storm::IRigidBody>>& getRigidBodyArray() const final override;
 
