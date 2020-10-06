@@ -450,9 +450,6 @@ Storm::ExitCode Storm::SimulatorManager::run()
 
 Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 {
-	STORM_NOT_IMPLEMENTED;
-
-
 	LOG_COMMENT << "Starting replay loop";
 
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
