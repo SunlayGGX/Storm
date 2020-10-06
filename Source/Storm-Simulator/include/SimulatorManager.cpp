@@ -528,6 +528,11 @@ Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 		{
 			this->pushParticlesToGraphicModule(false);
 
+			for (const std::unique_ptr<Storm::IBlower> &blowerUPtr : _blowers)
+			{
+				blowerUPtr->advanceTime(physicsFixedElapsedTime);
+			}
+
 			if (autoEndSimulation)
 			{
 				const float currentPhysicsTime = timeMgr.getCurrentPhysicsElapsedTime();
