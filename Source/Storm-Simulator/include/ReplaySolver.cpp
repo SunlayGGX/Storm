@@ -40,7 +40,7 @@ namespace
 		{
 			const auto &frameAfterElements = frameAfter._elements[iter];
 
-			const auto* frameBeforeElementsPtr = &frameBefore._elements[iter];
+			const Storm::SerializeRecordElementsData* frameBeforeElementsPtr = &frameBefore._elements[iter];
 			
 			if constexpr (remap)
 			{
@@ -57,7 +57,7 @@ namespace
 				}
 			}
 
-			const auto &frameBeforeElements = *frameBeforeElementsPtr;
+			const Storm::SerializeRecordElementsData &frameBeforeElements = *frameBeforeElementsPtr;
 
 			Storm::ParticleSystem &currentPSystem = *particleSystems[frameBeforeElements._systemId];
 			std::vector<Storm::Vector3> &allPositions = currentPSystem.getPositions();
