@@ -420,6 +420,11 @@ void Storm::SimulatorManager::initialize_Implementation()
 					LOG_DEBUG <<
 						"Raycast touched particle " << firstHit._particleId << " inside system id " << firstHit._systemId << "\n"
 						"Hit Position : " << firstHit._hitPosition;
+
+					if (hasMadeSelectionChanges)
+					{
+						_particleSelector.logForceComponents();
+					}
 				}
 
 				if (hasMadeSelectionChanges && singletonHolder.getSingleton<Storm::ITimeManager>().getStateNoSyncWait() == Storm::TimeWaitResult::Pause)

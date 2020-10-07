@@ -43,6 +43,9 @@ namespace Storm
 		unsigned int getSelectedParticleSystemId() const noexcept;
 		std::size_t getSelectedParticleIndex() const noexcept;
 
+	public:
+		void logForceComponents() const;
+
 	private:
 		SelectedParticleData _selectedParticleData;
 
