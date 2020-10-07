@@ -240,6 +240,7 @@ Unlike the others config files, it can be named as you want. Here the xml tags y
 #### Record
 - **recordFps (float, semi-facultative)**: This is the record fps. It becomes mandatory if the Simulator is started in Record mode.
 - **recordFile (string, facultative, accept macros)**: Specify the path the recording will be. This path will be used in case it wasn't set from the command line.
+- **replayRealTime (boolean, facultative)**: Fix the replay to be the nearest possible from a real time replay. It means that the simulation speed will try to be as near as possible to 1.0. Default is true.
 
 
 #### Fluid

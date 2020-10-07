@@ -496,9 +496,31 @@ Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 
 	const float expectedReplayFps = timeMgr.getExpectedFrameFPS();
 
+	const std::chrono::microseconds fullFrameWaitTime{ static_cast<std::chrono::microseconds::rep>(std::roundf(1000000.f / expectedReplayFps)) };
+	auto startFrame = std::chrono::high_resolution_clock::now();
+
 	do
 	{
-		Storm::TimeWaitResult simulationState = timeMgr.waitNextFrame();
+		Storm::TimeWaitResult simulationState;
+		if (recordConfig._replayRealTime)
+		{
+			const auto waitTimeCompensation = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - startFrame);
+			if (fullFrameWaitTime < waitTimeCompensation)
+			{
+				simulationState = timeMgr.getStateNoSyncWait();
+			}
+			else
+			{
+				simulationState = timeMgr.waitForTime(fullFrameWaitTime - waitTimeCompensation);
+			}
+
+			startFrame = std::chrono::high_resolution_clock::now();
+		}
+		else
+		{
+			simulationState = generalSimulationConfigData._simulationNoWait ? timeMgr.getStateNoSyncWait() : timeMgr.waitNextFrame();
+		}
+
 		switch (simulationState)
 		{
 		case Storm::TimeWaitResult::Exit:

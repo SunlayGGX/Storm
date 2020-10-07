@@ -9,6 +9,7 @@
 #include "SceneData.h"
 #include "RigidBodySceneData.h"
 #include "RecordConfigData.h"
+#include "GeneralSimulationData.h"
 
 #include "RecordMode.h"
 
@@ -217,6 +218,7 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 		}
 
 		case Storm::RecordMode::Replay:
+		{
 			recordFilePath = parser.getRecordFilePath();
 			if (!recordFilePath.empty())
 			{
@@ -227,7 +229,20 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 			{
 				Storm::throwException<std::exception>(recordConfigData._recordFilePath + " doesn't exist or isn't a regular record file!");
 			}
+
+			Storm::GeneralSimulationData &generalConfigData = *_sceneConfig.getSceneData()._generalSimulationData;
+			if (recordConfigData._replayRealTime && generalConfigData._simulationNoWait)
+			{
+				LOG_WARNING <<
+					"replayRealTime and simulationNoWait are both enabled.\n"
+					"These are 2 opposite flags, except the simulationNoWait is general to all modes while replayRealTime is only for replay mode.\n"
+					"Therefore, since we are in replay mode. replayRealTime take precedence.";
+
+				generalConfigData._simulationNoWait = false;
+			}
+
 			break;
+		}
 
 		case Storm::RecordMode::None:
 		default:

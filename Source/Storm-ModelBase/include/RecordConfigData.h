@@ -14,5 +14,6 @@ namespace Storm
 		Storm::RecordMode _recordMode;
 		float _recordFps;
 		std::string _recordFilePath;
+		bool _replayRealTime;
 	};
 }
