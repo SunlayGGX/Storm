@@ -115,9 +115,14 @@ Storm::TimeWaitResult Storm::TimeManager::waitNextFrame()
 	return this->waitImpl(_frameSynchronizer, _simulationFrameTime);
 }
 
+Storm::TimeWaitResult Storm::TimeManager::waitForTime(std::chrono::microseconds timeToWait)
+{
+	return this->waitImpl(_synchronizer, timeToWait);
+}
+
 Storm::TimeWaitResult Storm::TimeManager::waitForTime(std::chrono::milliseconds timeToWait)
 {
-	return this->waitImpl(_synchronizer, std::chrono::duration_cast<std::chrono::microseconds>(timeToWait));
+	return this->waitForTime(std::chrono::duration_cast<std::chrono::microseconds>(timeToWait));
 }
 
 bool Storm::TimeManager::waitNextFrameOrExit()

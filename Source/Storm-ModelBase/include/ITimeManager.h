@@ -32,6 +32,13 @@ namespace Storm
 		// - TimeWaitResult::Continue if the TimeManager is still alive and the simulation isn't paused,
 		// - TimeWaitResult::Pause if the TimeManager is still alive but the simulation is paused
 		// - TimeWaitResult::Exit if the TimeManager has exited (therefore it is time to exit).
+		virtual Storm::TimeWaitResult waitForTime(std::chrono::microseconds timeToWait) = 0;
+
+		// Ask the current thread to wait for the refresh specified by timeToWait.
+		// Return value is : 
+		// - TimeWaitResult::Continue if the TimeManager is still alive and the simulation isn't paused,
+		// - TimeWaitResult::Pause if the TimeManager is still alive but the simulation is paused
+		// - TimeWaitResult::Exit if the TimeManager has exited (therefore it is time to exit).
 		virtual Storm::TimeWaitResult waitForTime(std::chrono::milliseconds timeToWait) = 0;
 
 

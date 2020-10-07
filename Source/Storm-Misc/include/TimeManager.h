@@ -26,6 +26,7 @@ namespace Storm
 
 	public:
 		Storm::TimeWaitResult waitNextFrame() final override;
+		Storm::TimeWaitResult waitForTime(std::chrono::microseconds timeToWait) final override;
 		Storm::TimeWaitResult waitForTime(std::chrono::milliseconds timeToWait) final override;
 		bool waitNextFrameOrExit() final override;
 		bool waitForTimeOrExit(std::chrono::milliseconds timeToWait) final override;
