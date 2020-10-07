@@ -342,15 +342,50 @@ void Storm::SimulatorManager::initialize_Implementation()
 {
 	LOG_COMMENT << "Initializing the simulator";
 
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+
 	/* initialize the Selector */
 
 	_particleSelector.initialize();
 
-	/* Initialize kernels */
+	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
+	const bool isReplayMode = configMgr.isInReplayMode();
 
-	Storm::initializeKernels(this->getKernelLength());
+	if (isReplayMode)
+	{
+		Storm::ISerializerManager &serializerMgr = singletonHolder.getSingleton<Storm::ISerializerManager>();
+		Storm::ITimeManager &timeMgr = singletonHolder.getSingleton<Storm::ITimeManager>();
 
-	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+		_frameBefore = std::make_unique<Storm::SerializeRecordPendingData>();
+		Storm::SerializeRecordPendingData &frameBefore = *_frameBefore;
+		const Storm::RecordConfigData &recordConfig = configMgr.getRecordConfigData();
+
+		if (!serializerMgr.obtainNextFrame(frameBefore))
+		{
+			LOG_ERROR << "There is no frame to simulate inside the current record. The application will stop.";
+		}
+
+		if (timeMgr.getExpectedFrameFPS() == recordConfig._recordFps)
+		{
+			Storm::ReplaySolver::transferFrameToParticleSystem_move(_particleSystem, frameBefore);
+		}
+		else
+		{
+			// We need the frameBefore afterward, therefore we will make copy...
+			Storm::ReplaySolver::transferFrameToParticleSystem_copy(_particleSystem, frameBefore);
+		}
+
+		this->pushParticlesToGraphicModule(true);
+	}
+	else
+	{
+		/* Initialize kernels */
+
+		Storm::initializeKernels(this->getKernelLength());
+	}
+
+
+	/* Initialize inputs */
 
 	Storm::IInputManager &inputMgr = singletonHolder.getSingleton<Storm::IInputManager>();
 	inputMgr.bindKey(Storm::SpecialKey::KC_F1, [this]() { this->printFluidParticleData(); });
@@ -461,7 +496,7 @@ Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 	Storm::IThreadManager &threadMgr = singletonHolder.getSingleton<Storm::IThreadManager>();
 	Storm::IProfilerManager* profilerMgrNullablePtr = configMgr.getShouldProfileSimulationSpeed() ? singletonHolder.getFacet<Storm::IProfilerManager>() : nullptr;
 
-	const Storm::RecordConfigData &recordConfig = singletonHolder.getSingleton<Storm::IConfigManager>().getRecordConfigData();
+	const Storm::RecordConfigData &recordConfig = configMgr.getRecordConfigData();
 	Storm::ISerializerManager &serializerMgr = singletonHolder.getSingleton<Storm::ISerializerManager>();
 
 	const bool autoEndSimulation = generalSimulationConfigData._endSimulationPhysicsTimeInSeconds != -1.f;
@@ -472,27 +507,13 @@ Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 	const float physicsFixedElapsedTime = 1.f / recordConfig._recordFps;
 	timeMgr.setCurrentPhysicsDeltaTime(physicsFixedElapsedTime);
 
-	Storm::SerializeRecordPendingData frameBefore;
+	Storm::SerializeRecordPendingData &frameBefore = *_frameBefore;
 	Storm::SerializeRecordPendingData frameAfter;
 
-	if (!serializerMgr.obtainNextFrame(frameBefore))
+	if (timeMgr.getExpectedFrameFPS() != recordConfig._recordFps)
 	{
-		LOG_ERROR << "There is no frame to simulate inside the current record. The application will stop.";
-		return Storm::ExitCode::k_success;
-	}
-
-	if (timeMgr.getExpectedFrameFPS() == recordConfig._recordFps)
-	{
-		Storm::ReplaySolver::transferFrameToParticleSystem_move(_particleSystem, frameBefore);
-	}
-	else
-	{
-		// We need the frameBefore afterward, therefore we will make copy...
 		frameAfter = frameBefore;
-		Storm::ReplaySolver::transferFrameToParticleSystem_copy(_particleSystem, frameBefore);
 	}
-
-	this->pushParticlesToGraphicModule(true);
 
 	const float expectedReplayFps = timeMgr.getExpectedFrameFPS();
 

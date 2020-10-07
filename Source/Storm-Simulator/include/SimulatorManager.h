@@ -12,6 +12,7 @@ namespace Storm
 	class ParticleSystem;
 	class IBlower;
 	struct GeneralSimulationData;
+	struct SerializeRecordPendingData;
 
 	class SimulatorManager :
 		private Storm::Singleton<SimulatorManager>,
@@ -94,5 +95,8 @@ namespace Storm
 		bool _raycastEnabled;
 
 		Storm::ExitCode _runExitCode;
+
+		// For replay
+		std::unique_ptr<Storm::SerializeRecordPendingData> _frameBefore;
 	};
 }
