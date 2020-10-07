@@ -76,11 +76,15 @@ namespace Storm
 		template<class ContainerType>
 		auto doSerialize(ContainerType &container, void*) -> decltype(std::end(container), std::declval<SerializePackage>() << *std::begin(container), static_cast<SerializePackage*>(nullptr))
 		{
-			uint64_t containerSize = Storm::SerializePackage::extractSize(container, 0);
-			this->operator <<(containerSize);
-
-			if (!_isSaving)
+			if (_isSaving)
 			{
+				uint64_t containerSize = Storm::SerializePackage::extractSize(container, 0);
+				this->operator <<(containerSize);
+			}
+			else
+			{
+				uint64_t containerSize = 0;
+				this->operator <<(containerSize);
 				resizeContainer(container, containerSize, 0);
 			}
 

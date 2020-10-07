@@ -45,8 +45,7 @@ bool Storm::RecordReader::readNextFrame_v1_0_0(Storm::SerializeRecordPendingData
 		return false;
 	}
 
-	uint64_t frameNumber;
-
+	uint64_t frameNumber = std::numeric_limits<uint64_t>::max();
 	_package << frameNumber;
 
 	_noMoreFrame = frameNumber >= _header._frameCount;
