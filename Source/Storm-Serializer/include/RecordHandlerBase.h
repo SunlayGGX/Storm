@@ -23,5 +23,7 @@ namespace Storm
 	protected:
 		Storm::SerializePackage _package;
 		Storm::SerializeRecordHeader _header;
+
+		std::size_t _movingSystemCount;
 	};
 }

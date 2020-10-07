@@ -1140,6 +1140,7 @@ void Storm::SimulatorManager::beginRecord() const
 		pSystemLayoutRef._particleSystemId = particleSystemPair.first;
 		pSystemLayoutRef._particlesCount = pSystemRef.getPositions().size();
 		pSystemLayoutRef._isFluid = pSystemRef.isFluids();
+		pSystemLayoutRef._isStatic = pSystemRef.isStatic();
 	}
 
 	Storm::ISerializerManager &serializerMgr = singletonHolder.getSingleton<Storm::ISerializerManager>();

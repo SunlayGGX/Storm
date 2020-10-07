@@ -20,7 +20,8 @@ namespace
 
 Storm::RecordHandlerBase::RecordHandlerBase(Storm::SerializeRecordHeader &&header, Storm::SerializePackageCreationModality packageCreationModality) :
 	_header{ std::move(header) },
-	_package{ packageCreationModality, retrieveRecordFilePath() }
+	_package{ packageCreationModality, retrieveRecordFilePath() },
+	_movingSystemCount{ 0 }
 {
 
 }
@@ -90,8 +91,14 @@ void Storm::RecordHandlerBase::serializeHeader()
 		_package <<
 			particleSystemLayout._particleSystemId <<
 			particleSystemLayout._particlesCount <<
-			particleSystemLayout._isFluid
+			particleSystemLayout._isFluid <<
+			particleSystemLayout._isStatic
 			;
+
+		if (!particleSystemLayout._isStatic)
+		{
+			++_movingSystemCount;
+		}
 	}
 }
 
