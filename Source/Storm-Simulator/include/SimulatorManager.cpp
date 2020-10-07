@@ -384,7 +384,6 @@ void Storm::SimulatorManager::initialize_Implementation()
 		Storm::initializeKernels(this->getKernelLength());
 	}
 
-
 	/* Initialize inputs */
 
 	Storm::IInputManager &inputMgr = singletonHolder.getSingleton<Storm::IInputManager>();
@@ -394,10 +393,15 @@ void Storm::SimulatorManager::initialize_Implementation()
 	inputMgr.bindKey(Storm::SpecialKey::KC_Y, [this]() { this->cycleSelectedParticleDisplayMode(); });
 
 	Storm::IRaycastManager &raycastMgr = singletonHolder.getSingleton<Storm::IRaycastManager>();
-	inputMgr.bindMouseLeftClick([this, &raycastMgr, &singletonHolder](int xPos, int yPos, int width, int height)
+	inputMgr.bindMouseLeftClick([this, &raycastMgr, &singletonHolder, isReplayMode](int xPos, int yPos, int width, int height)
 	{
 		if (_raycastEnabled)
 		{
+			if (isReplayMode)
+			{
+				this->refreshParticlePartition();
+			}
+
 			raycastMgr.queryRaycast(Storm::Vector2{ xPos, yPos }, std::move(Storm::RaycastQueryRequest{ [this, &singletonHolder](std::vector<Storm::RaycastHitResult> &&result)
 			{
 				bool hasMadeSelectionChanges;
@@ -428,10 +432,15 @@ void Storm::SimulatorManager::initialize_Implementation()
 		}
 	});
 
-	inputMgr.bindMouseMiddleClick([this, &raycastMgr, &singletonHolder](int xPos, int yPos, int width, int height)
+	inputMgr.bindMouseMiddleClick([this, &raycastMgr, &singletonHolder, isReplayMode](int xPos, int yPos, int width, int height)
 	{
 		if (_raycastEnabled)
 		{
+			if (isReplayMode)
+			{
+				this->refreshParticlePartition();
+			}
+
 			raycastMgr.queryRaycast(Storm::Vector2{ xPos, yPos }, std::move(Storm::RaycastQueryRequest{ [this, &singletonHolder](std::vector<Storm::RaycastHitResult> &&result)
 			{
 				if (result.empty())
@@ -514,6 +523,8 @@ Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 	{
 		frameAfter = frameBefore;
 	}
+
+	this->refreshParticlePartition(false);
 
 	const float expectedReplayFps = timeMgr.getExpectedFrameFPS();
 
@@ -635,26 +646,7 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 
 	this->pushParticlesToGraphicModule(true);
 
-	for (auto &particleSystem : _particleSystem)
-	{
-		Storm::ParticleSystem &pSystem = *particleSystem.second;
-
-		Storm::PartitionSelection selection;
-		if (pSystem.isFluids())
-		{
-			selection = Storm::PartitionSelection::Fluid;
-		}
-		else if (pSystem.isStatic())
-		{
-			selection = Storm::PartitionSelection::StaticRigidBody;
-		}
-		else
-		{
-			selection = Storm::PartitionSelection::DynamicRigidBody;
-		}
-
-		spacePartitionerMgr.computeSpaceReordering(pSystem.getPositions(), selection, pSystem.getId());
-	}
+	this->refreshParticlePartition(false);
 
 	this->initializePreSimulation();
 
@@ -761,7 +753,6 @@ void Storm::SimulatorManager::executeIteration(bool firstFrame, unsigned int for
 	Storm::ITimeManager &timeMgr = singletonHolder.getSingleton<Storm::ITimeManager>();
 	Storm::IPhysicsManager &physicsMgr = singletonHolder.getSingleton<Storm::IPhysicsManager>();
 	Storm::IThreadManager &threadMgr = singletonHolder.getSingleton<Storm::IThreadManager>();
-	Storm::ISpacePartitionerManager &spacePartitionerMgr = singletonHolder.getSingleton<Storm::ISpacePartitionerManager>();
 
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
 	const Storm::GeneralSimulationData &generalSimulationConfigData = configMgr.getGeneralSimulationData();
@@ -774,20 +765,7 @@ void Storm::SimulatorManager::executeIteration(bool firstFrame, unsigned int for
 
 	if (!firstFrame && forcedPushFrameIterator % generalSimulationConfigData._recomputeNeighborhoodStep == 0)
 	{
-		spacePartitionerMgr.clearSpaceReorderingNoStatic();
-		for (auto &particleSystem : _particleSystem)
-		{
-			// We don't need to regenerate statics rigid bodies.
-			Storm::ParticleSystem &pSystem = *particleSystem.second;
-			if (!pSystem.isStatic())
-			{
-				spacePartitionerMgr.computeSpaceReordering(
-					pSystem.getPositions(),
-					pSystem.isFluids() ? Storm::PartitionSelection::Fluid : Storm::PartitionSelection::DynamicRigidBody,
-					pSystem.getId()
-				);
-			}
-		}
+		this->refreshParticlePartition();
 	}
 
 	for (const std::unique_ptr<Storm::IBlower> &blowerUPtr : _blowers)
@@ -1217,6 +1195,54 @@ void Storm::SimulatorManager::pushRecord(float currentPhysicsTime, bool pushStat
 
 	Storm::ISerializerManager &serializerMgr = singletonHolder.getSingleton<Storm::ISerializerManager>();
 	serializerMgr.recordFrame(std::move(currentFrameData));
+}
+
+void Storm::SimulatorManager::refreshParticlePartition(bool ignoreStatics /*= true*/) const
+{
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	Storm::ISpacePartitionerManager &spacePartitionerMgr = singletonHolder.getSingleton<Storm::ISpacePartitionerManager>();
+
+	spacePartitionerMgr.clearSpaceReorderingNoStatic();
+	if (ignoreStatics)
+	{
+		for (auto &particleSystem : _particleSystem)
+		{
+			// We don't need to regenerate statics rigid bodies.
+			Storm::ParticleSystem &pSystem = *particleSystem.second;
+			if (!pSystem.isStatic())
+			{
+				spacePartitionerMgr.computeSpaceReordering(
+					pSystem.getPositions(),
+					pSystem.isFluids() ? Storm::PartitionSelection::Fluid : Storm::PartitionSelection::DynamicRigidBody,
+					pSystem.getId()
+				);
+			}
+		}
+	}
+	else
+	{
+		spacePartitionerMgr.clearSpaceReorderingForPartition(Storm::PartitionSelection::StaticRigidBody);
+		for (auto &particleSystem : _particleSystem)
+		{
+			Storm::ParticleSystem &pSystem = *particleSystem.second;
+
+			Storm::PartitionSelection selection;
+			if (pSystem.isFluids())
+			{
+				selection = Storm::PartitionSelection::Fluid;
+			}
+			else if (pSystem.isStatic())
+			{
+				selection = Storm::PartitionSelection::StaticRigidBody;
+			}
+			else
+			{
+				selection = Storm::PartitionSelection::DynamicRigidBody;
+			}
+
+			spacePartitionerMgr.computeSpaceReordering(pSystem.getPositions(), selection, pSystem.getId());
+		}
+	}
 }
 
 Storm::ParticleSystem& Storm::SimulatorManager::getParticleSystem(unsigned int id)

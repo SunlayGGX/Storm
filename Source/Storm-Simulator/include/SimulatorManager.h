@@ -82,6 +82,9 @@ namespace Storm
 		void beginRecord() const;
 		void pushRecord(float currentPhysicsTime, bool pushStatics) const;
 
+	private:
+		void refreshParticlePartition(bool ignoreStatics = true) const;
+
 	public:
 		// Not from interface because they are intended to be used within simulation only (non thread safe)!
 		Storm::ParticleSystem& getParticleSystem(unsigned int id);
