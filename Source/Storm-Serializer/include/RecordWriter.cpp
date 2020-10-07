@@ -51,7 +51,11 @@ void Storm::RecordWriter::write(/*const*/ Storm::SerializeRecordPendingData &dat
 		Storm::throwException<std::exception>("We cannot write after we have ended the write!");
 	}
 
-	if (data._elements.size() != _header._particleSystemLayouts.size())
+	const std::size_t dataElementCount = data._elements.size();
+	if (!(
+		(_frameNumber > 0 && dataElementCount == _movingSystemCount) ||
+		(_frameNumber == 0 && dataElementCount == _header._particleSystemLayouts.size())
+		))
 	{
 		Storm::throwException<std::exception>(
 			"Layout of what to be recorded doesn't match the frame data.\n"

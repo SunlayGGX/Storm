@@ -79,7 +79,7 @@ namespace Storm
 
 	public:
 		void beginRecord() const;
-		void pushRecord(float currentPhysicsTime) const;
+		void pushRecord(float currentPhysicsTime, bool pushStatics) const;
 
 	public:
 		// Not from interface because they are intended to be used within simulation only (non thread safe)!

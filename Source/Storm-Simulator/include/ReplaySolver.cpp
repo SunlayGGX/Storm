@@ -31,6 +31,51 @@ namespace
 		result = vectBefore + (vectAfter - vectBefore) * coeff;
 	}
 #endif
+
+	template<bool remap, class CoefficientType>
+	void lerpFrames(std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &particleSystems, Storm::SerializeRecordPendingData &frameBefore, Storm::SerializeRecordPendingData &frameAfter, const CoefficientType &coefficient)
+	{
+		const std::size_t frameElementCount = frameAfter._elements.size();
+		for (std::size_t iter = 0; iter < frameElementCount; ++iter)
+		{
+			const auto &frameAfterElements = frameAfter._elements[iter];
+
+			const auto* frameBeforeElementsPtr = &frameBefore._elements[iter];
+			
+			if constexpr (remap)
+			{
+				if (frameBeforeElementsPtr->_systemId != frameAfterElements._systemId)
+				{
+					for (const auto &elementsBefore : frameBefore._elements)
+					{
+						if (elementsBefore._systemId == frameAfterElements._systemId)
+						{
+							frameBeforeElementsPtr = &elementsBefore;
+							break;
+						}
+					}
+				}
+			}
+
+			const auto &frameBeforeElements = *frameBeforeElementsPtr;
+
+			Storm::ParticleSystem &currentPSystem = *particleSystems[frameBeforeElements._systemId];
+			std::vector<Storm::Vector3> &allPositions = currentPSystem.getPositions();
+			std::vector<Storm::Vector3> &allVelocities = currentPSystem.getVelocity();
+			std::vector<Storm::Vector3> &allForces = currentPSystem.getForces();
+			std::vector<Storm::Vector3> &allPressureForce = currentPSystem.getTemporaryPressureForces();
+			std::vector<Storm::Vector3> &allViscosityForce = currentPSystem.getTemporaryViscosityForces();
+
+			Storm::runParallel(frameBeforeElements._positions, [&](const Storm::Vector3 &currentPPosition, const std::size_t currentPIndex)
+			{
+				lerp(currentPPosition, frameAfterElements._positions[currentPIndex], coefficient, allPositions[currentPIndex]);
+				lerp(frameBeforeElements._velocities[currentPIndex], frameAfterElements._velocities[currentPIndex], coefficient, allVelocities[currentPIndex]);
+				lerp(frameBeforeElements._forces[currentPIndex], frameAfterElements._forces[currentPIndex], coefficient, allForces[currentPIndex]);
+				lerp(frameBeforeElements._pressureComponentforces[currentPIndex], frameAfterElements._pressureComponentforces[currentPIndex], coefficient, allPressureForce[currentPIndex]);
+				lerp(frameBeforeElements._viscosityComponentforces[currentPIndex], frameAfterElements._viscosityComponentforces[currentPIndex], coefficient, allViscosityForce[currentPIndex]);
+			});
+		}
+	}
 }
 
 
@@ -124,27 +169,15 @@ bool Storm::ReplaySolver::replayCurrentNextFrame(std::map<unsigned int, std::uni
 		const float coefficient = 1.f - ((frameAfter._physicsTime - currentTime) / frameDiffTime);
 #endif
 
-		const std::size_t frameElementCount = frameBefore._elements.size();
-		for (std::size_t iter = 0; iter < frameElementCount; ++iter)
+		// The first frame is different because it contains static rigid bodies while the other frames doesn't contains them.
+		// It results in a mismatch of index when reading the frames element by their index in the array. Therefore, we should remap in case of a size mismatch.
+		if (frameBefore._elements.size() == frameAfter._elements.size())
 		{
-			const auto &frameBeforeElements = frameBefore._elements[iter];
-			const auto &frameAfterElements = frameAfter._elements[iter];
-
-			Storm::ParticleSystem &currentPSystem = *particleSystems[frameBeforeElements._systemId];
-			std::vector<Storm::Vector3> &allPositions = currentPSystem.getPositions();
-			std::vector<Storm::Vector3> &allVelocities = currentPSystem.getVelocity();
-			std::vector<Storm::Vector3> &allForces = currentPSystem.getForces();
-			std::vector<Storm::Vector3> &allPressureForce = currentPSystem.getTemporaryPressureForces();
-			std::vector<Storm::Vector3> &allViscosityForce = currentPSystem.getTemporaryViscosityForces();
-
-			Storm::runParallel(frameBeforeElements._positions, [&](const Storm::Vector3 &currentPPosition, const std::size_t currentPIndex)
-			{
-				lerp(currentPPosition, frameAfterElements._positions[currentPIndex], coefficient, allPositions[currentPIndex]);
-				lerp(frameBeforeElements._velocities[currentPIndex], frameAfterElements._velocities[currentPIndex], coefficient, allVelocities[currentPIndex]);
-				lerp(frameBeforeElements._forces[currentPIndex], frameAfterElements._forces[currentPIndex], coefficient, allForces[currentPIndex]);
-				lerp(frameBeforeElements._pressureComponentforces[currentPIndex], frameAfterElements._pressureComponentforces[currentPIndex], coefficient, allPressureForce[currentPIndex]);
-				lerp(frameBeforeElements._viscosityComponentforces[currentPIndex], frameAfterElements._viscosityComponentforces[currentPIndex], coefficient, allViscosityForce[currentPIndex]);
-			});
+			lerpFrames<false>(particleSystems, frameBefore, frameAfter, coefficient);
+		}
+		else
+		{
+			lerpFrames<true>(particleSystems, frameBefore, frameAfter, coefficient);
 		}
 
 		timeMgr.setCurrentPhysicsElapsedTime(nextFrameTime);

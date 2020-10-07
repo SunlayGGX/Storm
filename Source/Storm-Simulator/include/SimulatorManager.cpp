@@ -624,7 +624,7 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 
 		// Record the first frame which is the time 0 (the start).
 		const float currentPhysicsTime = timeMgr.getCurrentPhysicsElapsedTime();
-		this->pushRecord(currentPhysicsTime);
+		this->pushRecord(currentPhysicsTime, true);
 		Storm::ReplaySolver::computeNextRecordTime(nextRecordTime, currentPhysicsTime, recordConfig);
 	}
 
@@ -694,7 +694,7 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 		{
 			if (currentPhysicsTime >= nextRecordTime)
 			{
-				this->pushRecord(currentPhysicsTime);
+				this->pushRecord(currentPhysicsTime, false);
 				Storm::ReplaySolver::computeNextRecordTime(nextRecordTime, currentPhysicsTime, recordConfig);
 			}
 		}
@@ -1147,7 +1147,7 @@ void Storm::SimulatorManager::beginRecord() const
 	serializerMgr.beginRecord(std::move(recordHeader));
 }
 
-void Storm::SimulatorManager::pushRecord(float currentPhysicsTime) const
+void Storm::SimulatorManager::pushRecord(float currentPhysicsTime, bool pushStatics) const
 {
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 	const Storm::RecordConfigData &recordConfig = singletonHolder.getSingleton<Storm::IConfigManager>().getRecordConfigData();
@@ -1159,14 +1159,17 @@ void Storm::SimulatorManager::pushRecord(float currentPhysicsTime) const
 	{
 		const Storm::ParticleSystem &pSystemRef = *particleSystemPair.second;
 
-		Storm::SerializeRecordElementsData &framePSystemElementData = currentFrameData._elements.emplace_back();
+		if (pushStatics || !pSystemRef.isStatic())
+		{
+			Storm::SerializeRecordElementsData &framePSystemElementData = currentFrameData._elements.emplace_back();
 
-		framePSystemElementData._systemId = particleSystemPair.first;
-		framePSystemElementData._positions = pSystemRef.getPositions();
-		framePSystemElementData._velocities = pSystemRef.getVelocity();
-		framePSystemElementData._forces = pSystemRef.getForces();
-		framePSystemElementData._pressureComponentforces = pSystemRef.getTemporaryPressureForces();
-		framePSystemElementData._viscosityComponentforces = pSystemRef.getTemporaryViscosityForces();
+			framePSystemElementData._systemId = particleSystemPair.first;
+			framePSystemElementData._positions = pSystemRef.getPositions();
+			framePSystemElementData._velocities = pSystemRef.getVelocity();
+			framePSystemElementData._forces = pSystemRef.getForces();
+			framePSystemElementData._pressureComponentforces = pSystemRef.getTemporaryPressureForces();
+			framePSystemElementData._viscosityComponentforces = pSystemRef.getTemporaryViscosityForces();
+		}
 	}
 
 	Storm::ISerializerManager &serializerMgr = singletonHolder.getSingleton<Storm::ISerializerManager>();

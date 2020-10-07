@@ -57,7 +57,16 @@ bool Storm::RecordReader::readNextFrame_v1_0_0(Storm::SerializeRecordPendingData
 
 	_package << outPendingData._physicsTime;
 
-	outPendingData._elements.resize(_header._particleSystemLayouts.size());
+	if (frameNumber == 0)
+	{
+		// If it is the first frame, then we would have all particles from all rigid bodies (static rigid bodies included).
+		outPendingData._elements.resize(_header._particleSystemLayouts.size());
+	}
+	else
+	{
+		// The other frame have only the particle system that are allowed to move (gain some spaces).
+		outPendingData._elements.resize(_movingSystemCount);
+	}
 
 	for (Storm::SerializeRecordElementsData &frameData : outPendingData._elements)
 	{
