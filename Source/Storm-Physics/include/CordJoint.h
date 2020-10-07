@@ -14,7 +14,7 @@ namespace Storm
 		CordJoint(const Storm::ConstraintData &data, physx::PxRigidActor* actor1, physx::PxRigidActor* actor2);
 
 	public:
-		void appendJointPositionToArray(std::vector<Storm::Vector3> &inOutJointPositions) const;
+		void getJointPositionToArray(Storm::Vector3 &outPos1, Storm::Vector3 &outPos2) const;
 
 	private:
 		Storm::UniquePointer<physx::PxJoint> _internalDistanceJointPtr;

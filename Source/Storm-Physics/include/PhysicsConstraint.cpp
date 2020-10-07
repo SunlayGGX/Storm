@@ -17,9 +17,15 @@ Storm::PhysicsConstraint::~PhysicsConstraint() = default;
 
 void Storm::PhysicsConstraint::appendJointPositionToArray(std::vector<Storm::Vector3> &inOutJointPositions) const
 {
+	Storm::Vector3 pos1;
+	Storm::Vector3 pos2;
+
+	_cordJointPtr->getJointPositionToArray(pos1, pos2);
+
 	if (_shouldVisualize)
 	{
-		_cordJointPtr->appendJointPositionToArray(inOutJointPositions);
+		inOutJointPositions.emplace_back(pos1);
+		inOutJointPositions.emplace_back(pos2);
 	}
 }
 

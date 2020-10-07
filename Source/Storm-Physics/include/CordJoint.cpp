@@ -16,7 +16,7 @@ Storm::CordJoint::CordJoint(const Storm::ConstraintData &data, physx::PxRigidAct
 	}
 }
 
-void Storm::CordJoint::appendJointPositionToArray(std::vector<Storm::Vector3> &inOutJointPositions) const
+void Storm::CordJoint::getJointPositionToArray(Storm::Vector3 &outPos1, Storm::Vector3 &outPos2) const
 {
 	physx::PxRigidActor* actor0;
 	physx::PxRigidActor* actor1;
@@ -28,6 +28,6 @@ void Storm::CordJoint::appendJointPositionToArray(std::vector<Storm::Vector3> &i
 	physx::PxTransform jointTransformActor0 = _internalDistanceJointPtr->getLocalPose(physx::PxJointActorIndex::Enum::eACTOR0);
 	physx::PxTransform jointTransformActor1 = _internalDistanceJointPtr->getLocalPose(physx::PxJointActorIndex::Enum::eACTOR1);
 
-	inOutJointPositions.emplace_back(Storm::convertToStorm(actor0GlobalPos.p + jointTransformActor0.p));
-	inOutJointPositions.emplace_back(Storm::convertToStorm(actor1GlobalPos.p + jointTransformActor1.p));
+	outPos1 = Storm::convertToStorm(actor0GlobalPos.p + jointTransformActor0.p);
+	outPos2 = Storm::convertToStorm(actor1GlobalPos.p + jointTransformActor1.p);
 }
