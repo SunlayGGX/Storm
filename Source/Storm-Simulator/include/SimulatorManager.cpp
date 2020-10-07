@@ -965,7 +965,7 @@ bool Storm::SimulatorManager::shouldRegisterTemporaryForces() const
 		switch (recordConfig._recordMode)
 		{
 		case Storm::RecordMode::None:
-			return false;
+			return _raycastEnabled;
 
 		case Storm::RecordMode::Record:
 		case Storm::RecordMode::Replay:
