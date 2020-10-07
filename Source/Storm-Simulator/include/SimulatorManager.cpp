@@ -415,14 +415,19 @@ void Storm::SimulatorManager::initialize_Implementation()
 				{
 					const Storm::RaycastHitResult &firstHit = result[0];
 
-					hasMadeSelectionChanges = _particleSelector.setParticleSelection(firstHit._systemId, firstHit._particleId);
-
 					LOG_DEBUG <<
 						"Raycast touched particle " << firstHit._particleId << " inside system id " << firstHit._systemId << "\n"
 						"Hit Position : " << firstHit._hitPosition;
 
+					hasMadeSelectionChanges = _particleSelector.setParticleSelection(firstHit._systemId, firstHit._particleId);
 					if (hasMadeSelectionChanges)
 					{
+						const Storm::ParticleSystem &selectedPSystem = *_particleSystem[firstHit._systemId];
+
+						_particleSelector.setSelectedParticleSumForce(selectedPSystem.getForces()[firstHit._particleId]);
+						_particleSelector.setSelectedParticlePressureForce(selectedPSystem.getTemporaryPressureForces()[firstHit._particleId]);
+						_particleSelector.setSelectedParticleViscosityForce(selectedPSystem.getTemporaryViscosityForces()[firstHit._particleId]);
+
 						_particleSelector.logForceComponents();
 					}
 				}
