@@ -373,13 +373,19 @@ Storm::UniquePointer<physx::PxJoint> Storm::PhysXHandler::createDistanceJoint(co
 
 	Storm::UniquePointer<physx::PxJoint> result{ tmp };
 
+	tmp->setConstraintFlag(physx::PxConstraintFlag::Enum::eCOLLISION_ENABLED, true);
+	tmp->setConstraintFlag(physx::PxConstraintFlag::Enum::eENABLE_EXTENDED_LIMITS, false);
+
 	const float maxDistance = constraintData._constraintsLength;
-	tmp->setMaxDistance(maxDistance);
-	tmp->setDistanceJointFlag(physx::PxDistanceJointFlag::eMAX_DISTANCE_ENABLED, true);
+
 	tmp->setDistanceJointFlag(physx::PxDistanceJointFlag::eSPRING_ENABLED, false);
 
-	tmp->setConstraintFlag(physx::PxConstraintFlag::Enum::eCOLLISION_ENABLED, true);
-	tmp->setConstraintFlag(physx::PxConstraintFlag::Enum::eENABLE_EXTENDED_LIMITS, true);
+	tmp->setMaxDistance(maxDistance);
+	tmp->setTolerance(0.f);
+	tmp->setStiffness(PX_MAX_F32);
+	tmp->setDamping(PX_MAX_F32);
+	tmp->setDistanceJointFlag(physx::PxDistanceJointFlag::eMAX_DISTANCE_ENABLED, true);
+	tmp->setDistanceJointFlag(physx::PxDistanceJointFlag::eMIN_DISTANCE_ENABLED, false);
 
 	return result;
 }
