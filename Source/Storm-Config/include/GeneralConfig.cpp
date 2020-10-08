@@ -44,7 +44,9 @@ Storm::GeneralConfig::GeneralConfig() :
 	_shouldLogGraphicDeviceMessage{ false },
 	_shouldLogPhysics{ false },
 	_profileSimulationSpeed{ false },
-	_allowNoFluid{ false }
+	_allowNoFluid{ false },
+	_wantedApplicationXPos{ std::numeric_limits<int>::max() },
+	_wantedApplicationYPos{ std::numeric_limits<int>::max() }
 {
 
 }
@@ -93,6 +95,8 @@ bool Storm::GeneralConfig::read(const std::string &generalConfigFilePathStr)
 					if (
 						!Storm::XmlReader::handleXml(graphicXmlElement, "screenWidth", _wantedApplicationWidth) &&
 						!Storm::XmlReader::handleXml(graphicXmlElement, "screenHeight", _wantedApplicationHeight) &&
+						!Storm::XmlReader::handleXml(graphicXmlElement, "screenX", _wantedApplicationXPos) &&
+						!Storm::XmlReader::handleXml(graphicXmlElement, "screenY", _wantedApplicationYPos) &&
 						!Storm::XmlReader::handleXml(graphicXmlElement, "fontSize", _fontSize)
 						)
 					{

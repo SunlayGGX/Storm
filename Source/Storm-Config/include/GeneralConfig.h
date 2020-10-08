@@ -29,6 +29,8 @@ namespace Storm
 		// Graphics
 		unsigned int _wantedApplicationWidth;
 		unsigned int _wantedApplicationHeight;
+		int _wantedApplicationXPos;
+		int _wantedApplicationYPos;
 		float _fontSize;
 
 		// Profile

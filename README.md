@@ -183,6 +183,8 @@ Note that the maximum value you can set is Fatal, it means that no matter what l
 #### Graphics (facultative)
 - **screenWidth (unsigned integer, facultative)** : Set the expected windows width at startup. Note that it could be something else near this value... Default is 1200.
 - **screenHeight (unsigned integer, facultative)** : Set the expected windows height at startup. Note that it could be something else near this value... Default is 800.
+- **screenX (integer, facultative)** : Set the expected windows x position at startup. If it is unset (default), then a default value will be chosen from the OS...
+- **screenY (integer, facultative)** : Set the expected windows y position at startup. If it is unset (default), then a default value will be chosen from the OS...
 - **fontSize (unsigned integer, facultative)** : the font size of any written information displayed in the HUD... Default is 16.
 
 

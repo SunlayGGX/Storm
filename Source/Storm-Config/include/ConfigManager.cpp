@@ -298,6 +298,16 @@ unsigned int Storm::ConfigManager::getWantedScreenHeight() const
 	return _generalConfig._wantedApplicationHeight;
 }
 
+int Storm::ConfigManager::getWantedScreenXPosition() const
+{
+	return _generalConfig._wantedApplicationXPos;
+}
+
+int Storm::ConfigManager::getWantedScreenYPosition() const
+{
+	return _generalConfig._wantedApplicationYPos;
+}
+
 float Storm::ConfigManager::getFontSize() const
 {
 	return _generalConfig._fontSize;
