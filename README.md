@@ -183,6 +183,8 @@ Note that the maximum value you can set is Fatal, it means that no matter what l
 #### Graphics (facultative)
 - **screenWidth (unsigned integer, facultative)** : Set the expected windows width at startup. Note that it could be something else near this value... Default is 1200.
 - **screenHeight (unsigned integer, facultative)** : Set the expected windows height at startup. Note that it could be something else near this value... Default is 800.
+- **screenX (integer, facultative)** : Set the expected windows x position at startup. If it is unset (default), then a default value will be chosen from the OS...
+- **screenY (integer, facultative)** : Set the expected windows y position at startup. If it is unset (default), then a default value will be chosen from the OS...
 - **fontSize (unsigned integer, facultative)** : the font size of any written information displayed in the HUD... Default is 16.
 
 
@@ -240,6 +242,7 @@ Unlike the others config files, it can be named as you want. Here the xml tags y
 #### Record
 - **recordFps (float, semi-facultative)**: This is the record fps. It becomes mandatory if the Simulator is started in Record mode.
 - **recordFile (string, facultative, accept macros)**: Specify the path the recording will be. This path will be used in case it wasn't set from the command line.
+- **replayRealTime (boolean, facultative)**: Fix the replay to be the nearest possible from a real time replay. It means that the simulation speed will try to be as near as possible to 1.0. Default is true.
 
 
 #### Fluid

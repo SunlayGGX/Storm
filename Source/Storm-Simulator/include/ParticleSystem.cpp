@@ -18,17 +18,49 @@ Storm::ParticleSystem::ParticleSystem(unsigned int particleSystemIndex, std::vec
 	_particleSystemIndex{ particleSystemIndex },
 	_isDirty{ true }
 {
-	const std::size_t particleCount = _positions.size();
-	const float particleVolume = computeParticleDefaultVolume();
+	this->initParticlesCount(_positions.size());
+}
 
+Storm::ParticleSystem::ParticleSystem(unsigned int particleSystemIndex, const std::size_t particleCount) :
+	_particleSystemIndex{ particleSystemIndex },
+	_isDirty{ true }
+{
+	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
+	if (!configMgr.isInReplayMode())
+	{
+		Storm::throwException<std::exception>(__FUNCSIG__ " is to be used only in replay mode!");
+	}
+
+	this->resizeParticlesCount(particleCount);
+}
+
+void Storm::ParticleSystem::initParticlesCount(const std::size_t particleCount)
+{
 	_velocity.resize(particleCount, Storm::Vector3::Zero());
 	_force.resize(particleCount, Storm::Vector3::Zero());
-	_neighborhood.resize(particleCount);
 
-	for (auto &neighborHoodArray : _neighborhood)
+	const bool replayMode = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().isInReplayMode();
+	if (!replayMode)
 	{
-		neighborHoodArray.reserve(64);
+		_neighborhood.resize(particleCount);
+
+		for (auto &neighborHoodArray : _neighborhood)
+		{
+			neighborHoodArray.reserve(64);
+		}
 	}
+
+	if (Storm::SimulatorManager::instance().shouldRegisterTemporaryForces())
+	{
+		_tmpPressureForce.resize(particleCount, Storm::Vector3::Zero());
+		_tmpViscosityForce.resize(particleCount, Storm::Vector3::Zero());
+	}
+}
+
+void Storm::ParticleSystem::resizeParticlesCount(const std::size_t particleCount)
+{
+	_positions.resize(particleCount);
+	this->initParticlesCount(particleCount);
 }
 
 std::vector<Storm::Vector3>& Storm::ParticleSystem::getPositions() noexcept
@@ -54,6 +86,26 @@ std::vector<Storm::Vector3>& Storm::ParticleSystem::getVelocity() noexcept
 const std::vector<Storm::Vector3>& Storm::ParticleSystem::getForces() const noexcept
 {
 	return _force;
+}
+
+const std::vector<Storm::Vector3>& Storm::ParticleSystem::getTemporaryPressureForces() const noexcept
+{
+	return _tmpPressureForce;
+}
+
+std::vector<Storm::Vector3>& Storm::ParticleSystem::getTemporaryPressureForces() noexcept
+{
+	return _tmpPressureForce;
+}
+
+const std::vector<Storm::Vector3>& Storm::ParticleSystem::getTemporaryViscosityForces() const noexcept
+{
+	return _tmpViscosityForce;
+}
+
+std::vector<Storm::Vector3>& Storm::ParticleSystem::getTemporaryViscosityForces() noexcept
+{
+	return _tmpViscosityForce;
 }
 
 std::vector<Storm::Vector3>& Storm::ParticleSystem::getForces() noexcept
@@ -108,21 +160,27 @@ void Storm::ParticleSystem::initializePreSimulation(const std::map<unsigned int,
 
 }
 
-void Storm::ParticleSystem::initializeIteration(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const std::vector<std::unique_ptr<Storm::IBlower>> &)
+void Storm::ParticleSystem::initializeIteration(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const std::vector<std::unique_ptr<Storm::IBlower>> &, const bool shouldRegisterTemporaryForce)
 {
 	_isDirty = false;
 
-#if defined(DEBUG) || defined(_DEBUG)
 	const std::size_t particleCount = _positions.size();
 
+	if (shouldRegisterTemporaryForce)
+	{
+		_tmpPressureForce.resize(particleCount);
+		_tmpViscosityForce.resize(particleCount);
+	}
+
+#if defined(DEBUG) || defined(_DEBUG)
+	const bool replayMode = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().isInReplayMode();
 	assert(
 		particleCount == _positions.size() &&
 		particleCount == _velocity.size() &&
 		particleCount == _force.size() &&
-		particleCount == _neighborhood.size() &&
+		(replayMode || particleCount == _neighborhood.size()) &&
 		"Particle count mismatch detected! An array of particle property has not the same particle count than the other!"
 	);
-	
 #endif
 
 	this->buildNeighborhood(allParticleSystems);

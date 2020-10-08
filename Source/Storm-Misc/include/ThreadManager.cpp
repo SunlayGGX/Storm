@@ -96,6 +96,22 @@ void Storm::ThreadManager::processCurrentThreadActions()
 	}
 }
 
+void Storm::ThreadManager::processActionsOfThread(Storm::ThreadEnumeration threadEnum)
+{
+	std::lock_guard<std::recursive_mutex> lock{ _mutex };
+	if (const auto foundThreadId = _threadIdMapping.find(threadEnum); foundThreadId != std::end(_threadIdMapping))
+	{
+		if (const auto executorFound = _toExecute.find(foundThreadId->second); executorFound != std::end(_toExecute))
+		{
+			executorFound->second->execute();
+		}
+	}
+	else
+	{
+		Storm::throwException<std::exception>("Thread with enumeration " + Storm::toStdString(threadEnum) + " was not registered to execute any callback!");
+	}
+}
+
 bool Storm::ThreadManager::isExecutingOnThread(Storm::ThreadEnumeration threadEnum) const
 {
 	std::lock_guard<std::recursive_mutex> lock{ _mutex };

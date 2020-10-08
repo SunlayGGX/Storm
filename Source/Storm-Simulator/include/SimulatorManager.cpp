@@ -10,6 +10,8 @@
 #include "ISpacePartitionerManager.h"
 #include "ITimeManager.h"
 #include "IRaycastManager.h"
+#include "ISerializerManager.h"
+
 #include "TimeWaitResult.h"
 
 #include "ParticleSystem.h"
@@ -18,9 +20,12 @@
 
 #include "GeneralSimulationData.h"
 #include "FluidData.h"
+#include "RecordConfigData.h"
 
 #include "SimulationMode.h"
 #include "KernelMode.h"
+#include "RecordMode.h"
+#include "ReplaySolver.h"
 
 #include "PartitionSelection.h"
 
@@ -47,6 +52,9 @@
 
 #include "RaycastQueryRequest.h"
 #include "RaycastHitResult.h"
+
+#include "SerializeRecordHeader.h"
+#include "SerializeRecordPendingData.h"
 
 #include "ExitCode.h"
 
@@ -334,15 +342,49 @@ void Storm::SimulatorManager::initialize_Implementation()
 {
 	LOG_COMMENT << "Initializing the simulator";
 
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+
 	/* initialize the Selector */
 
 	_particleSelector.initialize();
 
-	/* Initialize kernels */
+	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
+	const bool isReplayMode = configMgr.isInReplayMode();
 
-	Storm::initializeKernels(this->getKernelLength());
+	if (isReplayMode)
+	{
+		Storm::ISerializerManager &serializerMgr = singletonHolder.getSingleton<Storm::ISerializerManager>();
+		Storm::ITimeManager &timeMgr = singletonHolder.getSingleton<Storm::ITimeManager>();
 
-	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+		_frameBefore = std::make_unique<Storm::SerializeRecordPendingData>();
+		Storm::SerializeRecordPendingData &frameBefore = *_frameBefore;
+		const Storm::RecordConfigData &recordConfig = configMgr.getRecordConfigData();
+
+		if (!serializerMgr.obtainNextFrame(frameBefore))
+		{
+			LOG_ERROR << "There is no frame to simulate inside the current record. The application will stop.";
+		}
+
+		if (timeMgr.getExpectedFrameFPS() == recordConfig._recordFps)
+		{
+			Storm::ReplaySolver::transferFrameToParticleSystem_move(_particleSystem, frameBefore);
+		}
+		else
+		{
+			// We need the frameBefore afterward, therefore we will make copy...
+			Storm::ReplaySolver::transferFrameToParticleSystem_copy(_particleSystem, frameBefore);
+		}
+
+		this->pushParticlesToGraphicModule(true);
+	}
+	else
+	{
+		/* Initialize kernels */
+
+		Storm::initializeKernels(this->getKernelLength());
+	}
+
+	/* Initialize inputs */
 
 	Storm::IInputManager &inputMgr = singletonHolder.getSingleton<Storm::IInputManager>();
 	inputMgr.bindKey(Storm::SpecialKey::KC_F1, [this]() { this->printFluidParticleData(); });
@@ -351,10 +393,15 @@ void Storm::SimulatorManager::initialize_Implementation()
 	inputMgr.bindKey(Storm::SpecialKey::KC_Y, [this]() { this->cycleSelectedParticleDisplayMode(); });
 
 	Storm::IRaycastManager &raycastMgr = singletonHolder.getSingleton<Storm::IRaycastManager>();
-	inputMgr.bindMouseLeftClick([this, &raycastMgr, &singletonHolder](int xPos, int yPos, int width, int height)
+	inputMgr.bindMouseLeftClick([this, &raycastMgr, &singletonHolder, isReplayMode](int xPos, int yPos, int width, int height)
 	{
 		if (_raycastEnabled)
 		{
+			if (isReplayMode)
+			{
+				this->refreshParticlePartition();
+			}
+
 			raycastMgr.queryRaycast(Storm::Vector2{ xPos, yPos }, std::move(Storm::RaycastQueryRequest{ [this, &singletonHolder](std::vector<Storm::RaycastHitResult> &&result)
 			{
 				bool hasMadeSelectionChanges;
@@ -368,11 +415,21 @@ void Storm::SimulatorManager::initialize_Implementation()
 				{
 					const Storm::RaycastHitResult &firstHit = result[0];
 
-					hasMadeSelectionChanges = _particleSelector.setParticleSelection(firstHit._systemId, firstHit._particleId);
-
 					LOG_DEBUG <<
 						"Raycast touched particle " << firstHit._particleId << " inside system id " << firstHit._systemId << "\n"
 						"Hit Position : " << firstHit._hitPosition;
+
+					hasMadeSelectionChanges = _particleSelector.setParticleSelection(firstHit._systemId, firstHit._particleId);
+					if (hasMadeSelectionChanges)
+					{
+						const Storm::ParticleSystem &selectedPSystem = *_particleSystem[firstHit._systemId];
+
+						_particleSelector.setSelectedParticleSumForce(selectedPSystem.getForces()[firstHit._particleId]);
+						_particleSelector.setSelectedParticlePressureForce(selectedPSystem.getTemporaryPressureForces()[firstHit._particleId]);
+						_particleSelector.setSelectedParticleViscosityForce(selectedPSystem.getTemporaryViscosityForces()[firstHit._particleId]);
+
+						_particleSelector.logForceComponents();
+					}
 				}
 
 				if (hasMadeSelectionChanges && singletonHolder.getSingleton<Storm::ITimeManager>().getStateNoSyncWait() == Storm::TimeWaitResult::Pause)
@@ -385,10 +442,15 @@ void Storm::SimulatorManager::initialize_Implementation()
 		}
 	});
 
-	inputMgr.bindMouseMiddleClick([this, &raycastMgr, &singletonHolder](int xPos, int yPos, int width, int height)
+	inputMgr.bindMouseMiddleClick([this, &raycastMgr, &singletonHolder, isReplayMode](int xPos, int yPos, int width, int height)
 	{
 		if (_raycastEnabled)
 		{
+			if (isReplayMode)
+			{
+				this->refreshParticlePartition();
+			}
+
 			raycastMgr.queryRaycast(Storm::Vector2{ xPos, yPos }, std::move(Storm::RaycastQueryRequest{ [this, &singletonHolder](std::vector<Storm::RaycastHitResult> &&result)
 			{
 				if (result.empty())
@@ -425,6 +487,154 @@ void Storm::SimulatorManager::cleanUp_Implementation()
 
 Storm::ExitCode Storm::SimulatorManager::run()
 {
+	switch (Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().getRecordConfigData()._recordMode)
+	{
+	case Storm::RecordMode::None:
+	case Storm::RecordMode::Record:
+		return this->runSimulation_Internal();
+
+	case Storm::RecordMode::Replay:
+		return this->runReplay_Internal();
+
+	default:
+		__assume(false);
+		Storm::throwException<std::exception>("Unknown record mode!");
+	}
+}
+
+Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
+{
+	LOG_COMMENT << "Starting replay loop";
+
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+
+	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
+	const Storm::GeneralSimulationData &generalSimulationConfigData = configMgr.getGeneralSimulationData();
+
+	Storm::ITimeManager &timeMgr = singletonHolder.getSingleton<Storm::ITimeManager>();
+	Storm::IThreadManager &threadMgr = singletonHolder.getSingleton<Storm::IThreadManager>();
+	Storm::IProfilerManager* profilerMgrNullablePtr = configMgr.getShouldProfileSimulationSpeed() ? singletonHolder.getFacet<Storm::IProfilerManager>() : nullptr;
+
+	const Storm::RecordConfigData &recordConfig = configMgr.getRecordConfigData();
+	Storm::ISerializerManager &serializerMgr = singletonHolder.getSingleton<Storm::ISerializerManager>();
+
+	const bool autoEndSimulation = generalSimulationConfigData._endSimulationPhysicsTimeInSeconds != -1.f;
+	bool hasAutoEndSimulation = false;
+
+	unsigned int forcedPushFrameIterator = 0;
+
+	const float physicsFixedElapsedTime = 1.f / recordConfig._recordFps;
+	timeMgr.setCurrentPhysicsDeltaTime(physicsFixedElapsedTime);
+
+	Storm::SerializeRecordPendingData &frameBefore = *_frameBefore;
+	Storm::SerializeRecordPendingData frameAfter;
+
+	if (timeMgr.getExpectedFrameFPS() != recordConfig._recordFps)
+	{
+		frameAfter = frameBefore;
+	}
+
+	this->refreshParticlePartition(false);
+
+	const float expectedReplayFps = timeMgr.getExpectedFrameFPS();
+
+	const std::chrono::microseconds fullFrameWaitTime{ static_cast<std::chrono::microseconds::rep>(std::roundf(1000000.f / expectedReplayFps)) };
+	auto startFrame = std::chrono::high_resolution_clock::now();
+
+	do
+	{
+		Storm::TimeWaitResult simulationState;
+		if (recordConfig._replayRealTime)
+		{
+			const auto waitTimeCompensation = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - startFrame);
+			if (fullFrameWaitTime < waitTimeCompensation)
+			{
+				simulationState = timeMgr.getStateNoSyncWait();
+			}
+			else
+			{
+				simulationState = timeMgr.waitForTime(fullFrameWaitTime - waitTimeCompensation);
+			}
+
+			startFrame = std::chrono::high_resolution_clock::now();
+		}
+		else
+		{
+			simulationState = generalSimulationConfigData._simulationNoWait ? timeMgr.getStateNoSyncWait() : timeMgr.waitNextFrame();
+		}
+
+		switch (simulationState)
+		{
+		case Storm::TimeWaitResult::Exit:
+			if (hasAutoEndSimulation && profilerMgrNullablePtr)
+			{
+				LOG_COMMENT <<
+					"Simulation average speed was " <<
+					profilerMgrNullablePtr->getSpeedProfileAccumulatedTime() / static_cast<float>(forcedPushFrameIterator);
+			}
+
+			return _runExitCode;
+
+		case TimeWaitResult::Pause:
+			// Takes time to process messages that came from other threads.
+			threadMgr.processCurrentThreadActions();
+			continue;
+
+		case TimeWaitResult::Continue:
+		default:
+			break;
+		}
+
+		SpeedProfileBalist simulationSpeedProfile{ profilerMgrNullablePtr };
+
+		if (Storm::ReplaySolver::replayCurrentNextFrame(_particleSystem, frameBefore, frameAfter, recordConfig))
+		{
+			this->pushParticlesToGraphicModule(false);
+
+			for (const std::unique_ptr<Storm::IBlower> &blowerUPtr : _blowers)
+			{
+				blowerUPtr->advanceTime(physicsFixedElapsedTime);
+			}
+
+			if (autoEndSimulation)
+			{
+				const float currentPhysicsTime = timeMgr.getCurrentPhysicsElapsedTime();
+				hasAutoEndSimulation = currentPhysicsTime > generalSimulationConfigData._endSimulationPhysicsTimeInSeconds;
+			}
+		}
+		else if (autoEndSimulation)
+		{
+			hasAutoEndSimulation = true;
+		}
+		else
+		{
+			LOG_COMMENT << "Simulation has come to an halt because there is no more frame to replay.";
+			timeMgr.changeSimulationPauseState();
+		}
+
+		if (hasAutoEndSimulation)
+		{
+			timeMgr.quit();
+		}
+		else
+		{
+			if (_particleSelector.hasSelectedParticle())
+			{
+				const Storm::ParticleSystem &pSystem = *_particleSystem[_particleSelector.getSelectedParticleSystemId()];
+
+				const std::size_t selectedParticleIndex = _particleSelector.getSelectedParticleIndex();
+				_particleSelector.setSelectedParticlePressureForce(pSystem.getTemporaryPressureForces()[selectedParticleIndex]);
+				_particleSelector.setSelectedParticleViscosityForce(pSystem.getTemporaryViscosityForces()[selectedParticleIndex]);
+			}
+		}
+
+		++forcedPushFrameIterator;
+
+	} while (true);
+}
+
+Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
+{
 	LOG_COMMENT << "Starting simulation loop";
 
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
@@ -436,36 +646,32 @@ Storm::ExitCode Storm::SimulatorManager::run()
 
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
 	const Storm::GeneralSimulationData &generalSimulationConfigData = configMgr.getGeneralSimulationData();
-	
+
+	assert(!configMgr.isInReplayMode() && "runSimulation_Internal shouldn't be used in replay mode!");
+
 	Storm::IProfilerManager* profilerMgrNullablePtr = configMgr.getShouldProfileSimulationSpeed() ? singletonHolder.getFacet<Storm::IProfilerManager>() : nullptr;
-	
+
 	std::vector<Storm::SimulationCallback> tmpSimulationCallback;
 	tmpSimulationCallback.reserve(8);
 
 	this->pushParticlesToGraphicModule(true);
-	
-	for (auto &particleSystem : _particleSystem)
-	{
-		Storm::ParticleSystem &pSystem = *particleSystem.second;
 
-		Storm::PartitionSelection selection;
-		if (pSystem.isFluids())
-		{
-			selection = Storm::PartitionSelection::Fluid;
-		}
-		else if (pSystem.isStatic())
-		{
-			selection = Storm::PartitionSelection::StaticRigidBody;
-		}
-		else
-		{
-			selection = Storm::PartitionSelection::DynamicRigidBody;
-		}
-
-		spacePartitionerMgr.computeSpaceReordering(pSystem.getPositions(), selection, pSystem.getId());
-	}
+	this->refreshParticlePartition(false);
 
 	this->initializePreSimulation();
+
+	const Storm::RecordConfigData &recordConfig = configMgr.getRecordConfigData();
+	const bool shouldBeRecording = recordConfig._recordMode == Storm::RecordMode::Record;
+	float nextRecordTime = -1.f;
+	if (shouldBeRecording)
+	{
+		this->beginRecord();
+
+		// Record the first frame which is the time 0 (the start).
+		const float currentPhysicsTime = timeMgr.getCurrentPhysicsElapsedTime();
+		this->pushRecord(currentPhysicsTime, true);
+		Storm::ReplaySolver::computeNextRecordTime(nextRecordTime, currentPhysicsTime, recordConfig);
+	}
 
 	const bool autoEndSimulation = generalSimulationConfigData._endSimulationPhysicsTimeInSeconds != -1.f;
 	bool hasAutoEndSimulation = false;
@@ -483,8 +689,13 @@ Storm::ExitCode Storm::SimulatorManager::run()
 			if (hasAutoEndSimulation && profilerMgrNullablePtr)
 			{
 				LOG_COMMENT <<
-					"Simulation average speed was " << 
+					"Simulation average speed was " <<
 					profilerMgrNullablePtr->getSpeedProfileAccumulatedTime() / static_cast<float>(forcedPushFrameIterator);
+			}
+			if (shouldBeRecording)
+			{
+				Storm::ISerializerManager &serializerMgr = singletonHolder.getSingleton<Storm::ISerializerManager>();
+				serializerMgr.endRecord();
 			}
 			return _runExitCode;
 
@@ -523,6 +734,16 @@ Storm::ExitCode Storm::SimulatorManager::run()
 		threadMgr.processCurrentThreadActions();
 
 		float currentPhysicsTime = timeMgr.advanceCurrentPhysicsElapsedTime();
+
+		if (shouldBeRecording)
+		{
+			if (currentPhysicsTime >= nextRecordTime)
+			{
+				this->pushRecord(currentPhysicsTime, false);
+				Storm::ReplaySolver::computeNextRecordTime(nextRecordTime, currentPhysicsTime, recordConfig);
+			}
+		}
+
 		hasAutoEndSimulation = autoEndSimulation && currentPhysicsTime > generalSimulationConfigData._endSimulationPhysicsTimeInSeconds;
 		if (hasAutoEndSimulation)
 		{
@@ -542,7 +763,6 @@ void Storm::SimulatorManager::executeIteration(bool firstFrame, unsigned int for
 	Storm::ITimeManager &timeMgr = singletonHolder.getSingleton<Storm::ITimeManager>();
 	Storm::IPhysicsManager &physicsMgr = singletonHolder.getSingleton<Storm::IPhysicsManager>();
 	Storm::IThreadManager &threadMgr = singletonHolder.getSingleton<Storm::IThreadManager>();
-	Storm::ISpacePartitionerManager &spacePartitionerMgr = singletonHolder.getSingleton<Storm::ISpacePartitionerManager>();
 
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
 	const Storm::GeneralSimulationData &generalSimulationConfigData = configMgr.getGeneralSimulationData();
@@ -555,20 +775,7 @@ void Storm::SimulatorManager::executeIteration(bool firstFrame, unsigned int for
 
 	if (!firstFrame && forcedPushFrameIterator % generalSimulationConfigData._recomputeNeighborhoodStep == 0)
 	{
-		spacePartitionerMgr.clearSpaceReorderingNoStatic();
-		for (auto &particleSystem : _particleSystem)
-		{
-			// We don't need to regenerate statics rigid bodies.
-			Storm::ParticleSystem &pSystem = *particleSystem.second;
-			if (!pSystem.isStatic())
-			{
-				spacePartitionerMgr.computeSpaceReordering(
-					pSystem.getPositions(),
-					pSystem.isFluids() ? Storm::PartitionSelection::Fluid : Storm::PartitionSelection::DynamicRigidBody,
-					pSystem.getId()
-				);
-			}
-		}
+		this->refreshParticlePartition();
 	}
 
 	for (const std::unique_ptr<Storm::IBlower> &blowerUPtr : _blowers)
@@ -576,9 +783,11 @@ void Storm::SimulatorManager::executeIteration(bool firstFrame, unsigned int for
 		blowerUPtr->advanceTime(physicsElapsedDeltaTime);
 	}
 
+	const bool shouldRegisterTemporaryForce = this->shouldRegisterTemporaryForces();
+
 	for (auto &particleSystem : _particleSystem)
 	{
-		particleSystem.second->initializeIteration(_particleSystem, _blowers);
+		particleSystem.second->initializeIteration(_particleSystem, _blowers, shouldRegisterTemporaryForce);
 	}
 
 	bool runIterationAgain;
@@ -597,7 +806,7 @@ void Storm::SimulatorManager::executeIteration(bool firstFrame, unsigned int for
 		{
 			for (auto &particleSystem : _particleSystem)
 			{
-				particleSystem.second->revertToCurrentTimestep(_blowers);
+				particleSystem.second->revertToCurrentTimestep(_blowers, shouldRegisterTemporaryForce);
 			}
 		}
 		else
@@ -609,11 +818,11 @@ void Storm::SimulatorManager::executeIteration(bool firstFrame, unsigned int for
 		switch (generalSimulationConfigData._simulationMode)
 		{
 		case Storm::SimulationMode::WCSPH:
-			Storm::WCSPHSolver::execute(_particleSystem, kernelLength, _particleSelector);
+			Storm::WCSPHSolver::execute(_particleSystem, kernelLength, shouldRegisterTemporaryForce);
 			break;
 
 		case Storm::SimulationMode::PCISPH:
-			Storm::PCISPHSolver::execute(_particleSystem, kernelLength, _particleSelector);
+			Storm::PCISPHSolver::execute(_particleSystem, kernelLength, shouldRegisterTemporaryForce);
 			break;
 
 		default:
@@ -651,6 +860,15 @@ void Storm::SimulatorManager::executeIteration(bool firstFrame, unsigned int for
 		++iter;
 
 	} while (runIterationAgain && iter < maxCFLIteration && physicsElapsedDeltaTime < generalSimulationConfigData._maxCFLTime && physicsElapsedDeltaTime > getMinCLFTime());
+
+	if (_particleSelector.hasSelectedParticle())
+	{
+		const Storm::ParticleSystem &pSystem = *_particleSystem[_particleSelector.getSelectedParticleSystemId()];
+
+		const std::size_t selectedParticleIndex = _particleSelector.getSelectedParticleIndex();
+		_particleSelector.setSelectedParticlePressureForce(pSystem.getTemporaryPressureForces()[selectedParticleIndex]);
+		_particleSelector.setSelectedParticleViscosityForce(pSystem.getTemporaryViscosityForces()[selectedParticleIndex]);
+	}
 
 	// Update everything that should be updated once CFL iteration finished. 
 	for (auto &particleSystem : _particleSystem)
@@ -749,6 +967,26 @@ void Storm::SimulatorManager::refreshParticlesPosition()
 	}
 }
 
+bool Storm::SimulatorManager::shouldRegisterTemporaryForces() const
+{
+	if (!_particleSelector.hasSelectedParticle())
+	{
+		const Storm::RecordConfigData &recordConfig = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().getRecordConfigData();
+		switch (recordConfig._recordMode)
+		{
+		case Storm::RecordMode::None:
+			return _raycastEnabled;
+
+		case Storm::RecordMode::Record:
+		case Storm::RecordMode::Replay:
+		default:
+			return true;
+		}
+	}
+
+	return true;
+}
+
 void Storm::SimulatorManager::addFluidParticleSystem(unsigned int id, std::vector<Storm::Vector3> particlePositions)
 {
 	const std::size_t initialParticleCount = particlePositions.size();
@@ -774,6 +1012,26 @@ void Storm::SimulatorManager::addRigidBodyParticleSystem(unsigned int id, std::v
 	LOG_COMMENT << "Creating rigid body particle system with " << particlePositions.size() << " particles.";
 
 	addParticleSystemToMap<Storm::RigidBodyParticleSystem>(_particleSystem, id, std::move(particlePositions));
+
+	LOG_DEBUG << "Rigid body particle system " << id << " was created and successfully registered in simulator!";
+}
+
+void Storm::SimulatorManager::addFluidParticleSystem(unsigned int id, const std::size_t particleCount)
+{
+	LOG_COMMENT << "Creating fluid particle system with " << particleCount << " particles.";
+
+	assert(Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().isInReplayMode() && "This method is only to be used in replay mode!");
+	addParticleSystemToMap<Storm::FluidParticleSystem>(_particleSystem, id, particleCount);
+
+	LOG_DEBUG << "Fluid particle system " << id << " was created and successfully registered in simulator!";
+}
+
+void Storm::SimulatorManager::addRigidBodyParticleSystem(unsigned int id, const std::size_t particleCount)
+{
+	LOG_COMMENT << "Creating rigid body particle system with " << particleCount << " particles.";
+
+	assert(Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().isInReplayMode() && "This method is only to be used in replay mode!");
+	addParticleSystemToMap<Storm::RigidBodyParticleSystem>(_particleSystem, id, particleCount);
 
 	LOG_DEBUG << "Rigid body particle system " << id << " was created and successfully registered in simulator!";
 }
@@ -892,6 +1150,109 @@ void Storm::SimulatorManager::exitWithCode(Storm::ExitCode code)
 		_runExitCode = code;
 		singletonHolder.getSingleton<Storm::ITimeManager>().quit();
 	});
+}
+
+void Storm::SimulatorManager::beginRecord() const
+{
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+
+	const Storm::RecordConfigData &recordConfig = singletonHolder.getSingleton<Storm::IConfigManager>().getRecordConfigData();
+
+	Storm::SerializeRecordHeader recordHeader;
+	recordHeader._recordFrameRate = recordConfig._recordFps;
+
+	recordHeader._particleSystemLayouts.reserve(_particleSystem.size());
+	for (const auto &particleSystemPair : _particleSystem)
+	{
+		const Storm::ParticleSystem &pSystemRef = *particleSystemPair.second;
+
+		Storm::SerializeParticleSystemLayout &pSystemLayoutRef = recordHeader._particleSystemLayouts.emplace_back();
+
+		pSystemLayoutRef._particleSystemId = particleSystemPair.first;
+		pSystemLayoutRef._particlesCount = pSystemRef.getPositions().size();
+		pSystemLayoutRef._isFluid = pSystemRef.isFluids();
+		pSystemLayoutRef._isStatic = pSystemRef.isStatic();
+	}
+
+	Storm::ISerializerManager &serializerMgr = singletonHolder.getSingleton<Storm::ISerializerManager>();
+	serializerMgr.beginRecord(std::move(recordHeader));
+}
+
+void Storm::SimulatorManager::pushRecord(float currentPhysicsTime, bool pushStatics) const
+{
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	const Storm::RecordConfigData &recordConfig = singletonHolder.getSingleton<Storm::IConfigManager>().getRecordConfigData();
+
+	Storm::SerializeRecordPendingData currentFrameData;
+	currentFrameData._physicsTime = currentPhysicsTime;
+
+	for (const auto &particleSystemPair : _particleSystem)
+	{
+		const Storm::ParticleSystem &pSystemRef = *particleSystemPair.second;
+
+		if (pushStatics || !pSystemRef.isStatic())
+		{
+			Storm::SerializeRecordElementsData &framePSystemElementData = currentFrameData._elements.emplace_back();
+
+			framePSystemElementData._systemId = particleSystemPair.first;
+			framePSystemElementData._positions = pSystemRef.getPositions();
+			framePSystemElementData._velocities = pSystemRef.getVelocity();
+			framePSystemElementData._forces = pSystemRef.getForces();
+			framePSystemElementData._pressureComponentforces = pSystemRef.getTemporaryPressureForces();
+			framePSystemElementData._viscosityComponentforces = pSystemRef.getTemporaryViscosityForces();
+		}
+	}
+
+	Storm::ISerializerManager &serializerMgr = singletonHolder.getSingleton<Storm::ISerializerManager>();
+	serializerMgr.recordFrame(std::move(currentFrameData));
+}
+
+void Storm::SimulatorManager::refreshParticlePartition(bool ignoreStatics /*= true*/) const
+{
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	Storm::ISpacePartitionerManager &spacePartitionerMgr = singletonHolder.getSingleton<Storm::ISpacePartitionerManager>();
+
+	spacePartitionerMgr.clearSpaceReorderingNoStatic();
+	if (ignoreStatics)
+	{
+		for (auto &particleSystem : _particleSystem)
+		{
+			// We don't need to regenerate statics rigid bodies.
+			Storm::ParticleSystem &pSystem = *particleSystem.second;
+			if (!pSystem.isStatic())
+			{
+				spacePartitionerMgr.computeSpaceReordering(
+					pSystem.getPositions(),
+					pSystem.isFluids() ? Storm::PartitionSelection::Fluid : Storm::PartitionSelection::DynamicRigidBody,
+					pSystem.getId()
+				);
+			}
+		}
+	}
+	else
+	{
+		spacePartitionerMgr.clearSpaceReorderingForPartition(Storm::PartitionSelection::StaticRigidBody);
+		for (auto &particleSystem : _particleSystem)
+		{
+			Storm::ParticleSystem &pSystem = *particleSystem.second;
+
+			Storm::PartitionSelection selection;
+			if (pSystem.isFluids())
+			{
+				selection = Storm::PartitionSelection::Fluid;
+			}
+			else if (pSystem.isStatic())
+			{
+				selection = Storm::PartitionSelection::StaticRigidBody;
+			}
+			else
+			{
+				selection = Storm::PartitionSelection::DynamicRigidBody;
+			}
+
+			spacePartitionerMgr.computeSpaceReordering(pSystem.getPositions(), selection, pSystem.getId());
+		}
+	}
 }
 
 Storm::ParticleSystem& Storm::SimulatorManager::getParticleSystem(unsigned int id)

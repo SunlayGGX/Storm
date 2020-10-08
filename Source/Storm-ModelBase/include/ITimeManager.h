@@ -32,6 +32,13 @@ namespace Storm
 		// - TimeWaitResult::Continue if the TimeManager is still alive and the simulation isn't paused,
 		// - TimeWaitResult::Pause if the TimeManager is still alive but the simulation is paused
 		// - TimeWaitResult::Exit if the TimeManager has exited (therefore it is time to exit).
+		virtual Storm::TimeWaitResult waitForTime(std::chrono::microseconds timeToWait) = 0;
+
+		// Ask the current thread to wait for the refresh specified by timeToWait.
+		// Return value is : 
+		// - TimeWaitResult::Continue if the TimeManager is still alive and the simulation isn't paused,
+		// - TimeWaitResult::Pause if the TimeManager is still alive but the simulation is paused
+		// - TimeWaitResult::Exit if the TimeManager has exited (therefore it is time to exit).
 		virtual Storm::TimeWaitResult waitForTime(std::chrono::milliseconds timeToWait) = 0;
 
 
@@ -57,7 +64,6 @@ namespace Storm
 		virtual void setExpectedFrameFPS(float fps) = 0;
 
 		// Get the expected frame rate of the caller thread. This is not the physics frame rate but more like the simulation expected frame rate (the main thread run loop frame rate).
-		// Note that if the thread doesn't use the TimeManager to manage its loop, its fps would be equal to 0.
 		virtual float getExpectedFrameFPS() const = 0;
 
 		// Get the expected frame rate of the caller thread. This is not the physics frame rate but more like the simulation expected frame rate (the main thread run loop frame rate).
@@ -101,6 +107,9 @@ namespace Storm
 		// Advance the simulation physics time elapsed by the current physics time value.
 		// Returns the current time after advancing
 		virtual float advanceCurrentPhysicsElapsedTime() = 0;
+
+		// Manually set the physics elapsed time.
+		virtual void setCurrentPhysicsElapsedTime(float physicsElapsedTimeInSeconds) = 0;
 
 
 		/************************************************************************/

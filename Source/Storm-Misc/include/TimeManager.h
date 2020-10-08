@@ -26,6 +26,7 @@ namespace Storm
 
 	public:
 		Storm::TimeWaitResult waitNextFrame() final override;
+		Storm::TimeWaitResult waitForTime(std::chrono::microseconds timeToWait) final override;
 		Storm::TimeWaitResult waitForTime(std::chrono::milliseconds timeToWait) final override;
 		bool waitNextFrameOrExit() final override;
 		bool waitForTimeOrExit(std::chrono::milliseconds timeToWait) final override;
@@ -42,6 +43,7 @@ namespace Storm
 		float getCurrentPhysicsDeltaTime() const override;
 		bool setCurrentPhysicsDeltaTime(float deltaTimeInSeconds) final override;
 		float getCurrentPhysicsElapsedTime() const override;
+		void setCurrentPhysicsElapsedTime(float physicsElapsedTimeInSeconds) final override;
 		void increaseCurrentPhysicsElapsedTime(float timeIncreaseInSeconds) final override;
 		float advanceCurrentPhysicsElapsedTime() final override;
 

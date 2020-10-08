@@ -10,7 +10,12 @@ namespace Storm
 	{
 	public:
 		ParticleSystem(unsigned int particleSystemIndex, std::vector<Storm::Vector3> &&worldPositions);
+		ParticleSystem(unsigned int particleSystemIndex, const std::size_t particleCount);
 		virtual ~ParticleSystem() = default;
+
+	private:
+		void initParticlesCount(const std::size_t particleCount);
+		void resizeParticlesCount(const std::size_t particleCount);
 
 	public:
 		const std::vector<Storm::Vector3>& getPositions() const noexcept;
@@ -19,6 +24,11 @@ namespace Storm
 		std::vector<Storm::Vector3>& getVelocity() noexcept;
 		const std::vector<Storm::Vector3>& getForces() const noexcept;
 		std::vector<Storm::Vector3>& getForces() noexcept;
+
+		const std::vector<Storm::Vector3>& getTemporaryPressureForces() const noexcept;
+		std::vector<Storm::Vector3>& getTemporaryPressureForces() noexcept;
+		const std::vector<Storm::Vector3>& getTemporaryViscosityForces() const noexcept;
+		std::vector<Storm::Vector3>& getTemporaryViscosityForces() noexcept;
 
 		const std::vector<Storm::ParticleNeighborhoodArray>& getNeighborhoodArrays() const noexcept;
 		std::vector<Storm::ParticleNeighborhoodArray>& getNeighborhoodArrays() noexcept;
@@ -30,6 +40,13 @@ namespace Storm
 		virtual bool isWall() const noexcept = 0;
 
 		bool isDirty() const noexcept;
+
+		// Only to be used with replaying feature.
+		virtual void setPositions(std::vector<Storm::Vector3> &&positions) = 0;
+		virtual void setVelocity(std::vector<Storm::Vector3> &&velocities) = 0;
+		virtual void setForces(std::vector<Storm::Vector3> &&forces) = 0;
+		virtual void setTmpPressureForces(std::vector<Storm::Vector3> &&tmpPressureForces) = 0;
+		virtual void setTmpViscosityForces(std::vector<Storm::Vector3> &&tmpViscoForces) = 0;
 
 	private:
 		void buildNeighborhood(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems);
@@ -45,7 +62,7 @@ namespace Storm
 	public:
 		virtual void initializePreSimulation(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const float kernelLength);
 
-		virtual void initializeIteration(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const std::vector<std::unique_ptr<Storm::IBlower>> &blowers);
+		virtual void initializeIteration(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const std::vector<std::unique_ptr<Storm::IBlower>> &blowers, const bool shouldRegisterTemporaryForce);
 
 	public:
 		virtual bool computeVelocityChange(float deltaTimeInSec, float highVelocityThresholdSquared) = 0;
@@ -57,12 +74,16 @@ namespace Storm
 		static bool isElligibleNeighborParticle(const float kernelLengthSquared, const float normSquared);
 
 	public:
-		virtual void revertToCurrentTimestep(const std::vector<std::unique_ptr<Storm::IBlower>> &blowers) = 0;
+		virtual void revertToCurrentTimestep(const std::vector<std::unique_ptr<Storm::IBlower>> &blowers, const bool shouldRegisterTemporaryForce) = 0;
 
 	protected:
 		std::vector<Storm::Vector3> _positions;
 		std::vector<Storm::Vector3> _velocity;
 		std::vector<Storm::Vector3> _force;
+
+		// Tmp force value only valid if we're selecting a force, or if we are recording.
+		std::vector<Storm::Vector3> _tmpPressureForce;
+		std::vector<Storm::Vector3> _tmpViscosityForce;
 
 		// This contains the neighborhood per particle.
 		// Note : For static rigid body, it does not contain the static particles neighborhood because we use it only one time (when initializing the volume) and this is a huge lost of computation time !

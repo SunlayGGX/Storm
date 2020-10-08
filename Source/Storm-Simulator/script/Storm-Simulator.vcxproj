@@ -16,6 +16,7 @@
     <ClCompile Include="..\include\Kernel.cpp" />
     <ClCompile Include="..\include\ParticleSelector.cpp" />
     <ClCompile Include="..\include\ParticleSystem.cpp" />
+    <ClCompile Include="..\include\ReplaySolver.cpp" />
     <ClCompile Include="..\include\RigidBodyParticleSystem.cpp" />
     <ClCompile Include="..\include\SemiImplicitEulerSolver.cpp" />
     <ClCompile Include="..\include\SimulatorManager.cpp" />
@@ -38,6 +39,7 @@
     <ClInclude Include="..\include\ParticleSelector.h" />
     <ClInclude Include="..\include\ParticleSystem.h" />
     <ClInclude Include="..\include\ParticleSystemUtils.h" />
+    <ClInclude Include="..\include\ReplaySolver.h" />
     <ClInclude Include="..\include\RigidBodyParticleSystem.h" />
     <ClInclude Include="..\include\SemiImplicitEulerSolver.h" />
     <ClInclude Include="..\include\SimulatorManager.h" />

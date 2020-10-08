@@ -131,7 +131,8 @@ Storm::ConstraintData::ConstraintData() :
 Storm::RecordConfigData::RecordConfigData() :
 	_recordMode{ Storm::RecordMode::None },
 	_recordFps{ -1.f },
-	_recordFilePath{}
+	_recordFilePath{},
+	_replayRealTime{ true }
 {
 
 }

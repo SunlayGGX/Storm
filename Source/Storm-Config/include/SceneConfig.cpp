@@ -293,7 +293,8 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 		{
 			if (
 				!Storm::XmlReader::handleXml(recordXmlElement, "recordFps", recordConfigData._recordFps) &&
-				!Storm::XmlReader::handleXml(recordXmlElement, "recordFile", recordConfigData._recordFilePath)
+				!Storm::XmlReader::handleXml(recordXmlElement, "recordFile", recordConfigData._recordFilePath) &&
+				!Storm::XmlReader::handleXml(recordXmlElement, "replayRealTime", recordConfigData._replayRealTime)
 				)
 			{
 				LOG_ERROR << "tag '" << recordXmlElement.first << "' (inside Scene.Record) is unknown, therefore it cannot be handled";

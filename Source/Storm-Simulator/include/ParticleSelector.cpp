@@ -138,3 +138,12 @@ std::size_t Storm::ParticleSelector::getSelectedParticleIndex() const noexcept
 	return _selectedParticleData._selectedParticle.second;
 }
 
+void Storm::ParticleSelector::logForceComponents() const
+{
+	LOG_ALWAYS <<
+		"Particle Forces components are :\n"
+		"Pressure: " << _selectedParticleData._pressureForce << "\n"
+		"Viscosity: " << _selectedParticleData._viscosityForce << "\n"
+		"Sum : " << _selectedParticleData._externalSumForces;
+}
+

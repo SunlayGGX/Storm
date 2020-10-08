@@ -43,6 +43,12 @@
     <Filter Include="Source Files\General">
       <UniqueIdentifier>{ba2452b7-d414-4dcf-97b1-52604bdfbd7d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Record">
+      <UniqueIdentifier>{8362c870-2ae2-479c-94f8-3ff76aeefca9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Record">
+      <UniqueIdentifier>{d6180282-2bc5-4855-9742-ac1cf9ba45dc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-SimulatorPCH.cpp">
@@ -74,6 +80,9 @@
     </ClCompile>
     <ClCompile Include="..\include\ParticleSelector.cpp">
       <Filter>Source Files\General</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\ReplaySolver.cpp">
+      <Filter>Source Files\Record</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -127,6 +136,9 @@
     </ClInclude>
     <ClInclude Include="..\include\ParticleSelectionMode.h">
       <Filter>Header Files\General</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ReplaySolver.h">
+      <Filter>Header Files\Record</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

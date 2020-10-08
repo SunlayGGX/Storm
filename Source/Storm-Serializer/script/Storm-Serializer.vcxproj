@@ -12,6 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\RecordHandlerBase.cpp" />
+    <ClCompile Include="..\include\RecordPreHeaderSerializer.cpp" />
     <ClCompile Include="..\include\RecordReader.cpp" />
     <ClCompile Include="..\include\RecordWriter.cpp" />
     <ClCompile Include="..\include\SerializerManager.cpp" />
@@ -22,6 +23,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\RecordHandlerBase.h" />
+    <ClInclude Include="..\include\RecordPreHeaderSerializer.h" />
     <ClInclude Include="..\include\RecordPreHeader.h" />
     <ClInclude Include="..\include\RecordReader.h" />
     <ClInclude Include="..\include\RecordWriter.h" />

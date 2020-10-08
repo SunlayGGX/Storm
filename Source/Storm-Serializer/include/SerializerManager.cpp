@@ -18,7 +18,9 @@
 #include "RecordWriter.h"
 #include "RecordReader.h"
 
+#include "ThreadingSafety.h"
 #include "ThreadHelper.h"
+
 #include "InvertPeriod.h"
 
 
@@ -65,6 +67,9 @@ void Storm::SerializerManager::cleanUp_Implementation()
 {
 	LOG_COMMENT << "Serializer module Cleanup";
 	Storm::join(_serializeThread);
+
+	Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().processActionsOfThread(Storm::ThreadEnumeration::SerializerThread);
+	this->execute();
 }
 
 void Storm::SerializerManager::run()
@@ -139,14 +144,11 @@ void Storm::SerializerManager::processRecordQueue_Unchecked()
 {
 	do
 	{
-		this->processRecord(*_pendingRecord.front());
+		_recordWriter->write(*_pendingRecord.front());
 		_pendingRecord.pop();
 	} while(!_pendingRecord.empty());
-}
 
-void Storm::SerializerManager::processRecord(const Storm::SerializeRecordPendingData &record)
-{
-	_recordWriter->write(record);
+	_recordWriter->flush();
 }
 
 void Storm::SerializerManager::recordFrame(Storm::SerializeRecordPendingData &&frameRecord)
@@ -161,6 +163,8 @@ void Storm::SerializerManager::beginRecord(Storm::SerializeRecordHeader &&record
 {
 	Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::SerializerThread, [this, rec = std::move(recordHeader)]() mutable
 	{
+		std::lock_guard<std::mutex> lock{ _mutex };
+
 		if (!_recordReader)
 		{
 			if (!_recordWriter)
@@ -177,4 +181,44 @@ void Storm::SerializerManager::beginRecord(Storm::SerializeRecordHeader &&record
 			Storm::throwException<std::exception>("Cannot record and replay at the same time!");
 		}
 	});
+}
+
+void Storm::SerializerManager::endRecord()
+{
+	Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::SerializerThread, [this]() mutable
+	{
+		if (_recordWriter)
+		{
+			_recordWriter->endWrite();
+		}
+	});
+}
+
+const Storm::SerializeRecordHeader& Storm::SerializerManager::beginReplay()
+{
+	assert(isSimulationThread() && "this method should only be called from simulation thread.");
+
+	std::lock_guard<std::mutex> lock{ _mutex };
+	if (!_recordWriter)
+	{
+		if (!_recordReader)
+		{
+			_recordReader = std::make_unique<Storm::RecordReader>();
+			return _recordReader->getHeader();
+		}
+		else
+		{
+			Storm::throwException<std::exception>("We are already reading!");
+		}
+	}
+	else
+	{
+		Storm::throwException<std::exception>("Cannot record and replay at the same time!");
+	}
+}
+
+bool Storm::SerializerManager::obtainNextFrame(Storm::SerializeRecordPendingData &outPendingData) const
+{
+	assert(isSimulationThread() && "this method should only be called from simulation thread.");
+	return _recordReader->readNextFrame(outPendingData);
 }

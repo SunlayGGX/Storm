@@ -40,6 +40,8 @@ namespace Storm
 
 		unsigned int getWantedScreenWidth() const final override;
 		unsigned int getWantedScreenHeight() const final override;
+		int getWantedScreenXPosition() const final override;
+		int getWantedScreenYPosition() const final override;
 		float getFontSize() const final override;
 
 		bool shouldDisplayHelp() const;
@@ -54,6 +56,8 @@ namespace Storm
 		const std::vector<Storm::BlowerData>& getBlowersData() const final override;
 		const std::vector<Storm::ConstraintData>& getConstraintsData() const final override;
 		const Storm::RigidBodySceneData& getRigidBodyData(unsigned int rbId) const final override;
+
+		bool isInReplayMode() const noexcept final override;
 
 	private:
 		// Members that could be extracted from Command line.

@@ -20,17 +20,34 @@ namespace
 			Storm::binaryRead(inOutStream, outVal);
 		}
 	}
+
+	bool modalityIsSaving(Storm::SerializePackageCreationModality modality)
+	{
+		switch (modality)
+		{
+		case Storm::SerializePackageCreationModality::SavingNew:
+		case Storm::SerializePackageCreationModality::SavingAppend:
+		case Storm::SerializePackageCreationModality::SavingAppendPreheaderProvidedAfter:
+			return true;
+		case Storm::SerializePackageCreationModality::Loading:
+		case Storm::SerializePackageCreationModality::LoadingManual:
+			return false;
+
+		default:
+			Storm::throwException<std::exception>("Unknown serialize package creation modality");
+		}
+	}
 }
 
 
 Storm::SerializePackage::SerializePackage(Storm::SerializePackageCreationModality modality, const std::string &packageFilePath) :
-	_isSaving{ modality != SerializePackageCreationModality::Loading },
+	_isSaving{ modalityIsSaving(modality) },
 	_filePath{ packageFilePath }
 {
-	if (std::filesystem::exists(packageFilePath))
+	if (_isSaving || std::filesystem::exists(packageFilePath))
 	{
 		int openFlag = std::ios_base::binary;
-		openFlag |= (_isSaving ? std::ios_base::in : std::ios_base::out);
+		openFlag |= (_isSaving ? std::ios_base::out : std::ios_base::in);
 
 		switch (modality)
 		{
@@ -42,11 +59,19 @@ Storm::SerializePackage::SerializePackage(Storm::SerializePackageCreationModalit
 
 		case Storm::SerializePackageCreationModality::SavingNew:
 		case Storm::SerializePackageCreationModality::Loading:
+		case Storm::SerializePackageCreationModality::LoadingManual:
 		default:
 			break;
 		}
 
 		_file.open(packageFilePath, openFlag);
+
+		if (!_file.is_open())
+		{
+			std::string errorMsg = "Unexpected error happened when trying to open " + packageFilePath + "!";
+			LOG_ERROR << errorMsg;
+			Storm::throwException<std::exception>(errorMsg);
+		}
 	}
 	else
 	{
@@ -55,7 +80,7 @@ Storm::SerializePackage::SerializePackage(Storm::SerializePackageCreationModalit
 		Storm::throwException<std::exception>(errorMsg);
 	}
 
-	if (modality != SerializePackageCreationModality::SavingAppendPreheaderProvidedAfter)
+	if (modality != SerializePackageCreationModality::SavingAppendPreheaderProvidedAfter && modality != SerializePackageCreationModality::LoadingManual)
 	{
 		Storm::Version currentVersion = Storm::Version::retrieveCurrentStormVersion();
 		if (_isSaving)
@@ -181,4 +206,9 @@ void Storm::SerializePackage::seekAbsolute(std::size_t newPos)
 const std::string& Storm::SerializePackage::getFilePath() const noexcept
 {
 	return _filePath;
+}
+
+void Storm::SerializePackage::flush()
+{
+	_file.flush();
 }

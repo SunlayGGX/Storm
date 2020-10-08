@@ -9,6 +9,7 @@
 #include "SceneData.h"
 #include "RigidBodySceneData.h"
 #include "RecordConfigData.h"
+#include "GeneralSimulationData.h"
 
 #include "RecordMode.h"
 
@@ -171,13 +172,30 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 
 		if (!recordModeStr.empty() && recordConfigData._recordMode != Storm::RecordMode::None)
 		{
-			Storm::throwException<std::exception>("Unknown record mode command line tag \"" + recordModeStr + '"');
+			switch (recordConfigData._recordMode)
+			{
+			case Storm::RecordMode::None:
+				LOG_COMMENT << "Simulator in normal mode requested (no record or replay).";
+				break;
+
+			case Storm::RecordMode::Record:
+				LOG_COMMENT << "Simulator in record mode requested.";
+				break;
+
+			case Storm::RecordMode::Replay:
+				LOG_COMMENT << "Simulator in replay mode requested.";
+				break;
+
+			default:
+				Storm::throwException<std::exception>("Unknown record mode command line tag \"" + recordModeStr + '"');
+			}
 		}
 
 		std::string recordFilePath;
 		switch (recordConfigData._recordMode)
 		{
 		case Storm::RecordMode::Record:
+		{
 			recordFilePath = parser.getRecordFilePath();
 			if (!recordFilePath.empty())
 			{
@@ -192,10 +210,15 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 			{
 				Storm::throwException<std::exception>("Record fps wasn't set while we should be recording. We should always set one!");
 			}
-			std::filesystem::remove_all(recordConfigData._recordFilePath);
+
+			const std::filesystem::path recordFilePath{ recordConfigData._recordFilePath };
+			std::filesystem::remove_all(recordFilePath);
+			std::filesystem::create_directories(recordFilePath.parent_path());
 			break;
+		}
 
 		case Storm::RecordMode::Replay:
+		{
 			recordFilePath = parser.getRecordFilePath();
 			if (!recordFilePath.empty())
 			{
@@ -206,7 +229,20 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 			{
 				Storm::throwException<std::exception>(recordConfigData._recordFilePath + " doesn't exist or isn't a regular record file!");
 			}
+
+			Storm::GeneralSimulationData &generalConfigData = *_sceneConfig.getSceneData()._generalSimulationData;
+			if (recordConfigData._replayRealTime && generalConfigData._simulationNoWait)
+			{
+				LOG_WARNING <<
+					"replayRealTime and simulationNoWait are both enabled.\n"
+					"These are 2 opposite flags, except the simulationNoWait is general to all modes while replayRealTime is only for replay mode.\n"
+					"Therefore, since we are in replay mode. replayRealTime take precedence.";
+
+				generalConfigData._simulationNoWait = false;
+			}
+
 			break;
+		}
 
 		case Storm::RecordMode::None:
 		default:
@@ -260,6 +296,16 @@ unsigned int Storm::ConfigManager::getWantedScreenWidth() const
 unsigned int Storm::ConfigManager::getWantedScreenHeight() const
 {
 	return _generalConfig._wantedApplicationHeight;
+}
+
+int Storm::ConfigManager::getWantedScreenXPosition() const
+{
+	return _generalConfig._wantedApplicationXPos;
+}
+
+int Storm::ConfigManager::getWantedScreenYPosition() const
+{
+	return _generalConfig._wantedApplicationYPos;
 }
 
 float Storm::ConfigManager::getFontSize() const
@@ -371,4 +417,9 @@ bool Storm::ConfigManager::getShouldLogGraphicDeviceMessage() const
 bool Storm::ConfigManager::getShouldLogPhysics() const
 {
 	return _generalConfig._shouldLogPhysics;
+}
+
+bool Storm::ConfigManager::isInReplayMode() const noexcept
+{
+	return _sceneConfig.getSceneData()._recordConfigData->_recordMode == Storm::RecordMode::Replay;
 }

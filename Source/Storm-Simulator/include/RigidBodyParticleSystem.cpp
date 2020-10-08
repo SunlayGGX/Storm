@@ -57,6 +57,18 @@ Storm::RigidBodyParticleSystem::RigidBodyParticleSystem(unsigned int particleSys
 	_volumes.resize(particleCount);
 }
 
+Storm::RigidBodyParticleSystem::RigidBodyParticleSystem(unsigned int particleSystemIndex, const std::size_t particleCount) :
+	Storm::ParticleSystem{ particleSystemIndex, particleCount },
+	_cachedTrackedRbRotationQuat{ Storm::Quaternion::Identity() }
+{
+	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
+	const Storm::RigidBodySceneData &currentRbData = configMgr.getRigidBodyData(particleSystemIndex);
+	_isWall = currentRbData._isWall;
+	_isStatic = _isWall || currentRbData._static;
+
+	// No need to initialize the other arrays since we won't use them in replay mode.
+}
+
 void Storm::RigidBodyParticleSystem::initializePreSimulation(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const float kernelLength)
 {
 	Storm::ParticleSystem::initializePreSimulation(allParticleSystems, kernelLength);
@@ -106,26 +118,30 @@ void Storm::RigidBodyParticleSystem::initializePreSimulation(const std::map<unsi
 	}
 }
 
-void Storm::RigidBodyParticleSystem::initializeIteration(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const std::vector<std::unique_ptr<Storm::IBlower>> &blowers)
+void Storm::RigidBodyParticleSystem::initializeIteration(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const std::vector<std::unique_ptr<Storm::IBlower>> &blowers, const bool shouldRegisterTemporaryForce)
 {
-	Storm::ParticleSystem::initializeIteration(allParticleSystems, blowers);
+	Storm::ParticleSystem::initializeIteration(allParticleSystems, blowers, shouldRegisterTemporaryForce);
+
+	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
 
 #if defined(_DEBUG) || defined(DEBUG)
-	const std::size_t particleCount = _positions.size();
-	assert(
-		_volumes.size() == particleCount &&
-		"Particle count mismatch detected! An array of particle property has not the same particle count than the other!"
-	);
-	if (this->isStatic())
+	if (!configMgr.isInReplayMode())
 	{
+		const std::size_t particleCount = _positions.size();
 		assert(
-			_staticVolumesInitValue.size() == particleCount &&
+			_volumes.size() == particleCount &&
 			"Particle count mismatch detected! An array of particle property has not the same particle count than the other!"
 		);
+		if (this->isStatic())
+		{
+			assert(
+				_staticVolumesInitValue.size() == particleCount &&
+				"Particle count mismatch detected! An array of particle property has not the same particle count than the other!"
+			);
+		}
 	}
 #endif
 
-	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
 	const Storm::GeneralSimulationData &generalSimulDataConfig = configMgr.getGeneralSimulationData();
 
 	const float k_kernelLength = Storm::SimulatorManager::instance().getKernelLength();
@@ -148,10 +164,15 @@ void Storm::RigidBodyParticleSystem::initializeIteration(const std::map<unsigned
 	}
 	else
 	{
-		Storm::runParallel(_force, [this, currentKernelZero, rawKernelMeth, k_kernelLength](Storm::Vector3 &force, const std::size_t currentPIndex)
+		Storm::runParallel(_force, [this, currentKernelZero, rawKernelMeth, k_kernelLength, shouldRegisterTemporaryForce](Storm::Vector3 &force, const std::size_t currentPIndex)
 		{
 			// Initialize forces to 0
 			force.setZero();
+			if (shouldRegisterTemporaryForce)
+			{
+				_tmpPressureForce[currentPIndex].setZero();
+				_tmpViscosityForce[currentPIndex].setZero();
+			}
 
 			// Compute the current boundary particle volume.
 			const float initialVolumeValue = currentKernelZero;
@@ -190,6 +211,47 @@ bool Storm::RigidBodyParticleSystem::isStatic() const noexcept
 bool Storm::RigidBodyParticleSystem::isWall() const noexcept
 {
 	return _isWall;
+}
+
+void Storm::RigidBodyParticleSystem::setPositions(std::vector<Storm::Vector3> &&positions)
+{
+	if (!this->isStatic())
+	{
+		_positions = std::move(positions);
+		_isDirty = true;
+	}
+}
+
+void Storm::RigidBodyParticleSystem::setVelocity(std::vector<Storm::Vector3> &&velocities)
+{
+	if (!this->isStatic())
+	{
+		_velocity = std::move(velocities);
+	}
+}
+
+void Storm::RigidBodyParticleSystem::setForces(std::vector<Storm::Vector3> &&forces)
+{
+	if (!this->isStatic())
+	{
+		_force = std::move(forces);
+	}
+}
+
+void Storm::RigidBodyParticleSystem::setTmpPressureForces(std::vector<Storm::Vector3> &&tmpPressureForces)
+{
+	if (!this->isStatic())
+	{
+		_tmpPressureForce = std::move(tmpPressureForces);
+	}
+}
+
+void Storm::RigidBodyParticleSystem::setTmpViscosityForces(std::vector<Storm::Vector3> &&tmpViscoForces)
+{
+	if (!this->isStatic())
+	{
+		_tmpViscosityForce = std::move(tmpViscoForces);
+	}
 }
 
 void Storm::RigidBodyParticleSystem::buildNeighborhoodOnParticleSystem(const Storm::ParticleSystem &otherParticleSystem, const float kernelLengthSquared)
@@ -338,10 +400,18 @@ void Storm::RigidBodyParticleSystem::postApplySPH(float)
 	}
 }
 
-void Storm::RigidBodyParticleSystem::revertToCurrentTimestep(const std::vector<std::unique_ptr<Storm::IBlower>> &)
+void Storm::RigidBodyParticleSystem::revertToCurrentTimestep(const std::vector<std::unique_ptr<Storm::IBlower>> &, const bool shouldRegisterTemporaryForce)
 {
 	if (!_isStatic)
 	{
-		Storm::runParallel(_force, [](Storm::Vector3 &force) { force.setZero(); });
+		Storm::runParallel(_force, [this, shouldRegisterTemporaryForce](Storm::Vector3 &force, const std::size_t currentPIndex) 
+		{
+			force.setZero();
+			if (shouldRegisterTemporaryForce)
+			{
+				_tmpPressureForce[currentPIndex].setZero();
+				_tmpViscosityForce[currentPIndex].setZero();
+			}
+		});
 	}
 }

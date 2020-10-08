@@ -9,14 +9,21 @@ namespace Storm
 	{
 	public:
 		FluidParticleSystem(unsigned int particleSystemIndex, std::vector<Storm::Vector3> &&worldPositions);
+		FluidParticleSystem(unsigned int particleSystemIndex, std::size_t particleCount);
 
 	public:
-		void initializeIteration(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const std::vector<std::unique_ptr<Storm::IBlower>> &blowers) final override;
+		void initializeIteration(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const std::vector<std::unique_ptr<Storm::IBlower>> &blowers, const bool shouldRegisterTemporaryForce) final override;
 
 	public:
 		bool isFluids() const noexcept final override;
 		bool isStatic() const noexcept final override;
 		bool isWall() const noexcept final override;
+
+		void setPositions(std::vector<Storm::Vector3> &&positions) final override;
+		void setVelocity(std::vector<Storm::Vector3> &&velocities) final override;
+		void setForces(std::vector<Storm::Vector3> &&forces) final override;
+		void setTmpPressureForces(std::vector<Storm::Vector3> &&tmpPressureForces) final override;
+		void setTmpViscosityForces(std::vector<Storm::Vector3> &&tmpViscoForces) final override;
 
 	public:
 		// Accessible by dynamic casting.
@@ -40,10 +47,10 @@ namespace Storm
 		void postApplySPH(float deltaTimeInSec) final override;
 
 	public:
-		void revertToCurrentTimestep(const std::vector<std::unique_ptr<Storm::IBlower>> &blowers) final override;
+		void revertToCurrentTimestep(const std::vector<std::unique_ptr<Storm::IBlower>> &blowers, const bool shouldRegisterTemporaryForce) final override;
 
 	private:
-		void internalInitializeForce(const Storm::Vector3 &gravityAccel, const std::vector<std::unique_ptr<Storm::IBlower>> &blowers, Storm::Vector3 &force, const std::size_t currentPIndex);
+		void internalInitializeForce(const Storm::Vector3 &gravityAccel, const std::vector<std::unique_ptr<Storm::IBlower>> &blowers, Storm::Vector3 &force, const std::size_t currentPIndex, const bool shouldRegisterTemporaryForce);
 
 	private:
 		std::vector<float> _masses;

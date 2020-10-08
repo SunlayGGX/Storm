@@ -56,6 +56,13 @@ Storm::RigidBody::RigidBody(const Storm::RigidBodySceneData &rbSceneData) :
 	this->load(rbSceneData);
 }
 
+Storm::RigidBody::RigidBody(const Storm::RigidBodySceneData &rbSceneData, ReplayMode) :
+	_meshPath{ rbSceneData._meshFilePath },
+	_rbId{ rbSceneData._rigidBodyID }
+{
+	this->loadForReplay(rbSceneData);
+}
+
 const std::string& Storm::RigidBody::getRigidBodyName() const
 {
 	return _meshPath;
@@ -105,30 +112,13 @@ std::filesystem::path Storm::RigidBody::retrieveParticleDataCacheFolder()
 	return std::filesystem::path{ configMgr.getTemporaryPath() } / "ParticleData";
 }
 
-void Storm::RigidBody::load(const Storm::RigidBodySceneData &rbSceneData)
+std::shared_ptr<Storm::AssetCacheData> Storm::RigidBody::baseLoadAssimp(const Storm::RigidBodySceneData &rbSceneData)
 {
-	enum : uint64_t
-	{
-		// Those aren't really checksums but they'll do the same jobs and does it okay (no need to be extra secure, this is not confidential or running stuffs), so I would call them checksum.
-		k_cachePlaceholderChecksum = 0x00AA00BB,
-		k_cacheGoodChecksum = 0xABCDEF71,
-	};
+	std::shared_ptr<Storm::AssetCacheData> cachedDataPtr;
 
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 
-	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
-	const float currentParticleRadius = configMgr.getGeneralSimulationData()._particleRadius;
-
-	const std::string meshPathLowerStr = boost::algorithm::to_lower_copy(_meshPath);
-	const std::filesystem::path meshPath = meshPathLowerStr;
-	const std::filesystem::path cachedPath = computeRightCachedFilePath(rbSceneData, meshPath, currentParticleRadius);
-	const std::wstring cachedPathStr = cachedPath.wstring();
-	constexpr const Storm::Version currentVersion = Storm::Version::retrieveCurrentStormVersion();
-
-	std::shared_ptr<Storm::AssetCacheData> cachedDataPtr;
-	std::vector<Storm::Vector3> particlePos;
-
-	const auto pushDataToModules = 
+	const auto pushDataToModules =
 		[
 			this,
 			&graphicsMgr = singletonHolder.getSingleton<Storm::IGraphicsManager>(),
@@ -191,6 +181,33 @@ void Storm::RigidBody::load(const Storm::RigidBodySceneData &rbSceneData)
 	{
 		pushDataToModules(cachedDataPtr);
 	}
+
+	return cachedDataPtr;
+}
+
+void Storm::RigidBody::load(const Storm::RigidBodySceneData &rbSceneData)
+{
+	enum : uint64_t
+	{
+		// Those aren't really checksums but they'll do the same jobs and does it okay (no need to be extra secure, this is not confidential or running stuffs), so I would call them checksum.
+		k_cachePlaceholderChecksum = 0x00AA00BB,
+		k_cacheGoodChecksum = 0xABCDEF71,
+	};
+
+	std::shared_ptr<Storm::AssetCacheData> cachedDataPtr = this->baseLoadAssimp(rbSceneData);
+
+	std::vector<Storm::Vector3> particlePos;
+
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+
+	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
+	const float currentParticleRadius = configMgr.getGeneralSimulationData()._particleRadius;
+
+	const std::string meshPathLowerStr = boost::algorithm::to_lower_copy(_meshPath);
+	const std::filesystem::path meshPath = meshPathLowerStr;
+	const std::filesystem::path cachedPath = computeRightCachedFilePath(rbSceneData, meshPath, currentParticleRadius);
+	const std::wstring cachedPathStr = cachedPath.wstring();
+	constexpr const Storm::Version currentVersion = Storm::Version::retrieveCurrentStormVersion();
 
 	const auto srcMeshWriteTime = std::filesystem::last_write_time(meshPath);
 	bool hasCache;
@@ -309,5 +326,16 @@ void Storm::RigidBody::load(const Storm::RigidBodySceneData &rbSceneData)
 
 	Storm::ISimulatorManager &simulMgr = singletonHolder.getSingleton<Storm::ISimulatorManager>();
 	simulMgr.addRigidBodyParticleSystem(_rbId, std::move(particlePos));
+}
+
+void Storm::RigidBody::loadForReplay(const Storm::RigidBodySceneData &rbSceneData)
+{
+	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
+	if (!configMgr.isInReplayMode())
+	{
+		Storm::throwException<std::exception>(__FUNCSIG__ " should only be used in replay mode!");
+	}
+
+	this->baseLoadAssimp(rbSceneData);
 }
 

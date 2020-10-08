@@ -9,15 +9,22 @@ namespace Storm
 	{
 	public:
 		RigidBodyParticleSystem(unsigned int particleSystemIndex, std::vector<Storm::Vector3> &&worldPositions);
+		RigidBodyParticleSystem(unsigned int particleSystemIndex, const std::size_t particleCount);
 
 	public:
 		void initializePreSimulation(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const float kernelLength) final override;
-		void initializeIteration(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const std::vector<std::unique_ptr<Storm::IBlower>> &blowers) final override;
+		void initializeIteration(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const std::vector<std::unique_ptr<Storm::IBlower>> &blowers, const bool shouldRegisterTemporaryForce) final override;
 
 	public:
 		bool isFluids() const noexcept final override;
 		bool isStatic() const noexcept final override;
 		bool isWall() const noexcept final override;
+
+		void setPositions(std::vector<Storm::Vector3> &&positions) final override;
+		void setVelocity(std::vector<Storm::Vector3> &&velocities) final override;
+		void setForces(std::vector<Storm::Vector3> &&forces) final override;
+		void setTmpPressureForces(std::vector<Storm::Vector3> &&tmpPressureForces) final override;
+		void setTmpViscosityForces(std::vector<Storm::Vector3> &&tmpViscoForces) final override;
 
 	public:
 		const std::vector<float>& getVolumes() const noexcept;
@@ -37,7 +44,7 @@ namespace Storm
 		void postApplySPH(float deltaTimeInSec) final override;
 
 	public:
-		void revertToCurrentTimestep(const std::vector<std::unique_ptr<Storm::IBlower>> &blowers) final override;
+		void revertToCurrentTimestep(const std::vector<std::unique_ptr<Storm::IBlower>> &blowers, const bool shouldRegisterTemporaryForce) final override;
 
 	private:
 		// Volumes got from the computation of static rigid bodies neighbor for a rigid body (So useful only for Rigid bodies) !

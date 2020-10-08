@@ -26,11 +26,15 @@ namespace Storm
 	private:
 		void clearRecordQueue();
 		void processRecordQueue_Unchecked();
-		void processRecord(const Storm::SerializeRecordPendingData &record);
 
 	public:
 		void recordFrame(Storm::SerializeRecordPendingData &&frameRecord) final override;
 		void beginRecord(Storm::SerializeRecordHeader &&recordHeader) final override;
+		void endRecord() final override;
+
+	public:
+		const Storm::SerializeRecordHeader& beginReplay() final override;
+		bool obtainNextFrame(Storm::SerializeRecordPendingData &outPendingData) const final override;
 
 	private:
 		std::thread _serializeThread;
@@ -39,5 +43,7 @@ namespace Storm
 		std::unique_ptr<Storm::RecordReader> _recordReader;
 		std::unique_ptr<Storm::RecordWriter> _recordWriter;
 		std::queue<std::unique_ptr<Storm::SerializeRecordPendingData>> _pendingRecord;
+
+		mutable std::mutex _mutex;
 	};
 }
