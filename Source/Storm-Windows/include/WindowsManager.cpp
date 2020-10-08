@@ -9,6 +9,7 @@
 #include "ITimeManager.h"
 #include "IInputManager.h"
 #include "IThreadManager.h"
+#include "IConfigManager.h"
 
 
 namespace
@@ -53,7 +54,6 @@ namespace
 
 
 Storm::WindowsManager::WindowsManager() :
-	_hasOverridenWindowSize{ false },
 	_accelerationTable{ nullptr },
 	_windowVisuHandle{ nullptr }
 {
@@ -151,40 +151,32 @@ void Storm::WindowsManager::initializeInternal()
 		RegisterClassEx(&wcex);
 	}
 
-	HWND windowVisuHandle;
+	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
+	int xPos = configMgr.getWantedScreenXPosition();
+	int yPos = configMgr.getWantedScreenYPosition();
 
-	if (_hasOverridenWindowSize)
+	if (xPos == std::numeric_limits<int>::max())
 	{
-		windowVisuHandle = CreateWindow(
-			windowClass,
-			szTitle,
-			WS_OVERLAPPEDWINDOW,
-			CW_USEDEFAULT,
-			0,
-			_wantedWidth,
-			_wantedHeight,
-			nullptr,
-			nullptr,
-			dllInstance,
-			nullptr
-		);
+		xPos = CW_USEDEFAULT;
 	}
-	else
+	if (yPos == std::numeric_limits<int>::max())
 	{
-		windowVisuHandle = CreateWindow(
-			windowClass,
-			szTitle,
-			WS_OVERLAPPEDWINDOW,
-			CW_USEDEFAULT,
-			0,
-			CW_USEDEFAULT,
-			0,
-			nullptr,
-			nullptr,
-			dllInstance,
-			nullptr
-		);
+		yPos = CW_USEDEFAULT;
 	}
+
+	HWND windowVisuHandle = CreateWindow(
+		windowClass,
+		szTitle,
+		WS_OVERLAPPEDWINDOW,
+		xPos,
+		yPos,
+		CW_USEDEFAULT,
+		0,
+		nullptr,
+		nullptr,
+		dllInstance,
+		nullptr
+	);
 
 	if (windowVisuHandle != nullptr)
 	{
@@ -226,13 +218,6 @@ void Storm::WindowsManager::update()
 			::DispatchMessage(&msg);
 		}
 	}
-}
-
-void Storm::WindowsManager::setWantedWindowsSize(int width, int height)
-{
-	_wantedWidth = width;
-	_wantedHeight = height;
-	_hasOverridenWindowSize = true;
 }
 
 void Storm::WindowsManager::retrieveWindowsDimension(float &outX, float &outY) const

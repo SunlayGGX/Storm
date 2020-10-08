@@ -30,7 +30,6 @@ namespace Storm
 		void update() final override;
 
 	public:
-		void setWantedWindowsSize(int width, int height) final override;
 		void retrieveWindowsDimension(float &outX, float &outY) const final override;
 
 	public:
@@ -53,10 +52,6 @@ namespace Storm
 		void* /*HWND*/ _windowVisuHandle;
 		std::wstring _windowClass;
 		void* /*HACCEL*/ _accelerationTable;
-
-		bool _hasOverridenWindowSize;
-		int _wantedWidth;
-		int _wantedHeight;
 
 		mutable std::mutex _callbackMutex;
 		Storm::MultiCallback<Storm::QuitDelegate> _quitCallback;
