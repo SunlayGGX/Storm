@@ -274,12 +274,8 @@ void Storm::InputManager::initialize_Implementation(void* vptrHwnd)
 	g_mouse = static_cast<OIS::Mouse*>(Storm::g_oisInputMgr->createInputObject(OIS::OISMouse, true));
 	g_mouse->setEventCallback(_inputHandler.get());
 
-	RECT rcWindow;
-	GetWindowRect(hwnd, &rcWindow);
 
-	const OIS::MouseState& mouseState = g_mouse->getMouseState();
-	mouseState.width = std::abs(rcWindow.right - rcWindow.left);
-	mouseState.height = std::abs(rcWindow.top - rcWindow.bottom);
+	this->refreshMouseState();
 }
 
 void Storm::InputManager::cleanUp_Implementation()
@@ -313,6 +309,12 @@ void Storm::InputManager::update()
 			}
 		}
 	});
+}
+
+void Storm::InputManager::refreshMouseState()
+{
+	const OIS::MouseState& mouseState = g_mouse->getMouseState();
+	Storm::SingletonHolder::instance().getSingleton<Storm::IWindowsManager>().retrieveWindowsDimension(mouseState.width, mouseState.height);
 }
 
 Storm::CallbackIdType Storm::InputManager::bindKey(Storm::SpecialKey key, Storm::KeyBinding &&binding)
