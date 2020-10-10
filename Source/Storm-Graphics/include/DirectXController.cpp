@@ -431,8 +431,6 @@ void Storm::DirectXController::internalCreateDXDevices(HWND hwnd)
 	DXGI_SWAP_CHAIN_DESC swapChainDesc;
 	Storm::ZeroMemories(swapChainDesc);
 
-	bool dimensionChanged;
-
 	{
 		Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
 
