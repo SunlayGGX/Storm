@@ -17,7 +17,7 @@
 
 
 
-void Storm::WCSPHSolver::execute(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &particleSystems, const float k_kernelLength, bool shouldRegisterTemporaryForces)
+void Storm::WCSPHSolver::execute(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &particleSystems, const float k_kernelLength)
 {
 	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
 	const Storm::GeneralSimulationData &generalSimulData = configMgr.getGeneralSimulationData();
@@ -174,12 +174,8 @@ void Storm::WCSPHSolver::execute(const std::map<unsigned int, std::unique_ptr<St
 
 							std::lock_guard<std::mutex> lock{ neighbor._containingParticleSystem->_mutex };
 							boundaryNeighborForce -= sumForces;
-
-							if (shouldRegisterTemporaryForces)
-							{
-								boundaryNeighborTmpPressureForce -= pressureComponent;
-								boundaryNeighborTmpViscosityForce -= viscosityComponent;
-							}
+							boundaryNeighborTmpPressureForce -= pressureComponent;
+							boundaryNeighborTmpViscosityForce -= viscosityComponent;
 						}
 					}
 
@@ -190,17 +186,14 @@ void Storm::WCSPHSolver::execute(const std::map<unsigned int, std::unique_ptr<St
 				currentPForce += totalPressureForceOnParticle;
 				currentPForce += totalViscosityForceOnParticle;
 
-				if (shouldRegisterTemporaryForces)
-				{
-					temporaryPPressureForce[currentPIndex] = totalPressureForceOnParticle;
-					temporaryPViscoForce[currentPIndex] = totalViscosityForceOnParticle;
-				}
+				temporaryPPressureForce[currentPIndex] = totalPressureForceOnParticle;
+				temporaryPViscoForce[currentPIndex] = totalViscosityForceOnParticle;
 			});
 		}
 	}
 }
 
-void Storm::PCISPHSolver::execute(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &particleSystems, const float k_kernelLength, bool shouldRegisterTemporaryForces)
+void Storm::PCISPHSolver::execute(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &particleSystems, const float k_kernelLength)
 {
 	STORM_NOT_IMPLEMENTED;
 }

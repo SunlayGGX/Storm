@@ -12,7 +12,7 @@ namespace Storm
 		FluidParticleSystem(unsigned int particleSystemIndex, std::size_t particleCount);
 
 	public:
-		void initializeIteration(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const std::vector<std::unique_ptr<Storm::IBlower>> &blowers, const bool shouldRegisterTemporaryForce) final override;
+		void initializeIteration(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const std::vector<std::unique_ptr<Storm::IBlower>> &blowers) final override;
 
 	public:
 		bool isFluids() const noexcept final override;
@@ -47,10 +47,10 @@ namespace Storm
 		void postApplySPH(float deltaTimeInSec) final override;
 
 	public:
-		void revertToCurrentTimestep(const std::vector<std::unique_ptr<Storm::IBlower>> &blowers, const bool shouldRegisterTemporaryForce) final override;
+		void revertToCurrentTimestep(const std::vector<std::unique_ptr<Storm::IBlower>> &blowers) final override;
 
 	private:
-		void internalInitializeForce(const Storm::Vector3 &gravityAccel, const std::vector<std::unique_ptr<Storm::IBlower>> &blowers, Storm::Vector3 &force, const std::size_t currentPIndex, const bool shouldRegisterTemporaryForce);
+		void internalInitializeForce(const Storm::Vector3 &gravityAccel, const std::vector<std::unique_ptr<Storm::IBlower>> &blowers, Storm::Vector3 &force, const std::size_t currentPIndex);
 
 	private:
 		std::vector<float> _masses;

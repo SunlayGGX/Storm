@@ -783,11 +783,9 @@ void Storm::SimulatorManager::executeIteration(bool firstFrame, unsigned int for
 		blowerUPtr->advanceTime(physicsElapsedDeltaTime);
 	}
 
-	const bool shouldRegisterTemporaryForce = this->shouldRegisterTemporaryForces();
-
 	for (auto &particleSystem : _particleSystem)
 	{
-		particleSystem.second->initializeIteration(_particleSystem, _blowers, shouldRegisterTemporaryForce);
+		particleSystem.second->initializeIteration(_particleSystem, _blowers);
 	}
 
 	bool runIterationAgain;
@@ -806,7 +804,7 @@ void Storm::SimulatorManager::executeIteration(bool firstFrame, unsigned int for
 		{
 			for (auto &particleSystem : _particleSystem)
 			{
-				particleSystem.second->revertToCurrentTimestep(_blowers, shouldRegisterTemporaryForce);
+				particleSystem.second->revertToCurrentTimestep(_blowers);
 			}
 		}
 		else
@@ -818,11 +816,11 @@ void Storm::SimulatorManager::executeIteration(bool firstFrame, unsigned int for
 		switch (generalSimulationConfigData._simulationMode)
 		{
 		case Storm::SimulationMode::WCSPH:
-			Storm::WCSPHSolver::execute(_particleSystem, kernelLength, shouldRegisterTemporaryForce);
+			Storm::WCSPHSolver::execute(_particleSystem, kernelLength);
 			break;
 
 		case Storm::SimulationMode::PCISPH:
-			Storm::PCISPHSolver::execute(_particleSystem, kernelLength, shouldRegisterTemporaryForce);
+			Storm::PCISPHSolver::execute(_particleSystem, kernelLength);
 			break;
 
 		default:
@@ -965,26 +963,6 @@ void Storm::SimulatorManager::refreshParticlesPosition()
 		Storm::ParticleSystem &pSystem = *particleSystem.second;
 		pSystem.updatePosition(0.f, true);
 	}
-}
-
-bool Storm::SimulatorManager::shouldRegisterTemporaryForces() const
-{
-	if (!_particleSelector.hasSelectedParticle())
-	{
-		const Storm::RecordConfigData &recordConfig = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().getRecordConfigData();
-		switch (recordConfig._recordMode)
-		{
-		case Storm::RecordMode::None:
-			return _raycastEnabled;
-
-		case Storm::RecordMode::Record:
-		case Storm::RecordMode::Replay:
-		default:
-			return true;
-		}
-	}
-
-	return true;
 }
 
 void Storm::SimulatorManager::addFluidParticleSystem(unsigned int id, std::vector<Storm::Vector3> particlePositions)
