@@ -41,13 +41,19 @@ namespace Storm
 	public:
 		void callQuitCallback() final override;
 		void callFinishInitializeCallback() final override;
+		void callWindowsResizedCallback() final override;
 
 		void unbindQuitCallback(unsigned short callbackId) final override;
 		unsigned short bindQuitCallback(Storm::QuitDelegate &&callback) final override;
 		void bindFinishInitializeCallback(Storm::FinishedInitializeDelegate &&callback) final override;
+		unsigned short bindWindowsResizedCallback(Storm::WindowsResizedDelegate &&callback) final override;
+		void unbindWindowsResizedCallback(unsigned short callbackId) final override;
 
 	private:
 		void unbindCallbacks();
+
+	public:
+		void callWindowsResizedCallback(unsigned int newWidth, unsigned int newHeight);
 
 	private:
 		void* /*HWND*/ _windowVisuHandle;
@@ -57,6 +63,7 @@ namespace Storm
 		mutable std::recursive_mutex _callbackMutex;
 		Storm::MultiCallback<Storm::QuitDelegate> _quitCallback;
 		Storm::MultiCallback<Storm::FinishedInitializeDelegate> _finishedInitCallback;
+		Storm::MultiCallback<Storm::WindowsResizedDelegate> _windowsResizedCallback;
 
 		std::thread _windowsThread;
 	};
