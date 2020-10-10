@@ -53,7 +53,7 @@ namespace Storm
 		std::wstring _windowClass;
 		void* /*HACCEL*/ _accelerationTable;
 
-		mutable std::mutex _callbackMutex;
+		mutable std::recursive_mutex _callbackMutex;
 		Storm::MultiCallback<Storm::QuitDelegate> _quitCallback;
 		Storm::MultiCallback<Storm::FinishedInitializeDelegate> _finishedInitCallback;
 

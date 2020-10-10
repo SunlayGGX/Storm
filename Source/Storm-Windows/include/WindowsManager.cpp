@@ -254,13 +254,13 @@ void* Storm::WindowsManager::getWindowAccelerationTable() const
 
 unsigned short Storm::WindowsManager::bindQuitCallback(Storm::QuitDelegate &&callback)
 {
-	std::lock_guard<std::mutex> autoLocker{ _callbackMutex };
+	std::lock_guard<std::recursive_mutex> autoLocker{ _callbackMutex };
 	return _quitCallback.add(std::move(callback));
 }
 
 void Storm::WindowsManager::bindFinishInitializeCallback(Storm::FinishedInitializeDelegate &&callback)
 {
-	std::lock_guard<std::mutex> autoLocker{ _callbackMutex };
+	std::lock_guard<std::recursive_mutex> autoLocker{ _callbackMutex };
 	if (_windowVisuHandle != nullptr)
 	{
 		callback(_windowVisuHandle, true);
@@ -273,13 +273,13 @@ void Storm::WindowsManager::bindFinishInitializeCallback(Storm::FinishedInitiali
 
 void Storm::WindowsManager::callQuitCallback()
 {
-	std::lock_guard<std::mutex> autoLocker{ _callbackMutex };
+	std::lock_guard<std::recursive_mutex> autoLocker{ _callbackMutex };
 	Storm::prettyCallMultiCallback(_quitCallback);
 }
 
 void Storm::WindowsManager::callFinishInitializeCallback()
 {
-	std::lock_guard<std::mutex> autoLocker{ _callbackMutex };
+	std::lock_guard<std::recursive_mutex> autoLocker{ _callbackMutex };
 	Storm::prettyCallMultiCallback(_finishedInitCallback, _windowVisuHandle, false);
 	_finishedInitCallback.clear();
 }
@@ -291,7 +291,7 @@ void Storm::WindowsManager::unbindQuitCallback(unsigned short callbackId)
 
 void Storm::WindowsManager::unbindCallbacks()
 {
-	std::lock_guard<std::mutex> autoLocker{ _callbackMutex };
+	std::lock_guard<std::recursive_mutex> autoLocker{ _callbackMutex };
 	_quitCallback.clear();
 	_finishedInitCallback.clear();
 }
