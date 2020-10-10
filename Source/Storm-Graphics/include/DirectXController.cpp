@@ -431,6 +431,8 @@ void Storm::DirectXController::internalCreateDXDevices(HWND hwnd)
 	DXGI_SWAP_CHAIN_DESC swapChainDesc;
 	Storm::ZeroMemories(swapChainDesc);
 
+	bool dimensionChanged;
+
 	{
 		Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
 
@@ -446,6 +448,13 @@ void Storm::DirectXController::internalCreateDXDevices(HWND hwnd)
 		Storm::DirectXHardwareInfo infos{ descModeWanted };
 
 		swapChainDesc.BufferDesc.Format = infos._mode.Format;
+
+		if (swapChainDesc.BufferDesc.Width != infos._mode.Width || swapChainDesc.BufferDesc.Height != infos._mode.Height)
+		{
+			LOG_DEBUG <<
+				"Wanted dimension " << descModeWanted.Width << 'x' << descModeWanted.Height << " aren't supported.\n"
+				"Therefore we will fall back to the nearest supported dimension " << infos._mode.Width << 'x' << infos._mode.Height;
+		}
 
 		swapChainDesc.BufferDesc.Width = infos._mode.Width;
 		swapChainDesc.BufferDesc.Height = infos._mode.Height;
