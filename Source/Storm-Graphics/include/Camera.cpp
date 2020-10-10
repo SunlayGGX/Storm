@@ -211,6 +211,8 @@ Storm::Camera::Camera(float viewportWidth, float viewportHeight) :
 	_fieldOfView{ DirectX::XM_PI / 4.f },
 	_screenWidth{ viewportWidth },
 	_screenHeight{ viewportHeight },
+	_rescaledScreenWidth{ viewportWidth },
+	_rescaledScreenHeight{ viewportHeight },
 	_fields{ std::make_unique<Storm::UIFieldContainer>() }
 {
 	this->reset();
@@ -508,11 +510,13 @@ void Storm::Camera::convertScreenPositionToRay(const Storm::Vector2 &screenPos, 
 
 	DirectX::XMMATRIX matVPInverse = DirectX::XMMatrixInverse(nullptr, matView * matProj);
 
-	DirectX::XMVECTOR screenPosTo3DPoint{ screenPos.x(), screenPos.y(), 0.f, 1.f };
+	const Storm::Vector2 rescaledPosition{ screenPos.x() / _rescaledScreenWidth * _screenWidth, screenPos.y() / _rescaledScreenHeight * _screenHeight };
+
+	DirectX::XMVECTOR screenPosTo3DPoint{ rescaledPosition.x(), rescaledPosition.y(), 0.f, 1.f };
 	DirectX::XMVector4Transform(screenPosTo3DPoint, matVPInverse);
 	outRayOrigin = Storm::convertToStorm(screenPosTo3DPoint);
 
-	DirectX::XMVECTOR screenPosTo3DVector{ screenPos.x(), screenPos.y(), 1.f, 0.f };
+	DirectX::XMVECTOR screenPosTo3DVector{ rescaledPosition.x(), rescaledPosition.y(), 1.f, 0.f };
 	DirectX::XMVector4Transform(screenPosTo3DVector, matVPInverse);
 	outRayDirection = Storm::convertToStorm(screenPosTo3DVector);
 }
@@ -535,6 +539,12 @@ Storm::Vector3 Storm::Camera::convertScreenPositionTo3DPosition(const Storm::Vec
 	const DirectX::XMVECTOR unprojected = DirectX::XMVector3Unproject(vectClipSpace, 0.f, 0.f, _screenWidth, _screenHeight, 0.f, 1.f, matProj, matView, DirectX::XMMatrixIdentity());
 
 	return Storm::convertToStorm(unprojected);
+}
+
+void Storm::Camera::setRescaledDimension(float newViewportWidth, float newViewportHeight)
+{
+	_rescaledScreenWidth = newViewportWidth;
+	_rescaledScreenHeight = newViewportHeight;
 }
 
 void Storm::Camera::setPositionInternal(float x, float y, float z)

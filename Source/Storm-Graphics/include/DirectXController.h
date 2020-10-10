@@ -78,6 +78,8 @@ namespace Storm
 	public:
 		float getDepthBufferAtPixel(int xPos, int yPos);
 
+		void setRescaledDimension(float newViewportWidth, float newViewportHeight);
+
 	private:
 		// 3D
 		ComPtr<ID3D11Device> _device;
@@ -120,6 +122,8 @@ namespace Storm
 		// Misc
 		float _viewportWidth;
 		float _viewportHeight;
+		float _rescaledViewportWidth;
+		float _rescaledViewportHeight;
 
 		bool _logDeviceMessage;
 

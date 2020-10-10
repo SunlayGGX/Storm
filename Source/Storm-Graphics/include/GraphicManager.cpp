@@ -477,3 +477,11 @@ bool Storm::GraphicManager::hasSelectedParticle() const
 {
 	return _selectedParticle.first != std::numeric_limits<decltype(_selectedParticle.first)>::max();
 }
+
+void Storm::GraphicManager::notifyViewportRescaled(int newWidth, int newHeight)
+{
+	const float newWidthFl = static_cast<float>(newWidth);
+	const float newHeightFl = static_cast<float>(newHeight);
+	_directXController->setRescaledDimension(newWidthFl, newHeightFl);
+	_camera->setRescaledDimension(newWidthFl, newHeightFl);
+}
