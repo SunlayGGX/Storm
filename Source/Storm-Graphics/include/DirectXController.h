@@ -59,7 +59,7 @@ namespace Storm
 
 	private:
 		void drawTextBackground(const D2D1_RECT_F &rectPosition);
-		void drawText(const std::wstring &text, const D2D1_RECT_F &rectPosition);
+		void drawText(const D2D1_RECT_F &rectPosition);
 
 	private:
 		// 3D
@@ -128,6 +128,8 @@ namespace Storm
 		float _writeRectLeft;
 		float _writeRectRight;
 		float _writeRectHeight;
+
+		std::wstring _writeTextTemp;
 
 #if defined(DEBUG) || defined(_DEBUG)
 		ComPtr<ID3D11Debug> _debugDevice;
