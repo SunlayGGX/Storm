@@ -5,6 +5,9 @@
 
 #include "SingletonHolder.h"
 #include "IWindowsManager.h"
+#include "IThreadManager.h"
+
+#include "ThreadEnumeration.h"
 
 #include "ThrowException.h"
 #include "MemoryHelper.h"
@@ -274,12 +277,25 @@ void Storm::InputManager::initialize_Implementation(void* vptrHwnd)
 	g_mouse = static_cast<OIS::Mouse*>(Storm::g_oisInputMgr->createInputObject(OIS::OISMouse, true));
 	g_mouse->setEventCallback(_inputHandler.get());
 
+	Storm::IWindowsManager &windowsMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IWindowsManager>();
+	_windowsResizedCallbackId = windowsMgr.bindWindowsResizedCallback([this](int newWidth, int newHeight)
+	{
+		Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::WindowsAndInputThread, [this, newWidth, newHeight]()
+		{
+			const OIS::MouseState& mouseState = g_mouse->getMouseState();
+			mouseState.width = newWidth;
+			mouseState.height = newHeight;
+		});
+	});
 
 	this->refreshMouseState();
 }
 
 void Storm::InputManager::cleanUp_Implementation()
 {
+	Storm::IWindowsManager &windowsMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IWindowsManager>();
+	windowsMgr.unbindWindowsResizedCallback(_windowsResizedCallbackId);
+
 	LOG_COMMENT << "Starting OIS destruction.";
 
 	OIS::InputManager::destroyInputSystem(Storm::g_oisInputMgr);

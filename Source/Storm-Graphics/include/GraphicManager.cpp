@@ -199,6 +199,14 @@ void Storm::GraphicManager::initialize_Implementation(void* hwnd)
 {
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 
+	_windowsResizedCallbackId = singletonHolder.getSingleton<Storm::IWindowsManager>().bindWindowsResizedCallback([this, &singletonHolder](int newWidth, int newHeight)
+	{
+		singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::GraphicsThread, [this, newWidth, newHeight]()
+		{
+			this->notifyViewportRescaled(newWidth, newHeight);
+		});
+	});
+
 	LOG_COMMENT << "HWND is valid so Windows was created, we can pursue the graphic initialization.";
 	_directXController->initialize(static_cast<HWND>(hwnd));
 
@@ -281,6 +289,8 @@ void Storm::GraphicManager::cleanUp_Implementation()
 {
 	LOG_COMMENT << "Starting to clean up the Graphic Manager.";
 	Storm::join(_renderThread);
+
+	Storm::SingletonHolder::instance().getSingleton<Storm::IWindowsManager>().unbindWindowsResizedCallback(_windowsResizedCallbackId);
 
 	_selectedParticle.first = std::numeric_limits<decltype(_selectedParticle.first)>::max();
 
