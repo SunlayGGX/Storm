@@ -192,7 +192,7 @@ void Storm::RaycastManager::searchForNearestParticle(const Storm::Vector3 &posit
 			const Storm::Vector3 &positionAlias = position;
 #endif
 
-			auto searchLambda = [&particleSystemPositions, &lastId, &simulatorMgr, &positionAlias, &minDistSquaredFound, &resultReferral](const Storm::NeighborParticleReferral &particleReferral)
+			const auto searchLambda = [&particleSystemPositions, &lastId, &simulatorMgr, &positionAlias, &minDistSquaredFound, &resultReferral](const Storm::NeighborParticleReferral &particleReferral)
 			{
 				if (lastId != particleReferral._systemId)
 				{
