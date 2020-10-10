@@ -220,21 +220,30 @@ void Storm::WindowsManager::update()
 	}
 }
 
-void Storm::WindowsManager::retrieveWindowsDimension(float &outX, float &outY) const
+void Storm::WindowsManager::retrieveWindowsDimension(int &outX, int &outY) const
 {
 	if (_windowVisuHandle)
 	{
 		RECT windowsRect;
 		GetClientRect(static_cast<HWND>(_windowVisuHandle), &windowsRect);
 
-		outX = static_cast<float>(windowsRect.right - windowsRect.left);
-		outY = static_cast<float>(windowsRect.bottom - windowsRect.top);
+		outX = windowsRect.right - windowsRect.left;
+		outY = windowsRect.bottom - windowsRect.top;
 	}
 	else
 	{
-		outX = 0.f;
-		outY = 0.f;
+		outX = 0;
+		outY = 0;
 	}
+}
+
+void Storm::WindowsManager::retrieveWindowsDimension(float &outX, float &outY) const
+{
+	int intX;
+	int intY;
+	this->retrieveWindowsDimension(intX, intY);
+	outX = static_cast<float>(intX);
+	outY = static_cast<float>(intY);
 }
 
 void* Storm::WindowsManager::getWindowHandle() const

@@ -12,6 +12,7 @@ namespace Storm
 		virtual ~IWindowsManager() = default;
 
 	public:
+		virtual void retrieveWindowsDimension(int &outX, int &outY) const = 0;
 		virtual void retrieveWindowsDimension(float& outX, float& outY) const = 0;
 
 		virtual void* getWindowHandle() const = 0;
