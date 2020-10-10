@@ -541,6 +541,12 @@ Storm::Vector3 Storm::Camera::convertScreenPositionTo3DPosition(const Storm::Vec
 	return Storm::convertToStorm(unprojected);
 }
 
+void Storm::Camera::rescaleScreenPosition(float &outXPos, float &outYPos) const
+{
+	outXPos = outXPos / _rescaledScreenWidth * _screenWidth;
+	outYPos = outYPos / _rescaledScreenHeight * _screenHeight;
+}
+
 void Storm::Camera::setRescaledDimension(float newViewportWidth, float newViewportHeight)
 {
 	_rescaledScreenWidth = newViewportWidth;

@@ -459,7 +459,6 @@ void Storm::DirectXController::internalCreateDXDevices(HWND hwnd)
 
 		_viewportWidth = static_cast<float>(swapChainDesc.BufferDesc.Width);
 		_viewportHeight = static_cast<float>(swapChainDesc.BufferDesc.Height);
-		this->setRescaledDimension(_viewportWidth, _viewportHeight);
 	}
 
 	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
@@ -745,15 +744,6 @@ float Storm::DirectXController::getDepthBufferAtPixel(int xPos, int yPos)
 	D3D11_MAPPED_SUBRESOURCE mapSubressource;
 	Storm::ResourceMapperGuard mapper{ _immediateContext, _depthTextureCpuSide.Get(), 0, D3D11_MAP::D3D11_MAP_READ, 0, mapSubressource };
 
-	int rescaledX = static_cast<int>(static_cast<float>(xPos) / _rescaledViewportWidth * _viewportWidth);
-	int rescaledY = static_cast<int>(static_cast<float>(yPos) / _rescaledViewportHeight * _viewportHeight);
-
-	std::size_t offset = rescaledY * static_cast<int>(_viewportWidth) + rescaledY;
+	std::size_t offset = yPos * static_cast<int>(_viewportWidth) + xPos;
 	return *(reinterpret_cast<float*>(mapSubressource.pData) + offset);
-}
-
-void Storm::DirectXController::setRescaledDimension(float newViewportWidth, float newViewportHeight)
-{
-	_rescaledViewportWidth = newViewportWidth;
-	_rescaledViewportHeight = newViewportHeight;
 }

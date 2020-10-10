@@ -418,11 +418,18 @@ void Storm::GraphicManager::getClippingPlaneValues(float &outZNear, float &outZF
 
 Storm::Vector3 Storm::GraphicManager::get3DPosOfScreenPixel(const Storm::Vector2 &screenPos) const
 {
+	// Screen pixel positions to 3D
 	Storm::Vector3 vectClipSpace3DPos{
 		screenPos.x(),
 		screenPos.y(),
-		_directXController->getDepthBufferAtPixel(static_cast<int>(screenPos.x()), static_cast<int>(screenPos.y()))
+		0.f
 	};
+
+	// Transform the screen pixel positions to render target pixel texture position.
+	_camera->rescaleScreenPosition(vectClipSpace3DPos.x(), vectClipSpace3DPos.y());
+
+	// Apply the Z-buffer to the Z position, and we would have the 3D clip space position of the selected pixel.
+	vectClipSpace3DPos.z() = _directXController->getDepthBufferAtPixel(static_cast<int>(vectClipSpace3DPos.x()), static_cast<int>(vectClipSpace3DPos.y()));
 
 	return _camera->convertScreenPositionTo3DPosition(vectClipSpace3DPos);
 }
@@ -490,8 +497,5 @@ bool Storm::GraphicManager::hasSelectedParticle() const
 
 void Storm::GraphicManager::notifyViewportRescaled(int newWidth, int newHeight)
 {
-	const float newWidthFl = static_cast<float>(newWidth);
-	const float newHeightFl = static_cast<float>(newHeight);
-	_directXController->setRescaledDimension(newWidthFl, newHeightFl);
-	_camera->setRescaledDimension(newWidthFl, newHeightFl);
+	_camera->setRescaledDimension(static_cast<float>(newWidth), static_cast<float>(newHeight));
 }

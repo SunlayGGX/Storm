@@ -62,6 +62,7 @@ namespace Storm
 		void convertScreenPositionToRay(const Storm::Vector2 &screenPos, Storm::Vector3 &outRayOrigin, Storm::Vector3 &outRayDirection) const;
 		Storm::Vector3 convertScreenPositionTo3DPosition(const Storm::Vector3 &screenPos3D) const;
 
+		void rescaleScreenPosition(float &outXPos, float &outYPos) const;
 		void setRescaledDimension(float newViewportWidth, float newViewportHeight);
 
 	private:
