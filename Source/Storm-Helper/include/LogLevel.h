@@ -6,6 +6,7 @@ namespace Storm
 	enum class LogLevel
 	{
 		Debug,
+		DebugWarning,
 		DebugError,
 		Comment,
 		Warning,

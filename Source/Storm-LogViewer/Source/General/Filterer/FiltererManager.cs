@@ -68,6 +68,7 @@ namespace Storm_LogViewer.Source.General.Filterer
         {
             _logLevelsFilter = new List<LogLevelFilterCheckboxValue>{
                 new LogLevelFilterCheckboxValue{ _level = LogLevelEnum.Debug },
+                new LogLevelFilterCheckboxValue{ _level = LogLevelEnum.DebugWarning },
                 new LogLevelFilterCheckboxValue{ _level = LogLevelEnum.DebugError },
                 new LogLevelFilterCheckboxValue{ _level = LogLevelEnum.Comment },
                 new LogLevelFilterCheckboxValue{ _level = LogLevelEnum.Warning },

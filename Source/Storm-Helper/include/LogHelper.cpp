@@ -11,6 +11,7 @@ std::string_view Storm::parseLogLevel(Storm::LogLevel logLevel)
 	switch (logLevel)
 	{
 		STORM_SWITCH_CASE_STRINGIFY(Debug);
+		STORM_SWITCH_CASE_STRINGIFY(DebugWarning);
 		STORM_SWITCH_CASE_STRINGIFY(DebugError);
 		STORM_SWITCH_CASE_STRINGIFY(Comment);
 		STORM_SWITCH_CASE_STRINGIFY(Warning);

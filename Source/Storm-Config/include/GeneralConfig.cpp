@@ -19,6 +19,7 @@ namespace
 #define STORM_RETURN_IF_LEVEL_IS(LogLevelEnum) if (levelStr == boost::to_lower_copy(std::string{ #LogLevelEnum })) return Storm::LogLevel::LogLevelEnum
 
 		STORM_RETURN_IF_LEVEL_IS(Debug);
+		STORM_RETURN_IF_LEVEL_IS(DebugWarning);
 		STORM_RETURN_IF_LEVEL_IS(DebugError);
 		STORM_RETURN_IF_LEVEL_IS(Comment);
 		STORM_RETURN_IF_LEVEL_IS(Fatal);

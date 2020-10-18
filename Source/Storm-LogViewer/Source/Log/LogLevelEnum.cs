@@ -9,6 +9,7 @@ namespace Storm_LogViewer.Source.Log
     public enum LogLevelEnum
     {
         Debug,
+        DebugWarning,
         DebugError,
         Comment,
         Warning,

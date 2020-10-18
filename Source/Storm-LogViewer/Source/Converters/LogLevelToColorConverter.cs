@@ -15,6 +15,7 @@ namespace Storm_LogViewer.Source.Converters
             switch (logLevel)
             {
             case Log.LogLevelEnum.Debug: return new SolidColorBrush(Color.FromRgb(0, 200, 50));
+            case Log.LogLevelEnum.DebugWarning: return new SolidColorBrush(Color.FromRgb(125, 125, 0));
             case Log.LogLevelEnum.DebugError: return new SolidColorBrush(Color.FromRgb(180, 25, 25));
             case Log.LogLevelEnum.Comment: return new SolidColorBrush(Color.FromRgb(150, 150, 150));
             case Log.LogLevelEnum.Warning: return new SolidColorBrush(Color.FromRgb(200, 200, 0));

@@ -58,6 +58,7 @@ namespace Storm
 #define STORM_LOG_BASE_IMPL(Level) Storm::LoggerObject{ STORM_MODULE_NAME, Level, __FUNCTION__, __LINE__ }
 
 #define LOG_DEBUG           STORM_LOG_BASE_IMPL(Storm::LogLevel::Debug)
+#define LOG_DEBUG_WARNING   STORM_LOG_BASE_IMPL(Storm::LogLevel::DebugWarning)
 #define LOG_DEBUG_ERROR     STORM_LOG_BASE_IMPL(Storm::LogLevel::DebugError)
 #define LOG_COMMENT         STORM_LOG_BASE_IMPL(Storm::LogLevel::Comment)
 #define LOG_WARNING         STORM_LOG_BASE_IMPL(Storm::LogLevel::Warning)
