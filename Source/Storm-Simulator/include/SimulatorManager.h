@@ -11,6 +11,7 @@ namespace Storm
 {
 	class ParticleSystem;
 	class IBlower;
+	class ISPHBaseSolver;
 	struct GeneralSimulationData;
 	struct SerializeRecordPendingData;
 
@@ -90,6 +91,8 @@ namespace Storm
 	private:
 		std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> _particleSystem;
 		std::vector<std::unique_ptr<Storm::IBlower>> _blowers;
+
+		std::unique_ptr<Storm::ISPHBaseSolver> _sphSolver;
 
 		Storm::ParticleSelector _particleSelector;
 		bool _raycastEnabled;

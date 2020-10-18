@@ -49,6 +49,12 @@
     <Filter Include="Source Files\Record">
       <UniqueIdentifier>{d6180282-2bc5-4855-9742-ac1cf9ba45dc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Solver\SPHSolvers">
+      <UniqueIdentifier>{01e37a1a-6b5a-427d-8b6c-67ae67dcf3d1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Solver\SPHSolvers">
+      <UniqueIdentifier>{1607e68e-3a1f-406f-b4e1-e3c624b47846}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-SimulatorPCH.cpp">
@@ -75,14 +81,20 @@
     <ClCompile Include="..\include\SemiImplicitEulerSolver.cpp">
       <Filter>Source Files\Solver</Filter>
     </ClCompile>
-    <ClCompile Include="..\include\SPHSolvers.cpp">
-      <Filter>Source Files\Solver</Filter>
-    </ClCompile>
     <ClCompile Include="..\include\ParticleSelector.cpp">
       <Filter>Source Files\General</Filter>
     </ClCompile>
     <ClCompile Include="..\include\ReplaySolver.cpp">
       <Filter>Source Files\Record</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\SPHBaseSolver.cpp">
+      <Filter>Source Files\Solver\SPHSolvers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\WCSPHSolver.cpp">
+      <Filter>Source Files\Solver\SPHSolvers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\PCISPHSolver.cpp">
+      <Filter>Source Files\Solver\SPHSolvers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -128,9 +140,6 @@
     <ClInclude Include="..\include\SemiImplicitEulerSolver.h">
       <Filter>Header Files\Solver</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\SPHSolvers.h">
-      <Filter>Header Files\Solver</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\ParticleSelector.h">
       <Filter>Header Files\General</Filter>
     </ClInclude>
@@ -139,6 +148,15 @@
     </ClInclude>
     <ClInclude Include="..\include\ReplaySolver.h">
       <Filter>Header Files\Record</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SPHBaseSolver.h">
+      <Filter>Header Files\Solver\SPHSolvers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\WCSPHSolver.h">
+      <Filter>Header Files\Solver\SPHSolvers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\PCISPHSolver.h">
+      <Filter>Header Files\Solver\SPHSolvers</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

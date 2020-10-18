@@ -22,7 +22,6 @@
 #include "FluidData.h"
 #include "RecordConfigData.h"
 
-#include "SimulationMode.h"
 #include "KernelMode.h"
 #include "RecordMode.h"
 #include "ReplaySolver.h"
@@ -32,7 +31,7 @@
 #include "SemiImplicitEulerSolver.h"
 #include "Kernel.h"
 
-#include "SPHSolvers.h"
+#include "SPHBaseSolver.h"
 
 #include "SpecialKey.h"
 
@@ -813,19 +812,7 @@ void Storm::SimulatorManager::executeIteration(bool firstFrame, unsigned int for
 		}
 
 		// Compute the simulation
-		switch (generalSimulationConfigData._simulationMode)
-		{
-		case Storm::SimulationMode::WCSPH:
-			Storm::WCSPHSolver::execute(_particleSystem, kernelLength, physicsElapsedDeltaTime);
-			break;
-
-		case Storm::SimulationMode::PCISPH:
-			Storm::PCISPHSolver::execute(_particleSystem, kernelLength, physicsElapsedDeltaTime);
-			break;
-
-		default:
-			Storm::throwException<std::exception>("Unknown simulation mode!");
-		}
+		_sphSolver->execute(_particleSystem, kernelLength, physicsElapsedDeltaTime);
 
 		float velocityThresholdSquaredForCFL = computeCFLDistance(generalSimulationConfigData) / physicsElapsedDeltaTime;
 		velocityThresholdSquaredForCFL = velocityThresholdSquaredForCFL * velocityThresholdSquaredForCFL;
@@ -954,6 +941,12 @@ void Storm::SimulatorManager::initializePreSimulation()
 		Storm::ParticleSystem &pSystem = *particleSystem.second;
 		pSystem.initializePreSimulation(_particleSystem, k_kernelLength);
 	}
+
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
+	const Storm::GeneralSimulationData &generalSimulationConfigData = configMgr.getGeneralSimulationData();
+
+	_sphSolver = Storm::instantiateSPHSolver(generalSimulationConfigData._simulationMode);
 }
 
 void Storm::SimulatorManager::refreshParticlesPosition()

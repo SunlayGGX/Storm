@@ -16,15 +16,17 @@
     <ClCompile Include="..\include\Kernel.cpp" />
     <ClCompile Include="..\include\ParticleSelector.cpp" />
     <ClCompile Include="..\include\ParticleSystem.cpp" />
+    <ClCompile Include="..\include\PCISPHSolver.cpp" />
     <ClCompile Include="..\include\ReplaySolver.cpp" />
     <ClCompile Include="..\include\RigidBodyParticleSystem.cpp" />
     <ClCompile Include="..\include\SemiImplicitEulerSolver.cpp" />
     <ClCompile Include="..\include\SimulatorManager.cpp" />
+    <ClCompile Include="..\include\SPHBaseSolver.cpp" />
     <ClCompile Include="..\include\Storm-SimulatorPCH.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\include\SPHSolvers.cpp" />
+    <ClCompile Include="..\include\WCSPHSolver.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Blower.h" />
@@ -39,12 +41,14 @@
     <ClInclude Include="..\include\ParticleSelector.h" />
     <ClInclude Include="..\include\ParticleSystem.h" />
     <ClInclude Include="..\include\ParticleSystemUtils.h" />
+    <ClInclude Include="..\include\PCISPHSolver.h" />
     <ClInclude Include="..\include\ReplaySolver.h" />
     <ClInclude Include="..\include\RigidBodyParticleSystem.h" />
     <ClInclude Include="..\include\SemiImplicitEulerSolver.h" />
     <ClInclude Include="..\include\SimulatorManager.h" />
+    <ClInclude Include="..\include\SPHBaseSolver.h" />
     <ClInclude Include="..\include\Storm-SimulatorPCH.h" />
-    <ClInclude Include="..\include\SPHSolvers.h" />
+    <ClInclude Include="..\include\WCSPHSolver.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Storm-Helper\script\Storm-Helper.vcxproj">
