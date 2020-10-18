@@ -197,8 +197,9 @@ void Storm::PCISPHSolver::execute(const std::map<unsigned int, std::unique_ptr<S
 {
 	STORM_NOT_IMPLEMENTED;
 
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 
-	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
+	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
 	const Storm::GeneralSimulationData &generalSimulData = configMgr.getGeneralSimulationData();
 	const Storm::FluidData &fluidConfigData = configMgr.getFluidData();
 
