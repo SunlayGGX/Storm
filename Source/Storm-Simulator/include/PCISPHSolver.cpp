@@ -69,10 +69,27 @@ void Storm::PCISPHSolver::execute(const std::map<unsigned int, std::unique_ptr<S
 	const Storm::FluidData &fluidConfigData = configMgr.getFluidData();
 
 	const float k_maxDensityError = generalSimulData._maxDensityError;
-	const unsigned int k_maxPredictionIter = generalSimulData._maxPredictIteration;
 	unsigned int currentPredictionIter = 0;
 
 	// First : compute stiffness constant coeff kPCI.
-
 	const float k_templatePStiffnessCoeffK = _kUniformStiffnessConstCoefficient / (k_deltaTime * k_deltaTime);
+
+	float averageDensityError;
+
+	// 2nd : The density prediction
+	do
+	{
+
+
+
+		// TODO : Compute the density error
+		averageDensityError = 0.f;
+	} while (averageDensityError > generalSimulData._maxDensityError && currentPredictionIter++ < generalSimulData._maxPredictIteration);
+
+	if (currentPredictionIter > generalSimulData._maxPredictIteration)
+	{
+		LOG_DEBUG_WARNING <<
+			"Max prediction loop watchdog hit without being able to go under the max density error allowed when computing PCISPH predicted density...\n"
+			"We'll leave the prediction loop with an average density of " << averageDensityError;
+	}
 }
