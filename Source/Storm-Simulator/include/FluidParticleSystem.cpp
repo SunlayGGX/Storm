@@ -50,9 +50,9 @@ Storm::FluidParticleSystem::FluidParticleSystem(unsigned int particleSystemIndex
 	// No need to init the other thing since this constructor is only to be used in replay mode and we won't use them.
 }
 
-void Storm::FluidParticleSystem::initializeIteration(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const std::vector<std::unique_ptr<Storm::IBlower>> &blowers, const bool shouldRegisterTemporaryForce)
+void Storm::FluidParticleSystem::initializeIteration(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const std::vector<std::unique_ptr<Storm::IBlower>> &blowers)
 {
-	Storm::ParticleSystem::initializeIteration(allParticleSystems, blowers, shouldRegisterTemporaryForce);
+	Storm::ParticleSystem::initializeIteration(allParticleSystems, blowers);
 
 	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
 
@@ -76,9 +76,9 @@ void Storm::FluidParticleSystem::initializeIteration(const std::map<unsigned int
 
 	const Storm::Vector3 gravityAccel = fluidSimulData._gravityEnabled ? generalSimulData._gravity : Storm::Vector3::Zero();
 
-	Storm::runParallel(_force, [this, &gravityAccel, &blowers, shouldRegisterTemporaryForce](Storm::Vector3 &currentPForce, const std::size_t currentPIndex)
+	Storm::runParallel(_force, [this, &gravityAccel, &blowers](Storm::Vector3 &currentPForce, const std::size_t currentPIndex)
 	{
-		this->internalInitializeForce(gravityAccel, blowers, currentPForce, currentPIndex, shouldRegisterTemporaryForce);
+		this->internalInitializeForce(gravityAccel, blowers, currentPForce, currentPIndex);
 
 		_velocityPreTimestep[currentPIndex] = _velocity[currentPIndex];
 	});
@@ -321,7 +321,7 @@ void Storm::FluidParticleSystem::postApplySPH(float)
 
 }
 
-void Storm::FluidParticleSystem::revertToCurrentTimestep(const std::vector<std::unique_ptr<Storm::IBlower>> &blowers, const bool shouldRegisterTemporaryForce)
+void Storm::FluidParticleSystem::revertToCurrentTimestep(const std::vector<std::unique_ptr<Storm::IBlower>> &blowers)
 {
 	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
 	const Storm::GeneralSimulationData &generalSimulData = configMgr.getGeneralSimulationData();
@@ -329,14 +329,14 @@ void Storm::FluidParticleSystem::revertToCurrentTimestep(const std::vector<std::
 
 	const Storm::Vector3 gravityAccel = fluidSimulData._gravityEnabled ? generalSimulData._gravity : Storm::Vector3::Zero();
 
-	Storm::runParallel(_force, [this, &blowers, &gravityAccel, shouldRegisterTemporaryForce](Storm::Vector3 &force, const std::size_t currentPIndex)
+	Storm::runParallel(_force, [this, &blowers, &gravityAccel](Storm::Vector3 &force, const std::size_t currentPIndex)
 	{
-		this->internalInitializeForce(gravityAccel, blowers, force, currentPIndex, shouldRegisterTemporaryForce);
+		this->internalInitializeForce(gravityAccel, blowers, force, currentPIndex);
 		_velocity[currentPIndex] = _velocityPreTimestep[currentPIndex];
 	});
 }
 
-void Storm::FluidParticleSystem::internalInitializeForce(const Storm::Vector3 &gravityAccel, const std::vector<std::unique_ptr<Storm::IBlower>> &blowers, Storm::Vector3 &force, const std::size_t currentPIndex, const bool shouldRegisterTemporaryForce)
+void Storm::FluidParticleSystem::internalInitializeForce(const Storm::Vector3 &gravityAccel, const std::vector<std::unique_ptr<Storm::IBlower>> &blowers, Storm::Vector3 &force, const std::size_t currentPIndex)
 {
 	const float currentPMass = _masses[currentPIndex];
 	force = currentPMass * gravityAccel;
@@ -347,9 +347,6 @@ void Storm::FluidParticleSystem::internalInitializeForce(const Storm::Vector3 &g
 		blowerUPtr->applyForce(currentPPosition, force);
 	}
 
-	if (shouldRegisterTemporaryForce)
-	{
-		_tmpPressureForce[currentPIndex].setZero();
-		_tmpViscosityForce[currentPIndex].setZero();
-	}
+	_tmpPressureForce[currentPIndex].setZero();
+	_tmpViscosityForce[currentPIndex].setZero();
 }

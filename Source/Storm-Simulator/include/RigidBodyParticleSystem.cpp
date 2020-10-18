@@ -118,9 +118,9 @@ void Storm::RigidBodyParticleSystem::initializePreSimulation(const std::map<unsi
 	}
 }
 
-void Storm::RigidBodyParticleSystem::initializeIteration(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const std::vector<std::unique_ptr<Storm::IBlower>> &blowers, const bool shouldRegisterTemporaryForce)
+void Storm::RigidBodyParticleSystem::initializeIteration(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const std::vector<std::unique_ptr<Storm::IBlower>> &blowers)
 {
-	Storm::ParticleSystem::initializeIteration(allParticleSystems, blowers, shouldRegisterTemporaryForce);
+	Storm::ParticleSystem::initializeIteration(allParticleSystems, blowers);
 
 	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
 
@@ -164,15 +164,12 @@ void Storm::RigidBodyParticleSystem::initializeIteration(const std::map<unsigned
 	}
 	else
 	{
-		Storm::runParallel(_force, [this, currentKernelZero, rawKernelMeth, k_kernelLength, shouldRegisterTemporaryForce](Storm::Vector3 &force, const std::size_t currentPIndex)
+		Storm::runParallel(_force, [this, currentKernelZero, rawKernelMeth, k_kernelLength](Storm::Vector3 &force, const std::size_t currentPIndex)
 		{
 			// Initialize forces to 0
 			force.setZero();
-			if (shouldRegisterTemporaryForce)
-			{
-				_tmpPressureForce[currentPIndex].setZero();
-				_tmpViscosityForce[currentPIndex].setZero();
-			}
+			_tmpPressureForce[currentPIndex].setZero();
+			_tmpViscosityForce[currentPIndex].setZero();
 
 			// Compute the current boundary particle volume.
 			const float initialVolumeValue = currentKernelZero;
@@ -400,18 +397,15 @@ void Storm::RigidBodyParticleSystem::postApplySPH(float)
 	}
 }
 
-void Storm::RigidBodyParticleSystem::revertToCurrentTimestep(const std::vector<std::unique_ptr<Storm::IBlower>> &, const bool shouldRegisterTemporaryForce)
+void Storm::RigidBodyParticleSystem::revertToCurrentTimestep(const std::vector<std::unique_ptr<Storm::IBlower>> &)
 {
 	if (!_isStatic)
 	{
-		Storm::runParallel(_force, [this, shouldRegisterTemporaryForce](Storm::Vector3 &force, const std::size_t currentPIndex) 
+		Storm::runParallel(_force, [this](Storm::Vector3 &force, const std::size_t currentPIndex) 
 		{
 			force.setZero();
-			if (shouldRegisterTemporaryForce)
-			{
-				_tmpPressureForce[currentPIndex].setZero();
-				_tmpViscosityForce[currentPIndex].setZero();
-			}
+			_tmpPressureForce[currentPIndex].setZero();
+			_tmpViscosityForce[currentPIndex].setZero();
 		});
 	}
 }

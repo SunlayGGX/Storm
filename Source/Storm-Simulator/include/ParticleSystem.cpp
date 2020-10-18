@@ -38,6 +38,8 @@ void Storm::ParticleSystem::initParticlesCount(const std::size_t particleCount)
 {
 	_velocity.resize(particleCount, Storm::Vector3::Zero());
 	_force.resize(particleCount, Storm::Vector3::Zero());
+	_tmpPressureForce.resize(particleCount, Storm::Vector3::Zero());
+	_tmpViscosityForce.resize(particleCount, Storm::Vector3::Zero());
 
 	const bool replayMode = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().isInReplayMode();
 	if (!replayMode)
@@ -48,12 +50,6 @@ void Storm::ParticleSystem::initParticlesCount(const std::size_t particleCount)
 		{
 			neighborHoodArray.reserve(64);
 		}
-	}
-
-	if (Storm::SimulatorManager::instance().shouldRegisterTemporaryForces())
-	{
-		_tmpPressureForce.resize(particleCount, Storm::Vector3::Zero());
-		_tmpViscosityForce.resize(particleCount, Storm::Vector3::Zero());
 	}
 }
 
@@ -160,17 +156,11 @@ void Storm::ParticleSystem::initializePreSimulation(const std::map<unsigned int,
 
 }
 
-void Storm::ParticleSystem::initializeIteration(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const std::vector<std::unique_ptr<Storm::IBlower>> &, const bool shouldRegisterTemporaryForce)
+void Storm::ParticleSystem::initializeIteration(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const std::vector<std::unique_ptr<Storm::IBlower>> &)
 {
 	_isDirty = false;
 
 	const std::size_t particleCount = _positions.size();
-
-	if (shouldRegisterTemporaryForce)
-	{
-		_tmpPressureForce.resize(particleCount);
-		_tmpViscosityForce.resize(particleCount);
-	}
 
 #if defined(DEBUG) || defined(_DEBUG)
 	const bool replayMode = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().isInReplayMode();
@@ -178,6 +168,8 @@ void Storm::ParticleSystem::initializeIteration(const std::map<unsigned int, std
 		particleCount == _positions.size() &&
 		particleCount == _velocity.size() &&
 		particleCount == _force.size() &&
+		particleCount == _tmpPressureForce.size() &&
+		particleCount == _tmpViscosityForce.size() &&
 		(replayMode || particleCount == _neighborhood.size()) &&
 		"Particle count mismatch detected! An array of particle property has not the same particle count than the other!"
 	);

@@ -61,6 +61,8 @@ namespace Storm_LogViewer
             }
         }
 
+        private object _mutex = new object();
+
         public MainWindow()
         {
             InitializeComponent();
@@ -87,6 +89,8 @@ namespace Storm_LogViewer
             configMgr._onAutoScrollCheckboxChanged += AutoScrollUpdated;
             loggerReaderMgr._onDisplayedLogItemsCollectionChanged += OnDisplayedLogItemsCollectionChanged;
             loggerReaderMgr.NotifyLogItemsCollectionChanged();
+
+            BindingOperations.EnableCollectionSynchronization(LogDisplayArea.Items, _mutex);
         }
 
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
@@ -124,13 +128,11 @@ namespace Storm_LogViewer
 
             Dispatcher.BeginInvoke(new Action(() =>
             {
-                lock (displayedLogItems)
+                lock (_mutex)
                 {
                     LogCountInfoStr = logInfo;
 
                     LogDisplayArea.ItemsSource = displayedLogItems;
-                    ICollectionView view = CollectionViewSource.GetDefaultView(LogDisplayArea.ItemsSource);
-                    view.Refresh();
 
                     ScrollToEndIfAutoScroll_UIThread();
                 }

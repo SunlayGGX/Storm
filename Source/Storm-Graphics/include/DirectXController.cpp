@@ -354,22 +354,20 @@ void Storm::DirectXController::drawUI(const std::map<std::wstring_view, std::wst
 
 	this->drawTextBackground(writeRectPosition);
 
-	std::wstring tmp;
-
 	unsigned int iter = 0;
-	for (const auto fieldText : texts)
+	for (const auto &fieldText : texts)
 	{
 		writeRectPosition.top = _textHeightCoeff * static_cast<float>(iter);
 		writeRectPosition.bottom = _textHeightCoeff * static_cast<float>(iter + 1);
 
-		tmp.clear();
-		tmp.reserve(fieldText.first.size() + fieldText.second.size() + 2);
+		_writeTextTemp.clear();
+		_writeTextTemp.reserve(fieldText.first.size() + fieldText.second.size() + 2);
 
-		tmp += fieldText.first;
-		tmp += STORM_TEXT(": ");
-		tmp += fieldText.second;
+		_writeTextTemp += fieldText.first;
+		_writeTextTemp += STORM_TEXT(": ");
+		_writeTextTemp += fieldText.second;
 
-		this->drawText(tmp, writeRectPosition);
+		this->drawText(writeRectPosition);
 
 		++iter;
 	}
@@ -397,11 +395,11 @@ void Storm::DirectXController::drawTextBackground(const D2D1_RECT_F &rectPositio
 	_direct2DRenderTarget->FillRectangle(rectPosition, _direct2DRectSolidBrush.Get());
 }
 
-void Storm::DirectXController::drawText(const std::wstring &text, const D2D1_RECT_F &rectPosition)
+void Storm::DirectXController::drawText(const D2D1_RECT_F &rectPosition)
 {
 	_direct2DRenderTarget->DrawText(
-		text.c_str(),
-		static_cast<UINT32>(text.size()),
+		_writeTextTemp.c_str(),
+		static_cast<UINT32>(_writeTextTemp.size()),
 		_textFormat.Get(),
 		rectPosition,
 		_direct2DTextSolidBrush.Get()
@@ -446,6 +444,13 @@ void Storm::DirectXController::internalCreateDXDevices(HWND hwnd)
 		Storm::DirectXHardwareInfo infos{ descModeWanted };
 
 		swapChainDesc.BufferDesc.Format = infos._mode.Format;
+
+		if (swapChainDesc.BufferDesc.Width != infos._mode.Width || swapChainDesc.BufferDesc.Height != infos._mode.Height)
+		{
+			LOG_DEBUG <<
+				"Wanted dimension " << descModeWanted.Width << 'x' << descModeWanted.Height << " aren't supported.\n"
+				"Therefore we will fall back to the nearest supported dimension " << infos._mode.Width << 'x' << infos._mode.Height;
+		}
 
 		swapChainDesc.BufferDesc.Width = infos._mode.Width;
 		swapChainDesc.BufferDesc.Height = infos._mode.Height;

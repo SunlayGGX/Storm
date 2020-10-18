@@ -36,6 +36,8 @@ Storm::RaycastManager::~RaycastManager() = default;
 
 void Storm::RaycastManager::queryRaycast(const Storm::Vector3 &origin, const Storm::Vector3 &direction, Storm::RaycastQueryRequest &&queryRequest) const
 {
+	LOG_DEBUG << "Raycast query at origin " << origin << " and direction " << direction;
+
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 	singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::MainThread, [this, origin, direction, queryReq = std::move(queryRequest)]()
 	{
@@ -45,6 +47,8 @@ void Storm::RaycastManager::queryRaycast(const Storm::Vector3 &origin, const Sto
 
 void Storm::RaycastManager::queryRaycast(const Storm::Vector2 &pixelScreenPos, Storm::RaycastQueryRequest &&queryRequest) const
 {
+	LOG_DEBUG << "Raycast query at screen position : " << pixelScreenPos;
+
 	// Since this part is queried inside the graphic thread, we can access the Camera data without locking.
 	// The downside is that the raycast query is async and will answer some frame later, like many other engine implementation.
 	// The raycast query is so rare that it isn't worth to lock objects that shouldn't be shared from thread to thread at normal time...
@@ -53,11 +57,7 @@ void Storm::RaycastManager::queryRaycast(const Storm::Vector2 &pixelScreenPos, S
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 	singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::GraphicsThread, [this, pixelScreenPos, queryReq = std::move(queryRequest), &singletonHolder]() mutable
 	{
-		Storm::Vector3 origin;
-		Storm::Vector3 direction;
-
 		const Storm::IGraphicsManager &graphicMgr = singletonHolder.getSingleton<Storm::IGraphicsManager>();
-		graphicMgr.convertScreenPositionToRay(pixelScreenPos, origin, direction);
 
 		if (queryReq._considerOnlyVisible)
 		{
@@ -91,6 +91,10 @@ void Storm::RaycastManager::queryRaycast(const Storm::Vector2 &pixelScreenPos, S
 			}
 		}
 
+		Storm::Vector3 origin;
+		Storm::Vector3 direction;
+
+		graphicMgr.convertScreenPositionToRay(pixelScreenPos, origin, direction);
 		this->queryRaycast(origin, direction, std::move(queryReq));
 	});
 }
@@ -182,7 +186,13 @@ void Storm::RaycastManager::searchForNearestParticle(const Storm::Vector3 &posit
 			const std::vector<Storm::Vector3>* particleSystemPositions = nullptr;
 			unsigned int lastId = std::numeric_limits<decltype(lastId)>::max();
 
-			auto searchLambda = [&particleSystemPositions, &lastId, &simulatorMgr, &position, &minDistSquaredFound, &resultReferral](const Storm::NeighborParticleReferral &particleReferral)
+#if STORM_USE_INTRINSICS
+			const __m128 positionAlias = _mm_loadu_ps(reinterpret_cast<const float*>(&position[0]));
+#else
+			const Storm::Vector3 &positionAlias = position;
+#endif
+
+			const auto searchLambda = [&particleSystemPositions, &lastId, &simulatorMgr, &positionAlias, &minDistSquaredFound, &resultReferral](const Storm::NeighborParticleReferral &particleReferral)
 			{
 				if (lastId != particleReferral._systemId)
 				{
@@ -190,17 +200,39 @@ void Storm::RaycastManager::searchForNearestParticle(const Storm::Vector3 &posit
 					particleSystemPositions = &simulatorMgr.getParticleSystemPositionsReferences(particleReferral._systemId);
 				}
 
+#if STORM_USE_INTRINSICS
+
+				const __m128 particleCenter = _mm_loadu_ps(reinterpret_cast<const float*>(&(*particleSystemPositions)[particleReferral._particleIndex][0]));
+
+				enum : int
+				{
+					// Masks are for those component, in this order : wzyx
+
+					broadcastMask = 0b0001,
+					conditionMask = 0b0111,
+
+					dotProductMask = conditionMask << 4 | broadcastMask
+				};
+
+				const __m128 outPosDiff = _mm_sub_ps(particleCenter, positionAlias);
+				const float normSquared = _mm_dp_ps(outPosDiff, outPosDiff, dotProductMask).m128_f32[0];
+				if (normSquared < minDistSquaredFound)
+				{
+					minDistSquaredFound = normSquared;
+					resultReferral = &particleReferral;
+				}
+#else
 				const Storm::Vector3 &particleCenter = (*particleSystemPositions)[particleReferral._particleIndex];
 
-				float tmp = particleCenter.x() - position.x();
+				float tmp = particleCenter.x() - positionAlias.x();
 				float distSquared = tmp * tmp;
 				if (distSquared < minDistSquaredFound)
 				{
-					tmp = particleCenter.y() - position.y();
+					tmp = particleCenter.y() - positionAlias.y();
 					distSquared += tmp * tmp;
 					if (distSquared < minDistSquaredFound)
 					{
-						tmp = particleCenter.z() - position.z();
+						tmp = particleCenter.z() - positionAlias.z();
 						distSquared += tmp * tmp;
 						if (distSquared < minDistSquaredFound)
 						{
@@ -209,6 +241,7 @@ void Storm::RaycastManager::searchForNearestParticle(const Storm::Vector3 &posit
 						}
 					}
 				}
+#endif
 			};
 
 			for (const Storm::NeighborParticleReferral &particleReferral : *containingBundlePtr)
@@ -216,7 +249,7 @@ void Storm::RaycastManager::searchForNearestParticle(const Storm::Vector3 &posit
 				searchLambda(particleReferral);
 			}
 
-			for (const std::vector<Storm::NeighborParticleReferral>** neighborBundle = neighborhoodBundles; *neighborBundle != nullptr; ++neighborBundle)
+			for (const std::vector<Storm::NeighborParticleReferral>*const* neighborBundle = neighborhoodBundles; *neighborBundle != nullptr; ++neighborBundle)
 			{
 				for (const Storm::NeighborParticleReferral &particleReferral : **neighborBundle)
 				{

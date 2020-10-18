@@ -16,7 +16,7 @@ namespace Storm
 		void clear();
 		void addParticle(const std::size_t index, const unsigned int systemId);
 
-		const std::vector<Storm::NeighborParticleReferral>& getData() const;
+		__forceinline const std::vector<Storm::NeighborParticleReferral>& getData() const noexcept { return _particleReferralsData; }
 
 	private:
 		std::vector<Storm::NeighborParticleReferral> _particleReferralsData;

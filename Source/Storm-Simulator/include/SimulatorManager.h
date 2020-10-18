@@ -44,9 +44,6 @@ namespace Storm
 		void refreshParticlesPosition() final override;
 
 	public:
-		bool shouldRegisterTemporaryForces() const;
-
-	public:
 		void addFluidParticleSystem(unsigned int id, std::vector<Storm::Vector3> particlePositions) final override;
 		void addRigidBodyParticleSystem(unsigned int id, std::vector<Storm::Vector3> particlePositions) final override;
 

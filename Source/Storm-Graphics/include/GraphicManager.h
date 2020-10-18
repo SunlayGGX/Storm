@@ -71,6 +71,9 @@ namespace Storm
 	public:
 		bool hasSelectedParticle() const;
 
+	public:
+		void notifyViewportRescaled(int newWidth, int newHeight);
+
 	private:
 		unsigned char _renderCounter;
 
@@ -89,5 +92,7 @@ namespace Storm
 		std::pair<unsigned int, std::size_t> _selectedParticle;
 
 		std::thread _renderThread;
+
+		unsigned short _windowsResizedCallbackId;
 	};
 }

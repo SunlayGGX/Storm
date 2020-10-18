@@ -45,6 +45,13 @@ namespace
 		}
 		break;
 
+		case WM_SIZE:
+		{
+			Storm::WindowsManager::instance().callWindowsResizedCallback(LOWORD(lParam), HIWORD(lParam));
+			return DefWindowProc(hWnd, message, wParam, lParam);
+		}
+		break;
+
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
 		}
@@ -220,21 +227,30 @@ void Storm::WindowsManager::update()
 	}
 }
 
-void Storm::WindowsManager::retrieveWindowsDimension(float &outX, float &outY) const
+void Storm::WindowsManager::retrieveWindowsDimension(int &outX, int &outY) const
 {
 	if (_windowVisuHandle)
 	{
 		RECT windowsRect;
 		GetClientRect(static_cast<HWND>(_windowVisuHandle), &windowsRect);
 
-		outX = static_cast<float>(windowsRect.right - windowsRect.left);
-		outY = static_cast<float>(windowsRect.bottom - windowsRect.top);
+		outX = windowsRect.right - windowsRect.left;
+		outY = windowsRect.bottom - windowsRect.top;
 	}
 	else
 	{
-		outX = 0.f;
-		outY = 0.f;
+		outX = 0;
+		outY = 0;
 	}
+}
+
+void Storm::WindowsManager::retrieveWindowsDimension(float &outX, float &outY) const
+{
+	int intX;
+	int intY;
+	this->retrieveWindowsDimension(intX, intY);
+	outX = static_cast<float>(intX);
+	outY = static_cast<float>(intY);
 }
 
 void* Storm::WindowsManager::getWindowHandle() const
@@ -254,13 +270,13 @@ void* Storm::WindowsManager::getWindowAccelerationTable() const
 
 unsigned short Storm::WindowsManager::bindQuitCallback(Storm::QuitDelegate &&callback)
 {
-	std::lock_guard<std::mutex> autoLocker{ _callbackMutex };
+	std::lock_guard<std::recursive_mutex> autoLocker{ _callbackMutex };
 	return _quitCallback.add(std::move(callback));
 }
 
 void Storm::WindowsManager::bindFinishInitializeCallback(Storm::FinishedInitializeDelegate &&callback)
 {
-	std::lock_guard<std::mutex> autoLocker{ _callbackMutex };
+	std::lock_guard<std::recursive_mutex> autoLocker{ _callbackMutex };
 	if (_windowVisuHandle != nullptr)
 	{
 		callback(_windowVisuHandle, true);
@@ -271,17 +287,46 @@ void Storm::WindowsManager::bindFinishInitializeCallback(Storm::FinishedInitiali
 	}
 }
 
+unsigned short Storm::WindowsManager::bindWindowsResizedCallback(Storm::WindowsResizedDelegate &&callback)
+{
+	std::lock_guard<std::recursive_mutex> autoLocker{ _callbackMutex };
+	return _windowsResizedCallback.add(std::move(callback));
+}
+
+void Storm::WindowsManager::unbindWindowsResizedCallback(unsigned short callbackId)
+{
+	std::lock_guard<std::recursive_mutex> autoLocker{ _callbackMutex };
+	_windowsResizedCallback.remove(callbackId);
+}
+
 void Storm::WindowsManager::callQuitCallback()
 {
-	std::lock_guard<std::mutex> autoLocker{ _callbackMutex };
+	std::lock_guard<std::recursive_mutex> autoLocker{ _callbackMutex };
 	Storm::prettyCallMultiCallback(_quitCallback);
 }
 
 void Storm::WindowsManager::callFinishInitializeCallback()
 {
-	std::lock_guard<std::mutex> autoLocker{ _callbackMutex };
+	std::lock_guard<std::recursive_mutex> autoLocker{ _callbackMutex };
 	Storm::prettyCallMultiCallback(_finishedInitCallback, _windowVisuHandle, false);
 	_finishedInitCallback.clear();
+}
+
+void Storm::WindowsManager::callWindowsResizedCallback()
+{
+	int newWidth;
+	int newHeight;
+
+	std::lock_guard<std::recursive_mutex> autoLocker{ _callbackMutex };
+
+	this->retrieveWindowsDimension(newWidth, newHeight);
+	Storm::prettyCallMultiCallback(_windowsResizedCallback, newWidth, newHeight);
+}
+
+void Storm::WindowsManager::callWindowsResizedCallback(unsigned int newWidth, unsigned int newHeight)
+{
+	std::lock_guard<std::recursive_mutex> autoLocker{ _callbackMutex };
+	Storm::prettyCallMultiCallback(_windowsResizedCallback, newWidth, newHeight);
 }
 
 void Storm::WindowsManager::unbindQuitCallback(unsigned short callbackId)
@@ -291,7 +336,8 @@ void Storm::WindowsManager::unbindQuitCallback(unsigned short callbackId)
 
 void Storm::WindowsManager::unbindCallbacks()
 {
-	std::lock_guard<std::mutex> autoLocker{ _callbackMutex };
+	std::lock_guard<std::recursive_mutex> autoLocker{ _callbackMutex };
 	_quitCallback.clear();
 	_finishedInitCallback.clear();
+	_windowsResizedCallback.clear();
 }

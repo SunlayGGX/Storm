@@ -199,6 +199,14 @@ void Storm::GraphicManager::initialize_Implementation(void* hwnd)
 {
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 
+	_windowsResizedCallbackId = singletonHolder.getSingleton<Storm::IWindowsManager>().bindWindowsResizedCallback([this, &singletonHolder](int newWidth, int newHeight)
+	{
+		singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::GraphicsThread, [this, newWidth, newHeight]()
+		{
+			this->notifyViewportRescaled(newWidth, newHeight);
+		});
+	});
+
 	LOG_COMMENT << "HWND is valid so Windows was created, we can pursue the graphic initialization.";
 	_directXController->initialize(static_cast<HWND>(hwnd));
 
@@ -281,6 +289,8 @@ void Storm::GraphicManager::cleanUp_Implementation()
 {
 	LOG_COMMENT << "Starting to clean up the Graphic Manager.";
 	Storm::join(_renderThread);
+
+	Storm::SingletonHolder::instance().getSingleton<Storm::IWindowsManager>().unbindWindowsResizedCallback(_windowsResizedCallbackId);
 
 	_selectedParticle.first = std::numeric_limits<decltype(_selectedParticle.first)>::max();
 
@@ -408,11 +418,18 @@ void Storm::GraphicManager::getClippingPlaneValues(float &outZNear, float &outZF
 
 Storm::Vector3 Storm::GraphicManager::get3DPosOfScreenPixel(const Storm::Vector2 &screenPos) const
 {
+	// Screen pixel positions to 3D
 	Storm::Vector3 vectClipSpace3DPos{
 		screenPos.x(),
 		screenPos.y(),
-		_directXController->getDepthBufferAtPixel(static_cast<int>(screenPos.x()), static_cast<int>(screenPos.y()))
+		0.f
 	};
+
+	// Transform the screen pixel positions to render target pixel texture position.
+	_camera->rescaleScreenPosition(vectClipSpace3DPos.x(), vectClipSpace3DPos.y());
+
+	// Apply the Z-buffer to the Z position, and we would have the 3D clip space position of the selected pixel.
+	vectClipSpace3DPos.z() = _directXController->getDepthBufferAtPixel(static_cast<int>(vectClipSpace3DPos.x()), static_cast<int>(vectClipSpace3DPos.y()));
 
 	return _camera->convertScreenPositionTo3DPosition(vectClipSpace3DPos);
 }
@@ -476,4 +493,9 @@ void Storm::GraphicManager::changeBlowerState(const std::size_t blowerId, const 
 bool Storm::GraphicManager::hasSelectedParticle() const
 {
 	return _selectedParticle.first != std::numeric_limits<decltype(_selectedParticle.first)>::max();
+}
+
+void Storm::GraphicManager::notifyViewportRescaled(int newWidth, int newHeight)
+{
+	_camera->setRescaledDimension(static_cast<float>(newWidth), static_cast<float>(newHeight));
 }
