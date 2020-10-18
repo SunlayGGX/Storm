@@ -207,5 +207,7 @@ void Storm::PCISPHSolver::execute(const std::map<unsigned int, std::unique_ptr<S
 	const unsigned int k_maxPredictionIter = generalSimulData._maxPredictIteration;
 	unsigned int currentPredictionIter = 0;
 
+	const float k_templatePVolume = Storm::ParticleSystem::computeParticleDefaultVolume();
 
+	float templatePCoeffK = -0.5f / (k_templatePVolume * k_templatePVolume * k_deltaTime * k_deltaTime);
 }
