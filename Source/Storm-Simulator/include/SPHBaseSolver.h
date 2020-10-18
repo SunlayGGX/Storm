@@ -15,5 +15,5 @@ namespace Storm
 		virtual void execute(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &particleSystems, const float kernelLength, const float k_deltaTime) = 0;
 	};
 
-	std::unique_ptr<Storm::ISPHBaseSolver> instantiateSPHSolver(const Storm::SimulationMode simulationMode);
+	std::unique_ptr<Storm::ISPHBaseSolver> instantiateSPHSolver(const Storm::SimulationMode simulationMode, const float kernelLength);
 }

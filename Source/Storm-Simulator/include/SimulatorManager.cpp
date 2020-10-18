@@ -946,7 +946,7 @@ void Storm::SimulatorManager::initializePreSimulation()
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
 	const Storm::GeneralSimulationData &generalSimulationConfigData = configMgr.getGeneralSimulationData();
 
-	_sphSolver = Storm::instantiateSPHSolver(generalSimulationConfigData._simulationMode);
+	_sphSolver = Storm::instantiateSPHSolver(generalSimulationConfigData._simulationMode, k_kernelLength);
 }
 
 void Storm::SimulatorManager::refreshParticlesPosition()
