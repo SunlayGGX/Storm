@@ -17,7 +17,7 @@
 
 
 
-void Storm::WCSPHSolver::execute(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &particleSystems, const float k_kernelLength)
+void Storm::WCSPHSolver::execute(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &particleSystems, const float k_kernelLength, const float)
 {
 	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
 	const Storm::GeneralSimulationData &generalSimulData = configMgr.getGeneralSimulationData();
@@ -193,7 +193,7 @@ void Storm::WCSPHSolver::execute(const std::map<unsigned int, std::unique_ptr<St
 	}
 }
 
-void Storm::PCISPHSolver::execute(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &particleSystems, const float k_kernelLength)
+void Storm::PCISPHSolver::execute(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &particleSystems, const float k_kernelLength, const float k_deltaTime)
 {
 	STORM_NOT_IMPLEMENTED;
 
