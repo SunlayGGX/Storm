@@ -25,8 +25,3 @@ void Storm::Voxel::addParticle(const std::size_t index, const unsigned int syste
 {
 	_particleReferralsData.emplace_back(index, systemId);
 }
-
-const std::vector<Storm::NeighborParticleReferral>& Storm::Voxel::getData() const
-{
-	return _particleReferralsData;
-}
