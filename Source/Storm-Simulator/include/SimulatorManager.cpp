@@ -586,6 +586,8 @@ Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 
 		SpeedProfileBalist simulationSpeedProfile{ profilerMgrNullablePtr };
 
+		threadMgr.processCurrentThreadActions();
+
 		if (Storm::ReplaySolver::replayCurrentNextFrame(_particleSystem, frameBefore, frameAfter, recordConfig))
 		{
 			this->pushParticlesToGraphicModule(false);
