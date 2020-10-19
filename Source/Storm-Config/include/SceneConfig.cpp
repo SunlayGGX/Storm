@@ -103,6 +103,10 @@ namespace
 		{
 			return Storm::KernelMode::CubicSpline;
 		}
+		else if (kernelModeStr == "splishsplashcubicspline")
+		{
+			return Storm::KernelMode::SplishSplashCubicSpline;
+		}
 		else
 		{
 			Storm::throwException<std::exception>("Kernel mode value is unknown : '" + kernelModeStr + "'");

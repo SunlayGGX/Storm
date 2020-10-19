@@ -5,6 +5,7 @@ namespace Storm
 {
 	enum class KernelMode
 	{
-		CubicSpline
+		CubicSpline,
+		SplishSplashCubicSpline,
 	};
 }
