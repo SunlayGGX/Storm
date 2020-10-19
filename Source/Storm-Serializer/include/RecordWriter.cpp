@@ -83,6 +83,8 @@ void Storm::RecordWriter::write(/*const*/ Storm::SerializeRecordPendingData &dat
 			;
 	}
 
+	LOG_DEBUG << "Frame " << _frameNumber << " recorded.";
+
 	++_frameNumber;
 }
 

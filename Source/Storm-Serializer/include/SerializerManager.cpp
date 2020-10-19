@@ -170,6 +170,7 @@ void Storm::SerializerManager::beginRecord(Storm::SerializeRecordHeader &&record
 			if (!_recordWriter)
 			{
 				_recordWriter = std::make_unique<Storm::RecordWriter>(std::move(rec));
+				LOG_COMMENT << "Recording started";
 			}
 			else
 			{
@@ -190,6 +191,7 @@ void Storm::SerializerManager::endRecord()
 		if (_recordWriter)
 		{
 			_recordWriter->endWrite();
+			LOG_COMMENT << "Recording ended";
 		}
 	});
 }
