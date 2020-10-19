@@ -19,9 +19,31 @@
 
 #include "UIField.h"
 
+#include "LeanWindowsInclude.h"
+#include <timeapi.h>
+
 #define STORM_ELAPSED_TIME_FIELD_NAME "elapsed time"
 #define STORM_DELTA_TIME_FIELD_NAME "delta time"
 #define STORM_PAUSE_FIELD_NAME "paused"
+
+
+namespace
+{
+	template<unsigned int millisec>
+	struct TimerThreadSchedulerModifier
+	{
+	public:
+		TimerThreadSchedulerModifier()
+		{
+			::timeBeginPeriod(millisec);
+		}
+
+		~TimerThreadSchedulerModifier()
+		{
+			::timeEndPeriod(millisec);
+		}
+	};
+}
 
 
 Storm::TimeManager::TimeManager() :
@@ -77,6 +99,8 @@ void Storm::TimeManager::initialize_Implementation()
 	_timeThread = std::thread{ [this]() 
 	{
 		STORM_REGISTER_THREAD(TimeThread);
+
+		TimerThreadSchedulerModifier<1> autoSchedulerModifier;
 
 		while (this->waitNextFrameOrExit())
 		{
