@@ -132,6 +132,7 @@ namespace Storm_LogViewer
                 {
                     LogCountInfoStr = logInfo;
 
+                    LogDisplayArea.ItemsSource = null;
                     LogDisplayArea.ItemsSource = displayedLogItems;
 
                     ScrollToEndIfAutoScroll_UIThread();
