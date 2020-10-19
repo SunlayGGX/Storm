@@ -158,5 +158,8 @@
     <ClInclude Include="..\include\PCISPHSolver.h">
       <Filter>Header Files\Solver\SPHSolvers</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\ParticleSystemContainer.h">
+      <Filter>Header Files\General</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

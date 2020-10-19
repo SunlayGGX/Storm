@@ -50,7 +50,7 @@ Storm::FluidParticleSystem::FluidParticleSystem(unsigned int particleSystemIndex
 	// No need to init the other thing since this constructor is only to be used in replay mode and we won't use them.
 }
 
-void Storm::FluidParticleSystem::initializeIteration(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const std::vector<std::unique_ptr<Storm::IBlower>> &blowers)
+void Storm::FluidParticleSystem::initializeIteration(const Storm::ParticleSystemContainer &allParticleSystems, const std::vector<std::unique_ptr<Storm::IBlower>> &blowers)
 {
 	Storm::ParticleSystem::initializeIteration(allParticleSystems, blowers);
 
@@ -221,7 +221,7 @@ void Storm::FluidParticleSystem::buildNeighborhoodOnParticleSystem(const Storm::
 	}
 }
 
-void Storm::FluidParticleSystem::buildNeighborhoodOnParticleSystemUsingSpacePartition(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const float kernelLengthSquared)
+void Storm::FluidParticleSystem::buildNeighborhoodOnParticleSystemUsingSpacePartition(const Storm::ParticleSystemContainer &allParticleSystems, const float kernelLengthSquared)
 {
 	const Storm::ISpacePartitionerManager &spacePartitionerMgr = Storm::SingletonHolder::instance().getSingleton<Storm::ISpacePartitionerManager>();
 	Storm::runParallel(_neighborhood, [this, &allParticleSystems, kernelLengthSquared, &spacePartitionerMgr, currentSystemId = this->getId()](ParticleNeighborhoodArray &currentPNeighborhood, const std::size_t particleIndex)

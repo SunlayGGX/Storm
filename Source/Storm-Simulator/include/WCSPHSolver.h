@@ -11,6 +11,6 @@ namespace Storm
 	class WCSPHSolver : public Storm::ISPHBaseSolver
 	{
 	public:
-		void execute(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &particleSystems, const float kernelLength, const float k_deltaTime) final override;
+		void execute(const Storm::ParticleSystemContainer &particleSystems, const float kernelLength, const float k_deltaTime) final override;
 	};
 }

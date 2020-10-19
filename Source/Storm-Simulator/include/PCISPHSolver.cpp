@@ -62,7 +62,7 @@ Storm::PCISPHSolver::PCISPHSolver(const float k_kernelLength)
 	_kUniformStiffnessConstCoefficient = static_cast<float>(-0.5 / (uniformNeighborStiffnessCoeffSum.squaredNorm() + uniformNeighborStiffnessCoeffProd));
 }
 
-void Storm::PCISPHSolver::execute(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &particleSystems, const float k_kernelLength, const float k_deltaTime)
+void Storm::PCISPHSolver::execute(const Storm::ParticleSystemContainer &particleSystems, const float k_kernelLength, const float k_deltaTime)
 {
 	STORM_NOT_IMPLEMENTED;
 

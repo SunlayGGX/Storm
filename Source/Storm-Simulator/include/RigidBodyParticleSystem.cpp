@@ -69,7 +69,7 @@ Storm::RigidBodyParticleSystem::RigidBodyParticleSystem(unsigned int particleSys
 	// No need to initialize the other arrays since we won't use them in replay mode.
 }
 
-void Storm::RigidBodyParticleSystem::initializePreSimulation(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const float kernelLength)
+void Storm::RigidBodyParticleSystem::initializePreSimulation(const Storm::ParticleSystemContainer &allParticleSystems, const float kernelLength)
 {
 	Storm::ParticleSystem::initializePreSimulation(allParticleSystems, kernelLength);
 
@@ -118,7 +118,7 @@ void Storm::RigidBodyParticleSystem::initializePreSimulation(const std::map<unsi
 	}
 }
 
-void Storm::RigidBodyParticleSystem::initializeIteration(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const std::vector<std::unique_ptr<Storm::IBlower>> &blowers)
+void Storm::RigidBodyParticleSystem::initializeIteration(const Storm::ParticleSystemContainer &allParticleSystems, const std::vector<std::unique_ptr<Storm::IBlower>> &blowers)
 {
 	Storm::ParticleSystem::initializeIteration(allParticleSystems, blowers);
 
@@ -275,7 +275,7 @@ void Storm::RigidBodyParticleSystem::buildNeighborhoodOnParticleSystem(const Sto
 	}
 }
 
-void Storm::RigidBodyParticleSystem::buildNeighborhoodOnParticleSystemUsingSpacePartition(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const float kernelLengthSquared)
+void Storm::RigidBodyParticleSystem::buildNeighborhoodOnParticleSystemUsingSpacePartition(const Storm::ParticleSystemContainer &allParticleSystems, const float kernelLengthSquared)
 {
 	const Storm::ISpacePartitionerManager &spacePartitionerMgr = Storm::SingletonHolder::instance().getSingleton<Storm::ISpacePartitionerManager>();
 

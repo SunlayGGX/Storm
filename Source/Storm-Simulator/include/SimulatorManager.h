@@ -6,6 +6,8 @@
 
 #include "ParticleSelector.h"
 
+#include "ParticleSystemContainer.h"
+
 
 namespace Storm
 {
@@ -89,7 +91,7 @@ namespace Storm
 		const Storm::ParticleSystem& getParticleSystem(unsigned int id) const;
 
 	private:
-		std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> _particleSystem;
+		Storm::ParticleSystemContainer _particleSystem;
 		std::vector<std::unique_ptr<Storm::IBlower>> _blowers;
 
 		std::unique_ptr<Storm::ISPHBaseSolver> _sphSolver;

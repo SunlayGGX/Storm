@@ -12,8 +12,8 @@ namespace Storm
 		RigidBodyParticleSystem(unsigned int particleSystemIndex, const std::size_t particleCount);
 
 	public:
-		void initializePreSimulation(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const float kernelLength) final override;
-		void initializeIteration(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const std::vector<std::unique_ptr<Storm::IBlower>> &blowers) final override;
+		void initializePreSimulation(const Storm::ParticleSystemContainer &allParticleSystems, const float kernelLength) final override;
+		void initializeIteration(const Storm::ParticleSystemContainer &allParticleSystems, const std::vector<std::unique_ptr<Storm::IBlower>> &blowers) final override;
 
 	public:
 		bool isFluids() const noexcept final override;
@@ -34,7 +34,7 @@ namespace Storm
 
 	private:
 		void buildNeighborhoodOnParticleSystem(const Storm::ParticleSystem &otherParticleSystem, const float kernelLengthSquared) final override;
-		void buildNeighborhoodOnParticleSystemUsingSpacePartition(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const float kernelLengthSquared) final override;
+		void buildNeighborhoodOnParticleSystemUsingSpacePartition(const Storm::ParticleSystemContainer &allParticleSystems, const float kernelLengthSquared) final override;
 
 	public:
 		bool computeVelocityChange(float deltaTimeInSec, float highVelocityThresholdSquared) final override;

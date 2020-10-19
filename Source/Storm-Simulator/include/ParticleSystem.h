@@ -1,6 +1,7 @@
 #pragma once
 
 #include "NeighborParticleInfo.h"
+#include "ParticleSystemContainer.h"
 
 namespace Storm
 {
@@ -51,20 +52,20 @@ namespace Storm
 		virtual void setTmpViscosityForces(std::vector<Storm::Vector3> &&tmpViscoForces) = 0;
 
 	private:
-		void buildNeighborhood(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems);
+		void buildNeighborhood(const Storm::ParticleSystemContainer &allParticleSystems);
 
 	protected:
 		virtual void buildNeighborhoodOnParticleSystem(const Storm::ParticleSystem &otherParticleSystem, const float kernelLengthSquared) = 0;
-		virtual void buildNeighborhoodOnParticleSystemUsingSpacePartition(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const float kernelLengthSquared) = 0;
+		virtual void buildNeighborhoodOnParticleSystemUsingSpacePartition(const Storm::ParticleSystemContainer &allParticleSystems, const float kernelLengthSquared) = 0;
 
 	public:
 		virtual void updatePosition(float deltaTimeInSec, bool force) = 0;
 		virtual void postApplySPH(float deltaTimeInSec) = 0;
 
 	public:
-		virtual void initializePreSimulation(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const float kernelLength);
+		virtual void initializePreSimulation(const Storm::ParticleSystemContainer &allParticleSystems, const float kernelLength);
 
-		virtual void initializeIteration(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const std::vector<std::unique_ptr<Storm::IBlower>> &blowers);
+		virtual void initializeIteration(const Storm::ParticleSystemContainer &allParticleSystems, const std::vector<std::unique_ptr<Storm::IBlower>> &blowers);
 
 	public:
 		virtual bool computeVelocityChange(float deltaTimeInSec, float highVelocityThresholdSquared) = 0;

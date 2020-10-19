@@ -134,7 +134,7 @@ bool Storm::ParticleSystem::isDirty() const noexcept
 	return _isDirty;
 }
 
-void Storm::ParticleSystem::buildNeighborhood(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems)
+void Storm::ParticleSystem::buildNeighborhood(const Storm::ParticleSystemContainer &allParticleSystems)
 {
 	// First, clear all neighborhood
 	Storm::runParallel(_neighborhood, [](Storm::ParticleNeighborhoodArray &neighbors)
@@ -156,12 +156,12 @@ void Storm::ParticleSystem::buildNeighborhood(const std::map<unsigned int, std::
 #endif
 }
 
-void Storm::ParticleSystem::initializePreSimulation(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const float kernelLengthSquared)
+void Storm::ParticleSystem::initializePreSimulation(const Storm::ParticleSystemContainer &allParticleSystems, const float kernelLengthSquared)
 {
 
 }
 
-void Storm::ParticleSystem::initializeIteration(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const std::vector<std::unique_ptr<Storm::IBlower>> &)
+void Storm::ParticleSystem::initializeIteration(const Storm::ParticleSystemContainer &allParticleSystems, const std::vector<std::unique_ptr<Storm::IBlower>> &)
 {
 	_isDirty = false;
 

@@ -12,7 +12,7 @@ namespace Storm
 		FluidParticleSystem(unsigned int particleSystemIndex, std::size_t particleCount);
 
 	public:
-		void initializeIteration(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const std::vector<std::unique_ptr<Storm::IBlower>> &blowers) final override;
+		void initializeIteration(const Storm::ParticleSystemContainer &allParticleSystems, const std::vector<std::unique_ptr<Storm::IBlower>> &blowers) final override;
 
 	public:
 		bool isFluids() const noexcept final override;
@@ -39,7 +39,7 @@ namespace Storm
 
 	public:
 		void buildNeighborhoodOnParticleSystem(const Storm::ParticleSystem &otherParticleSystem, const float kernelLengthSquared) final override;
-		void buildNeighborhoodOnParticleSystemUsingSpacePartition(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const float kernelLengthSquared) final override;
+		void buildNeighborhoodOnParticleSystemUsingSpacePartition(const Storm::ParticleSystemContainer &allParticleSystems, const float kernelLengthSquared) final override;
 
 	public:
 		bool computeVelocityChange(float deltaTimeInSec, float highVelocityThresholdSquared) final override;

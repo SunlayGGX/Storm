@@ -16,7 +16,7 @@
 #include "RunnerHelper.h"
 
 
-void Storm::WCSPHSolver::execute(const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &particleSystems, const float k_kernelLength, const float)
+void Storm::WCSPHSolver::execute(const Storm::ParticleSystemContainer &particleSystems, const float k_kernelLength, const float)
 {
 	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
 	const Storm::GeneralSimulationData &generalSimulData = configMgr.getGeneralSimulationData();

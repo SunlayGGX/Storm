@@ -1,5 +1,7 @@
 #pragma once
 
+#include "ParticleSystemContainer.h"
+
 
 namespace Storm
 {
@@ -70,7 +72,7 @@ namespace Storm
 	}
 
 	template<bool isFluid, bool containingBundleIsSameTypeThanThisSystemP, class NeighborhoodArray, std::size_t outLinkedNeighborBundleSize>
-	void searchForNeighborhood(Storm::ParticleSystem* thisParticleSystem, const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystems, const float kernelLengthSquared, const unsigned int currentSystemId, NeighborhoodArray &currentPNeighborhood, const std::size_t particleIndex, const Storm::Vector3 &currentPPosition, const std::vector<Storm::NeighborParticleReferral> &containingBundleReferrals, const std::vector<Storm::NeighborParticleReferral>*(&outLinkedNeighborBundle)[outLinkedNeighborBundleSize])
+	void searchForNeighborhood(Storm::ParticleSystem* thisParticleSystem, const Storm::ParticleSystemContainer &allParticleSystems, const float kernelLengthSquared, const unsigned int currentSystemId, NeighborhoodArray &currentPNeighborhood, const std::size_t particleIndex, const Storm::Vector3 &currentPPosition, const std::vector<Storm::NeighborParticleReferral> &containingBundleReferrals, const std::vector<Storm::NeighborParticleReferral>*(&outLinkedNeighborBundle)[outLinkedNeighborBundleSize])
 	{
 #if STORM_USE_INTRINSICS
 		const __m128 currentPPosTmp = STORM_INTRINSICS_LOAD_PS_FROM_VECT3(currentPPosition);

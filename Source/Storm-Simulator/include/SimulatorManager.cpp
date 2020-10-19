@@ -203,7 +203,7 @@ namespace
 		return (externalBoundingBoxCorner - externalBoundingBoxTranslation) * coeff + externalBoundingBoxTranslation;
 	}
 
-	void removeParticleInsideRbPosition(std::vector<Storm::Vector3> &inOutParticlePositions, const std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &allParticleSystem, const float particleRadius)
+	void removeParticleInsideRbPosition(std::vector<Storm::Vector3> &inOutParticlePositions, const Storm::ParticleSystemContainer &allParticleSystem, const float particleRadius)
 	{
 		const std::size_t particleSystemCount = allParticleSystem.size();
 
