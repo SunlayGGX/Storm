@@ -14,7 +14,7 @@ namespace Storm
 		virtual ~ISPHBaseSolver() = default;
 
 	public:
-		virtual void execute(const Storm::ParticleSystemContainer &particleSystems, const float kernelLength, const float k_deltaTime) = 0;
+		virtual void execute(Storm::ParticleSystemContainer &particleSystems, const float kernelLength, const float k_deltaTime) = 0;
 	};
 
 	std::unique_ptr<Storm::ISPHBaseSolver> instantiateSPHSolver(const Storm::SimulationMode simulationMode, const float kernelLength, const Storm::ParticleSystemContainer &particleSystems);

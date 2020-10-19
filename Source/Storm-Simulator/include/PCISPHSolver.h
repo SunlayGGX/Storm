@@ -15,7 +15,7 @@ namespace Storm
 		PCISPHSolver(const float k_kernelLength, const Storm::ParticleSystemContainer &particleSystemsMap);
 
 	public:
-		void execute(const Storm::ParticleSystemContainer &particleSystems, const float kernelLength, const float k_deltaTime) final override;
+		void execute(Storm::ParticleSystemContainer &particleSystems, const float kernelLength, const float k_deltaTime) final override;
 
 	private:
 		float _kUniformStiffnessConstCoefficient;

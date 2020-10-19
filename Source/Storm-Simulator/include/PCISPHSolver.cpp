@@ -86,7 +86,7 @@ Storm::PCISPHSolver::PCISPHSolver(const float k_kernelLength, const Storm::Parti
 	}
 }
 
-void Storm::PCISPHSolver::execute(const Storm::ParticleSystemContainer &particleSystems, const float k_kernelLength, const float k_deltaTime)
+void Storm::PCISPHSolver::execute(Storm::ParticleSystemContainer &particleSystems, const float k_kernelLength, const float k_deltaTime)
 {
 	STORM_NOT_IMPLEMENTED;
 
