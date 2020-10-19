@@ -1140,7 +1140,7 @@ void Storm::SimulatorManager::beginRecord() const
 		Storm::SerializeParticleSystemLayout &pSystemLayoutRef = recordHeader._particleSystemLayouts.emplace_back();
 
 		pSystemLayoutRef._particleSystemId = particleSystemPair.first;
-		pSystemLayoutRef._particlesCount = pSystemRef.getPositions().size();
+		pSystemLayoutRef._particlesCount = pSystemRef.getParticleCount();
 		pSystemLayoutRef._isFluid = pSystemRef.isFluids();
 		pSystemLayoutRef._isStatic = pSystemRef.isStatic();
 	}

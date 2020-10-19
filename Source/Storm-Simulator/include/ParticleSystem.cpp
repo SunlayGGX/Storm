@@ -119,6 +119,11 @@ std::vector<Storm::ParticleNeighborhoodArray>& Storm::ParticleSystem::getNeighbo
 	return _neighborhood;
 }
 
+std::size_t Storm::ParticleSystem::getParticleCount() const noexcept
+{
+	return _positions.size();
+}
+
 unsigned int Storm::ParticleSystem::getId() const noexcept
 {
 	return _particleSystemIndex;
@@ -160,7 +165,7 @@ void Storm::ParticleSystem::initializeIteration(const std::map<unsigned int, std
 {
 	_isDirty = false;
 
-	const std::size_t particleCount = _positions.size();
+	const std::size_t particleCount = this->getParticleCount();
 
 #if defined(DEBUG) || defined(_DEBUG)
 	const bool replayMode = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().isInReplayMode();

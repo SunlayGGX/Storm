@@ -31,7 +31,7 @@ Storm::FluidParticleSystem::FluidParticleSystem(unsigned int particleSystemIndex
 
 	_restDensity = fluidDataConfig._density;
 
-	const std::size_t particleCount = _positions.size();
+	const std::size_t particleCount = this->getParticleCount();
 
 	const float particleDiameter = generalSimulDataConfig._particleRadius * 2.f;
 
@@ -59,7 +59,7 @@ void Storm::FluidParticleSystem::initializeIteration(const std::map<unsigned int
 #if defined(DEBUG) || defined(_DEBUG)
 	if (!configMgr.isInReplayMode())
 	{
-		const std::size_t particleCount = _positions.size();
+		const std::size_t particleCount = this->getParticleCount();
 
 		assert(
 			_masses.size() == particleCount &&
@@ -169,7 +169,7 @@ void Storm::FluidParticleSystem::buildNeighborhoodOnParticleSystem(const Storm::
 {
 	if (otherParticleSystem.getId() == this->getId())
 	{
-		const std::size_t particleCount = _positions.size();
+		const std::size_t particleCount = this->getParticleCount();
 
 		Storm::runParallel(_positions, [this, kernelLengthSquared, particleCount](const Storm::Vector3 &currentParticlePosition, const std::size_t currentPIndex)
 		{

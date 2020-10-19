@@ -47,7 +47,7 @@ Storm::RigidBodyParticleSystem::RigidBodyParticleSystem(unsigned int particleSys
 	_isWall = currentRbData._isWall;
 	_isStatic = _isWall || currentRbData._static;
 
-	const std::size_t particleCount = _positions.size();
+	const std::size_t particleCount = this->getParticleCount();
 
 	if (this->isStatic())
 	{
@@ -127,7 +127,7 @@ void Storm::RigidBodyParticleSystem::initializeIteration(const std::map<unsigned
 #if defined(_DEBUG) || defined(DEBUG)
 	if (!configMgr.isInReplayMode())
 	{
-		const std::size_t particleCount = _positions.size();
+		const std::size_t particleCount = this->getParticleCount();
 		assert(
 			_volumes.size() == particleCount &&
 			"Particle count mismatch detected! An array of particle property has not the same particle count than the other!"

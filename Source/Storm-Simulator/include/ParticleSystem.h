@@ -33,6 +33,8 @@ namespace Storm
 		const std::vector<Storm::ParticleNeighborhoodArray>& getNeighborhoodArrays() const noexcept;
 		std::vector<Storm::ParticleNeighborhoodArray>& getNeighborhoodArrays() noexcept;
 
+		std::size_t getParticleCount() const noexcept;
+
 		unsigned int getId() const noexcept;
 
 		virtual bool isFluids() const noexcept = 0;
