@@ -125,7 +125,8 @@ namespace
 	{
 	public:
 		SpeedProfileBalist(Storm::IProfilerManager* profileMgrPtr) :
-			_profileMgrPtr{ profileMgrPtr }
+			_profileMgrPtr{ profileMgrPtr },
+			_active{ true }
 		{
 			if (profileMgrPtr)
 			{
@@ -133,9 +134,14 @@ namespace
 			}
 		}
 
+		void disable()
+		{
+			_active = false;
+		}
+
 		~SpeedProfileBalist()
 		{
-			if (_profileMgrPtr)
+			if (_active && _profileMgrPtr)
 			{
 				_profileMgrPtr->endSpeedProfile(k_simulationSpeedBalistName);
 			}
@@ -143,6 +149,7 @@ namespace
 
 	private:
 		Storm::IProfilerManager*const _profileMgrPtr;
+		bool _active;
 	};
 
 	class BlowerCallbacks
@@ -542,6 +549,8 @@ Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 
 	do
 	{
+		SpeedProfileBalist simulationSpeedProfile{ profilerMgrNullablePtr };
+
 		Storm::TimeWaitResult simulationState;
 		if (recordConfig._replayRealTime)
 		{
@@ -575,6 +584,8 @@ Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 			return _runExitCode;
 
 		case TimeWaitResult::Pause:
+			simulationSpeedProfile.disable();
+
 			// Takes time to process messages that came from other threads.
 			threadMgr.processCurrentThreadActions();
 			
@@ -589,8 +600,6 @@ Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 		default:
 			break;
 		}
-
-		SpeedProfileBalist simulationSpeedProfile{ profilerMgrNullablePtr };
 
 		threadMgr.processCurrentThreadActions();
 
@@ -689,6 +698,8 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 
 	do
 	{
+		SpeedProfileBalist simulationSpeedProfile{ profilerMgrNullablePtr };
+
 		Storm::TimeWaitResult simulationState = generalSimulationConfigData._simulationNoWait ? timeMgr.getStateNoSyncWait() : timeMgr.waitNextFrame();
 		switch (simulationState)
 		{
@@ -707,6 +718,8 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 			return _runExitCode;
 
 		case TimeWaitResult::Pause:
+			simulationSpeedProfile.disable();
+
 			// Takes time to process messages that came from other threads.
 			threadMgr.processCurrentThreadActions();
 			if (generalSimulationConfigData._simulationNoWait)
@@ -720,8 +733,6 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 		default:
 			break;
 		}
-
-		SpeedProfileBalist simulationSpeedProfile{ profilerMgrNullablePtr };
 
 		this->executeIteration(firstFrame, forcedPushFrameIterator);
 
