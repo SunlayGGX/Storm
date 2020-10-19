@@ -542,7 +542,15 @@ Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 
 	this->refreshParticlePartition(false);
 
-	const float expectedReplayFps = timeMgr.getExpectedFrameFPS();
+	float expectedReplayFps;
+	if (recordConfig._replayRealTime)
+	{
+		expectedReplayFps = serializerMgr.getRecordHeader()._recordFrameRate;
+	}
+	else
+	{
+		expectedReplayFps = timeMgr.getExpectedFrameFPS();
+	}
 
 	const std::chrono::microseconds fullFrameWaitTime{ static_cast<std::chrono::microseconds::rep>(std::roundf(1000000.f / expectedReplayFps)) };
 	auto startFrame = std::chrono::high_resolution_clock::now();
