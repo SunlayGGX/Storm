@@ -224,3 +224,20 @@ bool Storm::SerializerManager::obtainNextFrame(Storm::SerializeRecordPendingData
 	assert(isSimulationThread() && "this method should only be called from simulation thread.");
 	return _recordReader->readNextFrame(outPendingData);
 }
+
+const Storm::SerializeRecordHeader& Storm::SerializerManager::getRecordHeader() const
+{
+	std::lock_guard<std::mutex> lock{ _mutex };
+	if (_recordReader)
+	{
+		return _recordReader->getHeader();
+	}
+	else if (_recordWriter)
+	{
+		return _recordWriter->getHeader();
+	}
+	else
+	{
+		Storm::throwException<std::exception>("We cannot query a record header except in a recording mode (either record or replay)!");
+	}
+}

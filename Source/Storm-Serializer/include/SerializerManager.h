@@ -36,6 +36,8 @@ namespace Storm
 		const Storm::SerializeRecordHeader& beginReplay() final override;
 		bool obtainNextFrame(Storm::SerializeRecordPendingData &outPendingData) const final override;
 
+		const Storm::SerializeRecordHeader& getRecordHeader() const final override;
+
 	private:
 		std::thread _serializeThread;
 
