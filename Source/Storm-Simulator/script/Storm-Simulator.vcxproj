@@ -48,6 +48,7 @@
     <ClInclude Include="..\include\SemiImplicitEulerSolver.h" />
     <ClInclude Include="..\include\SimulatorManager.h" />
     <ClInclude Include="..\include\SPHBaseSolver.h" />
+    <ClInclude Include="..\include\SplishSplashCubicSplineKernel.h" />
     <ClInclude Include="..\include\Storm-SimulatorPCH.h" />
     <ClInclude Include="..\include\WCSPHSolver.h" />
   </ItemGroup>

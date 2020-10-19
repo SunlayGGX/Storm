@@ -161,5 +161,8 @@
     <ClInclude Include="..\include\ParticleSystemContainer.h">
       <Filter>Header Files\General</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\SplishSplashCubicSplineKernel.h">
+      <Filter>Header Files\Kernel</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
