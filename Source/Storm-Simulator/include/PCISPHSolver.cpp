@@ -6,6 +6,8 @@
 #include "GeneralSimulationData.h"
 #include "FluidData.h"
 
+#include "PCISPHSolverData.h"
+
 #include "ParticleSystem.h"
 #include "FluidParticleSystem.h"
 #include "RigidBodyParticleSystem.h"
@@ -14,7 +16,7 @@
 
 #include "RunnerHelper.h"
 
-#define STORM_HIJACKED_TYPE Storm::Vector3
+#define STORM_HIJACKED_TYPE Storm::PCISPHSolverData
 #	include "VectHijack.h"
 #undef STORM_HIJACKED_TYPE
 
@@ -73,11 +75,11 @@ Storm::PCISPHSolver::PCISPHSolver(const float k_kernelLength, const Storm::Parti
 		const Storm::ParticleSystem &particleSystem = *particleSystemPair.second;
 		if (particleSystem.isFluids())
 		{
-			std::vector<Storm::Vector3> &accelerationField = _predictedAccelerationField[particleSystemPair.first];
+			std::vector<Storm::PCISPHSolverData> &dataField = _data[particleSystemPair.first];
 
 			Storm::VectorHijacker hijacker{ particleSystem.getParticleCount() };
-			accelerationField.reserve(hijacker._newSize);
-			Storm::setNumUninitialized_hijack(accelerationField, hijacker);
+			dataField.reserve(hijacker._newSize);
+			Storm::setNumUninitialized_hijack(dataField, hijacker);
 
 			_totalParticleCount += hijacker._newSize;
 		}
@@ -161,7 +163,7 @@ void Storm::PCISPHSolver::execute(const Storm::ParticleSystemContainer &particle
 			const std::vector<Storm::Vector3> &velocities = fluidParticleSystem.getVelocity();
 			std::vector<Storm::Vector3> &temporaryPViscoForce = fluidParticleSystem.getTemporaryViscosityForces();
 			
-			std::vector<Storm::Vector3> &accelerationField = _predictedAccelerationField.find(particleSystemPair.first)->second;
+			std::vector<Storm::PCISPHSolverData> &dataField = _data.find(particleSystemPair.first)->second;
 
 			Storm::runParallel(fluidParticleSystem.getForces(), [&](Storm::Vector3 &currentPForce, const std::size_t currentPIndex)
 			{
@@ -236,7 +238,7 @@ void Storm::PCISPHSolver::execute(const Storm::ParticleSystemContainer &particle
 				temporaryPViscoForce[currentPIndex] = totalViscosityForceOnParticle;
 
 				// We should also initialize the acceleration field now (avoid to restart the threads).
-				accelerationField[currentPIndex] = currentPForce / currentPMass;
+				dataField[currentPIndex]._nonPressureAcceleration = currentPForce / currentPMass;
 			});
 		}
 	}

@@ -7,6 +7,7 @@ namespace Storm
 {
 	class ParticleSystem;
 	class ParticleSelector;
+	struct PCISPHSolverData;
 
 	class PCISPHSolver : public Storm::ISPHBaseSolver
 	{
@@ -18,7 +19,7 @@ namespace Storm
 
 	private:
 		float _kUniformStiffnessConstCoefficient;
-		std::map<unsigned int, std::vector<Storm::Vector3>> _predictedAccelerationField;
+		std::map<unsigned int, std::vector<Storm::PCISPHSolverData>> _data;
 		std::size_t _totalParticleCount;
 	};
 }

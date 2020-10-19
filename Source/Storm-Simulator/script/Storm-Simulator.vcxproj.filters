@@ -55,6 +55,9 @@
     <Filter Include="Source Files\Solver\SPHSolvers">
       <UniqueIdentifier>{1607e68e-3a1f-406f-b4e1-e3c624b47846}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Solver\SPHSolvers\Data">
+      <UniqueIdentifier>{21adc719-546d-4008-a6ff-2ae7ac32e278}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-SimulatorPCH.cpp">
@@ -163,6 +166,9 @@
     </ClInclude>
     <ClInclude Include="..\include\SplishSplashCubicSplineKernel.h">
       <Filter>Header Files\Kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\PCISPHSolverData.h">
+      <Filter>Header Files\Solver\SPHSolvers\Data</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -43,6 +43,7 @@
     <ClInclude Include="..\include\ParticleSystemContainer.h" />
     <ClInclude Include="..\include\ParticleSystemUtils.h" />
     <ClInclude Include="..\include\PCISPHSolver.h" />
+    <ClInclude Include="..\include\PCISPHSolverData.h" />
     <ClInclude Include="..\include\ReplaySolver.h" />
     <ClInclude Include="..\include\RigidBodyParticleSystem.h" />
     <ClInclude Include="..\include\SemiImplicitEulerSolver.h" />
