@@ -6,7 +6,6 @@
 
 #include "ParticleSystem.h"
 #include "SerializeRecordPendingData.h"
-#include "RecordConfigData.h"
 
 #include "RunnerHelper.h"
 
@@ -114,19 +113,19 @@ void Storm::ReplaySolver::transferFrameToParticleSystem_copy(std::map<unsigned i
 	}
 }
 
-void Storm::ReplaySolver::computeNextRecordTime(float &inOutNextRecordTime, const float currentPhysicsTime, const Storm::RecordConfigData &recordConfig)
+void Storm::ReplaySolver::computeNextRecordTime(float &inOutNextRecordTime, const float currentPhysicsTime, const float recordFps)
 {
-	inOutNextRecordTime = std::ceilf(currentPhysicsTime * recordConfig._recordFps) / recordConfig._recordFps;
+	inOutNextRecordTime = std::ceilf(currentPhysicsTime * recordFps) / recordFps;
 
-	// If currentPhysicsTime was a multiple of recordConfig._recordFps (first frame, or with extreme bad luck), then inOutNextRecordTime would be equal to the currentPhysicsTime.
+	// If currentPhysicsTime was a multiple of recordFps (first frame, or with extreme bad luck), then inOutNextRecordTime would be equal to the currentPhysicsTime.
 	// We need to increase the record time to the next frame time.
 	if (inOutNextRecordTime == currentPhysicsTime)
 	{
-		inOutNextRecordTime += (1.f / recordConfig._recordFps);
+		inOutNextRecordTime += (1.f / recordFps);
 	}
 }
 
-bool Storm::ReplaySolver::replayCurrentNextFrame(std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &particleSystems, Storm::SerializeRecordPendingData &frameBefore, Storm::SerializeRecordPendingData &frameAfter, const Storm::RecordConfigData &recordConfig)
+bool Storm::ReplaySolver::replayCurrentNextFrame(std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &particleSystems, Storm::SerializeRecordPendingData &frameBefore, Storm::SerializeRecordPendingData &frameAfter, const float recordFps)
 {
 	Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 	Storm::ITimeManager &timeMgr = singletonHolder.getSingleton<Storm::ITimeManager>();
@@ -134,7 +133,7 @@ bool Storm::ReplaySolver::replayCurrentNextFrame(std::map<unsigned int, std::uni
 
 	float nextFrameTime;
 
-	if (timeMgr.getExpectedFrameFPS() == recordConfig._recordFps) // No need to interpolate. The frame rates matches. We can work only with frameBefore
+	if (timeMgr.getExpectedFrameFPS() == recordFps) // No need to interpolate. The frame rates matches. We can work only with frameBefore
 	{
 		if (!serializerMgr.obtainNextFrame(frameBefore))
 		{
@@ -143,12 +142,12 @@ bool Storm::ReplaySolver::replayCurrentNextFrame(std::map<unsigned int, std::uni
 
 		Storm::ReplaySolver::transferFrameToParticleSystem_move(particleSystems, frameBefore);
 
-		Storm::ReplaySolver::computeNextRecordTime(nextFrameTime, frameBefore._physicsTime, recordConfig);
+		Storm::ReplaySolver::computeNextRecordTime(nextFrameTime, frameBefore._physicsTime, recordFps);
 	}
 	else // The frame rates don't match. We need to interpolate between the frames.
 	{
 		float currentTime = timeMgr.getCurrentPhysicsElapsedTime();
-		Storm::ReplaySolver::computeNextRecordTime(nextFrameTime, currentTime, recordConfig);
+		Storm::ReplaySolver::computeNextRecordTime(nextFrameTime, currentTime, recordFps);
 		currentTime = nextFrameTime;
 
 		while (frameAfter._physicsTime < currentTime)

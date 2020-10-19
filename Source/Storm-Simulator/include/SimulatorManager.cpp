@@ -529,16 +529,8 @@ Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 
 	unsigned int forcedPushFrameIterator = 0;
 
-	const float physicsFixedElapsedTime = 1.f / recordConfig._recordFps;
-	timeMgr.setCurrentPhysicsDeltaTime(physicsFixedElapsedTime);
-
 	Storm::SerializeRecordPendingData &frameBefore = *_frameBefore;
 	Storm::SerializeRecordPendingData frameAfter;
-
-	if (timeMgr.getExpectedFrameFPS() != recordConfig._recordFps)
-	{
-		frameAfter = frameBefore;
-	}
 
 	this->refreshParticlePartition(false);
 
@@ -546,11 +538,18 @@ Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 	if (recordConfig._replayRealTime)
 	{
 		expectedReplayFps = serializerMgr.getRecordHeader()._recordFrameRate;
+		if (timeMgr.getExpectedFrameFPS() != expectedReplayFps)
+		{
+			frameAfter = frameBefore;
+		}
 	}
 	else
 	{
 		expectedReplayFps = timeMgr.getExpectedFrameFPS();
 	}
+
+	const float physicsFixedElapsedTime = 1.f / expectedReplayFps;
+	timeMgr.setCurrentPhysicsDeltaTime(physicsFixedElapsedTime);
 
 	const std::chrono::microseconds fullFrameWaitTime{ static_cast<std::chrono::microseconds::rep>(std::roundf(1000000.f / expectedReplayFps)) };
 	auto startFrame = std::chrono::high_resolution_clock::now();
@@ -611,7 +610,7 @@ Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 
 		threadMgr.processCurrentThreadActions();
 
-		if (Storm::ReplaySolver::replayCurrentNextFrame(_particleSystem, frameBefore, frameAfter, recordConfig))
+		if (Storm::ReplaySolver::replayCurrentNextFrame(_particleSystem, frameBefore, frameAfter, expectedReplayFps))
 		{
 			this->pushParticlesToGraphicModule(false);
 
@@ -694,7 +693,7 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 		// Record the first frame which is the time 0 (the start).
 		const float currentPhysicsTime = timeMgr.getCurrentPhysicsElapsedTime();
 		this->pushRecord(currentPhysicsTime, true);
-		Storm::ReplaySolver::computeNextRecordTime(nextRecordTime, currentPhysicsTime, recordConfig);
+		Storm::ReplaySolver::computeNextRecordTime(nextRecordTime, currentPhysicsTime, recordConfig._recordFps);
 	}
 
 	const bool autoEndSimulation = generalSimulationConfigData._endSimulationPhysicsTimeInSeconds != -1.f;
@@ -766,7 +765,7 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 			if (currentPhysicsTime >= nextRecordTime)
 			{
 				this->pushRecord(currentPhysicsTime, false);
-				Storm::ReplaySolver::computeNextRecordTime(nextRecordTime, currentPhysicsTime, recordConfig);
+				Storm::ReplaySolver::computeNextRecordTime(nextRecordTime, currentPhysicsTime, recordConfig._recordFps);
 			}
 		}
 
