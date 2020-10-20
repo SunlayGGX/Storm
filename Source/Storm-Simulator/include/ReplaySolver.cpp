@@ -35,7 +35,7 @@ namespace
 #endif
 
 	template<bool remap, class CoefficientType>
-	void lerpParticleSystemsFrames(std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &particleSystems, Storm::SerializeRecordPendingData &frameBefore, Storm::SerializeRecordPendingData &frameAfter, const CoefficientType &coefficient)
+	void lerpParticleSystemsFrames(Storm::ParticleSystemContainer &particleSystems, Storm::SerializeRecordPendingData &frameBefore, Storm::SerializeRecordPendingData &frameAfter, const CoefficientType &coefficient)
 	{
 		const std::size_t frameElementCount = frameAfter._particleSystemElements.size();
 		for (std::size_t iter = 0; iter < frameElementCount; ++iter)
@@ -124,7 +124,7 @@ namespace
 }
 
 
-void Storm::ReplaySolver::transferFrameToParticleSystem_move(std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &particleSystems, Storm::SerializeRecordPendingData &frameFrom)
+void Storm::ReplaySolver::transferFrameToParticleSystem_move(Storm::ParticleSystemContainer &particleSystems, Storm::SerializeRecordPendingData &frameFrom)
 {
 	for (auto &currentFrameElement : frameFrom._particleSystemElements)
 	{
@@ -137,7 +137,7 @@ void Storm::ReplaySolver::transferFrameToParticleSystem_move(std::map<unsigned i
 	}
 }
 
-void Storm::ReplaySolver::transferFrameToParticleSystem_copy(std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &particleSystems, const Storm::SerializeRecordPendingData &frameFrom)
+void Storm::ReplaySolver::transferFrameToParticleSystem_copy(Storm::ParticleSystemContainer &particleSystems, const Storm::SerializeRecordPendingData &frameFrom)
 {
 	for (const auto &frameElement : frameFrom._particleSystemElements)
 	{
@@ -171,7 +171,7 @@ void Storm::ReplaySolver::computeNextRecordTime(float &inOutNextRecordTime, cons
 	}
 }
 
-bool Storm::ReplaySolver::replayCurrentNextFrame(std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &particleSystems, Storm::SerializeRecordPendingData &frameBefore, Storm::SerializeRecordPendingData &frameAfter, const float recordFps, std::vector<Storm::SerializeRecordContraintsData> &outFrameConstraintData)
+bool Storm::ReplaySolver::replayCurrentNextFrame(Storm::ParticleSystemContainer &particleSystems, Storm::SerializeRecordPendingData &frameBefore, Storm::SerializeRecordPendingData &frameAfter, const float recordFps, std::vector<Storm::SerializeRecordContraintsData> &outFrameConstraintData)
 {
 	Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 	Storm::ITimeManager &timeMgr = singletonHolder.getSingleton<Storm::ITimeManager>();
