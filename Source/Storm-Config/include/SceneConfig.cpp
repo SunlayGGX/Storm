@@ -459,7 +459,7 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 	});
 
 	/* Contraints */
-	std::size_t contraintsIndex = 0;
+	unsigned int contraintsIndex = 0;
 	Storm::XmlReader::readDataInList(srcTree, "Constraints", "Constraint", _sceneData->_contraintsData,
 		[](const auto &constraintDataXml, Storm::ConstraintData &contraintData)
 	{
