@@ -1,7 +1,13 @@
 #include "RecordReader.h"
 
-#include "SerializeRecordHeader.h"
 #include "RecordPreHeaderSerializer.h"
+
+#include "SerializeRecordHeader.h"
+#include "SerializeConstraintLayout.h"
+#include "SerializeParticleSystemLayout.h"
+
+#include "SerializeRecordContraintsData.h"
+#include "SerializeRecordParticleSystemData.h"
 #include "SerializeRecordPendingData.h"
 
 #include "ThrowException.h"
@@ -11,15 +17,16 @@
 
 
 Storm::RecordReader::RecordReader() :
-	Storm::RecordHandlerBase{ Storm::SerializeRecordHeader{}, Storm::SerializePackageCreationModality::LoadingManual },
-	_preheaderSerializer{ std::make_unique<Storm::RecordPreHeaderSerializer>() }
+	Storm::RecordHandlerBase{ Storm::SerializeRecordHeader{} }
 {
-	_package << *_preheaderSerializer;
-
 	const Storm::Version &currentRecordVersion = _preheaderSerializer->getRecordVersion();
-	if (currentRecordVersion <= Storm::Version{ 1, 0, 0 })
+	if (currentRecordVersion < Storm::Version{ 1, 1, 0 })
 	{
 		_readMethodToUse = &Storm::RecordReader::readNextFrame_v1_0_0;
+	}
+	else if (currentRecordVersion == Storm::Version{ 1, 1, 0 })
+	{
+		_readMethodToUse = &Storm::RecordReader::readNextFrame_v1_1_0;
 	}
 	else
 	{
@@ -59,15 +66,15 @@ bool Storm::RecordReader::readNextFrame_v1_0_0(Storm::SerializeRecordPendingData
 	if (frameNumber == 0)
 	{
 		// If it is the first frame, then we would have all particles from all rigid bodies (static rigid bodies included).
-		outPendingData._elements.resize(_header._particleSystemLayouts.size());
+		outPendingData._particleSystemElements.resize(_header._particleSystemLayouts.size());
 	}
 	else
 	{
 		// The other frame have only the particle system that are allowed to move (gain some spaces).
-		outPendingData._elements.resize(_movingSystemCount);
+		outPendingData._particleSystemElements.resize(_movingSystemCount);
 	}
 
-	for (Storm::SerializeRecordElementsData &frameData : outPendingData._elements)
+	for (Storm::SerializeRecordParticleSystemData &frameData : outPendingData._particleSystemElements)
 	{
 		_package <<
 			frameData._systemId <<
@@ -76,6 +83,60 @@ bool Storm::RecordReader::readNextFrame_v1_0_0(Storm::SerializeRecordPendingData
 			frameData._forces <<
 			frameData._pressureComponentforces <<
 			frameData._viscosityComponentforces
+			;
+	}
+
+	return true;
+}
+
+bool Storm::RecordReader::readNextFrame_v1_1_0(Storm::SerializeRecordPendingData &outPendingData)
+{
+	if (_noMoreFrame)
+	{
+		return false;
+	}
+
+	uint64_t frameNumber = std::numeric_limits<uint64_t>::max();
+	_package << frameNumber;
+
+	_noMoreFrame = frameNumber >= _header._frameCount;
+	if (_noMoreFrame)
+	{
+		return false;
+	}
+
+	_package << outPendingData._physicsTime;
+
+	if (frameNumber == 0)
+	{
+		// If it is the first frame, then we would have all particles from all rigid bodies (static rigid bodies included).
+		outPendingData._particleSystemElements.resize(_header._particleSystemLayouts.size());
+	}
+	else
+	{
+		// The other frame have only the particle system that are allowed to move (gain some spaces).
+		outPendingData._particleSystemElements.resize(_movingSystemCount);
+	}
+
+	for (Storm::SerializeRecordParticleSystemData &frameData : outPendingData._particleSystemElements)
+	{
+		_package <<
+			frameData._systemId <<
+			frameData._positions <<
+			frameData._velocities <<
+			frameData._forces <<
+			frameData._pressureComponentforces <<
+			frameData._viscosityComponentforces
+			;
+	}
+
+	outPendingData._constraintElements.resize(_header._contraintLayouts.size());
+	for (Storm::SerializeRecordContraintsData &constraintData : outPendingData._constraintElements)
+	{
+		_package <<
+			constraintData._id <<
+			constraintData._position1 <<
+			constraintData._position2
 			;
 	}
 

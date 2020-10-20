@@ -91,6 +91,21 @@
     <Filter Include="Header Files\Modules\Serializer\Record">
       <UniqueIdentifier>{469d0aab-ec58-4bca-b8f9-37a68064112e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Modules\Serializer">
+      <UniqueIdentifier>{0400dab1-16ba-40d3-bf36-46f79372ec6a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Modules\Serializer\Record\Header">
+      <UniqueIdentifier>{918884f1-1861-49e9-8b3b-69698381d9ce}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Modules\Serializer\Record\Header\Layout">
+      <UniqueIdentifier>{4fb8712d-c00f-4679-93a1-362a56a84088}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Modules\Serializer\Record\Frame">
+      <UniqueIdentifier>{cb0d89d2-5351-437c-a3c3-19fdc4050fa0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Modules\Serializer\Record\Frame\Elements">
+      <UniqueIdentifier>{32a45401-b6f9-460d-b510-def6b425c4a5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-ModelBasePCH.cpp">
@@ -113,6 +128,9 @@
     </ClCompile>
     <ClCompile Include="..\include\ThreadingSafety.cpp">
       <Filter>Source Files\Modules\Threading</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\SerializeRecordData.cpp">
+      <Filter>Source Files\Modules\Serializer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -278,17 +296,29 @@
     <ClInclude Include="..\include\ISerializerManager.h">
       <Filter>Header Files\Singleton</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\SerializeRecordHeader.h">
-      <Filter>Header Files\Modules\Serializer\Record</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\SerializeRecordPendingData.h">
-      <Filter>Header Files\Modules\Serializer\Record</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\RecordMode.h">
       <Filter>Header Files\Modules\Serializer\Record</Filter>
     </ClInclude>
     <ClInclude Include="..\include\RecordConfigData.h">
       <Filter>Header Files\Modules\Config</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SerializeParticleSystemLayout.h">
+      <Filter>Header Files\Modules\Serializer\Record\Header\Layout</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SerializeConstraintLayout.h">
+      <Filter>Header Files\Modules\Serializer\Record\Header\Layout</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SerializeRecordHeader.h">
+      <Filter>Header Files\Modules\Serializer\Record\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SerializeRecordPendingData.h">
+      <Filter>Header Files\Modules\Serializer\Record\Frame</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SerializeRecordParticleSystemData.h">
+      <Filter>Header Files\Modules\Serializer\Record\Frame\Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SerializeRecordContraintsData.h">
+      <Filter>Header Files\Modules\Serializer\Record\Frame\Elements</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

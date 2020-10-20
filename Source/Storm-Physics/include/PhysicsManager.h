@@ -38,9 +38,14 @@ namespace Storm
 		void addConstraint(const Storm::ConstraintData &constraintData) final override;
 		void loadConstraints(const std::vector<Storm::ConstraintData> &constraintsToLoad) final override;
 
+		void loadRecordedConstraint(const Storm::SerializeConstraintLayout &constraintsRecordLayout) final override;
+
+		void getConstraintsRecordLayoutData(std::vector<Storm::SerializeConstraintLayout> &outConstraintsRecordLayout) const final override;
+		void getConstraintsRecordFrameData(std::vector<Storm::SerializeRecordContraintsData> &outConstraintsRecordFrameData) const final override;
+		void pushConstraintsRecordedFrame(const std::vector<Storm::SerializeRecordContraintsData> &constraintsRecordFrameData) final override;
+
 	private:
 		void pushPhysicsVisualizationData() const;
-
 		void pushConstraintsVisualizationData() const;
 
 	public:

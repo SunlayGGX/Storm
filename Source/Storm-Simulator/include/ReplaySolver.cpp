@@ -5,7 +5,10 @@
 #include "ISerializerManager.h"
 
 #include "ParticleSystem.h"
+
 #include "SerializeRecordPendingData.h"
+#include "SerializeRecordParticleSystemData.h"
+#include "SerializeRecordContraintsData.h"
 
 #include "RunnerHelper.h"
 
@@ -32,20 +35,20 @@ namespace
 #endif
 
 	template<bool remap, class CoefficientType>
-	void lerpFrames(std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &particleSystems, Storm::SerializeRecordPendingData &frameBefore, Storm::SerializeRecordPendingData &frameAfter, const CoefficientType &coefficient)
+	void lerpParticleSystemsFrames(std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &particleSystems, Storm::SerializeRecordPendingData &frameBefore, Storm::SerializeRecordPendingData &frameAfter, const CoefficientType &coefficient)
 	{
-		const std::size_t frameElementCount = frameAfter._elements.size();
+		const std::size_t frameElementCount = frameAfter._particleSystemElements.size();
 		for (std::size_t iter = 0; iter < frameElementCount; ++iter)
 		{
-			const auto &frameAfterElements = frameAfter._elements[iter];
+			const Storm::SerializeRecordParticleSystemData &frameAfterElements = frameAfter._particleSystemElements[iter];
 
-			const Storm::SerializeRecordElementsData* frameBeforeElementsPtr = &frameBefore._elements[iter];
+			const Storm::SerializeRecordParticleSystemData* frameBeforeElementsPtr = &frameBefore._particleSystemElements[iter];
 			
 			if constexpr (remap)
 			{
 				if (frameBeforeElementsPtr->_systemId != frameAfterElements._systemId)
 				{
-					for (const auto &elementsBefore : frameBefore._elements)
+					for (const auto &elementsBefore : frameBefore._particleSystemElements)
 					{
 						if (elementsBefore._systemId == frameAfterElements._systemId)
 						{
@@ -56,7 +59,7 @@ namespace
 				}
 			}
 
-			const Storm::SerializeRecordElementsData &frameBeforeElements = *frameBeforeElementsPtr;
+			const Storm::SerializeRecordParticleSystemData &frameBeforeElements = *frameBeforeElementsPtr;
 
 			Storm::ParticleSystem &currentPSystem = *particleSystems[frameBeforeElements._systemId];
 			std::vector<Storm::Vector3> &allPositions = currentPSystem.getPositions();
@@ -75,12 +78,55 @@ namespace
 			});
 		}
 	}
+
+	template<class CoefficientType>
+	void lerpConstraintsFrames(Storm::SerializeRecordPendingData &frameBefore, Storm::SerializeRecordPendingData &frameAfter, const CoefficientType &coefficient, std::vector<Storm::SerializeRecordContraintsData> &outFrameConstraintData)
+	{
+		const std::size_t frameConstraintsCount = frameAfter._constraintElements.size();
+
+		outFrameConstraintData.clear();
+		outFrameConstraintData.reserve(frameConstraintsCount);
+
+		for (std::size_t iter = 0; iter < frameConstraintsCount; ++iter)
+		{
+			const Storm::SerializeRecordContraintsData &frameAfterElements = frameAfter._constraintElements[iter];
+
+			const Storm::SerializeRecordContraintsData* frameBeforeElementsPtr = &frameBefore._constraintElements[iter];
+
+			if (frameAfterElements._id != frameBeforeElementsPtr->_id)
+			{
+				frameBeforeElementsPtr = nullptr;
+
+				for (std::size_t jiter = iter + 1; jiter < frameConstraintsCount; ++jiter)
+				{
+					const Storm::SerializeRecordContraintsData* current = &frameBefore._constraintElements[jiter];
+					if (current->_id == frameAfterElements._id)
+					{
+						frameBeforeElementsPtr = current;
+						break;
+					}
+				}
+
+				if (!frameBeforeElementsPtr)
+				{
+					Storm::throwException<std::exception>("Cannot find the constraints with id " + std::to_string(frameAfterElements._id) + " inside recorded constraints frame data");
+				}
+			}
+
+			const Storm::SerializeRecordContraintsData &frameBeforeElements = *frameBeforeElementsPtr;
+
+			Storm::SerializeRecordContraintsData &currentConstraints = outFrameConstraintData.emplace_back();
+
+			lerp(frameBeforeElements._position1, frameAfterElements._position1, coefficient, currentConstraints._position1);
+			lerp(frameBeforeElements._position2, frameAfterElements._position2, coefficient, currentConstraints._position2);
+		}
+	}
 }
 
 
 void Storm::ReplaySolver::transferFrameToParticleSystem_move(std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &particleSystems, Storm::SerializeRecordPendingData &frameFrom)
 {
-	for (auto &currentFrameElement : frameFrom._elements)
+	for (auto &currentFrameElement : frameFrom._particleSystemElements)
 	{
 		Storm::ParticleSystem &particleSystem = *particleSystems[currentFrameElement._systemId];
 		particleSystem.setPositions(std::move(currentFrameElement._positions));
@@ -93,7 +139,7 @@ void Storm::ReplaySolver::transferFrameToParticleSystem_move(std::map<unsigned i
 
 void Storm::ReplaySolver::transferFrameToParticleSystem_copy(std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &particleSystems, const Storm::SerializeRecordPendingData &frameFrom)
 {
-	for (const auto &frameElement : frameFrom._elements)
+	for (const auto &frameElement : frameFrom._particleSystemElements)
 	{
 		Storm::ParticleSystem &currentPSystem = *particleSystems[frameElement._systemId];
 		std::vector<Storm::Vector3> &allPositions = currentPSystem.getPositions();
@@ -125,7 +171,7 @@ void Storm::ReplaySolver::computeNextRecordTime(float &inOutNextRecordTime, cons
 	}
 }
 
-bool Storm::ReplaySolver::replayCurrentNextFrame(std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &particleSystems, Storm::SerializeRecordPendingData &frameBefore, Storm::SerializeRecordPendingData &frameAfter, const float recordFps)
+bool Storm::ReplaySolver::replayCurrentNextFrame(std::map<unsigned int, std::unique_ptr<Storm::ParticleSystem>> &particleSystems, Storm::SerializeRecordPendingData &frameBefore, Storm::SerializeRecordPendingData &frameAfter, const float recordFps, std::vector<Storm::SerializeRecordContraintsData> &outFrameConstraintData)
 {
 	Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 	Storm::ITimeManager &timeMgr = singletonHolder.getSingleton<Storm::ITimeManager>();
@@ -141,6 +187,7 @@ bool Storm::ReplaySolver::replayCurrentNextFrame(std::map<unsigned int, std::uni
 		}
 
 		Storm::ReplaySolver::transferFrameToParticleSystem_move(particleSystems, frameBefore);
+		outFrameConstraintData = std::move(frameBefore._constraintElements);
 
 		Storm::ReplaySolver::computeNextRecordTime(nextFrameTime, frameBefore._physicsTime, recordFps);
 	}
@@ -170,14 +217,16 @@ bool Storm::ReplaySolver::replayCurrentNextFrame(std::map<unsigned int, std::uni
 
 		// The first frame is different because it contains static rigid bodies while the other frames doesn't contains them.
 		// It results in a mismatch of index when reading the frames element by their index in the array. Therefore, we should remap in case of a size mismatch.
-		if (frameBefore._elements.size() == frameAfter._elements.size())
+		if (frameBefore._particleSystemElements.size() == frameAfter._particleSystemElements.size())
 		{
-			lerpFrames<false>(particleSystems, frameBefore, frameAfter, coefficient);
+			lerpParticleSystemsFrames<false>(particleSystems, frameBefore, frameAfter, coefficient);
 		}
 		else
 		{
-			lerpFrames<true>(particleSystems, frameBefore, frameAfter, coefficient);
+			lerpParticleSystemsFrames<true>(particleSystems, frameBefore, frameAfter, coefficient);
 		}
+
+		lerpConstraintsFrames(frameBefore, frameAfter, coefficient, outFrameConstraintData);
 
 		timeMgr.setCurrentPhysicsElapsedTime(nextFrameTime);
 	}

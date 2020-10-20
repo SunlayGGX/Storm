@@ -52,7 +52,12 @@
 #include "RaycastQueryRequest.h"
 #include "RaycastHitResult.h"
 
+#include "SerializeParticleSystemLayout.h"
+#include "SerializeConstraintLayout.h"
 #include "SerializeRecordHeader.h"
+
+#include "SerializeRecordParticleSystemData.h"
+#include "SerializeRecordContraintsData.h"
 #include "SerializeRecordPendingData.h"
 
 #include "ExitCode.h"
@@ -382,6 +387,9 @@ void Storm::SimulatorManager::initialize_Implementation()
 		}
 
 		this->pushParticlesToGraphicModule(true);
+
+		Storm::IPhysicsManager &physicsMgr = singletonHolder.getSingleton<Storm::IPhysicsManager>();
+		physicsMgr.pushConstraintsRecordedFrame(frameBefore._constraintElements);
 	}
 	else
 	{
@@ -554,6 +562,8 @@ Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 	const std::chrono::microseconds fullFrameWaitTime{ static_cast<std::chrono::microseconds::rep>(std::roundf(1000000.f / expectedReplayFps)) };
 	auto startFrame = std::chrono::high_resolution_clock::now();
 
+	std::vector<Storm::SerializeRecordContraintsData> recordedConstraintsData;
+
 	do
 	{
 		SpeedProfileBalist simulationSpeedProfile{ profilerMgrNullablePtr };
@@ -610,9 +620,12 @@ Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 
 		threadMgr.processCurrentThreadActions();
 
-		if (Storm::ReplaySolver::replayCurrentNextFrame(_particleSystem, frameBefore, frameAfter, expectedReplayFps))
+		if (Storm::ReplaySolver::replayCurrentNextFrame(_particleSystem, frameBefore, frameAfter, expectedReplayFps, recordedConstraintsData))
 		{
 			this->pushParticlesToGraphicModule(false);
+
+			Storm::IPhysicsManager &physicsMgr = singletonHolder.getSingleton<Storm::IPhysicsManager>();
+			physicsMgr.pushConstraintsRecordedFrame(recordedConstraintsData);
 
 			for (const std::unique_ptr<Storm::IBlower> &blowerUPtr : _blowers)
 			{
@@ -1171,6 +1184,9 @@ void Storm::SimulatorManager::beginRecord() const
 		pSystemLayoutRef._isStatic = pSystemRef.isStatic();
 	}
 
+	const Storm::IPhysicsManager &physicsMgr = singletonHolder.getSingleton<Storm::IPhysicsManager>();
+	physicsMgr.getConstraintsRecordLayoutData(recordHeader._contraintLayouts);
+
 	Storm::ISerializerManager &serializerMgr = singletonHolder.getSingleton<Storm::ISerializerManager>();
 	serializerMgr.beginRecord(std::move(recordHeader));
 }
@@ -1189,7 +1205,7 @@ void Storm::SimulatorManager::pushRecord(float currentPhysicsTime, bool pushStat
 
 		if (pushStatics || !pSystemRef.isStatic())
 		{
-			Storm::SerializeRecordElementsData &framePSystemElementData = currentFrameData._elements.emplace_back();
+			Storm::SerializeRecordParticleSystemData &framePSystemElementData = currentFrameData._particleSystemElements.emplace_back();
 
 			framePSystemElementData._systemId = particleSystemPair.first;
 			framePSystemElementData._positions = pSystemRef.getPositions();
@@ -1199,6 +1215,9 @@ void Storm::SimulatorManager::pushRecord(float currentPhysicsTime, bool pushStat
 			framePSystemElementData._viscosityComponentforces = pSystemRef.getTemporaryViscosityForces();
 		}
 	}
+
+	const Storm::IPhysicsManager &physicsMgr = singletonHolder.getSingleton<Storm::IPhysicsManager>();
+	physicsMgr.getConstraintsRecordFrameData(currentFrameData._constraintElements);
 
 	Storm::ISerializerManager &serializerMgr = singletonHolder.getSingleton<Storm::ISerializerManager>();
 	serializerMgr.recordFrame(std::move(currentFrameData));

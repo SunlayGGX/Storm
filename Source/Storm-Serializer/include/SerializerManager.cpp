@@ -12,7 +12,12 @@
 
 #include "ExitCode.h"
 
+#include "SerializeRecordContraintsData.h"
+#include "SerializeRecordParticleSystemData.h"
 #include "SerializeRecordPendingData.h"
+
+#include "SerializeConstraintLayout.h"
+#include "SerializeParticleSystemLayout.h"
 #include "SerializeRecordHeader.h"
 
 #include "RecordWriter.h"

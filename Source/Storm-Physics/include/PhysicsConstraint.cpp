@@ -50,14 +50,28 @@ Storm::PhysicsConstraint::PhysicsConstraint(const Storm::ConstraintData &data, p
 	_fields->bindFieldW(_distanceFieldNameWStr, _distanceWStr);
 }
 
+Storm::PhysicsConstraint::PhysicsConstraint(const Storm::ConstraintData &data) :
+	_id{ data._constraintId },
+	_maxDistance{ data._constraintsLength },
+	_fields{ std::make_unique<Storm::UIFieldContainer>() },
+	_distanceFieldNameWStr{ retrievePhysicsConstraintField(_id) }
+{
+	_fields->bindFieldW(_distanceFieldNameWStr, _distanceWStr);
+}
+
 Storm::PhysicsConstraint::~PhysicsConstraint() = default;
+
+void Storm::PhysicsConstraint::getCordPosition(Storm::Vector3 &outPosition1, Storm::Vector3 &outPosition2) const
+{
+	_cordJointPtr->getJointPositionToArray(outPosition1, outPosition2);
+}
 
 void Storm::PhysicsConstraint::appendJointPositionToArray(std::vector<Storm::Vector3> &inOutJointPositions)
 {
 	Storm::Vector3 pos1;
 	Storm::Vector3 pos2;
 
-	_cordJointPtr->getJointPositionToArray(pos1, pos2);
+	this->getCordPosition(pos1, pos2);
 
 	if (_shouldVisualize)
 	{

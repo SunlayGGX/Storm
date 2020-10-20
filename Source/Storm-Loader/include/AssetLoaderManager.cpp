@@ -31,6 +31,9 @@
 
 #include "RecordConfigData.h"
 #include "RecordMode.h"
+
+#include "SerializeParticleSystemLayout.h"
+#include "SerializeConstraintLayout.h"
 #include "SerializeRecordHeader.h"
 
 #include <Assimp\DefaultLogger.hpp>
@@ -253,8 +256,11 @@ case Storm::BlowerType::BlowerTypeName: \
 		simulMgr.loadBlower(blowerToLoad);
 	}
 
-	// FIXME
-	// Load the constraints for them to be visible
+	Storm::IPhysicsManager &physicsMgr = singletonHolder.getSingleton<Storm::IPhysicsManager>();
+	for (const Storm::SerializeConstraintLayout &constraintLayout : recordHeader._contraintLayouts)
+	{
+		physicsMgr.loadRecordedConstraint(constraintLayout);
+	}
 }
 
 void Storm::AssetLoaderManager::initializeForSimulation()

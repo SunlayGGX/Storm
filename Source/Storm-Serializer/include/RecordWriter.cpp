@@ -1,7 +1,11 @@
 #include "RecordWriter.h"
 
-#include "RecordPreHeaderSerializer.h"
+#include "SerializeRecordContraintsData.h"
+#include "SerializeRecordParticleSystemData.h"
 #include "SerializeRecordPendingData.h"
+
+#include "SerializeParticleSystemLayout.h"
+#include "SerializeConstraintLayout.h"
 
 #include "Version.h"
 
@@ -15,7 +19,7 @@ namespace
 	// Each time you change/add/remove something that modifies the layout of the recording, increase the version number here (to not break the retro compatibility). 
 	constexpr Storm::Version retrieveRecordPacketVersion()
 	{
-		return Storm::Version{ 1, 0, 0 };
+		return Storm::Version{ 1, 1, 0 };
 	}
 
 	void recordStreamPosition(Storm::RecordWriter*const recordWriter, uint64_t &outPosition, const std::filesystem::path &recordFilePath)
@@ -27,12 +31,9 @@ namespace
 
 
 Storm::RecordWriter::RecordWriter(Storm::SerializeRecordHeader &&header) :
-	Storm::RecordHandlerBase{ std::move(header), Storm::SerializePackageCreationModality::SavingAppendPreheaderProvidedAfter },
-	_preheaderSerializer{ std::make_unique<Storm::RecordPreHeaderSerializer>(retrieveRecordPacketVersion()) },
+	Storm::RecordHandlerBase{ std::move(header), retrieveRecordPacketVersion() },
 	_frameNumber{ 0 }
 {
-	_package << *_preheaderSerializer;
-
 	const std::filesystem::path recordFilePath = _package.getFilePath();
 
 	recordStreamPosition(this, _headerPosition, recordFilePath);
@@ -51,16 +52,25 @@ void Storm::RecordWriter::write(/*const*/ Storm::SerializeRecordPendingData &dat
 		Storm::throwException<std::exception>("We cannot write after we have ended the write!");
 	}
 
-	const std::size_t dataElementCount = data._elements.size();
+	const std::size_t dataElementCount = data._particleSystemElements.size();
 	if (!(
 		(_frameNumber > 0 && dataElementCount == _movingSystemCount) ||
 		(_frameNumber == 0 && dataElementCount == _header._particleSystemLayouts.size())
 		))
 	{
 		Storm::throwException<std::exception>(
-			"Layout of what to be recorded doesn't match the frame data.\n"
+			"Frame particle system layout of what to be recorded doesn't match the frame data.\n"
 			"We should have " + std::to_string(_header._particleSystemLayouts.size()) + " particle systems.\n"
-			"But for this frame, we have " + std::to_string(data._elements.size()) + " particle systems."
+			"But for the frame (" + std::to_string(_frameNumber) + "), we have " + std::to_string(dataElementCount) + " particle systems."
+		);
+	}
+	const std::size_t constraintElementCount = data._constraintElements.size();
+	if (constraintElementCount != _header._contraintLayouts.size())
+	{
+		Storm::throwException<std::exception>(
+			"Frame constraint layout of what to be recorded doesn't match the frame data.\n"
+			"We should have " + std::to_string(_header._contraintLayouts.size()) + " constraints.\n"
+			"But for the frame (" + std::to_string(_frameNumber) + "), we have " + std::to_string(constraintElementCount) + " constraints."
 		);
 	}
 
@@ -69,7 +79,7 @@ void Storm::RecordWriter::write(/*const*/ Storm::SerializeRecordPendingData &dat
 		data._physicsTime
 		;
 
-	for (Storm::SerializeRecordElementsData &frameData : data._elements)
+	for (Storm::SerializeRecordParticleSystemData &frameData : data._particleSystemElements)
 	{
 		this->ensureFrameDataCoherency(frameData);
 
@@ -83,12 +93,35 @@ void Storm::RecordWriter::write(/*const*/ Storm::SerializeRecordPendingData &dat
 			;
 	}
 
+	for (Storm::SerializeRecordContraintsData &constraintData : data._constraintElements)
+	{
+		this->ensureConstraintDataCoherency(constraintData);
+
+		_package <<
+			constraintData._id <<
+			constraintData._position1 <<
+			constraintData._position2
+			;
+	}
+
 	LOG_DEBUG << "Frame " << _frameNumber << " recorded.";
 
 	++_frameNumber;
 }
 
-void Storm::RecordWriter::ensureFrameDataCoherency(const Storm::SerializeRecordElementsData &frameData)
+void Storm::RecordWriter::endWrite()
+{
+	Storm::RecordHandlerBase::endWriteHeader(_headerPosition, _frameNumber);
+
+	this->flush();
+}
+
+void Storm::RecordWriter::flush()
+{
+	_package.flush();
+}
+
+void Storm::RecordWriter::ensureFrameDataCoherency(const Storm::SerializeRecordParticleSystemData &frameData) const
 {
 	const std::size_t positionsCount = frameData._positions.size();
 	const std::size_t velocitiesCount = frameData._velocities.size();
@@ -96,7 +129,7 @@ void Storm::RecordWriter::ensureFrameDataCoherency(const Storm::SerializeRecordE
 	const std::size_t pressureTmpForceCount = frameData._pressureComponentforces.size();
 	const std::size_t viscosityTmpForceCount = frameData._viscosityComponentforces.size();
 	if (
-		positionsCount != velocitiesCount || 
+		positionsCount != velocitiesCount ||
 		positionsCount != forcesCount ||
 		positionsCount != pressureTmpForceCount ||
 		positionsCount != viscosityTmpForceCount
@@ -125,18 +158,17 @@ void Storm::RecordWriter::ensureFrameDataCoherency(const Storm::SerializeRecordE
 	}
 }
 
-void Storm::RecordWriter::endWrite()
+void Storm::RecordWriter::ensureConstraintDataCoherency(const Storm::SerializeRecordContraintsData &constraintData) const
 {
-	Storm::RecordHandlerBase::endWriteHeader(_headerPosition, _frameNumber);
+	const auto endHeaderConstraintsLayout = std::end(_header._contraintLayouts);
+	const auto associatedLayout = std::find_if(std::begin(_header._contraintLayouts), endHeaderConstraintsLayout, [sysId = constraintData._id](const Storm::SerializeConstraintLayout &layout)
+	{
+		return layout._id == sysId;
+	});
 
-	_preheaderSerializer->endSerializing(_package);
-	_preheaderSerializer.reset();
-
-	this->flush();
-}
-
-void Storm::RecordWriter::flush()
-{
-	_package.flush();
+	if (associatedLayout == endHeaderConstraintsLayout)
+	{
+		Storm::throwException<std::exception>("Frame " + std::to_string(_frameNumber) + ": Unknown frame constraint id to record (" + std::to_string(constraintData._id) + ")");
+	}
 }
 

@@ -5,6 +5,8 @@
 
 #include "Version.h"
 
+#include "SerializePackageCreationModality.h"
+
 
 namespace
 {

@@ -11,10 +11,16 @@ namespace Storm
 	class PhysicsConstraint
 	{
 	public:
+		// For simulation
 		PhysicsConstraint(const Storm::ConstraintData &data, physx::PxRigidActor* actor1, physx::PxRigidActor* actor2);
+
+		// Only for replay
+		PhysicsConstraint(const Storm::ConstraintData &data);
+		
 		~PhysicsConstraint();
 
 	public:
+		void getCordPosition(Storm::Vector3 &outPosition1, Storm::Vector3 &outPosition2) const;
 		void appendJointPositionToArray(std::vector<Storm::Vector3> &inOutJointPositions);
 		std::size_t getID() const noexcept;
 
@@ -22,7 +28,7 @@ namespace Storm
 		void setCordDistance(float distance);
 
 	private:
-		const std::size_t _id;
+		const unsigned int _id;
 		std::unique_ptr<Storm::CordJoint> _cordJointPtr;
 		bool _shouldVisualize;
 		const float _maxDistance;

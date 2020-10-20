@@ -3,19 +3,18 @@
 
 namespace Storm
 {
-	struct SerializeParticleSystemLayout
-	{
-		uint32_t _particleSystemId;
-		uint64_t _particlesCount;
-		bool _isFluid;
-		bool _isStatic;
-	};
+	struct SerializeParticleSystemLayout;
+	struct SerializeConstraintLayout;
 
 	struct SerializeRecordHeader
 	{
 	public:
+		~SerializeRecordHeader();
+
+	public:
 		float _recordFrameRate;
 		uint64_t _frameCount;
 		std::vector<Storm::SerializeParticleSystemLayout> _particleSystemLayouts;
+		std::vector<Storm::SerializeConstraintLayout> _contraintLayouts;
 	};
 }

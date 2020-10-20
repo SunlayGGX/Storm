@@ -6,13 +6,20 @@
 
 namespace Storm
 {
+	class RecordPreHeaderSerializer;
+	class Version;
+
 	class RecordHandlerBase
 	{
 	protected:
-		RecordHandlerBase(Storm::SerializeRecordHeader &&header, Storm::SerializePackageCreationModality packageCreationModality);
+		// Reading
+		RecordHandlerBase(Storm::SerializeRecordHeader &&header);
+
+		// Writing
+		RecordHandlerBase(Storm::SerializeRecordHeader &&header, Storm::Version &recordVersion);
 
 	public:
-		virtual ~RecordHandlerBase() = default;
+		virtual ~RecordHandlerBase();
 
 	public:
 		void serializeHeader();
@@ -22,6 +29,9 @@ namespace Storm
 
 	protected:
 		Storm::SerializePackage _package;
+		
+		std::unique_ptr<Storm::RecordPreHeaderSerializer> _preheaderSerializer;
+
 		Storm::SerializeRecordHeader _header;
 
 		std::size_t _movingSystemCount;

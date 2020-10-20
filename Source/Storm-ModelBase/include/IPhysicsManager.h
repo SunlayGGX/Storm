@@ -9,6 +9,9 @@ namespace Storm
 	struct ConstraintData;
 	class IRigidBody;
 
+	struct SerializeConstraintLayout;
+	struct SerializeRecordContraintsData;
+
 	class IPhysicsManager : public Storm::ISingletonHeldInterface<IPhysicsManager>
 	{
 	public:
@@ -27,5 +30,11 @@ namespace Storm
 
 		virtual void loadConstraints(const std::vector<Storm::ConstraintData> &constraintsToLoad) = 0;
 		virtual void addConstraint(const Storm::ConstraintData &constraintData) = 0;
+
+		virtual void loadRecordedConstraint(const Storm::SerializeConstraintLayout &constraintsRecordLayout) = 0;
+
+		virtual void getConstraintsRecordLayoutData(std::vector<Storm::SerializeConstraintLayout> &outConstraintsRecordLayout) const = 0;
+		virtual void getConstraintsRecordFrameData(std::vector<Storm::SerializeRecordContraintsData> &outConstraintsRecordFrameData) const = 0;
+		virtual void pushConstraintsRecordedFrame(const std::vector<Storm::SerializeRecordContraintsData> &constraintsRecordFrameData) = 0;
 	};
 }

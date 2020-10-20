@@ -5,6 +5,15 @@
 
 #include "RecordConfigData.h"
 
+#include "RecordPreHeaderSerializer.h"
+
+#include "SerializePackageCreationModality.h"
+
+#include "SerializeConstraintLayout.h"
+#include "SerializeParticleSystemLayout.h"
+
+#include "Version.h"
+
 #include "ThrowException.h"
 
 
@@ -17,17 +26,32 @@ namespace
 	}
 }
 
-
-Storm::RecordHandlerBase::RecordHandlerBase(Storm::SerializeRecordHeader &&header, Storm::SerializePackageCreationModality packageCreationModality) :
+// Reading
+Storm::RecordHandlerBase::RecordHandlerBase(Storm::SerializeRecordHeader &&header) :
 	_header{ std::move(header) },
-	_package{ packageCreationModality, retrieveRecordFilePath() },
-	_movingSystemCount{ 0 }
+	_package{ Storm::SerializePackageCreationModality::LoadingManual, retrieveRecordFilePath() },
+	_movingSystemCount{ 0 },
+	_preheaderSerializer{ std::make_unique<Storm::RecordPreHeaderSerializer>() }
 {
-
+	_package << *_preheaderSerializer;
 }
+
+// Writing
+Storm::RecordHandlerBase::RecordHandlerBase(Storm::SerializeRecordHeader &&header, Storm::Version &recordVersion) :
+	_header{ std::move(header) },
+	_package{ Storm::SerializePackageCreationModality::SavingAppendPreheaderProvidedAfter, retrieveRecordFilePath() },
+	_movingSystemCount{ 0 },
+	_preheaderSerializer{ std::make_unique<Storm::RecordPreHeaderSerializer>(recordVersion) }
+{
+	_package << *_preheaderSerializer;
+}
+
+Storm::RecordHandlerBase::~RecordHandlerBase() = default;
 
 void Storm::RecordHandlerBase::serializeHeader()
 {
+	const Storm::Version &currentVersion = _preheaderSerializer->getRecordVersion();
+
 	_package << _header._recordFrameRate << _header._frameCount;
 
 #define XMACRO_STORM_SERIALIZE_VECTOR3_TYPE			\
@@ -100,6 +124,25 @@ void Storm::RecordHandlerBase::serializeHeader()
 			++_movingSystemCount;
 		}
 	}
+
+	if (currentVersion < Storm::Version{ 1, 1 })
+	{
+		return;
+	}
+	// The part after should only be executed from version 1.1 onwards.
+
+	uint32_t constraintsCount = static_cast<uint32_t>(_header._contraintLayouts.size());
+	_package << constraintsCount;
+
+	if (!_package.isSerializing())
+	{
+		_header._contraintLayouts.resize(constraintsCount);
+	}
+
+	for (auto &constraintLayout : _header._contraintLayouts)
+	{
+		_package << constraintLayout._id;
+	}
 }
 
 const Storm::SerializeRecordHeader& Storm::RecordHandlerBase::getHeader() const noexcept
@@ -111,4 +154,7 @@ void Storm::RecordHandlerBase::endWriteHeader(uint64_t headerPos, uint64_t frame
 {
 	_package.seekAbsolute(headerPos + sizeof(_header._recordFrameRate));
 	_package << frameCount;
+
+	_preheaderSerializer->endSerializing(_package);
+	_preheaderSerializer.reset();
 }

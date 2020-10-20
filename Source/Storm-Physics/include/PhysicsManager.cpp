@@ -10,6 +10,7 @@
 #include "RigidBodySceneData.h"
 #include "ConstraintData.h"
 #include "GeneralSimulationData.h"
+#include "RecordConfigData.h"
 
 #include "SingletonHolder.h"
 #include "IGraphicsManager.h"
@@ -19,6 +20,11 @@
 
 #include "ThreadEnumeration.h"
 #include "SpecialKey.h"
+
+#include "SerializeConstraintLayout.h"
+#include "SerializeRecordContraintsData.h"
+
+#include "RecordMode.h"
 
 #include "ThrowException.h"
 #include "SearchAlgo.h"
@@ -149,6 +155,95 @@ void Storm::PhysicsManager::loadConstraints(const std::vector<Storm::ConstraintD
 	else
 	{
 		LOG_DEBUG << "No constraints to be load";
+	}
+}
+
+void Storm::PhysicsManager::loadRecordedConstraint(const Storm::SerializeConstraintLayout &constraintsRecordLayout)
+{
+	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
+	if (configMgr.getRecordConfigData()._recordMode == Storm::RecordMode::Replay)
+	{
+		const std::vector<Storm::ConstraintData> &constraintDataArrays = configMgr.getConstraintsData();
+		if (const auto found = std::find_if(std::begin(constraintDataArrays), std::end(constraintDataArrays), [id = constraintsRecordLayout._id](const Storm::ConstraintData &data)
+		{
+			return data._constraintId == id;
+		}); found != std::end(constraintDataArrays))
+		{
+			_constraints.emplace_back(std::make_unique<Storm::PhysicsConstraint>(*found));
+			LOG_DEBUG << "Recorded constraint loaded";
+		}
+		else
+		{
+			Storm::throwException<std::exception>("Cannot find constraint config data with index " + std::to_string(constraintsRecordLayout._id));
+		}
+	}
+	else
+	{
+		Storm::throwException<std::exception>(__FUNCTION__ " should only be used when replaying!");
+	}
+}
+
+void Storm::PhysicsManager::getConstraintsRecordLayoutData(std::vector<Storm::SerializeConstraintLayout> &outConstraintsRecordLayout) const
+{
+	outConstraintsRecordLayout.clear();
+	outConstraintsRecordLayout.reserve(_constraints.size());
+
+	for (const auto &constraint : _constraints)
+	{
+		Storm::SerializeConstraintLayout &layout = outConstraintsRecordLayout.emplace_back();
+		layout._id = static_cast<uint32_t>(constraint->getID());
+	}
+}
+
+void Storm::PhysicsManager::getConstraintsRecordFrameData(std::vector<Storm::SerializeRecordContraintsData> &outConstraintsRecordFrameData) const
+{
+	outConstraintsRecordFrameData.clear();
+	outConstraintsRecordFrameData.reserve(_constraints.size());
+
+	for (const auto &constraint : _constraints)
+	{
+		Storm::SerializeRecordContraintsData &data = outConstraintsRecordFrameData.emplace_back();
+		data._id = static_cast<uint32_t>(constraint->getID());
+		constraint->getCordPosition(data._position1, data._position2);
+	}
+}
+
+void Storm::PhysicsManager::pushConstraintsRecordedFrame(const std::vector<Storm::SerializeRecordContraintsData> &constraintsRecordFrameData)
+{
+	const std::size_t constraintsCount = constraintsRecordFrameData.size();
+	if (constraintsCount > 0)
+	{
+		std::vector<Storm::Vector3> constraintsPositionsTmp;
+		constraintsPositionsTmp.reserve(constraintsCount * 2);
+
+		const auto beginConstraintIter = std::begin(_constraints);
+		const auto endConstraintIter = std::end(_constraints);
+
+		for (const Storm::SerializeRecordContraintsData &constraintData : constraintsRecordFrameData)
+		{
+			constraintsPositionsTmp.emplace_back(constraintData._position1);
+			constraintsPositionsTmp.emplace_back(constraintData._position2);
+
+			if (auto found = std::find_if(beginConstraintIter, endConstraintIter, [id = constraintData._id](const std::unique_ptr<Storm::PhysicsConstraint> &constraint)
+			{
+				return constraint->getID() == id;
+			}); found != endConstraintIter)
+			{
+				(*found)->setCordDistance((constraintData._position1 - constraintData._position2).norm());
+			}
+			else
+			{
+				Storm::throwException<std::exception>("Unknown constraint requested to be updated (requested id was " + std::to_string(constraintData._id) + ")");
+			}
+		}
+
+		const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+		Storm::IGraphicsManager &graphicMgr = singletonHolder.getSingleton<Storm::IGraphicsManager>();
+		Storm::IThreadManager &threadMgr = singletonHolder.getSingleton<Storm::IThreadManager>();
+		threadMgr.executeOnThread(Storm::ThreadEnumeration::GraphicsThread, [&graphicMgr, constraintsPositions = std::move(constraintsPositionsTmp)]()
+		{
+			graphicMgr.pushConstraintData(constraintsPositions);
+		});
 	}
 }
 

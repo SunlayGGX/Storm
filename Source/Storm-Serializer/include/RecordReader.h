@@ -22,9 +22,9 @@ namespace Storm
 
 	private:
 		bool readNextFrame_v1_0_0(Storm::SerializeRecordPendingData &outPendingData);
+		bool readNextFrame_v1_1_0(Storm::SerializeRecordPendingData &outPendingData);
 
 	public:
-		std::unique_ptr<Storm::RecordPreHeaderSerializer> _preheaderSerializer;
 		ReadMethodDelegate _readMethodToUse;
 
 		bool _noMoreFrame;
