@@ -3,8 +3,6 @@ If it is really bothersome for you, fill an issue and I will try to fix them. Bu
 But, to prevent any jokes, I'll ask you to tell me why it is bothersome for you when you're filling an issue. Thanks for your consideration and for your time if your concerns are legit.
 
 
-
-
-- In replay mode, rigid bodies aren't updated (mesh we should visualize stays at the same position).
-- In replay mode, constraints aren't there.
+- Sometimes, building after changing the Configuration, entry point for PhysX isn't found even before Storm application start :
+	workaround is to link again the Storm-Physics project to force the post build step to run.
 
