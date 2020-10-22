@@ -246,3 +246,16 @@ const Storm::SerializeRecordHeader& Storm::SerializerManager::getRecordHeader() 
 		Storm::throwException<std::exception>("We cannot query a record header except in a recording mode (either record or replay)!");
 	}
 }
+
+bool Storm::SerializerManager::resetReplay()
+{
+	assert(isSimulationThread() && "this method should only be called from simulation thread.");
+	if (_recordReader)
+	{
+		return _recordReader->resetToBeginning();
+	}
+	else
+	{
+		Storm::throwException<std::exception>("We aren't replaying, therefore we cannot reset it!");
+	}
+}

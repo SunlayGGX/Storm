@@ -34,11 +34,25 @@ Storm::RecordReader::RecordReader() :
 	}
 
 	Storm::RecordHandlerBase::serializeHeader();
+	_firstFramePosition = _package.getStreamPosition();
 
 	_noMoreFrame = _header._frameCount == 0;
 }
 
 Storm::RecordReader::~RecordReader() = default;
+
+bool Storm::RecordReader::resetToBeginning()
+{
+	_noMoreFrame = _header._frameCount == 0;
+	const bool hasFrame = !_noMoreFrame;
+	
+	if (hasFrame)
+	{
+		_package.seekAbsolute(_firstFramePosition);
+	}
+
+	return hasFrame;
+}
 
 bool Storm::RecordReader::readNextFrame(Storm::SerializeRecordPendingData &outPendingData)
 {

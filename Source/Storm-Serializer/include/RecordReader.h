@@ -18,6 +18,9 @@ namespace Storm
 		~RecordReader();
 
 	public:
+		bool resetToBeginning();
+
+	public:
 		bool readNextFrame(Storm::SerializeRecordPendingData &outPendingData);
 
 	private:
@@ -28,5 +31,6 @@ namespace Storm
 		ReadMethodDelegate _readMethodToUse;
 
 		bool _noMoreFrame;
+		std::size_t _firstFramePosition;
 	};
 }

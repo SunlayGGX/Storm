@@ -24,5 +24,7 @@ namespace Storm
 
 		// Ownership is given to the caller code. Return false if there is no more frame to get.
 		virtual bool obtainNextFrame(Storm::SerializeRecordPendingData &outPendingData) const = 0;
+
+		virtual bool resetReplay() = 0;
 	};
 }

@@ -38,6 +38,9 @@ namespace Storm
 
 		const Storm::SerializeRecordHeader& getRecordHeader() const final override;
 
+	public:
+		bool resetReplay() final override;
+
 	private:
 		std::thread _serializeThread;
 
