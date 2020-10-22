@@ -82,6 +82,9 @@ namespace Storm
 		void beginRecord() const;
 		void pushRecord(float currentPhysicsTime, bool pushStatics) const;
 
+	public:
+		void resetReplay();
+
 	private:
 		void refreshParticlePartition(bool ignoreStatics = true) const;
 

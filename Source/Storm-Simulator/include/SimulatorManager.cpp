@@ -405,6 +405,7 @@ void Storm::SimulatorManager::initialize_Implementation()
 	inputMgr.bindKey(Storm::SpecialKey::KC_E, [this]() { this->tweekBlowerEnabling(); });
 	inputMgr.bindKey(Storm::SpecialKey::KC_R, [this]() { this->tweekRaycastEnabling(); });
 	inputMgr.bindKey(Storm::SpecialKey::KC_Y, [this]() { this->cycleSelectedParticleDisplayMode(); });
+	inputMgr.bindKey(Storm::SpecialKey::KC_I, [this]() { this->resetReplay(); });
 
 	Storm::IRaycastManager &raycastMgr = singletonHolder.getSingleton<Storm::IRaycastManager>();
 	inputMgr.bindMouseLeftClick([this, &raycastMgr, &singletonHolder, isReplayMode](int xPos, int yPos, int width, int height)
@@ -1221,6 +1222,11 @@ void Storm::SimulatorManager::pushRecord(float currentPhysicsTime, bool pushStat
 
 	Storm::ISerializerManager &serializerMgr = singletonHolder.getSingleton<Storm::ISerializerManager>();
 	serializerMgr.recordFrame(std::move(currentFrameData));
+}
+
+void Storm::SimulatorManager::resetReplay()
+{
+				
 }
 
 void Storm::SimulatorManager::refreshParticlePartition(bool ignoreStatics /*= true*/) const
