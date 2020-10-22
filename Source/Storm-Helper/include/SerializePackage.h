@@ -176,6 +176,8 @@ namespace Storm
 
 		void flush();
 
+		std::size_t getStreamPosition() /*const*/;
+
 	private:
 		bool _isSaving;
 		std::fstream _file;

@@ -214,3 +214,8 @@ void Storm::SerializePackage::flush()
 {
 	_file.flush();
 }
+
+std::size_t Storm::SerializePackage::getStreamPosition()
+{
+	return _file.tellg();
+}
