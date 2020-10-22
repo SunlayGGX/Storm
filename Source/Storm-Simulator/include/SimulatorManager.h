@@ -82,6 +82,9 @@ namespace Storm
 		void beginRecord() const;
 		void pushRecord(float currentPhysicsTime, bool pushStatics) const;
 
+	private:
+		void applyReplayFrame(Storm::SerializeRecordPendingData &frame, const float replayFps, bool pushParallel = true);
+
 	public:
 		void resetReplay();
 

@@ -370,27 +370,14 @@ void Storm::SimulatorManager::initialize_Implementation()
 
 		_frameBefore = std::make_unique<Storm::SerializeRecordPendingData>();
 		Storm::SerializeRecordPendingData &frameBefore = *_frameBefore;
-		const Storm::RecordConfigData &recordConfig = configMgr.getRecordConfigData();
 
 		if (!serializerMgr.obtainNextFrame(frameBefore))
 		{
 			LOG_ERROR << "There is no frame to simulate inside the current record. The application will stop.";
 		}
 
-		if (timeMgr.getExpectedFrameFPS() == recordConfig._recordFps)
-		{
-			Storm::ReplaySolver::transferFrameToParticleSystem_move(_particleSystem, frameBefore);
-		}
-		else
-		{
-			// We need the frameBefore afterward, therefore we will make copy...
-			Storm::ReplaySolver::transferFrameToParticleSystem_copy(_particleSystem, frameBefore);
-		}
-
-		this->pushParticlesToGraphicModule(true);
-
-		Storm::IPhysicsManager &physicsMgr = singletonHolder.getSingleton<Storm::IPhysicsManager>();
-		physicsMgr.pushConstraintsRecordedFrame(frameBefore._constraintElements);
+		const Storm::RecordConfigData &recordConfig = configMgr.getRecordConfigData();
+		this->applyReplayFrame(frameBefore, recordConfig._recordFps);
 	}
 	else
 	{
@@ -1235,6 +1222,29 @@ void Storm::SimulatorManager::pushRecord(float currentPhysicsTime, bool pushStat
 	serializerMgr.recordFrame(std::move(currentFrameData));
 }
 
+void Storm::SimulatorManager::applyReplayFrame(Storm::SerializeRecordPendingData &frame, const float replayFps, bool pushParallel /*= true*/)
+{
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+
+	Storm::ITimeManager &timeMgr = singletonHolder.getSingleton<Storm::ITimeManager>();
+	timeMgr.setCurrentPhysicsElapsedTime(frame._physicsTime);
+
+	if (timeMgr.getExpectedFrameFPS() == replayFps)
+	{
+		Storm::ReplaySolver::transferFrameToParticleSystem_move(_particleSystem, frame);
+	}
+	else
+	{
+		// We need the frameBefore afterward, therefore we will make copy...
+		Storm::ReplaySolver::transferFrameToParticleSystem_copy(_particleSystem, frame);
+	}
+
+	this->pushParticlesToGraphicModule(true, pushParallel);
+
+	Storm::IPhysicsManager &physicsMgr = singletonHolder.getSingleton<Storm::IPhysicsManager>();
+	physicsMgr.pushConstraintsRecordedFrame(frame._constraintElements);
+}
+
 void Storm::SimulatorManager::resetReplay()
 {
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
@@ -1247,6 +1257,8 @@ void Storm::SimulatorManager::resetReplay()
 			Storm::SerializeRecordPendingData &frameBefore = *_frameBefore;
 			if (serializerMgr.obtainNextFrame(frameBefore))
 			{
+				const Storm::RecordConfigData &recordConfig = configMgr.getRecordConfigData();
+				this->applyReplayFrame(frameBefore, recordConfig._recordFps, false);
 				
 				_reinitFrameAfter = true;
 			}
