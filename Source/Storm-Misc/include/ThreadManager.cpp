@@ -44,12 +44,17 @@ void Storm::ThreadManager::registerCurrentThread(Storm::ThreadEnumeration thread
 
 void Storm::ThreadManager::executeOnThread(const std::thread::id &threadId, AsyncAction &&action)
 {
+	// Warning : You should never call a executeOnThread from a runParallel that is executed inside an AsyncAction being executed in processCurrentThreadActions.
+	// If those 3 functions are present in your call stack, then a deadlock will occurs.
 	std::lock_guard<std::recursive_mutex> lock{ _mutex };
 	this->executeOnThreadInternal(threadId, std::move(action));
 }
 
 void Storm::ThreadManager::executeOnThread(Storm::ThreadEnumeration threadEnum, Storm::AsyncAction &&action)
 {
+	// Warning : You should never call a executeOnThread from a runParallel that is executed inside an AsyncAction being executed in processCurrentThreadActions.
+	// If those 3 functions are present in your call stack, then a deadlock will occurs.
+
 	const auto thisThreadId = std::this_thread::get_id();
 	bool executeNow = false;
 
