@@ -106,5 +106,6 @@ namespace Storm
 
 		// For replay
 		std::unique_ptr<Storm::SerializeRecordPendingData> _frameBefore;
+		bool _reinitFrameAfter;
 	};
 }

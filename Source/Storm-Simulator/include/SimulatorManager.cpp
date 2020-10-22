@@ -342,7 +342,8 @@ namespace
 
 Storm::SimulatorManager::SimulatorManager() :
 	_raycastEnabled{ false },
-	_runExitCode{ Storm::ExitCode::k_success }
+	_runExitCode{ Storm::ExitCode::k_success },
+	_reinitFrameAfter{ false }
 {
 
 }
@@ -620,6 +621,16 @@ Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 		}
 
 		threadMgr.processCurrentThreadActions();
+
+		if (_reinitFrameAfter)
+		{
+			if (timeMgr.getExpectedFrameFPS() != expectedReplayFps)
+			{
+				frameAfter = frameBefore;
+			}
+
+			_reinitFrameAfter = false;
+		}
 
 		if (Storm::ReplaySolver::replayCurrentNextFrame(_particleSystem, frameBefore, frameAfter, expectedReplayFps, recordedConstraintsData))
 		{
@@ -1226,7 +1237,33 @@ void Storm::SimulatorManager::pushRecord(float currentPhysicsTime, bool pushStat
 
 void Storm::SimulatorManager::resetReplay()
 {
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
+	if (configMgr.isInReplayMode())
+	{
+		Storm::ISerializerManager &serializerMgr = singletonHolder.getSingleton<Storm::ISerializerManager>();
+		if (serializerMgr.resetReplay())
+		{
+			Storm::SerializeRecordPendingData &frameBefore = *_frameBefore;
+			if (serializerMgr.obtainNextFrame(frameBefore))
+			{
 				
+				_reinitFrameAfter = true;
+			}
+			else
+			{
+				LOG_ERROR << "Error occurred when obtaining the next frame.";
+			}
+		}
+		else
+		{
+			LOG_ERROR << "Reset replay returned an error!";
+		}
+	}
+	else
+	{
+		LOG_WARNING << "Simulation reset is only possible in Replay mode.";
+	}
 }
 
 void Storm::SimulatorManager::refreshParticlePartition(bool ignoreStatics /*= true*/) const
