@@ -4,7 +4,7 @@
 #pragma warning(disable: 4624)
 
 
-#include "StormStdPrerequisite.h"
+#include "StormHelperPrerequisite.h"
 
 #define STORM_MODULE_NAME "Packager"
 #include "Logging.h"
