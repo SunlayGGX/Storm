@@ -8,5 +8,7 @@ namespace Storm
 		None,
 		WCSPH,
 		PCISPH,
+		IISPH,
+		DFSPH,
 	};
 }

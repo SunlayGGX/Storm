@@ -90,6 +90,16 @@ namespace
 		{
 			return Storm::SimulationMode::PCISPH;
 		}
+#if false // Not supported for now, but I took some advance since I have some time to code today, but not enough to finish PCISPH
+		else if (simulModeStr == "iisph")
+		{
+			return Storm::SimulationMode::IISPH;
+		}
+		else if (simulModeStr == "dfsph")
+		{
+			return Storm::SimulationMode::DFSPH;
+		}
+#endif
 		else
 		{
 			Storm::throwException<std::exception>("Simulation mode value is unknown : '" + simulModeStr + "'");
