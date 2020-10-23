@@ -103,8 +103,10 @@ void Storm::PCISPHSolver::execute(Storm::ParticleSystemContainer &particleSystem
 	const float k_maxDensityError = generalSimulData._maxDensityError;
 	unsigned int currentPredictionIter = 0;
 
+	const float deltaTimeSquared = k_deltaTime * k_deltaTime;
+
 	// First : compute stiffness constant coeff kPCI.
-	const float k_templatePStiffnessCoeffK = _kUniformStiffnessConstCoefficient / (k_deltaTime * k_deltaTime);
+	const float k_templatePStiffnessCoeffK = _kUniformStiffnessConstCoefficient / deltaTimeSquared;
 
 	float averageDensityError;
 
