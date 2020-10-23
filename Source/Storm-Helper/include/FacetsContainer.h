@@ -10,123 +10,197 @@ namespace Storm
 	struct FacetContainerIsOwner {};
 	struct FacetContainerIsNotOwner {};
 
-	namespace details
+	struct FacetContainerUseMapStorage {};
+	template<std::size_t staticSize = 1> struct FacetContainerUseContiguousStaticStorage {};
+	struct FacetContainerUseContiguousDynamicStorage {};
+
+	template<class FacetGroup, class ShouldBeOwner = FacetContainerIsOwner, class StorageTraits = FacetContainerUseMapStorage>
+	class FacetContainer
 	{
+	public:
+		using FacetBase = Storm::FacetBase<FacetGroup>;
+		using IdType = typename FacetBase::ID;
+		using ParentType = FacetContainer<FacetGroup, ShouldBeOwner, StorageTraits>;
+
+	private:
 		class FacetContainerInternalImplBase
 		{
 		protected:
 			template<class PtrType>
-			static auto extractRawPtr(const PtrType &facetPtr, int) -> decltype(facetPtr.get())
+			static auto extractRawPtr(const PtrType &facetPtr, int) noexcept -> decltype(facetPtr.get())
 			{
 				return facetPtr.get();
 			}
 
 			template<class PtrType>
-			static PtrType extractRawPtr(const PtrType &facetPtr, void*)
+			static PtrType extractRawPtr(const PtrType &facetPtr, void*) noexcept
 			{
 				return facetPtr;
 			}
+		};
 
-			template<class Facet, class FacetInternalMap>
-			static Facet* getFacet(const FacetInternalMap &internalMap)
+	private:
+		template<class ElementType, class StorageTraits> class FacetContainerStorage;
+
+		template<class ElementType>
+		class FacetContainerStorage<ElementType, FacetContainerUseMapStorage> :
+			protected Storm::FacetContainer<FacetGroup, ShouldBeOwner, StorageTraits>::FacetContainerInternalImplBase
+		{
+		public:
+			template<class Facet, class ItemType>
+			void registerFacet(ItemType &&item)
 			{
-				auto facetFound = internalMap.find(Facet::ID);
-				if (facetFound != std::end(internalMap))
+				const IdType &id = Facet::ID;
+				const auto found = _map.find(id);
+				if (found == std::end(_map))
 				{
-					return static_cast<Facet*>(details::FacetContainerInternalImplBase::extractRawPtr(facetFound->second, 0));
+					_map.emplace_hint(found, Facet::ID, std::forward<ItemType>(item));
+				}
+				else
+				{
+					Storm::throwException<std::exception>("A facet was already found in the facet map position (" + toStdString(Facet::ID) + ")!");
+				}
+			}
+
+			template<class Facet>
+			Facet* getFacet() const
+			{
+				const IdType &id = Facet::ID;
+				auto facetFound = _map.find(id);
+				if (facetFound != std::end(_map))
+				{
+					return static_cast<Facet*>(FacetContainerInternalImplBase::extractRawPtr(facetFound->second, 0));
 				}
 
 				return nullptr;
 			}
 
-			template<class Facet, class FacetInternalMap>
-			static void unregisterFacet(FacetInternalMap &internalMap)
+			template<class Facet>
+			void unregisterFacet()
 			{
-				const auto facetFound = internalMap.find(Facet::ID);
-				if (facetFound != std::end(internalMap))
+				const IdType &id = Facet::ID;
+				const auto facetFound = _map.find(id);
+				if (facetFound != std::end(_map))
 				{
-					internalMap.erase(facetFound);
+					_map.erase(facetFound);
 				}
 				else
 				{
 					assert(false && "Facet asked to remove didn't exists in the internal facet map container!");
 				}
 			}
+
+		private:
+			std::map<IdType, ElementType> _map;
 		};
-	}
 
-	template<class FacetGroup, class ShouldBeOwner = FacetContainerIsOwner>
-	class FacetContainer
-	{
-	public:
-		using FacetBase = Storm::FacetBase<FacetGroup>;
-
-	private:
-		template<class ShouldBeOwner> struct InternalImpl;
-
-		template<> struct InternalImpl<FacetContainerIsOwner> : protected details::FacetContainerInternalImplBase
+		template<class ElementType, std::size_t staticSize>
+		class FacetContainerStorage<ElementType, FacetContainerUseContiguousStaticStorage<staticSize>> :
+			protected Storm::FacetContainer<FacetGroup, ShouldBeOwner, StorageTraits>::FacetContainerInternalImplBase
 		{
 		public:
-			template<class Facet, class ... Args>
-			void registerFacet(Args &&... args)
+			constexpr FacetContainerStorage()
 			{
-				const auto facetId = Facet::ID;
-				const auto facetFound = _facetMap.find(facetId);
-				if (facetFound == std::end(_facetMap))
+				for (std::size_t iter = 0; iter < staticSize; ++iter)
 				{
-					_facetMap.emplace_hint(facetFound, facetId, std::make_unique<Facet>(std::forward<Args>(args)...));
+					_array[iter] = nullptr;
+				}
+			}
+
+		public:
+			template<class Facet, class ItemType>
+			void registerFacet(ItemType &&item)
+			{
+				const IdType &index = Facet::ID;
+				assert(staticSize > index && "Facet ID is too big for the static array! Please increase its compile time size!");
+				if (ElementType &itemPosition = _array[index]; itemPosition == nullptr)
+				{
+					itemPosition = std::forward<ItemType>(item);
 				}
 				else
 				{
-					Storm::throwException<std::exception>("A facet was already found in the facet map position!");
+					Storm::throwException<std::exception>("A facet was already found in the facet contiguous container position (" + toStdString(index) + ")!");
 				}
 			}
 
 			template<class Facet>
 			Facet* getFacet() const
 			{
-				return details::FacetContainerInternalImplBase::getFacet<Facet>(_facetMap);
+				const IdType &index = Facet::ID;
+				assert(staticSize > index && "Facet ID is too big for the static array! Please increase its compile time size!");
+				return static_cast<Facet*>(FacetContainerInternalImplBase::extractRawPtr(_array[index], 0));
 			}
 
 			template<class Facet>
 			void unregisterFacet()
 			{
-				details::FacetContainerInternalImplBase::unregisterFacet<Facet>(_facetMap);
+				const IdType &index = Facet::ID;
+				assert(staticSize > index && "Facet ID is too big for the static array! Please increase its compile time size!");
+				_array[index] = nullptr;
 			}
 
-		public:
-			std::map<typename FacetBase::ID, std::unique_ptr<FacetBase>> _facetMap;
+		private:
+			ElementType _array[staticSize];
 		};
 
-		template<> struct InternalImpl<FacetContainerIsNotOwner> : protected details::FacetContainerInternalImplBase
+		template<class ElementType>
+		class FacetContainerStorage<ElementType, FacetContainerUseContiguousDynamicStorage> :
+			protected Storm::FacetContainer<FacetGroup, ShouldBeOwner, StorageTraits>::FacetContainerInternalImplBase
 		{
 		public:
-			template<class Facet>
-			void registerFacet(FacetBase* alreadyConstructedPtr)
+			FacetContainerStorage()
 			{
-				if (alreadyConstructedPtr == nullptr)
+				_array.resize(16, nullptr);
+			}
+
+		public:
+			template<class Facet, class ItemType>
+			void registerFacet(ItemType &&item)
+			{
+				const IdType &index = Facet::ID;
+				if (_array.size() <= index)
 				{
-					assert(false && "You shouldn't pass a null pointer to be registered!");
+					_array.resize(index + 1, nullptr);
+				}
+				else if (ElementType &itemPosition = _array[index]; itemPosition != nullptr)
+				{
+					Storm::throwException<std::exception>("A facet was already found in the facet contiguous container position (" + toStdString(index) + ")!");
 				}
 
-				_facetMap[Facet::ID] = alreadyConstructedPtr;
+				_array[index] = std::forward<ItemType>(item);
 			}
 
 			template<class Facet>
 			Facet* getFacet() const
 			{
-				return details::FacetContainerInternalImplBase::getFacet<Facet>(_facetMap);
+				const IdType &index = Facet::ID;
+				assert(_array.size() > index && "Facet should have been registered before!");
+				return static_cast<Facet*>(FacetContainerInternalImplBase::extractRawPtr(_array[index], 0));
 			}
 
 			template<class Facet>
 			void unregisterFacet()
 			{
-				details::FacetContainerInternalImplBase::unregisterFacet<Facet>(_facetMap);
+				const IdType &index = Facet::ID;
+				assert(_array.size() > index && "Facet should have been registered before!");
+				_array[index] = nullptr;
 			}
 
-		public:
-			std::map<typename FacetBase::ID, FacetBase*> _facetMap;
+		private:
+			std::vector<ElementType> _array;
 		};
+
+
+	private:
+		template<class StorageTrait, class ShouldBeOwner> class InternalImpl;
+
+		template<class StorageTrait> class InternalImpl<StorageTrait, FacetContainerIsOwner> :
+			public FacetContainerStorage<std::unique_ptr<FacetBase>, StorageTrait>
+		{};
+
+		template<class StorageTrait> class InternalImpl<StorageTrait, FacetContainerIsNotOwner> :
+			public FacetContainerStorage<FacetBase*, StorageTrait>
+		{};
 
 
 	private:
@@ -188,6 +262,6 @@ namespace Storm
 		}
 
 	private:
-		InternalImpl<ShouldBeOwner> _internal;
+		InternalImpl<StorageTraits, ShouldBeOwner> _internal;
 	};
 }
