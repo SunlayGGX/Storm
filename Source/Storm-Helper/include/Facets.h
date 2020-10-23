@@ -29,6 +29,11 @@ namespace Storm
 				return _id < other._id;
 			}
 
+			operator UnderlyingType() const
+			{
+				return _id;
+			}
+
 		private:
 			static inline ID::UnderlyingType s_idGenerator = 0;
 			const UnderlyingType _id;
