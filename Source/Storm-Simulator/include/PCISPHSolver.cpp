@@ -258,6 +258,8 @@ void Storm::PCISPHSolver::execute(Storm::ParticleSystemContainer &particleSystem
 		}
 	}
 
+	const float totalParticleCountFl = static_cast<float>(_totalParticleCount);
+
 	// 4th : The density prediction (pressure solving)
 	do
 	{
@@ -266,6 +268,7 @@ void Storm::PCISPHSolver::execute(Storm::ParticleSystemContainer &particleSystem
 
 		// TODO : Compute the density error
 		averageDensityError = 0.f;
+		averageDensityError /= totalParticleCountFl;
 	} while (averageDensityError > generalSimulData._maxDensityError && currentPredictionIter++ < generalSimulData._maxPredictIteration);
 
 	if (currentPredictionIter > generalSimulData._maxPredictIteration)
