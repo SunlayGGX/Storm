@@ -263,11 +263,127 @@ void Storm::PCISPHSolver::execute(Storm::ParticleSystemContainer &particleSystem
 	// 4th : The density prediction (pressure solving)
 	do
 	{
+		// Initialize the components
+		for (auto &particleSystemPair : particleSystems)
+		{
+			Storm::ParticleSystem &particleSystem = *particleSystemPair.second;
+			if (!particleSystem.isFluids() && !particleSystem.isStatic())
+			{
+				Storm::runParallel(particleSystem.getTemporaryPressureForces(), [](Storm::Vector3 &pressuresForces) 
+				{
+					pressuresForces.setZero();
+				});
+			}
+		}
 
+		// Compute the acceleration field
+		for (auto &dataFieldPair : _data)
+		{
+			// Since data field was made from fluids particles only, no need to check if this is a fluid.
+			const Storm::FluidParticleSystem &currentParticleSystem = static_cast<const Storm::FluidParticleSystem &>(*particleSystems.find(dataFieldPair.first)->second);
 
+			const std::vector<float> &masses = currentParticleSystem.getMasses();
+			const std::vector<float> &densities = currentParticleSystem.getDensities();
+			const std::vector<float> &pressures = currentParticleSystem.getPressures();
+			const std::vector<Storm::ParticleNeighborhoodArray> &neighborhoodArrays = currentParticleSystem.getNeighborhoodArrays();
 
-		// TODO : Compute the density error
-		averageDensityError = 0.f;
+			Storm::runParallel(dataFieldPair.second, [&](Storm::PCISPHSolverData &currentPData, const std::size_t currentPIndex)
+			{
+				const Storm::ParticleNeighborhoodArray &currentPNeighborhood = neighborhoodArrays[currentPIndex];
+
+				const float currentPMass = masses[currentPIndex];
+				const float currentPPressure = pressures[currentPIndex];
+				const float currentPDensity = densities[currentPIndex];
+				const float currentPPressureCoeff = currentPPressure / (currentPDensity * currentPDensity);
+
+				currentPData._pressureAcceleration.setZero();
+
+				for (const Storm::NeighborParticleInfo &neighbor : currentPNeighborhood)
+				{
+					Storm::Vector3 pressureAccel;
+					if (neighbor._containingParticleSystem->isFluids())
+					{
+						const Storm::FluidParticleSystem &neighborPSystemAsFluid = static_cast<const Storm::FluidParticleSystem &>(*neighbor._containingParticleSystem);
+						
+						const float neighborDensity = neighborPSystemAsFluid.getDensities()[neighbor._particleIndex];
+						const float neighborPPressureCoeff = neighborPSystemAsFluid.getPressures()[neighbor._particleIndex] / (neighborDensity * neighborDensity);
+						const float factor = neighborPSystemAsFluid.getMasses()[neighbor._particleIndex] * (currentPPressureCoeff + neighborPPressureCoeff);
+
+						pressureAccel = factor * gradKernel(k_kernelLength, neighbor._positionDifferenceVector, neighbor._vectToParticleNorm);
+					}
+					else
+					{
+						Storm::RigidBodyParticleSystem &neighborPSystemAsRb = static_cast<Storm::RigidBodyParticleSystem &>(*neighbor._containingParticleSystem);
+						const float factor = neighborPSystemAsRb.getVolumes()[neighbor._particleIndex] * currentPPressureCoeff;
+
+						pressureAccel = factor * gradKernel(k_kernelLength, neighbor._positionDifferenceVector, neighbor._vectToParticleNorm);
+
+						const Storm::Vector3 addedPressureForce = pressureAccel * currentPMass;
+						Storm::Vector3 &pressureForce = neighborPSystemAsRb.getTemporaryPressureForces()[neighbor._particleIndex];
+
+						std::lock_guard<std::mutex> lock{ neighborPSystemAsRb._mutex };
+						pressureForce += addedPressureForce;
+					}
+
+					currentPData._pressureAcceleration -= pressureAccel;
+				}
+			});
+		}
+
+		// Compute the density and pressure changes
+		for (auto &dataFieldPair : _data)
+		{
+			// Since data field was made from fluids particles only, no need to check if this is a fluid.
+			Storm::FluidParticleSystem &currentParticleSystem = static_cast<Storm::FluidParticleSystem &>(*particleSystems.find(dataFieldPair.first)->second);
+
+			std::vector<float> &predictedDensities = currentParticleSystem.getDensities();
+			std::vector<float> &predictedPressures = currentParticleSystem.getPressures();
+			const std::vector<Storm::ParticleNeighborhoodArray> &neighborhoodArrays = currentParticleSystem.getNeighborhoodArrays();
+
+			const float k_restDensity = currentParticleSystem.getRestDensity();
+
+			std::atomic<float> densityError = 0.f;
+
+			Storm::runParallel(dataFieldPair.second, [&](Storm::PCISPHSolverData &currentPData, const std::size_t currentPIndex)
+			{
+				const Storm::ParticleNeighborhoodArray &currentPNeighborhood = neighborhoodArrays[currentPIndex];
+
+				float &currentPPredictedDensity = predictedDensities[currentPIndex];
+				float &currentPPredictedPressure = predictedPressures[currentPIndex];
+
+				const Storm::Vector3 currentPAccel = currentPData._nonPressureAcceleration + currentPData._pressureAcceleration;
+
+				float currentPPressureAccelChangeCoeff = 0.f;
+				for (const Storm::NeighborParticleInfo &neighbor : currentPNeighborhood)
+				{
+					const Storm::Vector3 gradWij = gradKernel(k_kernelLength, neighbor._positionDifferenceVector, neighbor._vectToParticleNorm);
+					if (neighbor._containingParticleSystem->isFluids())
+					{
+						const Storm::FluidParticleSystem &neighborPSystemAsFluid = static_cast<const Storm::FluidParticleSystem &>(*neighbor._containingParticleSystem);
+						const Storm::PCISPHSolverData &associatedNeighborData = _data[neighborPSystemAsFluid.getId()][neighbor._particleIndex];
+						const float accelGrad = (currentPAccel - (associatedNeighborData._nonPressureAcceleration + associatedNeighborData._pressureAcceleration)).dot(gradWij);
+
+						currentPPressureAccelChangeCoeff += neighborPSystemAsFluid.getMasses()[neighbor._particleIndex] * accelGrad;
+					}
+					else
+					{
+						const Storm::RigidBodyParticleSystem &neighborPSystemAsRb = static_cast<const Storm::RigidBodyParticleSystem &>(*neighbor._containingParticleSystem);
+						const float accelGrad = currentPAccel.dot(gradWij);
+						currentPPressureAccelChangeCoeff += neighborPSystemAsRb.getVolumes()[neighbor._particleIndex] * k_restDensity * accelGrad;
+					}
+				}
+
+				currentPPressureAccelChangeCoeff *= deltaTimeSquared;
+
+				currentPPredictedPressure += k_templatePStiffnessCoeffK * (k_restDensity - currentPPredictedDensity - currentPPressureAccelChangeCoeff);
+				currentPPredictedDensity = currentPPressureAccelChangeCoeff;
+
+				densityError += k_restDensity * std::max(currentPPredictedDensity - 1.f, 0.f);
+			});
+
+			averageDensityError += densityError;
+		}
+
 		averageDensityError /= totalParticleCountFl;
 	} while (averageDensityError > generalSimulData._maxDensityError && currentPredictionIter++ < generalSimulData._maxPredictIteration);
 
@@ -276,5 +392,33 @@ void Storm::PCISPHSolver::execute(Storm::ParticleSystemContainer &particleSystem
 		LOG_DEBUG_WARNING <<
 			"Max prediction loop watchdog hit without being able to go under the max density error allowed when computing PCISPH predicted density...\n"
 			"We'll leave the prediction loop with an average density of " << averageDensityError;
+	}
+
+	for (auto &particleSystemPair : particleSystems)
+	{
+		Storm::ParticleSystem &particleSystem = *particleSystemPair.second;
+		if (!particleSystem.isFluids() && !particleSystem.isStatic())
+		{
+			Storm::runParallel(particleSystem.getForces(), [&particleSystem](Storm::Vector3 &forces, const std::size_t currentPIndex)
+			{
+				forces = particleSystem.getTemporaryViscosityForces()[currentPIndex] + particleSystem.getTemporaryPressureForces()[currentPIndex];
+			});
+		}
+	}
+
+	for (auto &dataFieldPair : _data)
+	{
+		// Since data field was made from fluids particles only, no need to check if this is a fluid.
+		Storm::FluidParticleSystem &currentParticleSystem = static_cast<Storm::FluidParticleSystem &>(*particleSystems.find(dataFieldPair.first)->second);
+
+		const std::vector<float> &masses = currentParticleSystem.getMasses();
+		std::vector<Storm::Vector3> &forces = currentParticleSystem.getForces();
+		std::vector<Storm::Vector3> &tmpPressureForces = currentParticleSystem.getTemporaryPressureForces();
+
+		Storm::runParallel(dataFieldPair.second, [&](Storm::PCISPHSolverData &currentPData, const std::size_t currentPIndex)
+		{
+			forces[currentPIndex] = (currentPData._nonPressureAcceleration + currentPData._pressureAcceleration) * masses[currentPIndex];
+			tmpPressureForces[currentPIndex] = currentPData._pressureAcceleration * masses[currentPIndex];
+		});
 	}
 }
