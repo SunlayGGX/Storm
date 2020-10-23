@@ -35,7 +35,7 @@ namespace Storm
 			}
 
 		private:
-			static inline ID::UnderlyingType s_idGenerator = 0;
+			static inline ID::UnderlyingType s_idGenerator = -1;
 			const UnderlyingType _id;
 		};
 
