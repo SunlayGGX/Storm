@@ -5,8 +5,6 @@
 
 namespace Storm
 {
-	class ParticleSystem;
-	class ParticleSelector;
 	struct PCISPHSolverData;
 
 	class PCISPHSolver : public Storm::ISPHBaseSolver

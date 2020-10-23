@@ -5,9 +5,6 @@
 
 namespace Storm
 {
-	class ParticleSystem;
-	class ParticleSelector;
-
 	class WCSPHSolver : public Storm::ISPHBaseSolver
 	{
 	public:
