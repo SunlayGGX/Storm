@@ -43,6 +43,7 @@ namespace Storm
 	private:
 		void generateCurrentData();
 		void buildSrc(const aiScene* meshScene);
+		void doubleLayer();
 
 	private:
 		const Storm::RigidBodySceneData &_rbConfig;
