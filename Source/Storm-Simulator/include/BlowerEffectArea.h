@@ -95,7 +95,7 @@ namespace Storm
 	public:
 		__forceinline bool isInside(const Storm::Vector3 &relativePosDiff) const
 		{
-			if (std::fabs(relativePosDiff.y()) < _height)
+			if (std::fabs(relativePosDiff.y()) < _midHeight)
 			{
 				const float twoDRelativeLengthSquared = relativePosDiff.x() * relativePosDiff.x() + relativePosDiff.z() * relativePosDiff.z();
 				return twoDRelativeLengthSquared < _radiusSquared;
@@ -105,7 +105,7 @@ namespace Storm
 		}
 
 	protected:
-		float _height;
+		float _midHeight;
 		float _radiusSquared;
 	};
 

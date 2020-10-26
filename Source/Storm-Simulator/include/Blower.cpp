@@ -170,7 +170,7 @@ Storm::BlowerExplosionSphereArea::BlowerExplosionSphereArea(const Storm::BlowerD
 
 Storm::BlowerCylinderArea::BlowerCylinderArea(const Storm::BlowerData &blowerDataConfig) :
 	_radiusSquared{ blowerDataConfig._radius * blowerDataConfig._radius },
-	_height{ blowerDataConfig._height }
+	_midHeight{ blowerDataConfig._height / 2.f }
 {
 	STORM_ENSURE_CONSTRUCTED_ON_RIGHT_SETTING(blowerDataConfig, Storm::BlowerType::Cylinder);
 }
