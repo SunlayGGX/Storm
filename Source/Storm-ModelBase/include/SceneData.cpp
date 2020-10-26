@@ -54,7 +54,8 @@ Storm::RigidBodySceneData::RigidBodySceneData() :
 	_dynamicFrictionCoefficient{ 0.f },
 	_restitutionCoefficient{ 0.1f },
 	_mass{ -1.f },
-	_viscosity{ 0.f }
+	_viscosity{ 0.f },
+	_doubleLayer{ false }
 {
 
 }

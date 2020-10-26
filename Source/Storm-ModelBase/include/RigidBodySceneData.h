@@ -35,5 +35,7 @@ namespace Storm
 		float _restitutionCoefficient;
 
 		Storm::InsideParticleRemovalTechnique _insideRbFluidDetectionMethodEnum;
+
+		bool _doubleLayer;
 	};
 }

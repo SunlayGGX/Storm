@@ -421,6 +421,7 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 			Storm::XmlReader::handleXml(rigidBodyDataXml, "wall", rbData._isWall) ||
 			Storm::XmlReader::handleXml(rigidBodyDataXml, "mass", rbData._mass) ||
 			Storm::XmlReader::handleXml(rigidBodyDataXml, "viscosity", rbData._viscosity) ||
+			Storm::XmlReader::handleXml(rigidBodyDataXml, "doubleLayer", rbData._doubleLayer) ||
 			Storm::XmlReader::handleXml(rigidBodyDataXml, "pInsideRemovalTechnique", rbData._insideRbFluidDetectionMethodEnum, parseInsideRemovalTech) ||
 			Storm::XmlReader::handleXml(rigidBodyDataXml, "collisionType", rbData._collisionShape, parseCollisionType) ||
 			Storm::XmlReader::handleXml(rigidBodyDataXml, "translation", rbData._translation, parseVector3Element) ||
