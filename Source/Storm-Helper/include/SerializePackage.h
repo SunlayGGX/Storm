@@ -31,10 +31,10 @@ namespace Storm
 		// To use the fast resize (like the Unreal TArray's setNumUninitialized) you should include the feature with the Vector hijacker include. 
 		template<class ContainerType>
 		static auto resizeContainer(ContainerType &cont, std::size_t newSize, int)
-			-> decltype(Storm::setNumUninitialized_hijack(cont, Storm::VectorHijackerMakeBelieve()), void())
+			-> decltype(Storm::setNumUninitialized_hijack(cont, std::declval<Storm::VectorHijacker>()), void())
 		{
 			cont.reserve(newSize);
-			Storm::setNumUninitialized_hijack(cont, Storm::VectorHijackerMakeBelieve{ newSize });
+			Storm::setNumUninitialized_hijack(cont, Storm::VectorHijacker{ newSize });
 		}
 
 		template<class ContainerType>

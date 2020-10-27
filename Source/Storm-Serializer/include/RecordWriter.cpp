@@ -11,6 +11,11 @@
 
 #include "ThrowException.h"
 
+// Keep it because even though it isn't used here, a compilation bug make it shared with the metaprog done and used inside the RecordReader.
+// Therefore we need it here also.
+#define STORM_HIJACKED_TYPE Storm::Vector3
+#include "VectHijack.h"
+
 
 namespace
 {
