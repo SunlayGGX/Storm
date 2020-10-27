@@ -445,12 +445,12 @@ std::shared_ptr<Storm::AssetCacheData> Storm::AssetLoaderManager::retrieveAssetD
 		}
 
 		// We already created a source so we can skip the mesh reimporting.
-		return assetCacheDataArray.emplace_back(std::make_shared<Storm::AssetCacheData>(order._rbConfig, *assetCacheDataArray.front()));
+		return assetCacheDataArray.emplace_back(std::make_shared<Storm::AssetCacheData>(order._rbConfig, *assetCacheDataArray.front(), order._layerDistance));
 	}
 
 	if (order._assimpScene)
 	{
-		return assetCacheDataArray.emplace_back(std::make_shared<Storm::AssetCacheData>(order._rbConfig, order._assimpScene));
+		return assetCacheDataArray.emplace_back(std::make_shared<Storm::AssetCacheData>(order._rbConfig, order._assimpScene, order._layerDistance));
 	}
 	else
 	{

@@ -33,10 +33,74 @@ namespace
 			}
 		}
 	};
+
+	template<bool hasAdditionalLayer, bool isWall>
+	void fillVerticesData(const std::vector<Storm::Vector3> &srcVertices, std::vector<Storm::Vector3> &scaledCurrentVertices, const Storm::RigidBodySceneData &rbConfig, std::vector<std::vector<Storm::Vector3>> &scaledAdditionalLayerPosBuffer, const float layerDistance, const aiQuaterniont<Storm::Vector3::Scalar> rotationQuat, aiQuaterniont<Storm::Vector3::Scalar> rotationQuatConjugate, std::vector<Storm::Vector3> &finalCurrentVertices, std::vector<std::vector<Storm::Vector3>> &finalAdditionalLayerPosBuffer, Storm::Vector3 finalBoundingBoxMin, Storm::Vector3 finalBoundingBoxMax, const unsigned int additionalLayerCount)
+	{
+		for (const Storm::Vector3 &vertex : srcVertices)
+		{
+			// Apply the scale
+			const Storm::Vector3 &scaledVertex = scaledCurrentVertices.emplace_back(vertex.x() * rbConfig._scale.x(), vertex.y() * rbConfig._scale.y(), vertex.z() * rbConfig._scale.z());
+
+			if constexpr (hasAdditionalLayer)
+			{
+				for (unsigned int additionalLayerIndex = 0; additionalLayerIndex < additionalLayerCount; ++additionalLayerIndex)
+				{
+					scaledAdditionalLayerPosBuffer[additionalLayerIndex].emplace_back(scaledVertex + scaledVertex.normalized() * (layerDistance * static_cast<float>(additionalLayerIndex + 1)));
+				}
+			}
+
+			// Apply the rotation
+			const aiQuaterniont<Storm::Vector3::Scalar> tmp{ 0.f, scaledVertex.x(), scaledVertex.y(), scaledVertex.z() };
+			const aiQuaterniont<Storm::Vector3::Scalar> tmpRotated{ rotationQuat * tmp * rotationQuatConjugate };
+
+			Storm::Vector3 &finalCurrentVertex = finalCurrentVertices.emplace_back(tmpRotated.x, tmpRotated.y, tmpRotated.z);
+
+			if constexpr (hasAdditionalLayer)
+			{
+				for (unsigned int layerIndex = 1; layerIndex < rbConfig._layerCount; ++layerIndex)
+				{
+					Storm::Vector3 &additionalLayerVerticePos = finalAdditionalLayerPosBuffer[layerIndex - 1].emplace_back(finalCurrentVertex);
+
+					const Storm::Vector3 layerPosOffset = finalCurrentVertex.normalized() * (layerDistance * static_cast<float>(layerIndex));
+					// The double layer for a wall is outside the rigid body, otherwise it is inside.
+					if constexpr (isWall)
+					{
+						additionalLayerVerticePos += layerPosOffset;
+					}
+					else
+					{
+						additionalLayerVerticePos -= layerPosOffset;
+					}
+
+					additionalLayerVerticePos += rbConfig._translation;
+
+					if (layerIndex == 1 || layerIndex == additionalLayerCount)
+					{
+						Storm::minMaxInPlace(finalBoundingBoxMin, finalBoundingBoxMax, additionalLayerVerticePos, [](auto &vect) -> auto& { return vect.x(); });
+						Storm::minMaxInPlace(finalBoundingBoxMin, finalBoundingBoxMax, additionalLayerVerticePos, [](auto &vect) -> auto& { return vect.y(); });
+						Storm::minMaxInPlace(finalBoundingBoxMin, finalBoundingBoxMax, additionalLayerVerticePos, [](auto &vect) -> auto& { return vect.z(); });
+					}
+				}
+			}
+
+			// Apply the translation
+			finalCurrentVertex += rbConfig._translation;
+
+			Storm::minMaxInPlace(finalBoundingBoxMin, finalBoundingBoxMax, finalCurrentVertex, [](auto &vect) -> auto& { return vect.x(); });
+			Storm::minMaxInPlace(finalBoundingBoxMin, finalBoundingBoxMax, finalCurrentVertex, [](auto &vect) -> auto& { return vect.y(); });
+			Storm::minMaxInPlace(finalBoundingBoxMin, finalBoundingBoxMax, finalCurrentVertex, [](auto &vect) -> auto& { return vect.z(); });
+		}
+	}
+
+	unsigned int additionalLayer(const unsigned int layerCount)
+	{
+		return layerCount - 1;
+	}
 }
 
 
-Storm::AssetCacheData::AssetCacheData(const Storm::RigidBodySceneData &rbConfig, const aiScene* meshScene) :
+Storm::AssetCacheData::AssetCacheData(const Storm::RigidBodySceneData &rbConfig, const aiScene* meshScene, const float layerDistance) :
 	_rbConfig{ rbConfig },
 	_src{ std::make_shared<Storm::AssetCacheData::MeshData>() },
 	_indices{ std::make_shared<std::vector<uint32_t>>() },
@@ -44,15 +108,15 @@ Storm::AssetCacheData::AssetCacheData(const Storm::RigidBodySceneData &rbConfig,
 	_finalBoundingBoxMax{ Storm::initVector3ForMax() }
 {
 	this->buildSrc(meshScene);
-	this->generateCurrentData();
+	this->generateCurrentData(layerDistance);
 }
 
-Storm::AssetCacheData::AssetCacheData(const Storm::RigidBodySceneData &rbConfig, const Storm::AssetCacheData &srcCachedData) :
+Storm::AssetCacheData::AssetCacheData(const Storm::RigidBodySceneData &rbConfig, const Storm::AssetCacheData &srcCachedData, const float layerDistance) :
 	_rbConfig{ rbConfig },
 	_src{ srcCachedData._src },
 	_indices{ srcCachedData._indices }
 {
-	this->generateCurrentData();
+	this->generateCurrentData(layerDistance);
 }
 
 bool Storm::AssetCacheData::isEquivalentWith(const Storm::RigidBodySceneData &rbConfig, bool considerFinal) const
@@ -64,7 +128,8 @@ bool Storm::AssetCacheData::isEquivalentWith(const Storm::RigidBodySceneData &rb
 			!considerFinal ||
 			(
 				_rbConfig._translation == rbConfig._translation &&
-				_rbConfig._rotation == rbConfig._rotation
+				_rbConfig._rotation == rbConfig._rotation &&
+				_rbConfig._layerCount == rbConfig._layerCount
 			)
 		);
 }
@@ -181,7 +246,7 @@ const Storm::RigidBodySceneData& Storm::AssetCacheData::getAssociatedRbConfig() 
 	return _rbConfig;
 }
 
-void Storm::AssetCacheData::generateCurrentData()
+void Storm::AssetCacheData::generateCurrentData(const float layerDistance)
 {
 	const std::vector<Storm::Vector3> &srcVertices = _src->_vertices;
 	const std::vector<Storm::Vector3> &srcNormals = _src->_normals;
@@ -189,33 +254,66 @@ void Storm::AssetCacheData::generateCurrentData()
 	const std::size_t srcVerticesCount = srcVertices.size();
 	const std::size_t srcNormalsCount = srcNormals.size();
 
-	_scaledCurrent._vertices.reserve(srcVerticesCount);
-	_scaledCurrent._normals.reserve(srcNormalsCount);
-	_finalCurrent._vertices.reserve(srcVerticesCount);
-	_finalCurrent._normals.reserve(srcNormalsCount);
+	const std::size_t verticeCount = srcVerticesCount * _rbConfig._layerCount;
+	const std::size_t normalsCount = srcNormalsCount * _rbConfig._layerCount;
+	_scaledCurrent._vertices.reserve(verticeCount);
+	_scaledCurrent._normals.reserve(normalsCount);
+	_finalCurrent._vertices.reserve(verticeCount);
+	_finalCurrent._normals.reserve(normalsCount);
 
 	const aiQuaterniont<Storm::Vector3::Scalar> rotationQuat{ _rbConfig._rotation.x(), _rbConfig._rotation.y(), _rbConfig._rotation.z() };
 	aiQuaterniont<Storm::Vector3::Scalar> rotationQuatConjugate = rotationQuat;
 	rotationQuatConjugate.Conjugate();
 
-	for (const Storm::Vector3 &vertex : srcVertices)
+	const unsigned int additionalLayersCount = additionalLayer(_rbConfig._layerCount);
+
+#define STORM_FILL_VERTICES_DATA_ARGUMENTS \
+	srcVertices,						   \
+	_scaledCurrent._vertices,			   \
+	_rbConfig,							   \
+	scaledAdditionalLayerPosBuffer,		   \
+	layerDistance,						   \
+	rotationQuat,						   \
+	rotationQuatConjugate,				   \
+	_finalCurrent._vertices,			   \
+	finalAdditionalLayerPosBuffer,		   \
+	_finalBoundingBoxMin,				   \
+	_finalBoundingBoxMax,				   \
+	additionalLayersCount
+
+	std::vector<std::vector<Storm::Vector3>> scaledAdditionalLayerPosBuffer;
+	std::vector<std::vector<Storm::Vector3>> finalAdditionalLayerPosBuffer;
+	if (additionalLayersCount > 0)
 	{
-		// Apply the scale
-		const Storm::Vector3 &scaledVertex = _scaledCurrent._vertices.emplace_back(vertex.x() * _rbConfig._scale.x(), vertex.y() * _rbConfig._scale.y(), vertex.z() * _rbConfig._scale.z());
+		scaledAdditionalLayerPosBuffer.resize(additionalLayersCount);
+		finalAdditionalLayerPosBuffer.resize(additionalLayersCount);
 
-		// Apply the rotation
-		const aiQuaterniont<Storm::Vector3::Scalar> tmp{ 0.f, scaledVertex.x(), scaledVertex.y(), scaledVertex.z() };
-		const aiQuaterniont<Storm::Vector3::Scalar> tmpRotated{ rotationQuat * tmp * rotationQuatConjugate };
-		
-		Storm::Vector3 &finalCurrentVertex = _finalCurrent._vertices.emplace_back(tmpRotated.x, tmpRotated.y, tmpRotated.z);
+		for (std::vector<Storm::Vector3> &layer : scaledAdditionalLayerPosBuffer)
+		{
+			layer.resize(srcVerticesCount);
+		}
 
-		// Apply the translation
-		finalCurrentVertex += _rbConfig._translation;
+		for (std::vector<Storm::Vector3> &layer : finalAdditionalLayerPosBuffer)
+		{
+			layer.resize(srcVerticesCount);
+		}
 
-		Storm::minMaxInPlace(_finalBoundingBoxMin, _finalBoundingBoxMax, finalCurrentVertex, [](auto &vect) -> auto& { return vect.x(); });
-		Storm::minMaxInPlace(_finalBoundingBoxMin, _finalBoundingBoxMax, finalCurrentVertex, [](auto &vect) -> auto& { return vect.y(); });
-		Storm::minMaxInPlace(_finalBoundingBoxMin, _finalBoundingBoxMax, finalCurrentVertex, [](auto &vect) -> auto& { return vect.z(); });
+		if (_rbConfig._isWall)
+		{
+			fillVerticesData<true, true>(STORM_FILL_VERTICES_DATA_ARGUMENTS);
+		}
+		else
+		{
+			fillVerticesData<true, false>(STORM_FILL_VERTICES_DATA_ARGUMENTS);
+		}
 	}
+	else
+	{
+		fillVerticesData<false, false>(STORM_FILL_VERTICES_DATA_ARGUMENTS);
+	}
+
+#undef STORM_FILL_VERTICES_DATA_ARGUMENTS
+
 
 	// Add a little margin to the bounding box to avoid making strict equality afterwards and ensure that the bounding box encloses the shape
 	// (because currently, the point used to compute this bounding box is right on the skin of the box, so not enclosed).
@@ -240,6 +338,41 @@ void Storm::AssetCacheData::generateCurrentData()
 		_finalCurrent._normals.emplace_back(tmpRotated.x, tmpRotated.y, tmpRotated.z);
 
 		// This is a vector (not a point) so no translation.
+	}
+
+	if (additionalLayersCount > 0)
+	{
+		const std::size_t layerVerticeCount = finalAdditionalLayerPosBuffer[0].size();
+
+		for (unsigned int layerIter = 0; layerIter < additionalLayersCount; ++layerIter)
+		{
+			const std::vector<Storm::Vector3> &scaledPosLayerBuffer = scaledAdditionalLayerPosBuffer[layerIter];
+			const std::vector<Storm::Vector3> &finalPosLayerBuffer = finalAdditionalLayerPosBuffer[layerIter];
+
+			for (std::size_t iter = 0; iter < layerVerticeCount; ++iter)
+			{
+				_scaledCurrent._vertices.emplace_back(scaledPosLayerBuffer[iter]);
+				_scaledCurrent._normals.emplace_back(_scaledCurrent._normals[iter]);
+				_finalCurrent._vertices.emplace_back(finalPosLayerBuffer[iter]);
+				_finalCurrent._normals.emplace_back(_finalCurrent._normals[iter]);
+			}
+		}
+
+		std::vector<uint32_t> indicesRef = *_indices;
+		const std::size_t indicesCount = indicesRef.size();
+
+		_overrideIndices.resize(indicesCount * _rbConfig._layerCount);
+		std::copy(std::begin(indicesRef), std::end(indicesRef), std::begin(_overrideIndices));
+
+		for (std::size_t layerIndex = 1; layerIndex < _rbConfig._layerCount; ++layerIndex)
+		{
+			const std::size_t layerIndexOffset = indicesCount * layerIndex;
+			const uint32_t layerPosIndiceOffset = static_cast<uint32_t>(layerVerticeCount * layerIndex);
+			for (std::size_t iter = 0; iter < indicesCount; ++iter)
+			{
+				_overrideIndices[iter + layerIndexOffset] = indicesRef[iter] + layerPosIndiceOffset;
+			}
+		}
 	}
 }
 

@@ -17,8 +17,8 @@ namespace Storm
 		};
 
 	public:
-		AssetCacheData(const Storm::RigidBodySceneData &rbConfig, const aiScene* meshScene);
-		AssetCacheData(const Storm::RigidBodySceneData &rbConfig, const Storm::AssetCacheData &srcCachedData);
+		AssetCacheData(const Storm::RigidBodySceneData &rbConfig, const aiScene* meshScene, const float layerDistance);
+		AssetCacheData(const Storm::RigidBodySceneData &rbConfig, const Storm::AssetCacheData &srcCachedData, const float layerDistance);
 
 	public:
 		bool isEquivalentWith(const Storm::RigidBodySceneData &rbConfig, bool considerFinal) const;
@@ -41,7 +41,7 @@ namespace Storm
 		const Storm::RigidBodySceneData& getAssociatedRbConfig() const noexcept;
 
 	private:
-		void generateCurrentData();
+		void generateCurrentData(const float layerDistance);
 		void buildSrc(const aiScene* meshScene);
 
 	private:

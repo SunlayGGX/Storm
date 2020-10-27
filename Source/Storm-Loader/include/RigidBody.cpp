@@ -48,6 +48,11 @@ namespace
 
 		return Storm::RigidBody::retrieveParticleDataCacheFolder() / meshFileName;
 	}
+
+	float computeLayerDistance(const float particleRadius)
+	{
+		return particleRadius * 2.f;
+	}
 }
 
 
@@ -114,7 +119,7 @@ std::filesystem::path Storm::RigidBody::retrieveParticleDataCacheFolder()
 	return std::filesystem::path{ configMgr.getTemporaryPath() } / "ParticleData";
 }
 
-std::shared_ptr<Storm::AssetCacheData> Storm::RigidBody::baseLoadAssimp(const Storm::RigidBodySceneData &rbSceneData)
+std::shared_ptr<Storm::AssetCacheData> Storm::RigidBody::baseLoadAssimp(const Storm::RigidBodySceneData &rbSceneData, const float layerDist)
 {
 	std::shared_ptr<Storm::AssetCacheData> cachedDataPtr;
 
@@ -136,7 +141,7 @@ std::shared_ptr<Storm::AssetCacheData> Storm::RigidBody::baseLoadAssimp(const St
 		physicsMgr.addPhysicalBody(rbSceneData, verticesPos, indexes);
 	};
 
-	Storm::AssetCacheDataOrder order{ rbSceneData, nullptr };
+	Storm::AssetCacheDataOrder order{ rbSceneData, nullptr, layerDist };
 	order._considerFinalInEquivalence = true;
 
 	Storm::AssetLoaderManager &assetLoaderMgr = Storm::AssetLoaderManager::instance();
@@ -196,14 +201,14 @@ void Storm::RigidBody::load(const Storm::RigidBodySceneData &rbSceneData)
 		k_cacheGoodChecksum = 0xABCDEF71,
 	};
 
-	std::shared_ptr<Storm::AssetCacheData> cachedDataPtr = this->baseLoadAssimp(rbSceneData);
-
-	std::vector<Storm::Vector3> particlePos;
-
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
 	const float currentParticleRadius = configMgr.getGeneralSimulationData()._particleRadius;
+
+	std::shared_ptr<Storm::AssetCacheData> cachedDataPtr = this->baseLoadAssimp(rbSceneData, computeLayerDistance(currentParticleRadius));
+
+	std::vector<Storm::Vector3> particlePos;
 
 	const std::string meshPathLowerStr = boost::algorithm::to_lower_copy(_meshPath);
 	const std::filesystem::path meshPath = meshPathLowerStr;
@@ -338,6 +343,6 @@ void Storm::RigidBody::loadForReplay(const Storm::RigidBodySceneData &rbSceneDat
 		Storm::throwException<std::exception>(__FUNCSIG__ " should only be used in replay mode!");
 	}
 
-	this->baseLoadAssimp(rbSceneData);
+	this->baseLoadAssimp(rbSceneData, computeLayerDistance(configMgr.getGeneralSimulationData()._particleRadius));
 }
 

@@ -30,7 +30,7 @@ namespace Storm
 		static std::filesystem::path retrieveParticleDataCacheFolder();
 
 	private:
-		std::shared_ptr<Storm::AssetCacheData> baseLoadAssimp(const Storm::RigidBodySceneData &rbSceneData);
+		std::shared_ptr<Storm::AssetCacheData> baseLoadAssimp(const Storm::RigidBodySceneData &rbSceneData, const float layerDist);
 
 		void load(const Storm::RigidBodySceneData &rbSceneData);
 		void loadForReplay(const Storm::RigidBodySceneData &rbSceneData);
