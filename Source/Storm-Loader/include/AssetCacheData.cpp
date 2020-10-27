@@ -35,7 +35,7 @@ namespace
 	};
 
 	template<bool hasAdditionalLayer, bool isWall>
-	void fillVerticesData(const std::vector<Storm::Vector3> &srcVertices, std::vector<Storm::Vector3> &scaledCurrentVertices, const Storm::RigidBodySceneData &rbConfig, std::vector<std::vector<Storm::Vector3>> &scaledAdditionalLayerPosBuffer, const float layerDistance, const aiQuaterniont<Storm::Vector3::Scalar> rotationQuat, aiQuaterniont<Storm::Vector3::Scalar> rotationQuatConjugate, std::vector<Storm::Vector3> &finalCurrentVertices, std::vector<std::vector<Storm::Vector3>> &finalAdditionalLayerPosBuffer, Storm::Vector3 finalBoundingBoxMin, Storm::Vector3 finalBoundingBoxMax, const unsigned int additionalLayerCount)
+	void fillVerticesData(const std::vector<Storm::Vector3> &srcVertices, std::vector<Storm::Vector3> &scaledCurrentVertices, const Storm::RigidBodySceneData &rbConfig, std::vector<std::vector<Storm::Vector3>> &scaledAdditionalLayerPosBuffer, const float layerDistance, const aiQuaterniont<Storm::Vector3::Scalar> &rotationQuat, const aiQuaterniont<Storm::Vector3::Scalar> &rotationQuatConjugate, std::vector<Storm::Vector3> &finalCurrentVertices, std::vector<std::vector<Storm::Vector3>> &finalAdditionalLayerPosBuffer, Storm::Vector3 &finalBoundingBoxMin, Storm::Vector3 &finalBoundingBoxMax, const unsigned int additionalLayerCount)
 	{
 		for (const Storm::Vector3 &vertex : srcVertices)
 		{
