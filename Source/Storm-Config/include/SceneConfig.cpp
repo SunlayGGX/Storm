@@ -421,7 +421,7 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 			Storm::XmlReader::handleXml(rigidBodyDataXml, "wall", rbData._isWall) ||
 			Storm::XmlReader::handleXml(rigidBodyDataXml, "mass", rbData._mass) ||
 			Storm::XmlReader::handleXml(rigidBodyDataXml, "viscosity", rbData._viscosity) ||
-			Storm::XmlReader::handleXml(rigidBodyDataXml, "doubleLayer", rbData._doubleLayer) ||
+			Storm::XmlReader::handleXml(rigidBodyDataXml, "layerCount", rbData._layerCount) ||
 			Storm::XmlReader::handleXml(rigidBodyDataXml, "pInsideRemovalTechnique", rbData._insideRbFluidDetectionMethodEnum, parseInsideRemovalTech) ||
 			Storm::XmlReader::handleXml(rigidBodyDataXml, "collisionType", rbData._collisionShape, parseCollisionType) ||
 			Storm::XmlReader::handleXml(rigidBodyDataXml, "translation", rbData._translation, parseVector3Element) ||
@@ -466,6 +466,10 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 		else if (rbData._isWall && rbData._insideRbFluidDetectionMethodEnum != Storm::InsideParticleRemovalTechnique::None)
 		{
 			Storm::throwException<std::exception>("Setting a insider particles removal technique for a wall rigidbody is forbidden (rigid body " + std::to_string(rbData._rigidBodyID) + ")!");
+		}
+		else if (rbData._layerCount == 0 || rbData._layerCount > 5)
+		{
+			Storm::throwException<std::exception>("The rigid body layer count is invalid (rigid body " + std::to_string(rbData._rigidBodyID) + ")! Value was " + std::to_string(rbData._layerCount));
 		}
 	});
 

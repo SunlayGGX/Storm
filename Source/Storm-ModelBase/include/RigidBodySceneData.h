@@ -36,6 +36,6 @@ namespace Storm
 
 		Storm::InsideParticleRemovalTechnique _insideRbFluidDetectionMethodEnum;
 
-		bool _doubleLayer;
+		unsigned int _layerCount;
 	};
 }

@@ -55,7 +55,7 @@ Storm::RigidBodySceneData::RigidBodySceneData() :
 	_restitutionCoefficient{ 0.1f },
 	_mass{ -1.f },
 	_viscosity{ 0.f },
-	_doubleLayer{ false }
+	_layerCount{ 1 }
 {
 
 }

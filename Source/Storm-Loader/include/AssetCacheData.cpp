@@ -45,11 +45,6 @@ Storm::AssetCacheData::AssetCacheData(const Storm::RigidBodySceneData &rbConfig,
 {
 	this->buildSrc(meshScene);
 	this->generateCurrentData();
-
-	if (rbConfig._doubleLayer)
-	{
-		this->doubleLayer();
-	}
 }
 
 Storm::AssetCacheData::AssetCacheData(const Storm::RigidBodySceneData &rbConfig, const Storm::AssetCacheData &srcCachedData) :
@@ -58,11 +53,6 @@ Storm::AssetCacheData::AssetCacheData(const Storm::RigidBodySceneData &rbConfig,
 	_indices{ srcCachedData._indices }
 {
 	this->generateCurrentData();
-
-	if (rbConfig._doubleLayer)
-	{
-		this->doubleLayer();
-	}
 }
 
 bool Storm::AssetCacheData::isEquivalentWith(const Storm::RigidBodySceneData &rbConfig, bool considerFinal) const
@@ -352,9 +342,4 @@ void Storm::AssetCacheData::buildSrc(const aiScene* meshScene)
 	}
 
 	assert(normalsPos.size() == verticesPos.size() && "Vertices count mismatch Normals count!");
-}
-
-void Storm::AssetCacheData::doubleLayer()
-{
-	STORM_NOT_IMPLEMENTED;
 }
