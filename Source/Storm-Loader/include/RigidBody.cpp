@@ -39,6 +39,8 @@ namespace
 		suffix += std::to_string(rbSceneData._scale.z());
 		suffix += "_rad";
 		suffix += std::to_string(particleRadius);
+		suffix += "_lx";
+		suffix += std::to_string(rbSceneData._layerCount);
 
 		boost::algorithm::replace_all(suffix, ".", "_");
 
