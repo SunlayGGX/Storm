@@ -50,6 +50,7 @@ namespace Storm
 		Storm::AssetCacheData::MeshData _scaledCurrent;
 		Storm::AssetCacheData::MeshData _finalCurrent;
 		std::shared_ptr<std::vector<uint32_t>> _indices;
+		std::vector<uint32_t> _overrideIndices;
 
 		Storm::Vector3 _finalBoundingBoxMin;
 		Storm::Vector3 _finalBoundingBoxMax;

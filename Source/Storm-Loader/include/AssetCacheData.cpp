@@ -173,7 +173,7 @@ const std::vector<Storm::Vector3>& Storm::AssetCacheData::getFinalNormals() cons
 
 const std::vector<uint32_t>& Storm::AssetCacheData::getIndices() const noexcept
 {
-	return *_indices;
+	return _overrideIndices.empty() ? *_indices : _overrideIndices;
 }
 
 const Storm::RigidBodySceneData& Storm::AssetCacheData::getAssociatedRbConfig() const noexcept
