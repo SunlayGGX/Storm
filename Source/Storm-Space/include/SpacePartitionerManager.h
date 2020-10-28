@@ -32,6 +32,9 @@ namespace Storm
 		void setPartitionLength(float length) final override;
 
 	public:
+		std::shared_ptr<Storm::IDistanceSpacePartitionProxy> makeDistancePartitionProxy(const Storm::Vector3 &upCorner, const Storm::Vector3 &downCorner, const float partitionLength) final override;
+
+	public:
 		const std::unique_ptr<Storm::VoxelGrid>& getSpacePartition(Storm::PartitionSelection modality) const;
 
 	private:

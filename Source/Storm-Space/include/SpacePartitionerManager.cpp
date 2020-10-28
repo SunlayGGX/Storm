@@ -7,6 +7,7 @@
 
 #include "VoxelGrid.h"
 #include "PartitionSelection.h"
+#include "DistanceSpacePartitionProxy.h"
 
 #include "Vector3Utils.h"
 
@@ -141,4 +142,10 @@ const std::unique_ptr<Storm::VoxelGrid>& Storm::SpacePartitionerManager::getSpac
 		__assume(false);
 		return nullptr;
 	}
+}
+
+std::shared_ptr<Storm::IDistanceSpacePartitionProxy> Storm::SpacePartitionerManager::makeDistancePartitionProxy(const Storm::Vector3 &upCorner, const Storm::Vector3 &downCorner, const float partitionLength)
+{
+	std::shared_ptr<Storm::IDistanceSpacePartitionProxy> result = std::make_shared<Storm::DistanceSpacePartitionProxy>(upCorner, downCorner, partitionLength);
+	return result;
 }

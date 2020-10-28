@@ -25,6 +25,12 @@
     <Filter Include="Source Files\General">
       <UniqueIdentifier>{566d743d-ffa4-4ab1-a5a2-a11f8db9c421}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Voxel\PartitionProxy">
+      <UniqueIdentifier>{8c472ea7-f66a-4512-a593-2b73e8cfb2ed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Voxel\PartitionProxy">
+      <UniqueIdentifier>{d3858390-361f-4426-85d1-5bcf68bb5e9c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-SpacePCH.cpp">
@@ -41,6 +47,9 @@
     </ClCompile>
     <ClCompile Include="..\include\RaycastManager.cpp">
       <Filter>Source Files\General</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\DistanceSpacePartitionProxy.cpp">
+      <Filter>Source Files\Voxel\PartitionProxy</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -61,6 +70,12 @@
     </ClInclude>
     <ClInclude Include="..\include\VoxelHelper.h">
       <Filter>Header Files\Voxel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\DistanceSpacePartitionProxy.h">
+      <Filter>Header Files\Voxel\PartitionProxy</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\PositionVoxel.h">
+      <Filter>Header Files\Voxel\PartitionProxy</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

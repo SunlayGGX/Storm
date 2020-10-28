@@ -8,6 +8,7 @@ namespace Storm
 {
 	enum class PartitionSelection;
 	struct NeighborParticleReferral;
+	class IDistanceSpacePartitionProxy;
 
 	class ISpacePartitionerManager : public Storm::ISingletonHeldInterface<Storm::ISpacePartitionerManager>
 	{
@@ -38,5 +39,9 @@ namespace Storm
 		// Beware since setting it will automatically reset the partitioning (recreate all partitions and clear the particle referrals).
 		virtual void setPartitionLength(float length) = 0;
 		virtual float getPartitionLength() const = 0;
+
+		// Create an additional temporary partition to hold posData.
+		// Note that we don't keep a reference to the item, therefore you're responsible to clean it.
+		virtual std::shared_ptr<Storm::IDistanceSpacePartitionProxy> makeDistancePartitionProxy(const Storm::Vector3 &upCorner, const Storm::Vector3 &downCorner, const float partitionLength) = 0;
 	};
 }

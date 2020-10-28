@@ -323,5 +323,8 @@
     <ClInclude Include="..\include\LayeringGenerationTechnique.h">
       <Filter>Header Files\Modules\Load</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\IDistanceSpacePartitionProxy.h">
+      <Filter>Header Files\Modules\SpacePartitioning</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
