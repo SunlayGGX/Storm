@@ -2,6 +2,9 @@
 
 #include "SingletonHolder.h"
 #include "IRandomManager.h"
+#include "ISpacePartitionerManager.h"
+
+#include "IDistanceSpacePartitionProxy.h"
 
 #include "RunnerHelper.h"
 
@@ -226,11 +229,13 @@ std::vector<Storm::Vector3> Storm::PoissonDiskSampler::process(const int kTryCon
 	return samplingResult;
 }
 
-std::vector<Storm::Vector3> Storm::PoissonDiskSampler::process_v2(const int kTryConst, const float diskRadius, const std::vector<Storm::Vector3> &vertices)
+std::vector<Storm::Vector3> Storm::PoissonDiskSampler::process_v2(const int kTryConst, const float diskRadius, const std::vector<Storm::Vector3> &vertices, const Storm::Vector3 &upCorner, const Storm::Vector3 &downCorner)
 {
 	std::vector<Storm::Vector3> samplingResult;
 
-	Storm::IRandomManager &randMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IRandomManager>();
+	Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+
+	Storm::IRandomManager &randMgr = singletonHolder.getSingleton<Storm::IRandomManager>();
 
 	// Compute the triangles from the vertices.
 	// Those triangle will be the base where we would sample on them (they would make 2D planes where we make 2D Poisson sampling)
@@ -268,36 +273,18 @@ std::vector<Storm::Vector3> Storm::PoissonDiskSampler::process_v2(const int kTry
 	std::size_t sampleCount = computeExpectedSampleCount(diskRadius, totalArea);
 	std::vector<Storm::Vector3> allPossibleSamples = produceRandomPointsAllOverMesh(randMgr, triangles, maxArea, sampleCount);
 
+	Storm::ISpacePartitionerManager &spacePartitionMgr = singletonHolder.getSingleton<Storm::ISpacePartitionerManager>();
+	std::shared_ptr<Storm::IDistanceSpacePartitionProxy> distanceSearchProxy = spacePartitionMgr.makeDistancePartitionProxy(upCorner, downCorner, maxDist);
+
+	const std::vector<Storm::Vector3>* containingBundlePtr;
+	const std::vector<Storm::Vector3>* neighborBundlePtr[Storm::k_neighborLinkedBunkCount];
+
 	// Now, remove the points that couldn't be in the final sample count...
 	const float minDistSquared = diskRadius * diskRadius;
-	samplingResult.reserve(sampleCount);
 	for (const Storm::Vector3 &maybeSample : allPossibleSamples)
 	{
-		if (std::find_if(std::execution::par, std::begin(samplingResult), std::end(samplingResult), [&maybeSample, &minDistSquared](const Storm::Vector3 &alreadyRegisteredSample)
-		{
-#if true
-			float acc = maybeSample.x() - alreadyRegisteredSample.x();
-			acc *= acc;
-			if (acc < minDistSquared)
-			{
-				float tmp = maybeSample.y() - alreadyRegisteredSample.y();
-				acc += tmp * tmp;
-				if (acc < minDistSquared)
-				{
-					tmp = maybeSample.z() - alreadyRegisteredSample.z();
-					return (acc + tmp * tmp) < minDistSquared;
-				}
-			}
-
-			return false;
-#else
-			return (maybeSample - alreadyRegisteredSample).squaredNorm() < minDistSquared;
-#endif
-		}) == std::end(samplingResult))
-		{
-			samplingResult.emplace_back(maybeSample);
-		}
+		distanceSearchProxy->addDataIfDistanceUnique(maybeSample, minDistSquared, containingBundlePtr, neighborBundlePtr);
 	}
 
-	return samplingResult;
+	return distanceSearchProxy->getCompleteData();
 }
