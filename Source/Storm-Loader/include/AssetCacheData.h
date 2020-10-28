@@ -9,7 +9,7 @@ namespace Storm
 
 	class AssetCacheData
 	{
-	private:
+	public:
 		struct MeshData
 		{
 			std::vector<Storm::Vector3> _vertices;

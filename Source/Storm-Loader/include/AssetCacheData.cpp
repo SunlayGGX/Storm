@@ -9,6 +9,9 @@
 #include "Vector3Utils.h"
 #include "BoundingBox.h"
 
+#define STORM_HIJACKED_TYPE uint32_t
+#include "VectHijack.h"
+
 #include <Assimp\scene.h>
 #include <Assimp\mesh.h>
 
@@ -115,6 +118,103 @@ namespace
 		for (std::vector<Storm::Vector3> &layerBuff : inOutLayersTmpBuffer)
 		{
 			layerBuff.reserve(verticesCount);
+		}
+	}
+
+	template<bool shouldHaveNormals, bool isWall>
+	void generateDissociatedTriangleLayersImpl(const Storm::RigidBodySceneData &rbConfig, Storm::AssetCacheData::MeshData &scaledCurrent, Storm::AssetCacheData::MeshData &finalCurrent, const std::vector<uint32_t> &indicesRef, std::vector<uint32_t> &outOverridenIndices, Storm::Vector3 &finalBoundingBoxMin, Storm::Vector3 &finalBoundingBoxMax, const float layerDistance)
+	{
+		const unsigned int additionalLayersCount = additionalLayer(rbConfig._layerCount);
+		const std::size_t verticesCount = finalCurrent._vertices.size();
+		const std::size_t srcIndicesCount = indicesRef.size();
+
+		// Since layers triangles will be dissociated, we expect to add as many point as there is indices (triangle point).
+		const std::size_t finalVerticesCount = verticesCount + srcIndicesCount * additionalLayersCount;
+		scaledCurrent._vertices.reserve(finalVerticesCount);
+		finalCurrent._vertices.reserve(finalVerticesCount);
+
+		if constexpr (shouldHaveNormals)
+		{
+			scaledCurrent._normals.reserve(finalVerticesCount);
+			finalCurrent._normals.reserve(finalVerticesCount);
+		}
+
+		const std::size_t finalIndicesCount = srcIndicesCount * rbConfig._layerCount;
+		outOverridenIndices.reserve(finalIndicesCount);
+		Storm::setNumUninitialized_hijack(outOverridenIndices, Storm::VectorHijacker{ finalIndicesCount });
+		std::copy(std::begin(indicesRef), std::end(indicesRef), std::begin(outOverridenIndices));
+		std::size_t overridenIndicesIndex = srcIndicesCount;
+
+		const auto applyMinMaxBoundingBox = [&finalBoundingBoxMin, &finalBoundingBoxMax](const Storm::Vector3 &finalPosAdded)
+		{
+			Storm::minMaxInPlace(finalBoundingBoxMin, finalBoundingBoxMax, finalPosAdded, [](auto &vect) -> auto& { return vect.x(); });
+			Storm::minMaxInPlace(finalBoundingBoxMin, finalBoundingBoxMax, finalPosAdded, [](auto &vect) -> auto& { return vect.y(); });
+			Storm::minMaxInPlace(finalBoundingBoxMin, finalBoundingBoxMax, finalPosAdded, [](auto &vect) -> auto& { return vect.z(); });
+		};
+
+		const auto registerAddVertex = [&outOverridenIndices, &scaledCurrent, &finalCurrent, &applyMinMaxBoundingBox, &overridenIndicesIndex](const Storm::Vector3 &triangleScaledVertex, const Storm::Vector3 &triangleFinalVertex, const Storm::Vector3 &triangleScaledOffset, const Storm::Vector3 &triangleFinalOffset)
+		{
+			outOverridenIndices[overridenIndicesIndex] = static_cast<uint32_t>(scaledCurrent._vertices.size());
+			++overridenIndicesIndex;
+			if constexpr (isWall)
+			{
+				scaledCurrent._vertices.emplace_back(triangleScaledVertex + triangleScaledOffset);
+				const Storm::Vector3 &finalPosAdded = finalCurrent._vertices.emplace_back(triangleFinalVertex + triangleFinalOffset);
+				applyMinMaxBoundingBox(finalPosAdded);
+			}
+			else
+			{
+				scaledCurrent._vertices.emplace_back(triangleScaledVertex - triangleScaledOffset);
+				const Storm::Vector3 &finalPosAdded = finalCurrent._vertices.emplace_back(triangleFinalVertex - triangleFinalOffset);
+				applyMinMaxBoundingBox(finalPosAdded);
+			}
+		};
+
+		for (std::size_t iter0 = 0; iter0 < srcIndicesCount; iter0 += 3)
+		{
+			const std::size_t iter1 = iter0 + 1;
+			const std::size_t iter2 = iter0 + 2;
+
+			const uint32_t indice0 = indicesRef[iter0];
+			const uint32_t indice1 = indicesRef[iter1];
+			const uint32_t indice2 = indicesRef[iter2];
+
+			const Storm::Vector3 &triangleScaledVertex0 = scaledCurrent._vertices[indice0];
+			const Storm::Vector3 &triangleScaledVertex1 = scaledCurrent._vertices[indice1];
+			const Storm::Vector3 &triangleScaledVertex2 = scaledCurrent._vertices[indice2];
+
+			const Storm::Vector3 &triangleFinalVertex0 = finalCurrent._vertices[indice0];
+			const Storm::Vector3 &triangleFinalVertex1 = finalCurrent._vertices[indice1];
+			const Storm::Vector3 &triangleFinalVertex2 = finalCurrent._vertices[indice2];
+
+			Storm::Vector3 triangleScaledNormals = (triangleScaledVertex1 - triangleScaledVertex0).cross(triangleScaledVertex2 - triangleScaledVertex0);
+			triangleScaledNormals.normalize();
+
+			Storm::Vector3 triangleFinalNormals = (triangleFinalVertex1 - triangleFinalVertex0).cross(triangleFinalVertex2 - triangleFinalVertex0);
+			triangleFinalNormals.normalize();
+
+			for (unsigned int layerIndex = 1; layerIndex < rbConfig._layerCount; ++layerIndex)
+			{
+				const float layerOffset = layerDistance * static_cast<float>(layerIndex);
+
+				const Storm::Vector3 triangleScaledOffset = triangleScaledNormals * layerOffset;
+				const Storm::Vector3 triangleFinalOffset = triangleFinalNormals * layerOffset;
+
+				registerAddVertex(triangleScaledVertex0, triangleFinalVertex0, triangleScaledOffset, triangleFinalOffset);
+				registerAddVertex(triangleScaledVertex1, triangleFinalVertex1, triangleScaledOffset, triangleFinalOffset);
+				registerAddVertex(triangleScaledVertex2, triangleFinalVertex2, triangleScaledOffset, triangleFinalOffset);
+
+				if constexpr (shouldHaveNormals)
+				{
+					scaledCurrent._normals.emplace_back(triangleScaledNormals);
+					scaledCurrent._normals.emplace_back(triangleScaledNormals);
+					scaledCurrent._normals.emplace_back(triangleScaledNormals);
+
+					finalCurrent._normals.emplace_back(triangleFinalNormals);
+					finalCurrent._normals.emplace_back(triangleFinalNormals);
+					finalCurrent._normals.emplace_back(triangleFinalNormals);
+				}
+			}
 		}
 	}
 }
@@ -502,5 +602,46 @@ void Storm::AssetCacheData::buildSrc(const aiScene* meshScene)
 
 void Storm::AssetCacheData::generateDissociatedTriangleLayers(const float layerDistance)
 {
-	STORM_NOT_IMPLEMENTED;
+	if (_scaledCurrent._normals.empty())
+	{
+		if (_rbConfig._isWall)
+		{
+			generateDissociatedTriangleLayersImpl<false, true>(_rbConfig,
+				_scaledCurrent, _finalCurrent,
+				*_indices, _overrideIndices,
+				_finalBoundingBoxMin, _finalBoundingBoxMax,
+				layerDistance
+			);
+		}
+		else
+		{
+			generateDissociatedTriangleLayersImpl<false, false>(_rbConfig,
+				_scaledCurrent, _finalCurrent,
+				*_indices, _overrideIndices,
+				_finalBoundingBoxMin, _finalBoundingBoxMax,
+				layerDistance
+			);
+		}
+	}
+	else
+	{
+		if (_rbConfig._isWall)
+		{
+			generateDissociatedTriangleLayersImpl<true, true>(_rbConfig,
+				_scaledCurrent, _finalCurrent,
+				*_indices, _overrideIndices,
+				_finalBoundingBoxMin, _finalBoundingBoxMax,
+				layerDistance
+			);
+		}
+		else
+		{
+			generateDissociatedTriangleLayersImpl<true, false>(_rbConfig,
+				_scaledCurrent, _finalCurrent,
+				*_indices, _overrideIndices,
+				_finalBoundingBoxMin, _finalBoundingBoxMax,
+				layerDistance
+			);
+		}
+	}
 }
