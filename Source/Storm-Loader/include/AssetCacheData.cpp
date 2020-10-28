@@ -108,6 +108,15 @@ namespace
 	{
 		return layerCount - 1;
 	}
+
+	void initializeTemporaryLayerBuffer(std::vector<std::vector<Storm::Vector3>> &inOutLayersTmpBuffer, const unsigned int additionalLayersCount, const std::size_t verticesCount)
+	{
+		inOutLayersTmpBuffer.resize(additionalLayersCount);
+		for (std::vector<Storm::Vector3> &layerBuff : inOutLayersTmpBuffer)
+		{
+			layerBuff.reserve(verticesCount);
+		}
+	}
 }
 
 
@@ -296,18 +305,8 @@ void Storm::AssetCacheData::generateCurrentData(const float layerDistance)
 	std::vector<std::vector<Storm::Vector3>> finalAdditionalLayerPosBuffer;
 	if (additionalLayersCount > 0 && _rbConfig._layerGenerationMode == Storm::LayeringGenerationTechnique::Scaling)
 	{
-		scaledAdditionalLayerPosBuffer.resize(additionalLayersCount);
-		finalAdditionalLayerPosBuffer.resize(additionalLayersCount);
-
-		for (std::vector<Storm::Vector3> &layer : scaledAdditionalLayerPosBuffer)
-		{
-			layer.resize(srcVerticesCount);
-		}
-
-		for (std::vector<Storm::Vector3> &layer : finalAdditionalLayerPosBuffer)
-		{
-			layer.resize(srcVerticesCount);
-		}
+		initializeTemporaryLayerBuffer(scaledAdditionalLayerPosBuffer, additionalLayersCount, srcVerticesCount);
+		initializeTemporaryLayerBuffer(finalAdditionalLayerPosBuffer, additionalLayersCount, srcVerticesCount);
 
 		if (_rbConfig._isWall)
 		{
