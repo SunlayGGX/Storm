@@ -10,15 +10,6 @@
 
 #include "Vector3Utils.h"
 
-namespace
-{
-	// Set toBeMinNeg selected member to the farthest from 0 in negative. If both vect1 and vec2 are negative, then 0 is set. 
-	template<class SelectorFunc>
-	void minNegativeInPlaceFromBoth(Storm::Vector3 &toBeMinNeg, const Storm::Vector3 &vec1, const Storm::Vector3 &vec2, const SelectorFunc &selector)
-	{
-		selector(toBeMinNeg) = std::min(std::min(selector(vec1), selector(vec2)), 0.f);
-	}
-}
 
 Storm::SpacePartitionerManager::SpacePartitionerManager() = default;
 Storm::SpacePartitionerManager::~SpacePartitionerManager() = default;
@@ -54,9 +45,9 @@ void Storm::SpacePartitionerManager::initialize_Implementation(float partitionLe
 		}
 	}
 
-	minNegativeInPlaceFromBoth(_gridShiftOffset, _downSpaceCorner, _upSpaceCorner, [](auto &vect) -> auto& { return vect.x(); });
-	minNegativeInPlaceFromBoth(_gridShiftOffset, _downSpaceCorner, _upSpaceCorner, [](auto &vect) -> auto& { return vect.y(); });
-	minNegativeInPlaceFromBoth(_gridShiftOffset, _downSpaceCorner, _upSpaceCorner, [](auto &vect) -> auto& { return vect.z(); });
+	Storm::minNegativeInPlaceFromBoth(_gridShiftOffset, _downSpaceCorner, _upSpaceCorner, [](auto &vect) -> auto& { return vect.x(); });
+	Storm::minNegativeInPlaceFromBoth(_gridShiftOffset, _downSpaceCorner, _upSpaceCorner, [](auto &vect) -> auto& { return vect.y(); });
+	Storm::minNegativeInPlaceFromBoth(_gridShiftOffset, _downSpaceCorner, _upSpaceCorner, [](auto &vect) -> auto& { return vect.z(); });
 
 	_partitionLength = -1.f; // To be sure we don't set the same length.
 	this->setPartitionLength(partitionLength);
