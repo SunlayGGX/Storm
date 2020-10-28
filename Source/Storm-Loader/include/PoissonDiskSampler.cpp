@@ -5,6 +5,9 @@
 
 #include "RunnerHelper.h"
 
+#define STORM_HIJACKED_TYPE Storm::Vector3
+#include "VectHijack.h"
+
 
 namespace
 {
@@ -124,7 +127,7 @@ namespace
 		float _area;
 	};
 
-	const std::size_t computeExpectedSampleCount(const float diskRadius, const float totalArea)
+	std::size_t computeExpectedSampleCount(const float diskRadius, const float totalArea)
 	{
 		const float minDistSquared = diskRadius * diskRadius;
 		const float personalParticleSpace = static_cast<float>(M_PI) * minDistSquared;
@@ -144,9 +147,10 @@ namespace
 
 		if (!allTriangles.empty())
 		{
-			const std::size_t expectedPopulationCount = k_allParticleCluteringCoefficient * expectedSampleFinalCount;
+			const Storm::VectorHijacker expectedPopulationCount{ k_allParticleCluteringCoefficient * expectedSampleFinalCount };
 
-			denseSamplingResult.resize(expectedPopulationCount);
+			denseSamplingResult.reserve(expectedPopulationCount._newSize);
+			Storm::setNumUninitialized_hijack(denseSamplingResult, expectedPopulationCount);
 
 			Storm::runParallel(denseSamplingResult, [&randMgr, &allTriangles, &maxArea, triangleLastIndex = static_cast<int64_t>(allTriangles.size() - 1)](Storm::Vector3 &currentPointSample)
 			{
@@ -246,7 +250,7 @@ std::vector<Storm::Vector3> Storm::PoissonDiskSampler::process_v2(const int kTry
 
 	// Produce a set of point sampling the mesh...
 	const float maxDist = 2.f * diskRadius;
-	const std::size_t sampleCount = computeExpectedSampleCount(diskRadius, totalArea);
+	std::size_t sampleCount = computeExpectedSampleCount(diskRadius, totalArea);
 	std::vector<Storm::Vector3> allPossibleSamples = produceRandomPointsAllOverMesh(randMgr, triangles, maxArea, sampleCount);
 
 	// Now, remove the points that couldn't be in the final sample count...
@@ -256,7 +260,24 @@ std::vector<Storm::Vector3> Storm::PoissonDiskSampler::process_v2(const int kTry
 	{
 		if (std::find_if(std::execution::par, std::begin(samplingResult), std::end(samplingResult), [&maybeSample, &minDistSquared](const Storm::Vector3 &alreadyRegisteredSample)
 		{
+#if true
+			float acc = maybeSample.x() - alreadyRegisteredSample.x();
+			acc *= acc;
+			if (acc < minDistSquared)
+			{
+				float tmp = maybeSample.y() - alreadyRegisteredSample.y();
+				acc += tmp * tmp;
+				if (acc < minDistSquared)
+				{
+					tmp = maybeSample.z() - alreadyRegisteredSample.z();
+					return (acc + tmp * tmp) < minDistSquared;
+				}
+			}
+
+			return false;
+#else
 			return (maybeSample - alreadyRegisteredSample).squaredNorm() < minDistSquared;
+#endif
 		}) == std::end(samplingResult))
 		{
 			samplingResult.emplace_back(maybeSample);
