@@ -26,6 +26,7 @@
     <ClInclude Include="..\include\Storm-SpacePCH.h" />
     <ClInclude Include="..\include\Voxel.h" />
     <ClInclude Include="..\include\VoxelGrid.h" />
+    <ClInclude Include="..\include\VoxelHelper.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Storm-Helper\script\Storm-Helper.vcxproj">

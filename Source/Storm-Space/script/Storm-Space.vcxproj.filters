@@ -59,5 +59,8 @@
     <ClInclude Include="..\include\RaycastManager.h">
       <Filter>Header Files\General</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\VoxelHelper.h">
+      <Filter>Header Files\Voxel</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

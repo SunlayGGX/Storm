@@ -27,7 +27,10 @@ namespace Storm
 
 		std::size_t size() const;
 
-	private:
+		__forceinline const std::vector<Storm::Voxel>& getVoxels() const noexcept { return _voxels; }
+		__forceinline const Storm::Vector3ui& getGridBoundary() const noexcept { return _gridBoundary; }
+
+	public:
 		void computeCoordIndexFromPosition(const Storm::Vector3ui &maxValue, const float voxelEdgeLength, const Storm::Vector3 &voxelShift, const Storm::Vector3 &position, unsigned int &outXIndex, unsigned int &outYIndex, unsigned int &outZIndex) const;
 		unsigned int computeRawIndexFromCoordIndex(unsigned int xIndex, unsigned int yIndex, unsigned int zIndex) const;
 		unsigned int computeRawIndexFromPosition(const Storm::Vector3ui &maxValue, const float voxelEdgeLength, const Storm::Vector3 &voxelShift, const Storm::Vector3 &position, unsigned int &outXIndex, unsigned int &outYIndex, unsigned int &outZIndex) const;
