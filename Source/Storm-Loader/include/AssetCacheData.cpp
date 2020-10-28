@@ -46,7 +46,17 @@ namespace
 			{
 				for (unsigned int additionalLayerIndex = 0; additionalLayerIndex < additionalLayerCount; ++additionalLayerIndex)
 				{
-					scaledAdditionalLayerPosBuffer[additionalLayerIndex].emplace_back(scaledVertex + scaledVertex.normalized() * (layerDistance * static_cast<float>(additionalLayerIndex + 1)));
+					const Storm::Vector3 layerPosOffset = scaledVertex.normalized() * (layerDistance * static_cast<float>(additionalLayerIndex + 1));
+
+					Storm::Vector3 &additionalLayerVerticePos = scaledAdditionalLayerPosBuffer[additionalLayerIndex].emplace_back(scaledVertex);
+					if constexpr (isWall)
+					{
+						additionalLayerVerticePos += layerPosOffset;
+					}
+					else
+					{
+						additionalLayerVerticePos -= layerPosOffset;
+					}
 				}
 			}
 
