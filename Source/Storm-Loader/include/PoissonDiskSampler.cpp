@@ -130,10 +130,12 @@ namespace
 	std::size_t computeExpectedSampleCount(const float diskRadius, const float totalArea)
 	{
 		const float minDistSquared = diskRadius * diskRadius;
-		const float personalParticleSpace = static_cast<float>(M_PI) * minDistSquared;
+
+		// DiskArea = pi * r²
+		const float personalParticleSpaceArea = static_cast<float>(M_PI) * minDistSquared;
 
 		constexpr float epsilon = 0.0001f;
-		return static_cast<std::size_t>(ceilf(totalArea / personalParticleSpace) + epsilon);
+		return static_cast<std::size_t>(std::max(std::ceilf(totalArea / personalParticleSpaceArea) + epsilon, 0.f));
 	}
 
 	std::vector<Storm::Vector3> produceRandomPointsAllOverMesh(Storm::IRandomManager &randMgr, const std::vector<Triangle> &allTriangles, const float maxArea, const std::size_t expectedSampleFinalCount)
@@ -241,11 +243,24 @@ std::vector<Storm::Vector3> Storm::PoissonDiskSampler::process_v2(const int kTry
 	for (std::size_t iter = 0; iter < vertices.size(); iter += 3)
 	{
 		const auto &addedTriangle = triangles.emplace_back(vertices[iter], vertices[iter + 1], vertices[iter + 2]);
-		totalArea += addedTriangle._area;
-		if (maxArea < addedTriangle._area)
+		if (addedTriangle._area > 0.f)
 		{
-			maxArea = addedTriangle._area;
+			totalArea += addedTriangle._area;
+			if (maxArea < addedTriangle._area)
+			{
+				maxArea = addedTriangle._area;
+			}
 		}
+		else
+		{
+			// The triangle is invalid. Just scrap it.
+			triangles.pop_back();
+		}
+	}
+
+	if (totalArea == 0.f)
+	{
+		Storm::throwException<std::exception>("A mesh to convert into particles must have a positive non zero area!");
 	}
 
 	// Produce a set of point sampling the mesh...
