@@ -19,6 +19,7 @@
 #include "BlowerType.h"
 #include "BlowerDef.h"
 #include "InsideParticleRemovalTechnique.h"
+#include "LayeringGenerationTechnique.h"
 
 #include "ColorChecker.h"
 #include "ThrowException.h"
@@ -167,6 +168,19 @@ if (blowerTypeStr == BlowerTypeXmlName) return Storm::BlowerType::BlowerTypeName
 		else
 		{
 			Storm::throwException<std::exception>("Fluid particle removal technique value is unknown : '" + techTypeStr + "'");
+		}
+	}
+
+	Storm::LayeringGenerationTechnique parseLayeringGenerationTechnique(std::string layeringTechTypeStr)
+	{
+		boost::algorithm::to_lower(layeringTechTypeStr);
+		if (layeringTechTypeStr == "scaling")
+		{
+			return Storm::LayeringGenerationTechnique::Scaling;
+		}
+		else
+		{
+			Storm::throwException<std::exception>("Layering generation technique value is unknown : '" + layeringTechTypeStr + "'");
 		}
 	}
 }
@@ -422,6 +436,7 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 			Storm::XmlReader::handleXml(rigidBodyDataXml, "mass", rbData._mass) ||
 			Storm::XmlReader::handleXml(rigidBodyDataXml, "viscosity", rbData._viscosity) ||
 			Storm::XmlReader::handleXml(rigidBodyDataXml, "layerCount", rbData._layerCount) ||
+			Storm::XmlReader::handleXml(rigidBodyDataXml, "layeringGeneration", rbData._layerGenerationMode, parseLayeringGenerationTechnique) ||
 			Storm::XmlReader::handleXml(rigidBodyDataXml, "pInsideRemovalTechnique", rbData._insideRbFluidDetectionMethodEnum, parseInsideRemovalTech) ||
 			Storm::XmlReader::handleXml(rigidBodyDataXml, "collisionType", rbData._collisionShape, parseCollisionType) ||
 			Storm::XmlReader::handleXml(rigidBodyDataXml, "translation", rbData._translation, parseVector3Element) ||

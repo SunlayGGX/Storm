@@ -320,5 +320,8 @@
     <ClInclude Include="..\include\SerializeRecordContraintsData.h">
       <Filter>Header Files\Modules\Serializer\Record\Frame\Elements</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\LayeringGenerationTechnique.h">
+      <Filter>Header Files\Modules\Load</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

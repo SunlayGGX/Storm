@@ -37,6 +37,7 @@
     <ClInclude Include="..\include\GeneralSimulationData.h" />
     <ClInclude Include="..\include\GraphicData.h" />
     <ClInclude Include="..\include\ISerializerManager.h" />
+    <ClInclude Include="..\include\LayeringGenerationTechnique.h" />
     <ClInclude Include="..\include\RecordConfigData.h" />
     <ClInclude Include="..\include\RecordMode.h" />
     <ClInclude Include="..\include\SerializeConstraintLayout.h" />

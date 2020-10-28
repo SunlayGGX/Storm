@@ -5,6 +5,7 @@ namespace Storm
 {
 	enum class CollisionType;
 	enum class InsideParticleRemovalTechnique;
+	enum class LayeringGenerationTechnique;
 
 	struct RigidBodySceneData
 	{
@@ -37,5 +38,6 @@ namespace Storm
 		Storm::InsideParticleRemovalTechnique _insideRbFluidDetectionMethodEnum;
 
 		unsigned int _layerCount;
+		Storm::LayeringGenerationTechnique _layerGenerationMode;
 	};
 }

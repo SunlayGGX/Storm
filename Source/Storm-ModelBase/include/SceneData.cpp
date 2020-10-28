@@ -14,6 +14,7 @@
 #include "BlowerType.h"
 #include "InsideParticleRemovalTechnique.h"
 #include "RecordMode.h"
+#include "LayeringGenerationTechnique.h"
 
 
 Storm::GeneralSimulationData::GeneralSimulationData() :
@@ -55,7 +56,8 @@ Storm::RigidBodySceneData::RigidBodySceneData() :
 	_restitutionCoefficient{ 0.1f },
 	_mass{ -1.f },
 	_viscosity{ 0.f },
-	_layerCount{ 1 }
+	_layerCount{ 1 },
+	_layerGenerationMode{ Storm::LayeringGenerationTechnique::Scaling }
 {
 
 }
