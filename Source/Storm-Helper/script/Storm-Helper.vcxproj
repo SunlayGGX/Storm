@@ -69,6 +69,7 @@
     <ClInclude Include="..\include\UniversalString.h" />
     <ClInclude Include="..\include\ValueGuard.h" />
     <ClInclude Include="..\include\VectHijack.h" />
+    <ClInclude Include="..\include\VectorHijacker.h" />
     <ClInclude Include="..\include\Version.h" />
     <ClInclude Include="..\include\VersionMacro.h" />
     <ClInclude Include="..\include\XmlReader.h" />

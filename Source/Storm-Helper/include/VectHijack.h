@@ -1,15 +1,7 @@
 #ifdef STORM_HIJACKED_TYPE
 
 #	if _WIN32
-namespace Storm
-{
-	struct VectorHijacker
-	{
-		std::size_t _newSize;
-	};
-
-	using VectorHijackerMakeBelieve = const VectorHijacker &;
-}
+#		include "VectorHijacker.h"
 
 // (   - _ - |||)
 // Ugly but super efficient...

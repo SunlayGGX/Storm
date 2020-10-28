@@ -263,5 +263,8 @@
     <ClInclude Include="..\include\SerializePackageCreationModality.h">
       <Filter>Header Files\Serialize</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\VectorHijacker.h">
+      <Filter>Header Files\General\Misc\Hijack</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
