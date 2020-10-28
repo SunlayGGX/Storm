@@ -380,6 +380,10 @@ void Storm::AssetCacheData::generateCurrentData(const float layerDistance)
 		}
 		break;
 
+		case Storm::LayeringGenerationTechnique::DissociatedTriangle:
+			this->generateDissociatedTriangleLayers(layerDistance);
+			break;
+
 		default:
 			Storm::throwException<std::exception>("Unknown layering generation technique : " + Storm::toStdString(_rbConfig._layerGenerationMode));
 		}
@@ -495,4 +499,9 @@ void Storm::AssetCacheData::buildSrc(const aiScene* meshScene)
 	}
 
 	assert(normalsPos.size() == verticesPos.size() && "Vertices count mismatch Normals count!");
+}
+
+void Storm::AssetCacheData::generateDissociatedTriangleLayers(const float layerDistance)
+{
+	STORM_NOT_IMPLEMENTED;
 }

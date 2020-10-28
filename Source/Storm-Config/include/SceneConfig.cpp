@@ -178,6 +178,10 @@ if (blowerTypeStr == BlowerTypeXmlName) return Storm::BlowerType::BlowerTypeName
 		{
 			return Storm::LayeringGenerationTechnique::Scaling;
 		}
+		else if (layeringTechTypeStr == "dissociated")
+		{
+			return Storm::LayeringGenerationTechnique::DissociatedTriangle;
+		}
 		else
 		{
 			Storm::throwException<std::exception>("Layering generation technique value is unknown : '" + layeringTechTypeStr + "'");

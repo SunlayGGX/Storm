@@ -43,6 +43,7 @@ namespace Storm
 	private:
 		void generateCurrentData(const float layerDistance);
 		void buildSrc(const aiScene* meshScene);
+		void generateDissociatedTriangleLayers(const float layerDistance);
 
 	private:
 		const Storm::RigidBodySceneData &_rbConfig;
