@@ -259,6 +259,16 @@ bool Storm::AssetCacheData::isInsideFinalBoundingBox(const Storm::Vector3 &pos) 
 	return Storm::isInsideBoundingBox(_finalBoundingBoxMin, _finalBoundingBoxMax, pos);
 }
 
+const Storm::Vector3& Storm::AssetCacheData::getFinalBoundingBoxMin() const noexcept
+{
+	return _finalBoundingBoxMin;
+}
+
+const Storm::Vector3& Storm::AssetCacheData::getFinalBoundingBoxMax() const noexcept
+{
+	return _finalBoundingBoxMax;
+}
+
 void Storm::AssetCacheData::removeInsiderParticle(std::vector<Storm::Vector3> &inOutParticles) const
 {
 	const std::size_t exParticleCount = inOutParticles.size();

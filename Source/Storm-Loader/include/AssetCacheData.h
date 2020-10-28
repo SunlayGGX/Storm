@@ -24,6 +24,9 @@ namespace Storm
 		bool isEquivalentWith(const Storm::RigidBodySceneData &rbConfig, bool considerFinal) const;
 		bool isInsideFinalBoundingBox(const Storm::Vector3 &pos) const;
 
+		const Storm::Vector3& getFinalBoundingBoxMin() const noexcept;
+		const Storm::Vector3& getFinalBoundingBoxMax() const noexcept;
+
 	public:
 		void removeInsiderParticle(std::vector<Storm::Vector3> &inOutParticles) const;
 
