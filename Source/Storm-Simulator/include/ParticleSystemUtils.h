@@ -5,14 +5,6 @@
 
 namespace Storm
 {
-#if STORM_USE_INTRINSICS
-#	if false
-#		define STORM_INTRINSICS_LOAD_PS_FROM_VECT3(vect3) _mm_setr_ps(vect3.x(), vect3.y(), vect3.z(), 0.f)
-#	else
-#		define STORM_INTRINSICS_LOAD_PS_FROM_VECT3(vect3) _mm_loadu_ps(reinterpret_cast<const float*>(&vect3[0]))
-#	endif
-#endif
-
 
 #if !STORM_USE_INTRINSICS
 	__forceinline bool isNeighborhood(const Storm::Vector3 &currentPPos, const Storm::Vector3 &toCheckPPos, const float kernelLengthSquared, Storm::Vector3 &outPosDiff, float &normSquared)
