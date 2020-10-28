@@ -127,26 +127,28 @@ std::shared_ptr<Storm::AssetCacheData> Storm::RigidBody::baseLoadAssimp(const St
 
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 
+	Storm::AssetLoaderManager &assetLoaderMgr = Storm::AssetLoaderManager::instance();
+
 	const auto pushDataToModules =
 		[
 			this,
 			&graphicsMgr = singletonHolder.getSingleton<Storm::IGraphicsManager>(),
 			&physicsMgr = singletonHolder.getSingleton<Storm::IPhysicsManager>(),
-			&rbSceneData
+			&rbSceneData, 
+			&assetLoaderMgr
 		](const std::shared_ptr<Storm::AssetCacheData> &cachedDataPtr)
 	{
 		const std::vector<Storm::Vector3> &verticesPos = cachedDataPtr->getScaledVertices();
 		const std::vector<Storm::Vector3> &normalsPos = cachedDataPtr->getScaledNormals();
 		const std::vector<uint32_t> &indexes = cachedDataPtr->getIndices();
 
+		std::lock_guard<std::mutex> lock{ assetLoaderMgr.getAddingMutex() };
 		graphicsMgr.addMesh(_rbId, verticesPos, normalsPos, indexes);
 		physicsMgr.addPhysicalBody(rbSceneData, verticesPos, indexes);
 	};
 
 	Storm::AssetCacheDataOrder order{ rbSceneData, nullptr, layerDist };
 	order._considerFinalInEquivalence = true;
-
-	Storm::AssetLoaderManager &assetLoaderMgr = Storm::AssetLoaderManager::instance();
 
 	cachedDataPtr = assetLoaderMgr.retrieveAssetData(order);
 	if (cachedDataPtr == nullptr)
@@ -220,7 +222,15 @@ void Storm::RigidBody::load(const Storm::RigidBodySceneData &rbSceneData)
 
 	const auto srcMeshWriteTime = std::filesystem::last_write_time(meshPath);
 	bool hasCache;
-	if (configMgr.shouldRegenerateParticleCache())
+
+	bool mutexExisted;
+
+	Storm::AssetLoaderManager &assetLoaderMgr = Storm::AssetLoaderManager::instance();
+	std::mutex &specificMutex = assetLoaderMgr.getAssetMutex(cachedPath.filename().string(), mutexExisted);
+
+	std::unique_lock<std::mutex> lock{ specificMutex };
+
+	if (!mutexExisted && configMgr.shouldRegenerateParticleCache())
 	{
 		hasCache = false;
 		LOG_COMMENT << "Regenerating cache no matter its state as requested by user from command line argument!";
@@ -333,7 +343,11 @@ void Storm::RigidBody::load(const Storm::RigidBodySceneData &rbSceneData)
 		Storm::binaryWrite(cacheFileStream, static_cast<uint64_t>(k_cacheGoodChecksum));
 	}
 
+	lock.unlock();
+
 	Storm::ISimulatorManager &simulMgr = singletonHolder.getSingleton<Storm::ISimulatorManager>();
+	
+	std::lock_guard<std::mutex> addingLock{ assetLoaderMgr.getAddingMutex() };
 	simulMgr.addRigidBodyParticleSystem(_rbId, std::move(particlePos));
 }
 

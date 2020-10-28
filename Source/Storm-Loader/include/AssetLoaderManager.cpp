@@ -38,6 +38,8 @@
 
 #include <Assimp\DefaultLogger.hpp>
 
+#include <future>
+
 
 namespace
 {
@@ -146,7 +148,38 @@ namespace
 		}
 	}
 
+	template<class FutureContainerType>
+	void waitForFutures(FutureContainerType &inOutFutures)
+	{
+		std::string errorMsg;
 
+		const std::size_t futureCount = inOutFutures.size();
+		for (std::size_t iter = 0; iter < futureCount; ++iter)
+		{
+			auto &currentFutureToWait = inOutFutures[iter];
+			try
+			{
+				currentFutureToWait.get();
+			}
+			catch (const std::exception &e)
+			{
+				errorMsg += "Future " + std::to_string(iter) + " has thrown an exception : ";
+				errorMsg += e.what();
+				errorMsg += '\n';
+			}
+			catch (...)
+			{
+				errorMsg += "Future " + std::to_string(iter) + " has thrown an unknown exception!\n";
+			}
+		}
+
+		inOutFutures.clear();
+
+		if (!errorMsg.empty())
+		{
+			Storm::throwException<std::exception>(errorMsg);
+		}
+	}
 }
 
 #define STORM_EXECUTE_CASE_ON_DENSE_MODE(DenseModeEnum) case Storm::##DenseModeEnum: STORM_EXECUTE_METHOD_ON_DENSE_MODE(Storm::##DenseModeEnum) break
@@ -181,6 +214,7 @@ void Storm::AssetLoaderManager::initialize_Implementation()
 
 	LOG_DEBUG << "Cleaning asset loading cache data";
 	this->clearCachedAssetData();
+	_assetSpecificMutexMap.clear();
 
 	LOG_COMMENT << "Asset loading finished!";
 }
@@ -278,30 +312,34 @@ void Storm::AssetLoaderManager::initializeForSimulation()
 	/* Load rigid bodies */
 	LOG_COMMENT << "Loading Rigid body";
 
+	std::vector<std::future<void>> asyncLoadingArray;
+
 	const auto &rigidBodiesDataToLoad = configMgr.getRigidBodiesData();
 	const std::size_t rigidBodyCount = rigidBodiesDataToLoad.size();
-	_rigidBodies.reserve(rigidBodyCount);
-	for (const auto &rbToLoad : rigidBodiesDataToLoad)
-	{
-		auto &emplacedRb = _rigidBodies.emplace_back(std::static_pointer_cast<Storm::IRigidBody>(std::make_shared<Storm::RigidBody>(rbToLoad)));
-		const unsigned int emplacedRbId = emplacedRb->getRigidBodyID();
 
-		graphicsMgr.bindParentRbToMesh(emplacedRbId, emplacedRb);
-		physicsMgr.bindParentRbToPhysicalBody(rbToLoad, emplacedRb);
-
-		LOG_DEBUG << "Rigid body " << emplacedRbId << " created and bound to the right modules.";
-	}
-
-	/* Load constraints */
-	const auto &constraintsData = configMgr.getConstraintsData();
-	if (!constraintsData.empty())
+	if (rigidBodyCount > 0)
 	{
-		LOG_COMMENT << "Loading Constraints";
-		physicsMgr.loadConstraints(constraintsData);
-	}
-	else
-	{
-		LOG_DEBUG << "No Constraints to load. Skipping this step.";
+		_rigidBodies.reserve(rigidBodyCount);
+		asyncLoadingArray.reserve(rigidBodyCount);
+
+		for (const auto &rbToLoad : rigidBodiesDataToLoad)
+		{
+			asyncLoadingArray.emplace_back(std::async(std::launch::async, [this, &graphicsMgr, &physicsMgr, &rbToLoad]()
+			{
+				std::shared_ptr<Storm::IRigidBody> loadedRigidBody = std::static_pointer_cast<Storm::IRigidBody>(std::make_shared<Storm::RigidBody>(rbToLoad));
+				const unsigned int emplacedRbId = loadedRigidBody->getRigidBodyID();
+
+				{
+					std::lock_guard<std::mutex> lock{ _addingMutex };
+					auto &emplacedRb = _rigidBodies.emplace_back(std::move(loadedRigidBody));
+
+					graphicsMgr.bindParentRbToMesh(emplacedRbId, emplacedRb);
+					physicsMgr.bindParentRbToPhysicalBody(rbToLoad, emplacedRb);
+				}
+
+				LOG_DEBUG << "Rigid body " << emplacedRbId << " created and bound to the right modules.";
+			}));
+		}
 	}
 
 	/* Loading Blowers */
@@ -388,6 +426,8 @@ case Storm::BlowerType::BlowerTypeName: \
 			}
 		}
 
+		waitForFutures(asyncLoadingArray);
+
 		this->removeRbInsiderFluidParticle(fluidParticlePos);
 
 		// We need to update the position to regenerate the position of any rigid body particle according to its translation.
@@ -402,7 +442,21 @@ case Storm::BlowerType::BlowerTypeName: \
 			"No fluid was present and we allowed it... Therefore, we would skip fluid loading to concentrate on rigid body interactions.\n"
 			"It is a debug/development helper feature so don't let this setting remains because this isn't the purpose of the application...";
 
+		waitForFutures(asyncLoadingArray);
+
 		simulMgr.refreshParticlesPosition();
+	}
+
+	/* Load constraints */
+	const auto &constraintsData = configMgr.getConstraintsData();
+	if (!constraintsData.empty())
+	{
+		LOG_COMMENT << "Loading Constraints";
+		physicsMgr.loadConstraints(constraintsData);
+	}
+	else
+	{
+		LOG_DEBUG << "No Constraints to load. Skipping this step.";
 	}
 }
 
@@ -433,7 +487,12 @@ void Storm::AssetLoaderManager::generateSimpleCone(const Storm::Vector3 &positio
 
 std::shared_ptr<Storm::AssetCacheData> Storm::AssetLoaderManager::retrieveAssetData(const Storm::AssetCacheDataOrder &order)
 {
+	std::unique_lock<std::mutex> generalLock{ _assetGeneralMutex };
+	std::mutex &specificAssetMutex = _assetSpecificMutexMap[order._rbConfig._meshFilePath];
 	auto &assetCacheDataArray = _cachedAssetData[order._rbConfig._meshFilePath];
+	generalLock.unlock();
+
+	std::lock_guard<std::mutex> lock{ specificAssetMutex };
 	if (!assetCacheDataArray.empty())
 	{
 		for (const std::shared_ptr<Storm::AssetCacheData> &assetCacheDataPtr : assetCacheDataArray)
@@ -471,5 +530,26 @@ void Storm::AssetLoaderManager::removeRbInsiderFluidParticle(std::vector<Storm::
 		{
 			rbCachedDataPtr->removeInsiderParticle(inOutFluidParticles);
 		}
+	}
+}
+
+std::mutex& Storm::AssetLoaderManager::getAddingMutex() const
+{
+	return _addingMutex;
+}
+
+std::mutex& Storm::AssetLoaderManager::getAssetMutex(const std::string &assetUID, bool &outMutexExistedBefore)
+{
+	outMutexExistedBefore = true;
+
+	std::lock_guard<std::mutex> lock{ _assetGeneralMutex };
+	if (auto found = _assetSpecificMutexMap.find(assetUID); found != std::end(_assetSpecificMutexMap))
+	{
+		return found->second;
+	}
+	else
+	{
+		outMutexExistedBefore = false;
+		return _assetSpecificMutexMap[assetUID];
 	}
 }

@@ -44,8 +44,16 @@ namespace Storm
 	private:
 		void removeRbInsiderFluidParticle(std::vector<Storm::Vector3> &inOutFluidParticles) const;
 
+	public:
+		std::mutex& getAddingMutex() const;
+		std::mutex& getAssetMutex(const std::string &assetUID, bool &outMutexExistedBefore);
+
 	private:
 		std::vector<std::shared_ptr<Storm::IRigidBody>> _rigidBodies;
 		std::map<std::string, std::vector<std::shared_ptr<Storm::AssetCacheData>>> _cachedAssetData;
+
+		mutable std::mutex _addingMutex;
+		mutable std::mutex _assetGeneralMutex;
+		std::map<std::string, std::mutex> _assetSpecificMutexMap;
 	};
 }
