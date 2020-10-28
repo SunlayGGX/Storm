@@ -3,6 +3,7 @@
 #include "RigidBodySceneData.h"
 
 #include "InsideParticleRemovalTechnique.h"
+#include "LayeringGenerationTechnique.h"
 
 #include "ThrowException.h"
 #include "Vector3Utils.h"
@@ -293,7 +294,7 @@ void Storm::AssetCacheData::generateCurrentData(const float layerDistance)
 
 	std::vector<std::vector<Storm::Vector3>> scaledAdditionalLayerPosBuffer;
 	std::vector<std::vector<Storm::Vector3>> finalAdditionalLayerPosBuffer;
-	if (additionalLayersCount > 0)
+	if (additionalLayersCount > 0 && _rbConfig._layerGenerationMode == Storm::LayeringGenerationTechnique::Scaling)
 	{
 		scaledAdditionalLayerPosBuffer.resize(additionalLayersCount);
 		finalAdditionalLayerPosBuffer.resize(additionalLayersCount);
@@ -324,17 +325,6 @@ void Storm::AssetCacheData::generateCurrentData(const float layerDistance)
 
 #undef STORM_FILL_VERTICES_DATA_ARGUMENTS
 
-
-	// Add a little margin to the bounding box to avoid making strict equality afterwards and ensure that the bounding box encloses the shape
-	// (because currently, the point used to compute this bounding box is right on the skin of the box, so not enclosed).
-	constexpr float margin = 0.0000001f;
-	_finalBoundingBoxMin.x() -= margin;
-	_finalBoundingBoxMin.y() -= margin;
-	_finalBoundingBoxMin.z() -= margin;
-	_finalBoundingBoxMax.x() += margin;
-	_finalBoundingBoxMax.y() += margin;
-	_finalBoundingBoxMax.z() += margin;
-
 	for (const Storm::Vector3 &normal : srcNormals)
 	{
 		// Apply the scale
@@ -352,38 +342,58 @@ void Storm::AssetCacheData::generateCurrentData(const float layerDistance)
 
 	if (additionalLayersCount > 0)
 	{
-		const std::size_t layerVerticeCount = finalAdditionalLayerPosBuffer[0].size();
-
-		for (unsigned int layerIter = 0; layerIter < additionalLayersCount; ++layerIter)
+		switch (_rbConfig._layerGenerationMode)
 		{
-			const std::vector<Storm::Vector3> &scaledPosLayerBuffer = scaledAdditionalLayerPosBuffer[layerIter];
-			const std::vector<Storm::Vector3> &finalPosLayerBuffer = finalAdditionalLayerPosBuffer[layerIter];
+		case Storm::LayeringGenerationTechnique::Scaling:
+		{
+			const std::size_t layerVerticeCount = finalAdditionalLayerPosBuffer[0].size();
 
-			for (std::size_t iter = 0; iter < layerVerticeCount; ++iter)
+			for (unsigned int layerIter = 0; layerIter < additionalLayersCount; ++layerIter)
 			{
-				_scaledCurrent._vertices.emplace_back(scaledPosLayerBuffer[iter]);
-				_scaledCurrent._normals.emplace_back(_scaledCurrent._normals[iter]);
-				_finalCurrent._vertices.emplace_back(finalPosLayerBuffer[iter]);
-				_finalCurrent._normals.emplace_back(_finalCurrent._normals[iter]);
+				const std::vector<Storm::Vector3> &scaledPosLayerBuffer = scaledAdditionalLayerPosBuffer[layerIter];
+				const std::vector<Storm::Vector3> &finalPosLayerBuffer = finalAdditionalLayerPosBuffer[layerIter];
+
+				for (std::size_t iter = 0; iter < layerVerticeCount; ++iter)
+				{
+					_scaledCurrent._vertices.emplace_back(scaledPosLayerBuffer[iter]);
+					_scaledCurrent._normals.emplace_back(_scaledCurrent._normals[iter]);
+					_finalCurrent._vertices.emplace_back(finalPosLayerBuffer[iter]);
+					_finalCurrent._normals.emplace_back(_finalCurrent._normals[iter]);
+				}
+			}
+
+			std::vector<uint32_t> indicesRef = *_indices;
+			const std::size_t indicesCount = indicesRef.size();
+
+			_overrideIndices.resize(indicesCount * _rbConfig._layerCount);
+			std::copy(std::begin(indicesRef), std::end(indicesRef), std::begin(_overrideIndices));
+
+			for (std::size_t layerIndex = 1; layerIndex < _rbConfig._layerCount; ++layerIndex)
+			{
+				const std::size_t layerIndexOffset = indicesCount * layerIndex;
+				const uint32_t layerPosIndiceOffset = static_cast<uint32_t>(layerVerticeCount * layerIndex);
+				for (std::size_t iter = 0; iter < indicesCount; ++iter)
+				{
+					_overrideIndices[iter + layerIndexOffset] = indicesRef[iter] + layerPosIndiceOffset;
+				}
 			}
 		}
+		break;
 
-		std::vector<uint32_t> indicesRef = *_indices;
-		const std::size_t indicesCount = indicesRef.size();
-
-		_overrideIndices.resize(indicesCount * _rbConfig._layerCount);
-		std::copy(std::begin(indicesRef), std::end(indicesRef), std::begin(_overrideIndices));
-
-		for (std::size_t layerIndex = 1; layerIndex < _rbConfig._layerCount; ++layerIndex)
-		{
-			const std::size_t layerIndexOffset = indicesCount * layerIndex;
-			const uint32_t layerPosIndiceOffset = static_cast<uint32_t>(layerVerticeCount * layerIndex);
-			for (std::size_t iter = 0; iter < indicesCount; ++iter)
-			{
-				_overrideIndices[iter + layerIndexOffset] = indicesRef[iter] + layerPosIndiceOffset;
-			}
+		default:
+			Storm::throwException<std::exception>("Unknown layering generation technique : " + Storm::toStdString(_rbConfig._layerGenerationMode));
 		}
 	}
+
+	// Add a little margin to the bounding box to avoid making strict equality afterwards and ensure that the bounding box encloses the shape
+	// (because currently, the point used to compute this bounding box is right on the skin of the box, so not enclosed).
+	constexpr float margin = 0.0000001f;
+	_finalBoundingBoxMin.x() -= margin;
+	_finalBoundingBoxMin.y() -= margin;
+	_finalBoundingBoxMin.z() -= margin;
+	_finalBoundingBoxMax.x() += margin;
+	_finalBoundingBoxMax.y() += margin;
+	_finalBoundingBoxMax.z() += margin;
 }
 
 void Storm::AssetCacheData::buildSrc(const aiScene* meshScene)
