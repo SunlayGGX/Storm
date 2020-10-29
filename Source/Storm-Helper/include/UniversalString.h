@@ -35,11 +35,25 @@ namespace Storm
 		template<class Policy, class ValueType>
 		struct CustomPolicyParser
 		{
-		public:
+		private:
 			template<class ValType>
-			static auto parse(ValType &&val) -> decltype(Policy::template parse<Policy>(std::forward<ValType>(val)))
+			static auto parseImpl(ValType &&val, int) -> decltype(Policy::template parse<Policy>(std::forward<ValType>(val)))
 			{
 				return Policy::template parse<Policy>(std::forward<ValType>(val));
+			}
+
+			template<class ValType>
+			static auto parseImpl(ValType &&val, void*) -> decltype(Policy::parsePolicyAgnostic(std::forward<ValType>(val)))
+			{
+				return Policy::parsePolicyAgnostic(std::forward<ValType>(val));
+			}
+
+		public:
+
+			template<class ValType>
+			static auto parse(ValType &&val) -> decltype(parseImpl(std::forward<ValType>(val), 0))
+			{
+				return parseImpl(std::forward<ValType>(val), 0);
 			}
 		};
 
