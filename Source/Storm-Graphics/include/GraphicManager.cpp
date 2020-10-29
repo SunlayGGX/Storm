@@ -258,11 +258,11 @@ void Storm::GraphicManager::initialize_Implementation(void* hwnd)
 			inputMgr.bindKey(Storm::SpecialKey::KC_SUBTRACT, [this]() { _camera->decreaseNearPlane(); });
 			inputMgr.bindKey(Storm::SpecialKey::KC_MULTIPLY, [this]() { _camera->increaseFarPlane(); });
 			inputMgr.bindKey(Storm::SpecialKey::KC_DIVIDE, [this]() { _camera->decreaseFarPlane(); });
-			inputMgr.bindKey(Storm::SpecialKey::KC_V, [this]() { _directXController->setWireFrameState(); });
-			inputMgr.bindKey(Storm::SpecialKey::KC_B, [this]() { _directXController->setSolidCullBackState(); });
-			inputMgr.bindKey(Storm::SpecialKey::KC_N, [this]() { _directXController->setSolidCullNoneState(); });
-			inputMgr.bindKey(Storm::SpecialKey::KC_C, [this]() { _directXController->setAllParticleState(); });
-			inputMgr.bindKey(Storm::SpecialKey::KC_X, [this]() { _directXController->setRenderNoWallParticle(); });
+			inputMgr.bindKey(Storm::SpecialKey::KC_F5, [this]() { _directXController->setWireFrameState(); });
+			inputMgr.bindKey(Storm::SpecialKey::KC_F6, [this]() { _directXController->setSolidCullBackState(); });
+			inputMgr.bindKey(Storm::SpecialKey::KC_F7, [this]() { _directXController->setSolidCullNoneState(); });
+			inputMgr.bindKey(Storm::SpecialKey::KC_F8, [this]() { _directXController->setAllParticleState(); });
+			inputMgr.bindKey(Storm::SpecialKey::KC_F9, [this]() { _directXController->setRenderNoWallParticle(); });
 
 			inputMgr.bindMouseWheel([this](int axisRelativeIncrement)
 			{

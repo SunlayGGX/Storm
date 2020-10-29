@@ -340,17 +340,17 @@ Inside this element should be put all rigidbodies. Each rigidbody should be spec
 - **0 (Numpad Zero)**: Reset camera position.
 - **Mouse wheel up**: Increase camera and clipping plane motion speed.
 - **Mouse wheel down**: Decrease camera and clipping plane motion speed.
-- **B**: Set solid state with back face culling.
-- **N**: Set solid state without back face culling.
-- **V**: Set wireframe.
-- **C**: Set rendering to display all particles.
-- **X**: Set particle state without rendering walls.
 - **E**: Enable all disabled blower, and disable all enabled ones.
 - **R**: Enable (if disabled)/Disable (if enabled) raycasts system.
 - **L**: Fix (if unfixed)/Unfix (if fixed) rigid bodies.
 - **Y**: Cycle the particle selection force to display (between [...] -> Pressure -> Viscosity -> AllForces (except gravity) -> [...]).
 - **I**: Reset the replaying to the first frame. This feature exists only in replay mode.
 - **F1**: Debug command to print to a human readable text giving all position, velocity and force values of all fluid particles. The data is printed inside the output (temp) directory inside "Debug" folder.
+- **F5**: Set wireframe.
+- **F6**: Set solid state with back face culling.
+- **F7**: Set solid state without back face culling.
+- **F8**: Set rendering to display all particles.
+- **F9**: Set particle state without rendering walls.
 
 
 ## Mouse bindings
