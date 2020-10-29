@@ -12,9 +12,49 @@ STORM_XMACRO_COMMANDLINE_ELEM("recordFile", std::string, std::string{}, "The pat
 STORM_XMACRO_COMMANDLINE_ELEM("regenPCache", bool, false, "Force invalidating the particle cache data. Therefore regenerating all of them anew.", getShouldRegenerateParticleCache) \
 
 
-Storm::CommandLineParser::CommandLineParser(int argc, const char* argv[]) :
-	_shouldDisplayHelp{ false }
+namespace
 {
+	struct CommandLinePolicy
+	{
+	public:
+		static std::string parsePolicyAgnostic(const std::vector<std::string_view> &args)
+		{
+			std::string result;
+
+			std::size_t totalCount = 0;
+			for (const std::string_view &arg : args)
+			{
+				totalCount += arg.size();
+			}
+
+			if (totalCount > 0)
+			{
+				result.reserve(totalCount + (args.size() * 3));
+
+				for (const std::string_view &arg : args)
+				{
+					if (!arg.empty())
+					{
+						result += '"';
+						result += arg;
+						result += "\" ";
+					}
+				}
+
+				result.pop_back();
+			}
+
+			return result;
+		}
+	};
+}
+
+Storm::CommandLineParser::CommandLineParser(int argc, const char* argv[]) :
+	_shouldDisplayHelp{ false },
+	_rawCommandLine{ Storm::toStdString<CommandLinePolicy>(std::vector<std::string_view>{ argv, argv + argc }) }
+{
+	LOG_COMMENT << "Parsing command line :\n" << _rawCommandLine;
+
 	boost::program_options::options_description desc{ "Options" };
 	desc.add_options()
 		("help,h", "Command line help")

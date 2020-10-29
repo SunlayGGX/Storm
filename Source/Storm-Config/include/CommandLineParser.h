@@ -40,5 +40,6 @@ namespace Storm
 
 		std::string _help;
 		bool _shouldDisplayHelp;
+		std::string _rawCommandLine;
 	};
 }
