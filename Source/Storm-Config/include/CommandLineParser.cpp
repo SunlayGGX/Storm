@@ -32,7 +32,7 @@ Storm::CommandLineParser::CommandLineParser(int argc, const char* argv[]) :
 
 	boost::program_options::notify(_commandlineMap);
 
-	_help = (std::stringstream{} << desc).str();
+	_help = Storm::toStdString(desc);
 	this->extractIfExist("help", _shouldDisplayHelp);
 }
 
