@@ -60,6 +60,11 @@ namespace Storm
 	template<class SelectorFunc>
 	void minNegativeInPlaceFromBoth(Storm::Vector3 &toBeMinNeg, const Storm::Vector3 &vec1, const Storm::Vector3 &vec2, const SelectorFunc &selector)
 	{
+		STORM_STATIC_ASSERT(
+			std::is_reference_v<decltype(selector(toBeMinNeg))>,
+			"Selector should return a reference or we would modify a value instead (will be lost when the function exit)."
+		);
+
 		selector(toBeMinNeg) = std::min(std::min(selector(vec1), selector(vec2)), 0.f);
 	}
 }
