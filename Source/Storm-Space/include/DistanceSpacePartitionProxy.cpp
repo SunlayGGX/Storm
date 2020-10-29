@@ -26,18 +26,7 @@ Storm::DistanceSpacePartitionProxy::DistanceSpacePartitionProxy(const Storm::Vec
 
 	_xIndexOffsetCoeff = _gridBoundary.y() * _gridBoundary.z();
 
-	_voxels.reserve(this->size());
-
-	for (unsigned int xIter = 0; xIter < _gridBoundary.x(); ++xIter)
-	{
-		for (unsigned int yIter = 0; yIter < _gridBoundary.y(); ++yIter)
-		{
-			for (unsigned int zIter = 0; zIter < _gridBoundary.z(); ++zIter)
-			{
-				_voxels.emplace_back();
-			}
-		}
-	}
+	_voxels.resize(this->size());
 
 	Storm::minNegativeInPlaceFromBoth(_gridShiftOffset, downCorner, upCorner, [](auto &vect) -> auto& { return vect.x(); });
 	Storm::minNegativeInPlaceFromBoth(_gridShiftOffset, downCorner, upCorner, [](auto &vect) -> auto& { return vect.y(); });

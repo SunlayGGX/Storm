@@ -25,18 +25,7 @@ Storm::VoxelGrid::VoxelGrid(const Storm::Vector3 &upCorner, const Storm::Vector3
 
 	_xIndexOffsetCoeff = _gridBoundary.y() * _gridBoundary.z();
 
-	_voxels.reserve(this->size());
-
-	for (unsigned int xIter = 0; xIter < _gridBoundary.x(); ++xIter)
-	{
-		for (unsigned int yIter = 0; yIter < _gridBoundary.y(); ++yIter)
-		{
-			for (unsigned int zIter = 0; zIter < _gridBoundary.z(); ++zIter)
-			{
-				_voxels.emplace_back();
-			}
-		}
-	}
+	_voxels.resize(this->size());
 }
 
 Storm::VoxelGrid::VoxelGrid(const Storm::VoxelGrid &other) :
