@@ -28,14 +28,8 @@ Storm::VoxelGrid::VoxelGrid(const Storm::Vector3 &upCorner, const Storm::Vector3
 	_voxels.resize(this->size());
 }
 
-Storm::VoxelGrid::VoxelGrid(const Storm::VoxelGrid &other) :
-	_gridBoundary{ other._gridBoundary },
-	_xIndexOffsetCoeff{ other._xIndexOffsetCoeff },
-	_voxels{ other._voxels }
-{
-
-}
-
+Storm::VoxelGrid::VoxelGrid(Storm::VoxelGrid &&other) = default;
+Storm::VoxelGrid::VoxelGrid(const Storm::VoxelGrid &other) = default;
 Storm::VoxelGrid::~VoxelGrid() = default;
 
 void Storm::VoxelGrid::getVoxelsDataAtPosition(float voxelEdgeLength, const Storm::Vector3 &voxelShift, const std::vector<Storm::NeighborParticleReferral>* &outContainingVoxelPtr, const std::vector<Storm::NeighborParticleReferral>*(&outNeighborData)[Storm::k_neighborLinkedBunkCount], const Storm::Vector3 &particlePosition) const

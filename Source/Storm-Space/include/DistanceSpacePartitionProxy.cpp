@@ -33,15 +33,8 @@ Storm::DistanceSpacePartitionProxy::DistanceSpacePartitionProxy(const Storm::Vec
 	Storm::minNegativeInPlaceFromBoth(_gridShiftOffset, downCorner, upCorner, [](auto &vect) -> auto& { return vect.z(); });
 }
 
-Storm::DistanceSpacePartitionProxy::DistanceSpacePartitionProxy(const Storm::DistanceSpacePartitionProxy &other) :
-	_gridBoundary{ other._gridBoundary },
-	_xIndexOffsetCoeff{ other._xIndexOffsetCoeff },
-	_voxels{ other._voxels },
-	_voxelEdgeLength{ other._voxelEdgeLength }
-{
-
-}
-
+Storm::DistanceSpacePartitionProxy::DistanceSpacePartitionProxy(Storm::DistanceSpacePartitionProxy &&other) = default;
+Storm::DistanceSpacePartitionProxy::DistanceSpacePartitionProxy(const Storm::DistanceSpacePartitionProxy &other) = default;
 Storm::DistanceSpacePartitionProxy::~DistanceSpacePartitionProxy() = default;
 
 void Storm::DistanceSpacePartitionProxy::getBundleAtPosition(const std::vector<Storm::Vector3>* &outContainingBundlePtr, const std::vector<Storm::Vector3>*(&outNeighborBundle)[Storm::k_neighborLinkedBunkCount], const Storm::Vector3 &particlePosition) const

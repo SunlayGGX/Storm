@@ -11,6 +11,7 @@ namespace Storm
 	{
 	public:
 		DistanceSpacePartitionProxy(const Storm::Vector3 &upCorner, const Storm::Vector3 &downCorner, float voxelEdgeLength);
+		DistanceSpacePartitionProxy(Storm::DistanceSpacePartitionProxy &&other);
 		DistanceSpacePartitionProxy(const Storm::DistanceSpacePartitionProxy &other);
 		~DistanceSpacePartitionProxy();
 

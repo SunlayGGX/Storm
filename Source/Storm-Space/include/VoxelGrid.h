@@ -12,6 +12,7 @@ namespace Storm
 	{
 	public:
 		VoxelGrid(const Storm::Vector3 &upCorner, const Storm::Vector3 &downCorner, float voxelEdgeLength);
+		VoxelGrid(Storm::VoxelGrid &&other);
 		VoxelGrid(const Storm::VoxelGrid &other);
 		~VoxelGrid();
 

@@ -10,6 +10,7 @@ namespace Storm
 	public:
 		Voxel();
 		Voxel(const Storm::Voxel &other);
+		Voxel(Storm::Voxel &&other);
 		~Voxel();
 
 	public:

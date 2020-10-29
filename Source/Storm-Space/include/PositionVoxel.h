@@ -7,6 +7,7 @@ namespace Storm
 	{
 	public:
 		PositionVoxel();
+		PositionVoxel(Storm::PositionVoxel &&other);
 		PositionVoxel(const Storm::PositionVoxel &other);
 		~PositionVoxel();
 
