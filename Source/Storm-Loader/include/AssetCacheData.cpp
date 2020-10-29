@@ -234,7 +234,9 @@ Storm::AssetCacheData::AssetCacheData(const Storm::RigidBodySceneData &rbConfig,
 Storm::AssetCacheData::AssetCacheData(const Storm::RigidBodySceneData &rbConfig, const Storm::AssetCacheData &srcCachedData, const float layerDistance) :
 	_rbConfig{ rbConfig },
 	_src{ srcCachedData._src },
-	_indices{ srcCachedData._indices }
+	_indices{ srcCachedData._indices },
+	_finalBoundingBoxMin{ Storm::initVector3ForMin() },
+	_finalBoundingBoxMax{ Storm::initVector3ForMax() }
 {
 	this->generateCurrentData(layerDistance);
 }
