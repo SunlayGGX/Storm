@@ -153,7 +153,8 @@ There are some pre-built-in macros that aren't defined inside the macro file and
 + **$[StormTmp]** will refer to the StormIntermediate if StormRoot macro is valid, or to OS defined temporary location.
 + **$[DateTime]** will refer to the current date when the Application is run (in filesystem compatible format : Weekday_Year_Month_Day_Hour_Minute_Second ).
 + **$[Date]**, like DateTime, will refer to the current date when the Application is run but without hours and lesser time division (in filesystem compatible format : Weekday_Year_Month_Day ).
-	
++ **$[SceneName]** will refer to the chosen scene name. This is the only exception to the pre-build-in macros which can be used anywhere. This macro can only be used after selecting a scene, therefore can only be used at some point like when we read the general config and the scene config. Therefore, use caution when using this pre built macro.
+
 	
 Note that macros are applied to command line as well except for the path to the macro configuration were we will use only the built-in macros (it is kind of expected since we don't know about those macros unless we get to read the file specified by the path of the command line...). But you're safe to use the prebuilt macros.
 

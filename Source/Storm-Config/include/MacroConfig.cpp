@@ -13,10 +13,8 @@ namespace
 	enum { k_macroTag = '$' };
 	std::string makeFinalMacroKey(const std::string &key)
 	{
-		return std::string{} + static_cast<char>(k_macroTag) + '[' + key + ']';
+		return std::string{ static_cast<char>(k_macroTag) } + '[' + key + ']';
 	}
-
-	
 }
 
 
@@ -34,18 +32,18 @@ void Storm::MacroConfig::initialize()
 	const std::filesystem::path rootPath = exeFolderPath.parent_path();
 	const std::filesystem::path outputPath = rootPath / "Intermediate";
 
-	_macros[makeFinalMacroKey("StormExe")] = configMgr.getExePath();
-	_macros[makeFinalMacroKey("StormFolderExe")] = exeFolderPath.string();
-	_macros[makeFinalMacroKey("StormRoot")] = rootPath.string();
-	_macros[makeFinalMacroKey("StormConfig")] = (rootPath / "Config").string();
-	_macros[makeFinalMacroKey("StormResource")] = (rootPath / "Resource").string();
-	_macros[makeFinalMacroKey("StormIntermediate")] = outputPath.string();
-	_macros[makeFinalMacroKey("DateTime")] = Storm::TimeHelper::getCurrentDateTime(false);
-	_macros[makeFinalMacroKey("Date")] = Storm::TimeHelper::getCurrentDate();
+	this->registerMacro("StormExe", configMgr.getExePath());
+	this->registerMacro("StormFolderExe", exeFolderPath.string());
+	this->registerMacro("StormRoot", rootPath.string());
+	this->registerMacro("StormConfig", (rootPath / "Config").string());
+	this->registerMacro("StormResource", (rootPath / "Resource").string());
+	this->registerMacro("StormIntermediate", outputPath.string());
+	this->registerMacro("DateTime", Storm::TimeHelper::getCurrentDateTime(false));
+	this->registerMacro("Date", Storm::TimeHelper::getCurrentDate());
 
 	if (std::filesystem::exists(outputPath))
 	{
-		_macros[makeFinalMacroKey("StormTmp")] = outputPath.string();
+		this->registerMacro("StormTmp", outputPath.string());
 	}
 	else
 	{
@@ -54,7 +52,7 @@ void Storm::MacroConfig::initialize()
 		{
 			std::filesystem::create_directories(tmpPath);
 		}
-		_macros[makeFinalMacroKey("StormTmp")] = tmpPath.string();
+		this->registerMacro("StormTmp", tmpPath.string());
 	}
 }
 
@@ -102,10 +100,7 @@ bool Storm::MacroConfig::read(const std::string &macroConfigFilePathStr)
 			int watchdog = 0;
 			do 
 			{
-				for (auto &macro : _macros)
-				{
-					this->operator ()(macro.second);
-				}
+				this->resolveInternalMacro();
 
 				++watchdog;
 				if (watchdog == 20)
@@ -142,6 +137,19 @@ const std::string*const Storm::MacroConfig::queryMacroValue(const std::string &k
 	}
 
 	return nullptr;
+}
+
+void Storm::MacroConfig::registerMacro(const std::string &key, std::string value)
+{
+	_macros.emplace(makeFinalMacroKey(key), std::move(value));
+}
+
+void Storm::MacroConfig::resolveInternalMacro()
+{
+	for (auto &macro : _macros)
+	{
+		this->operator ()(macro.second);
+	}
 }
 
 void Storm::MacroConfig::operator()(std::string &inOutStr) const

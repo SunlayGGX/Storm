@@ -20,6 +20,9 @@ namespace Storm
 
 	public:
 		const std::string*const queryMacroValue(const std::string &key) const;
+		void registerMacro(const std::string &key, std::string value);
+		
+		void resolveInternalMacro();
 
 	public:
 		void operator()(std::string &inOutStr) const;
