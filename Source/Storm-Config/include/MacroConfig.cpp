@@ -102,10 +102,7 @@ bool Storm::MacroConfig::read(const std::string &macroConfigFilePathStr)
 			int watchdog = 0;
 			do 
 			{
-				for (auto &macro : _macros)
-				{
-					this->operator ()(macro.second);
-				}
+				this->resolveInternalMacro();
 
 				++watchdog;
 				if (watchdog == 20)
@@ -142,6 +139,14 @@ const std::string*const Storm::MacroConfig::queryMacroValue(const std::string &k
 	}
 
 	return nullptr;
+}
+
+void Storm::MacroConfig::resolveInternalMacro()
+{
+	for (auto &macro : _macros)
+	{
+		this->operator ()(macro.second);
+	}
 }
 
 void Storm::MacroConfig::operator()(std::string &inOutStr) const
