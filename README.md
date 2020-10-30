@@ -321,6 +321,9 @@ Inside this element should be put all rigidbodies. Each rigidbody should be spec
 
 
 ## Key bindings
+
+Note : If the term in the parenthesis is "Numpad", then the keybinding is the value inside the Numpad only. If it is "Key", then the value is not the one present on the Numpad.
+
 - **Escape key (ESC)**: Leave the application.
 - **Space bar**: Pause application if it is running. Unpause if it is paused.
 - **+ (Numpad)**: Move near clipping plane forward.
@@ -338,13 +341,13 @@ Inside this element should be put all rigidbodies. Each rigidbody should be spec
 - **D**: Rotate the camera around the target on Y axis (positive).
 - **S**: Rotate the camera around the target on X axis (negative).
 - **0 (Numpad Zero)**: Reset camera position.
-- **Mouse wheel up**: Increase camera and clipping plane motion speed.
-- **Mouse wheel down**: Decrease camera and clipping plane motion speed.
 - **E**: Enable all disabled blower, and disable all enabled ones.
 - **R**: Enable (if disabled)/Disable (if enabled) raycasts system.
 - **L**: Fix (if unfixed)/Unfix (if fixed) rigid bodies.
 - **Y**: Cycle the particle selection force to display (between [...] -> Pressure -> Viscosity -> AllForces (except gravity) -> [...]).
 - **I**: Reset the replaying to the first frame. This feature exists only in replay mode.
+- **1 (Key): Decrease the physics delta time. Valid only if we are not in replay mode, or if CFL is disabled.
+- **2 (Key): Increase the physics delta time. Valid only if we are not in replay mode, or if CFL is disabled.
 - **F1**: Debug command to print to a human readable text giving all position, velocity and force values of all fluid particles. The data is printed inside the output (temp) directory inside "Debug" folder.
 - **F5**: Set wireframe.
 - **F6**: Set solid state with back face culling.
@@ -358,3 +361,7 @@ Inside this element should be put all rigidbodies. Each rigidbody should be spec
     - Select the particle to display either its Pressure force, Viscosity force or the sum of those force (see "Cycle the particle selection force to display" key binding). This binding is only valid if the raycast is enabled (see "Enable/Disable raycasts system" key binding).
 - **Middle click on particle**:
     - Set the camera target to the particle position. This binding is only valid if the raycast is enabled (see "Enable/Disable raycasts system" key binding).
+- **Mouse wheel**:
+    - Increase/Decrease the camera motion speed 
+    - Increase/Decrease the clipping plane motion speed
+    - Increase/Decrease the physics time step change speed. Valid only if we are not in replay mode, or if CFL is disabled.

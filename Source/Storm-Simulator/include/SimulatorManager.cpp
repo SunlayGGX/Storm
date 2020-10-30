@@ -338,6 +338,24 @@ namespace
 	{
 		return 0.0000001f;
 	}
+
+	template<bool shouldIncrease>
+	void changeDeltaTimeStep()
+	{
+		const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+
+		assert(singletonHolder.getSingleton<Storm::IConfigManager>().userCanModifyTimestep() && "We shouldn't be able to change the time step in replay mode or when using CFL");
+
+		Storm::ITimeManager &timeMgr = singletonHolder.getSingleton<Storm::ITimeManager>();
+		if constexpr (shouldIncrease)
+		{
+			timeMgr.increaseCurrentPhysicsDeltaTime();
+		}
+		else // decrease
+		{
+			timeMgr.decreaseCurrentPhysicsDeltaTime();
+		}
+	}
 }
 
 Storm::SimulatorManager::SimulatorManager() :
@@ -394,6 +412,28 @@ void Storm::SimulatorManager::initialize_Implementation()
 	inputMgr.bindKey(Storm::SpecialKey::KC_R, [this]() { this->tweekRaycastEnabling(); });
 	inputMgr.bindKey(Storm::SpecialKey::KC_Y, [this]() { this->cycleSelectedParticleDisplayMode(); });
 	inputMgr.bindKey(Storm::SpecialKey::KC_I, [this]() { this->resetReplay(); });
+
+	if (configMgr.userCanModifyTimestep())
+	{
+		inputMgr.bindKey(Storm::SpecialKey::KC_2, []() { changeDeltaTimeStep<true>(); });
+		inputMgr.bindKey(Storm::SpecialKey::KC_1, []() { changeDeltaTimeStep<false>(); });
+		inputMgr.bindMouseWheel([this, &configMgr](int axisRelativeIncrement)
+		{
+			assert(configMgr.userCanModifyTimestep() && "We shouldn't be able to decrease the time step in replay mode or if we compute the CFL coefficient");
+
+			const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+			Storm::ITimeManager &timeMgr = singletonHolder.getSingleton<Storm::ITimeManager>();
+
+			if (axisRelativeIncrement > 0)
+			{
+				timeMgr.increasePhysicsDeltaTimeStepSize();
+			}
+			else if (axisRelativeIncrement < 0)
+			{
+				timeMgr.decreasePhysicsDeltaTimeStepSize();
+			}
+		});
+	}
 
 	Storm::IRaycastManager &raycastMgr = singletonHolder.getSingleton<Storm::IRaycastManager>();
 	inputMgr.bindMouseLeftClick([this, &raycastMgr, &singletonHolder, isReplayMode](int xPos, int yPos, int width, int height)
