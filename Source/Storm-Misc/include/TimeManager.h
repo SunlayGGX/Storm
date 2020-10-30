@@ -47,6 +47,12 @@ namespace Storm
 		void increaseCurrentPhysicsElapsedTime(float timeIncreaseInSeconds) final override;
 		float advanceCurrentPhysicsElapsedTime() final override;
 
+		void increaseCurrentPhysicsDeltaTime() final override;
+		void decreaseCurrentPhysicsDeltaTime() final override;
+		void increasePhysicsDeltaTimeStepSize() final override;
+		void decreasePhysicsDeltaTimeStepSize() final override;
+		void setPhysicsDeltaTimeStepSize(float newValue);
+
 		bool simulationIsPaused() const final override;
 		bool isRunning() const final override;
 		bool changeSimulationPauseState() final override;
@@ -65,6 +71,8 @@ namespace Storm
 		bool _shouldLogFPSWatching;
 		mutable std::map<std::thread::id, Storm::FPSWatcher> _fpsWatcherPerThread;
 		unsigned char _timeToWatch;
+
+		float _physicsDeltaTimeCoeff;
 
 		std::atomic<float> _physicsTimeInSeconds;
 		std::atomic<float> _physicsElapsedTimeInSeconds;

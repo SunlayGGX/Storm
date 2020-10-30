@@ -24,6 +24,7 @@
 
 #define STORM_ELAPSED_TIME_FIELD_NAME "elapsed time"
 #define STORM_DELTA_TIME_FIELD_NAME "delta time"
+#define STORM_DELTA_TIME_COEFF_FIELD_NAME "delta time change coeff"
 #define STORM_PAUSE_FIELD_NAME "paused"
 
 
@@ -52,7 +53,8 @@ Storm::TimeManager::TimeManager() :
 	_isRunning{ false },
 	_isPaused{ false },
 	_shouldLogFPSWatching{ false },
-	_physicsElapsedTimeInSeconds{ 0.f }
+	_physicsElapsedTimeInSeconds{ 0.f },
+	_physicsDeltaTimeCoeff{ 0.001f }
 {
 	this->setExpectedFrameFPS(60.f);
 }
@@ -95,6 +97,11 @@ void Storm::TimeManager::initialize_Implementation()
 		.bindField(STORM_DELTA_TIME_FIELD_NAME, this->_physicsTimeInSeconds)
 		.bindField(STORM_PAUSE_FIELD_NAME, _isPaused)
 		;
+
+	if (configMgr.userCanModifyTimestep())
+	{
+		_fields.bindField(STORM_DELTA_TIME_COEFF_FIELD_NAME, _physicsDeltaTimeCoeff);
+	}
 
 	_timeThread = std::thread{ [this]() 
 	{
@@ -244,6 +251,35 @@ float Storm::TimeManager::advanceCurrentPhysicsElapsedTime()
 {
 	this->increaseCurrentPhysicsElapsedTime(this->_physicsTimeInSeconds);
 	return _physicsElapsedTimeInSeconds;
+}
+
+void Storm::TimeManager::increaseCurrentPhysicsDeltaTime()
+{
+	this->setCurrentPhysicsDeltaTime(_physicsDeltaTimeCoeff + _physicsDeltaTimeCoeff);
+}
+
+void Storm::TimeManager::decreaseCurrentPhysicsDeltaTime()
+{
+	this->setCurrentPhysicsDeltaTime(std::max(_physicsDeltaTimeCoeff - _physicsDeltaTimeCoeff, 0.00001f));
+}
+
+void Storm::TimeManager::increasePhysicsDeltaTimeStepSize()
+{
+	this->setPhysicsDeltaTimeStepSize(_physicsDeltaTimeCoeff * 2.f);
+}
+
+void Storm::TimeManager::decreasePhysicsDeltaTimeStepSize()
+{
+	this->setPhysicsDeltaTimeStepSize(std::max(_physicsDeltaTimeCoeff / 2.f, 0.000001f));
+}
+
+void Storm::TimeManager::setPhysicsDeltaTimeStepSize(float newValue)
+{
+	if (_physicsDeltaTimeCoeff != newValue)
+	{
+		_physicsDeltaTimeCoeff = newValue;
+		_fields.pushField(STORM_DELTA_TIME_COEFF_FIELD_NAME);
+	}
 }
 
 void Storm::TimeManager::quit()

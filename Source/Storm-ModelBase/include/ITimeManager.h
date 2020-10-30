@@ -111,6 +111,18 @@ namespace Storm
 		// Manually set the physics elapsed time.
 		virtual void setCurrentPhysicsElapsedTime(float physicsElapsedTimeInSeconds) = 0;
 
+		// Manually increase the physics delta time step by a fixed step that could be tweaked.
+		virtual void increaseCurrentPhysicsDeltaTime() = 0;
+
+		// Manually decrease the physics delta time step by a fixed step that could be tweaked.
+		virtual void decreaseCurrentPhysicsDeltaTime() = 0;
+		
+		// Manually increase the change step of the physics delta time step.
+		virtual void increasePhysicsDeltaTimeStepSize() = 0;
+
+		// Manually decrease the change step of the physics delta time step.
+		virtual void decreasePhysicsDeltaTimeStepSize() = 0;
+
 
 		/************************************************************************/
 		/*							TimeManager controls                        */
