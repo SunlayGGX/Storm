@@ -1301,6 +1301,8 @@ void Storm::SimulatorManager::resetReplay()
 				this->applyReplayFrame(frameBefore, recordConfig._recordFps, false);
 				
 				_reinitFrameAfter = true;
+
+				LOG_DEBUG << "Replay successfully reset to its starting point.";
 			}
 			else
 			{

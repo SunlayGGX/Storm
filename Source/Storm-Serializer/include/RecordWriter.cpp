@@ -109,7 +109,7 @@ void Storm::RecordWriter::write(/*const*/ Storm::SerializeRecordPendingData &dat
 			;
 	}
 
-	LOG_DEBUG << "Frame " << _frameNumber << " recorded.";
+	LOG_DEBUG << "Frame " << _frameNumber << " recorded. Physics time : " << data._physicsTime;
 
 	++_frameNumber;
 }
@@ -119,6 +119,8 @@ void Storm::RecordWriter::endWrite()
 	Storm::RecordHandlerBase::endWriteHeader(_headerPosition, _frameNumber);
 
 	this->flush();
+
+	LOG_DEBUG << "Record writing ended with " << _frameNumber << " recorded frame.";
 }
 
 void Storm::RecordWriter::flush()
