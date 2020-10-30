@@ -346,8 +346,8 @@ Note : If the term in the parenthesis is "Numpad", then the keybinding is the va
 - **L**: Fix (if unfixed)/Unfix (if fixed) rigid bodies.
 - **Y**: Cycle the particle selection force to display (between [...] -> Pressure -> Viscosity -> AllForces (except gravity) -> [...]).
 - **I**: Reset the replaying to the first frame. This feature exists only in replay mode.
-- **1 (Key): Decrease the physics delta time. Valid only if we are not in replay mode, or if CFL is disabled.
-- **2 (Key): Increase the physics delta time. Valid only if we are not in replay mode, or if CFL is disabled.
+- **1 (Key)**: Decrease the physics delta time. Valid only if we are not in replay mode, or if CFL is disabled.
+- **2 (Key)**: Increase the physics delta time. Valid only if we are not in replay mode, or if CFL is disabled.
 - **F1**: Debug command to print to a human readable text giving all position, velocity and force values of all fluid particles. The data is printed inside the output (temp) directory inside "Debug" folder.
 - **F5**: Set wireframe.
 - **F6**: Set solid state with back face culling.
