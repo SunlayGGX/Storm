@@ -426,3 +426,8 @@ bool Storm::ConfigManager::isInReplayMode() const noexcept
 {
 	return _sceneConfig.getSceneData()._recordConfigData->_recordMode == Storm::RecordMode::Replay;
 }
+
+bool Storm::ConfigManager::userCanModifyTimestep() const noexcept
+{
+	return !(this->isInReplayMode() || this->getGeneralSimulationData()._computeCFL);
+}

@@ -58,6 +58,7 @@ namespace Storm
 		const Storm::RigidBodySceneData& getRigidBodyData(unsigned int rbId) const final override;
 
 		bool isInReplayMode() const noexcept final override;
+		bool userCanModifyTimestep() const noexcept final override;
 
 	private:
 		// Members that could be extracted from Command line.
