@@ -525,10 +525,8 @@ void Storm::PCISPHSolver::execute(Storm::ParticleSystemContainer &particleSystem
 
 	} while (currentPredictionIter++ < generalSimulData._maxPredictIteration && averageDensityError > generalSimulData._maxDensityError);
 
-	if (averageDensityError > generalSimulData._maxDensityError && currentPredictionIter > generalSimulData._maxPredictIteration && (_logNoOverloadIter % 10 == 0))
+	if (averageDensityError > generalSimulData._maxDensityError && currentPredictionIter > generalSimulData._maxPredictIteration && (_logNoOverloadIter++ % 10 == 0))
 	{
-		++_logNoOverloadIter;
-
 		LOG_DEBUG_WARNING <<
 			"Max prediction loop watchdog hit without being able to go under the max density error allowed when computing PCISPH predicted density...\n"
 			"We'll leave the prediction loop with an average density of " << averageDensityError;
