@@ -14,11 +14,16 @@
 
 #include "Kernel.h"
 
+#include "UIField.h"
+#include "UIFieldContainer.h"
+
 #include "RunnerHelper.h"
 
 #define STORM_HIJACKED_TYPE Storm::PCISPHSolverData
 #	include "VectHijack.h"
 #undef STORM_HIJACKED_TYPE
+
+#define STORM_PREDICTION_COUNT_FIELD_NAME "Prediction count"
 
 #define STORM_USE_SPLISH_SPLASH_BIDOUILLE true
 #define STORM_MINUS_ACCEL false
@@ -26,6 +31,8 @@
 
 Storm::PCISPHSolver::PCISPHSolver(const float k_kernelLength, const Storm::ParticleSystemContainer &particleSystemsMap) :
 	_totalParticleCount{ 0 },
+	_currentPredictionIter{ 0 },
+	_uiFields{ std::make_unique<Storm::UIFieldContainer>() },
 	_logNoOverloadIter{ 0 }
 {
 	// Compute the uniform stiffness k_PCI coefficient
@@ -88,6 +95,10 @@ Storm::PCISPHSolver::PCISPHSolver(const float k_kernelLength, const Storm::Parti
 			_totalParticleCount += hijacker._newSize;
 		}
 	}
+
+	(*_uiFields)
+		.bindField(STORM_PREDICTION_COUNT_FIELD_NAME, _currentPredictionIter)
+		;
 }
 
 void Storm::PCISPHSolver::execute(Storm::ParticleSystemContainer &particleSystems, const float k_kernelLength, const float k_deltaTime)
@@ -394,7 +405,6 @@ void Storm::PCISPHSolver::execute(Storm::ParticleSystemContainer &particleSystem
 				densityError += density0 * shiftedPredictedDensity;
 				currentPData._predictedPressure += k_templatePStiffnessCoeffK * shiftedPredictedDensity;
 #endif
-
 			});
 
 			averageDensityError += densityError;
@@ -518,6 +528,8 @@ void Storm::PCISPHSolver::execute(Storm::ParticleSystemContainer &particleSystem
 			"We'll leave the prediction loop with an average density of " << averageDensityError;
 	}
 
+	this->setCurrentPredictionIter(currentPredictionIter);
+
 	for (auto &particleSystemPair : particleSystems)
 	{
 		Storm::ParticleSystem &particleSystem = *particleSystemPair.second;
@@ -550,5 +562,14 @@ void Storm::PCISPHSolver::execute(Storm::ParticleSystemContainer &particleSystem
 			forces[currentPIndex] = currentPData._predictedAcceleration * currentPMass;
 			tmpPressureForces[currentPIndex] = (currentPData._predictedAcceleration - currentPData._nonPressureAcceleration) * currentPMass;
 		});
+	}
+}
+
+void Storm::PCISPHSolver::setCurrentPredictionIter(unsigned int newValue)
+{
+	if (_currentPredictionIter != newValue)
+	{
+		_currentPredictionIter = newValue;
+		_uiFields->pushField(STORM_PREDICTION_COUNT_FIELD_NAME);
 	}
 }
