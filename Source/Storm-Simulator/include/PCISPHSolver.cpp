@@ -332,7 +332,7 @@ void Storm::PCISPHSolver::execute(Storm::ParticleSystemContainer &particleSystem
 				currentPData._predictedDensity = fluidParticleSystem.getParticleVolume() * k_kernelZero;
 #endif
 
-				const std::pair<const unsigned int, std::vector<Storm::PCISPHSolverData>>* currentNeighborPFluidData = nullptr;
+				const std::pair<const unsigned int, std::vector<Storm::PCISPHSolverData>>* currentNeighborPFluidData = &*std::begin(_data);
 
 				const Storm::ParticleNeighborhoodArray &currentPNeighborhood = neighborhoodArrays[currentPIndex];
 				for (const Storm::NeighborParticleInfo &neighbor : currentPNeighborhood)
@@ -354,7 +354,7 @@ void Storm::PCISPHSolver::execute(Storm::ParticleSystemContainer &particleSystem
 #endif
 
 						const unsigned int neighborParticleSystemIndex = neighborFluidParticleSystem.getId();
-						if (!currentNeighborPFluidData || currentNeighborPFluidData->first != neighborParticleSystemIndex)
+						if (currentNeighborPFluidData->first != neighborParticleSystemIndex)
 						{
 							currentNeighborPFluidData = &*_data.find(neighborParticleSystemIndex);
 						}
@@ -407,7 +407,7 @@ void Storm::PCISPHSolver::execute(Storm::ParticleSystemContainer &particleSystem
 				const Storm::ParticleNeighborhoodArray &currentPNeighborhood = neighborhoodArrays[currentPIndex];
 				currentPData._predictedAcceleration = currentPData._nonPressureAcceleration;
 
-				const std::pair<const unsigned int, std::vector<Storm::PCISPHSolverData>>* currentNeighborPFluidData = nullptr;
+				const std::pair<const unsigned int, std::vector<Storm::PCISPHSolverData>>* currentNeighborPFluidData = &*std::begin(_data);
 
 #if !STORM_USE_SPLISH_SPLASH_BIDOUILLE
 				const Storm::Vector3 &xi = currentPData._currentPosition;
@@ -422,7 +422,7 @@ void Storm::PCISPHSolver::execute(Storm::ParticleSystemContainer &particleSystem
 						const Storm::FluidParticleSystem &neighborPSystemAsFluid = static_cast<const Storm::FluidParticleSystem &>(*neighbor._containingParticleSystem);
 
 						const unsigned int neighborParticleSystemIndex = neighborPSystemAsFluid.getId();
-						if (!currentNeighborPFluidData || currentNeighborPFluidData->first != neighborParticleSystemIndex)
+						if (currentNeighborPFluidData->first != neighborParticleSystemIndex)
 						{
 							currentNeighborPFluidData = &*_data.find(neighborParticleSystemIndex);
 						}
