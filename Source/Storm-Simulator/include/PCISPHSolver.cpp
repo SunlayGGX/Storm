@@ -20,7 +20,8 @@
 #	include "VectHijack.h"
 #undef STORM_HIJACKED_TYPE
 
-#define STORM_USE_SPLISH_SPLASH_BIDOUILLE false
+#define STORM_USE_SPLISH_SPLASH_BIDOUILLE true
+#define STORM_MINUS_ACCEL false
 
 
 Storm::PCISPHSolver::PCISPHSolver(const float k_kernelLength, const Storm::ParticleSystemContainer &particleSystemsMap) :
@@ -344,15 +345,6 @@ void Storm::PCISPHSolver::execute(Storm::ParticleSystemContainer &particleSystem
 					{
 						const Storm::FluidParticleSystem &neighborFluidParticleSystem = static_cast<const Storm::FluidParticleSystem &>(*neighbor._containingParticleSystem);
 
-#if !STORM_USE_SPLISH_SPLASH_BIDOUILLE
-						const float neighborPMass = neighborFluidParticleSystem.getMasses()[neighbor._particleIndex];
-						const float neighborPDensity = neighborFluidParticleSystem.getDensities()[neighbor._particleIndex];
-						
-						neighborPVolume = neighborPMass / neighborPDensity;
-#else // SplishSplash impl
-						neighborPVolume = neighborFluidParticleSystem.getParticleVolume();
-#endif
-
 						const unsigned int neighborParticleSystemIndex = neighborFluidParticleSystem.getId();
 						if (currentNeighborPFluidData->first != neighborParticleSystemIndex)
 						{
@@ -364,28 +356,46 @@ void Storm::PCISPHSolver::execute(Storm::ParticleSystemContainer &particleSystem
 						const float normSquared = xij.squaredNorm();
 						if (Storm::ParticleSystem::isElligibleNeighborParticle(k_kernelLengthSquared, normSquared))
 						{
+#if !STORM_USE_SPLISH_SPLASH_BIDOUILLE
+							const float neighborPMass = neighborFluidParticleSystem.getMasses()[neighbor._particleIndex];
+							const float neighborPDensity = neighborFluidParticleSystem.getDensities()[neighbor._particleIndex];
+
+							neighborPVolume = neighborPMass / neighborPDensity;
+#else // SplishSplash impl
+							neighborPVolume = neighborFluidParticleSystem.getParticleVolume();
+#endif
+
 							rawW = rawKernel(k_kernelLength, std::sqrtf(normSquared));
+							currentPData._predictedDensity += neighborPVolume * rawW;
 						}
 					}
 					else
 					{
 						const Storm::RigidBodyParticleSystem &neighborRbParticleSystem = static_cast<const Storm::RigidBodyParticleSystem &>(*neighbor._containingParticleSystem);
-						neighborPVolume = neighborRbParticleSystem.getVolumes()[neighbor._particleIndex];
 
 						const Storm::Vector3 xij = currentPData._currentPosition - neighborRbParticleSystem.getPositions()[neighbor._particleIndex];
 						const float normSquared = xij.squaredNorm();
 						if (Storm::ParticleSystem::isElligibleNeighborParticle(k_kernelLengthSquared, normSquared))
 						{
+							neighborPVolume = neighborRbParticleSystem.getVolumes()[neighbor._particleIndex];
+
 							rawW = rawKernel(k_kernelLength, std::sqrtf(normSquared));
+							currentPData._predictedDensity += neighborPVolume * rawW;
 						}
 					}
-
-					currentPData._predictedDensity += neighborPVolume * rawW;
 				}
 
-				currentPData._predictedPressure += k_templatePStiffnessCoeffK * currentPData._predictedDensity;
-
+#if !STORM_USE_SPLISH_SPLASH_BIDOUILLE
 				densityError += std::fabs((currentPData._predictedDensity - density0) / density0);
+				currentPData._predictedPressure += k_templatePStiffnessCoeffK * currentPData._predictedDensity;
+#else // SplishSplash impl
+
+				currentPData._predictedDensity = std::max(currentPData._predictedDensity, 1.f);
+				const float shiftedPredictedDensity = currentPData._predictedDensity - 1.f;
+				densityError += density0 * shiftedPredictedDensity;
+				currentPData._predictedPressure += k_templatePStiffnessCoeffK * shiftedPredictedDensity;
+#endif
+
 			});
 
 			averageDensityError += densityError;
@@ -451,7 +461,11 @@ void Storm::PCISPHSolver::execute(Storm::ParticleSystemContainer &particleSystem
 						const float normSquared = xij.squaredNorm();
 						if (Storm::ParticleSystem::isElligibleNeighborParticle(k_kernelLengthSquared, normSquared))
 						{
+#if STORM_MINUS_ACCEL
 							currentPData._predictedAcceleration -= pressureCoeff * gradKernel(k_kernelLength, xij, std::sqrtf(normSquared));
+#else
+							currentPData._predictedAcceleration += pressureCoeff * gradKernel(k_kernelLength, xij, std::sqrtf(normSquared));
+#endif
 						}
 					}
 					else
@@ -468,7 +482,11 @@ void Storm::PCISPHSolver::execute(Storm::ParticleSystemContainer &particleSystem
 							// An acceleration
 							Storm::Vector3 pressureTmpVect = pressureCoeff * gradKernel(k_kernelLength, xij, std::sqrtf(normSquared));
 
+#if STORM_MINUS_ACCEL
 							currentPData._predictedAcceleration -= pressureTmpVect;
+#else
+							currentPData._predictedAcceleration += pressureTmpVect;
+#endif
 
 							if (!neighborPSystemAsRb.isStatic())
 							{
@@ -478,7 +496,11 @@ void Storm::PCISPHSolver::execute(Storm::ParticleSystemContainer &particleSystem
 								Storm::Vector3 &tmpPressureForce = neighborPSystemAsRb.getTemporaryPressureForces()[neighbor._particleIndex];
 
 								std::lock_guard<std::mutex> lock{ neighbor._containingParticleSystem->_mutex };
+#if STORM_MINUS_ACCEL
 								tmpPressureForce += pressureTmpVect;
+#else
+								tmpPressureForce -= pressureTmpVect;
+#endif
 							}
 						}
 					}
