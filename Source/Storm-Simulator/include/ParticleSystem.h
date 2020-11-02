@@ -73,7 +73,7 @@ namespace Storm
 	public:
 		static float computeParticleDefaultVolume();
 
-	protected:
+	public:
 		static bool isElligibleNeighborParticle(const float kernelLengthSquared, const float normSquared);
 
 	public:
