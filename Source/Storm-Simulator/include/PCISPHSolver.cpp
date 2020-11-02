@@ -25,7 +25,8 @@
 
 #define STORM_PREDICTION_COUNT_FIELD_NAME "Prediction count"
 
-#define STORM_USE_SPLISH_SPLASH_BIDOUILLE true
+#define STORM_USE_SPLISH_SPLASH_BIDOUILLE false
+#define STORM_USE_SPLISH_SPLASH_DENSITY_BIDOUILLE true
 #define STORM_MINUS_ACCEL false
 
 
@@ -397,7 +398,7 @@ void Storm::PCISPHSolver::execute(Storm::ParticleSystemContainer &particleSystem
 					}
 				}
 
-#if !STORM_USE_SPLISH_SPLASH_BIDOUILLE
+#if !STORM_USE_SPLISH_SPLASH_DENSITY_BIDOUILLE
 				densityError += std::fabs((currentPData._predictedDensity - density0) / density0);
 				currentPData._predictedPressure += k_templatePStiffnessCoeffK * currentPData._predictedDensity;
 #else // SplishSplash impl
@@ -519,12 +520,12 @@ void Storm::PCISPHSolver::execute(Storm::ParticleSystemContainer &particleSystem
 			});
 		}
 
-
 	} while (averageDensityError > generalSimulData._maxDensityError && currentPredictionIter++ < generalSimulData._maxPredictIteration);
 
 	if (currentPredictionIter > generalSimulData._maxPredictIteration && (_logNoOverloadIter % 10 == 0))
 	{
 		++_logNoOverloadIter;
+
 		LOG_DEBUG_WARNING <<
 			"Max prediction loop watchdog hit without being able to go under the max density error allowed when computing PCISPH predicted density...\n"
 			"We'll leave the prediction loop with an average density of " << averageDensityError;
