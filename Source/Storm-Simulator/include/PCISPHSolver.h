@@ -19,5 +19,7 @@ namespace Storm
 		float _kUniformStiffnessConstCoefficient;
 		std::map<unsigned int, std::vector<Storm::PCISPHSolverData>> _data;
 		std::size_t _totalParticleCount;
+
+		uint8_t _logNoOverloadIter;
 	};
 }

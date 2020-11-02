@@ -25,7 +25,8 @@
 
 
 Storm::PCISPHSolver::PCISPHSolver(const float k_kernelLength, const Storm::ParticleSystemContainer &particleSystemsMap) :
-	_totalParticleCount{ 0 }
+	_totalParticleCount{ 0 },
+	_logNoOverloadIter{ 0 }
 {
 	// Compute the uniform stiffness k_PCI coefficient
 	Storm::Vector3d uniformNeighborStiffnessCoeffSum = Storm::Vector3d::Zero();
@@ -509,8 +510,9 @@ void Storm::PCISPHSolver::execute(Storm::ParticleSystemContainer &particleSystem
 
 	} while (averageDensityError > generalSimulData._maxDensityError && currentPredictionIter++ < generalSimulData._maxPredictIteration);
 
-	if (currentPredictionIter > generalSimulData._maxPredictIteration)
+	if (currentPredictionIter > generalSimulData._maxPredictIteration && (_logNoOverloadIter % 10 == 0))
 	{
+		++_logNoOverloadIter;
 		LOG_DEBUG_WARNING <<
 			"Max prediction loop watchdog hit without being able to go under the max density error allowed when computing PCISPH predicted density...\n"
 			"We'll leave the prediction loop with an average density of " << averageDensityError;
