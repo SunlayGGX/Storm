@@ -44,6 +44,8 @@ Storm::PCISPHSolver::PCISPHSolver(const float k_kernelLength, const Storm::Parti
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
 	const Storm::GeneralSimulationData &generalSimulData = configMgr.getGeneralSimulationData();
 
+	const float k_kernelLengthSquared = k_kernelLength * k_kernelLength;
+
 	const float coordinateBegin = -k_kernelLength;
 	const float particleDiameter = generalSimulData._particleRadius * 2.f;
 	const unsigned int uniformComputationEndIter = std::max(static_cast<unsigned int>(std::ceilf(k_kernelLength / generalSimulData._particleRadius)) - 1, static_cast<unsigned int>(0));
@@ -65,10 +67,10 @@ Storm::PCISPHSolver::PCISPHSolver(const float k_kernelLength, const Storm::Parti
 			{
 				neighborUniformPos.z() = coordinateBegin + static_cast<float>(zIter) * particleDiameter;
 
-				const float norm = neighborUniformPos.norm();
-				if (norm < k_kernelLength && norm > 0.0000001f)
+				const float normSquared = neighborUniformPos.squaredNorm();
+				if (Storm::ParticleSystem::isElligibleNeighborParticle(k_kernelLengthSquared, normSquared))
 				{
-					const Storm::Vector3 gradVal = k_gradMethod(k_kernelLength, neighborUniformPos, norm);
+					const Storm::Vector3 gradVal = k_gradMethod(k_kernelLength, neighborUniformPos, std::sqrtf(normSquared));
 
 					// The values goes quickly really high, therefore k_templatePVolumeSquared is to reduce them to prevent going into the inaccurate values of the data type.
 					uniformNeighborStiffnessCoeffSum += gradVal.cast<double>() * k_templatePVolumeSquared;
@@ -80,7 +82,7 @@ Storm::PCISPHSolver::PCISPHSolver(const float k_kernelLength, const Storm::Parti
 
 	_kUniformStiffnessConstCoefficient = static_cast<float>(-0.5 / (uniformNeighborStiffnessCoeffSum.squaredNorm() + uniformNeighborStiffnessCoeffProd));
 
-	// Initialize the velocity field
+	// Initialize the pcisph data field
 	for (const auto &particleSystemPair : particleSystemsMap)
 	{
 		const Storm::ParticleSystem &particleSystem = *particleSystemPair.second;
