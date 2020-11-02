@@ -25,6 +25,9 @@
 
 #define STORM_PREDICTION_COUNT_FIELD_NAME "Prediction count"
 
+// Those are implementation settings...
+// Because the implementation I used as a reference used a lot of hack that aren't described inside their tutorial/papers (maybe those are hacks, maybe those are mistakes, I don't know),
+// I need to find an implementation that doesn't rely on those hacks.
 #define STORM_USE_SPLISH_SPLASH_BIDOUILLE false
 #define STORM_USE_SPLISH_SPLASH_DENSITY_BIDOUILLE true
 #define STORM_MINUS_ACCEL false
