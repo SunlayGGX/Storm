@@ -520,9 +520,9 @@ void Storm::PCISPHSolver::execute(Storm::ParticleSystemContainer &particleSystem
 			});
 		}
 
-	} while (averageDensityError > generalSimulData._maxDensityError && currentPredictionIter++ < generalSimulData._maxPredictIteration);
+	} while (currentPredictionIter++ < generalSimulData._maxPredictIteration && averageDensityError > generalSimulData._maxDensityError);
 
-	if (currentPredictionIter > generalSimulData._maxPredictIteration && (_logNoOverloadIter % 10 == 0))
+	if (averageDensityError > generalSimulData._maxDensityError && currentPredictionIter > generalSimulData._maxPredictIteration && (_logNoOverloadIter % 10 == 0))
 	{
 		++_logNoOverloadIter;
 
