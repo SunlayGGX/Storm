@@ -47,7 +47,8 @@ Storm::GeneralConfig::GeneralConfig() :
 	_profileSimulationSpeed{ false },
 	_allowNoFluid{ false },
 	_wantedApplicationXPos{ std::numeric_limits<int>::max() },
-	_wantedApplicationYPos{ std::numeric_limits<int>::max() }
+	_wantedApplicationYPos{ std::numeric_limits<int>::max() },
+	_checkAllForces{ false }
 {
 
 }
@@ -148,6 +149,22 @@ bool Storm::GeneralConfig::read(const std::string &generalConfigFilePathStr)
 			else if (_fontSize <= 0)
 			{
 				Storm::throwException<std::exception>("Font size must be a strictly positive value! Current value was " + std::to_string(_fontSize));
+			}
+
+
+			const auto &gheckTreeOpt = generalTree.get_child_optional("Check");
+			if (gheckTreeOpt.has_value())
+			{
+				const auto &checkTree = gheckTreeOpt.value();
+				for (const auto &checkXmlElement : checkTree)
+				{
+					if (
+						!Storm::XmlReader::handleXml(checkXmlElement, "allForces", _checkAllForces)
+						)
+					{
+						LOG_ERROR << checkXmlElement.first << " (inside General.Check) is unknown, therefore it cannot be handled";
+					}
+				}
 			}
 
 			return true;

@@ -38,5 +38,8 @@ namespace Storm
 
 		// Simulation
 		bool _allowNoFluid;
+
+		// Checks
+		bool _checkAllForces;
 	};
 }

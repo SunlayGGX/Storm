@@ -44,6 +44,8 @@ namespace Storm
 		int getWantedScreenYPosition() const final override;
 		float getFontSize() const final override;
 
+		bool checkAllForces() const final override;
+
 		bool shouldDisplayHelp() const;
 
 		const std::string& getSceneName() const final override;

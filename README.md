@@ -198,6 +198,10 @@ Note that the maximum value you can set is Fatal, it means that no matter what l
 - **allowNoFluid (boolean, facultative)**: If true, we will allow the scene config file to not have any fluid (useful for testing rigid body features without minding particles while developping). Default is false.
 
 
+#### Check (facultative)
+- **allForces (boolean, facultative)**: Will ensure a check of all forces at the end of each simulation step to ensure the sum is Zero (conservation law). This is a safety check and is kind of expensive therefore should be used when needed. Default is false.
+
+
 ### Scene Config
 
 Scene configuration files contains all the data for running a simulation, therefore it is mandatory to specify one. If it was not set from the command line, Storm application will open an explorer windows to allow you to choose one.

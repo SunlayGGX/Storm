@@ -316,6 +316,11 @@ float Storm::ConfigManager::getFontSize() const
 	return _generalConfig._fontSize;
 }
 
+bool Storm::ConfigManager::checkAllForces() const
+{
+	return _generalConfig._checkAllForces;
+}
+
 bool Storm::ConfigManager::shouldDisplayHelp() const
 {
 	return _shouldDisplayHelp;
