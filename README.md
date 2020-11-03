@@ -150,6 +150,7 @@ There are some pre-built-in macros that aren't defined inside the macro file and
 + **$[StormConfig]** will refer, in case StormRoot macro is valid, to where Config files are set.
 + **$[StormResource]** will refer, in case StormRoot macro is valid, to where the Resource folder is.
 + **$[StormIntermediate]** will refer, in case StormRoot macro is valid, to where the Output folder is.
++ **$[StormRecord]** will refer, in case StormRoot macro is valid, to where the Record folder is.
 + **$[StormTmp]** will refer to the StormIntermediate if StormRoot macro is valid, or to OS defined temporary location.
 + **$[DateTime]** will refer to the current date when the Application is run (in filesystem compatible format : Weekday_Year_Month_Day_Hour_Minute_Second ).
 + **$[Date]**, like DateTime, will refer to the current date when the Application is run but without hours and lesser time division (in filesystem compatible format : Weekday_Year_Month_Day ).

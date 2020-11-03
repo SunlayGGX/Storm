@@ -38,6 +38,7 @@ void Storm::MacroConfig::initialize()
 	this->registerMacro("StormConfig", (rootPath / "Config").string());
 	this->registerMacro("StormResource", (rootPath / "Resource").string());
 	this->registerMacro("StormIntermediate", outputPath.string());
+	this->registerMacro("StormRecord", (outputPath / "Record").string());
 	this->registerMacro("DateTime", Storm::TimeHelper::getCurrentDateTime(false));
 	this->registerMacro("Date", Storm::TimeHelper::getCurrentDate());
 
