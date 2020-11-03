@@ -97,6 +97,9 @@ namespace Storm
 		const Storm::ParticleSystem& getParticleSystem(unsigned int id) const;
 
 	private:
+		void executeAllForcesCheck();
+
+	private:
 		Storm::ParticleSystemContainer _particleSystem;
 		std::vector<std::unique_ptr<Storm::IBlower>> _blowers;
 

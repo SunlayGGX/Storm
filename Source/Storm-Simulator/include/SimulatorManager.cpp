@@ -755,6 +755,8 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 
 	bool firstFrame = true;
 
+	const bool shouldCheckAllForces = configMgr.checkAllForces();
+
 	do
 	{
 		SpeedProfileBalist simulationSpeedProfile{ profilerMgrNullablePtr };
@@ -828,6 +830,12 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 		}
 
 		++forcedPushFrameIterator;
+
+		if (shouldCheckAllForces)
+		{
+			this->executeAllForcesCheck();
+		}
+
 		firstFrame = false;
 
 	} while (true);
@@ -1413,5 +1421,29 @@ const Storm::ParticleSystem& Storm::SimulatorManager::getParticleSystem(unsigned
 	else
 	{
 		Storm::throwException<std::exception>("Particle system with id " + std::to_string(id) + " is unknown!");
+	}
+}
+
+void Storm::SimulatorManager::executeAllForcesCheck()
+{
+	// Ensure that, from the conservation law, all forces present in the domain comes to zero at the end
+	std::atomic<float> xSum = 0.f;
+	std::atomic<float> ySum = 0.f;
+	std::atomic<float> zSum = 0.f;
+	for (const auto &particleSystemPair : _particleSystem)
+	{
+		Storm::runParallel(particleSystemPair.second->getForces(), [&xSum, &ySum, &zSum](const Storm::Vector3 &currentPForce)
+		{
+			xSum += currentPForce.x();
+			ySum += currentPForce.y();
+			zSum += currentPForce.z();
+		});
+	}
+
+	const Storm::Vector3 allForceSum{ xSum, ySum, zSum };
+	constexpr float epsilon = 0.0000001f;
+	if (std::fabs(allForceSum.x()) > epsilon || std::fabs(allForceSum.y()) > epsilon || std::fabs(allForceSum.z()) > epsilon)
+	{
+		LOG_ERROR << "All force sum are not equal to 0! Resulting force is " << allForceSum;
 	}
 }
