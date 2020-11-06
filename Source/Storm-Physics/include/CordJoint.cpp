@@ -31,3 +31,13 @@ void Storm::CordJoint::getJointPositionToArray(Storm::Vector3 &outPos1, Storm::V
 	outPos1 = Storm::convertToStorm(actor0GlobalPos.p + jointTransformActor0.p);
 	outPos2 = Storm::convertToStorm(actor1GlobalPos.p + jointTransformActor1.p);
 }
+
+Storm::Vector3 Storm::CordJoint::getForceApplied() const
+{
+	physx::PxVec3 force;
+	physx::PxVec3 torque;
+
+	_internalDistanceJointPtr->getConstraint()->getForce(force, torque);
+
+	return Storm::convertToStorm(force);
+}

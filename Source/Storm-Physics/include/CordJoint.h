@@ -15,6 +15,7 @@ namespace Storm
 
 	public:
 		void getJointPositionToArray(Storm::Vector3 &outPos1, Storm::Vector3 &outPos2) const;
+		Storm::Vector3 getForceApplied() const;
 
 	private:
 		Storm::UniquePointer<physx::PxJoint> _internalDistanceJointPtr;

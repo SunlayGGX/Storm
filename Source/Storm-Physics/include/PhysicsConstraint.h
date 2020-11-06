@@ -25,6 +25,9 @@ namespace Storm
 		std::size_t getID() const noexcept;
 
 	public:
+		Storm::Vector3 getForceApplied() const;
+
+	public:
 		void setCordDistance(float distance);
 
 	private:

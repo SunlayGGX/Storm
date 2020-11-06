@@ -44,6 +44,8 @@ namespace Storm
 		void getConstraintsRecordFrameData(std::vector<Storm::SerializeRecordContraintsData> &outConstraintsRecordFrameData) const final override;
 		void pushConstraintsRecordedFrame(const std::vector<Storm::SerializeRecordContraintsData> &constraintsRecordFrameData) final override;
 
+		Storm::Vector3 getForceOnPhysicalBody(const unsigned int id) const final override;
+
 	private:
 		void pushPhysicsVisualizationData() const;
 		void pushConstraintsVisualizationData() const;
@@ -61,7 +63,7 @@ namespace Storm
 		std::map<unsigned int, std::unique_ptr<Storm::PhysicsStaticsRigidBody>> _staticsRbMap;
 		std::map<unsigned int, std::unique_ptr<Storm::PhysicsDynamicRigidBody>> _dynamicsRbMap;
 
-		std::vector<std::unique_ptr<Storm::PhysicsConstraint>> _constraints;
+		std::vector<std::shared_ptr<Storm::PhysicsConstraint>> _constraints;
 
 		bool _rigidBodiesFixated;
 	};

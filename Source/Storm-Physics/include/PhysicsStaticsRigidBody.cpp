@@ -50,6 +50,11 @@ physx::PxRigidStatic* Storm::PhysicsStaticsRigidBody::getInternalPhysicsPointer(
 	return _internalRb.get();
 }
 
+Storm::Vector3 Storm::PhysicsStaticsRigidBody::getAppliedForce() const noexcept
+{
+	return Storm::Vector3::Zero();
+}
+
 void Storm::PhysicsStaticsRigidBody::getMeshTransform(Storm::Vector3 &outTrans, Storm::Quaternion &outQuatRot) const
 {
 	outTrans = _trans;

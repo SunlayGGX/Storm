@@ -23,6 +23,8 @@ namespace Storm
 
 		physx::PxRigidStatic* getInternalPhysicsPointer() const;
 
+		Storm::Vector3 getAppliedForce() const noexcept;
+
 	private:
 		Storm::UniquePointer<physx::PxRigidStatic> _internalRb;
 

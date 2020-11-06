@@ -87,6 +87,11 @@ std::size_t Storm::PhysicsConstraint::getID() const noexcept
 	return _id;
 }
 
+Storm::Vector3 Storm::PhysicsConstraint::getForceApplied() const
+{
+	return _cordJointPtr->getForceApplied();
+}
+
 void Storm::PhysicsConstraint::setCordDistance(float distance)
 {
 	_distanceWStr = computePhysicsConstraintDistanceWStr(distance, _maxDistance);

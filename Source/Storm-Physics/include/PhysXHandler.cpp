@@ -292,6 +292,11 @@ void Storm::PhysXHandler::setGravity(const Storm::Vector3 &newGravity)
 	_scene->setGravity(physXGravity);
 }
 
+Storm::Vector3 Storm::PhysXHandler::getGravity() const
+{
+	return Storm::convertToStorm(_scene->getGravity());
+}
+
 void Storm::PhysXHandler::update(std::mutex &fetchingMutex, float deltaTime)
 {
 	_scene->simulate(deltaTime);

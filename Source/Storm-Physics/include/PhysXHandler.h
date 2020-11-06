@@ -22,6 +22,7 @@ namespace Storm
 
 	public:
 		void setGravity(const Storm::Vector3 &newGravity);
+		Storm::Vector3 getGravity() const;
 
 	public:
 		void update(std::mutex &fetchingMutex, float deltaTime);

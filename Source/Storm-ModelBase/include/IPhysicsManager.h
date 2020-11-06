@@ -36,5 +36,7 @@ namespace Storm
 		virtual void getConstraintsRecordLayoutData(std::vector<Storm::SerializeConstraintLayout> &outConstraintsRecordLayout) const = 0;
 		virtual void getConstraintsRecordFrameData(std::vector<Storm::SerializeRecordContraintsData> &outConstraintsRecordFrameData) const = 0;
 		virtual void pushConstraintsRecordedFrame(const std::vector<Storm::SerializeRecordContraintsData> &constraintsRecordFrameData) = 0;
+
+		virtual Storm::Vector3 getForceOnPhysicalBody(const unsigned int id) const = 0;
 	};
 }

@@ -29,6 +29,21 @@
 #include "ThrowException.h"
 #include "SearchAlgo.h"
 
+namespace
+{
+	template<class RbType, class ConstraintType>
+	auto registerConstraint(RbType &rb, const ConstraintType &constraint, int) -> decltype(rb.registerConstraint(constraint))
+	{
+		return rb.registerConstraint(constraint);
+	}
+
+	template<class ConstraintType, class RbType>
+	constexpr void registerConstraint(RbType &, const ConstraintType &, void*)
+	{
+
+	}
+}
+
 
 Storm::PhysicsManager::PhysicsManager() :
 	_rigidBodiesFixated{ false }
@@ -124,11 +139,18 @@ void Storm::PhysicsManager::bindParentRbToPhysicalBody(const Storm::RigidBodySce
 
 void Storm::PhysicsManager::addConstraint(const Storm::ConstraintData &constraintData)
 {
-	Storm::SearchAlgo::executeOnObjectInContainer(constraintData._rigidBodyId1, [&](const auto &rb1)
+	Storm::SearchAlgo::executeOnObjectInContainer(constraintData._rigidBodyId1, [&](auto &rb1)
 	{
-		Storm::SearchAlgo::executeOnObjectInContainer(constraintData._rigidBodyId2, [&](const auto &rb2)
+		std::shared_ptr<Storm::PhysicsConstraint> addedConstraint;
+		Storm::SearchAlgo::executeOnObjectInContainer(constraintData._rigidBodyId2, [&](auto &rb2)
 		{
-			_constraints.emplace_back(std::make_unique<Storm::PhysicsConstraint>(constraintData, rb1.getInternalPhysicsPointer(), rb2.getInternalPhysicsPointer()));
+			addedConstraint = std::make_shared<Storm::PhysicsConstraint>(constraintData, rb1.getInternalPhysicsPointer(), rb2.getInternalPhysicsPointer());
+			
+			registerConstraint(rb2, addedConstraint, 0);
+			registerConstraint(rb1, addedConstraint, 0);
+
+			_constraints.emplace_back(std::move(addedConstraint));
+
 		}, _staticsRbMap, _dynamicsRbMap);
 	}, _staticsRbMap, _dynamicsRbMap);
 
@@ -169,7 +191,9 @@ void Storm::PhysicsManager::loadRecordedConstraint(const Storm::SerializeConstra
 			return data._constraintId == id;
 		}); found != std::end(constraintDataArrays))
 		{
-			_constraints.emplace_back(std::make_unique<Storm::PhysicsConstraint>(*found));
+			const Storm::ConstraintData &constraintConfig = *found;
+			_constraints.emplace_back(std::make_shared<Storm::PhysicsConstraint>(constraintConfig));
+
 			LOG_DEBUG << "Recorded constraint loaded";
 		}
 		else
@@ -224,7 +248,7 @@ void Storm::PhysicsManager::pushConstraintsRecordedFrame(const std::vector<Storm
 			constraintsPositionsTmp.emplace_back(constraintData._position1);
 			constraintsPositionsTmp.emplace_back(constraintData._position2);
 
-			if (auto found = std::find_if(beginConstraintIter, endConstraintIter, [id = constraintData._id](const std::unique_ptr<Storm::PhysicsConstraint> &constraint)
+			if (auto found = std::find_if(beginConstraintIter, endConstraintIter, [id = constraintData._id](const std::shared_ptr<Storm::PhysicsConstraint> &constraint)
 			{
 				return constraint->getID() == id;
 			}); found != endConstraintIter)
@@ -245,6 +269,17 @@ void Storm::PhysicsManager::pushConstraintsRecordedFrame(const std::vector<Storm
 			graphicMgr.pushConstraintData(constraintsPositions);
 		});
 	}
+}
+
+Storm::Vector3 Storm::PhysicsManager::getForceOnPhysicalBody(const unsigned int id) const
+{
+	Storm::Vector3 appliedForces;
+	Storm::SearchAlgo::executeOnObjectInContainer(id, [&appliedForces](const auto &rbFound)
+	{
+		appliedForces = rbFound.getAppliedForce();
+	}, _dynamicsRbMap, _staticsRbMap);
+
+	return appliedForces;
 }
 
 void Storm::PhysicsManager::pushPhysicsVisualizationData() const

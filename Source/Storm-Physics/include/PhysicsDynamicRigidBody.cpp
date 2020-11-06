@@ -8,7 +8,10 @@
 
 #include "RigidBodySceneData.h"
 
+#include "PhysicsConstraint.h"
+
 #include <PxRigidDynamic.h>
+
 
 namespace
 {
@@ -58,6 +61,18 @@ void Storm::PhysicsDynamicRigidBody::applyForce(const Storm::Vector3 &location, 
 	physx::PxRigidBodyExt::addForceAtLocalPos(*_internalRb, Storm::convertToPx(force), Storm::convertToPx(location));
 }
 
+Storm::Vector3 Storm::PhysicsDynamicRigidBody::getAppliedForce() const noexcept
+{
+	Storm::Vector3 force = _internalRb->getMass() * Storm::PhysicsManager::instance().getPhysXHandler().getGravity();
+
+	for (const auto &constraint : _constraints)
+	{
+		force += constraint->getForceApplied();
+	}
+
+	return force;
+}
+
 physx::PxRigidDynamic* Storm::PhysicsDynamicRigidBody::getInternalPhysicsPointer() const
 {
 	return _internalRb.get();
@@ -74,4 +89,9 @@ void Storm::PhysicsDynamicRigidBody::getMeshTransform(Storm::Vector3 &outTrans, 
 
 	outTrans = Storm::convertToStorm(currentTransform.p);
 	outQuatRot = Storm::convertToStorm<Storm::Quaternion>(currentTransform.q);
+}
+
+void Storm::PhysicsDynamicRigidBody::registerConstraint(const std::shared_ptr<Storm::PhysicsConstraint> &constraint)
+{
+	_constraints.emplace_back(constraint);
 }
