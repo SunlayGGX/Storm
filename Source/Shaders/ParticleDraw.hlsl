@@ -5,6 +5,8 @@ cbuffer ConstantBuffer
     matrix _projMatrix;
 
     float _particleRadius;
+
+    float _nearPlaneDist;
 };
 
 struct VertexInputType
@@ -37,7 +39,14 @@ GeometryInputType particleVertexShader(VertexInputType input)
     // Change the position vector to be 4 units for proper matrix calculations.
     //output._position = input._position;
     output._position = mul(input._position, _viewMatrix);
-    
+
+#if STORM_SELECTED_PARTICLE_ON_TOP
+    if (input._color.x == 1.f && input._color.y == 1.f && input._color.z == 1.f)
+    {
+        output._position.z = _nearPlaneDist;
+    }
+#endif
+
     output._color = input._color;
 
     return output;
