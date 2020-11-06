@@ -3,6 +3,7 @@ using Storm_LogViewer.Source.General.Filterer;
 using Storm_LogViewer.Source.Log;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -61,6 +62,8 @@ namespace Storm_LogViewer
             }
         }
 
+        private ObservableCollection<LogItem> _displayedItemsSource = new ObservableCollection<LogItem>();
+
         private object _mutex = new object();
 
         public MainWindow()
@@ -71,7 +74,9 @@ namespace Storm_LogViewer
             FiltererManager filterMgr = FiltererManager.Instance;
             LogReaderManager loggerReaderMgr = LogReaderManager.Instance;
 
-            LogDisplayArea.ItemsSource = loggerReaderMgr.DisplayedLogItems;
+            LogDisplayArea.ItemsSource = _displayedItemsSource;
+
+            BindingOperations.EnableCollectionSynchronization(LogDisplayArea.Items, _mutex);
 
             FilterStrictEqualityCheckbox.DataContext = this;
             ShowEssentialOnlyCheckbox.DataContext = this;
@@ -89,8 +94,6 @@ namespace Storm_LogViewer
             configMgr._onAutoScrollCheckboxChanged += AutoScrollUpdated;
             loggerReaderMgr._onDisplayedLogItemsCollectionChanged += OnDisplayedLogItemsCollectionChanged;
             loggerReaderMgr.NotifyLogItemsCollectionChanged();
-
-            BindingOperations.EnableCollectionSynchronization(LogDisplayArea.Items, _mutex);
         }
 
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
@@ -126,14 +129,19 @@ namespace Storm_LogViewer
                 logInfo = "0/0 logs displayed";
             }
 
-            Dispatcher.BeginInvoke(new Action(() =>
+            ExecuteOnUIThread(new Action(() =>
             {
                 lock (_mutex)
                 {
                     LogCountInfoStr = logInfo;
 
-                    LogDisplayArea.ItemsSource = null;
-                    LogDisplayArea.ItemsSource = displayedLogItems;
+                    _displayedItemsSource.Clear();
+                    foreach (LogItem item in displayedLogItems)
+                    {
+                        _displayedItemsSource.Add(item);
+                    }
+                    /*LogDisplayArea.ItemsSource = null;
+                    LogDisplayArea.ItemsSource = displayedLogItems;*/
 
                     ScrollToEndIfAutoScroll_UIThread();
                 }
@@ -142,7 +150,7 @@ namespace Storm_LogViewer
 
         void OnModuleFilterAdded(List<ModuleFilterCheckboxValue> newModuleCheckboxFilters)
         {
-            Dispatcher.BeginInvoke(new Action(() =>
+            ExecuteOnUIThread(new Action(() =>
             {
                 ModuleLevelsFilter.ItemsSource = newModuleCheckboxFilters;
                 ICollectionView view = CollectionViewSource.GetDefaultView(ModuleLevelsFilter.ItemsSource);
@@ -167,7 +175,7 @@ namespace Storm_LogViewer
 
         public void UpdateListViewEssentiality(bool shouldShowEssential)
         {
-            Dispatcher.BeginInvoke(new Action(() =>
+            ExecuteOnUIThread(new Action(() =>
             {
                 GridView view = LogDisplayArea.View as GridView;
                 if (view == null || view.Columns == null)
@@ -233,9 +241,12 @@ namespace Storm_LogViewer
 
         public void AutoScrollUpdated()
         {
-            Dispatcher.BeginInvoke(new Action(() =>
+            ExecuteOnUIThread(new Action(() =>
             {
-                ScrollToEndIfAutoScroll_UIThread();
+                lock (_mutex)
+                {
+                    ScrollToEndIfAutoScroll_UIThread();
+                }
             }));
         }
 
@@ -244,6 +255,11 @@ namespace Storm_LogViewer
             LogReaderManager.Instance.ClearLogs();
 
             e.Handled = true;
+        }
+
+        private void ExecuteOnUIThread(Action action)
+        {
+            Application.Current.Dispatcher.InvokeAsync(action).Wait();
         }
     }
 }
