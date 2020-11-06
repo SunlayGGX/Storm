@@ -321,6 +321,16 @@ bool Storm::ConfigManager::getFixNearFarPlanesWhenTranslatingFlag() const
 	return _generalConfig._fixNearFarPlanesWhenTranslating;
 }
 
+bool Storm::ConfigManager::getSelectedParticleShouldBeTopMost() const
+{
+	return _generalConfig._selectedParticleShouldBeTopMost;
+}
+
+bool Storm::ConfigManager::getSelectedParticleForceShouldBeTopMost() const
+{
+	return _generalConfig._selectedParticleForceShouldBeTopMost;
+}
+
 bool Storm::ConfigManager::shouldDisplayHelp() const
 {
 	return _shouldDisplayHelp;

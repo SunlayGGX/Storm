@@ -48,7 +48,9 @@ Storm::GeneralConfig::GeneralConfig() :
 	_allowNoFluid{ false },
 	_wantedApplicationXPos{ std::numeric_limits<int>::max() },
 	_wantedApplicationYPos{ std::numeric_limits<int>::max() },
-	_fixNearFarPlanesWhenTranslating{ true }
+	_fixNearFarPlanesWhenTranslating{ true },
+	_selectedParticleShouldBeTopMost{ false },
+	_selectedParticleForceShouldBeTopMost{ true }
 {
 
 }
@@ -100,6 +102,8 @@ bool Storm::GeneralConfig::read(const std::string &generalConfigFilePathStr)
 						!Storm::XmlReader::handleXml(graphicXmlElement, "screenX", _wantedApplicationXPos) &&
 						!Storm::XmlReader::handleXml(graphicXmlElement, "screenY", _wantedApplicationYPos) &&
 						!Storm::XmlReader::handleXml(graphicXmlElement, "nearFarPlaneFixed", _fixNearFarPlanesWhenTranslating) &&
+						!Storm::XmlReader::handleXml(graphicXmlElement, "selectedParticleAlwaysOnTop", _selectedParticleShouldBeTopMost) &&
+						!Storm::XmlReader::handleXml(graphicXmlElement, "selectedParticleForceAlwaysOnTop", _selectedParticleForceShouldBeTopMost) &&
 						!Storm::XmlReader::handleXml(graphicXmlElement, "fontSize", _fontSize)
 						)
 					{

@@ -189,6 +189,8 @@ Note that the maximum value you can set is Fatal, it means that no matter what l
 - **screenY (integer, facultative)** : Set the expected windows y position at startup. If it is unset (default), then a default value will be chosen from the OS...
 - **fontSize (unsigned integer, facultative)** : the font size of any written information displayed in the HUD... Default is 16.
 - **nearFarPlaneFixed (boolean, faculative)**: Specify if the normal behavior of the near and far plane should be to NOT translate along the camera moves. Default is true.
+- **selectedParticleAlwaysOnTop (boolean, faculative)**: Specify if the selected particle should be displayed on top of all particles (on the near plane). Default is false.
+- **selectedParticleForceAlwaysOnTop (boolean, faculative)**: Specify if the selected particle force should be displayed on top of all particles (on the near plane). Default is true.
 
 
 #### Profile (faculative)

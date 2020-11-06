@@ -33,6 +33,8 @@ namespace Storm
 		int _wantedApplicationYPos;
 		float _fontSize;
 		bool _fixNearFarPlanesWhenTranslating;
+		bool _selectedParticleShouldBeTopMost;
+		bool _selectedParticleForceShouldBeTopMost;
 
 		// Profile
 		bool _profileSimulationSpeed;
