@@ -10,7 +10,7 @@ namespace Storm
 	{
 	private:
 		template<class PtrType>
-		static auto extract(const PtrType &value, int) -> decltype(value == nullptr, Storm::SearchAlgo::extract(*value, 0))
+		static auto extract(PtrType &value, int) -> decltype(value == nullptr, Storm::SearchAlgo::extract(*value, 0))
 		{
 			if (value != nullptr)
 			{
@@ -23,7 +23,7 @@ namespace Storm
 		}
 
 		template<class ValueType>
-		static const ValueType& extract(const ValueType &value, void*)
+		static ValueType& extract(ValueType &value, void*)
 		{
 			return value;
 		}
@@ -86,7 +86,7 @@ namespace Storm
 
 	private:
 		template<class KeyType, class Func, class ContainerType, class ... OthersContainerType>
-		static bool executeOnObjectInContainerImpl(const KeyType &key, const Func &func, const ContainerType &container, const OthersContainerType &... others)
+		static bool executeOnObjectInContainerImpl(const KeyType &key, const Func &func, ContainerType &container, OthersContainerType &... others)
 		{
 			return
 				Storm::SearchAlgo::executeOnObjectInContainerImpl(key, func, container) ||
@@ -94,7 +94,7 @@ namespace Storm
 		}
 
 		template<class KeyType, class Func, class ContainerType>
-		static bool executeOnObjectInContainerImpl(const KeyType &key, const Func &func, const ContainerType &container)
+		static bool executeOnObjectInContainerImpl(const KeyType &key, const Func &func, ContainerType &container)
 		{
 			if (const auto found = container.find(key); found != std::end(container))
 			{
@@ -107,7 +107,7 @@ namespace Storm
 
 	public:
 		template<class KeyType, class Func, class ... OthersContainerType>
-		static void executeOnObjectInContainer(const KeyType &key, const Func &func, const OthersContainerType &... allContainers)
+		static void executeOnObjectInContainer(const KeyType &key, const Func &func, OthersContainerType &... allContainers)
 		{
 			if (!Storm::SearchAlgo::executeOnObjectInContainerImpl(key, func, allContainers...))
 			{
