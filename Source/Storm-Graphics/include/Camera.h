@@ -38,6 +38,7 @@ namespace Storm
 
 		void setNearPlane(float nearPlane);
 		void setFarPlane(float farPlane);
+		void setNearAndFarPlane(float nearPlane, float farPlane);
 
 		void increaseNearPlane();
 		void decreaseNearPlane();
@@ -103,6 +104,8 @@ namespace Storm
 		float _screenHeight;
 		float _rescaledScreenWidth;
 		float _rescaledScreenHeight;
+
+		bool _planesFixedFromTranslatMoves;
 
 		std::unique_ptr<Storm::UIFieldContainer> _fields;
 	};

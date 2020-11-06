@@ -225,6 +225,9 @@ Storm::Camera::Camera(float viewportWidth, float viewportHeight) :
 		.bindField(STORM_ZNEAR_FIELD_NAME, _nearPlane)
 		.bindField(STORM_ZFAR_FIELD_NAME, _farPlane)
 		;
+
+	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
+	_planesFixedFromTranslatMoves = configMgr.getFixNearFarPlanesWhenTranslatingFlag();
 }
 
 Storm::Camera::~Camera() = default;
@@ -235,7 +238,7 @@ void Storm::Camera::reset()
 	this->setCameraPlaneSpeed(1.f);
 	this->setCameraRotateSpeed(10.f);
 
-	Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
+	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
 	const Storm::GraphicData &currentGraphicData = configMgr.getGraphicData();
 
 	_nearPlane = currentGraphicData._zNear;
@@ -362,6 +365,42 @@ void Storm::Camera::setFarPlane(float farPlane)
 	}
 }
 
+void Storm::Camera::setNearAndFarPlane(float nearPlane, float farPlane)
+{
+	constexpr float nearPlaneEpsilon = getMinimalNearPlaneValue();
+	if (nearPlane >= (farPlane - nearPlaneEpsilon))
+	{
+		LOG_ERROR <<
+			"Cannot set near plane to a value equal or greater than far plane.\n"
+			"Requested near plane: " << nearPlane << ".\n"
+			"Requested far plane: " << farPlane << ".\n"
+			;
+		return;
+	}
+
+	bool rebuildMatrixes = false;
+
+	if (_nearPlane != nearPlane)
+	{
+		_nearPlane = nearPlane;
+		_fields->pushField(STORM_ZNEAR_FIELD_NAME);
+		rebuildMatrixes = true;
+	}
+
+	if (_farPlane != farPlane)
+	{
+		_farPlane = farPlane;
+		_fields->pushField(STORM_ZFAR_FIELD_NAME);
+		rebuildMatrixes = true;
+	}
+
+	if (rebuildMatrixes)
+	{
+		this->buildProjectionMatrix();
+		this->buildOrthoMatrix();
+	}
+}
+
 void Storm::Camera::increaseNearPlane()
 {
 	float expected = _nearPlane + _cameraPlaneSpeed;
@@ -455,6 +494,11 @@ void Storm::Camera::positiveMoveZAxis()
 {
 	const Storm::Vector3 deltaTranslation = computePositionDisplacementTranslation<TranslateAxis::Z>(_position, _target, _cameraMoveSpeed);
 	this->translateRelative(deltaTranslation);
+
+	if (_planesFixedFromTranslatMoves)
+	{
+		this->setNearAndFarPlane(_nearPlane - _cameraMoveSpeed, _farPlane - _cameraMoveSpeed);
+	}
 }
 
 void Storm::Camera::negativeMoveXAxis()
@@ -473,6 +517,11 @@ void Storm::Camera::negativeMoveZAxis()
 {
 	const Storm::Vector3 deltaTranslation = computePositionDisplacementTranslation<TranslateAxis::Z>(_position, _target, -_cameraMoveSpeed);
 	this->translateRelative(deltaTranslation);
+
+	if (_planesFixedFromTranslatMoves)
+	{
+		this->setNearAndFarPlane(_nearPlane + _cameraMoveSpeed, _farPlane + _cameraMoveSpeed);
+	}
 }
 
 void Storm::Camera::positiveRotateXAxis()
