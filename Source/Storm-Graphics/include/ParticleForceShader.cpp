@@ -93,3 +93,8 @@ void Storm::ParticleForceShader::setup(const ComPtr<ID3D11Device> &device, const
 	deviceContext->GSSetConstantBuffers(0, 1, &constantBufferTmp);
 	deviceContext->PSSetConstantBuffers(0, 1, &constantBufferTmp);
 }
+
+void Storm::ParticleForceShader::tweekAlwaysOnTopFlag() noexcept
+{
+	_alwaysOnTop = !_alwaysOnTop;
+}

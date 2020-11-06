@@ -258,6 +258,7 @@ void Storm::GraphicManager::initialize_Implementation(void* hwnd)
 			inputMgr.bindKey(Storm::SpecialKey::KC_SUBTRACT, [this]() { _camera->decreaseNearPlane(); });
 			inputMgr.bindKey(Storm::SpecialKey::KC_MULTIPLY, [this]() { _camera->increaseFarPlane(); });
 			inputMgr.bindKey(Storm::SpecialKey::KC_DIVIDE, [this]() { _camera->decreaseFarPlane(); });
+			inputMgr.bindKey(Storm::SpecialKey::KC_F4, [this]() { _forceRenderer->tweekAlwaysOnTop(); });
 			inputMgr.bindKey(Storm::SpecialKey::KC_F5, [this]() { _directXController->setWireFrameState(); });
 			inputMgr.bindKey(Storm::SpecialKey::KC_F6, [this]() { _directXController->setSolidCullBackState(); });
 			inputMgr.bindKey(Storm::SpecialKey::KC_F7, [this]() { _directXController->setSolidCullNoneState(); });

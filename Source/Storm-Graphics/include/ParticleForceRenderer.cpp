@@ -120,3 +120,8 @@ void Storm::ParticleForceRenderer::setupForRender(const ComPtr<ID3D11DeviceConte
 	deviceContext->IASetVertexBuffers(0, 1, &tmpVertexBuffer, &stride, &offset);
 }
 
+void Storm::ParticleForceRenderer::tweekAlwaysOnTop()
+{
+	_shader->tweekAlwaysOnTopFlag();
+}
+
