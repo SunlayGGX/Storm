@@ -79,6 +79,11 @@ namespace
 				{
 					compileErrorMsg += "Compile error are ";
 					compileErrorMsg.append(static_cast<const char*>(errorMsg->GetBufferPointer()), errorBufferSize);
+
+					while (compileErrorMsg.back() == '\0')
+					{
+						compileErrorMsg.pop_back();
+					}
 				}
 			}
 			else
