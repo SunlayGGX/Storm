@@ -42,21 +42,20 @@ void particleForceGeometryShader(line GeometryInputType inputRaw[2], inout Trian
     GeometryInputType p0 = inputRaw[0];
     GeometryInputType p1 = inputRaw[1];
 
+    const float4 pos0 = mul(p0._position, _projMatrix);
+    const float4 pos1 = mul(p1._position, _projMatrix);
+
     PixelInputType corner1;
-    corner1._position = float4(p0._position.x + _midThickness, p0._position.yzw);
-    corner1._position = mul(corner1._position, _projMatrix);
+    corner1._position = float4(pos0.x + _midThickness, pos0.yzw);
 
     PixelInputType corner2;
-    corner2._position = float4(p0._position.x - _midThickness, p0._position.yzw);
-    corner2._position = mul(corner2._position, _projMatrix);
+    corner2._position = float4(pos0.x - _midThickness, pos0.yzw);
 
     PixelInputType corner3;
-    corner3._position = float4(p1._position.x + _midThickness, p1._position.yzw);
-    corner3._position = mul(corner3._position, _projMatrix);
+    corner3._position = float4(pos1.x + _midThickness, pos1.yzw);
 
     PixelInputType corner4;
-    corner4._position = float4(p1._position.x - _midThickness, p1._position.yzw);
-    corner4._position = mul(corner4._position, _projMatrix);
+    corner4._position = float4(pos1.x - _midThickness, pos1.yzw);
 
     outputStream.Append(corner2);
     outputStream.Append(corner1);
