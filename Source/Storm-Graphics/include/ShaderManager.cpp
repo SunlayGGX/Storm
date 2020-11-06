@@ -3,6 +3,8 @@
 #include "SingletonHolder.h"
 #include "IConfigManager.h"
 
+#include "ShaderMacroItem.h"
+
 #include <d3dcompiler.h>
 
 #include <fstream>
@@ -13,7 +15,7 @@
 
 namespace
 {
-	std::string compileShader(const std::filesystem::path &shaderFilePath, const std::string_view &shaderFuncName, const std::string_view &target, ComPtr<ID3DBlob> &blobRes)
+	std::string compileShader(const std::filesystem::path &shaderFilePath, const std::string_view &shaderFuncName, const std::string_view &target, const Storm::ShaderMacroContainer &shaderMacros, ComPtr<ID3DBlob> &blobRes)
 	{
 		std::string compileErrorMsg;
 
@@ -26,8 +28,45 @@ namespace
 		flag1 |= D3DCOMPILE_OPTIMIZATION_LEVEL3;
 #endif
 
+		std::unique_ptr<D3D_SHADER_MACRO[]> shaderMacrosPtr;
+
+		const std::vector<Storm::ShaderMacroItem> &shaderMacroItems = shaderMacros.getMacros();
+		const std::size_t shaderMacroCount = shaderMacroItems.size();
+		if (shaderMacroCount > 0)
+		{
+			shaderMacrosPtr = std::make_unique<D3D_SHADER_MACRO[]>(shaderMacroCount + 1);
+			
+			std::size_t iter = 0;
+			for (; iter < shaderMacroCount; ++iter)
+			{
+				const Storm::ShaderMacroItem &currentSrcShaderMacro = shaderMacroItems[iter];
+				D3D_SHADER_MACRO &currentDstShaderMacro = shaderMacrosPtr[iter];
+
+				currentDstShaderMacro.Name = currentSrcShaderMacro.getMacroName().data();
+				currentDstShaderMacro.Definition = currentSrcShaderMacro.getMacroValue().c_str();
+			}
+
+			D3D_SHADER_MACRO &last = shaderMacrosPtr[iter];
+			last.Name = NULL;
+			last.Definition = NULL;
+		}
+		else
+		{
+			shaderMacrosPtr = nullptr;
+		}
+
 		ComPtr<ID3DBlob> errorMsg;
-		HRESULT res = D3DCompileFromFile(shaderFilePath.wstring().c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, shaderFuncName.data(), target.data(), flag1, 0, &blobRes, &errorMsg);
+		HRESULT res = D3DCompileFromFile(
+			shaderFilePath.wstring().c_str(),
+			shaderMacrosPtr.get(),
+			D3D_COMPILE_STANDARD_FILE_INCLUDE,
+			shaderFuncName.data(),
+			target.data(),
+			flag1,
+			0,
+			&blobRes,
+			&errorMsg
+		);
 		
 		if (FAILED(res))
 		{
@@ -56,9 +95,9 @@ namespace
 		return shaderFilePath + "<?>" + shaderFuncName;
 	}
 
-	std::filesystem::path getShaderBlobCacheFilePath(const std::filesystem::path &tmpPath, const std::string &shaderFilePath, const std::string_view &shaderFuncName)
+	std::filesystem::path getShaderBlobCacheFilePath(const std::filesystem::path &tmpPath, const std::string &shaderFilePath, const std::string_view &shaderFuncName, const Storm::ShaderMacroContainer &shaderMacros)
 	{
-		return tmpPath / (std::filesystem::path{ shaderFilePath }.replace_extension("").string() + '_' + shaderFuncName + ".stormShader");
+		return tmpPath / (std::filesystem::path{ shaderFilePath }.replace_extension("").string() + '_' + shaderFuncName + shaderMacros.toCachedName() + ".stormShader");
 	}
 
 	constexpr static std::string_view k_shaderCacheFileName = "shader.cache";
@@ -168,7 +207,7 @@ void Storm::ShaderManager::cleanUp_Implementation()
 	this->flushCache();
 }
 
-void* Storm::ShaderManager::requestCompiledShaderBlobs(const std::string &shaderFilePath, const std::string_view &shaderFuncName, const std::string_view &target)
+void* Storm::ShaderManager::requestCompiledShaderBlobs(const std::string &shaderFilePath, const std::string_view &shaderFuncName, const std::string_view &target, const Storm::ShaderMacroContainer &shaderMacros)
 {
 	ComPtr<ID3DBlob> shaderBlob;
 
@@ -179,7 +218,7 @@ void* Storm::ShaderManager::requestCompiledShaderBlobs(const std::string &shader
 
 	const auto shaderFoundTimestamp = std::filesystem::last_write_time(shaderFilePath);
 
-	const std::filesystem::path expectedShaderBlobFilePath = getShaderBlobCacheFilePath(tmpPath, shaderFilePath, shaderFuncName);
+	const std::filesystem::path expectedShaderBlobFilePath = getShaderBlobCacheFilePath(tmpPath, shaderFilePath, shaderFuncName, shaderMacros);
 	if (std::filesystem::exists(expectedShaderBlobFilePath))
 	{
 		std::lock_guard<std::mutex> lock{ _mutex };
@@ -214,7 +253,7 @@ void* Storm::ShaderManager::requestCompiledShaderBlobs(const std::string &shader
 	{
 		LOG_COMMENT << "We will now compile Shader " << shaderFilePath << " (for function : " << shaderFuncName << ") and generate its cache for a next reloading.";
 
-		std::string outCompileErrorMsg = compileShader(shaderFilePath, shaderFuncName, target, shaderBlob);
+		std::string outCompileErrorMsg = compileShader(shaderFilePath, shaderFuncName, target, shaderMacros, shaderBlob);
 		if (!outCompileErrorMsg.empty())
 		{
 			std::string fullError = "Shader compilation failure for '" + shaderFilePath + "' (compiling method " + shaderFuncName + ") : " + outCompileErrorMsg;
@@ -239,6 +278,11 @@ void* Storm::ShaderManager::requestCompiledShaderBlobs(const std::string &shader
 	// Detach because we want transfer the ownership to the client code.
 	// Don't forget to use Attach afterwards.
 	return shaderBlob.Detach();
+}
+
+void* Storm::ShaderManager::requestCompiledShaderBlobs(const std::string &shaderFilePath, const std::string_view &shaderFuncName, const std::string_view &target)
+{
+	return this->requestCompiledShaderBlobs(shaderFilePath, shaderFuncName, target, Storm::ShaderMacroContainer{});
 }
 
 void Storm::ShaderManager::flushCache() const
