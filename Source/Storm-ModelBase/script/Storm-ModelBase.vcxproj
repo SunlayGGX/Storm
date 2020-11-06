@@ -16,6 +16,7 @@
     <ClCompile Include="..\include\RigidBodyHolder.cpp" />
     <ClCompile Include="..\include\SceneData.cpp" />
     <ClCompile Include="..\include\SerializeRecordData.cpp" />
+    <ClCompile Include="..\include\ShaderMacroItem.cpp" />
     <ClCompile Include="..\include\Storm-ModelBasePCH.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
@@ -47,6 +48,7 @@
     <ClInclude Include="..\include\SerializeRecordHeader.h" />
     <ClInclude Include="..\include\SerializeRecordParticleSystemData.h" />
     <ClInclude Include="..\include\SerializeRecordPendingData.h" />
+    <ClInclude Include="..\include\ShaderMacroItem.h" />
     <ClInclude Include="..\include\ThreadingSafety.h" />
     <ClInclude Include="..\include\IAssetLoaderManager.h" />
     <ClInclude Include="..\include\IConfigManager.h" />

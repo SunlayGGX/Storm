@@ -44,6 +44,8 @@ namespace Storm
 		int getWantedScreenYPosition() const final override;
 		float getFontSize() const final override;
 		bool getFixNearFarPlanesWhenTranslatingFlag() const final override;
+		bool getSelectedParticleShouldBeTopMost() const final override;
+		bool getSelectedParticleForceShouldBeTopMost() const final override;
 
 		bool shouldDisplayHelp() const;
 

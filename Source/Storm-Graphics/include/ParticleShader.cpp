@@ -6,6 +6,8 @@
 
 #include "GeneralSimulationData.h"
 
+#include "ShaderMacroItem.h"
+
 #include "MemoryHelper.h"
 #include "ResourceMapperGuard.h"
 
@@ -17,6 +19,7 @@ namespace
 		DirectX::XMMATRIX _viewMatrix;
 		DirectX::XMMATRIX _projMatrix;
 		float _pointSize;
+		float _nearPlaneDist;
 	};
 
 	static const std::string k_particleShaderFilePath = "Shaders/ParticleDraw.hlsl";
@@ -56,11 +59,20 @@ namespace
 
 		return particleVertexDataLayoutDesc;
 	}
+
+	Storm::ShaderMacroContainer retrieveParticleShaderMacro()
+	{
+		const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
+
+		return Storm::ShaderMacroContainer{}
+			.addMacro("STORM_SELECTED_PARTICLE_ON_TOP", configMgr.getSelectedParticleShouldBeTopMost())
+			;
+	}
 }
 
 
 Storm::ParticleShader::ParticleShader(const ComPtr<ID3D11Device> &device) :
-	Storm::VPShaderBase{ device, k_particleShaderFilePath, k_particleVertexShaderFuncName, k_particleShaderFilePath, k_particleGeometryShaderFuncName, k_particleShaderFilePath, k_particlePixelShaderFuncName, retrieveParticleInputLayoutElementDesc(), k_particleVertexDataLayoutDescCount }
+	Storm::VPShaderBase{ device, k_particleShaderFilePath, k_particleVertexShaderFuncName, k_particleShaderFilePath, k_particleGeometryShaderFuncName, k_particleShaderFilePath, k_particlePixelShaderFuncName, retrieveParticleInputLayoutElementDesc(), k_particleVertexDataLayoutDescCount, retrieveParticleShaderMacro() }
 {
 	Storm::ConstantBufferHolder::initialize<ConstantBuffer>(device);
 }
@@ -80,6 +92,7 @@ void Storm::ParticleShader::setup(const ComPtr<ID3D11Device> &device, const ComP
 		ressourceDataPtr->_viewMatrix = currentCamera.getTransposedViewMatrix();
 		ressourceDataPtr->_projMatrix = currentCamera.getTransposedProjectionMatrix();
 		ressourceDataPtr->_pointSize = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().getGeneralSimulationData()._particleRadius;
+		ressourceDataPtr->_nearPlaneDist = currentCamera.getNearPlane();
 	}
 
 	ID3D11Buffer*const constantBufferTmp = _constantBuffer.Get();

@@ -24,6 +24,9 @@ namespace Storm
 	private:
 		void setupForRender(const ComPtr<ID3D11DeviceContext> &deviceContext);
 
+	public:
+		void tweekAlwaysOnTop();
+
 	private:
 		Storm::Vector3 _lastParticlePositionCached;
 		Storm::Vector3 _lastParticleForceCached;

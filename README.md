@@ -189,6 +189,8 @@ Note that the maximum value you can set is Fatal, it means that no matter what l
 - **screenY (integer, facultative)** : Set the expected windows y position at startup. If it is unset (default), then a default value will be chosen from the OS...
 - **fontSize (unsigned integer, facultative)** : the font size of any written information displayed in the HUD... Default is 16.
 - **nearFarPlaneFixed (boolean, faculative)**: Specify if the normal behavior of the near and far plane should be to NOT translate along the camera moves. Default is true.
+- **selectedParticleAlwaysOnTop (boolean, faculative)**: Specify if the selected particle should be displayed on top of all particles (on the near plane). Default is false.
+- **selectedParticleForceAlwaysOnTop (boolean, faculative)**: Specify if the selected particle force should be displayed on top of all particles (on the near plane). Default is true.
 
 
 #### Profile (faculative)
@@ -352,6 +354,7 @@ Note : If the term in the parenthesis is "Numpad", then the keybinding is the va
 - **1 (Key)**: Decrease the physics delta time. Valid only if we are not in replay mode, or if CFL is disabled.
 - **2 (Key)**: Increase the physics delta time. Valid only if we are not in replay mode, or if CFL is disabled.
 - **F1**: Debug command to print to a human readable text giving all position, velocity and force values of all fluid particles. The data is printed inside the output (temp) directory inside "Debug" folder.
+- **F4**: Set selected particle forces always on top flag to true if false, false otherwise. But note that if it is true, you'll always see the particle force if it is in front of the view point, but you'll lose the depth information of the vector.
 - **F5**: Set wireframe.
 - **F6**: Set solid state with back face culling.
 - **F7**: Set solid state without back face culling.
