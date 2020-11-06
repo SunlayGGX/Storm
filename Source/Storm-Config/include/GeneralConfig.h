@@ -32,6 +32,7 @@ namespace Storm
 		int _wantedApplicationXPos;
 		int _wantedApplicationYPos;
 		float _fontSize;
+		bool _fixNearFarPlanesWhenTranslating;
 
 		// Profile
 		bool _profileSimulationSpeed;

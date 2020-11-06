@@ -44,6 +44,7 @@ namespace Storm
 		virtual int getWantedScreenXPosition() const = 0;
 		virtual int getWantedScreenYPosition() const = 0;
 		virtual float getFontSize() const = 0;
+		virtual bool getFixNearFarPlanesWhenTranslatingFlag() const = 0;
 
 		// Profile
 		virtual bool getShouldProfileSimulationSpeed() const = 0;

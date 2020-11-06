@@ -43,6 +43,7 @@ namespace Storm
 		int getWantedScreenXPosition() const final override;
 		int getWantedScreenYPosition() const final override;
 		float getFontSize() const final override;
+		bool getFixNearFarPlanesWhenTranslatingFlag() const final override;
 
 		bool shouldDisplayHelp() const;
 

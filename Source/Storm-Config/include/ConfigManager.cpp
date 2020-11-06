@@ -316,6 +316,11 @@ float Storm::ConfigManager::getFontSize() const
 	return _generalConfig._fontSize;
 }
 
+bool Storm::ConfigManager::getFixNearFarPlanesWhenTranslatingFlag() const
+{
+	return _generalConfig._fixNearFarPlanesWhenTranslating;
+}
+
 bool Storm::ConfigManager::shouldDisplayHelp() const
 {
 	return _shouldDisplayHelp;
