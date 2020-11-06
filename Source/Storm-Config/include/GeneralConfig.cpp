@@ -47,8 +47,7 @@ Storm::GeneralConfig::GeneralConfig() :
 	_profileSimulationSpeed{ false },
 	_allowNoFluid{ false },
 	_wantedApplicationXPos{ std::numeric_limits<int>::max() },
-	_wantedApplicationYPos{ std::numeric_limits<int>::max() },
-	_checkAllForces{ false }
+	_wantedApplicationYPos{ std::numeric_limits<int>::max() }
 {
 
 }
