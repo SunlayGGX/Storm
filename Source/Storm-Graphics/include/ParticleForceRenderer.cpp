@@ -28,9 +28,9 @@ bool Storm::ParticleForceRenderer::prepareData(unsigned int particleSystemId, st
 			Storm::GraphicParticleData &particle = particlePosition[selectedParticle.second];
 
 			Storm::GraphicParticleData::ColorType &selectedParticleColor = particle._color;
-			selectedParticleColor.m128_f32[0] = 255.f;
-			selectedParticleColor.m128_f32[1] = 255.f;
-			selectedParticleColor.m128_f32[2] = 255.f;
+			selectedParticleColor.m128_f32[0] = 1.f;
+			selectedParticleColor.m128_f32[1] = 1.f;
+			selectedParticleColor.m128_f32[2] = 1.f;
 		}
 
 		return true;
