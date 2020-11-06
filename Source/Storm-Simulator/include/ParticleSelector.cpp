@@ -142,8 +142,8 @@ void Storm::ParticleSelector::logForceComponents() const
 {
 	LOG_ALWAYS <<
 		"Particle Forces components are :\n"
-		"Pressure: " << _selectedParticleData._pressureForce << "\n"
-		"Viscosity: " << _selectedParticleData._viscosityForce << "\n"
-		"Sum : " << _selectedParticleData._externalSumForces;
+		"Pressure: " << _selectedParticleData._pressureForce << ". Norm: " << _selectedParticleData._pressureForce.norm() << " m.\n"
+		"Viscosity: " << _selectedParticleData._viscosityForce << ". Norm: " << _selectedParticleData._viscosityForce.norm() << " m.\n"
+		"Sum : " << _selectedParticleData._externalSumForces << ". Norm: " << _selectedParticleData._externalSumForces.norm() << " m.";
 }
 
