@@ -227,14 +227,14 @@ void* Storm::ShaderManager::requestCompiledShaderBlobs(const std::string &shader
 			hasCachedBlobs = cachedShaderIt->second == shaderFoundTimestamp;
 			if (!hasCachedBlobs)
 			{
-				LOG_COMMENT << "Shader " << shaderFilePath << " (for function : " << shaderFuncName << ") cache is not up to date, therefore should be invalidated.";
+				LOG_DEBUG << "Shader " << shaderFilePath << " (for function : " << shaderFuncName << ") cache mismatches, therefore should be invalidated.";
 			}
 		}
 	}
 	
 	if (hasCachedBlobs)
 	{
-		LOG_COMMENT << "Shader " << shaderFilePath << " (for function : " << shaderFuncName << ") has already been compiled and its cache is up to date. We will load the cached data instead of compiling it anew.";
+		LOG_DEBUG << "Shader " << shaderFilePath << " (for function : " << shaderFuncName << ") has already been compiled and its cache is up to date. We will load the cached data instead of compiling it anew.";
 
 		std::size_t blobSize = std::filesystem::file_size(expectedShaderBlobFilePath);
 		
@@ -251,7 +251,7 @@ void* Storm::ShaderManager::requestCompiledShaderBlobs(const std::string &shader
 	}
 	else
 	{
-		LOG_COMMENT << "We will now compile Shader " << shaderFilePath << " (for function : " << shaderFuncName << ") and generate its cache for a next reloading.";
+		LOG_COMMENT << "Compiling Shader " << shaderFilePath << " (for function : " << shaderFuncName << ") and generate its cache for a next reloading.";
 
 		std::string outCompileErrorMsg = compileShader(shaderFilePath, shaderFuncName, target, shaderMacros, shaderBlob);
 		if (!outCompileErrorMsg.empty())
