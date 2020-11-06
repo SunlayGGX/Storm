@@ -412,6 +412,7 @@ void Storm::SimulatorManager::initialize_Implementation()
 	inputMgr.bindKey(Storm::SpecialKey::KC_R, [this]() { this->tweekRaycastEnabling(); });
 	inputMgr.bindKey(Storm::SpecialKey::KC_Y, [this]() { this->cycleSelectedParticleDisplayMode(); });
 	inputMgr.bindKey(Storm::SpecialKey::KC_I, [this]() { this->resetReplay(); });
+	inputMgr.bindKey(Storm::SpecialKey::KC_C, [this]() { this->executeAllForcesCheck(); });
 
 	if (configMgr.userCanModifyTimestep())
 	{
@@ -755,8 +756,6 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 
 	bool firstFrame = true;
 
-	const bool shouldCheckAllForces = configMgr.checkAllForces();
-
 	do
 	{
 		SpeedProfileBalist simulationSpeedProfile{ profilerMgrNullablePtr };
@@ -830,11 +829,6 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 		}
 
 		++forcedPushFrameIterator;
-
-		if (shouldCheckAllForces)
-		{
-			this->executeAllForcesCheck();
-		}
 
 		firstFrame = false;
 
@@ -1426,7 +1420,19 @@ const Storm::ParticleSystem& Storm::SimulatorManager::getParticleSystem(unsigned
 
 void Storm::SimulatorManager::executeAllForcesCheck()
 {
-	// Ensure that, from the conservation law, all forces present in the domain comes to zero at the end
+	// Ensure that, from the momentum conservation law, all forces present in the domain (which is an isolated system) comes to zero
+	// (note that it shouldn't be true if the system is not in an equilibrium state because forces do work to convert potential energy into kinetic energy then.
+	// If there is work, then the system is not in a linear uniform movement).
+	// I.e to illustrate my explanation : 
+	// In the first second of a dam break type simulation, the particles are falling, and the ones on the floor will move to the area where there is no particle.
+	// If the particle column are in the right of the domain, then the particle will be pushed to the right, resulting in a global force that is down right
+	// (down because of gravity that make particles fall, and right because when falling, particle will push the other particles down,
+	// but the one that cannot be pushed down because of the floor, will be pushed either to the right or left (front and bottom too).
+	// Except that the wall at the extreme right will make a reaction force that prevent the particle pushed to the right to pass through the wall,
+	// therefore the global move will be to the left.
+	//
+	// But even with this fact, I'm not sure about the real physical state of the engine because what I'm saying is only if we have a perfect system,
+	// except that we simulate imperfect system with viscosity, therefore some energy is lost with the friction it implies.
 	std::atomic<float> xSum = 0.f;
 	std::atomic<float> ySum = 0.f;
 	std::atomic<float> zSum = 0.f;

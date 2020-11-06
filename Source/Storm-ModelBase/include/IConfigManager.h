@@ -48,9 +48,6 @@ namespace Storm
 		// Profile
 		virtual bool getShouldProfileSimulationSpeed() const = 0;
 
-		// Check flags
-		virtual bool checkAllForces() const = 0;
-
 		// Scene data
 		virtual const std::string& getSceneName() const = 0;
 		virtual const Storm::SceneData& getSceneData() const = 0;

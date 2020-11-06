@@ -198,10 +198,6 @@ Note that the maximum value you can set is Fatal, it means that no matter what l
 - **allowNoFluid (boolean, facultative)**: If true, we will allow the scene config file to not have any fluid (useful for testing rigid body features without minding particles while developping). Default is false.
 
 
-#### Check (facultative)
-- **allForces (boolean, facultative)**: Will ensure a check of all forces at the end of each simulation step to ensure the sum is Zero (conservation law). This is a safety check and is kind of expensive therefore should be used when needed. Default is false.
-
-
 ### Scene Config
 
 Scene configuration files contains all the data for running a simulation, therefore it is mandatory to specify one. If it was not set from the command line, Storm application will open an explorer windows to allow you to choose one.
@@ -351,6 +347,7 @@ Note : If the term in the parenthesis is "Numpad", then the keybinding is the va
 - **L**: Fix (if unfixed)/Unfix (if fixed) rigid bodies.
 - **Y**: Cycle the particle selection force to display (between [...] -> Pressure -> Viscosity -> AllForces (except gravity) -> [...]).
 - **I**: Reset the replaying to the first frame. This feature exists only in replay mode.
+- **C**: Request all forces check to zero as per physics conservation of momentum law says for isolated systems that is in an equilibrium state.
 - **1 (Key)**: Decrease the physics delta time. Valid only if we are not in replay mode, or if CFL is disabled.
 - **2 (Key)**: Increase the physics delta time. Valid only if we are not in replay mode, or if CFL is disabled.
 - **F1**: Debug command to print to a human readable text giving all position, velocity and force values of all fluid particles. The data is printed inside the output (temp) directory inside "Debug" folder.

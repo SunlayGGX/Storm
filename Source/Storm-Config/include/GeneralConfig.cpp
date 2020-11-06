@@ -151,22 +151,6 @@ bool Storm::GeneralConfig::read(const std::string &generalConfigFilePathStr)
 				Storm::throwException<std::exception>("Font size must be a strictly positive value! Current value was " + std::to_string(_fontSize));
 			}
 
-
-			const auto &gheckTreeOpt = generalTree.get_child_optional("Check");
-			if (gheckTreeOpt.has_value())
-			{
-				const auto &checkTree = gheckTreeOpt.value();
-				for (const auto &checkXmlElement : checkTree)
-				{
-					if (
-						!Storm::XmlReader::handleXml(checkXmlElement, "allForces", _checkAllForces)
-						)
-					{
-						LOG_ERROR << checkXmlElement.first << " (inside General.Check) is unknown, therefore it cannot be handled";
-					}
-				}
-			}
-
 			return true;
 		}
 	}
