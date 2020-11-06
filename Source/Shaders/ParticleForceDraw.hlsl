@@ -6,6 +6,8 @@ cbuffer ConstantBuffer
 
     float4 _color;
     float _midThickness;
+
+    float _nearPlanePos;
 };
 
 struct VertexInputType
@@ -33,6 +35,11 @@ GeometryInputType particleForceVertexShader(VertexInputType input)
     //output._position = input._position;
     output._position = mul(float4(input._position, 1.f), _viewMatrix);
 
+    if (_nearPlanePos != -1.f)
+    {
+        output._position.z = _nearPlanePos;
+    }
+
     return output;
 }
 
@@ -45,17 +52,35 @@ void particleForceGeometryShader(line GeometryInputType inputRaw[2], inout Trian
     const float4 pos0 = mul(p0._position, _projMatrix);
     const float4 pos1 = mul(p1._position, _projMatrix);
 
+    float4 lineVect = pos1 - pos0;
+    float3 thicknessVect = cross(float3(0.f, 0.f, 1.f), lineVect.xyz);
+
+    float thicknessNorm = length(thicknessVect);
+
     PixelInputType corner1;
-    corner1._position = float4(pos0.x + _midThickness, pos0.yzw);
-
     PixelInputType corner2;
-    corner2._position = float4(pos0.x - _midThickness, pos0.yzw);
-
     PixelInputType corner3;
-    corner3._position = float4(pos1.x + _midThickness, pos1.yzw);
-
     PixelInputType corner4;
-    corner4._position = float4(pos1.x - _midThickness, pos1.yzw);
+
+    if (thicknessNorm > 0.00001f)
+    {
+        thicknessVect /= thicknessNorm;
+
+        float xThickness = thicknessVect.x * _midThickness;
+        float yThickness = thicknessVect.y * _midThickness;
+
+        corner1._position = float4(pos0.x + xThickness, pos0.y + yThickness, pos0.zw);
+        corner2._position = float4(pos0.x - xThickness, pos0.y - yThickness, pos0.zw);
+        corner3._position = float4(pos1.x + xThickness, pos1.y + yThickness, pos1.zw);
+        corner4._position = float4(pos1.x - xThickness, pos1.y - yThickness, pos1.zw);
+    }
+    else
+    {
+        corner1._position = pos0;
+        corner2._position = pos0;
+        corner3._position = pos1;
+        corner4._position = pos1;
+    }
 
     outputStream.Append(corner2);
     outputStream.Append(corner1);

@@ -20,6 +20,8 @@ namespace
 
 		DirectX::XMVECTOR _color;
 		float _midThickness;
+
+		float _nearPlanePos;
 	};
 
 	static const std::string k_particleForceShaderFilePath = "Shaders/ParticleForceDraw.hlsl";
@@ -56,6 +58,9 @@ Storm::ParticleForceShader::ParticleForceShader(const ComPtr<ID3D11Device> &devi
 	Storm::VPShaderBase{ device, k_particleForceShaderFilePath, k_particleForceVertexShaderFuncName, k_particleForceShaderFilePath, k_particleForceGeometryShaderFuncName, k_particleForceShaderFilePath, k_particleForcePixelShaderFuncName, retrieveParticleForceInputLayoutElementDesc(), k_particleForceVertexDataLayoutDescCount }
 {
 	Storm::ConstantBufferHolder::initialize<ConstantBuffer>(device);
+
+	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
+	_alwaysOnTop = configMgr.getSelectedParticleForceShouldBeTopMost();
 }
 
 void Storm::ParticleForceShader::setup(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera)
@@ -80,6 +85,7 @@ void Storm::ParticleForceShader::setup(const ComPtr<ID3D11Device> &device, const
 		ressourceDataPtr->_color.m128_f32[1] = graphicConfig._forceColor.y();
 		ressourceDataPtr->_color.m128_f32[2] = graphicConfig._forceColor.z();
 		ressourceDataPtr->_color.m128_f32[3] = graphicConfig._forceColor.w();
+		ressourceDataPtr->_nearPlanePos = _alwaysOnTop ? currentCamera.getNearPlane() : -1.f;
 	}
 
 	ID3D11Buffer*const constantBufferTmp = _constantBuffer.Get();

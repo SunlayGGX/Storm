@@ -15,5 +15,8 @@ namespace Storm
 
 	public:
 		void setup(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera);
+
+	private:
+		bool _alwaysOnTop;
 	};
 }
