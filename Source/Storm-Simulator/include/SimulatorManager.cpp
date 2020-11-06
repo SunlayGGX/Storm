@@ -1420,6 +1420,13 @@ const Storm::ParticleSystem& Storm::SimulatorManager::getParticleSystem(unsigned
 
 void Storm::SimulatorManager::executeAllForcesCheck()
 {
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	Storm::IPhysicsManager &physicsMgr = singletonHolder.getSingleton<Storm::IPhysicsManager>();
+	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
+
+	const Storm::GeneralSimulationData &generalConfig = configMgr.getGeneralSimulationData();
+	const Storm::Vector3 &gravityAccel = generalConfig._gravity;
+
 	// Ensure that, from the momentum conservation law, all forces present in the domain (which is an isolated system) comes to zero
 	// (note that it shouldn't be true if the system is not in an equilibrium state because forces do work to convert potential energy into kinetic energy then.
 	// If there is work, then the system is not in a linear uniform movement).
@@ -1438,12 +1445,24 @@ void Storm::SimulatorManager::executeAllForcesCheck()
 	std::atomic<float> zSum = 0.f;
 	for (const auto &particleSystemPair : _particleSystem)
 	{
-		Storm::runParallel(particleSystemPair.second->getForces(), [&xSum, &ySum, &zSum](const Storm::Vector3 &currentPForce)
+		const Storm::ParticleSystem &currentPSystem = *particleSystemPair.second;
+
+		Storm::runParallel(currentPSystem.getForces(), [&xSum, &ySum, &zSum](const Storm::Vector3 &currentPForce)
 		{
 			xSum += currentPForce.x();
 			ySum += currentPForce.y();
 			zSum += currentPForce.z();
 		});
+
+		if (!currentPSystem.isFluids() && !currentPSystem.isStatic())
+		{
+			// For rigid bodies, some forces like the gravity or the constraint are handled by the physics engine, therefore we must query those. 
+			const Storm::Vector3 additionalForces = physicsMgr.getForceOnPhysicalBody(currentPSystem.getId());
+
+			xSum += additionalForces.x();
+			ySum += additionalForces.y();
+			zSum += additionalForces.z();
+		}
 	}
 
 	const Storm::Vector3 allForceSum{ xSum, ySum, zSum };
