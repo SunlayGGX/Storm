@@ -106,6 +106,18 @@
     <Filter Include="Header Files\Modules\Serializer\Record\Frame\Elements">
       <UniqueIdentifier>{32a45401-b6f9-460d-b510-def6b425c4a5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Modules\Graphics\Shader">
+      <UniqueIdentifier>{ed89b9c2-21dd-466c-bb8e-5fee8f65d6cf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Modules\Graphics\UI">
+      <UniqueIdentifier>{9a9d1d81-210b-44b3-a848-206be95b6646}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Modules\Graphics\UI">
+      <UniqueIdentifier>{5c281390-4389-4c30-a47d-17ea593f0e41}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Modules\Graphics\Shader">
+      <UniqueIdentifier>{6271d126-8063-49c0-962f-e865cb543d06}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-ModelBasePCH.cpp">
@@ -116,9 +128,6 @@
     </ClCompile>
     <ClCompile Include="..\include\RigidBodyHolder.cpp">
       <Filter>Source Files\Modules\Simulation\RigidBodies</Filter>
-    </ClCompile>
-    <ClCompile Include="..\include\UIField.cpp">
-      <Filter>Source Files\Modules\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="..\include\ColorChecker.cpp">
       <Filter>Source Files\General</Filter>
@@ -131,6 +140,12 @@
     </ClCompile>
     <ClCompile Include="..\include\SerializeRecordData.cpp">
       <Filter>Source Files\Modules\Serializer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\UIField.cpp">
+      <Filter>Source Files\Modules\Graphics\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\ShaderMacroItem.cpp">
+      <Filter>Source Files\Modules\Graphics\Shader</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -227,15 +242,6 @@
     <ClInclude Include="..\include\KernelMode.h">
       <Filter>Header Files\Modules\Simulation</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\UIField.h">
-      <Filter>Header Files\Modules\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\UIFieldBase.h">
-      <Filter>Header Files\Modules\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\UIFieldContainer.h">
-      <Filter>Header Files\Modules\Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\FluidParticleLoadDenseMode.h">
       <Filter>Header Files\Modules\Load</Filter>
     </ClInclude>
@@ -325,6 +331,18 @@
     </ClInclude>
     <ClInclude Include="..\include\IDistanceSpacePartitionProxy.h">
       <Filter>Header Files\Modules\SpacePartitioning</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\UIField.h">
+      <Filter>Header Files\Modules\Graphics\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\UIFieldBase.h">
+      <Filter>Header Files\Modules\Graphics\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\UIFieldContainer.h">
+      <Filter>Header Files\Modules\Graphics\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ShaderMacroItem.h">
+      <Filter>Header Files\Modules\Graphics\Shader</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
