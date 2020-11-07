@@ -13,12 +13,13 @@ namespace Storm
 		private Storm::PredictiveSolverHandler
 	{
 	public:
-		IISPHSolver();
+		IISPHSolver(const float k_kernelLength, const Storm::ParticleSystemContainer &particleSystemsMap);
 
 	public:
 		void execute(Storm::ParticleSystemContainer &particleSystems, const float kernelLength, const float k_deltaTime) final override;
 
 	private:
-		std::map<unsigned int, std::vector<Storm::IISPHSolverData>> _data;
+		std::map<unsigned int, std::vector<Storm::IISPHSolverData>> _datas;
+		std::size_t _particleCount;
 	};
 }

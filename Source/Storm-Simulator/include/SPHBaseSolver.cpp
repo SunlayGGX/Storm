@@ -16,7 +16,7 @@ std::unique_ptr<Storm::ISPHBaseSolver> Storm::instantiateSPHSolver(const Storm::
 	{
 	case Storm::SimulationMode::WCSPH: return std::make_unique<Storm::WCSPHSolver>();
 	case Storm::SimulationMode::PCISPH: return std::make_unique<Storm::PCISPHSolver>(k_kernelLength, particleSystems);
-	case Storm::SimulationMode::IISPH: return std::make_unique<Storm::IISPHSolver>();
+	case Storm::SimulationMode::IISPH: return std::make_unique<Storm::IISPHSolver>(k_kernelLength, particleSystems);
 	case Storm::SimulationMode::DFSPH: return std::make_unique<Storm::DFSPHSolver>();
 
 	default:
