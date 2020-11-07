@@ -58,6 +58,12 @@
     <Filter Include="Header Files\Solver\SPHSolvers\Data">
       <UniqueIdentifier>{21adc719-546d-4008-a6ff-2ae7ac32e278}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Solver\SPHSolvers\Base">
+      <UniqueIdentifier>{8ac983dc-3d31-4040-9a99-943de6afb287}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Solver\SPHSolvers\Base">
+      <UniqueIdentifier>{7b6f0106-3d21-4e92-8af5-7cd48508b195}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-SimulatorPCH.cpp">
@@ -90,9 +96,6 @@
     <ClCompile Include="..\include\ReplaySolver.cpp">
       <Filter>Source Files\Record</Filter>
     </ClCompile>
-    <ClCompile Include="..\include\SPHBaseSolver.cpp">
-      <Filter>Source Files\Solver\SPHSolvers</Filter>
-    </ClCompile>
     <ClCompile Include="..\include\WCSPHSolver.cpp">
       <Filter>Source Files\Solver\SPHSolvers</Filter>
     </ClCompile>
@@ -104,6 +107,9 @@
     </ClCompile>
     <ClCompile Include="..\include\DFSPHSolver.cpp">
       <Filter>Source Files\Solver\SPHSolvers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\SPHBaseSolver.cpp">
+      <Filter>Source Files\Solver\SPHSolvers\Base</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -158,9 +164,6 @@
     <ClInclude Include="..\include\ReplaySolver.h">
       <Filter>Header Files\Record</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\SPHBaseSolver.h">
-      <Filter>Header Files\Solver\SPHSolvers</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\WCSPHSolver.h">
       <Filter>Header Files\Solver\SPHSolvers</Filter>
     </ClInclude>
@@ -184,6 +187,9 @@
     </ClInclude>
     <ClInclude Include="..\include\IISPHSolverData.h">
       <Filter>Header Files\Solver\SPHSolvers\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SPHBaseSolver.h">
+      <Filter>Header Files\Solver\SPHSolvers\Base</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
