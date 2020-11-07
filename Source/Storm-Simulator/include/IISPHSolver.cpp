@@ -1,5 +1,7 @@
 #include "IISPHSolver.h"
 
+#include "IISPHSolverData.h"
+
 #include "ThrowException.h"
 
 

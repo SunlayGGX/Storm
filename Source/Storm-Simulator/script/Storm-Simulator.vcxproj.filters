@@ -182,5 +182,8 @@
     <ClInclude Include="..\include\DFSPHSolver.h">
       <Filter>Header Files\Solver\SPHSolvers</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\IISPHSolverData.h">
+      <Filter>Header Files\Solver\SPHSolvers\Data</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

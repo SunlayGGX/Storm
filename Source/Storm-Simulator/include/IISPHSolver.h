@@ -5,6 +5,8 @@
 
 namespace Storm
 {
+	struct IISPHSolverData;
+
 	class IISPHSolver : public Storm::ISPHBaseSolver
 	{
 	public:
@@ -12,5 +14,8 @@ namespace Storm
 
 	public:
 		void execute(Storm::ParticleSystemContainer &particleSystems, const float kernelLength, const float k_deltaTime) final override;
+
+	private:
+		std::map<unsigned int, std::vector<Storm::IISPHSolverData>> _data;
 	};
 }

@@ -39,6 +39,7 @@
     <ClInclude Include="..\include\FluidParticleSystem.h" />
     <ClInclude Include="..\include\IBlower.h" />
     <ClInclude Include="..\include\IISPHSolver.h" />
+    <ClInclude Include="..\include\IISPHSolverData.h" />
     <ClInclude Include="..\include\Kernel.h" />
     <ClInclude Include="..\include\NeighborParticleInfo.h" />
     <ClInclude Include="..\include\ParticleSelectionMode.h" />
