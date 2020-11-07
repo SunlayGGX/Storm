@@ -14,16 +14,12 @@
 
 #include "Kernel.h"
 
-#include "UIField.h"
-#include "UIFieldContainer.h"
-
 #include "RunnerHelper.h"
 
 #define STORM_HIJACKED_TYPE Storm::PCISPHSolverData
 #	include "VectHijack.h"
 #undef STORM_HIJACKED_TYPE
 
-#define STORM_PREDICTION_COUNT_FIELD_NAME "Prediction count"
 
 // Those are implementation settings...
 // Because the implementation I used as a reference used a lot of hack that aren't described inside their tutorial/papers (maybe those are hacks, maybe those are mistakes, I don't know),
@@ -34,10 +30,7 @@
 
 
 Storm::PCISPHSolver::PCISPHSolver(const float k_kernelLength, const Storm::ParticleSystemContainer &particleSystemsMap) :
-	_totalParticleCount{ 0 },
-	_currentPredictionIter{ 0 },
-	_uiFields{ std::make_unique<Storm::UIFieldContainer>() },
-	_logNoOverloadIter{ 0 }
+	_totalParticleCount{ 0 }
 {
 	// Compute the uniform stiffness k_PCI coefficient
 	Storm::Vector3d uniformNeighborStiffnessCoeffSum = Storm::Vector3d::Zero();
@@ -101,10 +94,6 @@ Storm::PCISPHSolver::PCISPHSolver(const float k_kernelLength, const Storm::Parti
 			_totalParticleCount += hijacker._newSize;
 		}
 	}
-
-	(*_uiFields)
-		.bindField(STORM_PREDICTION_COUNT_FIELD_NAME, _currentPredictionIter)
-		;
 }
 
 void Storm::PCISPHSolver::execute(Storm::ParticleSystemContainer &particleSystems, const float k_kernelLength, const float k_deltaTime)
@@ -525,14 +514,7 @@ void Storm::PCISPHSolver::execute(Storm::ParticleSystemContainer &particleSystem
 
 	} while (currentPredictionIter++ < generalSimulData._maxPredictIteration && averageDensityError > generalSimulData._maxDensityError);
 
-	if (averageDensityError > generalSimulData._maxDensityError && currentPredictionIter > generalSimulData._maxPredictIteration && (_logNoOverloadIter++ % 10 == 0))
-	{
-		LOG_DEBUG_WARNING <<
-			"Max prediction loop watchdog hit without being able to go under the max density error allowed when computing PCISPH predicted density...\n"
-			"We'll leave the prediction loop with an average density of " << averageDensityError;
-	}
-
-	this->setCurrentPredictionIter(currentPredictionIter);
+	this->updateCurrentPredictionIter(currentPredictionIter, generalSimulData._maxPredictIteration, averageDensityError, generalSimulData._maxDensityError);
 
 	for (auto &particleSystemPair : particleSystems)
 	{
@@ -566,14 +548,5 @@ void Storm::PCISPHSolver::execute(Storm::ParticleSystemContainer &particleSystem
 			forces[currentPIndex] = currentPData._predictedAcceleration * currentPMass;
 			tmpPressureForces[currentPIndex] = (currentPData._predictedAcceleration - currentPData._nonPressureAcceleration) * currentPMass;
 		});
-	}
-}
-
-void Storm::PCISPHSolver::setCurrentPredictionIter(unsigned int newValue)
-{
-	if (_currentPredictionIter != newValue)
-	{
-		_currentPredictionIter = newValue;
-		_uiFields->pushField(STORM_PREDICTION_COUNT_FIELD_NAME);
 	}
 }

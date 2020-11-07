@@ -1,11 +1,14 @@
 #pragma once
 
 #include "SPHBaseSolver.h"
+#include "PredictiveSolverHandler.h"
 
 
 namespace Storm
 {
-	class DFSPHSolver : public Storm::ISPHBaseSolver
+	class DFSPHSolver :
+		public Storm::ISPHBaseSolver,
+		private Storm::PredictiveSolverHandler
 	{
 	public:
 		DFSPHSolver();
