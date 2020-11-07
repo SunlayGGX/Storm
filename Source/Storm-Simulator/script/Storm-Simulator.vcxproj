@@ -19,6 +19,7 @@
     <ClCompile Include="..\include\ParticleSelector.cpp" />
     <ClCompile Include="..\include\ParticleSystem.cpp" />
     <ClCompile Include="..\include\PCISPHSolver.cpp" />
+    <ClCompile Include="..\include\PredictiveSolverHandler.cpp" />
     <ClCompile Include="..\include\ReplaySolver.cpp" />
     <ClCompile Include="..\include\RigidBodyParticleSystem.cpp" />
     <ClCompile Include="..\include\SemiImplicitEulerSolver.cpp" />
@@ -49,6 +50,7 @@
     <ClInclude Include="..\include\ParticleSystemUtils.h" />
     <ClInclude Include="..\include\PCISPHSolver.h" />
     <ClInclude Include="..\include\PCISPHSolverData.h" />
+    <ClInclude Include="..\include\PredictiveSolverHandler.h" />
     <ClInclude Include="..\include\ReplaySolver.h" />
     <ClInclude Include="..\include\RigidBodyParticleSystem.h" />
     <ClInclude Include="..\include\SemiImplicitEulerSolver.h" />

@@ -111,6 +111,9 @@
     <ClCompile Include="..\include\SPHBaseSolver.cpp">
       <Filter>Source Files\Solver\SPHSolvers\Base</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\PredictiveSolverHandler.cpp">
+      <Filter>Source Files\Solver\SPHSolvers\Base</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-SimulatorPCH.h">
@@ -189,6 +192,9 @@
       <Filter>Header Files\Solver\SPHSolvers\Data</Filter>
     </ClInclude>
     <ClInclude Include="..\include\SPHBaseSolver.h">
+      <Filter>Header Files\Solver\SPHSolvers\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\PredictiveSolverHandler.h">
       <Filter>Header Files\Solver\SPHSolvers\Base</Filter>
     </ClInclude>
   </ItemGroup>
