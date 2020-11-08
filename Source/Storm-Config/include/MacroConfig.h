@@ -18,11 +18,18 @@ namespace Storm
 	public:
 		bool read(const std::string &macroConfigFilePathStr);
 
+	private:
+		const std::pair<const MacroKey, MacroValue>& registerMacroInternal(const std::string &key, std::string value);
+
 	public:
 		const std::string*const queryMacroValue(const std::string &key) const;
-		void registerMacro(const std::string &key, std::string value);
+		void registerMacro(const std::string &key, std::string value, bool shouldLog = true);
 		
 		void resolveInternalMacro();
+
+	private:
+		std::string produceMacroLog(const std::vector<MacroKey> &selectedMacros) const;
+		std::string produceAllMacroLog() const;
 
 	public:
 		void operator()(std::string &inOutStr) const;

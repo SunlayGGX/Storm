@@ -15,6 +15,33 @@ namespace
 	{
 		return std::string{ static_cast<char>(k_macroTag) } + '[' + key + ']';
 	}
+
+	class MacroLogParserPolicy
+	{
+	public:
+		template<class Policy, class MacroPairType>
+		static auto parseAppending(std::string &inOutStr, const MacroPairType &macroPair) -> decltype(macroPair.first, macroPair.second, void())
+		{
+			// If heuristic was correctly guessed, then this will be ignored.
+			inOutStr.reserve(inOutStr.size() + macroPair.first.size() + macroPair.second.size() + 16);
+
+			inOutStr += "- ";
+			inOutStr += macroPair.first;
+			inOutStr += " equals to \"";
+			inOutStr += macroPair.second;
+			inOutStr += '"';
+		}
+
+		// Those 2 definitions are not mandatory, but allows more stability.
+	public:
+		// Force the separator in case we parse a macro container map, to use line break separator. Therefore, we're not dependent on the default implementation of toStdString anymore.
+		static constexpr const char separator()
+		{
+			return '\n';
+		}
+		
+		enum : std::size_t { k_expectedItemSize = 128 };
+	};
 }
 
 
@@ -32,19 +59,19 @@ void Storm::MacroConfig::initialize()
 	const std::filesystem::path rootPath = exeFolderPath.parent_path();
 	const std::filesystem::path outputPath = rootPath / "Intermediate";
 
-	this->registerMacro("StormExe", configMgr.getExePath());
-	this->registerMacro("StormFolderExe", exeFolderPath.string());
-	this->registerMacro("StormRoot", rootPath.string());
-	this->registerMacro("StormConfig", (rootPath / "Config").string());
-	this->registerMacro("StormResource", (rootPath / "Resource").string());
-	this->registerMacro("StormIntermediate", outputPath.string());
-	this->registerMacro("StormRecord", (outputPath / "Record").string());
-	this->registerMacro("DateTime", Storm::TimeHelper::getCurrentDateTime(false));
-	this->registerMacro("Date", Storm::TimeHelper::getCurrentDate());
+	this->registerMacroInternal("StormExe", configMgr.getExePath());
+	this->registerMacroInternal("StormFolderExe", exeFolderPath.string());
+	this->registerMacroInternal("StormRoot", rootPath.string());
+	this->registerMacroInternal("StormConfig", (rootPath / "Config").string());
+	this->registerMacroInternal("StormResource", (rootPath / "Resource").string());
+	this->registerMacroInternal("StormIntermediate", outputPath.string());
+	this->registerMacroInternal("StormRecord", (outputPath / "Record").string());
+	this->registerMacroInternal("DateTime", Storm::TimeHelper::getCurrentDateTime(false));
+	this->registerMacroInternal("Date", Storm::TimeHelper::getCurrentDate());
 
 	if (std::filesystem::exists(outputPath))
 	{
-		this->registerMacro("StormTmp", outputPath.string());
+		this->registerMacroInternal("StormTmp", outputPath.string());
 	}
 	else
 	{
@@ -53,8 +80,10 @@ void Storm::MacroConfig::initialize()
 		{
 			std::filesystem::create_directories(tmpPath);
 		}
-		this->registerMacro("StormTmp", tmpPath.string());
+		this->registerMacroInternal("StormTmp", tmpPath.string());
 	}
+
+	LOG_COMMENT << "Pre built-in macros registered:\n" << this->produceAllMacroLog();
 }
 
 bool Storm::MacroConfig::read(const std::string &macroConfigFilePathStr)
@@ -71,12 +100,15 @@ bool Storm::MacroConfig::read(const std::string &macroConfigFilePathStr)
 
 			const auto &macroTree = xmlTree.get_child("macros");
 
+			std::vector<MacroKey> registeredMacro;
+			registeredMacro.reserve(macroTree.size());
+
 			for (const auto &macro : macroTree)
 			{
 				if (macro.first == "macro")
 				{
-					std::string macroKey = makeFinalMacroKey(macro.second.get<std::string>("<xmlattr>.key"));
-					std::string macroValue = macro.second.get<std::string>("<xmlattr>.value");
+					MacroKey macroKey = makeFinalMacroKey(macro.second.get<std::string>("<xmlattr>.key"));
+					MacroValue macroValue = macro.second.get<std::string>("<xmlattr>.value");
 
 					if (!macroKey.empty())
 					{
@@ -85,7 +117,7 @@ bool Storm::MacroConfig::read(const std::string &macroConfigFilePathStr)
 							Storm::throwException<std::exception>(macroValue + " contains its own key " + macroKey + ". This is not allowed as this would generate infinite recursion!");
 						}
 
-						_macros.emplace(std::move(macroKey), std::move(macroValue));
+						registeredMacro.emplace_back(_macros.emplace(std::move(macroKey), std::move(macroValue)).first->first);
 					}
 					else
 					{
@@ -114,7 +146,10 @@ bool Storm::MacroConfig::read(const std::string &macroConfigFilePathStr)
 
 			} while (_lastHasResolved);
 
-			LOG_COMMENT << "We have registered " << _macros.size() - macrosSizeBefore << " macros!";
+			LOG_COMMENT <<
+				"We have registered " << _macros.size() - macrosSizeBefore << " macros!\n"
+				"Those were :\n" << this->produceMacroLog(registeredMacro);
+				;
 			return true;
 		}
 		else
@@ -130,6 +165,11 @@ bool Storm::MacroConfig::read(const std::string &macroConfigFilePathStr)
 	return false;
 }
 
+const std::pair<const Storm::MacroConfig::MacroKey, Storm::MacroConfig::MacroValue>& Storm::MacroConfig::registerMacroInternal(const std::string &key, std::string value)
+{
+	return *_macros.emplace(makeFinalMacroKey(key), std::move(value)).first;
+}
+
 const std::string*const Storm::MacroConfig::queryMacroValue(const std::string &key) const
 {
 	if (const auto found = _macros.find(makeFinalMacroKey(key)); found != std::end(_macros))
@@ -140,9 +180,13 @@ const std::string*const Storm::MacroConfig::queryMacroValue(const std::string &k
 	return nullptr;
 }
 
-void Storm::MacroConfig::registerMacro(const std::string &key, std::string value)
+void Storm::MacroConfig::registerMacro(const std::string &key, std::string value, bool shouldLog /*= true*/)
 {
-	_macros.emplace(makeFinalMacroKey(key), std::move(value));
+	const auto &macroPair = this->registerMacroInternal(key, std::move(value));
+	if (shouldLog)
+	{
+		LOG_COMMENT << "We have registered the macro from code :\n" << Storm::toStdString<MacroLogParserPolicy>(macroPair);
+	}
 }
 
 void Storm::MacroConfig::resolveInternalMacro()
@@ -151,6 +195,32 @@ void Storm::MacroConfig::resolveInternalMacro()
 	{
 		this->operator ()(macro.second);
 	}
+}
+
+std::string Storm::MacroConfig::produceMacroLog(const std::vector<MacroKey> &selectedMacros) const
+{
+	std::string result;
+	result.reserve(selectedMacros.size() * MacroLogParserPolicy::k_expectedItemSize);
+
+	const auto notFound = std::end(_macros);
+	for (const MacroKey &macroToLog : selectedMacros)
+	{
+		if (const auto found = _macros.find(macroToLog); found != notFound)
+		{
+			result += Storm::toStdString<MacroLogParserPolicy>(found);
+		}
+		else
+		{
+			LOG_DEBUG_ERROR << "There is no macro named root " << macroToLog;
+		}
+	}
+
+	return result;
+}
+
+std::string Storm::MacroConfig::produceAllMacroLog() const
+{
+	return Storm::toStdString<MacroLogParserPolicy>(_macros);
 }
 
 void Storm::MacroConfig::operator()(std::string &inOutStr) const

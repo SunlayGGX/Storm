@@ -32,28 +32,42 @@ namespace Storm
 			};
 		};
 
+		// 3 ways to parse :
+		// - parse<Policy> : 1st priority. Parse the value type, used Policy is re injected, therefore not lost
+		// (useful when there is Policy inheritage involved (to forward the real Policy, and not the Policy we came into that could be a Parent)).
+		// This is the default that should be used. Advantage is that Policy is really forwarded. Disadvantage is that because it is a template declaration, the Parser cannot be declared inside a function.
+		// - parsePolicyAgnostic : 2nd priority. This is the parsing that does not receive a Policy template. It is useful for Parser on the fly declared inside methods for a local purpose.
+		// - parseAppending : Last priority. Instead of returning a new string that is the result of the parsing, this append the parsing result chunks to the resulting final string. Preventing on case we parse a container, uselesses allocation/reallocation/deallocation that could be costly.
 		template<class Policy, class ValueType>
 		struct CustomPolicyParser
 		{
 		private:
 			template<class ValType>
-			static auto parseImpl(ValType &&val, int) -> decltype(Policy::template parse<Policy>(std::forward<ValType>(val)))
+			static auto parseImpl(ValType &&val, int, int) -> decltype(Policy::template parse<Policy>(std::forward<ValType>(val)))
 			{
 				return Policy::template parse<Policy>(std::forward<ValType>(val));
 			}
 
 			template<class ValType>
-			static auto parseImpl(ValType &&val, void*) -> decltype(Policy::parsePolicyAgnostic(std::forward<ValType>(val)))
+			static auto parseImpl(ValType &&val, void*, int) -> decltype(Policy::parsePolicyAgnostic(std::forward<ValType>(val)))
 			{
 				return Policy::parsePolicyAgnostic(std::forward<ValType>(val));
+			}
+
+			template<class ValType>
+			static auto parseImpl(ValType &&val, void*, void*) -> decltype(Policy::template parseAppending<Policy>(std::declval<std::string>(), std::forward<ValType>(val)), std::string{})
+			{
+				std::string result;
+				Policy::template parseAppending<Policy>(result, std::forward<ValType>(val));
+				return result;
 			}
 
 		public:
 
 			template<class ValType>
-			static auto parse(ValType &&val) -> decltype(parseImpl(std::forward<ValType>(val), 0))
+			static auto parse(ValType &&val) -> decltype(parseImpl(std::forward<ValType>(val), 0, 0))
 			{
-				return parseImpl(std::forward<ValType>(val), 0);
+				return parseImpl(std::forward<ValType>(val), 0, 0);
 			}
 		};
 
@@ -212,6 +226,46 @@ namespace Storm
 				return 1;
 			}
 
+			template<class Policy>
+			static constexpr auto defaultItemSize(int) -> decltype(static_cast<std::size_t>(Policy::k_expectedItemSize))
+			{
+				return static_cast<std::size_t>(Policy::k_expectedItemSize);
+			}
+
+			template<class Type>
+			static constexpr std::size_t defaultItemSize(void*)
+			{
+				return 16;
+			}
+
+			// In case the Policy have its own heuristic formula
+			template<class Policy>
+			static auto computeHeuristicSize(const std::size_t extractedContainerSize, const std::size_t separatorSize, int) -> decltype(Policy::heuristicSize(extractedContainerSize, separatorSize))
+			{
+				return Policy::heuristicSize(extractedContainerSize, separatorSize);
+			}
+
+			template<class Policy>
+			static constexpr std::size_t computeHeuristicSize(const std::size_t extractedContainerSize, const std::size_t separatorSize, void*)
+			{
+				return extractedContainerSize * (Storm::details::ContainerParser<Policy, ValueType>::defaultItemSize<Policy>(0) + separatorSize);
+			}
+
+			// Special Policy type that are made for container iteration.
+			// Reduce the allocation/deallocation by appending to the final string instead of returning a new string that is pushed to the final string.
+			// But those Policy should define a method named parseAppending
+			template<class Policy, class ItemType>
+			static auto appendParsedItem(std::string &inOutFinalStr, ItemType &&item, int) -> decltype(Policy::template parseAppending<Policy>(inOutFinalStr, std::forward<ItemType>(item)))
+			{
+				Policy::template parseAppending<Policy>(inOutFinalStr, std::forward<ItemType>(item));
+			}
+
+			template<class Policy, class ItemType>
+			static void appendParsedItem(std::string &inOutFinalStr, ItemType &&item, void*)
+			{
+				inOutFinalStr += Storm::details::toStdString<Policy>(std::forward<ItemType>(item));
+			}
+
 		private:
 			template<class StdContainerType>
 			static auto parseImpl(StdContainerType &&array, int) -> decltype(std::begin(array), std::end(array), std::string{})
@@ -223,7 +277,8 @@ namespace Storm
 				constexpr bool shouldPrintIndex = Storm::details::ContainerParser<Policy, ValueType>::printIndex<Policy>(0);
 
 				// Heuristic
-				result.reserve(Storm::details::ContainerParser<Policy, ValueType>::extractSize(array, 0) * (16 + currentSeparatorSize));
+				const std::size_t containerExtractedSize = Storm::details::ContainerParser<Policy, ValueType>::extractSize(array, 0);
+				result.reserve(Storm::details::ContainerParser<Policy, ValueType>::computeHeuristicSize<Policy>(containerExtractedSize, currentSeparatorSize, 0));
 
 				for (auto &&item : array)
 				{
@@ -236,12 +291,12 @@ namespace Storm
 
 					if constexpr (std::is_rvalue_reference_v<decltype(item)>)
 					{
-						result += Storm::details::toStdString<Policy>(std::move(item));
+						Storm::details::ContainerParser<Policy, ValueType>::appendParsedItem<Policy>(result, std::move(item), 0);
 						result += currentSeparator;
 					}
 					else
 					{
-						result += Storm::details::toStdString<Policy>(item);
+						Storm::details::ContainerParser<Policy, ValueType>::appendParsedItem<Policy>(result, item, 0);
 						result += currentSeparator;
 					}
 				}
@@ -277,11 +332,11 @@ namespace Storm
 
 			static std::string parseImpl(nullptr_t, int)
 			{
-				if constexpr (std::is_same_v<Policy, Storm::DebugPolicy>)
+				if constexpr (std::is_convertible_v<Policy, Storm::DebugPolicy>)
 				{
 					return "null";
 				}
-				else if constexpr (std::is_same_v<Policy, Storm::NumericPolicy>)
+				else if constexpr (std::is_convertible_v<Policy, Storm::NumericPolicy>)
 				{
 					return "0x00000000";
 				}
