@@ -24,6 +24,10 @@ namespace Storm
 		
 		void resolveInternalMacro();
 
+	private:
+		std::string produceMacroLog(const std::vector<MacroKey> &selectedMacros) const;
+		std::string produceAllMacroLog() const;
+
 	public:
 		void operator()(std::string &inOutStr) const;
 		std::string operator()(const std::string &inStr) const;
