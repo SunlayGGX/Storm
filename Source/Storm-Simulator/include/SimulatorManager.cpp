@@ -83,29 +83,25 @@ namespace
 		};
 
 		template<class PolicyType>
-		static std::string parse(const Storm::ParticleNeighborhoodArray &neighborhood)
+		static void parseAppending(std::string &inOutResult, const Storm::ParticleNeighborhoodArray &neighborhood)
 		{
-			std::string result;
-
 			const std::size_t neighborhoodCount = neighborhood.size();
-			result.reserve(12 + neighborhoodCount * 70);
+			inOutResult.reserve(inOutResult.size() + 12 + neighborhoodCount * 70);
 
-			result += "Count :";
-			result += std::to_string(neighborhoodCount);
+			inOutResult += "Count :";
+			inOutResult += std::to_string(neighborhoodCount);
 			
 			for (const Storm::NeighborParticleInfo &neighbor : neighborhood)
 			{
-				result += "; iter=";
-				result += Storm::toStdString<PolicyType>(neighbor._particleIndex);
-				result += "; r=";
-				result += Storm::toStdString<PolicyType>(neighbor._vectToParticleNorm);
-				result += "; xij=";
-				result += Storm::toStdString<PolicyType>(neighbor._positionDifferenceVector);
-				result += "; fluid=";
-				result += Storm::toStdString<PolicyType>(neighbor._isFluidParticle);
+				inOutResult += "; iter=";
+				inOutResult += Storm::toStdString<PolicyType>(neighbor._particleIndex);
+				inOutResult += "; r=";
+				inOutResult += Storm::toStdString<PolicyType>(neighbor._vectToParticleNorm);
+				inOutResult += "; xij=";
+				inOutResult += Storm::toStdString<PolicyType>(neighbor._positionDifferenceVector);
+				inOutResult += "; fluid=";
+				inOutResult += Storm::toStdString<PolicyType>(neighbor._isFluidParticle);
 			}
-
-			return result;
 		}
 	};
 
