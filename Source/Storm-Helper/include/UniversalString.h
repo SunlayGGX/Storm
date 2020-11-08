@@ -37,23 +37,31 @@ namespace Storm
 		{
 		private:
 			template<class ValType>
-			static auto parseImpl(ValType &&val, int) -> decltype(Policy::template parse<Policy>(std::forward<ValType>(val)))
+			static auto parseImpl(ValType &&val, int, int) -> decltype(Policy::template parse<Policy>(std::forward<ValType>(val)))
 			{
 				return Policy::template parse<Policy>(std::forward<ValType>(val));
 			}
 
 			template<class ValType>
-			static auto parseImpl(ValType &&val, void*) -> decltype(Policy::parsePolicyAgnostic(std::forward<ValType>(val)))
+			static auto parseImpl(ValType &&val, void*, int) -> decltype(Policy::parsePolicyAgnostic(std::forward<ValType>(val)))
 			{
 				return Policy::parsePolicyAgnostic(std::forward<ValType>(val));
+			}
+
+			template<class ValType>
+			static auto parseImpl(ValType &&val, void*, void*) -> decltype(Policy::template parseAppending<Policy>(std::declval<std::string>(), std::forward<ValType>(val)), std::string{})
+			{
+				std::string result;
+				Policy::template parseAppending<Policy>(result, std::forward<ValType>(val));
+				return result;
 			}
 
 		public:
 
 			template<class ValType>
-			static auto parse(ValType &&val) -> decltype(parseImpl(std::forward<ValType>(val), 0))
+			static auto parse(ValType &&val) -> decltype(parseImpl(std::forward<ValType>(val), 0, 0))
 			{
-				return parseImpl(std::forward<ValType>(val), 0);
+				return parseImpl(std::forward<ValType>(val), 0, 0);
 			}
 		};
 
@@ -237,6 +245,21 @@ namespace Storm
 				return extractedContainerSize * (Storm::details::ContainerParser<Policy, ValueType>::defaultItemSize<Policy>(0) + separatorSize);
 			}
 
+			// Special Policy type that are made for container iteration.
+			// Reduce the allocation/deallocation by appending to the final string instead of returning a new string that is pushed to the final string.
+			// But those Policy should define a method named parseAppending
+			template<class Policy, class ItemType>
+			static auto appendParsedItem(std::string &inOutFinalStr, ItemType &&item, int) -> decltype(Policy::template parseAppending<Policy>(inOutFinalStr, std::forward<ItemType>(item)))
+			{
+				Policy::template parseAppending<Policy>(inOutFinalStr, std::forward<ItemType>(item));
+			}
+
+			template<class Policy, class ItemType>
+			static void appendParsedItem(std::string &inOutFinalStr, ItemType &&item, void*)
+			{
+				inOutFinalStr += Storm::details::toStdString<Policy>(std::forward<ItemType>(item));
+			}
+
 		private:
 			template<class StdContainerType>
 			static auto parseImpl(StdContainerType &&array, int) -> decltype(std::begin(array), std::end(array), std::string{})
@@ -262,12 +285,12 @@ namespace Storm
 
 					if constexpr (std::is_rvalue_reference_v<decltype(item)>)
 					{
-						result += Storm::details::toStdString<Policy>(std::move(item));
+						Storm::details::ContainerParser<Policy, ValueType>::appendParsedItem<Policy>(result, std::move(item), 0);
 						result += currentSeparator;
 					}
 					else
 					{
-						result += Storm::details::toStdString<Policy>(item);
+						Storm::details::ContainerParser<Policy, ValueType>::appendParsedItem<Policy>(result, item, 0);
 						result += currentSeparator;
 					}
 				}
