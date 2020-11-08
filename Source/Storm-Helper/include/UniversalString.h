@@ -212,6 +212,31 @@ namespace Storm
 				return 1;
 			}
 
+			template<class Policy>
+			static constexpr auto defaultItemSize(int) -> decltype(static_cast<std::size_t>(Policy::k_expectedItemSize))
+			{
+				return static_cast<std::size_t>(Policy::k_expectedItemSize);
+			}
+
+			template<class Type>
+			static constexpr std::size_t defaultItemSize(void*)
+			{
+				return 16;
+			}
+
+			// In case the Policy have its own heuristic formula
+			template<class Policy>
+			static auto computeHeuristicSize(const std::size_t extractedContainerSize, const std::size_t separatorSize, int) -> decltype(Policy::heuristicSize(extractedContainerSize, separatorSize))
+			{
+				return Policy::heuristicSize(extractedContainerSize, separatorSize);
+			}
+
+			template<class Policy>
+			static constexpr std::size_t computeHeuristicSize(const std::size_t extractedContainerSize, const std::size_t separatorSize, void*)
+			{
+				return extractedContainerSize * (Storm::details::ContainerParser<Policy, ValueType>::defaultItemSize<Policy>(0) + separatorSize);
+			}
+
 		private:
 			template<class StdContainerType>
 			static auto parseImpl(StdContainerType &&array, int) -> decltype(std::begin(array), std::end(array), std::string{})
@@ -223,7 +248,8 @@ namespace Storm
 				constexpr bool shouldPrintIndex = Storm::details::ContainerParser<Policy, ValueType>::printIndex<Policy>(0);
 
 				// Heuristic
-				result.reserve(Storm::details::ContainerParser<Policy, ValueType>::extractSize(array, 0) * (16 + currentSeparatorSize));
+				const std::size_t containerExtractedSize = Storm::details::ContainerParser<Policy, ValueType>::extractSize(array, 0);
+				result.reserve(Storm::details::ContainerParser<Policy, ValueType>::computeHeuristicSize<Policy>(containerExtractedSize, currentSeparatorSize, 0));
 
 				for (auto &&item : array)
 				{
