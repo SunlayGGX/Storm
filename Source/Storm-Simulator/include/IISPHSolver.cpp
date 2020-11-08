@@ -22,9 +22,9 @@ Storm::IISPHSolver::IISPHSolver(const float k_kernelLength, const Storm::Particl
 		{
 			const Storm::VectorHijacker currentPSystemPCount{ currentPSystem.getParticleCount() };
 
-			std::vector<Storm::IISPHSolverData> &data = _datas[particleSystemPair.first];
-			data.reserve(currentPSystemPCount._newSize);
-			Storm::setNumUninitialized_hijack(data, currentPSystemPCount);
+			std::vector<Storm::IISPHSolverData> &currentPSystemData = _data[particleSystemPair.first];
+			currentPSystemData.reserve(currentPSystemPCount._newSize);
+			Storm::setNumUninitialized_hijack(currentPSystemData, currentPSystemPCount);
 
 			_particleCount += currentPSystemPCount._newSize;
 		}

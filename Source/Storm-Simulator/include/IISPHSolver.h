@@ -19,7 +19,7 @@ namespace Storm
 		void execute(Storm::ParticleSystemContainer &particleSystems, const float kernelLength, const float k_deltaTime) final override;
 
 	private:
-		std::map<unsigned int, std::vector<Storm::IISPHSolverData>> _datas;
+		std::map<unsigned int, std::vector<Storm::IISPHSolverData>> _data;
 		std::size_t _particleCount;
 	};
 }
