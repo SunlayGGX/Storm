@@ -332,11 +332,11 @@ namespace Storm
 
 			static std::string parseImpl(nullptr_t, int)
 			{
-				if constexpr (std::is_same_v<Policy, Storm::DebugPolicy>)
+				if constexpr (std::is_convertible_v<Policy, Storm::DebugPolicy>)
 				{
 					return "null";
 				}
-				else if constexpr (std::is_same_v<Policy, Storm::NumericPolicy>)
+				else if constexpr (std::is_convertible_v<Policy, Storm::NumericPolicy>)
 				{
 					return "0x00000000";
 				}
