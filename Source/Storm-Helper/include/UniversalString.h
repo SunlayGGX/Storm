@@ -32,6 +32,12 @@ namespace Storm
 			};
 		};
 
+		// 3 ways to parse :
+		// - parse<Policy> : 1st priority. Parse the value type, used Policy is re injected, therefore not lost
+		// (useful when there is Policy inheritage involved (to forward the real Policy, and not the Policy we came into that could be a Parent)).
+		// This is the default that should be used. Advantage is that Policy is really forwarded. Disadvantage is that because it is a template declaration, the Parser cannot be declared inside a function.
+		// - parsePolicyAgnostic : 2nd priority. This is the parsing that does not receive a Policy template. It is useful for Parser on the fly declared inside methods for a local purpose.
+		// - parseAppending : Last priority. Instead of returning a new string that is the result of the parsing, this append the parsing result chunks to the resulting final string. Preventing on case we parse a container, uselesses allocation/reallocation/deallocation that could be costly.
 		template<class Policy, class ValueType>
 		struct CustomPolicyParser
 		{
