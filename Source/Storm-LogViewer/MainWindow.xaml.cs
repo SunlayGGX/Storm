@@ -257,6 +257,14 @@ namespace Storm_LogViewer
             e.Handled = true;
         }
 
+        private void ResetButton_Click(object sender, RoutedEventArgs e)
+        {
+            LogReaderManager.Instance.ClearLogs();
+            LogReaderManager.Instance.ReadLogsFromBeginning();
+
+            e.Handled = true;
+        }
+
         private void ExecuteOnUIThread(Action action)
         {
             Application.Current.Dispatcher.InvokeAsync(action).Wait();

@@ -24,6 +24,7 @@ namespace Storm_LogViewer.Source.Log
         private List<string> _moduleList = new List<string>(12);
 
         bool _shouldClearLogs = false;
+        bool _shouldReReadLogs = false;
 
         private bool _isRunning = true;
         public bool IsRunning
@@ -139,6 +140,8 @@ namespace Storm_LogViewer.Source.Log
                 if (_isRunning)
                 {
                     DoClearLogsIfNeeded();
+                    DoResetIfNeeded();
+
                     this.TryRunParsingOnce();
                 }
             }
@@ -409,6 +412,24 @@ namespace Storm_LogViewer.Source.Log
                     }
                     this.NotifyLogItemsCollectionChanged();
                 }
+            }
+        }
+
+        public void ReadLogsFromBeginning()
+        {
+            // Async way
+            _shouldReReadLogs = true;
+        }
+
+        private void DoResetIfNeeded()
+        {
+            if (_isRunning && _shouldReReadLogs)
+            {
+                _shouldReReadLogs = false;
+
+                _lastLogFileWriteTime = DateTime.MinValue;
+                _lastLogFileCreationTime = DateTime.MinValue;
+                _lastStreamPos = 0;
             }
         }
 

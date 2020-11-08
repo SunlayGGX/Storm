@@ -31,6 +31,7 @@
 				<ColumnDefinition Width="auto"/>
 				<ColumnDefinition Width="auto"/>
 				<ColumnDefinition Width="auto"/>
+				<ColumnDefinition Width="auto"/>
 				<ColumnDefinition Width="60"/>
 				<ColumnDefinition Width="auto"/>
 			</Grid.ColumnDefinitions>
@@ -59,7 +60,8 @@
 			<TextBlock Grid.Column="10" VerticalAlignment="Center" Margin="15,0,2,0">Auto Scroll:</TextBlock>
 			<CheckBox Grid.Column="11" x:Name="AutoScrollCheckbox" VerticalAlignment="Center" IsChecked="{Binding AutoScrollCheckboxValue, Mode=TwoWay}" ToolTip="If checked, we will automatically scroll to the end each time a log item is added."/>
 			<Button Grid.Column="12" VerticalAlignment="Center" Margin="15,0,2,0" Content="Clear" Name="ClearButton" Click="ClearButton_Click"></Button>
-			<TextBlock Grid.Column="13" VerticalAlignment="Center" Margin="10,0,2,0" Name="LogCountDisplayInfo" Text="{Binding LogCountInfoStr, Mode=OneWay}"/>
+			<Button Grid.Column="13" VerticalAlignment="Center" Margin="15,0,2,0" Content="Reset" Name="RefreshButton" Click="ResetButton_Click"></Button>
+			<TextBlock Grid.Column="14" VerticalAlignment="Center" Margin="10,0,2,0" Name="LogCountDisplayInfo" Text="{Binding LogCountInfoStr, Mode=OneWay}"/>
 		</Grid>
 		<ListView Margin="4,4,4,4" Background="LightGray" Name="LogDisplayArea" Grid.Row="1" ScrollViewer.VerticalScrollBarVisibility="Visible" ScrollViewer.CanContentScroll="False" >
 			<ListView.View>
