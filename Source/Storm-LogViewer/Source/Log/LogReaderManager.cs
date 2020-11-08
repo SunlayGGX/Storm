@@ -135,7 +135,7 @@ namespace Storm_LogViewer.Source.Log
         {
             while (_isRunning)
             {
-                Thread.Sleep(500);
+                Thread.Sleep(1000);
 
                 if (_isRunning)
                 {
