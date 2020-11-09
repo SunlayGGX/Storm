@@ -16,7 +16,6 @@ namespace Storm
 	public:
 		virtual void recordFrame(Storm::SerializeRecordPendingData &&frameRecord) = 0;
 		virtual void beginRecord(Storm::SerializeRecordHeader &&recordHeader) = 0;
-		virtual void endRecord() = 0;
 
 		// The SerializerManager keep the ownership of the header. But it shouldn't change after the first call to this method, therefore it is ok to share among other threads.
 		virtual const Storm::SerializeRecordHeader& beginReplay() = 0;

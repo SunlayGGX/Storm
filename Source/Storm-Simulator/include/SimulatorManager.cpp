@@ -766,11 +766,6 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 					"Simulation average speed was " <<
 					profilerMgrNullablePtr->getSpeedProfileAccumulatedTime() / static_cast<float>(forcedPushFrameIterator);
 			}
-			if (shouldBeRecording)
-			{
-				Storm::ISerializerManager &serializerMgr = singletonHolder.getSingleton<Storm::ISerializerManager>();
-				serializerMgr.endRecord();
-			}
 			return _runExitCode;
 
 		case TimeWaitResult::Pause:

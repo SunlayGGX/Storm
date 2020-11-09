@@ -75,6 +75,8 @@ void Storm::SerializerManager::cleanUp_Implementation()
 
 	Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().processActionsOfThread(Storm::ThreadEnumeration::SerializerThread);
 	this->execute();
+
+	this->endRecordInternal();
 }
 
 void Storm::SerializerManager::run()
@@ -189,16 +191,13 @@ void Storm::SerializerManager::beginRecord(Storm::SerializeRecordHeader &&record
 	});
 }
 
-void Storm::SerializerManager::endRecord()
+void Storm::SerializerManager::endRecordInternal()
 {
-	Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::SerializerThread, [this]() mutable
+	if (_recordWriter)
 	{
-		if (_recordWriter)
-		{
-			_recordWriter->endWrite();
-			LOG_COMMENT << "Recording ended";
-		}
-	});
+		_recordWriter->endWrite();
+		LOG_COMMENT << "Recording ended";
+	}
 }
 
 const Storm::SerializeRecordHeader& Storm::SerializerManager::beginReplay()
