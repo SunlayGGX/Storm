@@ -45,63 +45,6 @@ void Storm::PredictiveSolverHandler::updateCurrentPredictionIter(unsigned int ne
 	}
 }
 
-void Storm::PredictiveSolverHandler::computeBaseDensity(Storm::ParticleSystemContainer &pSystemMap, const float k_kernelLength, const Storm::GeneralSimulationData &generalConfig, const Storm::FluidData &fluidConfigData)
-{
-	const float k_kernelZero = Storm::retrieveKernelZeroValue(generalConfig._kernelMode);
-	const Storm::RawKernelMethodDelegate rawKernel = Storm::retrieveRawKernelMethod(generalConfig._kernelMode);
-
-	for (auto &particleSystemPair : pSystemMap)
-	{
-		Storm::ParticleSystem &currentParticleSystem = *particleSystemPair.second;
-		if (currentParticleSystem.isFluids())
-		{
-			Storm::FluidParticleSystem &fluidParticleSystem = static_cast<Storm::FluidParticleSystem &>(currentParticleSystem);
-
-			const float particleVolume = fluidParticleSystem.getParticleVolume();
-			const float density0 = fluidParticleSystem.getRestDensity();
-			const std::vector<Storm::ParticleNeighborhoodArray> &neighborhoodArrays = fluidParticleSystem.getNeighborhoodArrays();
-			std::vector<float> &pressures = fluidParticleSystem.getPressures();
-
-			Storm::runParallel(fluidParticleSystem.getDensities(), [&](float &currentPDensity, const std::size_t currentPIndex)
-			{
-				// Density
-				currentPDensity = particleVolume * k_kernelZero;
-
-				const Storm::ParticleNeighborhoodArray &currentPNeighborhood = neighborhoodArrays[currentPIndex];
-				for (const Storm::NeighborParticleInfo &neighbor : currentPNeighborhood)
-				{
-					const float kernelValue_Wij = rawKernel(k_kernelLength, neighbor._vectToParticleNorm);
-					float deltaDensity;
-					if (neighbor._isFluidParticle)
-					{
-						deltaDensity = static_cast<Storm::FluidParticleSystem*>(neighbor._containingParticleSystem)->getParticleVolume() * kernelValue_Wij;
-					}
-					else
-					{
-						deltaDensity = static_cast<Storm::RigidBodyParticleSystem*>(neighbor._containingParticleSystem)->getVolumes()[neighbor._particleIndex] * kernelValue_Wij;
-					}
-					currentPDensity += deltaDensity;
-				}
-
-				// Volume * density is mass...
-				currentPDensity *= density0;
-
-				// Pressure
-				float &currentPPressure = pressures[currentPIndex];
-				if (currentPDensity < density0)
-				{
-					currentPDensity = density0;
-					currentPPressure = 0.f;
-				}
-				else
-				{
-					currentPPressure = fluidConfigData._kPressureStiffnessCoeff * (std::powf(currentPDensity / density0, fluidConfigData._kPressureExponentCoeff) - 1.f);
-				}
-			});
-		}
-	}
-}
-
 void Storm::PredictiveSolverHandler::computeNonPressureForce(Storm::ParticleSystemContainer &pSystemMap, const float k_kernelLength, const Storm::GeneralSimulationData &generalConfig, const Storm::FluidData &fluidConfigData, const std::function<void*(unsigned int)> &getterDataFunc, void(*initDataFunc)(void*, const std::size_t, const Storm::FluidParticleSystem &))
 {
 	const float k_kernelLengthSquared = k_kernelLength * k_kernelLength;

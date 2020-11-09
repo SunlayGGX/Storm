@@ -120,7 +120,56 @@ void Storm::PCISPHSolver::execute(Storm::ParticleSystemContainer &particleSystem
 	float averageDensityError;
 
 	// 2nd : Compute the base density
-	this->computeBaseDensity(particleSystems, k_kernelLength, generalSimulData, fluidConfigData);
+	for (auto &particleSystemPair : particleSystems)
+	{
+		Storm::ParticleSystem &currentParticleSystem = *particleSystemPair.second;
+		if (currentParticleSystem.isFluids())
+		{
+			Storm::FluidParticleSystem &fluidParticleSystem = static_cast<Storm::FluidParticleSystem &>(currentParticleSystem);
+
+			const float particleVolume = fluidParticleSystem.getParticleVolume();
+			const float density0 = fluidParticleSystem.getRestDensity();
+			const std::vector<Storm::ParticleNeighborhoodArray> &neighborhoodArrays = fluidParticleSystem.getNeighborhoodArrays();
+			std::vector<float> &pressures = fluidParticleSystem.getPressures();
+
+			Storm::runParallel(fluidParticleSystem.getDensities(), [&](float &currentPDensity, const std::size_t currentPIndex)
+			{
+				// Density
+				currentPDensity = particleVolume * k_kernelZero;
+
+				const Storm::ParticleNeighborhoodArray &currentPNeighborhood = neighborhoodArrays[currentPIndex];
+				for (const Storm::NeighborParticleInfo &neighbor : currentPNeighborhood)
+				{
+					const float kernelValue_Wij = rawKernel(k_kernelLength, neighbor._vectToParticleNorm);
+					float deltaDensity;
+					if (neighbor._isFluidParticle)
+					{
+						deltaDensity = static_cast<Storm::FluidParticleSystem*>(neighbor._containingParticleSystem)->getParticleVolume() * kernelValue_Wij;
+					}
+					else
+					{
+						deltaDensity = static_cast<Storm::RigidBodyParticleSystem*>(neighbor._containingParticleSystem)->getVolumes()[neighbor._particleIndex] * kernelValue_Wij;
+					}
+					currentPDensity += deltaDensity;
+				}
+
+				// Volume * density is mass...
+				currentPDensity *= density0;
+
+				// Pressure
+				float &currentPPressure = pressures[currentPIndex];
+				if (currentPDensity < density0)
+				{
+					currentPDensity = density0;
+					currentPPressure = 0.f;
+				}
+				else
+				{
+					currentPPressure = fluidConfigData._kPressureStiffnessCoeff * (std::powf(currentPDensity / density0, fluidConfigData._kPressureExponentCoeff) - 1.f);
+				}
+			});
+		}
+	}
 
 	// 3rd : Compute the non pressure forces (viscosity)
 	this->computeNonPressureForce(particleSystems, k_kernelLength, generalSimulData, fluidConfigData, [this](unsigned int pSystemIndex)
