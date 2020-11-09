@@ -19,6 +19,8 @@ namespace Storm
 	protected:
 		void updateCurrentPredictionIter(unsigned int newPredictionIter, const unsigned int expectedMaxPredictionIter, const float densityError, const float maxDensityError);
 
+	protected:
+		void computeBaseDensity(Storm::ParticleSystemContainer &pSystemMap, const float k_kernelLength, const Storm::GeneralSimulationData &generalConfig, const Storm::FluidData &fluidConfigData);
 		void computeNonPressureForce(Storm::ParticleSystemContainer &pSystemMap, const float k_kernelLength, const Storm::GeneralSimulationData &generalConfig, const Storm::FluidData &fluidConfigData, const std::function<void*(unsigned int)> &getterDataFunc, void(*initDataFunc)(void*, const std::size_t, const Storm::FluidParticleSystem &));
 
 	private:
