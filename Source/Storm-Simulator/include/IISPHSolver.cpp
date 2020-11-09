@@ -14,7 +14,6 @@
 Storm::IISPHSolver::IISPHSolver(const float k_kernelLength, const Storm::ParticleSystemContainer &particleSystemsMap) :
 	_particleCount{ 0 }
 {
-	STORM_NOT_IMPLEMENTED;
 	for (const auto &particleSystemPair : particleSystemsMap)
 	{
 		const Storm::ParticleSystem &currentPSystem = *particleSystemPair.second;
