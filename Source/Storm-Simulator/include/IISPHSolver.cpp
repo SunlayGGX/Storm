@@ -12,7 +12,7 @@
 
 
 Storm::IISPHSolver::IISPHSolver(const float k_kernelLength, const Storm::ParticleSystemContainer &particleSystemsMap) :
-	_particleCount{ 0 }
+	_totalParticleCount{ 0 }
 {
 	for (const auto &particleSystemPair : particleSystemsMap)
 	{
@@ -25,7 +25,7 @@ Storm::IISPHSolver::IISPHSolver(const float k_kernelLength, const Storm::Particl
 			currentPSystemData.reserve(currentPSystemPCount._newSize);
 			Storm::setNumUninitialized_hijack(currentPSystemData, currentPSystemPCount);
 
-			_particleCount += currentPSystemPCount._newSize;
+			_totalParticleCount += currentPSystemPCount._newSize;
 		}
 	}
 }
