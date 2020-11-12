@@ -1,9 +1,13 @@
 #pragma once
 
+#include "ParticleSystemContainer.h"
+
 
 namespace Storm
 {
 	class UIFieldContainer;
+	class FluidParticleSystem;
+
 	class PredictiveSolverHandler
 	{
 	protected:
@@ -12,6 +16,9 @@ namespace Storm
 
 	protected:
 		void updateCurrentPredictionIter(unsigned int newPredictionIter, const unsigned int expectedMaxPredictionIter, const float densityError, const float maxDensityError);
+
+	protected:
+		void transfertEndDataToSystems(Storm::ParticleSystemContainer &particleSystems, void* data, void(*fluidTransfertCallback)(void*, const unsigned int, Storm::FluidParticleSystem &));
 
 	private:
 		unsigned int _currentPredictionIter;

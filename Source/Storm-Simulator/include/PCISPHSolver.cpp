@@ -523,31 +523,17 @@ void Storm::PCISPHSolver::execute(Storm::ParticleSystemContainer &particleSystem
 	} while (currentPredictionIter++ < generalSimulData._maxPredictIteration && averageDensityError > generalSimulData._maxDensityError);
 
 	this->updateCurrentPredictionIter(currentPredictionIter, generalSimulData._maxPredictIteration, averageDensityError, generalSimulData._maxDensityError);
-
-	for (auto &particleSystemPair : particleSystems)
+	this->transfertEndDataToSystems(particleSystems, &_data, [](void* data, const unsigned int pSystemId, Storm::FluidParticleSystem &fluidParticleSystem)
 	{
-		Storm::ParticleSystem &particleSystem = *particleSystemPair.second;
-		if (!particleSystem.isFluids() && !particleSystem.isStatic())
-		{
-			Storm::runParallel(particleSystem.getForces(), [&particleSystem](Storm::Vector3 &forces, const std::size_t currentPIndex)
-			{
-				forces = particleSystem.getTemporaryViscosityForces()[currentPIndex] + particleSystem.getTemporaryPressureForces()[currentPIndex];
-			});
-		}
-	}
+		auto &dataField = reinterpret_cast<decltype(_data)*>(data)->find(pSystemId)->second;
 
-	for (auto &dataFieldPair : _data)
-	{
-		// Since data field was made from fluids particles only, no need to check if this is a fluid.
-		Storm::FluidParticleSystem &currentParticleSystem = static_cast<Storm::FluidParticleSystem &>(*particleSystems.find(dataFieldPair.first)->second);
+		const std::vector<float> &masses = fluidParticleSystem.getMasses();
+		std::vector<float> &densities = fluidParticleSystem.getDensities();
+		std::vector<float> &pressures = fluidParticleSystem.getPressures();
+		std::vector<Storm::Vector3> &forces = fluidParticleSystem.getForces();
+		std::vector<Storm::Vector3> &tmpPressureForces = fluidParticleSystem.getTemporaryPressureForces();
 
-		const std::vector<float> &masses = currentParticleSystem.getMasses();
-		std::vector<float> &densities = currentParticleSystem.getDensities();
-		std::vector<float> &pressures = currentParticleSystem.getPressures();
-		std::vector<Storm::Vector3> &forces = currentParticleSystem.getForces();
-		std::vector<Storm::Vector3> &tmpPressureForces = currentParticleSystem.getTemporaryPressureForces();
-
-		Storm::runParallel(dataFieldPair.second, [&](const Storm::PCISPHSolverData &currentPData, const std::size_t currentPIndex)
+		Storm::runParallel(dataField, [&masses, &densities, &pressures, &forces, &tmpPressureForces](const Storm::PCISPHSolverData &currentPData, const std::size_t currentPIndex)
 		{
 			densities[currentPIndex] = currentPData._predictedDensity;
 			pressures[currentPIndex] = currentPData._predictedPressure;
@@ -556,5 +542,5 @@ void Storm::PCISPHSolver::execute(Storm::ParticleSystemContainer &particleSystem
 			forces[currentPIndex] = currentPData._predictedAcceleration * currentPMass;
 			tmpPressureForces[currentPIndex] = (currentPData._predictedAcceleration - currentPData._nonPressureAcceleration) * currentPMass;
 		});
-	}
+	});
 }

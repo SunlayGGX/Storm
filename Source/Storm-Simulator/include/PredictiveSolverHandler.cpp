@@ -3,6 +3,10 @@
 #include "UIField.h"
 #include "UIFieldContainer.h"
 
+#include "ParticleSystem.h"
+
+#include "RunnerHelper.h"
+
 
 #define STORM_PREDICTION_COUNT_FIELD_NAME "Prediction count"
 
@@ -32,5 +36,24 @@ void Storm::PredictiveSolverHandler::updateCurrentPredictionIter(unsigned int ne
 	{
 		_currentPredictionIter = newPredictionIter;
 		_uiFields->pushField(STORM_PREDICTION_COUNT_FIELD_NAME);
+	}
+}
+
+void Storm::PredictiveSolverHandler::transfertEndDataToSystems(Storm::ParticleSystemContainer &particleSystems, void* data, void(*fluidTransfertCallback)(void*, const unsigned int, Storm::FluidParticleSystem &))
+{
+	for (auto &particleSystemPair : particleSystems)
+	{
+		Storm::ParticleSystem &particleSystem = *particleSystemPair.second;
+		if (particleSystem.isFluids())
+		{
+			fluidTransfertCallback(data, particleSystemPair.first, reinterpret_cast<Storm::FluidParticleSystem &>(particleSystem));
+		}
+		else if (!particleSystem.isStatic())
+		{
+			Storm::runParallel(particleSystem.getForces(), [&particleSystem](Storm::Vector3 &forces, const std::size_t currentPIndex)
+			{
+				forces = particleSystem.getTemporaryViscosityForces()[currentPIndex] + particleSystem.getTemporaryPressureForces()[currentPIndex];
+			});
+		}
 	}
 }
