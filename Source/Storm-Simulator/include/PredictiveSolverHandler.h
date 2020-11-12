@@ -18,6 +18,7 @@ namespace Storm
 		void updateCurrentPredictionIter(unsigned int newPredictionIter, const unsigned int expectedMaxPredictionIter, const float densityError, const float maxDensityError);
 
 	protected:
+		void initializePredictionIteration(Storm::ParticleSystemContainer &particleSystems, float &averageDensityError);
 		void transfertEndDataToSystems(Storm::ParticleSystemContainer &particleSystems, void* data, void(*fluidTransfertCallback)(void*, const unsigned int, Storm::FluidParticleSystem &));
 
 	private:

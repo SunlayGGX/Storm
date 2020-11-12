@@ -39,6 +39,24 @@ void Storm::PredictiveSolverHandler::updateCurrentPredictionIter(unsigned int ne
 	}
 }
 
+void Storm::PredictiveSolverHandler::initializePredictionIteration(Storm::ParticleSystemContainer &particleSystems, float &averageDensityError)
+{
+	for (auto &particleSystemPair : particleSystems)
+	{
+		Storm::ParticleSystem &particleSystem = *particleSystemPair.second;
+		if (!particleSystem.isFluids() && !particleSystem.isStatic())
+		{
+			// For all dynamic rigid bodies, reset the temporary pressure force since we don't have temporary data for them.
+			Storm::runParallel(particleSystem.getTemporaryPressureForces(), [](Storm::Vector3 &pressuresForces)
+			{
+				pressuresForces.setZero();
+			});
+		}
+	}
+
+	averageDensityError = 0.f;
+}
+
 void Storm::PredictiveSolverHandler::transfertEndDataToSystems(Storm::ParticleSystemContainer &particleSystems, void* data, void(*fluidTransfertCallback)(void*, const unsigned int, Storm::FluidParticleSystem &))
 {
 	for (auto &particleSystemPair : particleSystems)

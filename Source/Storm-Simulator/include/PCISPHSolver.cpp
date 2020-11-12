@@ -295,20 +295,7 @@ void Storm::PCISPHSolver::execute(Storm::ParticleSystemContainer &particleSystem
 	do
 	{
 		// Initialize the components
-		for (auto &particleSystemPair : particleSystems)
-		{
-			Storm::ParticleSystem &particleSystem = *particleSystemPair.second;
-			if (!particleSystem.isFluids() && !particleSystem.isStatic())
-			{
-				// For all dynamic rigid bodies, reset the temporary pressure force since we don't have temporary data for them.
-				Storm::runParallel(particleSystem.getTemporaryPressureForces(), [](Storm::Vector3 &pressuresForces) 
-				{
-					pressuresForces.setZero();
-				});
-			}
-		}
-
-		averageDensityError = 0.f;
+		this->initializePredictionIteration(particleSystems, averageDensityError);
 
 		// Project the positions and velocities
 		for (auto &dataFieldPair : _data)
