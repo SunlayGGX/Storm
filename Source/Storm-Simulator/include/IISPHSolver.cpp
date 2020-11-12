@@ -228,4 +228,21 @@ void Storm::IISPHSolver::execute(Storm::ParticleSystemContainer &particleSystems
 	}
 
 	const float totalParticleCountFl = static_cast<float>(_totalParticleCount);
+
+	this->updateCurrentPredictionIter(currentPredictionIter, generalSimulData._maxPredictIteration, averageDensityError, generalSimulData._maxDensityError);
+	this->transfertEndDataToSystems(particleSystems, &_data, [](void* data, const unsigned int pSystemId, Storm::FluidParticleSystem &fluidParticleSystem)
+	{
+		auto &dataField = reinterpret_cast<decltype(_data)*>(data)->find(pSystemId)->second;
+
+		const std::vector<float> &masses = fluidParticleSystem.getMasses();
+		std::vector<Storm::Vector3> &forces = fluidParticleSystem.getForces();
+		std::vector<Storm::Vector3> &tmpPressureForces = fluidParticleSystem.getTemporaryPressureForces();
+
+		Storm::runParallel(dataField, [&masses, &forces, &tmpPressureForces](const Storm::IISPHSolverData &currentPData, const std::size_t currentPIndex)
+		{
+			const float currentPMass = masses[currentPIndex];
+			forces[currentPIndex] = currentPData._predictedAcceleration * currentPMass;
+			tmpPressureForces[currentPIndex] = (currentPData._predictedAcceleration - currentPData._nonPressureAcceleration) * currentPMass;
+		});
+	});
 }
