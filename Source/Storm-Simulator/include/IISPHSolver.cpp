@@ -229,6 +229,101 @@ void Storm::IISPHSolver::execute(Storm::ParticleSystemContainer &particleSystems
 
 	const float totalParticleCountFl = static_cast<float>(_totalParticleCount);
 
+	// 3rd : compute advection coefficients
+	for (auto &dataFieldPair : _data)
+	{
+		// Since data field was made from fluids particles only, no need to check if this is a fluid.
+		const Storm::FluidParticleSystem &fluidParticleSystem = static_cast<const Storm::FluidParticleSystem &>(*particleSystems.find(dataFieldPair.first)->second);
+
+		const std::vector<float> &masses = fluidParticleSystem.getMasses();
+		const std::vector<float> &densities = fluidParticleSystem.getDensities();
+		const std::vector<Storm::Vector3> &positions = fluidParticleSystem.getPositions();
+		const std::vector<Storm::Vector3> &velocities = fluidParticleSystem.getVelocity();
+		const std::vector<Storm::ParticleNeighborhoodArray> &neighborhoodArrays = fluidParticleSystem.getNeighborhoodArrays();
+
+		const float density0 = fluidParticleSystem.getRestDensity();
+
+		const float fluidDefaultPVolume = fluidParticleSystem.getParticleVolume();
+
+		Storm::runParallel(dataFieldPair.second, [&](Storm::IISPHSolverData &currentPData, const std::size_t currentPIndex)
+		{
+			const Storm::Vector3 &currentPPos = positions[currentPIndex];
+			const Storm::Vector3 &currentPVelocity = velocities[currentPIndex];
+			const Storm::ParticleNeighborhoodArray &currentPNeighborhood = neighborhoodArrays[currentPIndex];
+
+			// Compute d_ii
+			const float currentPDensityRatio = densities[currentPIndex] / density0;
+			const float currentPDensityRatioSquared = currentPDensityRatio * currentPDensityRatio;
+
+			currentPData._dii.setZero();
+
+			// To optimize, compute fluid neighbors dii coefficient separately.
+			Storm::Vector3 fluidDiiTmp = Storm::Vector3::Zero();
+			for (const Storm::NeighborParticleInfo &neighborInfo : currentPNeighborhood)
+			{
+				const Storm::Vector3 gradientWij = gradKernel(k_kernelLength, neighborInfo._positionDifferenceVector, neighborInfo._vectToParticleNorm);
+				if (neighborInfo._isFluidParticle)
+				{
+					fluidDiiTmp -= gradientWij;
+				}
+				else
+				{
+					const Storm::RigidBodyParticleSystem &neighborRbSystem = static_cast<const Storm::RigidBodyParticleSystem &>(*neighborInfo._containingParticleSystem);
+					const float neighborPVolume = neighborRbSystem.getVolumes()[neighborInfo._particleIndex];
+					currentPData._dii -= (neighborPVolume / currentPDensityRatioSquared) * gradientWij;
+				}
+			}
+
+			const float fluidDpiCoeff = fluidDefaultPVolume / currentPDensityRatioSquared;
+			currentPData._dii += fluidDpiCoeff * fluidDiiTmp;
+
+			// Compute advection density and aii
+			currentPData._advectedDensity = 0.f;
+			currentPData._aii = 0.f;
+
+			float neighborPVolume;
+			Storm::Vector3 diffVelocity;
+
+			for (const Storm::NeighborParticleInfo &neighborInfo : currentPNeighborhood)
+			{
+				const Storm::Vector3 gradientWij = gradKernel(k_kernelLength, neighborInfo._positionDifferenceVector, neighborInfo._vectToParticleNorm);
+
+				if (neighborInfo._isFluidParticle)
+				{
+					const Storm::FluidParticleSystem &fluidPSystem = static_cast<const Storm::FluidParticleSystem &>(*neighborInfo._containingParticleSystem);
+					
+					neighborPVolume = fluidPSystem.getParticleVolume();
+					diffVelocity = currentPVelocity - fluidPSystem.getVelocity()[neighborInfo._particleIndex];
+				}
+				else
+				{
+					const Storm::RigidBodyParticleSystem &neighborRbSystem = static_cast<const Storm::RigidBodyParticleSystem &>(*neighborInfo._containingParticleSystem);
+
+					neighborPVolume = neighborRbSystem.getVolumes()[neighborInfo._particleIndex];
+					diffVelocity = currentPVelocity - neighborRbSystem.getVelocity()[neighborInfo._particleIndex];
+				}
+
+				currentPData._advectedDensity += neighborPVolume * diffVelocity.dot(gradientWij);
+				currentPData._aii += neighborPVolume * (currentPData._dii - fluidDpiCoeff * gradientWij).dot(gradientWij);
+			}
+
+			currentPData._advectedDensity *= k_deltaTime;
+			currentPData._advectedDensity += currentPDensityRatio;
+		});
+	}
+
+	// 4th : start prediction
+	float averageDensityError;
+
+	do 
+	{
+		// Initialize prediction iteration
+		this->initializePredictionIteration(particleSystems, averageDensityError);
+
+		// TODO
+
+	} while (currentPredictionIter++ < generalSimulData._maxPredictIteration && averageDensityError > generalSimulData._maxDensityError);
+
 	this->updateCurrentPredictionIter(currentPredictionIter, generalSimulData._maxPredictIteration, averageDensityError, generalSimulData._maxDensityError);
 	this->transfertEndDataToSystems(particleSystems, &_data, [](void* data, const unsigned int pSystemId, Storm::FluidParticleSystem &fluidParticleSystem)
 	{
