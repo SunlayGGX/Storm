@@ -328,7 +328,126 @@ void Storm::IISPHSolver::execute(Storm::ParticleSystemContainer &particleSystems
 		// Initialize prediction iteration
 		this->initializePredictionIteration(particleSystems, averageDensityError);
 
-		// TODO
+		// Compute dijPj
+		for (auto &dataFieldPair : _data)
+		{
+			// Since data field was made from fluids particles only, no need to check if this is a fluid.
+			const Storm::FluidParticleSystem &fluidParticleSystem = static_cast<const Storm::FluidParticleSystem &>(*particleSystems.find(dataFieldPair.first)->second);
+
+			const std::vector<Storm::ParticleNeighborhoodArray> &neighborhoodArrays = fluidParticleSystem.getNeighborhoodArrays();
+
+			Storm::runParallel(dataFieldPair.second, [&](Storm::IISPHSolverData &currentPData, const std::size_t currentPIndex)
+			{
+				const Storm::ParticleNeighborhoodArray &currentPNeighborhood = neighborhoodArrays[currentPIndex];
+
+				currentPData._dijPj.setZero();
+
+				for (const Storm::NeighborParticleInfo &neighborInfo : currentPNeighborhood)
+				{
+					// Only fluid particles are used to compute dijPj
+					if (neighborInfo._isFluidParticle)
+					{
+						const Storm::FluidParticleSystem &neighborPSystemAsFluid = static_cast<const Storm::FluidParticleSystem &>(*neighborInfo._containingParticleSystem);
+
+						const float neighborDensityCoeffRatio = neighborPSystemAsFluid.getDensities()[neighborInfo._particleIndex] / neighborPSystemAsFluid.getRestDensity();
+						const float dpj = neighborDensityCoeffRatio * neighborDensityCoeffRatio;
+
+						const float coeff = neighborPSystemAsFluid.getParticleVolume() / dpj * neighborPSystemAsFluid.getPressures()[neighborInfo._particleIndex];
+						const Storm::Vector3 gradientWij = gradKernel(k_kernelLength, neighborInfo._positionDifferenceVector, neighborInfo._vectToParticleNorm);
+
+						currentPData._dijPj -= coeff * gradientWij;
+					}
+				}
+			});
+		}
+
+		// Compute new advected pressure
+		for (auto &dataFieldPair : _data)
+		{
+			// Since data field was made from fluids particles only, no need to check if this is a fluid.
+			const Storm::FluidParticleSystem &fluidParticleSystem = static_cast<const Storm::FluidParticleSystem &>(*particleSystems.find(dataFieldPair.first)->second);
+
+			const std::vector<float> &densities = fluidParticleSystem.getDensities();
+			const std::vector<float> &pressures = fluidParticleSystem.getPressures();
+			const std::vector<Storm::ParticleNeighborhoodArray> &neighborhoodArrays = fluidParticleSystem.getNeighborhoodArrays();
+
+			const float currentPSystemDensity0 = fluidParticleSystem.getRestDensity();
+
+			std::atomic<float> densityErrorAccu = 0.f;
+
+			Storm::runParallel(dataFieldPair.second, [&](Storm::IISPHSolverData &currentPData, const std::size_t currentPIndex)
+			{
+				const float &currentPPressure = pressures[currentPIndex];
+				const float &currentPDensity = densities[currentPIndex];
+				const Storm::ParticleNeighborhoodArray &currentPNeighborhood = neighborhoodArrays[currentPIndex];
+
+				const float currentPSystemDensityRatio = currentPDensity / currentPSystemDensity0;
+				const float dpi = currentPPressure * fluidParticleSystem.getParticleVolume() / (currentPSystemDensityRatio * currentPSystemDensityRatio);
+
+				const std::vector<Storm::IISPHSolverData>* neighborDataArray = &dataFieldPair.second;
+				const Storm::FluidParticleSystem* lastNeighborFluidSystem = &fluidParticleSystem;
+				float fluidNeighborPVolume = lastNeighborFluidSystem->getParticleVolume();
+
+				float tmpSum = 0.f;
+
+				for (const Storm::NeighborParticleInfo &neighborInfo : currentPNeighborhood)
+				{
+					// Note : Maybe use a predicted position instead.
+					const Storm::Vector3 gradientWij = gradKernel(k_kernelLength, neighborInfo._positionDifferenceVector, neighborInfo._vectToParticleNorm);
+
+					if (neighborInfo._isFluidParticle)
+					{
+						if (neighborInfo._containingParticleSystem != lastNeighborFluidSystem)
+						{
+							lastNeighborFluidSystem = static_cast<const Storm::FluidParticleSystem*>(neighborInfo._containingParticleSystem);
+							fluidNeighborPVolume = lastNeighborFluidSystem->getParticleVolume();
+							neighborDataArray = &_data.find(lastNeighborFluidSystem->getId())->second;
+						}
+
+						const Storm::IISPHSolverData &neighborData = (*neighborDataArray)[neighborInfo._particleIndex];
+
+						const Storm::Vector3 djiPi = dpi * gradientWij;
+						const Storm::Vector3 sumVectDiv = currentPData._dijPj - neighborData._diiP - neighborData._dijPj + djiPi;
+
+						tmpSum += fluidNeighborPVolume * sumVectDiv.dot(gradientWij);
+					}
+					else
+					{
+						const Storm::RigidBodyParticleSystem &neighborRbSystem = static_cast<const Storm::RigidBodyParticleSystem &>(*neighborInfo._containingParticleSystem);
+						tmpSum += neighborRbSystem.getVolumes()[neighborInfo._particleIndex] * currentPData._dijPj.dot(gradientWij);
+					}
+				}
+
+				const float denom = currentPData._aii * deltaTimeSquared;
+				if (std::fabs(denom) > 0.000000001f)
+				{
+					const float densityAdvectionReverse = 1.f - currentPData._advectedDensity;
+
+					currentPData._predictedPressure =
+						fluidConfigData._relaxationCoefficient * (densityAdvectionReverse - deltaTimeSquared * tmpSum) / denom +
+						currentPPressure * (1.f - fluidConfigData._relaxationCoefficient)
+						;
+
+					if (currentPData._predictedPressure > 0.f)
+					{
+						const float densityErrorAdded = currentPSystemDensity0 * ((currentPData._aii * currentPData._predictedPressure + tmpSum) * deltaTimeSquared - densityAdvectionReverse);
+						densityErrorAccu += densityErrorAdded;
+					}
+					else
+					{
+						currentPData._predictedPressure = 0.f;
+					}
+				}
+				else
+				{
+					currentPData._predictedPressure = 0.f;
+				}
+			});
+
+			averageDensityError += densityErrorAccu;
+		}
+
+		averageDensityError /= _totalParticleCountFl;
 
 		// Post iteration updates
 		for (auto &dataFieldPair : _data)
@@ -341,6 +460,7 @@ void Storm::IISPHSolver::execute(Storm::ParticleSystemContainer &particleSystems
 			{
 				float &currentPPressure = pressures[currentPIndex];
 				currentPPressure = currentPData._predictedPressure;
+				currentPData._diiP = currentPData._dii * currentPPressure;
 			});
 		}
 

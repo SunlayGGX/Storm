@@ -14,7 +14,9 @@ namespace Storm
 		float _predictedPressure;
 
 		float _advectedDensity;
-		Storm::Vector3 _dii;
 		float _aii;
+		Storm::Vector3 _dii;
+		Storm::Vector3 _diiP;
+		Storm::Vector3 _dijPj;
 	};
 }
