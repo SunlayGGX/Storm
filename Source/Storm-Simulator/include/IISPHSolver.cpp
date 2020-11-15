@@ -462,7 +462,9 @@ void Storm::IISPHSolver::execute(Storm::ParticleSystemContainer &particleSystems
 			});
 		}
 
-	} while (currentPredictionIter++ < generalSimulData._maxPredictIteration && averageDensityError > generalSimulData._maxDensityError);
+		++currentPredictionIter;
+
+	} while (currentPredictionIter < generalSimulData._minPredictIteration || (currentPredictionIter < generalSimulData._maxPredictIteration && averageDensityError > generalSimulData._maxDensityError));
 
 	this->updateCurrentPredictionIter(currentPredictionIter, generalSimulData._maxPredictIteration, averageDensityError, generalSimulData._maxDensityError);
 
