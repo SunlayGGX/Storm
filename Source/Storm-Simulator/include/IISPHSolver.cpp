@@ -21,9 +21,11 @@
 #undef STORM_HIJACKED_TYPE
 
 
-Storm::IISPHSolver::IISPHSolver(const float k_kernelLength, const Storm::ParticleSystemContainer &particleSystemsMap) :
-	_totalParticleCount{ 0 }
+
+Storm::IISPHSolver::IISPHSolver(const float k_kernelLength, const Storm::ParticleSystemContainer &particleSystemsMap)
 {
+	std::size_t totalParticleCount = 0;
+
 	for (const auto &particleSystemPair : particleSystemsMap)
 	{
 		const Storm::ParticleSystem &currentPSystem = *particleSystemPair.second;
@@ -35,9 +37,11 @@ Storm::IISPHSolver::IISPHSolver(const float k_kernelLength, const Storm::Particl
 			currentPSystemData.reserve(currentPSystemPCount._newSize);
 			Storm::setNumUninitialized_hijack(currentPSystemData, currentPSystemPCount);
 
-			_totalParticleCount += currentPSystemPCount._newSize;
+			totalParticleCount += currentPSystemPCount._newSize;
 		}
 	}
+
+	_totalParticleCountFl = static_cast<float>(totalParticleCount);
 }
 
 void Storm::IISPHSolver::execute(Storm::ParticleSystemContainer &particleSystems, const float k_kernelLength, const float k_deltaTime)
@@ -226,8 +230,6 @@ void Storm::IISPHSolver::execute(Storm::ParticleSystemContainer &particleSystems
 			});
 		}
 	}
-
-	const float totalParticleCountFl = static_cast<float>(_totalParticleCount);
 
 	// 3rd : compute advection coefficients
 	for (auto &dataFieldPair : _data)
