@@ -11,6 +11,8 @@ namespace Storm
 
 		Storm::Vector3 _predictedVelocity;
 
+		float _predictedPressure;
+
 		float _advectedDensity;
 		Storm::Vector3 _dii;
 		float _aii;

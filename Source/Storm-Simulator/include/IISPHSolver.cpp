@@ -20,6 +20,7 @@
 #	include "VectHijack.h"
 #undef STORM_HIJACKED_TYPE
 
+#define STORM_USE_SPLISH_SPLASH_BIDOUILLE false
 
 
 Storm::IISPHSolver::IISPHSolver(const float k_kernelLength, const Storm::ParticleSystemContainer &particleSystemsMap)
@@ -83,7 +84,6 @@ void Storm::IISPHSolver::execute(Storm::ParticleSystemContainer &particleSystems
 			const float particleVolume = fluidParticleSystem.getParticleVolume();
 			const float density0 = fluidParticleSystem.getRestDensity();
 			const std::vector<Storm::ParticleNeighborhoodArray> &neighborhoodArrays = fluidParticleSystem.getNeighborhoodArrays();
-			std::vector<float> &pressures = fluidParticleSystem.getPressures();
 
 			Storm::runParallel(fluidParticleSystem.getDensities(), [&](float &currentPDensity, const std::size_t currentPIndex)
 			{
@@ -108,18 +108,6 @@ void Storm::IISPHSolver::execute(Storm::ParticleSystemContainer &particleSystems
 
 				// Volume * density is mass...
 				currentPDensity *= density0;
-
-				// Pressure
-				float &currentPPressure = pressures[currentPIndex];
-				if (currentPDensity < density0)
-				{
-					currentPDensity = density0;
-					currentPPressure = 0.f;
-				}
-				else
-				{
-					currentPPressure = fluidConfigData._kPressureStiffnessCoeff * (std::powf(currentPDensity / density0, fluidConfigData._kPressureExponentCoeff) - 1.f);
-				}
 			});
 		}
 	}
@@ -237,11 +225,12 @@ void Storm::IISPHSolver::execute(Storm::ParticleSystemContainer &particleSystems
 	for (auto &dataFieldPair : _data)
 	{
 		// Since data field was made from fluids particles only, no need to check if this is a fluid.
-		const Storm::FluidParticleSystem &fluidParticleSystem = static_cast<const Storm::FluidParticleSystem &>(*particleSystems.find(dataFieldPair.first)->second);
+		Storm::FluidParticleSystem &fluidParticleSystem = static_cast<Storm::FluidParticleSystem &>(*particleSystems.find(dataFieldPair.first)->second);
 
 		const std::vector<float> &masses = fluidParticleSystem.getMasses();
 		const std::vector<float> &densities = fluidParticleSystem.getDensities();
 		const std::vector<Storm::ParticleNeighborhoodArray> &neighborhoodArrays = fluidParticleSystem.getNeighborhoodArrays();
+		std::vector<float> &pressures = fluidParticleSystem.getPressures();
 
 		const float density0 = fluidParticleSystem.getRestDensity();
 
@@ -319,6 +308,15 @@ void Storm::IISPHSolver::execute(Storm::ParticleSystemContainer &particleSystems
 
 			currentPData._advectedDensity *= k_deltaTime;
 			currentPData._advectedDensity += currentPDensityRatio;
+
+			// Init pressures
+			float &currentPPressure = pressures[currentPIndex];
+
+#if STORM_USE_SPLISH_SPLASH_BIDOUILLE
+			currentPPressure /= 2.f;
+#endif
+
+			currentPData._diiP = currentPData._dii * currentPPressure;
 		});
 	}
 
@@ -331,6 +329,20 @@ void Storm::IISPHSolver::execute(Storm::ParticleSystemContainer &particleSystems
 		this->initializePredictionIteration(particleSystems, averageDensityError);
 
 		// TODO
+
+		// Post iteration updates
+		for (auto &dataFieldPair : _data)
+		{
+			// Since data field was made from fluids particles only, no need to check if this is a fluid.
+			Storm::FluidParticleSystem &fluidParticleSystem = static_cast<Storm::FluidParticleSystem &>(*particleSystems.find(dataFieldPair.first)->second);
+			std::vector<float> &pressures = fluidParticleSystem.getPressures();
+
+			Storm::runParallel(dataFieldPair.second, [&pressures](Storm::IISPHSolverData &currentPData, const std::size_t currentPIndex)
+			{
+				float &currentPPressure = pressures[currentPIndex];
+				currentPPressure = currentPData._predictedPressure;
+			});
+		}
 
 	} while (currentPredictionIter++ < generalSimulData._maxPredictIteration && averageDensityError > generalSimulData._maxDensityError);
 
