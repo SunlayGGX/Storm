@@ -30,6 +30,7 @@ namespace Storm
 		float _soundSpeed;
 		float _kPressureStiffnessCoeff; // k1 in the pressure state equation of Taits
 		float _kPressureExponentCoeff; // k2 in the pressure state equation of Taits
+		float _relaxationCoefficient;
 		bool _gravityEnabled;
 	};
 }

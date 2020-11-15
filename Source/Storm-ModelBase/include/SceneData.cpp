@@ -95,6 +95,7 @@ Storm::FluidData::FluidData() :
 	_soundSpeed{ 331.4f }, // Sound speed in air at 0 °C degrees and normal ATM pressure. https://www.engineeringtoolbox.com/air-speed-sound-d_603.html,
 	_kPressureStiffnessCoeff{ 50000.f },
 	_kPressureExponentCoeff{ 7.f },
+	_relaxationCoefficient{ 0.5f },
 	_gravityEnabled{ true },
 	_cinematicViscosity{ 0.f } // Computed automatically once final _dynamicViscosity value will be determined.
 {
