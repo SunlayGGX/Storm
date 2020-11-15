@@ -47,8 +47,6 @@ Storm::IISPHSolver::IISPHSolver(const float k_kernelLength, const Storm::Particl
 
 void Storm::IISPHSolver::execute(Storm::ParticleSystemContainer &particleSystems, const float k_kernelLength, const float k_deltaTime)
 {
-	STORM_NOT_IMPLEMENTED;
-
 	// Note :
 	// Even if some part of the algorithm is exactly the same as inside other solvers, I did not factorize on purpose (I did, but reverted immediately because it was a really bad idea) !
 	// The reason is that the algorithm piece works for this solver. If a bug arise, then it could be because of this solver algorithm and don't have anything to do with other solvers algorithm,
