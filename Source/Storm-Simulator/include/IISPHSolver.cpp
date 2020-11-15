@@ -139,7 +139,6 @@ void Storm::IISPHSolver::execute(Storm::ParticleSystemContainer &particleSystems
 			const std::vector<float> &densities = fluidParticleSystem.getDensities();
 			std::vector<Storm::Vector3> &temporaryPViscoForces = fluidParticleSystem.getTemporaryViscosityForces();
 
-			const std::vector<Storm::Vector3> &positions = fluidParticleSystem.getPositions();
 			const std::vector<Storm::Vector3> &velocities = fluidParticleSystem.getVelocity();
 
 			const float viscoPrecoeff = 0.01f * k_kernelLengthSquared;
@@ -227,6 +226,9 @@ void Storm::IISPHSolver::execute(Storm::ParticleSystemContainer &particleSystems
 
 				currentPDataField._nonPressureAcceleration = currentPForce / currentPMass;
 				currentPDataField._predictedAcceleration = currentPDataField._nonPressureAcceleration;
+				currentPDataField._predictedVelocity = vi + currentPDataField._nonPressureAcceleration * k_deltaTime;
+
+				// Note : Maybe we should also compute a prediction of the position ?
 			});
 		}
 	}
@@ -239,8 +241,6 @@ void Storm::IISPHSolver::execute(Storm::ParticleSystemContainer &particleSystems
 
 		const std::vector<float> &masses = fluidParticleSystem.getMasses();
 		const std::vector<float> &densities = fluidParticleSystem.getDensities();
-		const std::vector<Storm::Vector3> &positions = fluidParticleSystem.getPositions();
-		const std::vector<Storm::Vector3> &velocities = fluidParticleSystem.getVelocity();
 		const std::vector<Storm::ParticleNeighborhoodArray> &neighborhoodArrays = fluidParticleSystem.getNeighborhoodArrays();
 
 		const float density0 = fluidParticleSystem.getRestDensity();
@@ -249,8 +249,6 @@ void Storm::IISPHSolver::execute(Storm::ParticleSystemContainer &particleSystems
 
 		Storm::runParallel(dataFieldPair.second, [&](Storm::IISPHSolverData &currentPData, const std::size_t currentPIndex)
 		{
-			const Storm::Vector3 &currentPPos = positions[currentPIndex];
-			const Storm::Vector3 &currentPVelocity = velocities[currentPIndex];
 			const Storm::ParticleNeighborhoodArray &currentPNeighborhood = neighborhoodArrays[currentPIndex];
 
 			// Compute d_ii
@@ -283,8 +281,12 @@ void Storm::IISPHSolver::execute(Storm::ParticleSystemContainer &particleSystems
 			currentPData._advectedDensity = 0.f;
 			currentPData._aii = 0.f;
 
-			float neighborPVolume;
 			Storm::Vector3 diffVelocity;
+
+			const std::vector<Storm::IISPHSolverData>* neighborDataArray = &dataFieldPair.second;
+			const Storm::FluidParticleSystem* lastNeighborFluidSystem = &fluidParticleSystem;
+
+			float neighborPVolume;
 
 			for (const Storm::NeighborParticleInfo &neighborInfo : currentPNeighborhood)
 			{
@@ -292,17 +294,23 @@ void Storm::IISPHSolver::execute(Storm::ParticleSystemContainer &particleSystems
 
 				if (neighborInfo._isFluidParticle)
 				{
-					const Storm::FluidParticleSystem &fluidPSystem = static_cast<const Storm::FluidParticleSystem &>(*neighborInfo._containingParticleSystem);
-					
-					neighborPVolume = fluidPSystem.getParticleVolume();
-					diffVelocity = currentPVelocity - fluidPSystem.getVelocity()[neighborInfo._particleIndex];
+					if (neighborInfo._containingParticleSystem != lastNeighborFluidSystem)
+					{
+						lastNeighborFluidSystem = static_cast<const Storm::FluidParticleSystem*>(neighborInfo._containingParticleSystem);
+						neighborDataArray = &_data.find(lastNeighborFluidSystem->getId())->second;
+					}
+
+					const Storm::IISPHSolverData &neighborData = (*neighborDataArray)[neighborInfo._particleIndex];
+
+					neighborPVolume = lastNeighborFluidSystem->getParticleVolume();
+					diffVelocity = currentPData._predictedVelocity - neighborData._predictedVelocity;
 				}
 				else
 				{
 					const Storm::RigidBodyParticleSystem &neighborRbSystem = static_cast<const Storm::RigidBodyParticleSystem &>(*neighborInfo._containingParticleSystem);
 
 					neighborPVolume = neighborRbSystem.getVolumes()[neighborInfo._particleIndex];
-					diffVelocity = currentPVelocity - neighborRbSystem.getVelocity()[neighborInfo._particleIndex];
+					diffVelocity = currentPData._predictedVelocity - neighborRbSystem.getVelocity()[neighborInfo._particleIndex];
 				}
 
 				currentPData._advectedDensity += neighborPVolume * diffVelocity.dot(gradientWij);
