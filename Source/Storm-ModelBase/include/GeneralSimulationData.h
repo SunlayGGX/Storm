@@ -25,6 +25,7 @@ namespace Storm
 		float _expectedFps;
 
 		unsigned int _maxPredictIteration;
+		unsigned int _minPredictIteration;
 		float _maxDensityError;
 
 		bool _startPaused;

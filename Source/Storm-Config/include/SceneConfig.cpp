@@ -216,6 +216,7 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 			!Storm::XmlReader::handleXml(generalXmlElement, "CFLIteration", generalData._maxCFLIteration) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "physicsTime", generalData._physicsTimeInSec) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "fps", generalData._expectedFps) &&
+			!Storm::XmlReader::handleXml(generalXmlElement, "minPredictIteration", generalData._minPredictIteration) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "maxPredictIteration", generalData._maxPredictIteration) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "maxDensityError", generalData._maxDensityError) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "neighborCheckStep", generalData._recomputeNeighborhoodStep) &&
@@ -236,6 +237,14 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 	else if (generalData._maxDensityError <= 0.f)
 	{
 		Storm::throwException<std::exception>("Max density error cannot be negative or equal to 0.f!");
+	}
+	else if (generalData._minPredictIteration > generalData._maxPredictIteration)
+	{
+		Storm::throwException<std::exception>("Max prediction iteration (" + std::to_string(generalData._maxPredictIteration) + ") should be greater or equal than min prediction iter (" + std::to_string(generalData._minPredictIteration) + ")!");
+	}
+	else if (generalData._maxPredictIteration == 0)
+	{
+		Storm::throwException<std::exception>("Max prediction iteration shouldn't be equal to 0 (we should at least compute the iteration one time!");
 	}
 	else if (generalData._physicsTimeInSec <= 0.f)
 	{
