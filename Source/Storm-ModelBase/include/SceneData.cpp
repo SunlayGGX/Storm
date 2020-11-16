@@ -97,6 +97,7 @@ Storm::FluidData::FluidData() :
 	_kPressureStiffnessCoeff{ 50000.f },
 	_kPressureExponentCoeff{ 7.f },
 	_relaxationCoefficient{ 0.5f },
+	_pressureInitRelaxationCoefficient{ 0.5f },
 	_gravityEnabled{ true },
 	_cinematicViscosity{ 0.f } // Computed automatically once final _dynamicViscosity value will be determined.
 {

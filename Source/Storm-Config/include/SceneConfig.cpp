@@ -383,6 +383,7 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 				!Storm::XmlReader::handleXml(fluidXmlElement, "pressureK1", fluidData._kPressureStiffnessCoeff) &&
 				!Storm::XmlReader::handleXml(fluidXmlElement, "pressureK2", fluidData._kPressureExponentCoeff) &&
 				!Storm::XmlReader::handleXml(fluidXmlElement, "relaxationCoeff", fluidData._relaxationCoefficient) &&
+				!Storm::XmlReader::handleXml(fluidXmlElement, "initRelaxationCoeff", fluidData._pressureInitRelaxationCoefficient) &&
 				!Storm::XmlReader::handleXml(fluidXmlElement, "enableGravity", fluidData._gravityEnabled) &&
 				!Storm::XmlReader::handleXml(fluidXmlElement, "density", fluidData._density)
 				)
@@ -414,6 +415,10 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 		else if (fluidData._relaxationCoefficient < 0.f || fluidData._relaxationCoefficient > 1.f)
 		{
 			Storm::throwException<std::exception>("Fluid " + std::to_string(fluidData._fluidId) + " relaxation coefficient " + std::to_string(fluidData._relaxationCoefficient) + " is invalid (it should be between 0.0 and 1.0 included)!");
+		}
+		else if (fluidData._pressureInitRelaxationCoefficient < 0.f)
+		{
+			Storm::throwException<std::exception>("Fluid " + std::to_string(fluidData._fluidId) + " init relaxation coefficient " + std::to_string(fluidData._pressureInitRelaxationCoefficient) + " is invalid (it should be greater or equal to 0.0)!");
 		}
 		else if (fluidData._dynamicViscosity <= 0.f)
 		{
