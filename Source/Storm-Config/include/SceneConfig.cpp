@@ -95,12 +95,10 @@ namespace
 		{
 			return Storm::SimulationMode::IISPH;
 		}
-#if false // Not supported for now.
 		else if (simulModeStr == "dfsph")
 		{
 			return Storm::SimulationMode::DFSPH;
 		}
-#endif
 		else
 		{
 			Storm::throwException<std::exception>("Simulation mode value is unknown : '" + simulModeStr + "'");
