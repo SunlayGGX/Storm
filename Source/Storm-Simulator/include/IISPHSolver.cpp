@@ -20,7 +20,6 @@
 #	include "VectHijack.h"
 #undef STORM_HIJACKED_TYPE
 
-#define STORM_USE_SPLISH_SPLASH_BIDOUILLE false
 
 
 Storm::IISPHSolver::IISPHSolver(const float k_kernelLength, const Storm::ParticleSystemContainer &particleSystemsMap)
@@ -310,9 +309,9 @@ void Storm::IISPHSolver::execute(Storm::ParticleSystemContainer &particleSystems
 			// Init pressures
 			float &currentPPressure = pressures[currentPIndex];
 
-#if STORM_USE_SPLISH_SPLASH_BIDOUILLE
-			currentPPressure /= 2.f;
-#endif
+			// From the original 2014 article (the one written by Ihmsen, not the tutorial). IISPH initialized the pressure to 0.5 of the pressure from last simulation step.
+			// It was an empirical value motivated by greater convergence, the downside than the nearest it is from 0, the slower the convergence would get.
+			currentPPressure *= fluidConfigData._pressureInitRelaxationCoefficient;
 
 			currentPData._diiP = currentPData._dii * currentPPressure;
 		});
