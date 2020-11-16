@@ -197,5 +197,8 @@
     <ClInclude Include="..\include\PredictiveSolverHandler.h">
       <Filter>Header Files\Solver\SPHSolvers\Base</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\DFSPHSolverData.h">
+      <Filter>Header Files\Solver\SPHSolvers\Data</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
