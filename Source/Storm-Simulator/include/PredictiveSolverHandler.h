@@ -23,6 +23,7 @@ namespace Storm
 
 	private:
 		unsigned int _currentPredictionIter;
+		float _averageError;
 		std::unique_ptr<Storm::UIFieldContainer> _uiFields;
 
 		uint8_t _logNoOverloadIter;

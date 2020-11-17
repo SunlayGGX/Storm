@@ -9,15 +9,18 @@
 
 
 #define STORM_PREDICTION_COUNT_FIELD_NAME "Prediction count"
+#define STORM_AVERAGE_FIELD_NAME "Average error"
 
 
 Storm::PredictiveSolverHandler::PredictiveSolverHandler() :
 	_currentPredictionIter{ 0 },
+	_averageError{ 0.f },
 	_uiFields{ std::make_unique<Storm::UIFieldContainer>() },
 	_logNoOverloadIter{ 0 }
 {
 	(*_uiFields)
 		.bindField(STORM_PREDICTION_COUNT_FIELD_NAME, _currentPredictionIter)
+		.bindField(STORM_AVERAGE_FIELD_NAME, _averageError)
 		;
 }
 
@@ -32,11 +35,8 @@ void Storm::PredictiveSolverHandler::updateCurrentPredictionIter(unsigned int ne
 			"We'll leave the prediction loop with an average density of " << densityError;
 	}
 
-	if (_currentPredictionIter != newPredictionIter)
-	{
-		_currentPredictionIter = newPredictionIter;
-		_uiFields->pushField(STORM_PREDICTION_COUNT_FIELD_NAME);
-	}
+	updateField(*_uiFields, STORM_PREDICTION_COUNT_FIELD_NAME, _currentPredictionIter, newPredictionIter);
+	updateField(*_uiFields, STORM_AVERAGE_FIELD_NAME, _averageError, densityError);
 }
 
 void Storm::PredictiveSolverHandler::initializePredictionIteration(Storm::ParticleSystemContainer &particleSystems, float &averageDensityError)
