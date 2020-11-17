@@ -114,6 +114,9 @@
     <ClCompile Include="..\include\PredictiveSolverHandler.cpp">
       <Filter>Source Files\Solver\SPHSolvers\Base</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\KernelHandler.cpp">
+      <Filter>Source Files\Kernel</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-SimulatorPCH.h">
@@ -199,6 +202,9 @@
     </ClInclude>
     <ClInclude Include="..\include\DFSPHSolverData.h">
       <Filter>Header Files\Solver\SPHSolvers\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\KernelHandler.h">
+      <Filter>Header Files\Kernel</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

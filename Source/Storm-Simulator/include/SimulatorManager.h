@@ -9,6 +9,7 @@
 #include "ParticleSelector.h"
 
 #include "ParticleSystemContainer.h"
+#include "KernelHandler.h"
 
 
 namespace Storm
@@ -105,6 +106,7 @@ namespace Storm
 		std::vector<std::unique_ptr<Storm::IBlower>> _blowers;
 
 		std::unique_ptr<Storm::ISPHBaseSolver> _sphSolver;
+		Storm::KernelHandler _kernelHandler;
 
 		Storm::ParticleSelector _particleSelector;
 		bool _raycastEnabled;

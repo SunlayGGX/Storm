@@ -16,6 +16,7 @@
     <ClCompile Include="..\include\FluidParticleSystem.cpp" />
     <ClCompile Include="..\include\IISPHSolver.cpp" />
     <ClCompile Include="..\include\Kernel.cpp" />
+    <ClCompile Include="..\include\KernelHandler.cpp" />
     <ClCompile Include="..\include\ParticleSelector.cpp" />
     <ClCompile Include="..\include\ParticleSystem.cpp" />
     <ClCompile Include="..\include\PCISPHSolver.cpp" />
@@ -43,6 +44,7 @@
     <ClInclude Include="..\include\IISPHSolver.h" />
     <ClInclude Include="..\include\IISPHSolverData.h" />
     <ClInclude Include="..\include\Kernel.h" />
+    <ClInclude Include="..\include\KernelHandler.h" />
     <ClInclude Include="..\include\NeighborParticleInfo.h" />
     <ClInclude Include="..\include\ParticleSelectionMode.h" />
     <ClInclude Include="..\include\ParticleSelector.h" />

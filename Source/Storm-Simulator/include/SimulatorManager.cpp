@@ -374,6 +374,8 @@ void Storm::SimulatorManager::initialize_Implementation()
 
 	_particleSelector.initialize();
 
+	_kernelHandler.initialize();
+
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
 	const bool isReplayMode = configMgr.isInReplayMode();
 
@@ -641,6 +643,8 @@ Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 
 		threadMgr.processCurrentThreadActions();
 
+		_kernelHandler.update(timeMgr.getCurrentPhysicsElapsedTime());
+
 		if (_reinitFrameAfter)
 		{
 			if (timeMgr.getExpectedFrameFPS() != expectedReplayFps)
@@ -677,6 +681,8 @@ Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 		{
 			LOG_COMMENT << "Simulation has come to an halt because there is no more frame to replay.";
 			timeMgr.changeSimulationPauseState();
+
+			_kernelHandler.update(timeMgr.getCurrentPhysicsElapsedTime());
 		}
 
 		if (hasAutoEndSimulation)
@@ -779,6 +785,8 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 		default:
 			break;
 		}
+
+		_kernelHandler.update(timeMgr.getCurrentPhysicsElapsedTime());
 
 		this->executeIteration(firstFrame, forcedPushFrameIterator);
 
@@ -1124,8 +1132,7 @@ void Storm::SimulatorManager::tweekRaycastEnabling()
 
 float Storm::SimulatorManager::getKernelLength() const
 {
-	const Storm::GeneralSimulationData &generalSimulData = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().getGeneralSimulationData();
-	return generalSimulData._particleRadius * generalSimulData._kernelCoefficient;
+	return _kernelHandler.getKernelValue();
 }
 
 void Storm::SimulatorManager::pushParticlesToGraphicModule(bool ignoreDirty, bool pushParallel /*= true*/) const
