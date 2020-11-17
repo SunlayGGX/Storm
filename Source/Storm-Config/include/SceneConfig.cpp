@@ -209,6 +209,8 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 			!Storm::XmlReader::handleXml(generalXmlElement, "simulation", generalData._simulationMode, parseSimulationMode) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "kernel", generalData._kernelMode, parseKernelMode) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "kernelCoeff", generalData._kernelCoefficient) &&
+			!Storm::XmlReader::handleXml(generalXmlElement, "maxKernelIncrementCoeff", generalData._maxKernelIncrementCoeff) &&
+			!Storm::XmlReader::handleXml(generalXmlElement, "kernelIncrementCoeffEndTime", generalData._kernelIncrementSpeedInSeconds) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "CFLCoeff", generalData._cflCoeff) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "MaxCFLTime", generalData._maxCFLTime) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "CFLIteration", generalData._maxCFLIteration) &&
@@ -262,6 +264,29 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 	else if (generalData._endSimulationPhysicsTimeInSeconds != -1.f && generalData._endSimulationPhysicsTimeInSeconds <= 0.f)
 	{
 		Storm::throwException<std::exception>("end simulation time was set to a negative or zero time (" + std::to_string(generalData._endSimulationPhysicsTimeInSeconds) + "). It isn't allowed!");
+	}
+	else if (generalData._kernelCoefficient < 0.f)
+	{
+		Storm::throwException<std::exception>("Kernel coefficient value shouldn't be below 0 (" + std::to_string(generalData._kernelCoefficient) + ")");
+	}
+	else if (generalData._maxKernelIncrementCoeff <= -generalData._kernelCoefficient)
+	{
+		Storm::throwException<std::exception>("We cannot decrease the kernel coefficient to a value below or equal to 0:\n"
+			"kernel coeff : " + std::to_string(generalData._kernelCoefficient) + "\n"
+			"Requested decrease : " + std::to_string(generalData._maxKernelIncrementCoeff));
+	}
+	else if (generalData._kernelIncrementSpeedInSeconds != -1.f && generalData._kernelIncrementSpeedInSeconds < 0.f)
+	{
+		Storm::throwException<std::exception>("Time to finish increasing the kernel coefficient in seconds should be positive or -1 (disabled). Value was " + std::to_string(generalData._kernelIncrementSpeedInSeconds));
+	}
+
+	if (generalData._kernelIncrementSpeedInSeconds != -1.f && generalData._maxKernelIncrementCoeff == 0.f)
+	{
+		LOG_WARNING << "We enabled the runtime kernel increment feature but didn't set a max increment coeff. The feature will be disabled.";
+	}
+	else if (generalData._kernelIncrementSpeedInSeconds == -1.f && generalData._maxKernelIncrementCoeff != 0.f)
+	{
+		LOG_WARNING << "We disabled the runtime kernel increment feature because we haven't set a end time for the increment while setting a end value.";
 	}
 
 	generalData._computeCFL = generalData._physicsTimeInSec <= 0.f;

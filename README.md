@@ -211,7 +211,9 @@ Unlike the others config files, it can be named as you want. Here the xml tags y
 - **startPaused (boolean, facultative)**: If true, the simulation will be paused when the application start. Default is false.
 - **gravity (vector3, facultative)**: This is the gravity vector, in meter per second squared. Default value is { x=0.0, y=-9.81, z=0.0 }
 - **particleRadius (float, falcultative)**: This is the particle radius in meter. It is also what is used for display but has also a physical value. Default value is 0.05.
-- **kernelCoeff (float, falcultative)**: This is the kernel multiplicator coefficient (without unit). If this value is equal to 1.0, then the kernel length would be equal to the particle radius. Default value is 4.0.
+- **kernelCoeff (positive float, falcultative)**: This is the kernel multiplicator coefficient (without unit). If this value is equal to 1.0, then the kernel length would be equal to the particle radius. Default value is 4.0.
+- **maxKernelIncrementCoeff (positive float, falcultative)**: This is a runtime end increase value to the kernel coefficient (without unit). It is made to increase the kernel coefficient at runtime with the elapsed physics time. Default value is 0.0 (no increase).
+- **kernelIncrementCoeffEndTime (positive float, falcultative)**: This is the end time in seconds when we stop increasing the kernel coefficient. After this time, the kernel length would be at its final value. Default value is the feature is disabled.
 - **CFLCoeff (positive float, falcultative)**: This is the coefficient lambda for the CFL (Courant-Friedrich-Levy conditions). It is used only if CFL is enabled. Default value is 0.4.
 - **MaxCFLTime (positive float, falcultative)**: This is the max time the CFL (Courant-Friedrich-Levy conditions) could take in seconds. It is used only if CFL is enabled. Default value is 0.5 seconds (500ms).
 - **CFLIteration (positive integer, falcultative)**: This is the max time the CFL (Courant-Friedrich-Levy conditions) Should be run within one iteration. Default value is 2.

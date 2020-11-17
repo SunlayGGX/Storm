@@ -14,7 +14,11 @@ namespace Storm
 	public:
 		Storm::Vector3 _gravity;
 		float _particleRadius;
+
+		Storm::KernelMode _kernelMode;
 		float _kernelCoefficient;
+		float _kernelIncrementSpeedInSeconds;
+		float _maxKernelIncrementCoeff;
 
 		float _cflCoeff;
 		float _maxCFLTime;
@@ -35,7 +39,6 @@ namespace Storm
 		unsigned char _recomputeNeighborhoodStep;
 
 		Storm::SimulationMode _simulationMode;
-		Storm::KernelMode _kernelMode;
 
 		bool _removeFluidParticleCollidingWithRb;
 
