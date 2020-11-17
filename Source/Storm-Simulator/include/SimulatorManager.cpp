@@ -520,11 +520,6 @@ void Storm::SimulatorManager::initialize_Implementation()
 	profilerMgr.registerCurrentThreadAsSimulationThread(k_simulationSpeedBalistName);
 }
 
-void Storm::SimulatorManager::cleanUp_Implementation()
-{
-	// TODO
-}
-
 Storm::ExitCode Storm::SimulatorManager::run()
 {
 	switch (Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().getRecordConfigData()._recordMode)

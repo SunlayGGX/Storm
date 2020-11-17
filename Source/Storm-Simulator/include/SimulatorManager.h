@@ -4,6 +4,8 @@
 #include "Singleton.h"
 #include "ISimulatorManager.h"
 
+#include "SingletonDefaultImplementation.h"
+
 #include "ParticleSelector.h"
 
 #include "ParticleSystemContainer.h"
@@ -18,14 +20,13 @@ namespace Storm
 	struct SerializeRecordPendingData;
 
 	class SimulatorManager :
-		private Storm::Singleton<SimulatorManager>,
+		private Storm::Singleton<SimulatorManager, Storm::DefineDefaultCleanupImplementationOnly>,
 		public Storm::ISimulatorManager
 	{
 		STORM_DECLARE_SINGLETON(SimulatorManager);
 
 	private:
 		void initialize_Implementation();
-		void cleanUp_Implementation();
 
 	public:
 		Storm::ExitCode run();
