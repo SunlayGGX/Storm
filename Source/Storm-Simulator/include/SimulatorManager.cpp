@@ -577,8 +577,8 @@ Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 		expectedReplayFps = timeMgr.getExpectedFrameFPS();
 	}
 
-	const float physicsFixedElapsedTime = 1.f / expectedReplayFps;
-	timeMgr.setCurrentPhysicsDeltaTime(physicsFixedElapsedTime);
+	const float physicsFixedDeltaTime = 1.f / expectedReplayFps;
+	timeMgr.setCurrentPhysicsDeltaTime(physicsFixedDeltaTime);
 
 	const std::chrono::microseconds fullFrameWaitTime{ static_cast<std::chrono::microseconds::rep>(std::roundf(1000000.f / expectedReplayFps)) };
 	auto startFrame = std::chrono::high_resolution_clock::now();
@@ -660,7 +660,7 @@ Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 
 			for (const std::unique_ptr<Storm::IBlower> &blowerUPtr : _blowers)
 			{
-				blowerUPtr->advanceTime(physicsFixedElapsedTime);
+				blowerUPtr->advanceTime(physicsFixedDeltaTime);
 			}
 
 			if (autoEndSimulation)
