@@ -275,11 +275,7 @@ void Storm::TimeManager::decreasePhysicsDeltaTimeStepSize()
 
 void Storm::TimeManager::setPhysicsDeltaTimeStepSize(float newValue)
 {
-	if (_physicsDeltaTimeCoeff != newValue)
-	{
-		_physicsDeltaTimeCoeff = newValue;
-		_fields.pushField(STORM_DELTA_TIME_COEFF_FIELD_NAME);
-	}
+	updateField(_fields, STORM_DELTA_TIME_COEFF_FIELD_NAME, _physicsDeltaTimeCoeff, newValue);
 }
 
 void Storm::TimeManager::quit()

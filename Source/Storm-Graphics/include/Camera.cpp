@@ -361,6 +361,7 @@ void Storm::Camera::setFarPlane(float farPlane)
 		_farPlane = farPlane;
 		this->buildProjectionMatrix();
 		this->buildOrthoMatrix();
+
 		_fields->pushField(STORM_ZFAR_FIELD_NAME);
 	}
 }
@@ -628,20 +629,12 @@ void Storm::Camera::setTargetInternal(float x, float y, float z)
 
 void Storm::Camera::setCameraMoveSpeed(float newSpeed)
 {
-	if (_cameraMoveSpeed != newSpeed)
-	{
-		_cameraMoveSpeed = newSpeed;
-		_fields->pushField(STORM_TRANSLATE_SPEED_FIELD_NAME);
-	}
+	updateField(*_fields, STORM_TRANSLATE_SPEED_FIELD_NAME, _cameraMoveSpeed, newSpeed);
 }
 
 void Storm::Camera::setCameraRotateSpeed(float newSpeed) // In degrees
 {
-	if (_cameraRotateSpeed != newSpeed)
-	{
-		_cameraRotateSpeed = newSpeed;
-		_fields->pushField(STORM_ROTATE_SPEED_FIELD_NAME);
-	}
+	updateField(*_fields, STORM_ROTATE_SPEED_FIELD_NAME, _cameraRotateSpeed, newSpeed);
 }
 
 void Storm::Camera::setCameraPlaneSpeed(float newSpeed)

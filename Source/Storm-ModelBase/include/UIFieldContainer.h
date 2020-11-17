@@ -29,8 +29,19 @@ namespace Storm
 		std::vector<std::unique_ptr<Storm::UIFieldBase>> _fields;
 	};
 
+	template<class FieldType, class UpdatedFieldType>
+	void updateFieldW(Storm::UIFieldContainer &uifields, FieldType &inOutField, UpdatedFieldType &&newFieldValue, const std::wstring_view &fieldName)
+	{
+		if (inOutField != newFieldValue)
+		{
+			inOutField = std::forward<UpdatedFieldType>(newFieldValue);
+			uifields.pushFieldW(fieldName);
+		}
+	}
+
 #ifndef bindField
 #	define bindField(fieldName, valueRef) bindFieldW(STORM_TEXT(fieldName), valueRef)
 #	define pushField(fieldName) pushFieldW(STORM_TEXT(fieldName))
+#	define updateField(uiFields, fieldName, valueRef, newValue) Storm::updateFieldW(uiFields, valueRef, newValue, STORM_TEXT(fieldName))
 #endif
 }
