@@ -528,7 +528,7 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 		{
 			Storm::throwException<std::exception>("Setting a insider particles removal technique for a wall rigidbody is forbidden (rigid body " + std::to_string(rbData._rigidBodyID) + ")!");
 		}
-		else if (rbData._layerCount == 0 || rbData._layerCount > 5)
+		else if (rbData._layerCount == 0)
 		{
 			Storm::throwException<std::exception>("The rigid body layer count is invalid (rigid body " + std::to_string(rbData._rigidBodyID) + ")! Value was " + std::to_string(rbData._layerCount));
 		}
