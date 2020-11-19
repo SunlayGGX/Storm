@@ -29,7 +29,18 @@
 #define STORM_MINUS_ACCEL false
 
 
+namespace
+{
+	constexpr static const wchar_t* g_solverNames[Storm::PredictiveSolverHandler::k_maxSolverCount]
+	{
+		STORM_TEXT("Pressure solve iteration"),
+		nullptr
+	};
+}
+
+
 Storm::PCISPHSolver::PCISPHSolver(const float k_kernelLength, const Storm::ParticleSystemContainer &particleSystemsMap) :
+	Storm::PredictiveSolverHandler{ g_solverNames },
 	_totalParticleCount{ 0 }
 {
 	// Compute the uniform stiffness k_PCI coefficient
@@ -511,7 +522,7 @@ void Storm::PCISPHSolver::execute(Storm::ParticleSystemContainer &particleSystem
 
 	} while (currentPredictionIter < generalSimulData._minPredictIteration || (currentPredictionIter < generalSimulData._maxPredictIteration && averageDensityError > generalSimulData._maxDensityError));
 
-	this->updateCurrentPredictionIter(currentPredictionIter, generalSimulData._maxPredictIteration, averageDensityError, generalSimulData._maxDensityError);
+	this->updateCurrentPredictionIter(currentPredictionIter, generalSimulData._maxPredictIteration, averageDensityError, generalSimulData._maxDensityError, 0);
 	this->transfertEndDataToSystems(particleSystems, &_data, [](void* data, const unsigned int pSystemId, Storm::FluidParticleSystem &fluidParticleSystem)
 	{
 		auto &dataField = reinterpret_cast<decltype(_data)*>(data)->find(pSystemId)->second;

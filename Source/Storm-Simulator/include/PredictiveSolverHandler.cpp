@@ -8,25 +8,41 @@
 #include "RunnerHelper.h"
 
 
-#define STORM_PREDICTION_COUNT_FIELD_NAME "Prediction count"
 #define STORM_AVERAGE_FIELD_NAME "Average error"
 
 
-Storm::PredictiveSolverHandler::PredictiveSolverHandler() :
-	_currentPredictionIter{ 0 },
+Storm::PredictiveSolverHandler::PredictiveSolverHandler(const wchar_t*const(&solversNames)[Storm::PredictiveSolverHandler::k_maxSolverCount]) :
+	_solverCount{ 0 },
 	_averageError{ 0.f },
 	_uiFields{ std::make_unique<Storm::UIFieldContainer>() },
 	_logNoOverloadIter{ 0 }
 {
+	assert(solverCount <= Storm::PredictiveSolverHandler::k_maxSolverCount && "We request too much solvers!");
+
 	(*_uiFields)
-		.bindField(STORM_PREDICTION_COUNT_FIELD_NAME, _currentPredictionIter)
 		.bindField(STORM_AVERAGE_FIELD_NAME, _averageError)
 		;
+
+	for (; _solverCount < Storm::PredictiveSolverHandler::k_maxSolverCount; ++_solverCount)
+	{
+		const wchar_t* solverName = solversNames[_solverCount];
+		if (solverName != nullptr)
+		{
+			unsigned int &currentPredictionIter = _solverPredictionIter[_solverCount];
+			currentPredictionIter = 0;
+			_solverNames[_solverCount] = solverName;
+			_uiFields->bindFieldW(solverName, currentPredictionIter);
+		}
+		else
+		{
+			return;
+		}
+	}
 }
 
 Storm::PredictiveSolverHandler::~PredictiveSolverHandler() = default;
 
-void Storm::PredictiveSolverHandler::updateCurrentPredictionIter(unsigned int newPredictionIter, const unsigned int expectedMaxPredictionIter, const float densityError, const float maxDensityError)
+void Storm::PredictiveSolverHandler::updateCurrentPredictionIter(unsigned int newPredictionIter, const unsigned int expectedMaxPredictionIter, const float densityError, const float maxDensityError, const std::size_t solverIndex)
 {
 	if (densityError > maxDensityError && newPredictionIter > expectedMaxPredictionIter && (_logNoOverloadIter++ % 10 == 0))
 	{
@@ -35,7 +51,14 @@ void Storm::PredictiveSolverHandler::updateCurrentPredictionIter(unsigned int ne
 			"We'll leave the prediction loop with an average density of " << densityError;
 	}
 
-	updateField(*_uiFields, STORM_PREDICTION_COUNT_FIELD_NAME, _currentPredictionIter, newPredictionIter);
+	assert(solverIndex < _solverCount && "Requesting a solver info data that doesn't exist!");
+	unsigned int &currentPredictionIter = _solverPredictionIter[solverIndex];
+	if (currentPredictionIter != newPredictionIter)
+	{
+		currentPredictionIter = newPredictionIter;
+		_uiFields->pushFieldW(_solverNames[solverIndex]);
+	}
+
 	updateField(*_uiFields, STORM_AVERAGE_FIELD_NAME, _averageError, densityError);
 }
 

@@ -21,8 +21,18 @@
 #undef STORM_HIJACKED_TYPE
 
 
+namespace
+{
+	constexpr static const wchar_t* g_solverNames[Storm::PredictiveSolverHandler::k_maxSolverCount]
+	{
+		STORM_TEXT("Pressure solve iteration"),
+		nullptr
+	};
+}
 
-Storm::IISPHSolver::IISPHSolver(const float k_kernelLength, const Storm::ParticleSystemContainer &particleSystemsMap)
+
+Storm::IISPHSolver::IISPHSolver(const float k_kernelLength, const Storm::ParticleSystemContainer &particleSystemsMap) :
+	Storm::PredictiveSolverHandler{ g_solverNames }
 {
 	std::size_t totalParticleCount = 0;
 
@@ -207,7 +217,7 @@ void Storm::IISPHSolver::execute(Storm::ParticleSystemContainer &particleSystems
 				temporaryPViscoForces[currentPIndex] = totalViscosityForceOnParticle;
 
 				// We should also initialize the data field now (avoid to restart the threads).
-				IISPHSolverData &currentPDataField = dataField[currentPIndex];
+				Storm::IISPHSolverData &currentPDataField = dataField[currentPIndex];
 
 				currentPDataField._nonPressureAcceleration = currentPForce / currentPMass;
 				currentPDataField._predictedAcceleration = currentPDataField._nonPressureAcceleration;
@@ -465,7 +475,7 @@ void Storm::IISPHSolver::execute(Storm::ParticleSystemContainer &particleSystems
 
 	} while (currentPredictionIter < generalSimulData._minPredictIteration || (currentPredictionIter < generalSimulData._maxPredictIteration && averageDensityError > generalSimulData._maxDensityError));
 
-	this->updateCurrentPredictionIter(currentPredictionIter, generalSimulData._maxPredictIteration, averageDensityError, generalSimulData._maxDensityError);
+	this->updateCurrentPredictionIter(currentPredictionIter, generalSimulData._maxPredictIteration, averageDensityError, generalSimulData._maxDensityError, 0);
 
 	// 5th : Compute the pressure force
 	for (auto &dataFieldPair : _data)

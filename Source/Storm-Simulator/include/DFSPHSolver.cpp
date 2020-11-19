@@ -10,7 +10,19 @@
 #	include "VectHijack.h"
 #undef STORM_HIJACKED_TYPE
 
-Storm::DFSPHSolver::DFSPHSolver(const float k_kernelLength, const Storm::ParticleSystemContainer &particleSystemsMap)
+
+namespace
+{
+	constexpr static const wchar_t* g_solverNames[Storm::PredictiveSolverHandler::k_maxSolverCount]
+	{
+		STORM_TEXT("Density solve iteration"),
+		STORM_TEXT("Divergence solve iteration")
+	};
+}
+
+
+Storm::DFSPHSolver::DFSPHSolver(const float k_kernelLength, const Storm::ParticleSystemContainer &particleSystemsMap) :
+	Storm::PredictiveSolverHandler{ g_solverNames }
 {
 	std::size_t totalParticleCount = 0;
 
