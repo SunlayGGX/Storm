@@ -13,12 +13,14 @@ namespace Storm
 	public:
 		enum : std::size_t { k_maxSolverCount = 2 };
 
+		using SolversNames = const wchar_t*const(&)[Storm::PredictiveSolverHandler::k_maxSolverCount];
+
 	protected:
-		PredictiveSolverHandler(const wchar_t*const(&solversNames)[Storm::PredictiveSolverHandler::k_maxSolverCount]);
+		PredictiveSolverHandler(const Storm::PredictiveSolverHandler::SolversNames &solversIterationNames, const Storm::PredictiveSolverHandler::SolversNames &solversErrorsNames);
 		~PredictiveSolverHandler();
 
 	protected:
-		void updateCurrentPredictionIter(unsigned int newPredictionIter, const unsigned int expectedMaxPredictionIter, const float densityError, const float maxDensityError, const std::size_t solverIndex);
+		void updateCurrentPredictionIter(unsigned int newPredictionIter, const unsigned int expectedMaxPredictionIter, const float error, const float maxError, const std::size_t solverIndex);
 
 	protected:
 		void initializePredictionIteration(Storm::ParticleSystemContainer &particleSystems, float &averageDensityError);
@@ -26,8 +28,11 @@ namespace Storm
 
 	private:
 		unsigned int _solverPredictionIter[Storm::PredictiveSolverHandler::k_maxSolverCount];
-		std::wstring_view _solverNames[Storm::PredictiveSolverHandler::k_maxSolverCount];
-		float _averageError;
+		std::wstring_view _solverIterationNames[Storm::PredictiveSolverHandler::k_maxSolverCount];
+
+		float _averageErrors[Storm::PredictiveSolverHandler::k_maxSolverCount];
+		std::wstring_view _averageErrorsNames[Storm::PredictiveSolverHandler::k_maxSolverCount];
+
 		std::unique_ptr<Storm::UIFieldContainer> _uiFields;
 
 		std::size_t _solverCount;

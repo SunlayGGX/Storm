@@ -23,16 +23,35 @@
 
 namespace
 {
-	constexpr static const wchar_t* g_solverNames[Storm::PredictiveSolverHandler::k_maxSolverCount]
+#define STORM_SOLVER_NAMES_XMACRO \
+	STORM_SOLVER_NAME("Pressure")
+
+	using GUINames = std::remove_reference_t<Storm::PredictiveSolverHandler::SolversNames>;
+
+	constexpr static GUINames g_solverIterationNames
 	{
-		STORM_TEXT("Pressure solve iteration"),
+#define STORM_SOLVER_NAME(SolverName) STORM_TEXT(SolverName " solve iteration"),
+		STORM_SOLVER_NAMES_XMACRO
+#undef STORM_SOLVER_NAME
+
 		nullptr
 	};
+
+	constexpr static GUINames g_solverErrorsNames
+	{
+#define STORM_SOLVER_NAME(SolverName) STORM_TEXT(SolverName " solve error"),
+		STORM_SOLVER_NAMES_XMACRO
+#undef STORM_SOLVER_NAME
+
+		nullptr
+	};
+
+#undef STORM_SOLVER_NAMES_XMACRO
 }
 
 
 Storm::IISPHSolver::IISPHSolver(const float k_kernelLength, const Storm::ParticleSystemContainer &particleSystemsMap) :
-	Storm::PredictiveSolverHandler{ g_solverNames }
+	Storm::PredictiveSolverHandler{ g_solverIterationNames, g_solverErrorsNames }
 {
 	std::size_t totalParticleCount = 0;
 
