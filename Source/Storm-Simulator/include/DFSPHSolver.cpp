@@ -46,7 +46,7 @@ Storm::DFSPHSolver::DFSPHSolver(const float k_kernelLength, const Storm::Particl
 
 Storm::DFSPHSolver::~DFSPHSolver() = default;
 
-void Storm::DFSPHSolver::execute(Storm::ParticleSystemContainer &particleSystems, const float kernelLength, const float k_deltaTime)
+void Storm::DFSPHSolver::execute(Storm::ParticleSystemContainer &particleSystems, const float k_kernelLength, const float k_deltaTime)
 {
 	STORM_NOT_IMPLEMENTED;
 }
