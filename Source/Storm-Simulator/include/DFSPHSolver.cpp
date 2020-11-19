@@ -265,17 +265,33 @@ void Storm::DFSPHSolver::execute(Storm::ParticleSystemContainer &particleSystems
 	}
 
 	// 3rd : correct density error
-	unsigned int currentPredictionIter = 0;
+	unsigned int densitySolvePredictionIter = 0;
 	float averageDensityError = 0.f;
 
 	do
 	{
 		// TODO
 
-		++currentPredictionIter;
-	} while (currentPredictionIter < generalSimulData._minPredictIteration || (currentPredictionIter < generalSimulData._maxPredictIteration && averageDensityError > generalSimulData._maxDensityError));
+		++densitySolvePredictionIter;
+	} while (densitySolvePredictionIter < generalSimulData._minPredictIteration || (densitySolvePredictionIter < generalSimulData._maxPredictIteration && averageDensityError > generalSimulData._maxDensityError));
 
-	this->updateCurrentPredictionIter(currentPredictionIter, generalSimulData._maxPredictIteration, averageDensityError, generalSimulData._maxDensityError, 0);
+	this->updateCurrentPredictionIter(densitySolvePredictionIter, generalSimulData._maxPredictIteration, averageDensityError, generalSimulData._maxDensityError, 0);
+
+
+
+	// ?th : correct divergence error
+	unsigned int divergenceSolvePredictionIter = 0;
+	float averageDivergenceError = 0.f;
+
+	do
+	{
+		// TODO
+
+		++divergenceSolvePredictionIter;
+	} while (divergenceSolvePredictionIter < generalSimulData._minPredictIteration || (divergenceSolvePredictionIter < generalSimulData._maxPredictIteration && averageDivergenceError > generalSimulData._maxDensityError));
+
+	this->updateCurrentPredictionIter(divergenceSolvePredictionIter, generalSimulData._maxPredictIteration, averageDivergenceError, generalSimulData._maxDensityError, 1);
+
 
 	this->transfertEndDataToSystems(particleSystems, &_data, [](void* data, const unsigned int pSystemId, Storm::FluidParticleSystem &fluidParticleSystem)
 	{
