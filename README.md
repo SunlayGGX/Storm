@@ -12,7 +12,7 @@ Note that :
 
 
 # Prerequisite
-- **Visual Studio Community 2019 v16.6.3 with C++20** (in fact the latest draft that was a preview of C++20). Maybe it works for a later Visual Studio but I have never tested it.
+- **Visual Studio Community 2019 v16.8.1 with C++20** (in fact the latest draft that was a preview of C++20). Maybe it works for a later Visual Studio but I have never tested it.
 - **Python 2.7.6 or later** (needed to build PhysX, see "Dependencies list" section). To know what is the current version of your installed python (or if there is any), type python in a cmd console.
 - **Visual Studio 2017 toolsets (v141) and 2019 toolsets (v142)**
 - **cmake_gui 3.15.0-rc1 or later**. (3.15.0-rc1 is what I used. I can't guarantee for a version below this one)...

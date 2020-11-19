@@ -10,6 +10,7 @@
     <ClCompile>
       <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)..\..\..\Source\Storm-Helper\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AdditionalOptions>/permissive %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup />
