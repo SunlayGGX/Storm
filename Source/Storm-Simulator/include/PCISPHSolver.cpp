@@ -239,8 +239,6 @@ void Storm::PCISPHSolver::execute(Storm::ParticleSystemContainer &particleSystem
 
 				const float restMassDensity = currentPMass * density0;
 
-				const float viscoPrecoeff = 0.01f * k_kernelLengthSquared;
-
 				Storm::Vector3 totalViscosityForceOnParticle = Storm::Vector3::Zero();
 
 				const Storm::ParticleNeighborhoodArray &currentPNeighborhood = neighborhoodArrays[currentPIndex];
