@@ -840,7 +840,7 @@ void Storm::SimulatorManager::executeIteration(bool firstFrame, unsigned int for
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
 	const Storm::GeneralSimulationData &generalSimulationConfigData = configMgr.getGeneralSimulationData();
 
-	float physicsElapsedDeltaTime = timeMgr.getCurrentPhysicsDeltaTime();
+	float physicsDeltaTime = timeMgr.getCurrentPhysicsDeltaTime();
 	const float physicsCurrentTime = timeMgr.getCurrentPhysicsElapsedTime();
 
 	// initialize for current iteration. I.e. Initializing with gravity and resetting current iteration velocity.
@@ -853,7 +853,7 @@ void Storm::SimulatorManager::executeIteration(bool firstFrame, unsigned int for
 
 	for (const std::unique_ptr<Storm::IBlower> &blowerUPtr : _blowers)
 	{
-		blowerUPtr->advanceTime(physicsElapsedDeltaTime);
+		blowerUPtr->advanceTime(physicsDeltaTime);
 	}
 
 	for (auto &particleSystem : _particleSystem)
@@ -866,7 +866,7 @@ void Storm::SimulatorManager::executeIteration(bool firstFrame, unsigned int for
 	int maxCFLIteration = generalSimulationConfigData._maxCFLIteration;
 	int iter = 0;
 
-	float exDeltaTime = physicsElapsedDeltaTime;
+	float exDeltaTime = physicsDeltaTime;
 	
 	const float kernelLength = this->getKernelLength();
 
@@ -886,9 +886,9 @@ void Storm::SimulatorManager::executeIteration(bool firstFrame, unsigned int for
 		}
 
 		// Compute the simulation
-		_sphSolver->execute(_particleSystem, kernelLength, physicsElapsedDeltaTime);
+		_sphSolver->execute(_particleSystem, kernelLength, physicsDeltaTime);
 
-		float velocityThresholdSquaredForCFL = computeCFLDistance(generalSimulationConfigData) / physicsElapsedDeltaTime;
+		float velocityThresholdSquaredForCFL = computeCFLDistance(generalSimulationConfigData) / physicsDeltaTime;
 		velocityThresholdSquaredForCFL = velocityThresholdSquaredForCFL * velocityThresholdSquaredForCFL;
 
 		bool shouldApplyCFL = false;
@@ -896,19 +896,19 @@ void Storm::SimulatorManager::executeIteration(bool firstFrame, unsigned int for
 		// Semi implicit Euler to update the particle position
 		for (auto &particleSystem : _particleSystem)
 		{
-			shouldApplyCFL |= particleSystem.second->computeVelocityChange(physicsElapsedDeltaTime, velocityThresholdSquaredForCFL);
+			shouldApplyCFL |= particleSystem.second->computeVelocityChange(physicsDeltaTime, velocityThresholdSquaredForCFL);
 		}
 
 		runIterationAgain = this->applyCFLIfNeeded(generalSimulationConfigData);
 		if (runIterationAgain)
 		{
-			physicsElapsedDeltaTime = timeMgr.getCurrentPhysicsDeltaTime();
+			physicsDeltaTime = timeMgr.getCurrentPhysicsDeltaTime();
 			
-			if (physicsElapsedDeltaTime != exDeltaTime)
+			if (physicsDeltaTime != exDeltaTime)
 			{
 				// Correct the blower time to the corrected time
-				float correctionDeltaTime = physicsElapsedDeltaTime - exDeltaTime;
-				exDeltaTime = physicsElapsedDeltaTime;
+				float correctionDeltaTime = physicsDeltaTime - exDeltaTime;
+				exDeltaTime = physicsDeltaTime;
 				for (const std::unique_ptr<Storm::IBlower> &blowerUPtr : _blowers)
 				{
 					blowerUPtr->advanceTime(correctionDeltaTime);
@@ -918,7 +918,7 @@ void Storm::SimulatorManager::executeIteration(bool firstFrame, unsigned int for
 
 		++iter;
 
-	} while (runIterationAgain && iter < maxCFLIteration && physicsElapsedDeltaTime < generalSimulationConfigData._maxCFLTime && physicsElapsedDeltaTime > getMinCLFTime());
+	} while (runIterationAgain && iter < maxCFLIteration && physicsDeltaTime < generalSimulationConfigData._maxCFLTime && physicsDeltaTime > getMinCLFTime());
 
 	if (_particleSelector.hasSelectedParticle())
 	{
@@ -932,16 +932,16 @@ void Storm::SimulatorManager::executeIteration(bool firstFrame, unsigned int for
 	// Update everything that should be updated once CFL iteration finished. 
 	for (auto &particleSystem : _particleSystem)
 	{
-		particleSystem.second->postApplySPH(physicsElapsedDeltaTime);
+		particleSystem.second->postApplySPH(physicsDeltaTime);
 	}
 
 	// Update the Rigid bodies positions in scene
-	physicsMgr.update(physicsElapsedDeltaTime);
+	physicsMgr.update(physicsDeltaTime);
 
 	// Update the position of every particles. 
 	for (auto &particleSystem : _particleSystem)
 	{
-		particleSystem.second->updatePosition(physicsElapsedDeltaTime, false);
+		particleSystem.second->updatePosition(physicsDeltaTime, false);
 	}
 }
 
