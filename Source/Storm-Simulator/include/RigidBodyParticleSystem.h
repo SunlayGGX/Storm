@@ -63,5 +63,6 @@ namespace Storm
 
 		bool _isStatic;
 		bool _isWall;
+		bool _velocityDirtyInternal;
 	};
 }

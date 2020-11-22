@@ -37,7 +37,8 @@ namespace
 
 Storm::RigidBodyParticleSystem::RigidBodyParticleSystem(unsigned int particleSystemIndex, std::vector<Storm::Vector3> &&worldPositions) :
 	Storm::ParticleSystem{ particleSystemIndex, std::move(worldPositions) },
-	_cachedTrackedRbRotationQuat{ Storm::Quaternion::Identity() }
+	_cachedTrackedRbRotationQuat{ Storm::Quaternion::Identity() },
+	_velocityDirtyInternal{ false }
 {
 	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
 	const Storm::RigidBodySceneData &currentRbData = configMgr.getRigidBodyData(particleSystemIndex);
@@ -351,23 +352,29 @@ void Storm::RigidBodyParticleSystem::updatePosition(float deltaTimeInSec, bool f
 {
 	if (!_isStatic || force)
 	{
+		const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+
 		Storm::Vector3 currentPosition;
 		Storm::Quaternion currentQuatRotation;
-		Storm::SingletonHolder::instance().getSingleton<Storm::IPhysicsManager>().getMeshTransform(_particleSystemIndex, currentPosition, currentQuatRotation);
+
+		singletonHolder.getSingleton<Storm::IPhysicsManager>().getMeshTransform(_particleSystemIndex, currentPosition, currentQuatRotation);
 
 		if (currentPosition != _cachedTrackedRbPosition || currentQuatRotation.x() != _cachedTrackedRbRotationQuat.x() || currentQuatRotation.y() != _cachedTrackedRbRotationQuat.y() || currentQuatRotation.z() != _cachedTrackedRbRotationQuat.z() || currentQuatRotation.w() != _cachedTrackedRbRotationQuat.w())
 		{
 			_isDirty = true;
+			_velocityDirtyInternal = true;
 
 			const Storm::Quaternion oldRbRotationConjugateQuat = _cachedTrackedRbRotationQuat.conjugate();
 			const Storm::Quaternion currentConjugateQuatRotation = currentQuatRotation.conjugate();
 
-			Storm::runParallel(_positions, [&](Storm::Vector3 &currentParticlePosition)
+			Storm::runParallel(_positions, [&](Storm::Vector3 &currentPPosition, const std::size_t currentPIndex)
 			{
+				Storm::Vector3 &currentPVelocity = _velocity[currentPIndex];
+
 				/* First, remove the current world space coordinate to revert to the object space coordinate (where particle were defined initially and on which PhysX was initialized). */
 
 				// 1- Remove the translation
-				Storm::Quaternion currentPosAsPureQuat{ 0.f, currentParticlePosition.x() - _cachedTrackedRbPosition.x(), currentParticlePosition.y() - _cachedTrackedRbPosition.y(), currentParticlePosition.z() - _cachedTrackedRbPosition.z() };
+				Storm::Quaternion currentPosAsPureQuat{ 0.f, currentPPosition.x() - _cachedTrackedRbPosition.x(), currentPPosition.y() - _cachedTrackedRbPosition.y(), currentPPosition.z() - _cachedTrackedRbPosition.z() };
 
 				// 2- Remove the rotation
 				currentPosAsPureQuat = oldRbRotationConjugateQuat * currentPosAsPureQuat * _cachedTrackedRbRotationQuat;
@@ -379,11 +386,35 @@ void Storm::RigidBodyParticleSystem::updatePosition(float deltaTimeInSec, bool f
 				currentPosAsPureQuat = currentQuatRotation * currentPosAsPureQuat * currentConjugateQuatRotation;
 
 				// 2- Apply the translation
-				currentParticlePosition = currentPosAsPureQuat.vec() + currentPosition;
+				const Storm::Vector3 newPPosition = currentPosAsPureQuat.vec() + currentPosition;
+
+				currentPVelocity = newPPosition - currentPPosition;
+				currentPVelocity /= deltaTimeInSec;
+
+				currentPPosition = newPPosition;
 			});
 
 			_cachedTrackedRbPosition = currentPosition;
 			_cachedTrackedRbRotationQuat = currentQuatRotation;
+
+			// The force is for the first frame, where we set the position to the position in scene.
+			// The velocity mustn't be changed because it is a artificial move (not a physic move) from object space to world space.
+			if (force)
+			{
+				Storm::runParallel(_velocity, [&](Storm::Vector3 &currentPVelocity)
+				{
+					currentPVelocity.setZero();
+				});
+			}
+		}
+		else if (_velocityDirtyInternal)
+		{
+			_velocityDirtyInternal = false;
+
+			Storm::runParallel(_velocity, [&](Storm::Vector3 &currentPVelocity)
+			{
+				currentPVelocity.setZero();
+			});
 		}
 	}
 }
