@@ -399,7 +399,7 @@ void Storm::RigidBodyParticleSystem::updatePosition(float deltaTimeInSec, bool f
 
 			// The force is for the first frame, where we set the position to the position in scene.
 			// The velocity mustn't be changed because it is a artificial move (not a physic move) from object space to world space.
-			if (force)
+			if (force || deltaTimeInSec == 0.f)
 			{
 				Storm::runParallel(_velocity, [&](Storm::Vector3 &currentPVelocity)
 				{
