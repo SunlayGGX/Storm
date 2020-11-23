@@ -189,6 +189,8 @@ bool Storm::ReplaySolver::replayCurrentNextFrame(Storm::ParticleSystemContainer 
 		Storm::ReplaySolver::transferFrameToParticleSystem_move(particleSystems, frameBefore);
 		outFrameConstraintData = std::move(frameBefore._constraintElements);
 
+		timeMgr.setCurrentPhysicsElapsedTime(frameBefore._physicsTime);
+
 		Storm::ReplaySolver::computeNextRecordTime(nextFrameTime, frameBefore._physicsTime, recordFps);
 	}
 	else // The frame rates don't match. We need to interpolate between the frames.
