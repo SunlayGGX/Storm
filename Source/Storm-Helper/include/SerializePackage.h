@@ -178,6 +178,8 @@ namespace Storm
 
 		std::size_t getStreamPosition() /*const*/;
 
+		std::size_t getPacketSize() const;
+
 	private:
 		bool _isSaving;
 		std::fstream _file;

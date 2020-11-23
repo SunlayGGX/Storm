@@ -220,3 +220,8 @@ std::size_t Storm::SerializePackage::getStreamPosition()
 {
 	return _file.tellg();
 }
+
+std::size_t Storm::SerializePackage::getPacketSize() const
+{
+	return std::filesystem::file_size(_filePath);
+}
