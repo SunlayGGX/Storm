@@ -51,7 +51,7 @@ namespace Storm
 		virtual void setTmpPressureForces(std::vector<Storm::Vector3> &&tmpPressureForces) = 0;
 		virtual void setTmpViscosityForces(std::vector<Storm::Vector3> &&tmpViscoForces) = 0;
 
-	private:
+	public:
 		void buildNeighborhood(const Storm::ParticleSystemContainer &allParticleSystems);
 
 	protected:
