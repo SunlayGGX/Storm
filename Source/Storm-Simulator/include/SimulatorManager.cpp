@@ -1032,6 +1032,17 @@ void Storm::SimulatorManager::refreshParticlesPosition()
 	}
 }
 
+void Storm::SimulatorManager::refreshParticleNeighborhood()
+{
+	this->refreshParticlePartition();
+
+	for (auto &particleSystem : _particleSystem)
+	{
+		Storm::ParticleSystem &pSystem = *particleSystem.second;
+		pSystem.buildNeighborhood(_particleSystem);
+	}
+}
+
 void Storm::SimulatorManager::addFluidParticleSystem(unsigned int id, std::vector<Storm::Vector3> particlePositions)
 {
 	const std::size_t initialParticleCount = particlePositions.size();

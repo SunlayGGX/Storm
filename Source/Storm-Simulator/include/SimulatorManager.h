@@ -47,6 +47,7 @@ namespace Storm
 
 	public:
 		void refreshParticlesPosition() final override;
+		void refreshParticleNeighborhood();
 
 	public:
 		void addFluidParticleSystem(unsigned int id, std::vector<Storm::Vector3> particlePositions) final override;
