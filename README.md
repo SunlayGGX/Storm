@@ -94,7 +94,7 @@ This is the simulation application. Command lines are exposed like this : --key=
 - **generalConfig (string, facultative)**: This is the general config file path to use. If there is none, then we will select the one inside the default Config folder (the one inside Custom/General takes precedence over the one inside Custom/General/Original).
 - **tempPath (string, facultative)**: This is the temporary path to use (to a folder). If there is none, then we will select the default temporary path folder.
 - **regenPCache (no value, facultative)**: Specify this flag and we will regenerate the rigid body particle cache data.
-- **recordMode (string, facultative)**: Specify the record/replay mode of the simulator. Accepted (case unsensitive) values are "Record" or "Replay". If the simulator is in record mode, then the simulation played will be recorded for a future replay. Default is unset, which means the application will just simulate without doing anything.
+- **mode (string, facultative)**: Specify the record/replay mode of the simulator. Accepted (case unsensitive) values are "Record" or "Replay". If the simulator is in record mode, then the simulation played will be recorded for a future replay. Default is unset, which means the application will just simulate without doing anything.
 - **recordFile (string, facultative)**: Specify the path the recording will be. Record file path should remain unset if record mode is left unset, otherwise it should reference a valid record file in case we're in Replay mode (Note that this setting can be left Unset if there is a path inside the scene config loaded).
 
 
