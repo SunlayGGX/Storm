@@ -63,6 +63,7 @@ namespace Storm
 	public:
 		void loadBlower(const Storm::BlowerData &blowerData) final override;
 		void tweekBlowerEnabling();
+		void advanceBlowersTime(const float deltaTime);
 
 	public:
 		void tweekRaycastEnabling();

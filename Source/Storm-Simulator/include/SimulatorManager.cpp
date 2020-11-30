@@ -931,10 +931,7 @@ void Storm::SimulatorManager::executeIteration(bool firstFrame, unsigned int for
 		this->refreshParticlePartition();
 	}
 
-	for (const std::unique_ptr<Storm::IBlower> &blowerUPtr : _blowers)
-	{
-		blowerUPtr->advanceTime(physicsDeltaTime);
-	}
+	this->advanceBlowersTime(physicsDeltaTime);
 
 	for (auto &particleSystem : _particleSystem)
 	{
@@ -993,10 +990,7 @@ void Storm::SimulatorManager::executeIteration(bool firstFrame, unsigned int for
 				// Correct the blower time to the corrected time
 				float correctionDeltaTime = physicsDeltaTime - exDeltaTime;
 				exDeltaTime = physicsDeltaTime;
-				for (const std::unique_ptr<Storm::IBlower> &blowerUPtr : _blowers)
-				{
-					blowerUPtr->advanceTime(correctionDeltaTime);
-				}
+				this->advanceBlowersTime(correctionDeltaTime);
 			}
 		}
 
@@ -1212,6 +1206,14 @@ void Storm::SimulatorManager::tweekBlowerEnabling()
 	for (auto &blower : _blowers)
 	{
 		blower->tweakEnabling();
+	}
+}
+
+void Storm::SimulatorManager::advanceBlowersTime(const float deltaTime)
+{
+	for (const std::unique_ptr<Storm::IBlower> &blowerUPtr : _blowers)
+	{
+		blowerUPtr->advanceTime(deltaTime);
 	}
 }
 
