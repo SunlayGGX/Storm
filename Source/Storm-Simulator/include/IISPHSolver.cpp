@@ -608,7 +608,8 @@ void Storm::IISPHSolver::execute(const Storm::IterationParameter &iterationParam
 				Storm::Vector3 &currentPVelocity = velocities[currentPIndex];
 				Storm::Vector3 &currentPPositions = positions[currentPIndex];
 
-				currentPVelocity += currentPForce / currentPMass * iterationParameter._deltaTime;
+				const float forceToVelocityCoeff = iterationParameter._deltaTime / currentPMass;
+				currentPVelocity += currentPForce * forceToVelocityCoeff;
 				currentPPositions += currentPVelocity * iterationParameter._deltaTime;
 
 				if (!dirtyTmp)
