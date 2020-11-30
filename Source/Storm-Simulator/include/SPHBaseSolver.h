@@ -1,12 +1,10 @@
 #pragma once
 
-#include "ParticleSystemContainer.h"
-
 
 namespace Storm
 {
-	enum class SimulationMode;
-	class ParticleSystem;
+	struct IterationParameter;
+	struct SolverCreationParameter;
 
 	class __declspec(novtable) ISPHBaseSolver
 	{
@@ -14,7 +12,7 @@ namespace Storm
 		virtual ~ISPHBaseSolver() = default;
 
 	public:
-		virtual void execute(Storm::ParticleSystemContainer &particleSystems, const float kernelLength, const float k_deltaTime) = 0;
+		virtual void execute(const Storm::IterationParameter &iterationParameter) = 0;
 	};
 
 	std::unique_ptr<Storm::ISPHBaseSolver> instantiateSPHSolver(const Storm::SolverCreationParameter &creationParameter);

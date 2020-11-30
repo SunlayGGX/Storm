@@ -16,7 +16,7 @@ namespace Storm
 		IISPHSolver(const float k_kernelLength, const Storm::ParticleSystemContainer &particleSystemsMap);
 
 	public:
-		void execute(Storm::ParticleSystemContainer &particleSystems, const float k_kernelLength, const float k_deltaTime) final override;
+		void execute(const Storm::IterationParameter &iterationParameter) final override;
 
 	private:
 		std::map<unsigned int, std::vector<Storm::IISPHSolverData>> _data;

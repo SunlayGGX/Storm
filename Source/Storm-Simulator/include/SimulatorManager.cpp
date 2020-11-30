@@ -66,6 +66,7 @@
 #include "UIFieldContainer.h"
 
 #include "SolverCreationParameter.h"
+#include "IterationParameter.h"
 
 #include <fstream>
 
@@ -965,7 +966,11 @@ void Storm::SimulatorManager::executeIteration(bool firstFrame, unsigned int for
 		}
 
 		// Compute the simulation
-		_sphSolver->execute(_particleSystem, kernelLength, physicsDeltaTime);
+		_sphSolver->execute(Storm::IterationParameter{
+			._particleSystems = &_particleSystem,
+			._kernelLength = kernelLength,
+			._deltaTime = physicsDeltaTime
+		});
 
 		float velocityThresholdSquaredForCFL = computeCFLDistance(generalSimulationConfigData) / physicsDeltaTime;
 		velocityThresholdSquaredForCFL = velocityThresholdSquaredForCFL * velocityThresholdSquaredForCFL;

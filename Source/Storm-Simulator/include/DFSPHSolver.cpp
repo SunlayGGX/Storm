@@ -15,6 +15,8 @@
 
 #include "DFSPHSolverData.h"
 
+#include "IterationParameter.h"
+
 #define STORM_HIJACKED_TYPE Storm::DFSPHSolverData
 #	include "VectHijack.h"
 #undef STORM_HIJACKED_TYPE
@@ -79,7 +81,7 @@ Storm::DFSPHSolver::DFSPHSolver(const float k_kernelLength, const Storm::Particl
 
 Storm::DFSPHSolver::~DFSPHSolver() = default;
 
-void Storm::DFSPHSolver::execute(Storm::ParticleSystemContainer &particleSystems, const float k_kernelLength, const float k_deltaTime)
+void Storm::DFSPHSolver::execute(const Storm::IterationParameter &iterationParameter)
 {
 	STORM_NOT_IMPLEMENTED;
 
@@ -96,8 +98,10 @@ void Storm::DFSPHSolver::execute(Storm::ParticleSystemContainer &particleSystems
 
 	const float k_maxDensityError = generalSimulData._maxDensityError;
 
-	const float deltaTimeSquared = k_deltaTime * k_deltaTime;
-	const float k_kernelLengthSquared = k_kernelLength * k_kernelLength;
+	const float deltaTimeSquared = iterationParameter._deltaTime * iterationParameter._deltaTime;
+	const float k_kernelLengthSquared = iterationParameter._kernelLength * iterationParameter._kernelLength;
+
+	Storm::ParticleSystemContainer &particleSystems = *iterationParameter._particleSystems;
 
 	// 1st : Compute the base density and init k_dfsph coeff
 	for (auto &dataFieldPair : _data)
@@ -125,8 +129,8 @@ void Storm::DFSPHSolver::execute(Storm::ParticleSystemContainer &particleSystems
 			const Storm::ParticleNeighborhoodArray &currentPNeighborhood = neighborhoodArrays[currentPIndex];
 			for (const Storm::NeighborParticleInfo &neighborInfo : currentPNeighborhood)
 			{
-				const float kernelValue_Wij = rawKernel(k_kernelLength, neighborInfo._vectToParticleNorm);
-				Storm::Vector3 added = gradKernel(k_kernelLength, neighborInfo._positionDifferenceVector, neighborInfo._vectToParticleNorm);
+				const float kernelValue_Wij = rawKernel(iterationParameter._kernelLength, neighborInfo._vectToParticleNorm);
+				Storm::Vector3 added = gradKernel(iterationParameter._kernelLength, neighborInfo._positionDifferenceVector, neighborInfo._vectToParticleNorm);
 
 				float deltaDensity;
 				if (neighborInfo._isFluidParticle)
@@ -193,7 +197,7 @@ void Storm::DFSPHSolver::execute(Storm::ParticleSystemContainer &particleSystems
 				const Storm::ParticleNeighborhoodArray &currentPNeighborhood = neighborhoodArrays[currentPIndex];
 				for (const Storm::NeighborParticleInfo &neighbor : currentPNeighborhood)
 				{
-					const Storm::Vector3 gradKernel_NablaWij = gradKernel(k_kernelLength, neighbor._positionDifferenceVector, neighbor._vectToParticleNorm);
+					const Storm::Vector3 gradKernel_NablaWij = gradKernel(iterationParameter._kernelLength, neighbor._positionDifferenceVector, neighbor._vectToParticleNorm);
 
 					const Storm::Vector3 vij = vi - neighbor._containingParticleSystem->getVelocity()[neighbor._particleIndex];
 
@@ -259,7 +263,7 @@ void Storm::DFSPHSolver::execute(Storm::ParticleSystemContainer &particleSystems
 
 				currentPDataField._nonPressureAcceleration = currentPForce / currentPMass;
 				currentPDataField._predictedAcceleration = currentPDataField._nonPressureAcceleration;
-				currentPDataField._predictedVelocity = vi + currentPDataField._nonPressureAcceleration * k_deltaTime;
+				currentPDataField._predictedVelocity = vi + currentPDataField._nonPressureAcceleration * iterationParameter._deltaTime;
 			});
 		}
 	}
@@ -293,7 +297,7 @@ void Storm::DFSPHSolver::execute(Storm::ParticleSystemContainer &particleSystems
 
 				for (const Storm::NeighborParticleInfo &neighbor : currentPNeighborhood)
 				{
-					const Storm::Vector3 gradWij = gradKernel(k_kernelLength, neighbor._positionDifferenceVector, neighbor._vectToParticleNorm);
+					const Storm::Vector3 gradWij = gradKernel(iterationParameter._kernelLength, neighbor._positionDifferenceVector, neighbor._vectToParticleNorm);
 
 					if (neighbor._isFluidParticle)
 					{
@@ -318,7 +322,7 @@ void Storm::DFSPHSolver::execute(Storm::ParticleSystemContainer &particleSystems
 					}
 				}
 
-				currentPData._predictedDensity *= k_deltaTime;
+				currentPData._predictedDensity *= iterationParameter._deltaTime;
 				currentPData._predictedDensity += currentPLastDensity;
 			});
 		}
@@ -358,7 +362,7 @@ void Storm::DFSPHSolver::execute(Storm::ParticleSystemContainer &particleSystems
 
 				for (const Storm::NeighborParticleInfo &neighbor : currentPNeighborhood)
 				{
-					const Storm::Vector3 gradWij = gradKernel(k_kernelLength, neighbor._positionDifferenceVector, neighbor._vectToParticleNorm);
+					const Storm::Vector3 gradWij = gradKernel(iterationParameter._kernelLength, neighbor._positionDifferenceVector, neighbor._vectToParticleNorm);
 
 					float coeff;
 					if (neighbor._isFluidParticle)
@@ -387,7 +391,7 @@ void Storm::DFSPHSolver::execute(Storm::ParticleSystemContainer &particleSystems
 					sumTmp += coeff * gradWij;
 				}
 
-				sumTmp /= k_deltaTime;
+				sumTmp /= iterationParameter._deltaTime;
 
 				currentPData._predictedVelocity -= sumTmp;
 			});
@@ -409,7 +413,7 @@ void Storm::DFSPHSolver::execute(Storm::ParticleSystemContainer &particleSystems
 
 		Storm::runParallel(dataFieldPair.second, [&](Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex)
 		{
-			positions[currentPIndex] += k_deltaTime * currentPData._predictedVelocity;
+			positions[currentPIndex] += iterationParameter._deltaTime * currentPData._predictedVelocity;
 		});
 	}
 

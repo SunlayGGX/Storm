@@ -12,6 +12,6 @@ namespace Storm
 	public:
 		const Storm::SimulationMode _simulationMode;
 		const float _kernelLength;
-		const Storm::ParticleSystemContainer &_particleSystems;
+		const Storm::ParticleSystemContainer* _particleSystems;
 	};
 }

@@ -16,6 +16,8 @@
 #include "GeneralSimulationData.h"
 #include "FluidData.h"
 
+#include "IterationParameter.h"
+
 #define STORM_HIJACKED_TYPE Storm::IISPHSolverData
 #	include "VectHijack.h"
 #undef STORM_HIJACKED_TYPE
@@ -73,7 +75,7 @@ Storm::IISPHSolver::IISPHSolver(const float k_kernelLength, const Storm::Particl
 	_totalParticleCountFl = static_cast<float>(totalParticleCount);
 }
 
-void Storm::IISPHSolver::execute(Storm::ParticleSystemContainer &particleSystems, const float k_kernelLength, const float k_deltaTime)
+void Storm::IISPHSolver::execute(const Storm::IterationParameter &iterationParameter)
 {
 	// Note :
 	// Even if some part of the algorithm is exactly the same as inside other solvers, I did not factorize on purpose (I did, but reverted immediately because it was a really bad idea) !
@@ -96,8 +98,10 @@ void Storm::IISPHSolver::execute(Storm::ParticleSystemContainer &particleSystems
 	const float k_maxDensityError = generalSimulData._maxDensityError;
 	unsigned int currentPredictionIter = 0;
 
-	const float deltaTimeSquared = k_deltaTime * k_deltaTime;
-	const float k_kernelLengthSquared = k_kernelLength * k_kernelLength;
+	const float deltaTimeSquared = iterationParameter._deltaTime * iterationParameter._deltaTime;
+	const float k_kernelLengthSquared = iterationParameter._kernelLength * iterationParameter._kernelLength;
+
+	Storm::ParticleSystemContainer &particleSystems = *iterationParameter._particleSystems;
 
 	// 1st : Compute the base density
 	for (auto &particleSystemPair : particleSystems)
@@ -119,7 +123,7 @@ void Storm::IISPHSolver::execute(Storm::ParticleSystemContainer &particleSystems
 				const Storm::ParticleNeighborhoodArray &currentPNeighborhood = neighborhoodArrays[currentPIndex];
 				for (const Storm::NeighborParticleInfo &neighbor : currentPNeighborhood)
 				{
-					const float kernelValue_Wij = rawKernel(k_kernelLength, neighbor._vectToParticleNorm);
+					const float kernelValue_Wij = rawKernel(iterationParameter._kernelLength, neighbor._vectToParticleNorm);
 					float deltaDensity;
 					if (neighbor._isFluidParticle)
 					{
@@ -172,7 +176,7 @@ void Storm::IISPHSolver::execute(Storm::ParticleSystemContainer &particleSystems
 				const Storm::ParticleNeighborhoodArray &currentPNeighborhood = neighborhoodArrays[currentPIndex];
 				for (const Storm::NeighborParticleInfo &neighbor : currentPNeighborhood)
 				{
-					const Storm::Vector3 gradKernel_NablaWij = gradKernel(k_kernelLength, neighbor._positionDifferenceVector, neighbor._vectToParticleNorm);
+					const Storm::Vector3 gradKernel_NablaWij = gradKernel(iterationParameter._kernelLength, neighbor._positionDifferenceVector, neighbor._vectToParticleNorm);
 
 					const Storm::Vector3 vij = vi - neighbor._containingParticleSystem->getVelocity()[neighbor._particleIndex];
 
@@ -238,7 +242,7 @@ void Storm::IISPHSolver::execute(Storm::ParticleSystemContainer &particleSystems
 
 				currentPDataField._nonPressureAcceleration = currentPForce / currentPMass;
 				currentPDataField._predictedAcceleration = currentPDataField._nonPressureAcceleration;
-				currentPDataField._predictedVelocity = vi + currentPDataField._nonPressureAcceleration * k_deltaTime;
+				currentPDataField._predictedVelocity = vi + currentPDataField._nonPressureAcceleration * iterationParameter._deltaTime;
 
 				// Note : Maybe we should also compute a prediction of the position ?
 			});
@@ -274,7 +278,7 @@ void Storm::IISPHSolver::execute(Storm::ParticleSystemContainer &particleSystems
 			Storm::Vector3 fluidDiiTmp = Storm::Vector3::Zero();
 			for (const Storm::NeighborParticleInfo &neighborInfo : currentPNeighborhood)
 			{
-				const Storm::Vector3 gradientWij = gradKernel(k_kernelLength, neighborInfo._positionDifferenceVector, neighborInfo._vectToParticleNorm);
+				const Storm::Vector3 gradientWij = gradKernel(iterationParameter._kernelLength, neighborInfo._positionDifferenceVector, neighborInfo._vectToParticleNorm);
 				if (neighborInfo._isFluidParticle)
 				{
 					fluidDiiTmp -= gradientWij;
@@ -303,7 +307,7 @@ void Storm::IISPHSolver::execute(Storm::ParticleSystemContainer &particleSystems
 
 			for (const Storm::NeighborParticleInfo &neighborInfo : currentPNeighborhood)
 			{
-				const Storm::Vector3 gradientWij = gradKernel(k_kernelLength, neighborInfo._positionDifferenceVector, neighborInfo._vectToParticleNorm);
+				const Storm::Vector3 gradientWij = gradKernel(iterationParameter._kernelLength, neighborInfo._positionDifferenceVector, neighborInfo._vectToParticleNorm);
 
 				if (neighborInfo._isFluidParticle)
 				{
@@ -330,7 +334,7 @@ void Storm::IISPHSolver::execute(Storm::ParticleSystemContainer &particleSystems
 				currentPData._aii += neighborPVolume * (currentPData._dii - fluidDpiCoeff * gradientWij).dot(gradientWij);
 			}
 
-			currentPData._advectedDensity *= k_deltaTime;
+			currentPData._advectedDensity *= iterationParameter._deltaTime;
 			currentPData._advectedDensity += currentPDensityRatio;
 
 			// Init pressures
@@ -377,7 +381,7 @@ void Storm::IISPHSolver::execute(Storm::ParticleSystemContainer &particleSystems
 						const float dpj = neighborDensityCoeffRatio * neighborDensityCoeffRatio;
 
 						const float coeff = neighborPSystemAsFluid.getParticleVolume() / dpj * neighborPSystemAsFluid.getPressures()[neighborInfo._particleIndex];
-						const Storm::Vector3 gradientWij = gradKernel(k_kernelLength, neighborInfo._positionDifferenceVector, neighborInfo._vectToParticleNorm);
+						const Storm::Vector3 gradientWij = gradKernel(iterationParameter._kernelLength, neighborInfo._positionDifferenceVector, neighborInfo._vectToParticleNorm);
 
 						currentPData._dijPj -= coeff * gradientWij;
 					}
@@ -417,7 +421,7 @@ void Storm::IISPHSolver::execute(Storm::ParticleSystemContainer &particleSystems
 				for (const Storm::NeighborParticleInfo &neighborInfo : currentPNeighborhood)
 				{
 					// Note : Maybe use a predicted position instead.
-					const Storm::Vector3 gradientWij = gradKernel(k_kernelLength, neighborInfo._positionDifferenceVector, neighborInfo._vectToParticleNorm);
+					const Storm::Vector3 gradientWij = gradKernel(iterationParameter._kernelLength, neighborInfo._positionDifferenceVector, neighborInfo._vectToParticleNorm);
 
 					if (neighborInfo._isFluidParticle)
 					{
@@ -518,7 +522,7 @@ void Storm::IISPHSolver::execute(Storm::ParticleSystemContainer &particleSystems
 			Storm::Vector3 tmpAccel;
 			for (const Storm::NeighborParticleInfo &neighborInfo : currentPNeighborhood)
 			{
-				tmpAccel = gradKernel(k_kernelLength, neighborInfo._positionDifferenceVector, neighborInfo._vectToParticleNorm);
+				tmpAccel = gradKernel(iterationParameter._kernelLength, neighborInfo._positionDifferenceVector, neighborInfo._vectToParticleNorm);
 				if (neighborInfo._isFluidParticle)
 				{
 					const Storm::FluidParticleSystem &neighborPSystemAsFluid = static_cast<const Storm::FluidParticleSystem &>(*neighborInfo._containingParticleSystem);

@@ -8,6 +8,6 @@ namespace Storm
 	class WCSPHSolver : public Storm::ISPHBaseSolver
 	{
 	public:
-		void execute(Storm::ParticleSystemContainer &particleSystems, const float kernelLength, const float k_deltaTime) final override;
+		void execute(const Storm::IterationParameter &iterationParameter) final override;
 	};
 }
