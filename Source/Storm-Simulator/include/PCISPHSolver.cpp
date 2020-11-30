@@ -3,6 +3,8 @@
 #include "SingletonHolder.h"
 #include "IConfigManager.h"
 
+#include "SimulatorManager.h"
+
 #include "GeneralSimulationData.h"
 #include "FluidData.h"
 
@@ -144,6 +146,8 @@ void Storm::PCISPHSolver::execute(const Storm::IterationParameter &iterationPara
 	const Storm::GeneralSimulationData &generalSimulData = configMgr.getGeneralSimulationData();
 	const Storm::FluidData &fluidConfigData = configMgr.getFluidData();
 
+	Storm::SimulatorManager &simulMgr = Storm::SimulatorManager::instance();
+
 	const float k_kernelZero = Storm::retrieveKernelZeroValue(generalSimulData._kernelMode);
 	const Storm::RawKernelMethodDelegate rawKernel = Storm::retrieveRawKernelMethod(generalSimulData._kernelMode);
 	const Storm::GradKernelMethodDelegate gradKernel = Storm::retrieveGradKernelMethod(generalSimulData._kernelMode);
@@ -154,14 +158,19 @@ void Storm::PCISPHSolver::execute(const Storm::IterationParameter &iterationPara
 	const float deltaTimeSquared = iterationParameter._deltaTime * iterationParameter._deltaTime;
 	const float k_kernelLengthSquared = iterationParameter._kernelLength * iterationParameter._kernelLength;
 
-	// First : compute stiffness constant coeff kPCI.
+	// 1st : Initialize iteration
+	simulMgr.advanceBlowersTime(iterationParameter._deltaTime);
+	simulMgr.refreshParticleNeighborhood();
+	simulMgr.subIterationStart();
+
+	// 2nd : compute stiffness constant coeff kPCI.
 	const float k_templatePStiffnessCoeffK = _kUniformStiffnessConstCoefficient / deltaTimeSquared;
 
 	Storm::ParticleSystemContainer &particleSystems = *iterationParameter._particleSystems;
 
 	float averageDensityError;
 
-	// 2nd : Compute the base density
+	// 3rd : Compute the base density
 	for (auto &particleSystemPair : particleSystems)
 	{
 		Storm::ParticleSystem &currentParticleSystem = *particleSystemPair.second;
@@ -213,7 +222,7 @@ void Storm::PCISPHSolver::execute(const Storm::IterationParameter &iterationPara
 		}
 	}
 
-	// 3rd : Compute the non pressure forces (viscosity)
+	// 4th : Compute the non pressure forces (viscosity)
 	for (auto &particleSystemPair : particleSystems)
 	{
 		Storm::ParticleSystem &currentParticleSystem = *particleSystemPair.second;
@@ -323,7 +332,7 @@ void Storm::PCISPHSolver::execute(const Storm::IterationParameter &iterationPara
 
 	const float totalParticleCountFl = static_cast<float>(_totalParticleCount);
 
-	// 4th : The density prediction (pressure solving)
+	// 5th : The density prediction (pressure solving)
 	do
 	{
 		// Initialize the components
@@ -564,4 +573,49 @@ void Storm::PCISPHSolver::execute(const Storm::IterationParameter &iterationPara
 			tmpPressureForces[currentPIndex] = (currentPData._predictedAcceleration - currentPData._nonPressureAcceleration) * currentPMass;
 		});
 	});
+
+	// 7th : flush physics state (rigid bodies)
+	simulMgr.flushPhysics(iterationParameter._deltaTime);
+
+	// 8th : update fluid positions (Euler integration)
+	std::atomic<bool> dirtyTmp;
+	for (auto &particleSystemPair : particleSystems)
+	{
+		Storm::ParticleSystem &currentPSystem = *particleSystemPair.second;
+		if (currentPSystem.isFluids())
+		{
+			Storm::FluidParticleSystem &currentPSystemAsFluid = static_cast<Storm::FluidParticleSystem &>(currentPSystem);
+			const std::vector<float> &masses = currentPSystemAsFluid.getMasses();
+			std::vector<Storm::Vector3> &velocities = currentPSystemAsFluid.getVelocity();
+			std::vector<Storm::Vector3> &positions = currentPSystemAsFluid.getPositions();
+			const std::vector<Storm::Vector3> &force = currentPSystemAsFluid.getForces();
+
+			dirtyTmp = false;
+			constexpr const float minForceDirtyEpsilon = 0.0001f;
+
+			Storm::runParallel(force, [&](const Storm::Vector3 &currentPForce, const std::size_t currentPIndex)
+			{
+				const float &currentPMass = masses[currentPIndex];
+				Storm::Vector3 &currentPVelocity = velocities[currentPIndex];
+				Storm::Vector3 &currentPPositions = positions[currentPIndex];
+
+				currentPVelocity += currentPForce / currentPMass * iterationParameter._deltaTime;
+				currentPPositions += currentPVelocity * iterationParameter._deltaTime;
+
+				if (!dirtyTmp)
+				{
+					if (
+						std::fabs(currentPForce.x()) > minForceDirtyEpsilon ||
+						std::fabs(currentPForce.y()) > minForceDirtyEpsilon ||
+						std::fabs(currentPForce.z()) > minForceDirtyEpsilon
+						)
+					{
+						dirtyTmp = true;
+					}
+				}
+			});
+
+			currentPSystemAsFluid.setIsDirty(dirtyTmp);
+		}
+	}
 }
