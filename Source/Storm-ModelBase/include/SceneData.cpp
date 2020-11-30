@@ -27,7 +27,7 @@ Storm::GeneralSimulationData::GeneralSimulationData() :
 	_physicsTimeInSec{ -1.f },
 	_expectedFps{ -1.f },
 	_simulationMode{ Storm::SimulationMode::None },
-	_minPredictIteration{ 1 },
+	_minPredictIteration{ 2 },
 	_maxPredictIteration{ 150 },
 	_maxDensityError{ 0.01f },
 	_kernelMode{ Storm::KernelMode::CubicSpline },
