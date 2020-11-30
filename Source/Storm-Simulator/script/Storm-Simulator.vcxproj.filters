@@ -206,5 +206,8 @@
     <ClInclude Include="..\include\KernelHandler.h">
       <Filter>Header Files\Kernel</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\IterationParameter.h">
+      <Filter>Header Files\General</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -43,6 +43,7 @@
     <ClInclude Include="..\include\IBlower.h" />
     <ClInclude Include="..\include\IISPHSolver.h" />
     <ClInclude Include="..\include\IISPHSolverData.h" />
+    <ClInclude Include="..\include\IterationParameter.h" />
     <ClInclude Include="..\include\Kernel.h" />
     <ClInclude Include="..\include\KernelHandler.h" />
     <ClInclude Include="..\include\NeighborParticleInfo.h" />
