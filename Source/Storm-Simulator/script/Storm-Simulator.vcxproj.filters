@@ -207,7 +207,10 @@
       <Filter>Header Files\Kernel</Filter>
     </ClInclude>
     <ClInclude Include="..\include\IterationParameter.h">
-      <Filter>Header Files\General</Filter>
+      <Filter>Header Files\Solver\SPHSolvers\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SolverCreationParameter.h">
+      <Filter>Header Files\Solver\SPHSolvers\Base</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

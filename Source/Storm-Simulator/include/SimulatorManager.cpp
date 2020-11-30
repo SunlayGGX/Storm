@@ -65,6 +65,8 @@
 #include "UIField.h"
 #include "UIFieldContainer.h"
 
+#include "SolverCreationParameter.h"
+
 #include <fstream>
 
 #define STORM_PROGRESS_REMAINING_TIME_NAME "Remaining time"
@@ -1097,7 +1099,11 @@ void Storm::SimulatorManager::initializePreSimulation()
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
 	const Storm::GeneralSimulationData &generalSimulationConfigData = configMgr.getGeneralSimulationData();
 
-	_sphSolver = Storm::instantiateSPHSolver(generalSimulationConfigData._simulationMode, k_kernelLength, _particleSystem);
+	_sphSolver = Storm::instantiateSPHSolver(Storm::SolverCreationParameter{
+		._simulationMode = generalSimulationConfigData._simulationMode,
+		._kernelLength = k_kernelLength,
+		._particleSystems = &_particleSystem
+	});
 }
 
 void Storm::SimulatorManager::refreshParticlesPosition()

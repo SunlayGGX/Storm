@@ -4,20 +4,22 @@
 
 #include "ThrowException.h"
 
+#include "SolverCreationParameter.h"
+
 #include "WCSPHSolver.h"
 #include "PCISPHSolver.h"
 #include "IISPHSolver.h"
 #include "DFSPHSolver.h"
 
 
-std::unique_ptr<Storm::ISPHBaseSolver> Storm::instantiateSPHSolver(const Storm::SimulationMode simulationMode, const float k_kernelLength, const Storm::ParticleSystemContainer &particleSystems)
+std::unique_ptr<Storm::ISPHBaseSolver> Storm::instantiateSPHSolver(const Storm::SolverCreationParameter &creationParameter)
 {
-	switch (simulationMode)
+	switch (creationParameter._simulationMode)
 	{
 	case Storm::SimulationMode::WCSPH: return std::make_unique<Storm::WCSPHSolver>();
-	case Storm::SimulationMode::PCISPH: return std::make_unique<Storm::PCISPHSolver>(k_kernelLength, particleSystems);
-	case Storm::SimulationMode::IISPH: return std::make_unique<Storm::IISPHSolver>(k_kernelLength, particleSystems);
-	case Storm::SimulationMode::DFSPH: return std::make_unique<Storm::DFSPHSolver>(k_kernelLength, particleSystems);
+	case Storm::SimulationMode::PCISPH: return std::make_unique<Storm::PCISPHSolver>(creationParameter._kernelLength, *creationParameter._particleSystems);
+	case Storm::SimulationMode::IISPH: return std::make_unique<Storm::IISPHSolver>(creationParameter._kernelLength, *creationParameter._particleSystems);
+	case Storm::SimulationMode::DFSPH: return std::make_unique<Storm::DFSPHSolver>(creationParameter._kernelLength, *creationParameter._particleSystems);
 
 	default:
 		Storm::throwException<std::exception>("Unknown simulation mode!");
