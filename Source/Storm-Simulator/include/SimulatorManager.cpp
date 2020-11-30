@@ -919,7 +919,6 @@ void Storm::SimulatorManager::executeIteration(bool firstFrame, unsigned int for
 	const Storm::GeneralSimulationData &generalSimulationConfigData = configMgr.getGeneralSimulationData();
 
 	float physicsDeltaTime = timeMgr.getCurrentPhysicsDeltaTime();
-	const float physicsCurrentTime = timeMgr.getCurrentPhysicsElapsedTime();
 
 	// initialize for current iteration. I.e. Initializing with gravity and resetting current iteration velocity.
 	// Also build neighborhood.
