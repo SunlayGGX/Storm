@@ -25,7 +25,7 @@ void Storm::SpeedProfileHandler::removeProfileData(const std::wstring_view &name
 {
 	_speedProfile.stopTime();
 
-	_allTimesAccumulated += _speedProfile.computationSpeed();
+	_allTimesAccumulated += this->getCurrentSpeed();
 
 	assert(_name == name && "Speed profiling is specific to the Simulator loop and only one should exist!");
 
@@ -38,4 +38,9 @@ void Storm::SpeedProfileHandler::removeProfileData(const std::wstring_view &name
 float Storm::SpeedProfileHandler::getAccumulatedTime() const
 {
 	return _allTimesAccumulated;
+}
+
+float Storm::SpeedProfileHandler::getCurrentSpeed() const
+{
+	return _speedProfile.computationSpeed();
 }

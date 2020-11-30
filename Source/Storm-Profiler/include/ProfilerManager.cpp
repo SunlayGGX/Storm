@@ -78,3 +78,14 @@ float Storm::ProfilerManager::getSpeedProfileAccumulatedTime() const
 
 	return 0.f;
 }
+
+float Storm::ProfilerManager::getCurrentSpeedProfile() const
+{
+	if (_speedProfile)
+	{
+		const Storm::SpeedProfileHandler &speedProfileHandler = _speedProfileHandlerMap.find(std::this_thread::get_id())->second;
+		return speedProfileHandler.getCurrentSpeed();
+	}
+
+	return 0.f;
+}

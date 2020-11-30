@@ -20,5 +20,6 @@ namespace Storm
 		virtual void startSpeedProfile(const std::wstring_view &profileName) = 0;
 		virtual void endSpeedProfile(const std::wstring_view &profileName) = 0;
 		virtual float getSpeedProfileAccumulatedTime() const = 0;
+		virtual float getCurrentSpeedProfile() const = 0;
 	};
 }

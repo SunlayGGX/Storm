@@ -17,6 +17,7 @@ namespace Storm
 		void removeProfileData(const std::wstring_view &name);
 
 		float getAccumulatedTime() const;
+		float getCurrentSpeed() const;
 
 	private:
 		const std::wstring_view _name;
