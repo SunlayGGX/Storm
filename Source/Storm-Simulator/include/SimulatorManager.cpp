@@ -858,14 +858,29 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 
 		_kernelHandler.update(timeMgr.getCurrentPhysicsElapsedTime());
 
-		this->executeIteration(firstFrame, forcedPushFrameIterator);
+		for (auto &particleSystem : _particleSystem)
+		{
+			particleSystem.second->onIterationStart();
+		}
+
+		// Compute the simulation
+		_sphSolver->execute(Storm::IterationParameter{
+			._particleSystems = &_particleSystem,
+			._kernelLength = this->getKernelLength(),
+			._deltaTime = timeMgr.getCurrentPhysicsDeltaTime()
+		});
 
 		// Update the particle selector data with the external sum force.
 		if (_particleSelector.hasSelectedParticle())
 		{
 			if (auto found = _particleSystem.find(_particleSelector.getSelectedParticleSystemId()); found != std::end(_particleSystem))
 			{
-				_particleSelector.setSelectedParticleSumForce(found->second->getForces()[_particleSelector.getSelectedParticleIndex()]);
+				const Storm::ParticleSystem &pSystem = *found->second;
+
+				const std::size_t selectedParticleIndex = _particleSelector.getSelectedParticleIndex();
+				_particleSelector.setSelectedParticlePressureForce(pSystem.getTemporaryPressureForces()[selectedParticleIndex]);
+				_particleSelector.setSelectedParticleViscosityForce(pSystem.getTemporaryViscosityForces()[selectedParticleIndex]);
+				_particleSelector.setSelectedParticleSumForce(pSystem.getForces()[selectedParticleIndex]);
 			}
 		}
 
@@ -908,121 +923,6 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 		firstFrame = false;
 
 	} while (true);
-}
-
-void Storm::SimulatorManager::executeIteration(bool firstFrame, unsigned int forcedPushFrameIterator)
-{
-	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
-
-	Storm::ITimeManager &timeMgr = singletonHolder.getSingleton<Storm::ITimeManager>();
-
-	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
-	const Storm::GeneralSimulationData &generalSimulationConfigData = configMgr.getGeneralSimulationData();
-
-	float physicsDeltaTime = timeMgr.getCurrentPhysicsDeltaTime();
-	const float kernelLength = this->getKernelLength();
-
-#if false
-
-	// initialize for current iteration. I.e. Initializing with gravity and resetting current iteration velocity.
-	// Also build neighborhood.
-
-	if (!firstFrame && forcedPushFrameIterator % generalSimulationConfigData._recomputeNeighborhoodStep == 0)
-	{
-		this->refreshParticlePartition();
-	}
-
-	Storm::IPhysicsManager &physicsMgr = singletonHolder.getSingleton<Storm::IPhysicsManager>();
-
-	this->advanceBlowersTime(physicsDeltaTime);
-
-	this->initializeIteration();
-
-	bool runIterationAgain;
-
-	int maxCFLIteration = generalSimulationConfigData._maxCFLIteration;
-	int iter = 0;
-
-	float exDeltaTime = physicsDeltaTime;
-
-	bool hasRunIterationBefore = false;
-	do 
-	{
-		if (hasRunIterationBefore)
-		{
-			this->revertIteration();
-		}
-		else
-		{
-			hasRunIterationBefore = true;
-		}
-
-		// Compute the simulation
-		_sphSolver->execute(Storm::IterationParameter{
-			._particleSystems = &_particleSystem,
-			._kernelLength = kernelLength,
-			._deltaTime = physicsDeltaTime
-		});
-
-		float velocityThresholdSquaredForCFL = computeCFLDistance(generalSimulationConfigData) / physicsDeltaTime;
-		velocityThresholdSquaredForCFL = velocityThresholdSquaredForCFL * velocityThresholdSquaredForCFL;
-
-		bool shouldApplyCFL = false;
-
-		// Semi implicit Euler to update the particle position
-		for (auto &particleSystem : _particleSystem)
-		{
-			shouldApplyCFL |= particleSystem.second->computeVelocityChange(physicsDeltaTime, velocityThresholdSquaredForCFL);
-		}
-
-		runIterationAgain = this->applyCFLIfNeeded(generalSimulationConfigData);
-		if (runIterationAgain)
-		{
-			physicsDeltaTime = timeMgr.getCurrentPhysicsDeltaTime();
-			
-			if (physicsDeltaTime != exDeltaTime)
-			{
-				// Correct the blower time to the corrected time
-				float correctionDeltaTime = physicsDeltaTime - exDeltaTime;
-				exDeltaTime = physicsDeltaTime;
-				this->advanceBlowersTime(correctionDeltaTime);
-			}
-		}
-
-		++iter;
-
-	} while (runIterationAgain && iter < maxCFLIteration && physicsDeltaTime < generalSimulationConfigData._maxCFLTime && physicsDeltaTime > getMinCLFTime());
-
-	this->flushPhysics(physicsDeltaTime);
-
-	// Update the position of every particles. 
-	for (auto &particleSystem : _particleSystem)
-	{
-		particleSystem.second->updatePosition(physicsDeltaTime, false);
-	}
-
-#endif
-
-	for (auto &particleSystem : _particleSystem)
-	{
-		particleSystem.second->onIterationStart();
-	}
-
-	// Compute the simulation
-	_sphSolver->execute(Storm::IterationParameter{
-		._particleSystems = &_particleSystem,
-		._kernelLength = kernelLength,
-		._deltaTime = physicsDeltaTime
-	});
-
-	if (_particleSelector.hasSelectedParticle())
-	{
-		const Storm::ParticleSystem &pSystem = *_particleSystem[_particleSelector.getSelectedParticleSystemId()];
-
-		const std::size_t selectedParticleIndex = _particleSelector.getSelectedParticleIndex();
-		_particleSelector.setSelectedParticlePressureForce(pSystem.getTemporaryPressureForces()[selectedParticleIndex]);
-		_particleSelector.setSelectedParticleViscosityForce(pSystem.getTemporaryViscosityForces()[selectedParticleIndex]);
-	}
 }
 
 bool Storm::SimulatorManager::applyCFLIfNeeded(const Storm::GeneralSimulationData &generalSimulationDataConfig)

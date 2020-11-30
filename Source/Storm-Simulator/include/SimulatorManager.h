@@ -37,8 +37,6 @@ namespace Storm
 		Storm::ExitCode runSimulation_Internal();
 		Storm::ExitCode runReplay_Internal();
 
-		void executeIteration(bool firstFrame, unsigned int forcedPushFrameIterator);
-
 	private:
 		// CFL : Courant-Friedrich-Levy
 		bool applyCFLIfNeeded(const Storm::GeneralSimulationData &generalSimulationDataConfig);
