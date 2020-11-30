@@ -553,12 +553,12 @@ void Storm::IISPHSolver::execute(const Storm::IterationParameter &iterationParam
 					if (!neighborPSystemAsRb.isStatic())
 					{
 						const float neighborPRbMass = neighborPSystemAsRb.getVolumes()[neighborInfo._particleIndex] * currentPDensity;
-						const Storm::Vector3 pressureForceOnRb = -neighborPRbMass * tmpAccel;
+						const Storm::Vector3 pressureForceOnRb = neighborPRbMass * tmpAccel;
 
 						Storm::Vector3 &tmpPressureForce = neighborPSystemAsRb.getTemporaryPressureForces()[neighborInfo._particleIndex];
 
 						std::lock_guard<std::mutex> lock{ neighborPSystemAsRb._mutex };
-						tmpPressureForce += tmpPressureForce;
+						tmpPressureForce += pressureForceOnRb;
 					}
 				}
 
