@@ -916,7 +916,6 @@ void Storm::SimulatorManager::executeIteration(bool firstFrame, unsigned int for
 
 	Storm::ITimeManager &timeMgr = singletonHolder.getSingleton<Storm::ITimeManager>();
 	Storm::IPhysicsManager &physicsMgr = singletonHolder.getSingleton<Storm::IPhysicsManager>();
-	Storm::IThreadManager &threadMgr = singletonHolder.getSingleton<Storm::IThreadManager>();
 
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
 	const Storm::GeneralSimulationData &generalSimulationConfigData = configMgr.getGeneralSimulationData();
