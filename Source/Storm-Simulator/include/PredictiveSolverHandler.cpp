@@ -86,14 +86,14 @@ void Storm::PredictiveSolverHandler::initializePredictionIteration(Storm::Partic
 	averageDensityError = 0.f;
 }
 
-void Storm::PredictiveSolverHandler::transfertEndDataToSystems(Storm::ParticleSystemContainer &particleSystems, void* data, void(*fluidTransfertCallback)(void*, const unsigned int, Storm::FluidParticleSystem &))
+void Storm::PredictiveSolverHandler::transfertEndDataToSystems(Storm::ParticleSystemContainer &particleSystems, const Storm::IterationParameter &iterationParameter, void* data, void(*fluidTransfertCallback)(void*, const unsigned int, Storm::FluidParticleSystem &, const Storm::IterationParameter &))
 {
 	for (auto &particleSystemPair : particleSystems)
 	{
 		Storm::ParticleSystem &particleSystem = *particleSystemPair.second;
 		if (particleSystem.isFluids())
 		{
-			fluidTransfertCallback(data, particleSystemPair.first, reinterpret_cast<Storm::FluidParticleSystem &>(particleSystem));
+			fluidTransfertCallback(data, particleSystemPair.first, reinterpret_cast<Storm::FluidParticleSystem &>(particleSystem), iterationParameter);
 		}
 		else if (!particleSystem.isStatic())
 		{

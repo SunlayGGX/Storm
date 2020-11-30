@@ -432,8 +432,7 @@ void Storm::DFSPHSolver::execute(const Storm::IterationParameter &iterationParam
 
 	this->updateCurrentPredictionIter(divergenceSolvePredictionIter, generalSimulData._maxPredictIteration, averageDivergenceError, generalSimulData._maxDensityError, 1);
 
-
-	this->transfertEndDataToSystems(particleSystems, &_data, [](void* data, const unsigned int pSystemId, Storm::FluidParticleSystem &fluidParticleSystem)
+	this->transfertEndDataToSystems(particleSystems, iterationParameter, &_data, [](void* data, const unsigned int pSystemId, Storm::FluidParticleSystem &fluidParticleSystem, const Storm::IterationParameter &iterationParameter)
 	{
 		auto &dataField = reinterpret_cast<decltype(_data)*>(data)->find(pSystemId)->second;
 

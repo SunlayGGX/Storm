@@ -567,65 +567,48 @@ void Storm::IISPHSolver::execute(const Storm::IterationParameter &iterationParam
 		});
 	}
 
-	this->transfertEndDataToSystems(particleSystems, &_data, [](void* data, const unsigned int pSystemId, Storm::FluidParticleSystem &fluidParticleSystem)
+	this->transfertEndDataToSystems(particleSystems, iterationParameter, &_data, [](void* data, const unsigned int pSystemId, Storm::FluidParticleSystem &fluidParticleSystem, const Storm::IterationParameter &iterationParameter)
 	{
 		auto &dataField = reinterpret_cast<decltype(_data)*>(data)->find(pSystemId)->second;
 
 		const std::vector<float> &masses = fluidParticleSystem.getMasses();
 		std::vector<Storm::Vector3> &forces = fluidParticleSystem.getForces();
+		std::vector<Storm::Vector3> &velocities = fluidParticleSystem.getVelocity();
+		std::vector<Storm::Vector3> &positions = fluidParticleSystem.getPositions();
 		std::vector<Storm::Vector3> &tmpPressureForces = fluidParticleSystem.getTemporaryPressureForces();
 
-		Storm::runParallel(dataField, [&masses, &forces, &tmpPressureForces](const Storm::IISPHSolverData &currentPData, const std::size_t currentPIndex)
+		std::atomic<bool> dirtyTmp = false;
+		constexpr const float minForceDirtyEpsilon = 0.0001f;
+
+		Storm::runParallel(dataField, [&](const Storm::IISPHSolverData &currentPData, const std::size_t currentPIndex)
 		{
 			const float currentPMass = masses[currentPIndex];
 			forces[currentPIndex] = currentPData._predictedAcceleration * currentPMass;
 			tmpPressureForces[currentPIndex] = (currentPData._predictedAcceleration - currentPData._nonPressureAcceleration) * currentPMass;
+
+			// Euler integration
+			Storm::Vector3 &currentPVelocity = velocities[currentPIndex];
+			Storm::Vector3 &currentPPositions = positions[currentPIndex];
+
+			currentPVelocity += currentPData._predictedAcceleration * iterationParameter._deltaTime;
+			currentPPositions += currentPVelocity * iterationParameter._deltaTime;
+
+			if (!dirtyTmp)
+			{
+				if (
+					std::fabs(currentPVelocity.x()) > minForceDirtyEpsilon ||
+					std::fabs(currentPVelocity.y()) > minForceDirtyEpsilon ||
+					std::fabs(currentPVelocity.z()) > minForceDirtyEpsilon
+					)
+				{
+					dirtyTmp = true;
+				}
+			}
 		});
+
+		fluidParticleSystem.setIsDirty(dirtyTmp);
 	});
 
 	// 7th : flush physics state (rigid bodies)
 	simulMgr.flushPhysics(iterationParameter._deltaTime);
-
-	// 8th : update fluid positions (Euler integration)
-	std::atomic<bool> dirtyTmp;
-	for (auto &particleSystemPair : particleSystems)
-	{
-		Storm::ParticleSystem &currentPSystem = *particleSystemPair.second;
-		if (currentPSystem.isFluids())
-		{
-			Storm::FluidParticleSystem &currentPSystemAsFluid = static_cast<Storm::FluidParticleSystem &>(currentPSystem);
-			const std::vector<float> &masses = currentPSystemAsFluid.getMasses();
-			std::vector<Storm::Vector3> &velocities = currentPSystemAsFluid.getVelocity();
-			std::vector<Storm::Vector3> &positions = currentPSystemAsFluid.getPositions();
-			const std::vector<Storm::Vector3> &force = currentPSystemAsFluid.getForces();
-
-			dirtyTmp = false;
-			constexpr const float minForceDirtyEpsilon = 0.0001f;
-
-			Storm::runParallel(force, [&](const Storm::Vector3 &currentPForce, const std::size_t currentPIndex)
-			{
-				const float &currentPMass = masses[currentPIndex];
-				Storm::Vector3 &currentPVelocity = velocities[currentPIndex];
-				Storm::Vector3 &currentPPositions = positions[currentPIndex];
-
-				const float forceToVelocityCoeff = iterationParameter._deltaTime / currentPMass;
-				currentPVelocity += currentPForce * forceToVelocityCoeff;
-				currentPPositions += currentPVelocity * iterationParameter._deltaTime;
-
-				if (!dirtyTmp)
-				{
-					if (
-						std::fabs(currentPForce.x()) > minForceDirtyEpsilon ||
-						std::fabs(currentPForce.y()) > minForceDirtyEpsilon ||
-						std::fabs(currentPForce.z()) > minForceDirtyEpsilon
-						)
-					{
-						dirtyTmp = true;
-					}
-				}
-			});
-
-			currentPSystemAsFluid.setIsDirty(dirtyTmp);
-		}
-	}
 }

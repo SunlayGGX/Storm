@@ -7,6 +7,7 @@ namespace Storm
 {
 	class UIFieldContainer;
 	class FluidParticleSystem;
+	struct IterationParameter;
 
 	class PredictiveSolverHandler
 	{
@@ -24,7 +25,7 @@ namespace Storm
 
 	protected:
 		void initializePredictionIteration(Storm::ParticleSystemContainer &particleSystems, float &averageDensityError);
-		void transfertEndDataToSystems(Storm::ParticleSystemContainer &particleSystems, void* data, void(*fluidTransfertCallback)(void*, const unsigned int, Storm::FluidParticleSystem &));
+		void transfertEndDataToSystems(Storm::ParticleSystemContainer &particleSystems, const Storm::IterationParameter &iterationParameter, void* data, void(*fluidTransfertCallback)(void*, const unsigned int, Storm::FluidParticleSystem &, const Storm::IterationParameter &));
 
 	private:
 		unsigned int _solverPredictionIter[Storm::PredictiveSolverHandler::k_maxSolverCount];
