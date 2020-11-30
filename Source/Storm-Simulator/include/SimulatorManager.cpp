@@ -998,15 +998,6 @@ void Storm::SimulatorManager::executeIteration(bool firstFrame, unsigned int for
 
 	} while (runIterationAgain && iter < maxCFLIteration && physicsDeltaTime < generalSimulationConfigData._maxCFLTime && physicsDeltaTime > getMinCLFTime());
 
-	if (_particleSelector.hasSelectedParticle())
-	{
-		const Storm::ParticleSystem &pSystem = *_particleSystem[_particleSelector.getSelectedParticleSystemId()];
-
-		const std::size_t selectedParticleIndex = _particleSelector.getSelectedParticleIndex();
-		_particleSelector.setSelectedParticlePressureForce(pSystem.getTemporaryPressureForces()[selectedParticleIndex]);
-		_particleSelector.setSelectedParticleViscosityForce(pSystem.getTemporaryViscosityForces()[selectedParticleIndex]);
-	}
-
 	// Update everything that should be updated once CFL iteration finished. 
 	for (auto &particleSystem : _particleSystem)
 	{
@@ -1020,6 +1011,15 @@ void Storm::SimulatorManager::executeIteration(bool firstFrame, unsigned int for
 	for (auto &particleSystem : _particleSystem)
 	{
 		particleSystem.second->updatePosition(physicsDeltaTime, false);
+	}
+
+	if (_particleSelector.hasSelectedParticle())
+	{
+		const Storm::ParticleSystem &pSystem = *_particleSystem[_particleSelector.getSelectedParticleSystemId()];
+
+		const std::size_t selectedParticleIndex = _particleSelector.getSelectedParticleIndex();
+		_particleSelector.setSelectedParticlePressureForce(pSystem.getTemporaryPressureForces()[selectedParticleIndex]);
+		_particleSelector.setSelectedParticleViscosityForce(pSystem.getTemporaryViscosityForces()[selectedParticleIndex]);
 	}
 }
 
