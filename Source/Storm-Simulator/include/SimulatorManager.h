@@ -17,6 +17,7 @@ namespace Storm
 	class ParticleSystem;
 	class IBlower;
 	class ISPHBaseSolver;
+	class UIFieldContainer;
 	struct GeneralSimulationData;
 	struct SerializeRecordPendingData;
 
@@ -117,5 +118,9 @@ namespace Storm
 		// For replay
 		std::unique_ptr<Storm::SerializeRecordPendingData> _frameBefore;
 		bool _reinitFrameAfter;
+
+		std::wstring _progressRemainingTime;
+
+		std::unique_ptr<Storm::UIFieldContainer> _uiFields;
 	};
 }

@@ -62,7 +62,12 @@
 
 #include "ExitCode.h"
 
+#include "UIField.h"
+#include "UIFieldContainer.h"
+
 #include <fstream>
+
+#define STORM_PROGRESS_REMAINING_TIME_NAME "Remaining time"
 
 
 namespace
@@ -135,17 +140,27 @@ namespace
 			}
 		}
 
-		void disable()
-		{
-			_active = false;
-		}
-
 		~SpeedProfileBalist()
 		{
 			if (_active && _profileMgrPtr)
 			{
 				_profileMgrPtr->endSpeedProfile(k_simulationSpeedBalistName);
 			}
+		}
+
+		void disable()
+		{
+			_active = false;
+		}
+
+		float getCurrentSpeed() const
+		{
+			if (_active && _profileMgrPtr)
+			{
+				return _profileMgrPtr->getCurrentSpeedProfile();
+			}
+
+			return 0.f;
 		}
 
 	private:
@@ -352,12 +367,44 @@ namespace
 			timeMgr.decreaseCurrentPhysicsDeltaTime();
 		}
 	}
+
+	void computeProgression(std::wstring &outResult, const float speed, const float endTime, const float currentTimeInSecond)
+	{
+		outResult.clear();
+
+		if (speed > 0.f)
+		{
+			const float remainingTimeToSimulateInSecond = endTime - currentTimeInSecond;
+			const float expectedRemainingSimulationTimeInSecond = remainingTimeToSimulateInSecond / speed;
+
+			outResult += std::filesystem::path(Storm::toStdString(std::chrono::seconds{ static_cast<long long>(std::roundf(expectedRemainingSimulationTimeInSecond)) })).wstring();
+
+			outResult += STORM_TEXT(" (");
+
+			const float progressPercent = (currentTimeInSecond / endTime) * 100.f;
+
+			const std::size_t progressPercentStrLength = static_cast<std::size_t>(_scwprintf(L"%.*f", 2, progressPercent));
+			const std::size_t currentSize = outResult.size();
+			outResult.resize(currentSize + progressPercentStrLength + 1);
+
+			swprintf_s(&outResult[currentSize], progressPercentStrLength + 1, L"%.*f", 2, progressPercent);
+			outResult.back() = STORM_TEXT('%');
+
+			outResult += STORM_TEXT(")");
+		}
+		else
+		{
+			outResult += STORM_TEXT("N/A");
+		}
+	}
 }
 
 Storm::SimulatorManager::SimulatorManager() :
 	_raycastEnabled{ false },
 	_runExitCode{ Storm::ExitCode::k_success },
-	_reinitFrameAfter{ false }
+	_reinitFrameAfter{ false },
+	_progressRemainingTime{ STORM_TEXT("N/A") },
+	_uiFields{ std::make_unique<Storm::UIFieldContainer>() }
 {
 
 }
@@ -520,6 +567,14 @@ void Storm::SimulatorManager::initialize_Implementation()
 	/* Register this thread as the simulator thread for the speed profiler */
 	Storm::IProfilerManager &profilerMgr = singletonHolder.getSingleton<Storm::IProfilerManager>();
 	profilerMgr.registerCurrentThreadAsSimulationThread(k_simulationSpeedBalistName);
+
+	const bool autoEndSimulation = configMgr.getGeneralSimulationData()._endSimulationPhysicsTimeInSeconds != -1.f;
+	if (autoEndSimulation)
+	{
+		(*_uiFields)
+			.bindField(STORM_PROGRESS_REMAINING_TIME_NAME, _progressRemainingTime)
+			;
+	}
 }
 
 Storm::ExitCode Storm::SimulatorManager::run()
@@ -699,6 +754,18 @@ Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 				_particleSelector.setSelectedParticlePressureForce(pSystem.getTemporaryPressureForces()[selectedParticleIndex]);
 				_particleSelector.setSelectedParticleViscosityForce(pSystem.getTemporaryViscosityForces()[selectedParticleIndex]);
 			}
+
+			if (autoEndSimulation)
+			{
+				computeProgression(
+					_progressRemainingTime,
+					simulationSpeedProfile.getCurrentSpeed(),
+					generalSimulationConfigData._endSimulationPhysicsTimeInSeconds,
+					timeMgr.getCurrentPhysicsElapsedTime()
+				);
+
+				_uiFields->pushField(STORM_PROGRESS_REMAINING_TIME_NAME);
+			}
 		}
 
 		++forcedPushFrameIterator;
@@ -820,6 +887,17 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 		if (hasAutoEndSimulation)
 		{
 			timeMgr.quit();
+		}
+		else if (autoEndSimulation)
+		{
+			computeProgression(
+				_progressRemainingTime,
+				simulationSpeedProfile.getCurrentSpeed(),
+				generalSimulationConfigData._endSimulationPhysicsTimeInSeconds,
+				timeMgr.getCurrentPhysicsElapsedTime()
+			);
+
+			_uiFields->pushField(STORM_PROGRESS_REMAINING_TIME_NAME);
 		}
 
 		++forcedPushFrameIterator;
