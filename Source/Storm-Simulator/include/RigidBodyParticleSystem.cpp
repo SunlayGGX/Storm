@@ -119,11 +119,9 @@ void Storm::RigidBodyParticleSystem::initializePreSimulation(const Storm::Partic
 	}
 }
 
-void Storm::RigidBodyParticleSystem::initializeIteration(const Storm::ParticleSystemContainer &allParticleSystems, const std::vector<std::unique_ptr<Storm::IBlower>> &blowers)
+void Storm::RigidBodyParticleSystem::onIterationStart()
 {
-	Storm::ParticleSystem::initializeIteration(allParticleSystems, blowers);
-
-	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
+	Storm::ParticleSystem::onIterationStart();
 
 #if defined(_DEBUG) || defined(DEBUG)
 	if (!configMgr.isInReplayMode())
@@ -142,6 +140,13 @@ void Storm::RigidBodyParticleSystem::initializeIteration(const Storm::ParticleSy
 		}
 	}
 #endif
+}
+
+void Storm::RigidBodyParticleSystem::onSubIterationStart(const Storm::ParticleSystemContainer &allParticleSystems, const std::vector<std::unique_ptr<Storm::IBlower>> &blowers)
+{
+	Storm::ParticleSystem::onSubIterationStart(allParticleSystems, blowers);
+
+	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
 
 	const Storm::GeneralSimulationData &generalSimulDataConfig = configMgr.getGeneralSimulationData();
 
@@ -416,15 +421,6 @@ void Storm::RigidBodyParticleSystem::updatePosition(float deltaTimeInSec, bool f
 				currentPVelocity.setZero();
 			});
 		}
-	}
-}
-
-void Storm::RigidBodyParticleSystem::postApplySPH(float)
-{
-	if (!_isStatic)
-	{
-		Storm::IPhysicsManager &physicMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IPhysicsManager>();
-		physicMgr.applyLocalForces(_particleSystemIndex, _positions, _force);
 	}
 }
 

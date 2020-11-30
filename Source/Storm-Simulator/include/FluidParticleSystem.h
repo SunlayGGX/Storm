@@ -12,7 +12,8 @@ namespace Storm
 		FluidParticleSystem(unsigned int particleSystemIndex, std::size_t particleCount);
 
 	public:
-		void initializeIteration(const Storm::ParticleSystemContainer &allParticleSystems, const std::vector<std::unique_ptr<Storm::IBlower>> &blowers) final override;
+		void onIterationStart() final override;
+		void onSubIterationStart(const Storm::ParticleSystemContainer &allParticleSystems, const std::vector<std::unique_ptr<Storm::IBlower>> &blowers) final override;
 
 	public:
 		bool isFluids() const noexcept final override;
@@ -44,7 +45,6 @@ namespace Storm
 	public:
 		bool computeVelocityChange(float deltaTimeInSec, float highVelocityThresholdSquared) final override;
 		void updatePosition(float deltaTimeInSec, bool force) final override;
-		void postApplySPH(float deltaTimeInSec) final override;
 
 	public:
 		void revertToCurrentTimestep(const std::vector<std::unique_ptr<Storm::IBlower>> &blowers) final override;

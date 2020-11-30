@@ -47,6 +47,13 @@ namespace Storm
 		void initializePreSimulation();
 
 	public:
+		void subIterationStart();
+		void revertIteration();
+
+	public:
+		void flushPhysics(const float deltaTime);
+
+	public:
 		void refreshParticlesPosition() final override;
 		void refreshParticleNeighborhood();
 

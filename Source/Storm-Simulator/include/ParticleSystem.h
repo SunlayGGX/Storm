@@ -43,6 +43,7 @@ namespace Storm
 		virtual bool isWall() const noexcept = 0;
 
 		bool isDirty() const noexcept;
+		void setIsDirty(bool dirty);
 
 		// Only to be used with replaying feature.
 		virtual void setPositions(std::vector<Storm::Vector3> &&positions) = 0;
@@ -60,12 +61,12 @@ namespace Storm
 
 	public:
 		virtual void updatePosition(float deltaTimeInSec, bool force) = 0;
-		virtual void postApplySPH(float deltaTimeInSec) = 0;
 
 	public:
 		virtual void initializePreSimulation(const Storm::ParticleSystemContainer &allParticleSystems, const float kernelLength);
 
-		virtual void initializeIteration(const Storm::ParticleSystemContainer &allParticleSystems, const std::vector<std::unique_ptr<Storm::IBlower>> &blowers);
+		virtual void onIterationStart();
+		virtual void onSubIterationStart(const Storm::ParticleSystemContainer &allParticleSystems, const std::vector<std::unique_ptr<Storm::IBlower>> &blowers);
 
 	public:
 		virtual bool computeVelocityChange(float deltaTimeInSec, float highVelocityThresholdSquared) = 0;
@@ -95,7 +96,7 @@ namespace Storm
 		std::vector<Storm::ParticleNeighborhoodArray> _neighborhood;
 
 		unsigned int _particleSystemIndex;
-		std::atomic<bool> _isDirty;
+		bool _isDirty;
 
 		float _maxVelocityNorm;
 

@@ -13,7 +13,9 @@ namespace Storm
 
 	public:
 		void initializePreSimulation(const Storm::ParticleSystemContainer &allParticleSystems, const float kernelLength) final override;
-		void initializeIteration(const Storm::ParticleSystemContainer &allParticleSystems, const std::vector<std::unique_ptr<Storm::IBlower>> &blowers) final override;
+
+		void onIterationStart() final override;
+		void onSubIterationStart(const Storm::ParticleSystemContainer &allParticleSystems, const std::vector<std::unique_ptr<Storm::IBlower>> &blowers) final override;
 
 	public:
 		bool isFluids() const noexcept final override;
@@ -41,7 +43,6 @@ namespace Storm
 
 	public:
 		void updatePosition(float deltaTimeInSec, bool force) final override;
-		void postApplySPH(float deltaTimeInSec) final override;
 
 	public:
 		void revertToCurrentTimestep(const std::vector<std::unique_ptr<Storm::IBlower>> &blowers) final override;

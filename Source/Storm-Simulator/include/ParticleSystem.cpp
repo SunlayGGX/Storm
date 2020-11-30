@@ -134,6 +134,11 @@ bool Storm::ParticleSystem::isDirty() const noexcept
 	return _isDirty;
 }
 
+void Storm::ParticleSystem::setIsDirty(bool dirty)
+{
+	_isDirty = dirty;
+}
+
 void Storm::ParticleSystem::buildNeighborhood(const Storm::ParticleSystemContainer &allParticleSystems)
 {
 	// First, clear all neighborhood
@@ -161,13 +166,11 @@ void Storm::ParticleSystem::initializePreSimulation(const Storm::ParticleSystemC
 
 }
 
-void Storm::ParticleSystem::initializeIteration(const Storm::ParticleSystemContainer &allParticleSystems, const std::vector<std::unique_ptr<Storm::IBlower>> &)
+void Storm::ParticleSystem::onIterationStart()
 {
-	_isDirty = false;
-
+#if defined(DEBUG) || defined(_DEBUG)
 	const std::size_t particleCount = this->getParticleCount();
 
-#if defined(DEBUG) || defined(_DEBUG)
 	const bool replayMode = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().isInReplayMode();
 	assert(
 		particleCount == _positions.size() &&
@@ -179,8 +182,11 @@ void Storm::ParticleSystem::initializeIteration(const Storm::ParticleSystemConta
 		"Particle count mismatch detected! An array of particle property has not the same particle count than the other!"
 	);
 #endif
+}
 
-	this->buildNeighborhood(allParticleSystems);
+void Storm::ParticleSystem::onSubIterationStart(const Storm::ParticleSystemContainer &, const std::vector<std::unique_ptr<Storm::IBlower>> &)
+{
+	_isDirty = false;
 }
 
 float Storm::ParticleSystem::computeParticleDefaultVolume()

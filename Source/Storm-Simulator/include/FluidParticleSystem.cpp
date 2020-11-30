@@ -50,11 +50,9 @@ Storm::FluidParticleSystem::FluidParticleSystem(unsigned int particleSystemIndex
 	// No need to init the other thing since this constructor is only to be used in replay mode and we won't use them.
 }
 
-void Storm::FluidParticleSystem::initializeIteration(const Storm::ParticleSystemContainer &allParticleSystems, const std::vector<std::unique_ptr<Storm::IBlower>> &blowers)
+void Storm::FluidParticleSystem::onIterationStart()
 {
-	Storm::ParticleSystem::initializeIteration(allParticleSystems, blowers);
-
-	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
+	Storm::ParticleSystem::onIterationStart();
 
 #if defined(DEBUG) || defined(_DEBUG)
 	if (!configMgr.isInReplayMode())
@@ -70,6 +68,13 @@ void Storm::FluidParticleSystem::initializeIteration(const Storm::ParticleSystem
 		);
 	}
 #endif
+}
+
+void Storm::FluidParticleSystem::onSubIterationStart(const Storm::ParticleSystemContainer &allParticleSystems, const std::vector<std::unique_ptr<Storm::IBlower>> &blowers)
+{
+	Storm::ParticleSystem::onSubIterationStart(allParticleSystems, blowers);
+
+	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
 
 	const Storm::GeneralSimulationData &generalSimulData = configMgr.getGeneralSimulationData();
 	const Storm::FluidData &fluidSimulData = configMgr.getFluidData();
@@ -314,11 +319,6 @@ void Storm::FluidParticleSystem::updatePosition(float deltaTimeInSec, bool)
 			}
 		}
 	});
-}
-
-void Storm::FluidParticleSystem::postApplySPH(float)
-{
-
 }
 
 void Storm::FluidParticleSystem::revertToCurrentTimestep(const std::vector<std::unique_ptr<Storm::IBlower>> &blowers)

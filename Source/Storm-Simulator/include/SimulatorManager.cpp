@@ -915,12 +915,14 @@ void Storm::SimulatorManager::executeIteration(bool firstFrame, unsigned int for
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 
 	Storm::ITimeManager &timeMgr = singletonHolder.getSingleton<Storm::ITimeManager>();
-	Storm::IPhysicsManager &physicsMgr = singletonHolder.getSingleton<Storm::IPhysicsManager>();
 
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
 	const Storm::GeneralSimulationData &generalSimulationConfigData = configMgr.getGeneralSimulationData();
 
 	float physicsDeltaTime = timeMgr.getCurrentPhysicsDeltaTime();
+	const float kernelLength = this->getKernelLength();
+
+#if false
 
 	// initialize for current iteration. I.e. Initializing with gravity and resetting current iteration velocity.
 	// Also build neighborhood.
@@ -930,12 +932,11 @@ void Storm::SimulatorManager::executeIteration(bool firstFrame, unsigned int for
 		this->refreshParticlePartition();
 	}
 
+	Storm::IPhysicsManager &physicsMgr = singletonHolder.getSingleton<Storm::IPhysicsManager>();
+
 	this->advanceBlowersTime(physicsDeltaTime);
 
-	for (auto &particleSystem : _particleSystem)
-	{
-		particleSystem.second->initializeIteration(_particleSystem, _blowers);
-	}
+	this->initializeIteration();
 
 	bool runIterationAgain;
 
@@ -943,18 +944,13 @@ void Storm::SimulatorManager::executeIteration(bool firstFrame, unsigned int for
 	int iter = 0;
 
 	float exDeltaTime = physicsDeltaTime;
-	
-	const float kernelLength = this->getKernelLength();
 
 	bool hasRunIterationBefore = false;
 	do 
 	{
 		if (hasRunIterationBefore)
 		{
-			for (auto &particleSystem : _particleSystem)
-			{
-				particleSystem.second->revertToCurrentTimestep(_blowers);
-			}
+			this->revertIteration();
 		}
 		else
 		{
@@ -997,20 +993,27 @@ void Storm::SimulatorManager::executeIteration(bool firstFrame, unsigned int for
 
 	} while (runIterationAgain && iter < maxCFLIteration && physicsDeltaTime < generalSimulationConfigData._maxCFLTime && physicsDeltaTime > getMinCLFTime());
 
-	// Update everything that should be updated once CFL iteration finished. 
-	for (auto &particleSystem : _particleSystem)
-	{
-		particleSystem.second->postApplySPH(physicsDeltaTime);
-	}
-
-	// Update the Rigid bodies positions in scene
-	physicsMgr.update(physicsDeltaTime);
+	this->flushPhysics(physicsDeltaTime);
 
 	// Update the position of every particles. 
 	for (auto &particleSystem : _particleSystem)
 	{
 		particleSystem.second->updatePosition(physicsDeltaTime, false);
 	}
+
+#endif
+
+	for (auto &particleSystem : _particleSystem)
+	{
+		particleSystem.second->onIterationStart();
+	}
+
+	// Compute the simulation
+	_sphSolver->execute(Storm::IterationParameter{
+		._particleSystems = &_particleSystem,
+		._kernelLength = kernelLength,
+		._deltaTime = physicsDeltaTime
+	});
 
 	if (_particleSelector.hasSelectedParticle())
 	{
@@ -1102,6 +1105,48 @@ void Storm::SimulatorManager::initializePreSimulation()
 		._kernelLength = k_kernelLength,
 		._particleSystems = &_particleSystem
 	});
+}
+
+void Storm::SimulatorManager::subIterationStart()
+{
+	for (auto &particleSystem : _particleSystem)
+	{
+		particleSystem.second->onSubIterationStart(_particleSystem, _blowers);
+	}
+}
+
+void Storm::SimulatorManager::revertIteration()
+{
+	for (auto &particleSystem : _particleSystem)
+	{
+		particleSystem.second->revertToCurrentTimestep(_blowers);
+	}
+}
+
+void Storm::SimulatorManager::flushPhysics(const float deltaTime)
+{
+	Storm::IPhysicsManager &physicsMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IPhysicsManager>();
+
+	for (auto &particleSystem : _particleSystem)
+	{
+		Storm::ParticleSystem &pSystem = *particleSystem.second;
+		// Only non static rigidbody have a changing physics state managed by PhysX engine.
+		if (!pSystem.isFluids() && !pSystem.isStatic())
+		{
+			physicsMgr.applyLocalForces(particleSystem.first, pSystem.getPositions(), pSystem.getForces());
+		}
+	}
+
+	physicsMgr.update(deltaTime);
+
+	for (auto &particleSystem : _particleSystem)
+	{
+		Storm::ParticleSystem &pSystem = *particleSystem.second;
+		if (!pSystem.isFluids() && !pSystem.isStatic())
+		{
+			pSystem.updatePosition(deltaTime, false);
+		}
+	}
 }
 
 void Storm::SimulatorManager::refreshParticlesPosition()
