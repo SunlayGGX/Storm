@@ -74,7 +74,7 @@ namespace
 }
 
 
-TEST_CASE("toStdString", "[classic]")
+TEST_CASE("toStdString.Simple", "[classic]")
 {
 	CHECK(Storm::toStdString(3) == "3");
 	CHECK(Storm::toStdString(true) == "true");
@@ -111,6 +111,12 @@ TEST_CASE("toStdString", "[classic]")
 
 	std::string* nullPtr = nullptr;
 	CHECK(Storm::toStdString<Storm::DebugPolicy>(nullPtr) == "null");
+
+	CHECK(Storm::toStdString(std::chrono::seconds{ 10 }) == "10s");
+	CHECK(Storm::toStdString(std::chrono::seconds{ 60 }) == "1min");
+	CHECK(Storm::toStdString(std::chrono::seconds{ 61 }) == "1min 1s");
+	CHECK(Storm::toStdString(std::chrono::seconds{ 3666 }) == "1h 1min 6s");
+	CHECK(Storm::toStdString(std::chrono::microseconds{ 3666100100LL }) == "1h 1min 6s 100ms 100us");
 }
 
 

@@ -178,6 +178,66 @@ namespace Storm
 				return Storm::details::toStdString<Policy>(val.ErrorMessage());
 			}
 
+			template<class ChronoType>
+			static auto parseImpl(const ChronoType &val, void*) -> decltype(val.count(), std::declval<ChronoType::rep>(), std::declval<ChronoType::period>(), std::string())
+			{
+				std::string result;
+
+				result.reserve(32);
+				
+				std::chrono::microseconds remaining = std::chrono::duration_cast<std::chrono::microseconds>(val);
+
+				const std::chrono::hours hourPart = std::chrono::duration_cast<std::chrono::hours>(remaining);
+				const auto hourPartInt = hourPart.count();
+				if (hourPartInt != 0)
+				{
+					result += std::to_string(hourPartInt);
+					result += "h ";
+					remaining -= std::chrono::duration_cast<std::chrono::microseconds>(hourPart);
+				}
+
+				const std::chrono::minutes minPart = std::chrono::duration_cast<std::chrono::minutes>(remaining);
+				const auto minPartInt = minPart.count();
+				if (minPartInt != 0)
+				{
+					result += std::to_string(minPartInt);
+					result += "min ";
+					remaining -= std::chrono::duration_cast<std::chrono::microseconds>(minPart);
+				}
+
+				const std::chrono::seconds secPart = std::chrono::duration_cast<std::chrono::seconds>(remaining);
+				const auto secPartInt = secPart.count();
+				if (secPartInt != 0)
+				{
+					result += std::to_string(secPartInt);
+					result += "s ";
+					remaining -= std::chrono::duration_cast<std::chrono::microseconds>(secPart);
+				}
+
+				const std::chrono::milliseconds millisecPart = std::chrono::duration_cast<std::chrono::milliseconds>(remaining);
+				const auto millisecPartInt = millisecPart.count();
+				if (millisecPartInt != 0)
+				{
+					result += std::to_string(millisecPartInt);
+					result += "ms ";
+					remaining -= std::chrono::duration_cast<std::chrono::microseconds>(millisecPart);
+				}
+
+				const auto microsecPartInt = remaining.count();
+				if (microsecPartInt != 0)
+				{
+					result += std::to_string(microsecPartInt);
+					result += "us";
+				}
+
+				if (result.back() == ' ')
+				{
+					result.pop_back();
+				}
+
+				return result;
+			}
+
 		public:
 			template<class ValType>
 			static auto parse(ValType &&val) -> decltype(parseImpl(std::forward<ValType>(val), 0))
