@@ -793,11 +793,15 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 	assert(!configMgr.isInReplayMode() && "runSimulation_Internal shouldn't be used in replay mode!");
 
 	Storm::IProfilerManager* profilerMgrNullablePtr = configMgr.getShouldProfileSimulationSpeed() ? singletonHolder.getFacet<Storm::IProfilerManager>() : nullptr;
+	const bool hasUI = configMgr.withUI();
 
 	std::vector<Storm::SimulationCallback> tmpSimulationCallback;
 	tmpSimulationCallback.reserve(8);
 
-	this->pushParticlesToGraphicModule(true);
+	if (hasUI)
+	{
+		this->pushParticlesToGraphicModule(true);
+	}
 
 	this->refreshParticlePartition(false);
 
@@ -823,11 +827,13 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 
 	bool firstFrame = true;
 
+	const bool noWait = generalSimulationConfigData._simulationNoWait || !hasUI;
+
 	do
 	{
 		SpeedProfileBalist simulationSpeedProfile{ profilerMgrNullablePtr };
 
-		Storm::TimeWaitResult simulationState = generalSimulationConfigData._simulationNoWait ? timeMgr.getStateNoSyncWait() : timeMgr.waitNextFrame();
+		Storm::TimeWaitResult simulationState = noWait ? timeMgr.getStateNoSyncWait() : timeMgr.waitNextFrame();
 		switch (simulationState)
 		{
 		case Storm::TimeWaitResult::Exit:
@@ -885,7 +891,10 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 		}
 
 		// Push all particle data to the graphic module to be rendered...
-		this->pushParticlesToGraphicModule(forcedPushFrameIterator % 256);
+		if (hasUI)
+		{
+			this->pushParticlesToGraphicModule(forcedPushFrameIterator % 256);
+		}
 
 		// Takes time to process messages that came from other threads.
 		threadMgr.processCurrentThreadActions();
@@ -915,7 +924,14 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 				timeMgr.getCurrentPhysicsElapsedTime()
 			);
 
-			_uiFields->pushField(STORM_PROGRESS_REMAINING_TIME_NAME);
+			if (hasUI)
+			{
+				_uiFields->pushField(STORM_PROGRESS_REMAINING_TIME_NAME);
+			}
+			else if ((forcedPushFrameIterator % 32) == 0)
+			{
+				LOG_DEBUG << STORM_PROGRESS_REMAINING_TIME_NAME << " : " << Storm::toStdString(_progressRemainingTime);
+			}
 		}
 
 		++forcedPushFrameIterator;
