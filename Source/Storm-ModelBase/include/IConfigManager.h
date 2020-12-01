@@ -26,6 +26,7 @@ namespace Storm
 
 		// Command line
 		virtual bool shouldRegenerateParticleCache() const = 0;
+		virtual bool withUI() const = 0;
 
 		// Logs
 		virtual const std::string& getLogFileName() const = 0;

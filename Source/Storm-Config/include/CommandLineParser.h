@@ -22,6 +22,8 @@ namespace Storm
 
 		bool getShouldRegenerateParticleCache() const;
 
+		bool getNoUI() const;
+
 	public:
 		template<class Type>
 		bool extractIfExist(const std::string &val, Type &outVar) const

@@ -10,6 +10,7 @@ STORM_XMACRO_COMMANDLINE_ELEM("tempPath", std::string, std::string{}, "The tempo
 STORM_XMACRO_COMMANDLINE_ELEM("mode", std::string, std::string{}, "The mode the simulator is launched into.", getRecordModeStr)														\
 STORM_XMACRO_COMMANDLINE_ELEM("recordFile", std::string, std::string{}, "The path to the record file to write/read (path).", getRecordFilePath)										\
 STORM_XMACRO_COMMANDLINE_ELEM("regenPCache", bool, false, "Force invalidating the particle cache data. Therefore regenerating all of them anew.", getShouldRegenerateParticleCache) \
+STORM_XMACRO_COMMANDLINE_ELEM("noUI", bool, false, "Setting it specify that we shouldn't start the UI and only focus on the simulation on the background.", getNoUI)				\
 
 
 namespace

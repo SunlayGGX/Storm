@@ -18,7 +18,8 @@
 
 Storm::ConfigManager::ConfigManager() :
 	_shouldDisplayHelp{ false },
-	_shouldRegenerateParticleCache{ false }
+	_shouldRegenerateParticleCache{ false },
+	_withUI{ true }
 {
 
 }
@@ -42,6 +43,46 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 		if (hasMadeAbsolute)
 		{
 			_exePath = (std::filesystem::current_path() / exePath.filename()).string();
+		}
+
+		// Get and check the record mode
+
+		std::string recordModeStr = parser.getRecordModeStr();
+		boost::algorithm::to_lower(recordModeStr);
+
+		Storm::RecordMode chosenRecordMode =
+			recordModeStr == "record" ? Storm::RecordMode::Record :
+			recordModeStr == "replay" ? Storm::RecordMode::Replay :
+			Storm::RecordMode::None;
+
+		if (!recordModeStr.empty() && chosenRecordMode != Storm::RecordMode::None)
+		{
+			switch (chosenRecordMode)
+			{
+			case Storm::RecordMode::None:
+				LOG_COMMENT << "Simulator in normal mode requested (no record or replay).";
+				break;
+
+			case Storm::RecordMode::Record:
+				LOG_COMMENT << "Simulator in record mode requested.";
+				break;
+
+			case Storm::RecordMode::Replay:
+				LOG_COMMENT << "Simulator in replay mode requested.";
+				break;
+
+			default:
+				Storm::throwException<std::exception>("Unknown record mode command line tag \"" + recordModeStr + '"');
+			}
+		}
+
+		const bool noUI = parser.getNoUI();
+		if (noUI)
+		{
+			if (chosenRecordMode != Storm::RecordMode::Record)
+			{
+				Storm::throwException<std::exception>("When starting without a UI means that it is focused on recording! Not setting recording mode isn't allowed then.");
+			}
 		}
 
 		_macroConfig.initialize();
@@ -164,35 +205,8 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 
 		_shouldRegenerateParticleCache = parser.getShouldRegenerateParticleCache();
 
-		std::string recordModeStr = parser.getRecordModeStr();
-		boost::algorithm::to_lower(recordModeStr);
-
 		Storm::RecordConfigData &recordConfigData = *_sceneConfig.getSceneData()._recordConfigData;
-		recordConfigData._recordMode =
-			recordModeStr == "record" ? Storm::RecordMode::Record :
-			recordModeStr == "replay" ? Storm::RecordMode::Replay :
-			Storm::RecordMode::None;
-
-		if (!recordModeStr.empty() && recordConfigData._recordMode != Storm::RecordMode::None)
-		{
-			switch (recordConfigData._recordMode)
-			{
-			case Storm::RecordMode::None:
-				LOG_COMMENT << "Simulator in normal mode requested (no record or replay).";
-				break;
-
-			case Storm::RecordMode::Record:
-				LOG_COMMENT << "Simulator in record mode requested.";
-				break;
-
-			case Storm::RecordMode::Replay:
-				LOG_COMMENT << "Simulator in replay mode requested.";
-				break;
-
-			default:
-				Storm::throwException<std::exception>("Unknown record mode command line tag \"" + recordModeStr + '"');
-			}
-		}
+		recordConfigData._recordMode = chosenRecordMode;
 
 		std::string recordFilePath;
 		switch (recordConfigData._recordMode)
@@ -257,6 +271,17 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 			// No need to check the one coming from the scene config file because it is just a placeholder in case the command line one isn't set.
 			break;
 		}
+
+		_withUI = !noUI;
+		if (noUI)
+		{
+			bool &startPaused = _sceneConfig.getSceneData()._generalSimulationData->_startPaused;
+			if (startPaused)
+			{
+				startPaused = false;
+				LOG_WARNING << "Without UI, since there is no input, we cannot start paused (the simulation will start automatically once ready).";
+			}
+		}
 	}
 	else
 	{
@@ -279,6 +304,11 @@ const std::string& Storm::ConfigManager::getExePath() const
 bool Storm::ConfigManager::shouldRegenerateParticleCache() const
 {
 	return _shouldRegenerateParticleCache;
+}
+
+bool Storm::ConfigManager::withUI() const
+{
+	return _withUI;
 }
 
 bool Storm::ConfigManager::noPopup() const

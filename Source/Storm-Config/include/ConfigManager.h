@@ -27,6 +27,8 @@ namespace Storm
 
 		bool shouldRegenerateParticleCache() const final override;
 
+		bool withUI() const final override;
+
 		const std::string& getLogFolderPath() const final override;
 		Storm::LogLevel getLogLevel() const final override;
 		int getRemoveLogOlderThanDaysCount() const final override;
@@ -75,6 +77,7 @@ namespace Storm
 		bool _shouldDisplayHelp;
 
 		bool _shouldRegenerateParticleCache;
+		bool _withUI;
 
 		// Computed
 		std::string _sceneFileName;
