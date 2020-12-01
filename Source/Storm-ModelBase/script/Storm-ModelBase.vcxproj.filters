@@ -344,5 +344,8 @@
     <ClInclude Include="..\include\ShaderMacroItem.h">
       <Filter>Header Files\Modules\Graphics\Shader</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\UIModality.h">
+      <Filter>Header Files\General</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
