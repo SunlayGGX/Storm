@@ -15,6 +15,9 @@ namespace Storm
 	class GraphicConstraintSystem;
 	class ParticleForceRenderer;
 
+	struct WithUI;
+	struct NoUI;
+
 	class GraphicManager :
 		private Storm::Singleton<GraphicManager>,
 		public Storm::IGraphicsManager
@@ -22,12 +25,17 @@ namespace Storm
 		STORM_DECLARE_SINGLETON(GraphicManager);
 
 	private:
-		bool initialize_Implementation();
+		bool initialize_Implementation(const Storm::WithUI &);
+		void initialize_Implementation(const Storm::NoUI &);
 		void initialize_Implementation(void* hwnd);
-		void cleanUp_Implementation();
+		void cleanUp_Implementation(const Storm::WithUI &);
+		void cleanUp_Implementation(const Storm::NoUI &);
 
 	public:
 		void update() final override;
+
+	public:
+		bool isActive() const noexcept;
 
 	public:
 		void addMesh(unsigned int meshId, const std::vector<Storm::Vector3> &vertexes, const std::vector<Storm::Vector3> &normals, const std::vector<unsigned int> &indexes) final override;
@@ -76,6 +84,8 @@ namespace Storm
 
 	private:
 		unsigned char _renderCounter;
+
+		bool _hasUI;
 
 		std::unique_ptr<Storm::DirectXController> _directXController;
 		std::unique_ptr<Storm::Camera> _camera;

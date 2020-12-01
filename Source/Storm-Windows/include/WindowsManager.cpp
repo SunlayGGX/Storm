@@ -11,6 +11,8 @@
 #include "IThreadManager.h"
 #include "IConfigManager.h"
 
+#include "UIModality.h"
+
 
 namespace
 {
@@ -69,7 +71,7 @@ Storm::WindowsManager::WindowsManager() :
 
 Storm::WindowsManager::~WindowsManager() = default;
 
-void Storm::WindowsManager::initialize_Implementation()
+void Storm::WindowsManager::initialize_Implementation(const Storm::WithUI &)
 {
 	LOG_COMMENT << "Starting creating the Windows for the application";
 
@@ -107,11 +109,37 @@ void Storm::WindowsManager::initialize_Implementation()
 	syncronizer.wait(lock, [&canLeave]() { return canLeave; });
 }
 
-void Storm::WindowsManager::cleanUp_Implementation()
+void Storm::WindowsManager::initialize_Implementation(const Storm::NoUI &)
+{
+	LOG_COMMENT << "No UI requested, we will skip UI generation.";
+
+	_windowsThread = std::thread{ [this]()
+	{
+		STORM_REGISTER_THREAD(WindowsAndInputThread);
+
+		const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+		Storm::ITimeManager &timeMgr = singletonHolder.getSingleton<Storm::ITimeManager>();
+		Storm::IThreadManager &threadMgr = singletonHolder.getSingleton<Storm::IThreadManager>();
+
+		constexpr const std::chrono::milliseconds k_windowsThreadRefreshRate{ 500 };
+		while (timeMgr.waitForTimeOrExit(k_windowsThreadRefreshRate))
+		{
+			threadMgr.processCurrentThreadActions();
+		}
+	} };
+}
+
+void Storm::WindowsManager::cleanUp_Implementation(const Storm::WithUI &)
 {
 	this->unbindCallbacks();
 	DestroyWindow(static_cast<HWND>(_windowVisuHandle));
 	PostQuitMessage(0);
+	Storm::join(_windowsThread);
+}
+
+void Storm::WindowsManager::cleanUp_Implementation(const Storm::NoUI &)
+{
+	this->unbindCallbacks();
 	Storm::join(_windowsThread);
 }
 
@@ -215,7 +243,7 @@ void Storm::WindowsManager::update()
 		if (msg.message == WM_QUIT)
 		{
 			this->callQuitCallback();
-			this->cleanUp();
+			this->cleanUp(Storm::WithUI{});
 		}
 
 		// Distribute message

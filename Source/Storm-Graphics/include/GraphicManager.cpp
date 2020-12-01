@@ -154,18 +154,22 @@ namespace
 Storm::GraphicManager::GraphicManager() :
 	_renderCounter{ 0 },
 	_directXController{ std::make_unique<Storm::DirectXController>() },
-	_selectedParticle{ std::numeric_limits<decltype(_selectedParticle.first)>::max(), 0 }
+	_selectedParticle{ std::numeric_limits<decltype(_selectedParticle.first)>::max(), 0 },
+	_hasUI{ false }
 {
 
 }
 
 Storm::GraphicManager::~GraphicManager() = default;
 
-bool Storm::GraphicManager::initialize_Implementation()
+bool Storm::GraphicManager::initialize_Implementation(const Storm::WithUI &)
 {
 	LOG_COMMENT << "Starting to initialize the Graphic Manager. We would evaluate if Windows is created. If not, we will suspend initialization and come back later.";
 
-	Storm::IWindowsManager &windowsMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IWindowsManager>();
+	_hasUI = true;
+
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	Storm::IWindowsManager &windowsMgr = singletonHolder.getSingleton<Storm::IWindowsManager>();
 
 	HWND hwnd = static_cast<HWND>(windowsMgr.getWindowHandle());
 	if (hwnd != nullptr)
@@ -195,9 +199,21 @@ bool Storm::GraphicManager::initialize_Implementation()
 	}
 }
 
+void Storm::GraphicManager::initialize_Implementation(const Storm::NoUI &)
+{
+	LOG_DEBUG << "No UI requested. Graphic Manager will be left uninitialized.";
+	_hasUI = false;
+}
+
 void Storm::GraphicManager::initialize_Implementation(void* hwnd)
 {
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
+
+	if (!configMgr.withUI())
+	{
+		return;
+	}
 
 	_windowsResizedCallbackId = singletonHolder.getSingleton<Storm::IWindowsManager>().bindWindowsResizedCallback([this, &singletonHolder](int newWidth, int newHeight)
 	{
@@ -213,7 +229,6 @@ void Storm::GraphicManager::initialize_Implementation(void* hwnd)
 	_camera = std::make_unique<Storm::Camera>(_directXController->getViewportWidth(), _directXController->getViewportHeight());
 
 	const auto &device = _directXController->getDirectXDevice();
-	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
 	const Storm::GraphicData &graphicData = configMgr.getGraphicData();
 	_renderedElements.emplace_back(std::make_unique<Storm::Grid>(device, graphicData._grid));
 
@@ -286,7 +301,7 @@ void Storm::GraphicManager::initialize_Implementation(void* hwnd)
 	});
 }
 
-void Storm::GraphicManager::cleanUp_Implementation()
+void Storm::GraphicManager::cleanUp_Implementation(const Storm::WithUI &)
 {
 	LOG_COMMENT << "Starting to clean up the Graphic Manager.";
 	Storm::join(_renderThread);
@@ -304,6 +319,11 @@ void Storm::GraphicManager::cleanUp_Implementation()
 	_fieldsMap.clear();
 
 	_directXController->cleanUp();
+}
+
+void Storm::GraphicManager::cleanUp_Implementation(const Storm::NoUI &)
+{
+	LOG_COMMENT << "No UI requested. Graphic Manager clean up is trivial.";
 }
 
 void Storm::GraphicManager::update()
@@ -326,79 +346,108 @@ void Storm::GraphicManager::update()
 	}
 }
 
+bool Storm::GraphicManager::isActive() const noexcept
+{
+	return _hasUI;
+}
+
 void Storm::GraphicManager::addMesh(unsigned int meshId, const std::vector<Storm::Vector3> &vertexes, const std::vector<Storm::Vector3> &normals, const std::vector<unsigned int> &indexes)
 {
-	_meshesMap[meshId] = std::make_unique<Storm::GraphicRigidBody>(vertexes, normals, indexes);
+	if (this->isActive())
+	{
+		_meshesMap[meshId] = std::make_unique<Storm::GraphicRigidBody>(vertexes, normals, indexes);
+	}
 }
 
 void Storm::GraphicManager::bindParentRbToMesh(unsigned int meshId, const std::shared_ptr<Storm::IRigidBody> &parentRb) const
 {
-	if (const auto found = _meshesMap.find(meshId); found != std::end(_meshesMap))
+	if (this->isActive())
 	{
-		found->second->setRbParent(parentRb);
-	}
-	else
-	{
-		Storm::throwException<std::exception>("Cannot find rb " + std::to_string(meshId) + " inside registered graphics meshes!");
+		if (const auto found = _meshesMap.find(meshId); found != std::end(_meshesMap))
+		{
+			found->second->setRbParent(parentRb);
+		}
+		else
+		{
+			Storm::throwException<std::exception>("Cannot find rb " + std::to_string(meshId) + " inside registered graphics meshes!");
+		}
 	}
 }
 
 void Storm::GraphicManager::loadBlower(const Storm::BlowerData &blowerData, const std::vector<Storm::Vector3> &vertexes, const std::vector<unsigned int> &indexes)
 {
-	const ComPtr<ID3D11Device> &currentDevice = _directXController->getDirectXDevice();
+	if (this->isActive())
+	{
+		const ComPtr<ID3D11Device> &currentDevice = _directXController->getDirectXDevice();
 
-	std::unique_ptr<Storm::GraphicBlower> graphicBlower = std::make_unique<Storm::GraphicBlower>(currentDevice, blowerData, vertexes, indexes);
-	_blowersMap[blowerData._blowerId] = std::move(graphicBlower);
+		std::unique_ptr<Storm::GraphicBlower> graphicBlower = std::make_unique<Storm::GraphicBlower>(currentDevice, blowerData, vertexes, indexes);
+		_blowersMap[blowerData._blowerId] = std::move(graphicBlower);
 
-	LOG_DEBUG << "Graphic blower " << blowerData._blowerId << " was created.";
+		LOG_DEBUG << "Graphic blower " << blowerData._blowerId << " was created.";
+	}
 }
 
 void Storm::GraphicManager::pushParticlesData(unsigned int particleSystemId, const std::vector<Storm::Vector3> &particlePosData, const std::vector<Storm::Vector3> &particleVelocityData, bool isFluids, bool isWall)
 {
-	assert(!(isFluids && isWall) && "Particle cannot be fluid AND wall at the same time!");
-
-	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
-	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
-	const Storm::GraphicData &graphicDataConfig = configMgr.getGraphicData();
-
-	singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(ThreadEnumeration::GraphicsThread,
-		[this, particleSystemId, particlePosDataCopy = fastOptimizedTransCopy(particlePosData, particleVelocityData, graphicDataConfig._valueForMinColor, graphicDataConfig._valueForMaxColor, isFluids), isFluids, isWall]() mutable
+	if (this->isActive())
 	{
-		if (_forceRenderer->prepareData(particleSystemId, particlePosDataCopy, _selectedParticle))
+		assert(!(isFluids && isWall) && "Particle cannot be fluid AND wall at the same time!");
+
+		const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+		const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
+		const Storm::GraphicData &graphicDataConfig = configMgr.getGraphicData();
+
+		singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(ThreadEnumeration::GraphicsThread,
+			[this, particleSystemId, particlePosDataCopy = fastOptimizedTransCopy(particlePosData, particleVelocityData, graphicDataConfig._valueForMinColor, graphicDataConfig._valueForMaxColor, isFluids), isFluids, isWall]() mutable
 		{
-			_graphicParticlesSystem->refreshParticleSystemData(_directXController->getDirectXDevice(), particleSystemId, std::move(particlePosDataCopy), isFluids, isWall);
-		}
-	});
+			if (_forceRenderer->prepareData(particleSystemId, particlePosDataCopy, _selectedParticle))
+			{
+				_graphicParticlesSystem->refreshParticleSystemData(_directXController->getDirectXDevice(), particleSystemId, std::move(particlePosDataCopy), isFluids, isWall);
+			}
+		});
+	}
 }
 
 void Storm::GraphicManager::pushConstraintData(const std::vector<Storm::Vector3> &constraintsVisuData)
 {
-	_graphicConstraintsSystem->refreshConstraintsData(_directXController->getDirectXDevice(), constraintsVisuData);
+	if (this->isActive())
+	{
+		_graphicConstraintsSystem->refreshConstraintsData(_directXController->getDirectXDevice(), constraintsVisuData);
+	}
 }
 
 void Storm::GraphicManager::pushParticleSelectionForceData(const Storm::Vector3 &selectedParticlePos, const Storm::Vector3 &selectedParticleForce)
 {
-	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
-	singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(ThreadEnumeration::GraphicsThread,
-		[this, selectedParticlePos, selectedParticleForce]() mutable
+	if (this->isActive())
 	{
-		_forceRenderer->refreshForceData(_directXController->getDirectXDevice(), selectedParticlePos, selectedParticleForce);
-	});
+		const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+		singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(ThreadEnumeration::GraphicsThread,
+			[this, selectedParticlePos, selectedParticleForce]() mutable
+		{
+			_forceRenderer->refreshForceData(_directXController->getDirectXDevice(), selectedParticlePos, selectedParticleForce);
+		});
+	}
 }
 
 void Storm::GraphicManager::createGraphicsField(const std::wstring_view &fieldName, std::wstring &&fieldValueStr)
 {
-	assert(_fieldsMap.find(fieldName) == std::end(_fieldsMap) && "We shouldn't create another field with the same name!");
-	_fieldsMap[fieldName] = std::move(fieldValueStr);
+	if (this->isActive())
+	{
+		assert(_fieldsMap.find(fieldName) == std::end(_fieldsMap) && "We shouldn't create another field with the same name!");
+		_fieldsMap[fieldName] = std::move(fieldValueStr);
 
-	_directXController->notifyFieldCount(_fieldsMap.size());
+		_directXController->notifyFieldCount(_fieldsMap.size());
+	}
 }
 
 void Storm::GraphicManager::updateGraphicsField(std::vector<std::pair<std::wstring_view, std::wstring>> &&rawFields)
 {
-	for (auto &field : rawFields)
+	if (this->isActive())
 	{
-		this->updateGraphicsField(field.first, std::move(field.second));
+		for (auto &field : rawFields)
+		{
+			this->updateGraphicsField(field.first, std::move(field.second));
+		}
 	}
 }
 
@@ -406,15 +455,26 @@ void Storm::GraphicManager::convertScreenPositionToRay(const Storm::Vector2 &scr
 {
 	assert(Storm::isGraphicThread() && "this method should only be executed on graphic thread.");
 
-	_camera->convertScreenPositionToRay(screenPos, outRayOrigin, outRayDirection);
+	if (this->isActive())
+	{
+		_camera->convertScreenPositionToRay(screenPos, outRayOrigin, outRayDirection);
+	}
 }
 
 void Storm::GraphicManager::getClippingPlaneValues(float &outZNear, float &outZFar) const
 {
 	assert(Storm::isGraphicThread() && "this method should only be executed on graphic thread.");
-
-	outZNear = _camera->getNearPlane();
-	outZFar = _camera->getFarPlane();
+	
+	if (this->isActive())
+	{
+		outZNear = _camera->getNearPlane();
+		outZFar = _camera->getFarPlane();
+	}
+	else
+	{
+		outZNear = 0.f;
+		outZFar = 0.f;
+	}
 }
 
 Storm::Vector3 Storm::GraphicManager::get3DPosOfScreenPixel(const Storm::Vector2 &screenPos) const
@@ -437,19 +497,25 @@ Storm::Vector3 Storm::GraphicManager::get3DPosOfScreenPixel(const Storm::Vector2
 
 void Storm::GraphicManager::safeSetSelectedParticle(unsigned int particleSystemId, std::size_t particleIndex)
 {
-	Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(ThreadEnumeration::GraphicsThread, [this, particleSystemId, particleIndex]()
+	if (this->isActive())
 	{
-		_selectedParticle.first = particleSystemId;
-		_selectedParticle.second = particleIndex;
-	});
+		Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(ThreadEnumeration::GraphicsThread, [this, particleSystemId, particleIndex]()
+		{
+			_selectedParticle.first = particleSystemId;
+			_selectedParticle.second = particleIndex;
+		});
+	}
 }
 
 void Storm::GraphicManager::safeClearSelectedParticle()
 {
-	Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(ThreadEnumeration::GraphicsThread, [this]()
+	if (this->isActive())
 	{
-		_selectedParticle.first = std::numeric_limits<decltype(_selectedParticle.first)>::max();
-	});
+		Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(ThreadEnumeration::GraphicsThread, [this]()
+		{
+			_selectedParticle.first = std::numeric_limits<decltype(_selectedParticle.first)>::max();
+		});
+	}
 }
 
 void Storm::GraphicManager::updateGraphicsField(const std::wstring_view &fieldName, std::wstring &&fieldValue)
@@ -477,23 +543,29 @@ std::size_t Storm::GraphicManager::getFieldCount() const
 
 void Storm::GraphicManager::setTargetPositionTo(const Storm::Vector3 &newTargetPosition)
 {
-	Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::GraphicsThread, [this, newTargetPosition]()
+	if (this->isActive())
 	{
-		_camera->setTarget(newTargetPosition.x(), newTargetPosition.y(), newTargetPosition.z());
-	});
+		Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::GraphicsThread, [this, newTargetPosition]()
+		{
+			_camera->setTarget(newTargetPosition.x(), newTargetPosition.y(), newTargetPosition.z());
+		});
+	}
 }
 
 void Storm::GraphicManager::changeBlowerState(const std::size_t blowerId, const Storm::BlowerState newState)
 {
-	Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::GraphicsThread, [this, blowerId, newState]()
+	if (this->isActive())
 	{
-		_blowersMap[blowerId]->setBlowerState(newState);
-	});
+		Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::GraphicsThread, [this, blowerId, newState]()
+		{
+			_blowersMap[blowerId]->setBlowerState(newState);
+		});
+	}
 }
 
 bool Storm::GraphicManager::hasSelectedParticle() const
 {
-	return _selectedParticle.first != std::numeric_limits<decltype(_selectedParticle.first)>::max();
+	return this->isActive() && _selectedParticle.first != std::numeric_limits<decltype(_selectedParticle.first)>::max();
 }
 
 void Storm::GraphicManager::notifyViewportRescaled(int newWidth, int newHeight)

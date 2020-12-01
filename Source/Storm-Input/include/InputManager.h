@@ -8,6 +8,9 @@
 namespace Storm
 {
 	class InputHandler;
+	
+	struct WithUI;
+	struct NoUI;
 
 	class InputManager :
 		private Storm::Singleton<InputManager>,
@@ -16,9 +19,11 @@ namespace Storm
 		STORM_DECLARE_SINGLETON(InputManager);
 
 	private:
-		bool initialize_Implementation();
+		bool initialize_Implementation(const Storm::WithUI &);
+		void initialize_Implementation(const Storm::NoUI &);
 		void initialize_Implementation(void* vptrHwnd);
-		void cleanUp_Implementation();
+		void cleanUp_Implementation(const Storm::WithUI &);
+		void cleanUp_Implementation(const Storm::NoUI &);
 
 	public:
 		void update() override;

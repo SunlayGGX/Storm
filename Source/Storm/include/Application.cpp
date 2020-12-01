@@ -23,6 +23,7 @@
 #include "Version.h"
 #include "TimeHelper.h"
 #include "ThreadEnumeration.h"
+#include "UIModality.h"
 
 
 namespace
@@ -75,23 +76,47 @@ namespace
 
 		if (shouldRunSimulation())
 		{
+			const bool hasUI = Storm::ConfigManager::instance().withUI();
+
 			Storm::TimeManager::instance().initialize();
 
 			Storm::RandomManager::instance().initialize();
 			Storm::OSManager::instance().initialize();
 
-			Storm::InputManager::instance().initialize();
+			if (hasUI)
+			{
+				Storm::InputManager::instance().initialize(Storm::WithUI{});
+			}
+			else
+			{
+				Storm::InputManager::instance().initialize(Storm::NoUI{});
+			}
 
 			Storm::SerializerManager::instance().initialize();
 
 			Storm::PhysicsManager::instance().initialize();
 
 			Storm::ShaderManager::instance().initialize();
-			Storm::GraphicManager::instance().initialize();
+
+			if (hasUI)
+			{
+				Storm::GraphicManager::instance().initialize(Storm::WithUI{});
+			}
+			else
+			{
+				Storm::GraphicManager::instance().initialize(Storm::NoUI{});
+			}
 
 			Storm::AssetLoaderManager::instance().initialize();
 
-			Storm::WindowsManager::instance().initialize();
+			if (hasUI)
+			{
+				Storm::WindowsManager::instance().initialize(Storm::WithUI{});
+			}
+			else
+			{
+				Storm::WindowsManager::instance().initialize(Storm::NoUI{});
+			}
 
 			Storm::SimulatorManager::instance().initialize();
 
@@ -111,18 +136,39 @@ namespace
 		{
 			LOG_COMMENT << "Application Cleanup";
 
+			const bool hasUI = Storm::ConfigManager::instance().withUI();
+
 			Storm::TimeManager::instance().cleanUp();
 			Storm::SimulatorManager::instance().cleanUp();
 			Storm::RaycastManager::instance().cleanUp();
 			Storm::SpacePartitionerManager::instance().cleanUp();
 			Storm::ThreadManager::instance().cleanUp();
-			Storm::InputManager::instance().cleanUp();
+
+			if (hasUI)
+			{
+				Storm::InputManager::instance().cleanUp(Storm::WithUI{});
+				Storm::GraphicManager::instance().cleanUp(Storm::WithUI{});
+			}
+			else
+			{
+				Storm::InputManager::instance().cleanUp(Storm::NoUI{});
+				Storm::GraphicManager::instance().cleanUp(Storm::NoUI{});
+			}
+
 			Storm::ProfilerManager::instance().cleanUp();
-			Storm::GraphicManager::instance().cleanUp();
 			Storm::AssetLoaderManager::instance().cleanUp();
 			Storm::ShaderManager::instance().cleanUp();
 			Storm::PhysicsManager::instance().cleanUp();
-			Storm::WindowsManager::instance().cleanUp();
+
+			if (hasUI)
+			{
+				Storm::WindowsManager::instance().cleanUp(Storm::WithUI{});
+			}
+			else
+			{
+				Storm::WindowsManager::instance().cleanUp(Storm::NoUI{});
+			}
+
 			Storm::OSManager::instance().cleanUp();
 			Storm::RandomManager::instance().cleanUp();
 			Storm::SerializerManager::instance().cleanUp();

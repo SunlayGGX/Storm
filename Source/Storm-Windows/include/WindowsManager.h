@@ -8,6 +8,9 @@
 
 namespace Storm
 {
+	struct WithUI;
+	struct NoUI;
+
 	class WindowsManager :
 		private Storm::Singleton<Storm::WindowsManager>,
 		public Storm::IWindowsManager
@@ -21,8 +24,10 @@ namespace Storm
 		};
 
 	private:
-		void initialize_Implementation();
-		void cleanUp_Implementation();
+		void initialize_Implementation(const Storm::WithUI &);
+		void initialize_Implementation(const Storm::NoUI &);
+		void cleanUp_Implementation(const Storm::WithUI &);
+		void cleanUp_Implementation(const Storm::NoUI &);
 
 		void initializeInternal();
 

@@ -191,7 +191,7 @@ Storm::InputManager::InputManager() :
 
 Storm::InputManager::~InputManager() = default;
 
-bool Storm::InputManager::initialize_Implementation()
+bool Storm::InputManager::initialize_Implementation(const Storm::WithUI &)
 {
 	LOG_COMMENT << "Starting to initialize the Input Manager. We would evaluate if Windows is created. If not, we will suspend initialization and come back later.";
 
@@ -223,6 +223,11 @@ bool Storm::InputManager::initialize_Implementation()
 		LOG_WARNING << "HWND not valid, Input initialization will be suspended and done asynchronously later.";
 		return initRes;
 	}
+}
+
+void Storm::InputManager::initialize_Implementation(const Storm::NoUI &)
+{
+	LOG_DEBUG << "No UI requested. Input system initialization will be skipped";
 }
 
 void Storm::InputManager::initialize_Implementation(void* vptrHwnd)
@@ -291,7 +296,7 @@ void Storm::InputManager::initialize_Implementation(void* vptrHwnd)
 	this->refreshMouseState();
 }
 
-void Storm::InputManager::cleanUp_Implementation()
+void Storm::InputManager::cleanUp_Implementation(const Storm::WithUI &)
 {
 	Storm::IWindowsManager &windowsMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IWindowsManager>();
 	windowsMgr.unbindWindowsResizedCallback(_windowsResizedCallbackId);
@@ -302,6 +307,11 @@ void Storm::InputManager::cleanUp_Implementation()
 	_inputHandler->clear();
 	
 	LOG_COMMENT << "OIS destruction completed.";
+}
+
+void Storm::InputManager::cleanUp_Implementation(const Storm::NoUI &)
+{
+	LOG_COMMENT << "No UI. Input system destruction is trivial.";
 }
 
 void Storm::InputManager::update()
