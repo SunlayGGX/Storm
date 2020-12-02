@@ -159,8 +159,8 @@ void Storm::PhysicsManager::addConstraint(const Storm::ConstraintData &constrain
 
 			_constraints.emplace_back(std::move(addedConstraint));
 
-		}, _staticsRbMap, _dynamicsRbMap);
-	}, _staticsRbMap, _dynamicsRbMap);
+		}, _dynamicsRbMap, _staticsRbMap);
+	}, _dynamicsRbMap, _staticsRbMap);
 
 	LOG_DEBUG << "Constraint loaded";
 }
@@ -328,7 +328,7 @@ void Storm::PhysicsManager::getMeshTransform(unsigned int meshId, Storm::Vector3
 	Storm::SearchAlgo::executeOnObjectInContainer(meshId, [&outTrans, &outRot](const auto &rbFound)
 	{
 		rbFound.getMeshTransform(outTrans, outRot);
-	}, _staticsRbMap, _dynamicsRbMap);
+	}, _dynamicsRbMap, _staticsRbMap);
 }
 
 void Storm::PhysicsManager::applyLocalForces(unsigned int particleSystemId, const std::vector<Storm::Vector3> &position, const std::vector<Storm::Vector3> &force)
@@ -358,7 +358,7 @@ void Storm::PhysicsManager::getMeshTransform(unsigned int meshId, Storm::Vector3
 	Storm::SearchAlgo::executeOnObjectInContainer(meshId, [&outTrans, &outQuatRot](const auto &rbFound)
 	{
 		rbFound.getMeshTransform(outTrans, outQuatRot);
-	}, _staticsRbMap, _dynamicsRbMap);
+	}, _dynamicsRbMap, _staticsRbMap);
 }
 
 const Storm::PhysXHandler& Storm::PhysicsManager::getPhysXHandler() const

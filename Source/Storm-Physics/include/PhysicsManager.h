@@ -61,8 +61,8 @@ namespace Storm
 	private:
 		std::unique_ptr<Storm::PhysXHandler> _physXHandler;
 
-		std::map<unsigned int, std::unique_ptr<Storm::PhysicsStaticsRigidBody>> _staticsRbMap;
 		std::map<unsigned int, std::unique_ptr<Storm::PhysicsDynamicRigidBody>> _dynamicsRbMap;
+		std::map<unsigned int, std::unique_ptr<Storm::PhysicsStaticsRigidBody>> _staticsRbMap;
 
 		std::vector<std::shared_ptr<Storm::PhysicsConstraint>> _constraints;
 
