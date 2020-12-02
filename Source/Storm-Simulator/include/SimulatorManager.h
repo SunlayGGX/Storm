@@ -84,6 +84,7 @@ namespace Storm
 
 	private:
 		void cycleSelectedParticleDisplayMode();
+		void refreshParticleSelection();
 
 	public:
 		void exitWithCode(Storm::ExitCode code) final override;

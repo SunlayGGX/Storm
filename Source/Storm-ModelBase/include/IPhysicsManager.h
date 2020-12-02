@@ -18,6 +18,7 @@ namespace Storm
 		virtual ~IPhysicsManager() = default;
 
 	public:
+		virtual void notifyIterationStart() = 0;
 		virtual void update(float deltaTime) = 0;
 
 	public:
