@@ -232,10 +232,27 @@ std::size_t Storm::ParticleSelector::getSelectedParticleIndex() const noexcept
 
 void Storm::ParticleSelector::logForceComponents() const
 {
+	std::string rbSpecificInfosStr;
+	if (_selectedParticleData._hasRbTotalForce)
+	{
+		const std::string rbForceStr = Storm::toStdString(_selectedParticleData._totalForcesOnRb);
+		const std::string rbForceNormStr = Storm::toStdString(_selectedParticleData._totalForcesOnRb.norm());
+		
+		rbSpecificInfosStr.reserve(40 + rbForceStr.size() + rbForceNormStr.size());
+
+		rbSpecificInfosStr += "\nRigidbody total force: ";
+		rbSpecificInfosStr += rbForceStr;
+		rbSpecificInfosStr += ". Norm: ";
+		rbSpecificInfosStr += rbForceNormStr;
+		rbSpecificInfosStr += " m.";
+	}
+
 	LOG_ALWAYS <<
 		"Particle Forces components are :\n"
 		"Pressure: " << _selectedParticleData._pressureForce << ". Norm: " << _selectedParticleData._pressureForce.norm() << " m.\n"
 		"Viscosity: " << _selectedParticleData._viscosityForce << ". Norm: " << _selectedParticleData._viscosityForce.norm() << " m.\n"
-		"Sum : " << _selectedParticleData._externalSumForces << ". Norm: " << _selectedParticleData._externalSumForces.norm() << " m.";
+		"Sum : " << _selectedParticleData._externalSumForces << ". Norm: " << _selectedParticleData._externalSumForces.norm() << " m." <<
+		rbSpecificInfosStr
+		;
 }
 
