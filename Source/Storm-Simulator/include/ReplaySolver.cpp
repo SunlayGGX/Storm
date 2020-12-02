@@ -37,6 +37,8 @@ namespace
 	template<bool remap, class CoefficientType>
 	void lerpParticleSystemsFrames(Storm::ParticleSystemContainer &particleSystems, Storm::SerializeRecordPendingData &frameBefore, Storm::SerializeRecordPendingData &frameAfter, const CoefficientType &coefficient)
 	{
+		Storm::Vector3 tmp;
+
 		const std::size_t frameElementCount = frameAfter._particleSystemElements.size();
 		for (std::size_t iter = 0; iter < frameElementCount; ++iter)
 		{
@@ -62,6 +64,13 @@ namespace
 			const Storm::SerializeRecordParticleSystemData &frameBeforeElements = *frameBeforeElementsPtr;
 
 			Storm::ParticleSystem &currentPSystem = *particleSystems[frameBeforeElements._systemId];
+
+			lerp(frameBeforeElements._pSystemPosition, frameAfterElements._pSystemPosition, coefficient, tmp);
+			currentPSystem.setParticleSystemPosition(tmp);
+
+			lerp(frameBeforeElements._pSystemGlobalForce, frameAfterElements._pSystemGlobalForce, coefficient, tmp);
+			currentPSystem.setParticleSystemTotalForce(tmp);
+
 			std::vector<Storm::Vector3> &allPositions = currentPSystem.getPositions();
 			std::vector<Storm::Vector3> &allVelocities = currentPSystem.getVelocity();
 			std::vector<Storm::Vector3> &allForces = currentPSystem.getForces();
@@ -129,6 +138,8 @@ void Storm::ReplaySolver::transferFrameToParticleSystem_move(Storm::ParticleSyst
 	for (auto &currentFrameElement : frameFrom._particleSystemElements)
 	{
 		Storm::ParticleSystem &particleSystem = *particleSystems[currentFrameElement._systemId];
+		particleSystem.setParticleSystemPosition(currentFrameElement._pSystemPosition);
+		particleSystem.setParticleSystemTotalForce(currentFrameElement._pSystemGlobalForce);
 		particleSystem.setPositions(std::move(currentFrameElement._positions));
 		particleSystem.setVelocity(std::move(currentFrameElement._velocities));
 		particleSystem.setForces(std::move(currentFrameElement._forces));
@@ -156,6 +167,9 @@ void Storm::ReplaySolver::transferFrameToParticleSystem_copy(Storm::ParticleSyst
 			allPressureForce[currentPIndex] = frameElement._pressureComponentforces[currentPIndex];
 			allViscosityForce[currentPIndex] = frameElement._viscosityComponentforces[currentPIndex];
 		});
+
+		currentPSystem.setParticleSystemPosition(frameElement._pSystemPosition);
+		currentPSystem.setParticleSystemTotalForce(frameElement._pSystemGlobalForce);
 	}
 }
 

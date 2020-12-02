@@ -1324,6 +1324,14 @@ void Storm::SimulatorManager::pushRecord(float currentPhysicsTime, bool pushStat
 			Storm::SerializeRecordParticleSystemData &framePSystemElementData = currentFrameData._particleSystemElements.emplace_back();
 
 			framePSystemElementData._systemId = particleSystemPair.first;
+
+			if (!pSystemRef.isFluids())
+			{
+				const Storm::RigidBodyParticleSystem &pSystemRefAsRb = static_cast<const Storm::RigidBodyParticleSystem &>(pSystemRef);
+				framePSystemElementData._pSystemPosition = pSystemRefAsRb.getRbPosition();
+				framePSystemElementData._pSystemGlobalForce = pSystemRefAsRb.getRbTotalForce();
+			}
+
 			framePSystemElementData._positions = pSystemRef.getPositions();
 			framePSystemElementData._velocities = pSystemRef.getVelocity();
 			framePSystemElementData._forces = pSystemRef.getForces();
