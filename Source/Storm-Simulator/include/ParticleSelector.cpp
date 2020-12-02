@@ -17,9 +17,9 @@ namespace
 	{
 		switch (mode)
 		{
-		case Storm::ParticleSelectionMode::Pressure: return L"Pressure";
-		case Storm::ParticleSelectionMode::Viscosity: return L"Viscosity";
-		case Storm::ParticleSelectionMode::ViscosityAndPressure: return L"All";
+		case Storm::ParticleSelectionMode::Pressure: return STORM_TEXT("Pressure");
+		case Storm::ParticleSelectionMode::Viscosity: return STORM_TEXT("Viscosity");
+		case Storm::ParticleSelectionMode::ViscosityAndPressure: return STORM_TEXT("All");
 
 		case Storm::ParticleSelectionMode::SelectionModeCount:
 		default:
