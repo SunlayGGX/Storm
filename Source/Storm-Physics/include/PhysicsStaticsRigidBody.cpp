@@ -55,7 +55,12 @@ physx::PxRigidStatic* Storm::PhysicsStaticsRigidBody::getInternalPhysicsPointer(
 	return _internalRb.get();
 }
 
-Storm::Vector3 Storm::PhysicsStaticsRigidBody::getAppliedForce() const noexcept
+Storm::Vector3 Storm::PhysicsStaticsRigidBody::getPhysicAppliedForce() const noexcept
+{
+	return Storm::Vector3::Zero();
+}
+
+Storm::Vector3 Storm::PhysicsStaticsRigidBody::getTotalForce(const float) const noexcept
 {
 	return Storm::Vector3::Zero();
 }

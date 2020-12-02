@@ -45,7 +45,8 @@ namespace Storm
 		void getConstraintsRecordFrameData(std::vector<Storm::SerializeRecordContraintsData> &outConstraintsRecordFrameData) const final override;
 		void pushConstraintsRecordedFrame(const std::vector<Storm::SerializeRecordContraintsData> &constraintsRecordFrameData) final override;
 
-		Storm::Vector3 getForceOnPhysicalBody(const unsigned int id) const final override;
+		Storm::Vector3 getPhysicalForceOnPhysicalBody(const unsigned int id) const final override;
+		Storm::Vector3 getForceOnPhysicalBody(const unsigned int id, const float deltaTimeInSecond) const final override;
 
 	private:
 		void pushPhysicsVisualizationData() const;

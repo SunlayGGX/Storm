@@ -37,6 +37,8 @@ namespace Storm
 		virtual void getConstraintsRecordFrameData(std::vector<Storm::SerializeRecordContraintsData> &outConstraintsRecordFrameData) const = 0;
 		virtual void pushConstraintsRecordedFrame(const std::vector<Storm::SerializeRecordContraintsData> &constraintsRecordFrameData) = 0;
 
-		virtual Storm::Vector3 getForceOnPhysicalBody(const unsigned int id) const = 0;
+		// Doesn't account for fluid forces. Only forces from Physics engine.
+		virtual Storm::Vector3 getPhysicalForceOnPhysicalBody(const unsigned int id) const = 0;
+		virtual Storm::Vector3 getForceOnPhysicalBody(const unsigned int id, const float deltaTimeInSecond) const = 0;
 	};
 }

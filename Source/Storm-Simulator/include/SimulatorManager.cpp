@@ -1512,7 +1512,7 @@ void Storm::SimulatorManager::executeAllForcesCheck()
 		if (!currentPSystem.isFluids() && !currentPSystem.isStatic())
 		{
 			// For rigid bodies, some forces like the gravity or the constraint are handled by the physics engine, therefore we must query those. 
-			const Storm::Vector3 additionalForces = physicsMgr.getForceOnPhysicalBody(currentPSystem.getId());
+			const Storm::Vector3 additionalForces = physicsMgr.getPhysicalForceOnPhysicalBody(currentPSystem.getId());
 
 			xSum += additionalForces.x();
 			ySum += additionalForces.y();

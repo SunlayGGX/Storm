@@ -28,7 +28,8 @@ namespace Storm
 		void getMeshTransform(Storm::Vector3 &outTrans, Storm::Quaternion &outQuatRot) const;
 
 		void applyForce(const Storm::Vector3 &location, const Storm::Vector3 &force);
-		Storm::Vector3 getAppliedForce() const noexcept;
+		Storm::Vector3 getPhysicAppliedForce() const noexcept;
+		Storm::Vector3 getTotalForce(const float deltaTime) const noexcept;
 
 		physx::PxRigidDynamic* getInternalPhysicsPointer() const;
 

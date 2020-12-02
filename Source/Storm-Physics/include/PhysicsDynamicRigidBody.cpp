@@ -69,7 +69,7 @@ void Storm::PhysicsDynamicRigidBody::applyForce(const Storm::Vector3 &location, 
 	physx::PxRigidBodyExt::addForceAtLocalPos(*_internalRb, Storm::convertToPx(force), Storm::convertToPx(location));
 }
 
-Storm::Vector3 Storm::PhysicsDynamicRigidBody::getAppliedForce() const noexcept
+Storm::Vector3 Storm::PhysicsDynamicRigidBody::getPhysicAppliedForce() const noexcept
 {
 	Storm::Vector3 force = _internalRb->getMass() * Storm::PhysicsManager::instance().getPhysXHandler().getGravity();
 
@@ -79,6 +79,18 @@ Storm::Vector3 Storm::PhysicsDynamicRigidBody::getAppliedForce() const noexcept
 	}
 
 	return force;
+}
+
+Storm::Vector3 Storm::PhysicsDynamicRigidBody::getTotalForce(const float deltaTime) const noexcept
+{
+	// Since PhysX engine doesn't provide a way to get the force applied on this frame.
+	// We need to make an invert Euler Integration from the velocity change between the iteration start and the iteration end.
+	// Its means that this force is only the force applied at the end of the iteration. When the iteration started, this force is reset to { 0, 0, 0 }
+	const float currentMass = _internalRb->getMass();
+	const physx::PxVec3 currentVelocity = _internalRb->getLinearVelocity();
+	const physx::PxVec3 currentAcceleration = (currentVelocity - _currentIterationVelocity) / deltaTime;
+
+	return Storm::convertToStorm(currentMass * currentAcceleration);
 }
 
 physx::PxRigidDynamic* Storm::PhysicsDynamicRigidBody::getInternalPhysicsPointer() const

@@ -279,15 +279,26 @@ void Storm::PhysicsManager::pushConstraintsRecordedFrame(const std::vector<Storm
 	}
 }
 
-Storm::Vector3 Storm::PhysicsManager::getForceOnPhysicalBody(const unsigned int id) const
+Storm::Vector3 Storm::PhysicsManager::getPhysicalForceOnPhysicalBody(const unsigned int id) const
 {
 	Storm::Vector3 appliedForces;
 	Storm::SearchAlgo::executeOnObjectInContainer(id, [&appliedForces](const auto &rbFound)
 	{
-		appliedForces = rbFound.getAppliedForce();
+		appliedForces = rbFound.getPhysicAppliedForce();
 	}, _dynamicsRbMap, _staticsRbMap);
 
 	return appliedForces;
+}
+
+Storm::Vector3 Storm::PhysicsManager::getForceOnPhysicalBody(const unsigned int id, const float deltaTimeInSecond) const
+{
+	Storm::Vector3 force;
+	Storm::SearchAlgo::executeOnObjectInContainer(id, [&force, deltaTimeInSecond](const auto &rbFound)
+	{
+		force = rbFound.getTotalForce(deltaTimeInSecond);
+	}, _dynamicsRbMap, _staticsRbMap);
+
+	return force;
 }
 
 void Storm::PhysicsManager::pushPhysicsVisualizationData() const
