@@ -1334,6 +1334,8 @@ void Storm::SimulatorManager::applyReplayFrame(Storm::SerializeRecordPendingData
 		Storm::ReplaySolver::transferFrameToParticleSystem_copy(_particleSystem, frame);
 	}
 
+	this->refreshParticleSelection();
+
 	this->pushParticlesToGraphicModule(true, pushParallel);
 
 	Storm::IPhysicsManager &physicsMgr = singletonHolder.getSingleton<Storm::IPhysicsManager>();
