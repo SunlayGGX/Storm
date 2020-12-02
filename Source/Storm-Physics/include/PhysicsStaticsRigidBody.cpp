@@ -39,6 +39,11 @@ Storm::PhysicsStaticsRigidBody::PhysicsStaticsRigidBody(const Storm::RigidBodySc
 	_quatRotation = Storm::convertToStorm<Storm::Quaternion>(physXQuatRot);
 }
 
+void Storm::PhysicsStaticsRigidBody::onIterationStart() noexcept
+{
+
+}
+
 void Storm::PhysicsStaticsRigidBody::getMeshTransform(Storm::Vector3 &outTrans, Storm::Vector3 &outRot) const
 {
 	outTrans = _trans;

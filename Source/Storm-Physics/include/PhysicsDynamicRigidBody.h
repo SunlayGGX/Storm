@@ -19,6 +19,9 @@ namespace Storm
 		PhysicsDynamicRigidBody(const Storm::RigidBodySceneData &rbSceneData, const std::vector<Storm::Vector3> &vertices, const std::vector<uint32_t> &indexes);
 
 	public:
+		void onIterationStart() noexcept;
+
+	public:
 		void resetForce();
 
 		void getMeshTransform(Storm::Vector3 &outTrans, Storm::Vector3 &outRot) const;
@@ -34,5 +37,7 @@ namespace Storm
 	private:
 		Storm::UniquePointer<physx::PxRigidDynamic> _internalRb;
 		std::vector<std::shared_ptr<Storm::PhysicsConstraint>> _constraints;
+
+		physx::PxVec3 _currentIterationVelocity;
 	};
 }

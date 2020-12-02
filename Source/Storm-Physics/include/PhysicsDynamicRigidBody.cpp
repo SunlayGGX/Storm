@@ -31,6 +31,7 @@ namespace
 
 Storm::PhysicsDynamicRigidBody::PhysicsDynamicRigidBody(const Storm::RigidBodySceneData &rbSceneData, const std::vector<Storm::Vector3> &vertices, const std::vector<uint32_t> &indexes) :
 	Storm::PhysicalShape{ rbSceneData, vertices, indexes },
+	_currentIterationVelocity{ 0.f, 0.f, 0.f },
 	_internalRb{ createDynamicRigidBody(rbSceneData) }
 {
 	if (!_internalRb)
@@ -42,6 +43,11 @@ Storm::PhysicsDynamicRigidBody::PhysicsDynamicRigidBody(const Storm::RigidBodySc
 	{
 		Storm::throwException<std::exception>("We failed to attach the created shape to the rigid body " + std::to_string(rbSceneData._rigidBodyID));
 	}
+}
+
+void Storm::PhysicsDynamicRigidBody::onIterationStart() noexcept
+{
+	_currentIterationVelocity = _internalRb->getLinearVelocity();
 }
 
 void Storm::PhysicsDynamicRigidBody::resetForce()

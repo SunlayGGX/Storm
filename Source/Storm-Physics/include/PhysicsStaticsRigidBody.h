@@ -18,6 +18,9 @@ namespace Storm
 		PhysicsStaticsRigidBody(const Storm::RigidBodySceneData &rbSceneData, const std::vector<Storm::Vector3> &vertices, const std::vector<uint32_t> &indexes);
 
 	public:
+		void onIterationStart() noexcept;
+
+	public:
 		void getMeshTransform(Storm::Vector3 &outTrans, Storm::Vector3 &outRot) const;
 		void getMeshTransform(Storm::Vector3 &outTrans, Storm::Quaternion &outQuatRot) const;
 

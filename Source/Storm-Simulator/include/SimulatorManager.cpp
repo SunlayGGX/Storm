@@ -864,6 +864,7 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 
 		_kernelHandler.update(timeMgr.getCurrentPhysicsElapsedTime());
 
+		physicsMgr.notifyIterationStart();
 		for (auto &particleSystem : _particleSystem)
 		{
 			particleSystem.second->onIterationStart();

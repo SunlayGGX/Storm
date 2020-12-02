@@ -84,6 +84,14 @@ void Storm::PhysicsManager::cleanUp_Implementation()
 	LOG_COMMENT << "PhysX cleanup finished successfully";
 }
 
+void Storm::PhysicsManager::notifyIterationStart()
+{
+	Storm::SearchAlgo::executeOnContainer([](auto &rb) 
+	{
+		rb.onIterationStart();
+	}, _dynamicsRbMap, _staticsRbMap);
+}
+
 void Storm::PhysicsManager::update(float deltaTime)
 {
 	if (!_rigidBodiesFixated)
