@@ -20,6 +20,13 @@ namespace
 		auto &physicsHandler = Storm::PhysicsManager::instance().getPhysXHandler();
 		return physicsHandler.createDynamicRigidBody(rbSceneData);
 	}
+
+	template<class RbType>
+	physx::PxTransform retrieveCurrentTransform(const RbType &rb)
+	{
+		std::lock_guard<std::mutex> lock{ Storm::PhysicsManager::instance()._simulationMutex };
+		return rb->getGlobalPose();
+	}
 }
 
 Storm::PhysicsDynamicRigidBody::PhysicsDynamicRigidBody(const Storm::RigidBodySceneData &rbSceneData, const std::vector<Storm::Vector3> &vertices, const std::vector<uint32_t> &indexes) :
@@ -45,12 +52,7 @@ void Storm::PhysicsDynamicRigidBody::resetForce()
 
 void Storm::PhysicsDynamicRigidBody::getMeshTransform(Storm::Vector3 &outTrans, Storm::Vector3 &outRot) const
 {
-	physx::PxTransform currentTransform;
-
-	{
-		std::lock_guard<std::mutex> lock{ Storm::PhysicsManager::instance()._simulationMutex };
-		currentTransform = _internalRb->getGlobalPose();
-	}
+	const physx::PxTransform currentTransform = retrieveCurrentTransform(_internalRb);
 
 	outTrans = Storm::convertToStorm(currentTransform.p);
 	outRot = Storm::convertToStorm<Storm::Vector3>(currentTransform.q);
