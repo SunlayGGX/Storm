@@ -56,16 +56,16 @@ bool Storm::RecordReader::resetToBeginning()
 
 bool Storm::RecordReader::readNextFrame(Storm::SerializeRecordPendingData &outPendingData)
 {
-	return (this->*_readMethodToUse)(outPendingData);
+	if (!_noMoreFrame)
+	{
+		return (this->*_readMethodToUse)(outPendingData);
+	}
+
+	return false;
 }
 
 bool Storm::RecordReader::readNextFrame_v1_0_0(Storm::SerializeRecordPendingData &outPendingData)
 {
-	if (_noMoreFrame)
-	{
-		return false;
-	}
-
 	uint64_t frameNumber = std::numeric_limits<uint64_t>::max();
 	_package << frameNumber;
 
