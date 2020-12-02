@@ -498,6 +498,8 @@ void Storm::SimulatorManager::initialize_Implementation()
 			{
 				bool hasMadeSelectionChanges;
 
+				const Storm::ITimeManager &timeMgr = singletonHolder.getSingleton<Storm::ITimeManager>();
+
 				if (result.empty())
 				{
 					hasMadeSelectionChanges = _particleSelector.clearParticleSelection();
@@ -520,11 +522,22 @@ void Storm::SimulatorManager::initialize_Implementation()
 						_particleSelector.setSelectedParticlePressureForce(selectedPSystem.getTemporaryPressureForces()[firstHit._particleId]);
 						_particleSelector.setSelectedParticleViscosityForce(selectedPSystem.getTemporaryViscosityForces()[firstHit._particleId]);
 
+						if (!selectedPSystem.isFluids())
+						{
+							const Storm::RigidBodyParticleSystem &pSystemAsRb = static_cast<const Storm::RigidBodyParticleSystem &>(selectedPSystem);
+							_particleSelector.setRbPosition(pSystemAsRb.getRbPosition());
+							_particleSelector.setRbTotalForce(pSystemAsRb.getRbTotalForce());
+						}
+						else
+						{
+							_particleSelector.clearRbTotalForce();
+						}
+
 						_particleSelector.logForceComponents();
 					}
 				}
 
-				if (hasMadeSelectionChanges && singletonHolder.getSingleton<Storm::ITimeManager>().getStateNoSyncWait() == Storm::TimeWaitResult::Pause)
+				if (hasMadeSelectionChanges && timeMgr.getStateNoSyncWait() == Storm::TimeWaitResult::Pause)
 				{
 					this->pushParticlesToGraphicModule(true, false);
 				}
@@ -1190,7 +1203,9 @@ void Storm::SimulatorManager::pushParticlesToGraphicModule(bool ignoreDirty, boo
 			const Storm::ParticleSystem &selectedParticleSystem = *found->second;
 
 			const std::size_t selectedParticleIndex = _particleSelector.getSelectedParticleIndex();
-			graphicMgr.pushParticleSelectionForceData(selectedParticleSystem.getPositions()[selectedParticleIndex], _particleSelector.getSelectedParticleForceToDisplay());
+
+			const Storm::Vector3 &selectedParticlePosition = selectedParticleSystem.getPositions()[selectedParticleIndex];
+			graphicMgr.pushParticleSelectionForceData(_particleSelector.getSelectedForcePosition(selectedParticlePosition), _particleSelector.getSelectedForceToDisplay());
 		}
 	}
 	
@@ -1242,6 +1257,13 @@ void Storm::SimulatorManager::refreshParticleSelection()
 			_particleSelector.setSelectedParticlePressureForce(pSystem.getTemporaryPressureForces()[selectedParticleIndex]);
 			_particleSelector.setSelectedParticleViscosityForce(pSystem.getTemporaryViscosityForces()[selectedParticleIndex]);
 			_particleSelector.setSelectedParticleSumForce(pSystem.getForces()[selectedParticleIndex]);
+
+			if (!pSystem.isFluids())
+			{
+				const Storm::RigidBodyParticleSystem &pSystemAsRb = static_cast<const Storm::RigidBodyParticleSystem &>(pSystem);
+				_particleSelector.setRbPosition(pSystemAsRb.getRbPosition());
+				_particleSelector.setRbTotalForce(pSystemAsRb.getRbTotalForce());
+			}
 		}
 	}
 }
