@@ -38,7 +38,8 @@ namespace
 Storm::RigidBodyParticleSystem::RigidBodyParticleSystem(unsigned int particleSystemIndex, std::vector<Storm::Vector3> &&worldPositions) :
 	Storm::ParticleSystem{ particleSystemIndex, std::move(worldPositions) },
 	_cachedTrackedRbRotationQuat{ Storm::Quaternion::Identity() },
-	_velocityDirtyInternal{ false }
+	_velocityDirtyInternal{ false },
+	_rbTotalForce{ Storm::Vector3::Zero() }
 {
 	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
 	const Storm::RigidBodySceneData &currentRbData = configMgr.getRigidBodyData(particleSystemIndex);
@@ -60,7 +61,8 @@ Storm::RigidBodyParticleSystem::RigidBodyParticleSystem(unsigned int particleSys
 
 Storm::RigidBodyParticleSystem::RigidBodyParticleSystem(unsigned int particleSystemIndex, const std::size_t particleCount) :
 	Storm::ParticleSystem{ particleSystemIndex, particleCount },
-	_cachedTrackedRbRotationQuat{ Storm::Quaternion::Identity() }
+	_cachedTrackedRbRotationQuat{ Storm::Quaternion::Identity() },
+	_rbTotalForce{ Storm::Vector3::Zero() }
 {
 	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
 	const Storm::RigidBodySceneData &currentRbData = configMgr.getRigidBodyData(particleSystemIndex);
@@ -196,6 +198,16 @@ float Storm::RigidBodyParticleSystem::getViscosity() const noexcept
 	return _viscosity;
 }
 
+const Storm::Vector3& Storm::RigidBodyParticleSystem::getRbPosition() const noexcept
+{
+	return _cachedTrackedRbPosition;
+}
+
+const Storm::Vector3& Storm::RigidBodyParticleSystem::getRbTotalForce() const noexcept
+{
+	return _rbTotalForce;
+}
+
 std::vector<float>& Storm::RigidBodyParticleSystem::getVolumes() noexcept
 {
 	return _volumes;
@@ -255,6 +267,16 @@ void Storm::RigidBodyParticleSystem::setTmpViscosityForces(std::vector<Storm::Ve
 	{
 		_tmpViscosityForce = std::move(tmpViscoForces);
 	}
+}
+
+void Storm::RigidBodyParticleSystem::setParticleSystemPosition(const Storm::Vector3 &rbPosition)
+{
+	_cachedTrackedRbPosition = rbPosition;
+}
+
+void Storm::RigidBodyParticleSystem::setParticleSystemTotalForce(const Storm::Vector3 &rbTotalForce)
+{
+	_rbTotalForce = rbTotalForce;
 }
 
 void Storm::RigidBodyParticleSystem::buildNeighborhoodOnParticleSystem(const Storm::ParticleSystem &otherParticleSystem, const float kernelLengthSquared)
@@ -362,7 +384,9 @@ void Storm::RigidBodyParticleSystem::updatePosition(float deltaTimeInSec, bool f
 		Storm::Vector3 currentPosition;
 		Storm::Quaternion currentQuatRotation;
 
-		singletonHolder.getSingleton<Storm::IPhysicsManager>().getMeshTransform(_particleSystemIndex, currentPosition, currentQuatRotation);
+		const Storm::IPhysicsManager &physicsMgr = singletonHolder.getSingleton<Storm::IPhysicsManager>();
+
+		physicsMgr.getMeshTransform(_particleSystemIndex, currentPosition, currentQuatRotation);
 
 		if (currentPosition != _cachedTrackedRbPosition || currentQuatRotation.x() != _cachedTrackedRbRotationQuat.x() || currentQuatRotation.y() != _cachedTrackedRbRotationQuat.y() || currentQuatRotation.z() != _cachedTrackedRbRotationQuat.z() || currentQuatRotation.w() != _cachedTrackedRbRotationQuat.w())
 		{
@@ -399,7 +423,7 @@ void Storm::RigidBodyParticleSystem::updatePosition(float deltaTimeInSec, bool f
 				currentPPosition = newPPosition;
 			});
 
-			_cachedTrackedRbPosition = currentPosition;
+			this->setParticleSystemPosition(currentPosition);
 			_cachedTrackedRbRotationQuat = currentQuatRotation;
 
 			// The force is for the first frame, where we set the position to the position in scene.
@@ -410,6 +434,10 @@ void Storm::RigidBodyParticleSystem::updatePosition(float deltaTimeInSec, bool f
 				{
 					currentPVelocity.setZero();
 				});
+			}
+			else
+			{
+				this->setParticleSystemTotalForce(physicsMgr.getForceOnPhysicalBody(_particleSystemIndex, deltaTimeInSec));
 			}
 		}
 		else if (_velocityDirtyInternal)

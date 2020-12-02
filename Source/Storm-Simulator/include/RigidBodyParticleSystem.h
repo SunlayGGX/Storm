@@ -27,12 +27,17 @@ namespace Storm
 		void setForces(std::vector<Storm::Vector3> &&forces) final override;
 		void setTmpPressureForces(std::vector<Storm::Vector3> &&tmpPressureForces) final override;
 		void setTmpViscosityForces(std::vector<Storm::Vector3> &&tmpViscoForces) final override;
+		void setParticleSystemPosition(const Storm::Vector3 &pSystemPosition) final override;
+		void setParticleSystemTotalForce(const Storm::Vector3 &pSystemTotalForce) final override;
 
 	public:
 		const std::vector<float>& getVolumes() const noexcept;
 		std::vector<float>& getVolumes() noexcept;
 
 		float getViscosity() const noexcept;
+
+		const Storm::Vector3& getRbPosition() const noexcept;
+		const Storm::Vector3& getRbTotalForce() const noexcept;
 
 	private:
 		void buildNeighborhoodOnParticleSystem(const Storm::ParticleSystem &otherParticleSystem, const float kernelLengthSquared) final override;
@@ -61,6 +66,8 @@ namespace Storm
 		// they will be equal to the position of the last frame.
 		Storm::Vector3 _cachedTrackedRbPosition;
 		Storm::Quaternion _cachedTrackedRbRotationQuat;
+
+		Storm::Vector3 _rbTotalForce;
 
 		bool _isStatic;
 		bool _isWall;

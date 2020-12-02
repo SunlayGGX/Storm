@@ -130,6 +130,16 @@ void Storm::FluidParticleSystem::setTmpViscosityForces(std::vector<Storm::Vector
 	_tmpViscosityForce = std::move(tmpViscoForces);
 }
 
+void Storm::FluidParticleSystem::setParticleSystemPosition(const Storm::Vector3 &pSystemPosition)
+{
+
+}
+
+void Storm::FluidParticleSystem::setParticleSystemTotalForce(const Storm::Vector3 &pSystemTotalForce)
+{
+
+}
+
 float Storm::FluidParticleSystem::getRestDensity() const noexcept
 {
 	return _restDensity;
