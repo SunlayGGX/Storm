@@ -59,6 +59,22 @@ namespace
 		}
 		return 0;
 	}
+
+	BOOL ctrlHandlerRoutine(_In_ DWORD dwCtrlType)
+	{
+		switch (dwCtrlType)
+		{
+		case CTRL_C_EVENT:
+		case CTRL_CLOSE_EVENT:
+		case CTRL_SHUTDOWN_EVENT:
+			Storm::WindowsManager::instance().callQuitCallback();
+			std::this_thread::sleep_for(std::chrono::seconds{ 2 });
+			return TRUE;
+
+		default:
+			return FALSE;
+		}
+	}
 }
 
 
@@ -74,6 +90,8 @@ Storm::WindowsManager::~WindowsManager() = default;
 void Storm::WindowsManager::initialize_Implementation(const Storm::WithUI &)
 {
 	LOG_COMMENT << "Starting creating the Windows for the application";
+
+	::SetConsoleCtrlHandler(ctrlHandlerRoutine, TRUE);
 
 	std::condition_variable syncronizer;
 	bool canLeave = false;
@@ -112,6 +130,8 @@ void Storm::WindowsManager::initialize_Implementation(const Storm::WithUI &)
 void Storm::WindowsManager::initialize_Implementation(const Storm::NoUI &)
 {
 	LOG_COMMENT << "No UI requested, we will skip UI generation.";
+
+	::SetConsoleCtrlHandler(ctrlHandlerRoutine, TRUE);
 
 	_windowsThread = std::thread{ [this]()
 	{
