@@ -20,6 +20,7 @@ namespace
 		case Storm::ParticleSelectionMode::Pressure: return STORM_TEXT("Pressure");
 		case Storm::ParticleSelectionMode::Viscosity: return STORM_TEXT("Viscosity");
 		case Storm::ParticleSelectionMode::ViscosityAndPressure: return STORM_TEXT("All");
+		case Storm::ParticleSelectionMode::RbForce: return STORM_TEXT("Rb Total force");
 
 		case Storm::ParticleSelectionMode::SelectionModeCount:
 		default:
@@ -27,6 +28,57 @@ namespace
 			break;
 		}
 	}
+
+#define STORM_XMACRO_SELECTION_MODE \
+	STORM_XMACRO_ELEM_BASE_SELECTION_MODE(FluidParticleSelectionMode, STORM_XMACRO_SELECTION_FLUIDS_MODE_BINDINGS) \
+	STORM_XMACRO_ELEM_BASE_SELECTION_MODE(RbParticleSelectionMode, STORM_XMACRO_SELECTION_RB_MODE_BINDINGS) \
+
+	// Don't modify this macro directly unless necessary.
+	// It is the macro that make the links between the STORM_XMACRO_SELECTION_MODE xmacro, and the bindings mode xmacro.
+#define STORM_XMACRO_ELEM_BASE_SELECTION_MODE(SelectionMode, BindingsXMacro) STORM_XMACRO_ELEM_SELECTION_MODE(SelectionMode, BindingsXMacro(SelectionMode))
+
+#define STORM_XMACRO_SELECTION_FLUIDS_MODE_BINDINGS(SelectionMode)				\
+	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Pressure)				\
+	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Viscosity)				\
+	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, ViscosityAndPressure)	\
+
+#define STORM_XMACRO_SELECTION_RB_MODE_BINDINGS(SelectionMode)					\
+	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Pressure)				\
+	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Viscosity)				\
+	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, ViscosityAndPressure)	\
+	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, RbForce)					\
+
+
+#define STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, BindingValueName) BindingValueName,
+#define STORM_XMACRO_ELEM_SELECTION_MODE(SelectionMode, ...)		\
+	enum class SelectionMode										\
+	{																\
+		__VA_ARGS__													\
+		SelectionCount,												\
+	};
+
+	STORM_XMACRO_SELECTION_MODE;
+#undef STORM_XMACRO_ELEM_SELECTION_MODE
+#undef STORM_XMACRO_ELEM_SELECTION_BINDING
+
+	template<class UsedSelectionMode> Storm::ParticleSelectionMode retrieveSelectionMode(uint8_t selectionModeAgnostic);
+
+#define STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, BindingValueName) case SelectionMode::BindingValueName: return Storm::ParticleSelectionMode::BindingValueName;
+#define STORM_XMACRO_ELEM_SELECTION_MODE(SelectionMode, ...) \
+	template<> Storm::ParticleSelectionMode retrieveSelectionMode<SelectionMode>(uint8_t selectionModeAgnostic) \
+	{																											\
+		switch (static_cast<SelectionMode>(selectionModeAgnostic))												\
+		{																										\
+			__VA_ARGS__																							\
+																												\
+		default:																								\
+			return static_cast<Storm::ParticleSelectionMode>(0);												\
+		};																										\
+	}
+
+	STORM_XMACRO_SELECTION_MODE
+#undef STORM_XMACRO_ELEM_SELECTION_MODE
+#undef STORM_XMACRO_ELEM_SELECTION_BINDING
 }
 
 
@@ -35,6 +87,8 @@ Storm::ParticleSelector::ParticleSelector() :
 {
 	_selectionModeStr = parseSelectedParticleMode(_currentParticleSelectionMode);
 	_selectedParticleData._selectedParticle = std::make_pair(std::numeric_limits<decltype(_selectedParticleData._selectedParticle.first)>::max(), 0);
+
+	this->clearRbTotalForce();
 }
 
 Storm::ParticleSelector::~ParticleSelector() = default;
@@ -95,7 +149,18 @@ void Storm::ParticleSelector::setParticleSelectionDisplayMode(const Storm::Parti
 void Storm::ParticleSelector::cycleParticleSelectionDisplayMode()
 {
 	const uint8_t cycledValue = (static_cast<uint8_t>(_currentParticleSelectionMode) + 1) % static_cast<uint8_t>(Storm::ParticleSelectionMode::SelectionModeCount);
-	this->setParticleSelectionDisplayMode(static_cast<Storm::ParticleSelectionMode>(cycledValue));
+
+	Storm::ParticleSelectionMode newMode;
+	if (_selectedParticleData._hasRbTotalForce)
+	{
+		newMode = retrieveSelectionMode<RbParticleSelectionMode>(cycledValue);
+	}
+	else
+	{
+		newMode = retrieveSelectionMode<FluidParticleSelectionMode>(cycledValue);
+	}
+
+	this->setParticleSelectionDisplayMode(newMode);
 }
 
 void Storm::ParticleSelector::setSelectedParticlePressureForce(const Storm::Vector3 &pressureForce)
@@ -113,18 +178,45 @@ void Storm::ParticleSelector::setSelectedParticleSumForce(const Storm::Vector3 &
 	_selectedParticleData._externalSumForces = sumForce;
 }
 
-const Storm::Vector3& Storm::ParticleSelector::getSelectedParticleForceToDisplay() const
+void Storm::ParticleSelector::setRbPosition(const Storm::Vector3 &position)
+{
+	_selectedParticleData._rbPosition = position;
+	_selectedParticleData._hasRbTotalForce = true;
+}
+
+void Storm::ParticleSelector::setRbTotalForce(const Storm::Vector3 &totalForce)
+{
+	_selectedParticleData._totalForcesOnRb = totalForce;
+	_selectedParticleData._hasRbTotalForce = true;
+}
+
+void Storm::ParticleSelector::clearRbTotalForce()
+{
+	_selectedParticleData._hasRbTotalForce = false;
+}
+
+const Storm::Vector3& Storm::ParticleSelector::getSelectedForceToDisplay() const
 {
 	switch (_currentParticleSelectionMode)
 	{
 	case Storm::ParticleSelectionMode::Pressure:				return _selectedParticleData._pressureForce;
 	case Storm::ParticleSelectionMode::Viscosity:				return _selectedParticleData._viscosityForce;
 	case Storm::ParticleSelectionMode::ViscosityAndPressure:	return _selectedParticleData._externalSumForces;
+	case Storm::ParticleSelectionMode::RbForce:					return _selectedParticleData._totalForcesOnRb;
 
 	case Storm::ParticleSelectionMode::SelectionModeCount:
 	default:
 		Storm::throwException<std::exception>("Unknown particle selection mode. Mode was " + Storm::toStdString(_currentParticleSelectionMode));
 		break;
+	}
+}
+
+const Storm::Vector3& Storm::ParticleSelector::getSelectedForcePosition(const Storm::Vector3 &particlePosition) const
+{
+	switch (_currentParticleSelectionMode)
+	{
+	case Storm::ParticleSelectionMode::RbForce: return _selectedParticleData._rbPosition;
+	default:									return particlePosition;
 	}
 }
 

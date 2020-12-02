@@ -15,6 +15,10 @@ namespace Storm
 			Storm::Vector3 _pressureForce;
 			Storm::Vector3 _viscosityForce;
 			Storm::Vector3 _externalSumForces;
+
+			bool _hasRbTotalForce;
+			Storm::Vector3 _rbPosition;
+			Storm::Vector3 _totalForcesOnRb;
 		};
 
 	public:
@@ -37,9 +41,13 @@ namespace Storm
 		void setSelectedParticlePressureForce(const Storm::Vector3 &pressureForce);
 		void setSelectedParticleViscosityForce(const Storm::Vector3 &viscoForce);
 		void setSelectedParticleSumForce(const Storm::Vector3 &sumForce);
+		void setRbPosition(const Storm::Vector3 &position);
+		void setRbTotalForce(const Storm::Vector3 &totalForce);
+		void clearRbTotalForce();
 
 	public:
-		const Storm::Vector3& getSelectedParticleForceToDisplay() const;
+		const Storm::Vector3& getSelectedForceToDisplay() const;
+		const Storm::Vector3& getSelectedForcePosition(const Storm::Vector3 &particlePosition) const;
 		unsigned int getSelectedParticleSystemId() const noexcept;
 		std::size_t getSelectedParticleIndex() const noexcept;
 
