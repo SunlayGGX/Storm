@@ -749,14 +749,7 @@ Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 		}
 		else
 		{
-			if (_particleSelector.hasSelectedParticle())
-			{
-				const Storm::ParticleSystem &pSystem = *_particleSystem[_particleSelector.getSelectedParticleSystemId()];
-
-				const std::size_t selectedParticleIndex = _particleSelector.getSelectedParticleIndex();
-				_particleSelector.setSelectedParticlePressureForce(pSystem.getTemporaryPressureForces()[selectedParticleIndex]);
-				_particleSelector.setSelectedParticleViscosityForce(pSystem.getTemporaryViscosityForces()[selectedParticleIndex]);
-			}
+			this->refreshParticleSelection();
 
 			if (autoEndSimulation)
 			{
@@ -878,18 +871,7 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 		});
 
 		// Update the particle selector data with the external sum force.
-		if (_particleSelector.hasSelectedParticle())
-		{
-			if (auto found = _particleSystem.find(_particleSelector.getSelectedParticleSystemId()); found != std::end(_particleSystem))
-			{
-				const Storm::ParticleSystem &pSystem = *found->second;
-
-				const std::size_t selectedParticleIndex = _particleSelector.getSelectedParticleIndex();
-				_particleSelector.setSelectedParticlePressureForce(pSystem.getTemporaryPressureForces()[selectedParticleIndex]);
-				_particleSelector.setSelectedParticleViscosityForce(pSystem.getTemporaryViscosityForces()[selectedParticleIndex]);
-				_particleSelector.setSelectedParticleSumForce(pSystem.getForces()[selectedParticleIndex]);
-			}
-		}
+		this->refreshParticleSelection();
 
 		// Push all particle data to the graphic module to be rendered...
 		if (hasUI)
@@ -1244,6 +1226,22 @@ void Storm::SimulatorManager::cycleSelectedParticleDisplayMode()
 		if (timeMgr.getStateNoSyncWait() == Storm::TimeWaitResult::Pause)
 		{
 			this->pushParticlesToGraphicModule(true, false);
+		}
+	}
+}
+
+void Storm::SimulatorManager::refreshParticleSelection()
+{
+	if (_particleSelector.hasSelectedParticle())
+	{
+		if (auto found = _particleSystem.find(_particleSelector.getSelectedParticleSystemId()); found != std::end(_particleSystem))
+		{
+			const Storm::ParticleSystem &pSystem = *found->second;
+
+			const std::size_t selectedParticleIndex = _particleSelector.getSelectedParticleIndex();
+			_particleSelector.setSelectedParticlePressureForce(pSystem.getTemporaryPressureForces()[selectedParticleIndex]);
+			_particleSelector.setSelectedParticleViscosityForce(pSystem.getTemporaryViscosityForces()[selectedParticleIndex]);
+			_particleSelector.setSelectedParticleSumForce(pSystem.getForces()[selectedParticleIndex]);
 		}
 	}
 }
