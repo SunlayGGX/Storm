@@ -16,7 +16,7 @@ namespace Storm
 	public:
 		bool prepareData(unsigned int particleSystemId, std::vector<Storm::GraphicParticleData> &particlePosition, const std::pair<unsigned int, std::size_t> &selectedParticle);
 
-		void refreshForceData(const ComPtr<ID3D11Device> &device, const Storm::Vector3 &selectedParticlePosition, const Storm::Vector3 &selectedParticleForce);
+		void refreshForceData(const ComPtr<ID3D11Device> &device, const Storm::Vector3 &selectedPosition, const Storm::Vector3 &selectedForce);
 
 	public:
 		void render(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera);
@@ -28,8 +28,8 @@ namespace Storm
 		void tweekAlwaysOnTop();
 
 	private:
-		Storm::Vector3 _lastParticlePositionCached;
-		Storm::Vector3 _lastParticleForceCached;
+		Storm::Vector3 _lastPositionCached;
+		Storm::Vector3 _lastForceCached;
 
 		ComPtr<ID3D11Buffer> _vertexBuffer;
 		ComPtr<ID3D11Buffer> _indexBuffer;

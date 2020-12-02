@@ -39,17 +39,17 @@ bool Storm::ParticleForceRenderer::prepareData(unsigned int particleSystemId, st
 	return false;
 }
 
-void Storm::ParticleForceRenderer::refreshForceData(const ComPtr<ID3D11Device> &device, const Storm::Vector3 &selectedParticlePosition, const Storm::Vector3 &selectedParticleForce)
+void Storm::ParticleForceRenderer::refreshForceData(const ComPtr<ID3D11Device> &device, const Storm::Vector3 &selectedPosition, const Storm::Vector3 &selectedForce)
 {
-	if (_lastParticlePositionCached != selectedParticlePosition || _lastParticleForceCached != selectedParticleForce || _vertexBuffer == nullptr)
+	if (_lastPositionCached != selectedPosition || _lastForceCached != selectedForce || _vertexBuffer == nullptr)
 	{
-		_lastParticlePositionCached = selectedParticlePosition;
-		_lastParticleForceCached = selectedParticleForce;
+		_lastPositionCached = selectedPosition;
+		_lastForceCached = selectedForce;
 
 		const Storm::Vector3 force[2] =
 		{
-			selectedParticlePosition, // Origin
-			selectedParticlePosition + selectedParticleForce // End of the vector arrow
+			selectedPosition, // Origin
+			selectedPosition + selectedForce // End of the vector arrow
 		};
 
 		// In case it has a vertex buffer set (most of the time)
