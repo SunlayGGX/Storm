@@ -25,6 +25,7 @@ namespace Storm
 		void cleanUp_Implementation();
 
 	public:
+		void notifyIterationStart() final override;
 		void update(float deltaTime) final override;
 
 	public:
