@@ -114,5 +114,29 @@ namespace Storm
 				Storm::throwException<std::exception>("Cannot find object with id " + Storm::toStdString(key) + " inside given maps. (" __FUNCSIG__ ")");
 			}
 		}
+
+	private:
+		template<class Func, class ContainerType, class ... OthersContainerType>
+		static void executeOnContainerImpl(const Func &func, ContainerType &container, OthersContainerType &... others)
+		{
+			Storm::SearchAlgo::executeOnContainerImpl(func, container);
+			Storm::SearchAlgo::executeOnContainerImpl(func, others...);
+		}
+
+		template<class Func, class ContainerType>
+		static void executeOnContainerImpl(const Func &func, ContainerType &container)
+		{
+			for (auto &item : container)
+			{
+				func(Storm::SearchAlgo::extract(item.second, 0));
+			}
+		}
+
+	public:
+		template<class Func, class ... OthersContainerType>
+		static void executeOnContainer(const Func &func, OthersContainerType &... allContainers)
+		{
+			Storm::SearchAlgo::executeOnContainerImpl(func, allContainers...);
+		}
 	};
 }
