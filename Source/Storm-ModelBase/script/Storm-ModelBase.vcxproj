@@ -83,6 +83,7 @@
     <ClInclude Include="..\include\StormPrerequisite.h" />
     <ClInclude Include="..\include\Storm-ModelBasePCH.h" />
     <ClInclude Include="..\include\ThreadEnumeration.h" />
+    <ClInclude Include="..\include\ThreadPriority.h" />
     <ClInclude Include="..\include\TimeWaitResult.h" />
     <ClInclude Include="..\include\UIField.h" />
     <ClInclude Include="..\include\UIFieldBase.h" />
