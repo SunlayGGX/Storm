@@ -19,12 +19,14 @@ namespace Storm
 		void registerCurrentThread(Storm::ThreadEnumeration threadEnum, const std::wstring &newName) final override;
 		void executeOnThread(const std::thread::id &threadId, Storm::AsyncAction &&action) final override;
 		void executeOnThread(Storm::ThreadEnumeration threadEnum, Storm::AsyncAction &&action) final override;
+		void executeDefferedOnThread(Storm::ThreadEnumeration threadEnum, Storm::AsyncAction &&action) final override;
 		void processCurrentThreadActions() final override;
 		void processActionsOfThread(Storm::ThreadEnumeration threadEnum) final override;
 		bool isExecutingOnThread(Storm::ThreadEnumeration threadEnum) const final override;
 
 	private:
 		void executeOnThreadInternal(const std::thread::id &threadId, Storm::AsyncAction &&action);
+		void executeDefferedOnThreadInternal(const std::thread::id &threadId, Storm::AsyncAction &&action);
 
 	private:
 		mutable std::recursive_mutex _mutex;

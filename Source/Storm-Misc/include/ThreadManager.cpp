@@ -50,9 +50,34 @@ void Storm::ThreadManager::executeOnThread(const std::thread::id &threadId, Asyn
 	this->executeOnThreadInternal(threadId, std::move(action));
 }
 
-void Storm::ThreadManager::executeOnThread(Storm::ThreadEnumeration threadEnum, Storm::AsyncAction &&action)
+void Storm::ThreadManager::executeDefferedOnThread(Storm::ThreadEnumeration threadEnum, Storm::AsyncAction &&action)
 {
 	// Warning : You should never call a executeOnThread from a runParallel that is executed inside an AsyncAction being executed in processCurrentThreadActions.
+	// If those 3 functions are present in your call stack, then a deadlock will occurs.
+
+	const auto thisThreadId = std::this_thread::get_id();
+	bool executeNow = false;
+
+	std::lock_guard<std::recursive_mutex> lock{ _mutex };
+	if (const auto found = _threadIdMapping.find(threadEnum); found != std::end(_threadIdMapping))
+	{
+		if (found->second != thisThreadId)
+		{
+			this->executeOnThreadInternal(found->second, std::move(action));
+		}
+		else
+		{
+			this->executeDefferedOnThreadInternal(found->second, std::move(action));
+		}
+	}
+	else
+	{
+		_pendingThreadsRegisteringActions[threadEnum].emplace_back(std::move(action));
+	}
+}
+
+void Storm::ThreadManager::executeOnThread(Storm::ThreadEnumeration threadEnum, Storm::AsyncAction &&action)
+{// Warning : You should never call a executeOnThread from a runParallel that is executed inside an AsyncAction being executed in processCurrentThreadActions.
 	// If those 3 functions are present in your call stack, then a deadlock will occurs.
 
 	const auto thisThreadId = std::this_thread::get_id();
@@ -133,6 +158,18 @@ void Storm::ThreadManager::executeOnThreadInternal(const std::thread::id &thread
 	if (const auto executorFound = _toExecute.find(threadId); executorFound != std::end(_toExecute))
 	{
 		executorFound->second->bind(std::move(action));
+	}
+	else
+	{
+		Storm::throwException<std::exception>("Thread with id " + Storm::toStdString(threadId) + " was not registered to execute any callback!");
+	}
+}
+
+void Storm::ThreadManager::executeDefferedOnThreadInternal(const std::thread::id &threadId, Storm::AsyncAction &&action)
+{
+	if (const auto executorFound = _toExecute.find(threadId); executorFound != std::end(_toExecute))
+	{
+		executorFound->second->bindDeffered(std::move(action));
 	}
 	else
 	{
