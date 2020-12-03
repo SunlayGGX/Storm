@@ -85,6 +85,8 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 			}
 		}
 
+		_userSetThreadPriority = parser.getThreadPriority();
+
 		_macroConfig.initialize();
 
 		// Set the current working directory path to the path of the executable to prevent mismatch depending on where we start the application.
@@ -309,6 +311,11 @@ bool Storm::ConfigManager::shouldRegenerateParticleCache() const
 bool Storm::ConfigManager::withUI() const
 {
 	return _withUI;
+}
+
+Storm::ThreadPriority Storm::ConfigManager::getUserSetThreadPriority() const
+{
+	return _userSetThreadPriority;
 }
 
 bool Storm::ConfigManager::noPopup() const

@@ -1,6 +1,10 @@
 #include "CommandLineParser.h"
 #include "ThrowException.h"
 
+#include "ThreadPriority.h"
+
+#include <boost\algorithm\string\case_conv.hpp>
+
 
 #define STORM_XMACRO_COMMANDLINE																																					\
 STORM_XMACRO_COMMANDLINE_ELEM("scene", std::string, std::string{}, "The scene config file to use (path).", getSceneFilePath)														\
@@ -10,6 +14,7 @@ STORM_XMACRO_COMMANDLINE_ELEM("tempPath", std::string, std::string{}, "The tempo
 STORM_XMACRO_COMMANDLINE_ELEM("mode", std::string, std::string{}, "The mode the simulator is launched into.", getRecordModeStr)														\
 STORM_XMACRO_COMMANDLINE_ELEM("recordFile", std::string, std::string{}, "The path to the record file to write/read (path).", getRecordFilePath)										\
 STORM_XMACRO_COMMANDLINE_ELEM("regenPCache", bool, false, "Force invalidating the particle cache data. Therefore regenerating all of them anew.", getShouldRegenerateParticleCache) \
+STORM_XMACRO_COMMANDLINE_ELEM("threadPriority", Storm::ThreadPriority, Storm::ThreadPriority::Unset, "Simulation thread priority between Normal/Below/High.", getThreadPriority, parseThreadPriority)	\
 STORM_XMACRO_COMMANDLINE_ELEM_NO_VALUE("noUI", false, "Setting it specify that we shouldn't start the UI and only focus on the simulation on the background.", getNoUI)		\
 
 
@@ -51,6 +56,27 @@ namespace
 
 	template<class Type> struct CmdInterfaceTypeExtractor { using InterfacingType = Type; };
 	template<> struct CmdInterfaceTypeExtractor<Storm::ThreadPriority> { using InterfacingType = std::string; };
+
+	Storm::ThreadPriority parseThreadPriority(std::string threadPriorityStr)
+	{
+		boost::algorithm::to_lower(threadPriorityStr);
+		if (threadPriorityStr == "below")
+		{
+			return Storm::ThreadPriority::Below;
+		}
+		else if (threadPriorityStr == "normal")
+		{
+			return Storm::ThreadPriority::Normal;
+		}
+		else if (threadPriorityStr == "high")
+		{
+			return Storm::ThreadPriority::High;
+		}
+		else
+		{
+			Storm::throwException<std::exception>("Unknown thread priority");
+		}
+	}
 }
 
 Storm::CommandLineParser::CommandLineParser(int argc, const char* argv[]) :

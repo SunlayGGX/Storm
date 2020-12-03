@@ -4,6 +4,8 @@
 
 namespace Storm
 {
+	enum class ThreadPriority;
+
 	class CommandLineParser
 	{
 	public:
@@ -23,6 +25,8 @@ namespace Storm
 		bool getShouldRegenerateParticleCache() const;
 
 		bool getNoUI() const;
+
+		Storm::ThreadPriority getThreadPriority() const;
 
 	private:
 		template<class Type>

@@ -14,6 +14,8 @@ namespace Storm
 	struct GeneralSimulationData;
 	struct RecordConfigData;
 
+	enum class ThreadPriority;
+
 	class IConfigManager : public Storm::ISingletonHeldInterface<IConfigManager>
 	{
 	public:
@@ -27,6 +29,7 @@ namespace Storm
 		// Command line
 		virtual bool shouldRegenerateParticleCache() const = 0;
 		virtual bool withUI() const = 0;
+		virtual Storm::ThreadPriority getUserSetThreadPriority() const = 0;
 
 		// Logs
 		virtual const std::string& getLogFileName() const = 0;
