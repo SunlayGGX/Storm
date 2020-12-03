@@ -348,7 +348,7 @@ void Storm::GraphicManager::update()
 
 bool Storm::GraphicManager::isActive() const noexcept
 {
-	return _hasUI;
+	return _hasUI || Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().withUI();
 }
 
 void Storm::GraphicManager::addMesh(unsigned int meshId, const std::vector<Storm::Vector3> &vertexes, const std::vector<Storm::Vector3> &normals, const std::vector<unsigned int> &indexes)
