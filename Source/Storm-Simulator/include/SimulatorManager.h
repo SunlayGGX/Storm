@@ -48,6 +48,8 @@ namespace Storm
 		void subIterationStart();
 		void revertIteration();
 
+		void advanceOneFrame();
+
 	public:
 		void flushPhysics(const float deltaTime);
 

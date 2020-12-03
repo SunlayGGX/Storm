@@ -461,6 +461,7 @@ void Storm::SimulatorManager::initialize_Implementation()
 	inputMgr.bindKey(Storm::SpecialKey::KC_Y, [this]() { this->cycleSelectedParticleDisplayMode(); });
 	inputMgr.bindKey(Storm::SpecialKey::KC_I, [this]() { this->resetReplay(); });
 	inputMgr.bindKey(Storm::SpecialKey::KC_C, [this]() { this->executeAllForcesCheck(); });
+	inputMgr.bindKey(Storm::SpecialKey::KC_N, [this]() { this->advanceOneFrame(); });
 
 	if (configMgr.userCanModifyTimestep())
 	{
@@ -1032,6 +1033,26 @@ void Storm::SimulatorManager::revertIteration()
 	for (auto &particleSystem : _particleSystem)
 	{
 		particleSystem.second->revertToCurrentTimestep(_blowers);
+	}
+}
+
+void Storm::SimulatorManager::advanceOneFrame()
+{
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	Storm::ITimeManager &timeMgr = singletonHolder.getSingleton<Storm::ITimeManager>();
+	if (timeMgr.getStateNoSyncWait() == Storm::TimeWaitResult::Pause)
+	{
+		// Unpause to start the current iteration.
+		timeMgr.changeSimulationPauseState();
+		singletonHolder.getSingleton<Storm::IThreadManager>().executeDefferedOnThread(Storm::ThreadEnumeration::MainThread, [&timeMgr]()
+		{
+			// Pause again for the iteration to come after the current iteration.
+			timeMgr.changeSimulationPauseState();
+		});
+	}
+	else
+	{
+		LOG_DEBUG_ERROR << "If the simulation is running, it is useless to move to next frame since it will come automatically.";
 	}
 }
 

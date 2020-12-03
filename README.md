@@ -351,6 +351,7 @@ Note : If the term in the parenthesis is "Numpad", then the keybinding is the va
 - **D**: Rotate the camera around the target on Y axis (positive).
 - **S**: Rotate the camera around the target on X axis (negative).
 - **0 (Numpad Zero)**: Reset camera position.
+- **N**: Advance the paused simulation to the next frame.
 - **E**: Enable all disabled blower, and disable all enabled ones.
 - **R**: Enable (if disabled)/Disable (if enabled) raycasts system.
 - **L**: Fix (if unfixed)/Unfix (if fixed) rigid bodies.
