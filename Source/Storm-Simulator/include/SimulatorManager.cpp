@@ -427,6 +427,10 @@ void Storm::SimulatorManager::initialize_Implementation()
 	_kernelHandler.initialize();
 
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
+
+	Storm::IThreadManager &threadMgr = singletonHolder.getSingleton<Storm::IThreadManager>();
+	threadMgr.setCurrentThreadPriority(configMgr.getUserSetThreadPriority());
+
 	const bool isReplayMode = configMgr.isInReplayMode();
 
 	if (isReplayMode)
