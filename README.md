@@ -354,7 +354,7 @@ Note : If the term in the parenthesis is "Numpad", then the keybinding is the va
 - **E**: Enable all disabled blower, and disable all enabled ones.
 - **R**: Enable (if disabled)/Disable (if enabled) raycasts system.
 - **L**: Fix (if unfixed)/Unfix (if fixed) rigid bodies.
-- **Y**: Cycle the particle selection force to display (between [...] -> Pressure -> Viscosity -> AllForces (except gravity) -> [...]).
+- **Y**: Cycle the particle selection force to display (between [...] -> Pressure -> Viscosity -> AllForces (except gravity) -> Total force on rigid body -> [...]).
 - **I**: Reset the replaying to the first frame. This feature exists only in replay mode.
 - **C**: Request all forces check to zero as per physics conservation of momentum law says for isolated systems that is in an equilibrium state.
 - **1 (Key)**: Decrease the physics delta time. Valid only if we are not in replay mode, or if CFL is disabled.
