@@ -7,6 +7,7 @@
 namespace Storm
 {
 	enum class ThreadEnumeration;
+	enum class ThreadPriority;
 
 	class IThreadManager : public Storm::ISingletonHeldInterface<IThreadManager>
 	{
@@ -22,6 +23,8 @@ namespace Storm
 		virtual void processActionsOfThread(Storm::ThreadEnumeration threadEnum) = 0; // This is only to be used if you know what you are doing.
 
 		virtual bool isExecutingOnThread(Storm::ThreadEnumeration threadEnum) const = 0;
+
+		virtual void setCurrentThreadPriority(const Storm::ThreadPriority priority) const = 0;
 	};
 
 #define STORM_REGISTER_THREAD(ThreadEnum) Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().registerCurrentThread(Storm::ThreadEnumeration::ThreadEnum, L#ThreadEnum)

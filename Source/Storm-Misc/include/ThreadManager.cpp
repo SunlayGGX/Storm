@@ -4,10 +4,37 @@
 
 #include "ThrowException.h"
 
+#include "ThreadPriority.h"
+
 #include "LeanWindowsInclude.h"
 
 #include <processthreadsapi.h>
 #include <comdef.h>
+
+
+namespace
+{
+	template<int priority>
+	void setCurrentThreadPriorityImpl(const std::string_view &priorityName)
+	{
+		const HANDLE currentThreadHandle = ::GetCurrentThread();
+		if (::GetThreadPriority(currentThreadHandle) != priority)
+		{
+			if (::SetThreadPriority(currentThreadHandle, priority))
+			{
+				LOG_DEBUG << "Current thread priority successfully changed to " << priorityName << " priority!";
+			}
+			else
+			{
+				LOG_ERROR << "We weren't able to set the current thread priority to " << priorityName << " priority!";
+			}
+		}
+		else
+		{
+			LOG_DEBUG << "Current thread priority is already at " << priorityName << ". Therefore no change was made.";
+		}
+	}
+}
 
 
 Storm::ThreadManager::ThreadManager() = default;
@@ -151,6 +178,28 @@ bool Storm::ThreadManager::isExecutingOnThread(Storm::ThreadEnumeration threadEn
 	}
 
 	return false;
+}
+
+void Storm::ThreadManager::setCurrentThreadPriority(const Storm::ThreadPriority priority) const
+{
+	switch (priority)
+	{
+	case Storm::ThreadPriority::Below:
+		setCurrentThreadPriorityImpl<THREAD_PRIORITY_BELOW_NORMAL>("below");
+		break;
+
+	case Storm::ThreadPriority::Normal:
+		setCurrentThreadPriorityImpl<THREAD_PRIORITY_NORMAL>("normal");
+		break;
+
+	case Storm::ThreadPriority::High:
+		setCurrentThreadPriorityImpl<THREAD_PRIORITY_HIGHEST>("high");
+		break;
+
+	case Storm::ThreadPriority::Unset:
+	default:
+		break;
+	}
 }
 
 void Storm::ThreadManager::executeOnThreadInternal(const std::thread::id &threadId, AsyncAction &&action)

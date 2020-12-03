@@ -24,6 +24,8 @@ namespace Storm
 		void processActionsOfThread(Storm::ThreadEnumeration threadEnum) final override;
 		bool isExecutingOnThread(Storm::ThreadEnumeration threadEnum) const final override;
 
+		void setCurrentThreadPriority(const Storm::ThreadPriority priority) const final override;
+
 	private:
 		void executeOnThreadInternal(const std::thread::id &threadId, Storm::AsyncAction &&action);
 		void executeDefferedOnThreadInternal(const std::thread::id &threadId, Storm::AsyncAction &&action);
