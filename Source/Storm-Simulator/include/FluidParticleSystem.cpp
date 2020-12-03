@@ -55,6 +55,7 @@ void Storm::FluidParticleSystem::onIterationStart()
 	Storm::ParticleSystem::onIterationStart();
 
 #if defined(DEBUG) || defined(_DEBUG)
+	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
 	if (!configMgr.isInReplayMode())
 	{
 		const std::size_t particleCount = this->getParticleCount();
