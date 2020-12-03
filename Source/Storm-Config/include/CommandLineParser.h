@@ -24,18 +24,33 @@ namespace Storm
 
 		bool getNoUI() const;
 
-	public:
+	private:
 		template<class Type>
-		bool extractIfExist(const std::string &val, Type &outVar) const
+		void extract(const std::string &val, Type &outVar) const
+		{
+			outVar = _commandlineMap[val].as<Type>();
+		}
+
+		template<class Type, class Converter>
+		void extract(const std::string &val, Type &outVar, Converter &converter) const
+		{
+			outVar = converter(_commandlineMap[val].as<std::string>());
+		}
+
+	public:
+		template<class Type, class ... MaybeConverter>
+		bool extractIfExist(const std::string &val, Type &outVar, MaybeConverter ... converter) const
 		{
 			if (_commandlineMap.count(val))
 			{
-				outVar = _commandlineMap[val].as<Type>();
+				this->extract<Type>(val, outVar, converter...);
 				return true;
 			}
 
 			return false;
 		}
+
+		bool findIfExist(const std::string &val, bool noValue) const;
 
 	private:
 		boost::program_options::variables_map _commandlineMap;

@@ -10,7 +10,7 @@ STORM_XMACRO_COMMANDLINE_ELEM("tempPath", std::string, std::string{}, "The tempo
 STORM_XMACRO_COMMANDLINE_ELEM("mode", std::string, std::string{}, "The mode the simulator is launched into.", getRecordModeStr)														\
 STORM_XMACRO_COMMANDLINE_ELEM("recordFile", std::string, std::string{}, "The path to the record file to write/read (path).", getRecordFilePath)										\
 STORM_XMACRO_COMMANDLINE_ELEM("regenPCache", bool, false, "Force invalidating the particle cache data. Therefore regenerating all of them anew.", getShouldRegenerateParticleCache) \
-STORM_XMACRO_COMMANDLINE_ELEM("noUI", bool, false, "Setting it specify that we shouldn't start the UI and only focus on the simulation on the background.", getNoUI)				\
+STORM_XMACRO_COMMANDLINE_ELEM_NO_VALUE("noUI", false, "Setting it specify that we shouldn't start the UI and only focus on the simulation on the background.", getNoUI)		\
 
 
 namespace
@@ -48,6 +48,9 @@ namespace
 			return result;
 		}
 	};
+
+	template<class Type> struct CmdInterfaceTypeExtractor { using InterfacingType = Type; };
+	template<> struct CmdInterfaceTypeExtractor<Storm::ThreadPriority> { using InterfacingType = std::string; };
 }
 
 Storm::CommandLineParser::CommandLineParser(int argc, const char* argv[]) :
@@ -59,9 +62,11 @@ Storm::CommandLineParser::CommandLineParser(int argc, const char* argv[]) :
 	boost::program_options::options_description desc{ "Options" };
 	desc.add_options()
 		("help,h", "Command line help")
-#define STORM_XMACRO_COMMANDLINE_ELEM(tag, type, defaultValue, helpMsg, funcName) (tag, boost::program_options::value<type>(), helpMsg)
+#define STORM_XMACRO_COMMANDLINE_ELEM(tag, type, defaultValue, helpMsg, funcName, ...) (tag, boost::program_options::value<CmdInterfaceTypeExtractor<type>::InterfacingType>(), helpMsg)
+#define STORM_XMACRO_COMMANDLINE_ELEM_NO_VALUE(tag, defaultValue, helpMsg, funcName, ...) (tag, helpMsg)
 		STORM_XMACRO_COMMANDLINE
 #undef STORM_XMACRO_COMMANDLINE_ELEM
+#undef STORM_XMACRO_COMMANDLINE_ELEM_NO_VALUE
 		;
 
 	boost::program_options::store(
@@ -87,12 +92,23 @@ bool Storm::CommandLineParser::shouldDisplayHelp() const
 	return _shouldDisplayHelp;
 }
 
-#define STORM_XMACRO_COMMANDLINE_ELEM(tag, type, defaultValue, helpMsg, funcName)	\
-type Storm::CommandLineParser::funcName() const										\
-{																					\
-	type result = defaultValue;														\
-	this->extractIfExist(tag, result);												\
-	return result;																	\
+bool Storm::CommandLineParser::findIfExist(const std::string &val, bool noValue) const
+{
+	return _commandlineMap.count(val) ? !noValue : noValue;
+}
+
+#define STORM_XMACRO_COMMANDLINE_ELEM(tag, type, defaultValue, helpMsg, funcName, ...)	\
+type Storm::CommandLineParser::funcName() const											\
+{																						\
+	type result = defaultValue;															\
+	this->extractIfExist(tag, result, __VA_ARGS__);										\
+	return result;																		\
+}
+#define STORM_XMACRO_COMMANDLINE_ELEM_NO_VALUE(tag, defaultValue, helpMsg, funcName, ...) 	\
+bool Storm::CommandLineParser::funcName() const												\
+{																							\
+	return this->findIfExist(tag, defaultValue);											\
 }
 STORM_XMACRO_COMMANDLINE
 #undef STORM_XMACRO_COMMANDLINE_ELEM
+#undef STORM_XMACRO_COMMANDLINE_ELEM_NO_VALUE

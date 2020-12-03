@@ -96,7 +96,7 @@ This is the simulation application. Command lines are exposed like this : --key=
 - **regenPCache (no value, facultative)**: Specify this flag and we will regenerate the rigid body particle cache data.
 - **mode (string, facultative)**: Specify the record/replay mode of the simulator. Accepted (case unsensitive) values are "Record" or "Replay". If the simulator is in record mode, then the simulation played will be recorded for a future replay. Default is unset, which means the application will just simulate without doing anything.
 - **recordFile (string, facultative)**: Specify the path the recording will be. Record file path should remain unset if record mode is left unset, otherwise it should reference a valid record file in case we're in Replay mode (Note that this setting can be left Unset if there is a path inside the scene config loaded).
-- **noUI (boolean, facultative)**: Specify we don't want to visualize the simulation (save and speed up CPU ressource to focus only on what is important). This should be used with Record mode. Default is unset (which displays the simulation inside a UI).
+- **noUI (no value, facultative)**: Specify we don't want to visualize the simulation (save and speed up CPU ressource to focus only on what is important). This should be used with Record mode. Default is unset (which displays the simulation inside a UI).
 
 
 ### Storm-LogViewer.exe
