@@ -183,6 +183,30 @@ void Storm::WindowsManager::initializeInternal()
 		memcpy(szTitle, defaultTitle, sizeof(defaultTitle));
 	}
 
+	std::size_t titleLength = validator.size();
+	if (titleLength < Storm::WindowsManager::MAX_TITLE_COUNT)
+	{
+		try
+		{
+			const std::wstring currentProcessIdStr = std::filesystem::path{ Storm::toStdString(GetCurrentProcessId()) }.wstring();
+			const std::size_t currentProcessIdStrLength = currentProcessIdStr.size();
+			const std::size_t toCopy = std::max(Storm::WindowsManager::MAX_TITLE_COUNT - 4 - static_cast<int>(titleLength + currentProcessIdStrLength), 0);
+			if (toCopy != 0)
+			{
+				szTitle[titleLength++] = L' ';
+				szTitle[titleLength++] = L'(';
+				memcpy(szTitle + titleLength, currentProcessIdStr.c_str(), currentProcessIdStrLength * sizeof(decltype(currentProcessIdStr)::value_type));
+				titleLength += currentProcessIdStrLength;
+				szTitle[titleLength++] = L')';
+				szTitle[titleLength] = L'\0';
+			}
+		}
+		catch (const std::exception &e)
+		{
+			LOG_ERROR << "Couldn't embed the process id into the application title. Reason : " << e.what();
+		}
+	}
+
 	TCHAR windowClass[Storm::WindowsManager::MAX_TITLE_COUNT];
 	if (!LoadString(dllInstance, IDR_STORM, windowClass, MAX_TITLE_COUNT))
 	{
