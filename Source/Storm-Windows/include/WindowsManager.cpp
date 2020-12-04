@@ -171,7 +171,11 @@ void Storm::WindowsManager::initializeInternal()
 
 	HINSTANCE dllInstance = GetModuleHandle(nullptr);
 
-	LoadString(dllInstance, IDS_TITLE, szTitle, MAX_TITLE_COUNT);
+	if (!LoadString(dllInstance, IDS_TITLE, szTitle, MAX_TITLE_COUNT))
+	{
+		LOG_ERROR << "Windows application name couldn't be loaded. Error code is " << Storm::toStdString(GetLastError());
+	}
+
 	std::wstring_view validator = szTitle;
 	if (validator.empty())
 	{
@@ -180,7 +184,11 @@ void Storm::WindowsManager::initializeInternal()
 	}
 
 	TCHAR windowClass[Storm::WindowsManager::MAX_TITLE_COUNT];
-	LoadString(dllInstance, IDR_STORM, windowClass, MAX_TITLE_COUNT);
+	if (!LoadString(dllInstance, IDR_STORM, windowClass, MAX_TITLE_COUNT))
+	{
+		LOG_ERROR << "Windows application class couldn't be loaded. Error code is " << Storm::toStdString(GetLastError());
+	}
+
 	validator = windowClass;
 	if (validator.empty())
 	{
