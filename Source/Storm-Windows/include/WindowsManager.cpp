@@ -165,6 +165,8 @@ void Storm::WindowsManager::cleanUp_Implementation(const Storm::NoUI &)
 
 void Storm::WindowsManager::initializeInternal()
 {
+	STORM_STATIC_ASSERT(Storm::WindowsManager::MAX_TITLE_COUNT > 20, "Minimal title character size must be 20.");
+
 	TCHAR szTitle[Storm::WindowsManager::MAX_TITLE_COUNT];
 
 	HINSTANCE dllInstance = GetModuleHandle(nullptr);
