@@ -22,6 +22,7 @@
     <ClInclude Include="..\include\Application.h" />
     <ClInclude Include="..\include\EarlyExitAnswer.h" />
     <ClInclude Include="..\include\StormPCH.h" />
+    <ClInclude Include="resourceStorm.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Storm-Config\script\Storm-Config.vcxproj">
@@ -66,6 +67,9 @@
     <ProjectReference Include="..\..\Storm-Windows\script\Storm-Windows.vcxproj">
       <Project>{0ca7df04-32a0-4200-9d32-4cb257e47d98}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Storm.rc" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -128,8 +132,12 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(ProjectDir)../../../Dependencies\OIS\bin\$(Configuration);$(ProjectDir)../../../Dependencies\PhysX\physx\lib\$(Configuration);$(ProjectDir)../../../Dependencies\Assimp\bin\code\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AssemblyLinkResource>Storm-Windows.rc;%(AssemblyLinkResource)</AssemblyLinkResource>
     </Link>
     <ProjectReference />
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(ProjectDir)../../Storm-Windows/ressource;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -151,8 +159,12 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(ProjectDir)../../../Dependencies\OIS\bin\$(Configuration);$(ProjectDir)../../../Dependencies\PhysX\physx\lib\$(Configuration);$(ProjectDir)../../../Dependencies\Assimp\bin\code\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AssemblyLinkResource>Storm-Windows.rc;%(AssemblyLinkResource)</AssemblyLinkResource>
     </Link>
     <ProjectReference />
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(ProjectDir)../../Storm-Windows/ressource;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
