@@ -34,11 +34,12 @@ namespace
 
 		case WM_COMMAND:
 		{
-			int wmId = LOWORD(wParam);
-			// Analyse menu selection
+			const int wmId = LOWORD(wParam);
+			// Analyze menu selection
 			switch (wmId)
 			{
 			case IDCLOSE:
+			case ID_FILE_QUIT:
 				Storm::WindowsManager::instance().callQuitCallback();
 				break;
 			default:
