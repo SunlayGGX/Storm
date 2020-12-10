@@ -118,6 +118,9 @@
     <Filter Include="Source Files\Modules\Graphics\Shader">
       <UniqueIdentifier>{6271d126-8063-49c0-962f-e865cb543d06}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Modules\Graphics\General">
+      <UniqueIdentifier>{f0e231a6-47b1-46ce-bfd4-5877d8c0e606}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-ModelBasePCH.cpp">
@@ -349,6 +352,9 @@
     </ClInclude>
     <ClInclude Include="..\include\ThreadPriority.h">
       <Filter>Header Files\Modules\Threading</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ColoredSetting.h">
+      <Filter>Header Files\Modules\Graphics\General</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
