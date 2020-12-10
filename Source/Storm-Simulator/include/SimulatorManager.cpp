@@ -65,6 +65,8 @@
 #include "UIField.h"
 #include "UIFieldContainer.h"
 
+#include "PushedParticleSystemData.h"
+
 #include "SolverCreationParameter.h"
 #include "IterationParameter.h"
 
@@ -466,6 +468,7 @@ void Storm::SimulatorManager::initialize_Implementation()
 	inputMgr.bindKey(Storm::SpecialKey::KC_I, [this]() { this->resetReplay(); });
 	inputMgr.bindKey(Storm::SpecialKey::KC_C, [this]() { this->executeAllForcesCheck(); });
 	inputMgr.bindKey(Storm::SpecialKey::KC_N, [this]() { this->advanceOneFrame(); });
+	inputMgr.bindKey(Storm::SpecialKey::KC_F3, [this]() { Storm::SingletonHolder::instance().getSingleton<Storm::IGraphicsManager>().cycleColoredSetting(); });
 
 	if (configMgr.userCanModifyTimestep())
 	{
@@ -1239,7 +1242,27 @@ void Storm::SimulatorManager::pushParticlesToGraphicModule(bool ignoreDirty, boo
 		const Storm::ParticleSystem &currentParticleSystem = *particleSystemPair.second;
 		if (ignoreDirty || currentParticleSystem.isDirty() || currentParticleSystem.isFluids())
 		{
-			graphicMgr.pushParticlesData(particleSystemPair.first, currentParticleSystem.getPositions(), currentParticleSystem.getVelocity(), currentParticleSystem.isFluids(), currentParticleSystem.isWall());
+			Storm::PushedParticleSystemDataParameter param{
+				._particleSystemId = particleSystemPair.first,
+				._positionsData = &currentParticleSystem.getPositions(),
+				._velocityData = &currentParticleSystem.getVelocity(),
+				._isFluids = currentParticleSystem.isFluids(),
+				._isWall = currentParticleSystem.isWall()
+			};
+
+			if (param._isFluids)
+			{
+				const Storm::FluidParticleSystem &currentPSystemAsFluid = static_cast<const Storm::FluidParticleSystem &>(currentParticleSystem);
+				param._pressureData = &currentPSystemAsFluid.getPressures();
+				param._densityData = &currentPSystemAsFluid.getDensities();
+			}
+			else
+			{
+				param._pressureData = nullptr;
+				param._densityData = nullptr;
+			}
+
+			graphicMgr.pushParticlesData(param);
 		}
 	};
 

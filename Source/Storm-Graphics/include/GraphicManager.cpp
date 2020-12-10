@@ -11,6 +11,9 @@
 #include "GraphicBlower.h"
 #include "ParticleForceRenderer.h"
 
+#include "PushedParticleSystemData.h"
+#include "GraphicPipe.h"
+
 #include "BlowerData.h"
 #include "GraphicData.h"
 #include "GeneralSimulationData.h"
@@ -40,116 +43,6 @@ namespace
 #endif
 }
 
-#if _WIN32
-#	define STORM_HIJACKED_TYPE Storm::GraphicParticleData
-#	include "VectHijack.h"
-#	undef STORM_HIJACKED_TYPE
-#endif
-
-namespace
-{
-	template<bool isFluids>
-	constexpr DirectX::XMVECTOR getDefaultParticleColor()
-	{
-		if constexpr (isFluids)
-		{
-			return { 0.3f, 0.5f, 0.85f, 1.f };
-		}
-		else
-		{
-			return { 0.3f, 0.5f, 0.5f, 1.f };
-		}
-	}
-
-	template<bool enableDifferentColoring>
-	void fastTransCopyImpl(const std::vector<Storm::Vector3> &particlePosData, const std::vector<Storm::Vector3> &particleVelocityData, const float valueToMinColor, const float valueToMaxColor, std::vector<Storm::GraphicParticleData> &inOutDxParticlePosDataTmp)
-	{
-		const DirectX::XMVECTOR defaultColor = getDefaultParticleColor<enableDifferentColoring>();
-		const float deltaColorRChan = 1.f - defaultColor.m128_f32[0];
-		const float deltaValueForColor = valueToMaxColor - valueToMinColor;
-
-		const auto copyLambda = [&particlePosData, &particleVelocityData, &defaultColor, deltaColorRChan, deltaValueForColor, valueToMinColor](Storm::GraphicParticleData &current, const std::size_t iter)
-		{
-			memcpy(&current._pos, &particlePosData[iter], sizeof(Storm::Vector3));
-			reinterpret_cast<float*>(&current._pos)[3] = 1.f;
-
-			if constexpr (enableDifferentColoring)
-			{
-				float coeff = particleVelocityData[iter].squaredNorm() - valueToMinColor;
-
-				current._color = defaultColor;
-
-				if (coeff > 0.f)
-				{
-					coeff = coeff / deltaValueForColor;
-
-					if (coeff > 1.f)
-					{
-						current._color.m128_f32[0] = 1.f;
-					}
-					else
-					{
-						current._color.m128_f32[0] = defaultColor.m128_f32[0] + deltaColorRChan * coeff;
-					}
-				}
-			}
-			else
-			{
-				current._color = defaultColor;
-			}
-		};
-
-		const std::size_t thresholdMultiThread = std::thread::hardware_concurrency() * 1500;
-
-		const std::size_t particleCount = particlePosData.size();
-		if (particleCount > thresholdMultiThread)
-		{
-			Storm::runParallel(inOutDxParticlePosDataTmp, copyLambda);
-		}
-		else
-		{
-			for (std::size_t iter = 0; iter < particleCount; ++iter)
-			{
-				copyLambda(inOutDxParticlePosDataTmp[iter], iter);
-			}
-		}
-	}
-
-	std::vector<Storm::GraphicParticleData> fastOptimizedTransCopy(const std::vector<Storm::Vector3> &particlePosData, const std::vector<Storm::Vector3> &particleVelocityData, const float valueToMinColor, const float valueToMaxColor, bool enableDifferentColoring)
-	{
-		std::vector<Storm::GraphicParticleData> dxParticlePosDataTmp;
-
-#if _WIN32
-
-		const Storm::VectorHijackerMakeBelieve hijacker{ particlePosData.size() };
-		dxParticlePosDataTmp.reserve(hijacker._newSize);
-
-		// Huge optimization that completely destroys resize method... Cannot be much faster than this, it is like Unreal technology (TArray provides a SetNumUninitialized).
-		// (Except that Unreal implemented their own TArray instead of using std::vector. Since I'm stuck with this, I didn't have much choice than to hijack... Note that this code isn't portable because it relies heavily on how Microsoft implemented std::vector (to find out the breach in the armor, we must know whose armor it is ;) )).
-		Storm::setNumUninitialized_hijack(dxParticlePosDataTmp, hijacker);
-
-		if (enableDifferentColoring)
-		{
-			fastTransCopyImpl<true>(particlePosData, particleVelocityData, valueToMinColor, valueToMaxColor, dxParticlePosDataTmp);
-		}
-		else
-		{
-			fastTransCopyImpl<false>(particlePosData, particleVelocityData, valueToMinColor, valueToMaxColor, dxParticlePosDataTmp);
-		}
-
-#else
-		dxParticlePosDataTmp.reserve(hijacker._newSize);
-
-		for (const Storm::Vector3 &pos : particlePosData)
-		{
-			dxParticlePosDataTmp.emplace_back(pos, defaultColor);
-		}
-
-#endif
-
-		return dxParticlePosDataTmp;
-	}
-}
 
 Storm::GraphicManager::GraphicManager() :
 	_renderCounter{ 0 },
@@ -167,6 +60,8 @@ bool Storm::GraphicManager::initialize_Implementation(const Storm::WithUI &)
 	LOG_COMMENT << "Starting to initialize the Graphic Manager. We would evaluate if Windows is created. If not, we will suspend initialization and come back later.";
 
 	_hasUI = true;
+
+	_pipe = std::make_unique<Storm::GraphicPipe>();
 
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 	Storm::IWindowsManager &windowsMgr = singletonHolder.getSingleton<Storm::IWindowsManager>();
@@ -387,18 +282,16 @@ void Storm::GraphicManager::loadBlower(const Storm::BlowerData &blowerData, cons
 	}
 }
 
-void Storm::GraphicManager::pushParticlesData(unsigned int particleSystemId, const std::vector<Storm::Vector3> &particlePosData, const std::vector<Storm::Vector3> &particleVelocityData, bool isFluids, bool isWall)
+void Storm::GraphicManager::pushParticlesData(const Storm::PushedParticleSystemDataParameter &param)
 {
 	if (this->isActive())
 	{
 		assert(!(isFluids && isWall) && "Particle cannot be fluid AND wall at the same time!");
 
 		const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
-		const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
-		const Storm::GraphicData &graphicDataConfig = configMgr.getGraphicData();
 
 		singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(ThreadEnumeration::GraphicsThread,
-			[this, particleSystemId, particlePosDataCopy = fastOptimizedTransCopy(particlePosData, particleVelocityData, graphicDataConfig._valueForMinColor, graphicDataConfig._valueForMaxColor, isFluids), isFluids, isWall]() mutable
+			[this, particleSystemId = param._particleSystemId, particlePosDataCopy = _pipe->fastOptimizedTransCopy(param), isFluids = param._isFluids, isWall = param._isWall]() mutable
 		{
 			if (_forceRenderer->prepareData(particleSystemId, particlePosDataCopy, _selectedParticle))
 			{
@@ -571,4 +464,12 @@ bool Storm::GraphicManager::hasSelectedParticle() const
 void Storm::GraphicManager::notifyViewportRescaled(int newWidth, int newHeight)
 {
 	_camera->setRescaledDimension(static_cast<float>(newWidth), static_cast<float>(newHeight));
+}
+
+void Storm::GraphicManager::cycleColoredSetting()
+{
+	if (this->isActive())
+	{
+		_pipe->cycleColoredSetting();
+	}
 }

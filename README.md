@@ -238,8 +238,12 @@ Unlike the others config files, it can be named as you want. Here the xml tags y
 - **cameraLookAt (vector3, facultative)**: This is the initial position of the target the camera look at. Each coordinate are meters. Default value is { x=0.0, y=0.0, z=0.0 }.
 - **zNear (float, facultative)**: This is the initial distance in meter from the camera which everything that is nearer than this distance won't be rendered. Default value is 0.01.
 - **zFar (float, facultative)**: Same as zNear except that we skip displaying all objects farer than this distance value. Default value is 20.0.
-- **minColorValue (float, facultative)**: Set the minimum value for the watched value to display the coldest color. If the watched value is the velocity, this is to be expressed as a squared norm. Default value is 0.01
-- **maxColorValue (float, facultative)**: Set the maximum value for the watched value to display the hotest color. If the watched value is the velocity, this is to be expressed as a squared norm. Default value is 100
+- **minVelocityColorValue (float, facultative)**: Set the minimum velocity value for the watched value to display the coldest color. This is to be expressed as a squared norm. Default value is 0.01.
+- **maxVelocityColorValue (float, facultative)**: Set the maximum velocity value for the watched value to display the hotest color. This is to be expressed as a squared norm. Default value is 100.
+- **minPressureColorValue (float, facultative)**: Set the minimum pressure value for the watched value to display the coldest color. Default value is 0.
+- **maxPressureColorValue (float, facultative)**: Set the maximum pressure value for the watched value to display the hotest color. Default value is 10000.
+- **minDensityColorValue (float, facultative)**: Set the minimum density value for the watched value to display the coldest color. Default value is 0.
+- **maxDensityColorValue (float, facultative)**: Set the maximum density value for the watched value to display the hotest color. Default value is 2000.
 - **blowerAlpha (float, facultative)**: Set the blower visualization alpha channel. Must be between 0 and 1 included. Default value is 0.25.
 - **grid (vector3, facultative)**: Set the grid dimension. X coord will be the grid width, Z its depth and Y will be the height where the grid will be drawn. Note that X and Z will be ceiled. Default value is { x=10.0, y=0.0, z=10.0 }
 - **particleDisplay (boolean, facultative)**: Specify if Solids should be displayed as particle on start. If not, they will be displayed as meshes. "false" by default.
@@ -362,6 +366,7 @@ Note : If the term in the parenthesis is "Numpad", then the keybinding is the va
 - **1 (Key)**: Decrease the physics delta time. Valid only if we are not in replay mode, or if CFL is disabled.
 - **2 (Key)**: Increase the physics delta time. Valid only if we are not in replay mode, or if CFL is disabled.
 - **F1**: Debug command to print to a human readable text giving all position, velocity and force values of all fluid particles. The data is printed inside the output (temp) directory inside "Debug" folder.
+- **F3**: Cycle the color setting of the fluid particle data displayed from ... -> Velocity -> Pressure -> Density -> ... .
 - **F4**: Set selected particle forces always on top flag to true if false, false otherwise. But note that if it is true, you'll always see the particle force if it is in front of the view point, but you'll lose the depth information of the vector.
 - **F5**: Set wireframe.
 - **F6**: Set solid state with back face culling.

@@ -356,5 +356,8 @@
     <ClInclude Include="..\include\ColoredSetting.h">
       <Filter>Header Files\Modules\Graphics\General</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\PushedParticleSystemData.h">
+      <Filter>Header Files\Modules\Graphics\General</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

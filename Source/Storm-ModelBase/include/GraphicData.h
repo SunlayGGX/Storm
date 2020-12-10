@@ -18,8 +18,12 @@ namespace Storm
 
 		bool _displaySolidAsParticles;
 
-		float _valueForMinColor;
-		float _valueForMaxColor;
+		float _velocityNormMinColor;
+		float _velocityNormMaxColor;
+		float _pressureMinColor;
+		float _pressureMaxColor;
+		float _densityMinColor;
+		float _densityMaxColor;
 
 		float _blowerAlpha;
 

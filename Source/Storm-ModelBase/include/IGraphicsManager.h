@@ -8,6 +8,7 @@ namespace Storm
 	enum class BlowerState;
 	struct BlowerData;
 	class IRigidBody;
+	struct PushedParticleSystemDataParameter;
 
 	class IGraphicsManager : public Storm::ISingletonHeldInterface<IGraphicsManager>
 	{
@@ -28,7 +29,7 @@ namespace Storm
 		// Warning : the caller makes the copy (a copy of the data will be made). It cannot be avoided to prevent data races but this is the most efficient way I thought...
 		// The caller (Simulation thread) will copy the data it has and push it by move to a staging location waiting for the graphic thread to retrieve it.
 		// When the Graphic thread begins its loop, it will move the staging data into its own data (no copy) and continue with it. No lock while copying is made so no bottleneck.
-		virtual void pushParticlesData(unsigned int particleSystemId, const std::vector<Storm::Vector3> &particlePosData, const std::vector<Storm::Vector3> &particlevelocityData, bool isFluids, bool isWall) = 0;
+		virtual void pushParticlesData(const Storm::PushedParticleSystemDataParameter &param) = 0;
 		virtual void pushConstraintData(const std::vector<Storm::Vector3> &constraintsVisuData) = 0;
 		virtual void pushParticleSelectionForceData(const Storm::Vector3 &selectedParticlePos, const Storm::Vector3 &selectedParticleForce) = 0;
 
@@ -54,5 +55,8 @@ namespace Storm
 
 	public:
 		virtual void changeBlowerState(const std::size_t blowerId, const Storm::BlowerState newState) = 0;
+
+	public:
+		virtual void cycleColoredSetting() = 0;
 	};
 }

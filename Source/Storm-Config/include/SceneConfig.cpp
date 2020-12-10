@@ -307,8 +307,12 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 			!Storm::XmlReader::handleXml(graphicXmlElement, "zNear", graphicData._zNear) &&
 			!Storm::XmlReader::handleXml(graphicXmlElement, "zFar", graphicData._zFar) &&
 			!Storm::XmlReader::handleXml(graphicXmlElement, "particleDisplay", graphicData._displaySolidAsParticles) &&
-			!Storm::XmlReader::handleXml(graphicXmlElement, "minColorValue", graphicData._valueForMinColor) &&
-			!Storm::XmlReader::handleXml(graphicXmlElement, "maxColorValue", graphicData._valueForMaxColor) &&
+			!Storm::XmlReader::handleXml(graphicXmlElement, "minVelocityColorValue", graphicData._velocityNormMinColor) &&
+			!Storm::XmlReader::handleXml(graphicXmlElement, "maxVelocityColorValue", graphicData._velocityNormMaxColor) &&
+			!Storm::XmlReader::handleXml(graphicXmlElement, "minPressureColorValue", graphicData._pressureMinColor) &&
+			!Storm::XmlReader::handleXml(graphicXmlElement, "maxPressureColorValue", graphicData._pressureMaxColor) &&
+			!Storm::XmlReader::handleXml(graphicXmlElement, "minDensityColorValue", graphicData._densityMinColor) &&
+			!Storm::XmlReader::handleXml(graphicXmlElement, "maxDensityColorValue", graphicData._densityMaxColor) &&
 			!Storm::XmlReader::handleXml(graphicXmlElement, "constraintThickness", graphicData._constraintThickness) &&
 			!Storm::XmlReader::handleXml(graphicXmlElement, "constraintColor", graphicData._constraintColor, parseColor4Element) &&
 			!Storm::XmlReader::handleXml(graphicXmlElement, "forceThickness", graphicData._forceThickness) &&
@@ -321,9 +325,17 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 		}
 	}
 
-	if (graphicData._valueForMinColor > graphicData._valueForMaxColor)
+	if (graphicData._velocityNormMinColor > graphicData._velocityNormMaxColor)
 	{
-		Storm::throwException<std::exception>("Min color value (" + std::to_string(graphicData._valueForMinColor) + ") is greater than Max color value (" + std::to_string(graphicData._valueForMaxColor) + "). It isn't allowed!");
+		Storm::throwException<std::exception>("Min velocity color value (" + std::to_string(graphicData._velocityNormMinColor) + ") is greater than Max color value (" + std::to_string(graphicData._velocityNormMaxColor) + "). It isn't allowed!");
+	}
+	if (graphicData._pressureMinColor > graphicData._pressureMaxColor)
+	{
+		Storm::throwException<std::exception>("Min pressure color value (" + std::to_string(graphicData._pressureMinColor) + ") is greater than Max color value (" + std::to_string(graphicData._pressureMaxColor) + "). It isn't allowed!");
+	}
+	if (graphicData._densityMinColor > graphicData._densityMaxColor)
+	{
+		Storm::throwException<std::exception>("Min velocity color value (" + std::to_string(graphicData._densityMinColor) + ") is greater than Max color value (" + std::to_string(graphicData._densityMaxColor) + "). It isn't allowed!");
 	}
 	else if (Storm::ColorCheckerHelper::channelIsInvalid(graphicData._blowerAlpha))
 	{

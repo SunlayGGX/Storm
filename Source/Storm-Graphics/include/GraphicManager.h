@@ -14,6 +14,7 @@ namespace Storm
 	class GraphicBlower;
 	class GraphicConstraintSystem;
 	class ParticleForceRenderer;
+	class GraphicPipe;
 
 	struct WithUI;
 	struct NoUI;
@@ -45,7 +46,7 @@ namespace Storm
 		void loadBlower(const Storm::BlowerData &blowerData, const std::vector<Storm::Vector3> &vertexes, const std::vector<unsigned int> &indexes) final override;
 
 	public:
-		void pushParticlesData(unsigned int particleSystemId, const std::vector<Storm::Vector3> &particlePosData, const std::vector<Storm::Vector3> &particlevelocityData, bool isFluids, bool isWall) final override;
+		void pushParticlesData(const Storm::PushedParticleSystemDataParameter &param) final override;
 		void pushConstraintData(const std::vector<Storm::Vector3> &constraintsVisuData) final override;
 		void pushParticleSelectionForceData(const Storm::Vector3 &selectedParticlePos, const Storm::Vector3 &selectedParticleForce) final override;
 
@@ -82,6 +83,9 @@ namespace Storm
 	public:
 		void notifyViewportRescaled(int newWidth, int newHeight);
 
+	public:
+		void cycleColoredSetting() final override;
+
 	private:
 		unsigned char _renderCounter;
 
@@ -99,6 +103,7 @@ namespace Storm
 
 		std::map<std::wstring_view, std::wstring> _fieldsMap;
 
+		std::unique_ptr<Storm::GraphicPipe> _pipe;
 		std::pair<unsigned int, std::size_t> _selectedParticle;
 
 		std::thread _renderThread;
