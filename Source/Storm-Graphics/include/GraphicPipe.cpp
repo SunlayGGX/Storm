@@ -12,6 +12,9 @@
 
 #include "GraphicData.h"
 
+#include "UIField.h"
+#include "UIFieldContainer.h"
+
 #if _WIN32
 #	define STORM_HIJACKED_TYPE Storm::GraphicParticleData
 #	include "VectHijack.h"
@@ -109,11 +112,27 @@ namespace
 			}
 		}
 	}
+
+	std::wstring_view parseColoredSetting(const Storm::ColoredSetting setting)
+	{
+#define STORM_CASE_PARSE_COLORED_SETTING(ColoredSettingValue) case Storm::ColoredSetting::ColoredSettingValue: return STORM_TEXT(#ColoredSettingValue)
+		switch (setting)
+		{
+			STORM_CASE_PARSE_COLORED_SETTING(Velocity);
+			STORM_CASE_PARSE_COLORED_SETTING(Pressure);
+			STORM_CASE_PARSE_COLORED_SETTING(Density);
+		}
+#undef STORM_CASE_PARSE_COLORED_SETTING
+
+		Storm::throwException<std::exception>("Unknown colored setting chosen.");
+	}
 }
 
+#define STORM_COLORED_SETTING_FIELD_NAME "Coloration"
 
 Storm::GraphicPipe::GraphicPipe() :
-	_selectedColoredSetting{ Storm::ColoredSetting::Velocity }
+	_selectedColoredSetting{ Storm::ColoredSetting::Velocity },
+	_fields{ std::make_unique<Storm::UIFieldContainer>() }
 {
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
@@ -126,7 +145,14 @@ Storm::GraphicPipe::GraphicPipe() :
 	_pressureSetting._maxValue = graphicDataConfig._pressureMaxColor;
 	_densitySetting._minValue = graphicDataConfig._densityMinColor;
 	_densitySetting._maxValue = graphicDataConfig._densityMaxColor;
+
+	_coloredSettingWStr = parseColoredSetting(_selectedColoredSetting);
+
+	(*_fields)
+		.bindField(STORM_COLORED_SETTING_FIELD_NAME, _coloredSettingWStr);
 }
+
+Storm::GraphicPipe::~GraphicPipe() = default;
 
 std::vector<Storm::GraphicParticleData> Storm::GraphicPipe::fastOptimizedTransCopy(const Storm::PushedParticleSystemDataParameter &param)
 {
@@ -187,6 +213,8 @@ std::vector<Storm::GraphicParticleData> Storm::GraphicPipe::fastOptimizedTransCo
 void Storm::GraphicPipe::cycleColoredSetting()
 {
 	_selectedColoredSetting = static_cast<Storm::ColoredSetting>((static_cast<uint8_t>(_selectedColoredSetting) + 1) % static_cast<uint8_t>(Storm::ColoredSetting::Count));
+	_coloredSettingWStr = parseColoredSetting(_selectedColoredSetting);
+	_fields->pushField(STORM_COLORED_SETTING_FIELD_NAME);
 }
 
 const Storm::GraphicPipe::ColorSetting& Storm::GraphicPipe::getUsedColorSetting() const

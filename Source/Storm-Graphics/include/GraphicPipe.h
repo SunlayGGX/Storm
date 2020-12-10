@@ -7,6 +7,8 @@ namespace Storm
 	struct GraphicParticleData;
 	struct PushedParticleSystemDataParameter;
 
+	class UIFieldContainer;
+
 	// Even if the name contains pipe, it isn't thread safe and expect to be used as the pipe between Simulator and Graphics thread. From the Simulator thread side.
 	class GraphicPipe
 	{
@@ -19,6 +21,7 @@ namespace Storm
 
 	public:
 		GraphicPipe();
+		~GraphicPipe();
 
 	public:
 		std::vector<Storm::GraphicParticleData> fastOptimizedTransCopy(const Storm::PushedParticleSystemDataParameter &param);
@@ -32,5 +35,8 @@ namespace Storm
 		Storm::GraphicPipe::ColorSetting _velocitySetting;
 		Storm::GraphicPipe::ColorSetting _pressureSetting;
 		Storm::GraphicPipe::ColorSetting _densitySetting;
+
+		std::wstring _coloredSettingWStr;
+		std::unique_ptr<Storm::UIFieldContainer> _fields;
 	};
 }
