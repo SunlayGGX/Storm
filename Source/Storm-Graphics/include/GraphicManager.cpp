@@ -286,7 +286,7 @@ void Storm::GraphicManager::pushParticlesData(const Storm::PushedParticleSystemD
 {
 	if (this->isActive())
 	{
-		assert(!(isFluids && isWall) && "Particle cannot be fluid AND wall at the same time!");
+		assert(!(param._isFluids && param._isWall) && "Particle cannot be fluid AND wall at the same time!");
 
 		const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 
