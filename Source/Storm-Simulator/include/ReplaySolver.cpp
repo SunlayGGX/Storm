@@ -5,12 +5,17 @@
 #include "ISerializerManager.h"
 
 #include "ParticleSystem.h"
+#include "FluidParticleSystem.h"
 
 #include "SerializeRecordPendingData.h"
 #include "SerializeRecordParticleSystemData.h"
 #include "SerializeRecordContraintsData.h"
 
 #include "RunnerHelper.h"
+
+#define STORM_HIJACKED_TYPE float
+#	include "VectHijack.h"
+#undef STORM_HIJACKED_TYPE
 
 
 namespace
@@ -27,12 +32,23 @@ namespace
 		result.y() = res.m128_f32[1];
 		result.z() = res.m128_f32[2];
 	}
+
+	void lerp(const float valBefore, const float valAfter, const __m128 &coeff, float &result)
+	{
+		result = std::lerp(valBefore, valAfter, coeff.m128_f32[0]);
+	}
 #else
 	void lerp(const Storm::Vector3 &vectBefore, const Storm::Vector3 &vectAfter, const float coeff, Storm::Vector3 &result)
 	{
 		result = vectBefore + (vectAfter - vectBefore) * coeff;
 	}
+
+	void lerp(const float valBefore, const float valAfter, const float coeff, float &result)
+	{
+		result = std::lerp(valBefore, valAfter, coeff);
+	}
 #endif
+
 
 	template<bool remap, class CoefficientType>
 	void lerpParticleSystemsFrames(Storm::ParticleSystemContainer &particleSystems, Storm::SerializeRecordPendingData &frameBefore, Storm::SerializeRecordPendingData &frameAfter, const CoefficientType &coefficient)
@@ -77,14 +93,34 @@ namespace
 			std::vector<Storm::Vector3> &allPressureForce = currentPSystem.getTemporaryPressureForces();
 			std::vector<Storm::Vector3> &allViscosityForce = currentPSystem.getTemporaryViscosityForces();
 
-			Storm::runParallel(frameBeforeElements._positions, [&](const Storm::Vector3 &currentPPosition, const std::size_t currentPIndex)
+			if (currentPSystem.isFluids())
 			{
-				lerp(currentPPosition, frameAfterElements._positions[currentPIndex], coefficient, allPositions[currentPIndex]);
-				lerp(frameBeforeElements._velocities[currentPIndex], frameAfterElements._velocities[currentPIndex], coefficient, allVelocities[currentPIndex]);
-				lerp(frameBeforeElements._forces[currentPIndex], frameAfterElements._forces[currentPIndex], coefficient, allForces[currentPIndex]);
-				lerp(frameBeforeElements._pressureComponentforces[currentPIndex], frameAfterElements._pressureComponentforces[currentPIndex], coefficient, allPressureForce[currentPIndex]);
-				lerp(frameBeforeElements._viscosityComponentforces[currentPIndex], frameAfterElements._viscosityComponentforces[currentPIndex], coefficient, allViscosityForce[currentPIndex]);
-			});
+				Storm::FluidParticleSystem &currentPSystemAsFluid = static_cast<Storm::FluidParticleSystem &>(currentPSystem);
+				std::vector<float> &allDensities = currentPSystemAsFluid.getDensities();
+				std::vector<float> &allPressures = currentPSystemAsFluid.getPressures();
+
+				Storm::runParallel(frameBeforeElements._positions, [&](const Storm::Vector3 &currentPPosition, const std::size_t currentPIndex)
+				{
+					lerp(currentPPosition, frameAfterElements._positions[currentPIndex], coefficient, allPositions[currentPIndex]);
+					lerp(frameBeforeElements._velocities[currentPIndex], frameAfterElements._velocities[currentPIndex], coefficient, allVelocities[currentPIndex]);
+					lerp(frameBeforeElements._forces[currentPIndex], frameAfterElements._forces[currentPIndex], coefficient, allForces[currentPIndex]);
+					lerp(frameBeforeElements._densities[currentPIndex], frameAfterElements._densities[currentPIndex], coefficient, allDensities[currentPIndex]);
+					lerp(frameBeforeElements._pressures[currentPIndex], frameAfterElements._pressures[currentPIndex], coefficient, allPressures[currentPIndex]);
+					lerp(frameBeforeElements._pressureComponentforces[currentPIndex], frameAfterElements._pressureComponentforces[currentPIndex], coefficient, allPressureForce[currentPIndex]);
+					lerp(frameBeforeElements._viscosityComponentforces[currentPIndex], frameAfterElements._viscosityComponentforces[currentPIndex], coefficient, allViscosityForce[currentPIndex]);
+				});
+			}
+			else
+			{
+				Storm::runParallel(frameBeforeElements._positions, [&](const Storm::Vector3 &currentPPosition, const std::size_t currentPIndex)
+				{
+					lerp(currentPPosition, frameAfterElements._positions[currentPIndex], coefficient, allPositions[currentPIndex]);
+					lerp(frameBeforeElements._velocities[currentPIndex], frameAfterElements._velocities[currentPIndex], coefficient, allVelocities[currentPIndex]);
+					lerp(frameBeforeElements._forces[currentPIndex], frameAfterElements._forces[currentPIndex], coefficient, allForces[currentPIndex]);
+					lerp(frameBeforeElements._pressureComponentforces[currentPIndex], frameAfterElements._pressureComponentforces[currentPIndex], coefficient, allPressureForce[currentPIndex]);
+					lerp(frameBeforeElements._viscosityComponentforces[currentPIndex], frameAfterElements._viscosityComponentforces[currentPIndex], coefficient, allViscosityForce[currentPIndex]);
+				});
+			}
 		}
 	}
 
@@ -130,6 +166,16 @@ namespace
 			lerp(frameBeforeElements._position2, frameAfterElements._position2, coefficient, currentConstraints._position2);
 		}
 	}
+
+	template<class Type>
+	void setNumUninitializedIfCountMismatch(std::vector<Type> &inOutVect, const std::size_t count)
+	{
+		if (inOutVect.size() < count)
+		{
+			inOutVect.reserve(count);
+			Storm::setNumUninitialized_hijack(inOutVect, Storm::VectorHijacker{ count });
+		}
+	}
 }
 
 
@@ -142,15 +188,17 @@ void Storm::ReplaySolver::transferFrameToParticleSystem_move(Storm::ParticleSyst
 		particleSystem.setParticleSystemTotalForce(currentFrameElement._pSystemGlobalForce);
 		particleSystem.setPositions(std::move(currentFrameElement._positions));
 		particleSystem.setVelocity(std::move(currentFrameElement._velocities));
+		particleSystem.setDensities(std::move(currentFrameElement._densities));
+		particleSystem.setPressures(std::move(currentFrameElement._pressures));
 		particleSystem.setForces(std::move(currentFrameElement._forces));
 		particleSystem.setTmpPressureForces(std::move(currentFrameElement._pressureComponentforces));
 		particleSystem.setTmpViscosityForces(std::move(currentFrameElement._viscosityComponentforces));
 	}
 }
 
-void Storm::ReplaySolver::transferFrameToParticleSystem_copy(Storm::ParticleSystemContainer &particleSystems, const Storm::SerializeRecordPendingData &frameFrom)
+void Storm::ReplaySolver::transferFrameToParticleSystem_copy(Storm::ParticleSystemContainer &particleSystems, Storm::SerializeRecordPendingData &frameFrom)
 {
-	for (const auto &frameElement : frameFrom._particleSystemElements)
+	for (auto &frameElement : frameFrom._particleSystemElements)
 	{
 		Storm::ParticleSystem &currentPSystem = *particleSystems[frameElement._systemId];
 		std::vector<Storm::Vector3> &allPositions = currentPSystem.getPositions();
@@ -159,14 +207,38 @@ void Storm::ReplaySolver::transferFrameToParticleSystem_copy(Storm::ParticleSyst
 		std::vector<Storm::Vector3> &allPressureForce = currentPSystem.getTemporaryPressureForces();
 		std::vector<Storm::Vector3> &allViscosityForce = currentPSystem.getTemporaryViscosityForces();
 
-		Storm::runParallel(frameElement._positions, [&](const Storm::Vector3 &currentPPosition, const std::size_t currentPIndex)
+		if (currentPSystem.isFluids())
 		{
-			allPositions[currentPIndex] = currentPPosition;
-			allVelocities[currentPIndex] = frameElement._velocities[currentPIndex];
-			allForces[currentPIndex] = frameElement._forces[currentPIndex];
-			allPressureForce[currentPIndex] = frameElement._pressureComponentforces[currentPIndex];
-			allViscosityForce[currentPIndex] = frameElement._viscosityComponentforces[currentPIndex];
-		});
+			Storm::FluidParticleSystem &currentPSystemAsFluid = static_cast<Storm::FluidParticleSystem &>(currentPSystem);
+			std::vector<float> &allDensities = currentPSystemAsFluid.getDensities();
+			std::vector<float> &allPressures = currentPSystemAsFluid.getPressures();
+
+			const std::size_t framePCount = frameElement._positions.size();
+			setNumUninitializedIfCountMismatch(frameElement._densities, framePCount);
+			setNumUninitializedIfCountMismatch(frameElement._pressures, framePCount);
+
+			Storm::runParallel(frameElement._positions, [&](const Storm::Vector3 &currentPPosition, const std::size_t currentPIndex)
+			{
+				allPositions[currentPIndex] = currentPPosition;
+				allVelocities[currentPIndex] = frameElement._velocities[currentPIndex];
+				allForces[currentPIndex] = frameElement._forces[currentPIndex];
+				allDensities[currentPIndex] = frameElement._densities[currentPIndex];
+				allPressures[currentPIndex] = frameElement._pressures[currentPIndex];
+				allPressureForce[currentPIndex] = frameElement._pressureComponentforces[currentPIndex];
+				allViscosityForce[currentPIndex] = frameElement._viscosityComponentforces[currentPIndex];
+			});
+		}
+		else
+		{
+			Storm::runParallel(frameElement._positions, [&](const Storm::Vector3 &currentPPosition, const std::size_t currentPIndex)
+			{
+				allPositions[currentPIndex] = currentPPosition;
+				allVelocities[currentPIndex] = frameElement._velocities[currentPIndex];
+				allForces[currentPIndex] = frameElement._forces[currentPIndex];
+				allPressureForce[currentPIndex] = frameElement._pressureComponentforces[currentPIndex];
+				allViscosityForce[currentPIndex] = frameElement._viscosityComponentforces[currentPIndex];
+			});
+		}
 
 		currentPSystem.setParticleSystemPosition(frameElement._pSystemPosition);
 		currentPSystem.setParticleSystemTotalForce(frameElement._pSystemGlobalForce);

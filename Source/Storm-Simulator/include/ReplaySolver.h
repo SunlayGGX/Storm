@@ -14,7 +14,7 @@ namespace Storm
 	{
 	public:
 		static void transferFrameToParticleSystem_move(Storm::ParticleSystemContainer &particleSystems, Storm::SerializeRecordPendingData &frameFrom);
-		static void transferFrameToParticleSystem_copy(Storm::ParticleSystemContainer &particleSystems, const Storm::SerializeRecordPendingData &frameFrom);
+		static void transferFrameToParticleSystem_copy(Storm::ParticleSystemContainer &particleSystems, Storm::SerializeRecordPendingData &frameFrom);
 
 		static void computeNextRecordTime(float &inOutNextRecordTime, const float currentPhysicsTime, const float recordFps);
 

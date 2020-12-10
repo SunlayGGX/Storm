@@ -254,6 +254,16 @@ void Storm::RigidBodyParticleSystem::setForces(std::vector<Storm::Vector3> &&for
 	}
 }
 
+void Storm::RigidBodyParticleSystem::setDensities(std::vector<float> &&)
+{
+
+}
+
+void Storm::RigidBodyParticleSystem::setPressures(std::vector<float> &&)
+{
+
+}
+
 void Storm::RigidBodyParticleSystem::setTmpPressureForces(std::vector<Storm::Vector3> &&tmpPressureForces)
 {
 	if (!this->isStatic())

@@ -47,6 +47,9 @@ Storm::FluidParticleSystem::FluidParticleSystem(unsigned int particleSystemIndex
 Storm::FluidParticleSystem::FluidParticleSystem(unsigned int particleSystemIndex, std::size_t particleCount) :
 	Storm::ParticleSystem{ particleSystemIndex, particleCount }
 {
+	_densities.resize(particleCount);
+	_pressure.resize(particleCount);
+
 	// No need to init the other thing since this constructor is only to be used in replay mode and we won't use them.
 }
 
@@ -119,6 +122,16 @@ void Storm::FluidParticleSystem::setVelocity(std::vector<Storm::Vector3> &&veloc
 void Storm::FluidParticleSystem::setForces(std::vector<Storm::Vector3> &&forces)
 {
 	_force = std::move(forces);
+}
+
+void Storm::FluidParticleSystem::setDensities(std::vector<float> &&densities)
+{
+	_densities = std::move(densities);
+}
+
+void Storm::FluidParticleSystem::setPressures(std::vector<float> &&pressures)
+{
+	_pressure = std::move(pressures);
 }
 
 void Storm::FluidParticleSystem::setTmpPressureForces(std::vector<Storm::Vector3> &&tmpPressureForces)

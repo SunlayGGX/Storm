@@ -1373,7 +1373,13 @@ void Storm::SimulatorManager::pushRecord(float currentPhysicsTime, bool pushStat
 
 			framePSystemElementData._systemId = particleSystemPair.first;
 
-			if (!pSystemRef.isFluids())
+			if (pSystemRef.isFluids())
+			{
+				const Storm::FluidParticleSystem &pSystemRefAsFluid = static_cast<const Storm::FluidParticleSystem &>(pSystemRef);
+				framePSystemElementData._densities = pSystemRefAsFluid.getDensities();
+				framePSystemElementData._pressures = pSystemRefAsFluid.getPressures();
+			}
+			else
 			{
 				const Storm::RigidBodyParticleSystem &pSystemRefAsRb = static_cast<const Storm::RigidBodyParticleSystem &>(pSystemRef);
 				framePSystemElementData._pSystemPosition = pSystemRefAsRb.getRbPosition();
