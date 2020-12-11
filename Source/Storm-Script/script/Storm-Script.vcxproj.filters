@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\Lua">
+      <UniqueIdentifier>{791c79bb-2496-448c-8a78-e9db73ca2fe0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Lua">
+      <UniqueIdentifier>{f9baf656-d5f5-4c51-ad8c-926c6f33b936}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-ScriptPCH.cpp">

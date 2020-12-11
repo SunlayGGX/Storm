@@ -18,5 +18,11 @@ SET PHYSX_DEPENDENCIES_PATH=%DEPENDENCIES_FOLDER_SRC%\PhysX_4.0.0
 :: Eigen dependencies should point to the folder containing the Readme of Eigen folder.
 SET EIGEN_DEPENDENCIES_PATH=%DEPENDENCIES_FOLDER_SRC%\Eigen3.3.7
 
+:: Lua dependencies should point to the lua root folder containing the bin and include folders.
+SET LUA_BASE_LIB_DEPENDENCIES_PATH=%DEPENDENCIES_FOLDER_SRC%\lua-5.4.0_Win64_vc16_lib
+
+:: Lua wrapper dependencies (Sol2) should point to the Sol2 folder containing the README.
+SET LUA_WRAPPER_DEPENDENCIES_PATH=%DEPENDENCIES_FOLDER_SRC%\sol2-3.2.2
+
 :: Catch2 dependencies should point to the folder containing the Readme of Catch2 folder. This is not mandatory so if it points to a non existing folder, it is correct.
 SET CATCH2_DEPENDENCIES_PATH=%DEPENDENCIES_FOLDER_SRC%\Catch2

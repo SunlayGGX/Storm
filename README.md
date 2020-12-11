@@ -36,6 +36,9 @@ Note that :
 Note that I chose "vc15win64" settings. If you use another Visual Studio, be aware of Binary compatibility (Visual Studio 2015, 2017 and 2019 are binary compatible, but I don't know about my future and they aren't with the past). Be also aware that the result file won't be in the same folder than what was expected by this readme so adapt a little.
 	+ Build the library in "release" and "debug".
 	+ Go to "physx/(Your output directory)/win.x86_64.vc141.mt" (this name could change if you have chosen another build setting) and copy "debug" and "release" folder inside a new folder "physx/lib"
+- **Lua v5.4.0 release 2 (24/08/2020)** (link: http://luabinaries.sourceforge.net/). Take the static binaries for Windows 64 platform unless you want to compile them from scratch. Normally, it's name is lua-5.4.0_Win64_vc16_lib. I took the vc16 library since I'm using Visual Studio 2019, and Win64 because I'm working with a x64 workstation and project.
+	+ If needed, ensure that the .lib file is inside a folder named "bin" beside "include" folder. Move it inside if it isn't.
+- **Sol2 v3.2.2** (link: https://github.com/ThePhD/sol2/tree/v3.2.2). Just download the zip and extract it.
 - **Catch2 v2.12.2**. Not mandatory, but it is used for unit testing. (link: https://github.com/catchorg/catch2/releases ). If you choose to not pull it, then unload All Automation project from your Storm.sln... If you want to run tests, do not forget to setup your Visual Studio for this. See section "Test Setup" for further details.
 
 
