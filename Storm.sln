@@ -76,6 +76,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Executable", "Executable", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{F98F7CDA-1DB8-439B-9673-B8C23D38E1F7}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Storm-Script", "Source\Storm-Script\script\Storm-Script.vcxproj", "{028BF684-49A8-44C0-861B-ADD005FA7D40}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -162,6 +164,10 @@ Global
 		{02EAF0AA-DEFF-4C09-80A7-70A413568897}.Debug|x64.Build.0 = Debug|x64
 		{02EAF0AA-DEFF-4C09-80A7-70A413568897}.Release|x64.ActiveCfg = Release|x64
 		{02EAF0AA-DEFF-4C09-80A7-70A413568897}.Release|x64.Build.0 = Release|x64
+		{028BF684-49A8-44C0-861B-ADD005FA7D40}.Debug|x64.ActiveCfg = Debug|x64
+		{028BF684-49A8-44C0-861B-ADD005FA7D40}.Debug|x64.Build.0 = Debug|x64
+		{028BF684-49A8-44C0-861B-ADD005FA7D40}.Release|x64.ActiveCfg = Release|x64
+		{028BF684-49A8-44C0-861B-ADD005FA7D40}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -192,6 +198,7 @@ Global
 		{83D868D9-6524-4208-9714-1949A878BC86} = {F79A0D9C-2055-4FD3-89F6-A901CD582DBD}
 		{02EAF0AA-DEFF-4C09-80A7-70A413568897} = {71FDD4FA-5CB7-4461-A3FD-A8818CF6C865}
 		{F98F7CDA-1DB8-439B-9673-B8C23D38E1F7} = {D56D6E97-088C-4FA6-9F12-D4B3B1BCDCA2}
+		{028BF684-49A8-44C0-861B-ADD005FA7D40} = {71FDD4FA-5CB7-4461-A3FD-A8818CF6C865}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {AC48B795-9776-4952-84E0-CE8AB938B72B}

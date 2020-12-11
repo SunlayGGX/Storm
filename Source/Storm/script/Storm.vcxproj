@@ -55,6 +55,9 @@
     <ProjectReference Include="..\..\Storm-Profiler\script\Storm-Profiler.vcxproj">
       <Project>{66664e96-f4e4-4c82-9b7b-a6e8ccd92069}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\..\Storm-Script\script\Storm-Script.vcxproj">
+      <Project>{028bf684-49a8-44c0-861b-add005fa7d40}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\..\Storm-Serializer\script\Storm-Serializer.vcxproj">
       <Project>{02eaf0aa-deff-4c09-80a7-70a413568897}</Project>
     </ProjectReference>
