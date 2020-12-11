@@ -146,10 +146,17 @@ bool Storm::MacroConfig::read(const std::string &macroConfigFilePathStr)
 
 			} while (_lastHasResolved);
 
-			LOG_COMMENT <<
-				"We have registered " << _macros.size() - macrosSizeBefore << " macros!\n"
-				"Those were :\n" << this->produceMacroLog(registeredMacro);
-				;
+			const std::size_t registeredMacroCount = _macros.size() - macrosSizeBefore;
+			if (registeredMacroCount > 0)
+			{
+				LOG_COMMENT <<
+					"We have registered " << registeredMacroCount << " macros!\n"
+					"Those were :\n" << this->produceMacroLog(registeredMacro);
+			}
+			else
+			{
+				LOG_COMMENT << "We haven't registered any macros!";
+			}
 			return true;
 		}
 		else
