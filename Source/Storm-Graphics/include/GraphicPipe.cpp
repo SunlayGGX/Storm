@@ -126,13 +126,41 @@ namespace
 
 		Storm::throwException<std::exception>("Unknown colored setting chosen.");
 	}
+
+	std::string parseFloatLeanAndMean(const float value)
+	{
+		std::string result = std::to_string(value);
+		
+		while (result.size() > 1)
+		{
+			const char lastChar = result.back();
+			switch (lastChar)
+			{
+			case '0':
+			case ' ':
+				result.pop_back();
+				break;
+
+			case '.':
+				result.pop_back();
+
+			default:
+				goto endLoop;
+			}
+		}
+
+		endLoop:
+		return result;
+	}
 }
 
 #define STORM_COLORED_SETTING_FIELD_NAME "Coloration"
+#define STORM_COLOR_VALUE_SETTING_FIELD_NAME "Color value"
 
 Storm::GraphicPipe::GraphicPipe() :
 	_selectedColoredSetting{ Storm::ColoredSetting::Velocity },
-	_fields{ std::make_unique<Storm::UIFieldContainer>() }
+	_fields{ std::make_unique<Storm::UIFieldContainer>() },
+	_chosenColorSetting{ &_velocitySetting }
 {
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
@@ -149,7 +177,9 @@ Storm::GraphicPipe::GraphicPipe() :
 	_coloredSettingWStr = parseColoredSetting(_selectedColoredSetting);
 
 	(*_fields)
-		.bindField(STORM_COLORED_SETTING_FIELD_NAME, _coloredSettingWStr);
+		.bindField(STORM_COLORED_SETTING_FIELD_NAME, _coloredSettingWStr)
+		.bindField(STORM_COLOR_VALUE_SETTING_FIELD_NAME, _chosenColorSetting)
+		;
 }
 
 Storm::GraphicPipe::~GraphicPipe() = default;
@@ -210,22 +240,99 @@ std::vector<Storm::GraphicParticleData> Storm::GraphicPipe::fastOptimizedTransCo
 	return dxParticlePosDataTmp;
 }
 
+Storm::GraphicPipe::ColorSetting& Storm::GraphicPipe::getColorSettingFromSelection(const Storm::ColoredSetting setting) const
+{
+	switch (setting)
+	{
+	case Storm::ColoredSetting::Velocity: return const_cast<Storm::GraphicPipe::ColorSetting &>(_velocitySetting);
+	case Storm::ColoredSetting::Pressure: return const_cast<Storm::GraphicPipe::ColorSetting &>(_pressureSetting);
+	case Storm::ColoredSetting::Density: return const_cast<Storm::GraphicPipe::ColorSetting &>(_densitySetting);
+	default:
+		Storm::throwException<std::exception>("Unknown colored setting chosen.");
+	}
+}
+
 void Storm::GraphicPipe::cycleColoredSetting()
 {
 	_selectedColoredSetting = static_cast<Storm::ColoredSetting>((static_cast<uint8_t>(_selectedColoredSetting) + 1) % static_cast<uint8_t>(Storm::ColoredSetting::Count));
+	_chosenColorSetting = &this->getColorSettingFromSelection(_selectedColoredSetting);
+
 	_coloredSettingWStr = parseColoredSetting(_selectedColoredSetting);
+
 	_fields->pushField(STORM_COLORED_SETTING_FIELD_NAME);
+	_fields->pushField(STORM_COLOR_VALUE_SETTING_FIELD_NAME);
 }
 
 const Storm::GraphicPipe::ColorSetting& Storm::GraphicPipe::getUsedColorSetting() const
 {
-	switch (_selectedColoredSetting)
-	{
-	case Storm::ColoredSetting::Velocity: return _velocitySetting;
-	case Storm::ColoredSetting::Pressure: return _pressureSetting;
-	case Storm::ColoredSetting::Density: return _densitySetting;
-	}
-
-	Storm::throwException<std::exception>("Unknown colored setting chosen.");
+	return *_chosenColorSetting;
 }
 
+void Storm::GraphicPipe::changeMinColorationValue(float deltaValue, const Storm::ColoredSetting setting)
+{
+	if (deltaValue != 0.f)
+	{
+		Storm::GraphicPipe::ColorSetting &settingToChange = this->getColorSettingFromSelection(setting);
+		const float expectedValue = std::min(settingToChange._minValue + deltaValue, settingToChange._maxValue);
+		if (expectedValue != settingToChange._minValue)
+		{
+			settingToChange._minValue = expectedValue;
+			if (setting == _selectedColoredSetting)
+			{
+				_fields->pushField(STORM_COLOR_VALUE_SETTING_FIELD_NAME);
+			}
+		}
+		else
+		{
+			LOG_DEBUG_WARNING << "Field Coloration min value change ignored because we cannot go over max value.";
+		}
+	}
+}
+
+void Storm::GraphicPipe::changeMaxColorationValue(float deltaValue, const Storm::ColoredSetting setting)
+{
+	if (deltaValue != 0.f)
+	{
+		Storm::GraphicPipe::ColorSetting &settingToChange = this->getColorSettingFromSelection(setting);
+		const float expectedValue = std::max(settingToChange._maxValue + deltaValue, settingToChange._minValue);
+		if (expectedValue != settingToChange._maxValue)
+		{
+			settingToChange._maxValue = expectedValue;
+			if (setting == _selectedColoredSetting)
+			{
+				_fields->pushField(STORM_COLOR_VALUE_SETTING_FIELD_NAME);
+			}
+		}
+		else
+		{
+			LOG_DEBUG_WARNING << "Field Coloration max value change ignored because we cannot go under min value.";
+		}
+	}
+}
+
+void Storm::GraphicPipe::changeMinColorationValue(float deltaValue)
+{
+	this->changeMinColorationValue(deltaValue, _selectedColoredSetting);
+}
+
+void Storm::GraphicPipe::changeMaxColorationValue(float deltaValue)
+{
+	this->changeMaxColorationValue(deltaValue, _selectedColoredSetting);
+}
+
+Storm::GraphicPipe::ColorSetting::operator std::string() const
+{
+	std::string result;
+	
+	const std::string minStr = parseFloatLeanAndMean(_minValue);
+	const std::string maxStr = parseFloatLeanAndMean(_maxValue);
+	result.reserve(8 + minStr.size() + maxStr.size());
+
+	result += "{ ";
+	result += minStr;
+	result += ", ";
+	result += maxStr;
+	result += " }";
+
+	return result;
+}

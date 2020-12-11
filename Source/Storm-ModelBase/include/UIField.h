@@ -16,36 +16,42 @@ namespace Storm
 
 	private:
 		template<class Field>
-		static auto parseToWString(const Field &val, int) -> decltype(CustomFieldParser::parseToWString(val))
+		static auto parseToWString(const Field &val, int, int) -> decltype(CustomFieldParser::parseToWString(val))
 		{
 			return CustomFieldParser::parseToWString(val);
 		}
 
 		template<class Field>
-		static auto parseToWString(Field val, int) -> decltype(std::to_wstring(val))
+		static auto parseToWString(Field* val, int, int) -> decltype(Storm::UIField::parseToWString(*val, 0, 0))
+		{
+			if (val)
+			{
+				return Storm::UIField::parseToWString(*val, 0, 0);
+			}
+
+			return L"{ null }";
+		}
+
+		template<class Field>
+		static auto parseToWString(Field val, int, void*) -> decltype(std::to_wstring(val))
 		{
 			return std::to_wstring(val);
 		}
 
 		template<class Field>
-		static auto parseToWString(const std::atomic<Field> &val, int) -> decltype(UIField::parseToWString(val.load(), 0))
+		static auto parseToWString(const std::atomic<Field> &val, int, int) -> decltype(UIField::parseToWString(val.load(), 0, 0))
 		{
-			return UIField::parseToWString(val.load(), 0);
-		}
-
-		static std::wstring parseToWString(bool val, int)
-		{
-			return val ? L"true" : L"false";
+			return UIField::parseToWString(val.load(), 0, 0);
 		}
 
 		template<class Field>
-		static auto parseToWString(const Field &val, void*) -> decltype(std::filesystem::path{ val }.wstring())
+		static auto parseToWString(const Field &val, void*, int) -> decltype(std::filesystem::path{ val }.wstring())
 		{
 			return std::filesystem::path{ val }.wstring();
 		}
 
 		template<class Field>
-		static auto parseToWString(const Field &val, ...) -> decltype(std::filesystem::path{ val }.wstring())
+		static auto parseToWString(const Field &val, void*, void*) -> decltype(std::filesystem::path{ Storm::toStdString(val) }.wstring())
 		{
 			return std::filesystem::path{ Storm::toStdString(val) }.wstring();
 		}
@@ -53,7 +59,7 @@ namespace Storm
 	public:
 		virtual std::wstring getFieldValue() const final override
 		{
-			return UIField::parseToWString(_fieldValueRef, 0);
+			return UIField::parseToWString(_fieldValueRef, 0, 0);
 		}
 
 	private:

@@ -15,6 +15,10 @@ namespace Storm
 	public:
 		struct ColorSetting
 		{
+		public:
+			operator std::string() const;
+
+		public:
 			float _minValue;
 			float _maxValue;
 		};
@@ -26,8 +30,17 @@ namespace Storm
 	public:
 		std::vector<Storm::GraphicParticleData> fastOptimizedTransCopy(const Storm::PushedParticleSystemDataParameter &param);
 
+	private:
+		Storm::GraphicPipe::ColorSetting& getColorSettingFromSelection(const Storm::ColoredSetting setting) const;
+
+	public:
 		void cycleColoredSetting();
 		const Storm::GraphicPipe::ColorSetting& getUsedColorSetting() const;
+
+		void changeMinColorationValue(float deltaValue, const Storm::ColoredSetting setting);
+		void changeMaxColorationValue(float deltaValue, const Storm::ColoredSetting setting);
+		void changeMinColorationValue(float deltaValue);
+		void changeMaxColorationValue(float deltaValue);
 
 	private:
 		Storm::ColoredSetting _selectedColoredSetting;
@@ -36,6 +49,7 @@ namespace Storm
 		Storm::GraphicPipe::ColorSetting _pressureSetting;
 		Storm::GraphicPipe::ColorSetting _densitySetting;
 
+		const Storm::GraphicPipe::ColorSetting* _chosenColorSetting;
 		std::wstring _coloredSettingWStr;
 		std::unique_ptr<Storm::UIFieldContainer> _fields;
 	};
