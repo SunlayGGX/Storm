@@ -85,6 +85,7 @@ bool Storm::GraphicManager::initialize_Implementation(const Storm::WithUI &)
 			}
 			else
 			{
+				// It is important to call initialize here and not initialize_Implementation because it locks the initialization mutex. It prevents tocttou.
 				this->initialize(hwndOnceReady);
 			}
 		});
