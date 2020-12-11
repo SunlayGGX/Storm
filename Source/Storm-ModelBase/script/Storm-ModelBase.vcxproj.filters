@@ -359,5 +359,8 @@
     <ClInclude Include="..\include\PushedParticleSystemData.h">
       <Filter>Header Files\Modules\Graphics\General</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\IScriptManager.h">
+      <Filter>Header Files\Singleton</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

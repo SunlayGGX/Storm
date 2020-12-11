@@ -19,6 +19,7 @@
 #include "RaycastManager.h"
 #include "ProfilerManager.h"
 #include "SerializerManager.h"
+#include "ScriptManager.h"
 
 #include "Version.h"
 #include "TimeHelper.h"
@@ -35,6 +36,7 @@ namespace
 		Storm::SerializerManager,
 		Storm::ProfilerManager,
 		Storm::ThreadManager,
+		Storm::ScriptManager,
 		Storm::RandomManager,
 		Storm::OSManager,
 		Storm::TimeManager,
@@ -125,6 +127,8 @@ namespace
 			Storm::RaycastManager::instance().initialize();
 
 			Storm::ProfilerManager::instance().initialize();
+
+			Storm::ScriptManager::instance().initialize();
 		}
 
 		LOG_COMMENT << "Application Creation finished";
@@ -137,6 +141,8 @@ namespace
 			LOG_COMMENT << "Application Cleanup";
 
 			const bool hasUI = Storm::ConfigManager::instance().withUI();
+
+			Storm::ScriptManager::instance().cleanUp();
 
 			Storm::TimeManager::instance().cleanUp();
 			Storm::SimulatorManager::instance().cleanUp();
