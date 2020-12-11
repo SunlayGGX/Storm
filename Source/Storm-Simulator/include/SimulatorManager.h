@@ -89,6 +89,9 @@ namespace Storm
 		void refreshParticleSelection();
 
 	public:
+		void requestCycleColoredSetting();
+
+	public:
 		void exitWithCode(Storm::ExitCode code) final override;
 
 	public:

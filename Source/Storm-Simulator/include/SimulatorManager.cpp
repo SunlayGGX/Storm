@@ -468,7 +468,7 @@ void Storm::SimulatorManager::initialize_Implementation()
 	inputMgr.bindKey(Storm::SpecialKey::KC_I, [this]() { this->resetReplay(); });
 	inputMgr.bindKey(Storm::SpecialKey::KC_C, [this]() { this->executeAllForcesCheck(); });
 	inputMgr.bindKey(Storm::SpecialKey::KC_N, [this]() { this->advanceOneFrame(); });
-	inputMgr.bindKey(Storm::SpecialKey::KC_F3, [this]() { Storm::SingletonHolder::instance().getSingleton<Storm::IGraphicsManager>().cycleColoredSetting(); });
+	inputMgr.bindKey(Storm::SpecialKey::KC_F3, [this]() { this->requestCycleColoredSetting(); });
 
 	if (configMgr.userCanModifyTimestep())
 	{
@@ -545,7 +545,7 @@ void Storm::SimulatorManager::initialize_Implementation()
 					}
 				}
 
-				if (hasMadeSelectionChanges && timeMgr.getStateNoSyncWait() == Storm::TimeWaitResult::Pause)
+				if (hasMadeSelectionChanges && timeMgr.simulationIsPaused())
 				{
 					this->pushParticlesToGraphicModule(true, false);
 				}
@@ -1313,6 +1313,17 @@ void Storm::SimulatorManager::refreshParticleSelection()
 				_particleSelector.setRbTotalForce(pSystemAsRb.getRbTotalForce());
 			}
 		}
+	}
+}
+
+void Storm::SimulatorManager::requestCycleColoredSetting()
+{
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	singletonHolder.getSingleton<Storm::IGraphicsManager>().cycleColoredSetting();
+	
+	if (singletonHolder.getSingleton<Storm::ITimeManager>().simulationIsPaused())
+	{
+		this->pushParticlesToGraphicModule(true, false);
 	}
 }
 
