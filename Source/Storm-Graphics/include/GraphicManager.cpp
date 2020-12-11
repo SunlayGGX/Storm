@@ -471,6 +471,9 @@ void Storm::GraphicManager::cycleColoredSetting()
 {
 	if (this->isActive())
 	{
-		_pipe->cycleColoredSetting();
+		Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::MainThread, [this]()
+		{
+			_pipe->cycleColoredSetting();
+		});
 	}
 }
