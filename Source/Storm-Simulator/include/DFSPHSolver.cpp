@@ -241,7 +241,6 @@ void Storm::DFSPHSolver::execute(const Storm::IterationParameter &iterationParam
 					const float vijDotXij = vij.dot(neighbor._positionDifferenceVector);
 					const float viscoGlobalCoeff = currentPMass * 10.f * vijDotXij / (neighbor._vectToParticleSquaredNorm + viscoPrecoeff);
 
-					Storm::Vector3 pressureComponent;
 					Storm::Vector3 viscosityComponent;
 
 					if (neighbor._isFluidParticle)
@@ -277,13 +276,9 @@ void Storm::DFSPHSolver::execute(const Storm::IterationParameter &iterationParam
 						if (!neighborPSystemAsBoundary->isStatic())
 						{
 							Storm::Vector3 &boundaryNeighborForce = neighbor._containingParticleSystem->getForces()[neighbor._particleIndex];
-							Storm::Vector3 &boundaryNeighborTmpPressureForce = neighbor._containingParticleSystem->getTemporaryPressureForces()[neighbor._particleIndex];
 							Storm::Vector3 &boundaryNeighborTmpViscosityForce = neighbor._containingParticleSystem->getTemporaryViscosityForces()[neighbor._particleIndex];
 
-							const Storm::Vector3 sumForces = pressureComponent + viscosityComponent;
-
 							std::lock_guard<std::mutex> lock{ neighbor._containingParticleSystem->_mutex };
-							boundaryNeighborForce -= sumForces;
 							boundaryNeighborTmpViscosityForce -= viscosityComponent;
 						}
 					}
