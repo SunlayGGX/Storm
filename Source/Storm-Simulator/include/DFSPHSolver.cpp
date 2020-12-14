@@ -582,7 +582,6 @@ void Storm::DFSPHSolver::pressureSolve(const Storm::IterationParameter &iteratio
 	// Start solver
 	//////////////////////////////////////////////////////////////////////////
 
-	float avg_density_err = 0.f;
 	bool chk;
 
 	constexpr const float k_epsilon = 0.00001f;
@@ -591,16 +590,16 @@ void Storm::DFSPHSolver::pressureSolve(const Storm::IterationParameter &iteratio
 	{
 		chk = true;
 
+		outAverageError = 0.f;
+
 		for (auto &dataFieldPair : _data)
 		{
-			avg_density_err = 0.f;
-
 			// Since data field was made from fluid particles, no need to check.
 			Storm::FluidParticleSystem &fluidPSystem = static_cast<Storm::FluidParticleSystem &>(*particleSystems.find(dataFieldPair.first)->second);
 
 			const float density0 = fluidPSystem.getRestDensity();
 
-			float density_error = 0.f;
+			float densityError = 0.f;
 
 			const std::vector<float> &masses = fluidPSystem.getMasses();
 			const std::vector<Storm::ParticleNeighborhoodArray> &neighborhoodArrays = fluidPSystem.getNeighborhoodArrays();
@@ -670,14 +669,14 @@ void Storm::DFSPHSolver::pressureSolve(const Storm::IterationParameter &iteratio
 			Storm::runParallel(dataFieldPair.second, [&](Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex)
 			{
 				this->computeDensityAdv(iterationParameter, fluidPSystem, &dataFieldPair.second, currentPData, currentPIndex);
-				density_error += density0 * currentPData._predictedDensity - density0;
+				densityError += density0 * currentPData._predictedDensity - density0;
 			});
 
-			avg_density_err = density_error / _totalParticleCountFl;
+			outAverageError = densityError / _totalParticleCountFl;
 
 			// Maximal allowed density fluctuation
 			const float eta = maxError * 0.01f * density0;  // maxError is given in percent
-			chk = chk && (avg_density_err <= eta);
+			chk = chk && (outAverageError <= eta);
 		}
 
 		++outIteration;
