@@ -304,23 +304,7 @@ void Storm::DFSPHSolver::execute(const Storm::IterationParameter &iterationParam
 	// 8th : TODO : CFL
 	// ...
 
-	// 9th : update velocities
-
-	// compute new velocities only considering non-pressure forces
-	for (auto &dataFieldPair : _data)
-	{
-		// Since data field was made from fluid particles, no need to check.
-		Storm::FluidParticleSystem &fluidPSystem = static_cast<Storm::FluidParticleSystem &>(*particleSystems.find(dataFieldPair.first)->second);
-
-		const std::vector<Storm::Vector3> &velocities = fluidPSystem.getVelocity();
-
-		Storm::runParallel(dataFieldPair.second, [&velocities, &iterationParameter](Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex)
-		{
-			currentPData._predictedVelocity = velocities[currentPIndex] + iterationParameter._deltaTime * currentPData._nonPressureAcceleration;
-		});
-	}
-
-	// 10th : Solve pressure
+	// 9th : Solve pressure
 	unsigned int iteration;
 	float averageError;
 	this->pressureSolve(iterationParameter, iteration, averageError);
