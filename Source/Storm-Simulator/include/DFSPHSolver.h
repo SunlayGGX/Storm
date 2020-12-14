@@ -12,6 +12,9 @@ namespace Storm
 		public Storm::ISPHBaseSolver,
 		private Storm::PredictiveSolverHandler
 	{
+	private:
+		using DFSPHSolverDataArray = std::vector<Storm::DFSPHSolverData>;
+
 	public:
 		DFSPHSolver(const float k_kernelLength, const Storm::ParticleSystemContainer &particleSystemsMap);
 		~DFSPHSolver();
@@ -20,7 +23,15 @@ namespace Storm
 		void execute(const Storm::IterationParameter &iterationParameter) final override;
 
 	private:
-		std::map<unsigned int, std::vector<Storm::DFSPHSolverData>> _data;
+		void divergenceSolve(const Storm::IterationParameter &iterationParameter, unsigned int &outIteration, float &outAverageError);
+		void pressureSolve(const Storm::IterationParameter &iterationParameter, unsigned int &outIteration, float &outAverageError);
+		void computeDFSPHFactor(const Storm::IterationParameter &iterationParameter, Storm::FluidParticleSystem &fluidPSystem, Storm::DFSPHSolver::DFSPHSolverDataArray &pSystemData);
+		void computeDensityAdv(const Storm::IterationParameter &iterationParameter, Storm::FluidParticleSystem &fluidPSystem, const Storm::DFSPHSolver::DFSPHSolverDataArray* currentSystemData, Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex);
+		void computeDensityChange(const Storm::IterationParameter &iterationParameter, Storm::FluidParticleSystem &fluidPSystem, const Storm::DFSPHSolver::DFSPHSolverDataArray* currentSystemData, Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex);
+
+	private:
+		std::map<unsigned int, Storm::DFSPHSolver::DFSPHSolverDataArray> _data;
 		float _totalParticleCountFl;
+		bool _enableDivergenceSolve;
 	};
 }

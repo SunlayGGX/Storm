@@ -1,3 +1,10 @@
+//
+// Note :
+// This implementation was taken from the implementation J.Bender & Al. did inside SplishSplash
+// and re adapted to suit how my custom engine works.
+//
+//
+
 #include "DFSPHSolver.h"
 
 #include "ParticleSystem.h"
@@ -28,21 +35,21 @@
 namespace
 {
 #define STORM_SOLVER_NAMES_XMACRO \
-	STORM_SOLVER_NAME("Density") \
-	STORM_SOLVER_NAME("Divergence")
+	STORM_SOLVER_NAME("Divergence") \
+	STORM_SOLVER_NAME("Pressure")
 
 	using GUINames = std::remove_reference_t<Storm::PredictiveSolverHandler::SolversNames>;
 
 	constexpr static GUINames g_solverIterationNames
 	{
-#define STORM_SOLVER_NAME(SolverName) STORM_TEXT(SolverName " solve iteration"),
+#define STORM_SOLVER_NAME(SolverName) STORM_TEXT(SolverName " iteration"),
 		STORM_SOLVER_NAMES_XMACRO
 #undef STORM_SOLVER_NAME
 	};
 
 	constexpr static GUINames g_solverErrorsNames
 	{
-#define STORM_SOLVER_NAME(SolverName) STORM_TEXT(SolverName " solve error"),
+#define STORM_SOLVER_NAME(SolverName) STORM_TEXT(SolverName " error"),
 		STORM_SOLVER_NAMES_XMACRO
 #undef STORM_SOLVER_NAME
 	};
@@ -52,10 +59,23 @@ namespace
 
 
 Storm::DFSPHSolver::DFSPHSolver(const float k_kernelLength, const Storm::ParticleSystemContainer &particleSystemsMap) :
-	Storm::PredictiveSolverHandler{ g_solverIterationNames, g_solverErrorsNames }
+	Storm::PredictiveSolverHandler{ g_solverIterationNames, g_solverErrorsNames },
+	_enableDivergenceSolve{ true }
 {
-	std::size_t totalParticleCount = 0;
+	const Storm::SingletonHolder &singletonholder = Storm::SingletonHolder::instance();
 
+	const Storm::IConfigManager &configMgr = singletonholder.getSingleton<Storm::IConfigManager>();
+	const Storm::GeneralSimulationData &generalSimulData = configMgr.getGeneralSimulationData();
+	const Storm::FluidData &fluidConfigData = configMgr.getFluidData();
+
+	Storm::SimulatorManager &simulMgr = Storm::SimulatorManager::instance();
+	simulMgr.refreshParticleNeighborhood();
+
+	const float k_kernelZero = Storm::retrieveKernelZeroValue(generalSimulData._kernelMode);
+	const Storm::RawKernelMethodDelegate rawKernel = Storm::retrieveRawKernelMethod(generalSimulData._kernelMode);
+	const Storm::GradKernelMethodDelegate gradKernel = Storm::retrieveGradKernelMethod(generalSimulData._kernelMode);
+
+	std::size_t totalParticleCount = 0;
 	for (const auto &particleSystemPair : particleSystemsMap)
 	{
 		const Storm::ParticleSystem &pSystem = *particleSystemPair.second;
@@ -67,103 +87,117 @@ Storm::DFSPHSolver::DFSPHSolver(const float k_kernelLength, const Storm::Particl
 			currentPSystemData.reserve(currentPSystemPCount._newSize);
 			Storm::setNumUninitialized_hijack(currentPSystemData, currentPSystemPCount);
 
+			Storm::runParallel(currentPSystemData, [](Storm::DFSPHSolverData &currentPData)
+			{
+				currentPData._predictedVelocity.setZero();
+				currentPData._nonPressureAcceleration.setZero();
+				currentPData._kCoeff = 0.f;
+				currentPData._predictedDensity = 0.f;
+			});
+
 			totalParticleCount += currentPSystemPCount._newSize;
 		}
 	}
 
 	_totalParticleCountFl = static_cast<float>(totalParticleCount);
-
-	// The only thing I won't do as the pseudo code reported in the original DFSPH article from J.Bender and D. Koshier (2017) is that I won't initialize k_dfsph coeff now
-	// The reason is that neighborhoods weren't computed and the initialization rely on the actual position of particles and the neighborhood.
-	// I could force an update here by manually initializing all particle systems but it is too dirty.
-	// I prefer initializing everything when we'll compute the step because I'm sure that when we do, data structures will be correctly initialized.
 }
 
 Storm::DFSPHSolver::~DFSPHSolver() = default;
 
 void Storm::DFSPHSolver::execute(const Storm::IterationParameter &iterationParameter)
 {
-	STORM_NOT_IMPLEMENTED;
+	//STORM_NOT_IMPLEMENTED;
 
-	const Storm::SingletonHolder &singletonholder = Storm::SingletonHolder::instance();
-	const Storm::IConfigManager &configMgr = singletonholder.getSingleton<Storm::IConfigManager>();
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
 
-	const Storm::GeneralSimulationData &generalSimulData = configMgr.getGeneralSimulationData();
-
+	const Storm::GeneralSimulationData &generalSimulConfig = configMgr.getGeneralSimulationData();
 	const Storm::FluidData &fluidConfigData = configMgr.getFluidData();
 
-	const float k_kernelZero = Storm::retrieveKernelZeroValue(generalSimulData._kernelMode);
-	const Storm::RawKernelMethodDelegate rawKernel = Storm::retrieveRawKernelMethod(generalSimulData._kernelMode);
-	const Storm::GradKernelMethodDelegate gradKernel = Storm::retrieveGradKernelMethod(generalSimulData._kernelMode);
+	Storm::SimulatorManager &simulMgr = Storm::SimulatorManager::instance();
 
-	const float k_maxDensityError = generalSimulData._maxDensityError;
+	const float k_kernelZero = Storm::retrieveKernelZeroValue(generalSimulConfig._kernelMode);
+	const Storm::RawKernelMethodDelegate rawKernel = Storm::retrieveRawKernelMethod(generalSimulConfig._kernelMode);
+	const Storm::GradKernelMethodDelegate gradKernel = Storm::retrieveGradKernelMethod(generalSimulConfig._kernelMode);
 
-	const float deltaTimeSquared = iterationParameter._deltaTime * iterationParameter._deltaTime;
 	const float k_kernelLengthSquared = iterationParameter._kernelLength * iterationParameter._kernelLength;
 
 	Storm::ParticleSystemContainer &particleSystems = *iterationParameter._particleSystems;
 
-	// 1st : Compute the base density and init k_dfsph coeff
-	for (auto &dataFieldPair : _data)
+	// 1st : Initialize iteration
+	simulMgr.advanceBlowersTime(iterationParameter._deltaTime);
+	simulMgr.refreshParticleNeighborhood();
+	simulMgr.subIterationStart();
+
+	// 2nd : refresh particle neighborhood
+	simulMgr.refreshParticleNeighborhood();
+
+	// 3rd : Compute the base density
+	for (auto &particleSystemPair : particleSystems)
 	{
-		// Since data field was made from fluids particles only, no need to check if this is a fluid.
-		Storm::FluidParticleSystem &fluidParticleSystem = static_cast<Storm::FluidParticleSystem &>(*particleSystems.find(dataFieldPair.first)->second);
-
-		const float particleVolume = fluidParticleSystem.getParticleVolume();
-		const float density0 = fluidParticleSystem.getRestDensity();
-		const std::vector<Storm::ParticleNeighborhoodArray> &neighborhoodArrays = fluidParticleSystem.getNeighborhoodArrays();
-
-		Storm::runParallel(fluidParticleSystem.getDensities(), [&](float &currentPDensity, const std::size_t currentPIndex)
+		Storm::ParticleSystem &currentParticleSystem = *particleSystemPair.second;
+		if (currentParticleSystem.isFluids())
 		{
-			// Density
-			currentPDensity = particleVolume * k_kernelZero;
+			Storm::FluidParticleSystem &fluidParticleSystem = static_cast<Storm::FluidParticleSystem &>(currentParticleSystem);
 
-			//  ||Sum_j(mj x GradWij)||²
-			Storm::Vector3 sumSquaredGradWij = Storm::Vector3::Zero();
+			const float particleVolume = fluidParticleSystem.getParticleVolume();
+			const float density0 = fluidParticleSystem.getRestDensity();
+			const std::vector<Storm::ParticleNeighborhoodArray> &neighborhoodArrays = fluidParticleSystem.getNeighborhoodArrays();
 
-			//  Sum_j(||mj x GradWij||²)
-			float sumGradWijSquared = 0.f;
-
-			// Those temp factor aren't equivalent : |a|² + |b|² + |c|² + ... |n|²  is not equal to (|a + b + c + ... + n|)² 
-
-			const Storm::ParticleNeighborhoodArray &currentPNeighborhood = neighborhoodArrays[currentPIndex];
-			for (const Storm::NeighborParticleInfo &neighborInfo : currentPNeighborhood)
+			Storm::runParallel(fluidParticleSystem.getDensities(), [&](float &currentPDensity, const std::size_t currentPIndex)
 			{
-				const float kernelValue_Wij = rawKernel(iterationParameter._kernelLength, neighborInfo._vectToParticleNorm);
-				Storm::Vector3 added = gradKernel(iterationParameter._kernelLength, neighborInfo._positionDifferenceVector, neighborInfo._vectToParticleNorm);
+				// Density
+				currentPDensity = particleVolume * k_kernelZero;
 
-				float deltaDensity;
-				if (neighborInfo._isFluidParticle)
+				const Storm::ParticleNeighborhoodArray &currentPNeighborhood = neighborhoodArrays[currentPIndex];
+				for (const Storm::NeighborParticleInfo &neighbor : currentPNeighborhood)
 				{
-					const Storm::FluidParticleSystem &neighborPSystemAsFluid = static_cast<const Storm::FluidParticleSystem &>(*neighborInfo._containingParticleSystem);
-					deltaDensity = neighborPSystemAsFluid.getParticleVolume() * kernelValue_Wij;
-
-					added *= neighborPSystemAsFluid.getParticleVolume();
+					const float kernelValue_Wij = rawKernel(iterationParameter._kernelLength, neighbor._vectToParticleNorm);
+					float deltaDensity;
+					if (neighbor._isFluidParticle)
+					{
+						deltaDensity = static_cast<Storm::FluidParticleSystem*>(neighbor._containingParticleSystem)->getParticleVolume() * kernelValue_Wij;
+					}
+					else
+					{
+						deltaDensity = static_cast<Storm::RigidBodyParticleSystem*>(neighbor._containingParticleSystem)->getVolumes()[neighbor._particleIndex] * kernelValue_Wij;
+					}
+					currentPDensity += deltaDensity;
 				}
-				else
-				{
-					const Storm::RigidBodyParticleSystem &neighborPSystemAsRb = static_cast<const Storm::RigidBodyParticleSystem &>(*neighborInfo._containingParticleSystem);
-					deltaDensity = neighborPSystemAsRb.getVolumes()[neighborInfo._particleIndex] * kernelValue_Wij;
 
-					added *= neighborPSystemAsRb.getVolumes()[neighborInfo._particleIndex];
-				}
-
-				currentPDensity += deltaDensity;
-
-				sumSquaredGradWij += added;
-				sumGradWijSquared += added.squaredNorm();
-			}
-
-			// Volume * density is mass...
-			currentPDensity *= density0;
-
-			Storm::DFSPHSolverData &currentPData = dataFieldPair.second[currentPIndex];
-			currentPData._kCoeff = sumSquaredGradWij.squaredNorm() + sumGradWijSquared;
-			currentPData._predictedDensity = currentPDensity;
-		});
+				// Volume * density is mass...
+				currentPDensity *= density0;
+			});
+		}
 	}
 
-	// 2nd : Compute the non pressure forces (viscosity)
+	// 4th : Compute k_dfsph coeff
+	for (auto &dataFieldPair : _data)
+	{
+		this->computeDFSPHFactor(
+			iterationParameter,
+			static_cast<Storm::FluidParticleSystem &>(*particleSystems.find(dataFieldPair.first)->second), // Since data field was made from fluid particles, no need to check.
+			dataFieldPair.second
+		);
+	}
+
+	// 5th : Divergence solve
+	unsigned int iterationV;
+	float averageErrorV;
+	if (_enableDivergenceSolve)
+	{
+		this->divergenceSolve(iterationParameter, iterationV, averageErrorV);
+	}
+	else
+	{
+		iterationV = 0;
+		averageErrorV = 0.f;
+	}
+
+	this->updateCurrentPredictionIter(iterationV, generalSimulConfig._maxPredictIteration, averageErrorV, generalSimulConfig._maxDensityError, 0);
+
+	// 7th : Compute the non pressure forces (viscosity)
+	// Compute accelerations: a(t)
 	for (auto &particleSystemPair : particleSystems)
 	{
 		Storm::ParticleSystem &currentParticleSystem = *particleSystemPair.second;
@@ -173,8 +207,9 @@ void Storm::DFSPHSolver::execute(const Storm::IterationParameter &iterationParam
 
 			const float density0 = fluidParticleSystem.getRestDensity();
 			const float density0Squared = density0 * density0;
+			const float particleVolume = fluidParticleSystem.getParticleVolume();
 			const std::vector<Storm::ParticleNeighborhoodArray> &neighborhoodArrays = currentParticleSystem.getNeighborhoodArrays();
-			const std::vector<float> &masses = fluidParticleSystem.getMasses();
+			std::vector<float> &masses = fluidParticleSystem.getMasses();
 			const std::vector<float> &densities = fluidParticleSystem.getDensities();
 			std::vector<Storm::Vector3> &temporaryPViscoForces = fluidParticleSystem.getTemporaryViscosityForces();
 
@@ -182,13 +217,15 @@ void Storm::DFSPHSolver::execute(const Storm::IterationParameter &iterationParam
 
 			const float viscoPrecoeff = 0.01f * k_kernelLengthSquared;
 
-			std::vector<Storm::DFSPHSolverData> &dataField = _data.find(particleSystemPair.first)->second;
+			Storm::DFSPHSolver::DFSPHSolverDataArray &dataField = _data.find(particleSystemPair.first)->second;
 
 			Storm::runParallel(fluidParticleSystem.getForces(), [&](Storm::Vector3 &currentPForce, const std::size_t currentPIndex)
 			{
-				const float currentPMass = masses[currentPIndex];
+				float &currentPMass = masses[currentPIndex];
 				const float currentPDensity = densities[currentPIndex];
 				const Storm::Vector3 &vi = velocities[currentPIndex];
+
+				currentPMass = particleVolume * currentPDensity;
 
 				const float restMassDensity = currentPMass * density0;
 
@@ -262,189 +299,557 @@ void Storm::DFSPHSolver::execute(const Storm::IterationParameter &iterationParam
 				Storm::DFSPHSolverData &currentPDataField = dataField[currentPIndex];
 
 				currentPDataField._nonPressureAcceleration = currentPForce / currentPMass;
-				currentPDataField._predictedAcceleration = currentPDataField._nonPressureAcceleration;
 				currentPDataField._predictedVelocity = vi + currentPDataField._nonPressureAcceleration * iterationParameter._deltaTime;
+
+				// Note : Maybe we should also compute a prediction of the position ?
 			});
 		}
 	}
 
-	// 3rd : correct density error
-	unsigned int densitySolvePredictionIter = 0;
-	float averageDensityError = 0.f;
-	std::atomic<float> avgDensityAtom;
+	// 8th : TODO : CFL
+	// ...
 
-	do
-	{
-		// 3-1 : Compute predicted density
-		for (auto &dataFieldPair : _data)
-		{
-			// Since data field was made from fluids particles only, no need to check if this is a fluid.
-			Storm::FluidParticleSystem &fluidParticleSystem = static_cast<Storm::FluidParticleSystem &>(*particleSystems.find(dataFieldPair.first)->second);
-			std::vector<float> &densities = fluidParticleSystem.getDensities();
-			const std::vector<Storm::ParticleNeighborhoodArray> &neighborhoodArrays = fluidParticleSystem.getNeighborhoodArrays();
+	// 9th : update velocities
 
-			Storm::runParallel(dataFieldPair.second, [&](Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex) 
-			{
-				float &currentPLastDensity = densities[currentPIndex];
-				const Storm::ParticleNeighborhoodArray &currentPNeighborhood = neighborhoodArrays[currentPIndex];
-
-				const std::vector<Storm::DFSPHSolverData>* neighborDataArray = &dataFieldPair.second;
-				const Storm::FluidParticleSystem* lastNeighborFluidSystem = &fluidParticleSystem;
-
-				const Storm::Vector3 &currentPPredictedVelocity = currentPData._predictedVelocity;
-
-				currentPData._predictedDensity = 0.f;
-
-				for (const Storm::NeighborParticleInfo &neighbor : currentPNeighborhood)
-				{
-					const Storm::Vector3 gradWij = gradKernel(iterationParameter._kernelLength, neighbor._positionDifferenceVector, neighbor._vectToParticleNorm);
-
-					if (neighbor._isFluidParticle)
-					{
-						if (neighbor._containingParticleSystem != lastNeighborFluidSystem)
-						{
-							lastNeighborFluidSystem = static_cast<const Storm::FluidParticleSystem*>(neighbor._containingParticleSystem);
-							neighborDataArray = &_data.find(lastNeighborFluidSystem->getId())->second;
-						}
-
-						const Storm::DFSPHSolverData &neighborData = (*neighborDataArray)[currentPIndex];
-						const Storm::Vector3 &neighborPredictedVelocity = neighborData._predictedVelocity;
-
-						currentPData._predictedDensity += lastNeighborFluidSystem->getParticleVolume() * (currentPPredictedVelocity - neighborPredictedVelocity).dot(gradWij);
-					}
-					else
-					{
-						const Storm::RigidBodyParticleSystem &lastNeighborPSystemAsRb = static_cast<const Storm::RigidBodyParticleSystem &>(*neighbor._containingParticleSystem);
-
-						const Storm::Vector3 &neighborPredictedVelocity = lastNeighborPSystemAsRb.getVelocity()[currentPIndex];
-
-						currentPData._predictedDensity += lastNeighborPSystemAsRb.getVolumes()[currentPIndex] * (currentPPredictedVelocity - neighborPredictedVelocity).dot(gradWij);
-					}
-				}
-
-				currentPData._predictedDensity *= iterationParameter._deltaTime;
-				currentPData._predictedDensity += currentPLastDensity;
-			});
-		}
-
-		avgDensityAtom = 0.f;
-
-		// 3-2 : Compute predicted velocity from predicted density + init for next time
-		for (auto &dataFieldPair : _data)
-		{
-			// Since data field was made from fluids particles only, no need to check if this is a fluid.
-			Storm::FluidParticleSystem &fluidParticleSystem = static_cast<Storm::FluidParticleSystem &>(*particleSystems.find(dataFieldPair.first)->second);
-			std::vector<float> &densities = fluidParticleSystem.getDensities();
-			const std::vector<Storm::ParticleNeighborhoodArray> &neighborhoodArrays = fluidParticleSystem.getNeighborhoodArrays();
-
-			const float density0 = fluidParticleSystem.getRestDensity();
-
-			Storm::runParallel(dataFieldPair.second, [&](Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex)
-			{
-				float &currentPLastDensity = densities[currentPIndex];
-				const Storm::ParticleNeighborhoodArray &currentPNeighborhood = neighborhoodArrays[currentPIndex];
-
-				const std::vector<Storm::DFSPHSolverData>* neighborDataArray = &dataFieldPair.second;
-				const Storm::FluidParticleSystem* lastNeighborFluidSystem = &fluidParticleSystem;
-
-				currentPLastDensity = currentPData._predictedDensity;
-
-				const float currentPRelativeDensity = currentPData._predictedDensity - density0;
-
-				// Divide by rest density to make it uniform (many fluids have their own rest density, therefore we should remove the rest density dependency).
-				const float avgDensityAdded = currentPRelativeDensity / (_totalParticleCountFl * density0);
-				avgDensityAtom += avgDensityAdded;
-
-				const float currentPPredictedPressure = currentPRelativeDensity * currentPData._kCoeff;
-				const float currentPPredictedPressureCoeff = currentPPredictedPressure / (currentPData._predictedDensity * currentPData._predictedDensity);
-
-				Storm::Vector3 sumTmp = Storm::Vector3::Zero();
-
-				for (const Storm::NeighborParticleInfo &neighbor : currentPNeighborhood)
-				{
-					const Storm::Vector3 gradWij = gradKernel(iterationParameter._kernelLength, neighbor._positionDifferenceVector, neighbor._vectToParticleNorm);
-
-					float coeff;
-					if (neighbor._isFluidParticle)
-					{
-						if (neighbor._containingParticleSystem != lastNeighborFluidSystem)
-						{
-							lastNeighborFluidSystem = static_cast<const Storm::FluidParticleSystem*>(neighbor._containingParticleSystem);
-							neighborDataArray = &_data.find(lastNeighborFluidSystem->getId())->second;
-						}
-
-						const Storm::DFSPHSolverData &neighborData = (*neighborDataArray)[currentPIndex];
-
-						const float neighborPPredictedPressure = (neighborData._predictedDensity - density0) * neighborData._kCoeff;
-						const float neighborPPredictedPressureCoeff = neighborPPredictedPressure / (neighborData._predictedDensity * neighborData._predictedDensity);
-
-						coeff = lastNeighborFluidSystem->getMasses()[neighbor._particleIndex] * (currentPPredictedPressureCoeff + neighborPPredictedPressureCoeff);
-					}
-					else
-					{
-						const Storm::RigidBodyParticleSystem &lastNeighborPSystemAsRb = static_cast<const Storm::RigidBodyParticleSystem &>(*neighbor._containingParticleSystem);
-
-						// ???
-						coeff = lastNeighborPSystemAsRb.getVolumes()[neighbor._particleIndex] * density0 * 2.f * currentPPredictedPressureCoeff;
-					}
-
-					sumTmp += coeff * gradWij;
-				}
-
-				sumTmp /= iterationParameter._deltaTime;
-
-				currentPData._predictedVelocity -= sumTmp;
-			});
-		}
-
-		averageDensityError = std::fabs(avgDensityAtom);
-		++densitySolvePredictionIter;
-
-	} while (densitySolvePredictionIter < generalSimulData._minPredictIteration || (densitySolvePredictionIter < generalSimulData._maxPredictIteration && averageDensityError > generalSimulData._maxDensityError));
-
-	this->updateCurrentPredictionIter(densitySolvePredictionIter, generalSimulData._maxPredictIteration, averageDensityError, generalSimulData._maxDensityError, 0);
-
-	// 3-3 : Apply position changes.
+	// compute new velocities only considering non-pressure forces
 	for (auto &dataFieldPair : _data)
 	{
-		// Since data field was made from fluids particles only, no need to check if this is a fluid.
-		Storm::FluidParticleSystem &fluidParticleSystem = static_cast<Storm::FluidParticleSystem &>(*particleSystems.find(dataFieldPair.first)->second);
-		std::vector<Storm::Vector3> &positions = fluidParticleSystem.getPositions();
+		// Since data field was made from fluid particles, no need to check.
+		Storm::FluidParticleSystem &fluidPSystem = static_cast<Storm::FluidParticleSystem &>(*particleSystems.find(dataFieldPair.first)->second);
 
-		Storm::runParallel(dataFieldPair.second, [&](Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex)
+		const std::vector<Storm::Vector3> &velocities = fluidPSystem.getVelocity();
+
+		Storm::runParallel(dataFieldPair.second, [&velocities, &iterationParameter](Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex)
 		{
-			positions[currentPIndex] += iterationParameter._deltaTime * currentPData._predictedVelocity;
+			currentPData._predictedVelocity = velocities[currentPIndex] + iterationParameter._deltaTime * currentPData._nonPressureAcceleration;
 		});
 	}
 
-	Storm::SimulatorManager::instance().refreshParticleNeighborhood();
+	// 10th : Solve pressure
+	unsigned int iteration;
+	float averageError;
+	this->pressureSolve(iterationParameter, iteration, averageError);
 
-	// ?th : correct divergence error
-	unsigned int divergenceSolvePredictionIter = 0;
-	float averageDivergenceError = 0.f;
+	this->updateCurrentPredictionIter(iteration, generalSimulConfig._maxPredictIteration, averageError, generalSimulConfig._maxDensityError, 1);
 
-	do
-	{
-		// TODO
+	///////////////////////////////////////////////////
 
-		++divergenceSolvePredictionIter;
-	} while (divergenceSolvePredictionIter < generalSimulData._minPredictIteration || (divergenceSolvePredictionIter < generalSimulData._maxPredictIteration && averageDivergenceError > generalSimulData._maxDensityError));
-
-	this->updateCurrentPredictionIter(divergenceSolvePredictionIter, generalSimulData._maxPredictIteration, averageDivergenceError, generalSimulData._maxDensityError, 1);
-
+	// 11th : compute final positions
 	this->transfertEndDataToSystems(particleSystems, iterationParameter, &_data, [](void* data, const unsigned int pSystemId, Storm::FluidParticleSystem &fluidParticleSystem, const Storm::IterationParameter &iterationParameter)
 	{
 		auto &dataField = reinterpret_cast<decltype(_data)*>(data)->find(pSystemId)->second;
 
 		const std::vector<float> &masses = fluidParticleSystem.getMasses();
 		std::vector<Storm::Vector3> &forces = fluidParticleSystem.getForces();
+		std::vector<Storm::Vector3> &velocities = fluidParticleSystem.getVelocity();
+		std::vector<Storm::Vector3> &positions = fluidParticleSystem.getPositions();
 		std::vector<Storm::Vector3> &tmpPressureForces = fluidParticleSystem.getTemporaryPressureForces();
 
-		Storm::runParallel(dataField, [&masses, &forces, &tmpPressureForces](const Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex)
+		std::atomic<bool> dirtyTmp = false;
+		constexpr const float minForceDirtyEpsilon = 0.0001f;
+
+		Storm::runParallel(dataField, [&](const Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex)
 		{
 			const float currentPMass = masses[currentPIndex];
-			forces[currentPIndex] = currentPData._predictedAcceleration * currentPMass;
-			tmpPressureForces[currentPIndex] = (currentPData._predictedAcceleration - currentPData._nonPressureAcceleration) * currentPMass;
+
+			/*forces[currentPIndex] = currentPData._predictedAcceleration * currentPMass;
+			tmpPressureForces[currentPIndex] = (currentPData._predictedAcceleration - currentPData._nonPressureAcceleration) * currentPMass;*/
+
+			// Euler integration
+			Storm::Vector3 &currentPVelocity = velocities[currentPIndex];
+			Storm::Vector3 &currentPPositions = positions[currentPIndex];
+
+			currentPVelocity = currentPData._predictedVelocity;
+			currentPPositions += currentPVelocity * iterationParameter._deltaTime;
+
+			if (!dirtyTmp)
+			{
+				if (
+					std::fabs(currentPVelocity.x()) > minForceDirtyEpsilon ||
+					std::fabs(currentPVelocity.y()) > minForceDirtyEpsilon ||
+					std::fabs(currentPVelocity.z()) > minForceDirtyEpsilon
+					)
+				{
+					dirtyTmp = true;
+				}
+			}
 		});
+
+		fluidParticleSystem.setIsDirty(dirtyTmp);
 	});
+
+	// 12th : flush physics state (rigid bodies)
+	simulMgr.flushPhysics(iterationParameter._deltaTime);
+}
+
+void Storm::DFSPHSolver::divergenceSolve(const Storm::IterationParameter &iterationParameter, unsigned int &outIteration, float &outAverageError)
+{
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
+
+	const Storm::GeneralSimulationData &generalSimulConfig = configMgr.getGeneralSimulationData();
+
+	const Storm::GradKernelMethodDelegate gradKernel = Storm::retrieveGradKernelMethod(generalSimulConfig._kernelMode);
+
+	Storm::SimulatorManager &simulMgr = Storm::SimulatorManager::instance();
+
+	Storm::ParticleSystemContainer &particleSystems = *iterationParameter._particleSystems;
+
+	//////////////////////////////////////////////////////////////////////////
+	// Init parameters
+	//////////////////////////////////////////////////////////////////////////
+
+	const float invertDeltaTime = 1.f / iterationParameter._deltaTime;
+
+	const unsigned int minIter = generalSimulConfig._minPredictIteration;
+	const unsigned int maxIter = generalSimulConfig._maxPredictIteration;
+	const float maxError = generalSimulConfig._maxDensityError;
+
+	//////////////////////////////////////////////////////////////////////////
+	// Compute velocity of density change
+	//////////////////////////////////////////////////////////////////////////
+	for (auto &dataFieldPair : _data)
+	{
+		// Since data field was made from fluid particles, no need to check.
+		Storm::FluidParticleSystem &fluidPSystem = static_cast<Storm::FluidParticleSystem &>(*particleSystems.find(dataFieldPair.first)->second);
+		Storm::runParallel(dataFieldPair.second, [this, &iterationParameter, &fluidPSystem, &dataFieldPair, invertDeltaTime](Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex)
+		{
+			this->computeDensityChange(iterationParameter, fluidPSystem, &dataFieldPair.second, currentPData, currentPIndex);
+			currentPData._kCoeff *= invertDeltaTime;
+		});
+	}
+
+	outIteration = 0;
+
+	//////////////////////////////////////////////////////////////////////////
+	// Start solver
+	//////////////////////////////////////////////////////////////////////////
+
+	bool chk;
+
+	constexpr const float k_epsilon = 0.00001f;
+
+	do
+	{
+		outAverageError = 0.f;
+
+		chk = true;
+
+		std::atomic<float> avgDensityErrAtom;
+		for (auto &dataFieldPair : _data)
+		{
+			// Since data field was made from fluid particles, no need to check.
+			Storm::FluidParticleSystem &fluidPSystem = static_cast<Storm::FluidParticleSystem &>(*particleSystems.find(dataFieldPair.first)->second);
+			
+			const std::vector<float> &masses = fluidPSystem.getMasses();
+			const std::vector<Storm::ParticleNeighborhoodArray> &neighborhoodArrays = fluidPSystem.getNeighborhoodArrays();
+
+			const float density0 = fluidPSystem.getRestDensity();
+			avgDensityErrAtom = 0.f;
+
+			float density_error = 0.f;
+
+			Storm::runParallel(dataFieldPair.second, [&](Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex)
+			{
+				const float currentPMass = masses[currentPIndex];
+
+				//////////////////////////////////////////////////////////////////////////
+				// Evaluate rhs
+				//////////////////////////////////////////////////////////////////////////
+				const float b_i = currentPData._predictedDensity;
+				const float ki = b_i * currentPData._kCoeff;
+
+				Storm::Vector3 &v_i = currentPData._predictedVelocity;
+
+				const Storm::DFSPHSolver::DFSPHSolverDataArray* neighborDataArray = &dataFieldPair.second;
+				const Storm::FluidParticleSystem* lastNeighborFluidSystem = &fluidPSystem;
+
+				//////////////////////////////////////////////////////////////////////////
+				// Perform Jacobi iteration over all blocks
+				//////////////////////////////////////////////////////////////////////////	
+				const Storm::ParticleNeighborhoodArray &currentPNeighborhood = neighborhoodArrays[currentPIndex];
+				for (const Storm::NeighborParticleInfo &neighbor : currentPNeighborhood)
+				{
+					const Storm::Vector3 gradWij = gradKernel(iterationParameter._kernelLength, neighbor._positionDifferenceVector, neighbor._vectToParticleNorm);
+					if (neighbor._isFluidParticle)
+					{
+						if (neighbor._containingParticleSystem != lastNeighborFluidSystem)
+						{
+							lastNeighborFluidSystem = static_cast<const Storm::FluidParticleSystem*>(neighbor._containingParticleSystem);
+							neighborDataArray = &_data.find(lastNeighborFluidSystem->getId())->second;
+						}
+
+						const Storm::DFSPHSolverData &neighborData = (*neighborDataArray)[neighbor._particleIndex];
+
+						const float b_j = neighborData._predictedDensity;
+						const float kj = b_j * neighborData._kCoeff;
+
+						const float kSum = ki + lastNeighborFluidSystem->getRestDensity() / density0 * kj;
+						if (std::fabs(kSum) > k_epsilon)
+						{
+							const Storm::Vector3 grad_p_j = -lastNeighborFluidSystem->getParticleVolume() * gradWij;
+							v_i -= iterationParameter._deltaTime * kSum * grad_p_j;			// ki, kj already contain inverse density
+						}
+					}
+					else if (std::fabs(ki) > k_epsilon)
+					{
+						const Storm::RigidBodyParticleSystem* neighborPSystemAsBoundary = static_cast<const Storm::RigidBodyParticleSystem*>(neighbor._containingParticleSystem);
+
+						const Storm::Vector3 grad_p_j = -neighborPSystemAsBoundary->getVolumes()[neighbor._particleIndex] * gradWij;
+						const Storm::Vector3 velChange = -iterationParameter._deltaTime * 1.f * ki * grad_p_j;				// kj already contains inverse density
+						v_i += velChange;
+
+						// TODO : replicate force on rb
+						//bm_neighbor->addForce(xj, -currentPMass * velChange * invertDeltaTime);
+					}
+				}
+			});
+
+			//////////////////////////////////////////////////////////////////////////
+			// Update rho_adv and density error
+			//////////////////////////////////////////////////////////////////////////
+			Storm::runParallel(dataFieldPair.second, [&](Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex)
+			{
+				this->computeDensityChange(iterationParameter, fluidPSystem, &dataFieldPair.second, currentPData, currentPIndex);
+				avgDensityErrAtom += density0 * currentPData._predictedDensity;
+			});
+
+			avgDensityErrAtom = avgDensityErrAtom / _totalParticleCountFl;
+
+			// Maximal allowed density fluctuation
+			// use maximal density error divided by time step size
+			const float eta = invertDeltaTime * maxError * 0.01f * density0;  // maxError is given in percent
+			chk = chk && (avgDensityErrAtom <= eta);
+
+			outAverageError += avgDensityErrAtom;
+		}
+
+		outAverageError /= _totalParticleCountFl;
+
+		++outIteration;
+	} while ((!chk || (outIteration < minIter)) && (outIteration < maxIter));
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// Multiply by h, the time step size has to be removed 
+	// to make the stiffness value independent 
+	// of the time step size
+	//////////////////////////////////////////////////////////////////////////
+	for (auto &dataFieldPair : _data)
+	{
+		// Since data field was made from fluid particles, no need to check.
+		Storm::runParallel(dataFieldPair.second, [&iterationParameter](Storm::DFSPHSolverData &currentPData)
+		{
+			currentPData._kCoeff *= iterationParameter._deltaTime;
+		});
+	}
+}
+
+void Storm::DFSPHSolver::pressureSolve(const Storm::IterationParameter &iterationParameter, unsigned int &outIteration, float &outAverageError)
+{
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
+
+	const Storm::GeneralSimulationData &generalSimulConfig = configMgr.getGeneralSimulationData();
+
+	const Storm::GradKernelMethodDelegate gradKernel = Storm::retrieveGradKernelMethod(generalSimulConfig._kernelMode);
+
+	Storm::SimulatorManager &simulMgr = Storm::SimulatorManager::instance();
+
+	Storm::ParticleSystemContainer &particleSystems = *iterationParameter._particleSystems;
+
+	const unsigned int minIter = generalSimulConfig._minPredictIteration;
+	const unsigned int maxIter = generalSimulConfig._maxPredictIteration;
+	const float maxError = generalSimulConfig._maxDensityError;
+
+	const float deltaTimeSquared = iterationParameter._deltaTime * iterationParameter._deltaTime;
+	const float invDeltaTime = 1.f / iterationParameter._deltaTime;
+	const float invDeltaTimeSquared = 1.f / deltaTimeSquared;
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// Compute rho_adv
+	//////////////////////////////////////////////////////////////////////////
+	for (auto &dataFieldPair : _data)
+	{
+		// Since data field was made from fluid particles, no need to check.
+		Storm::FluidParticleSystem &fluidPSystem = static_cast<Storm::FluidParticleSystem &>(*particleSystems.find(dataFieldPair.first)->second);
+		Storm::runParallel(dataFieldPair.second, [this, &iterationParameter, &fluidPSystem, &dataFieldPair, invDeltaTimeSquared](Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex)
+		{
+			this->computeDensityAdv(iterationParameter, fluidPSystem, &dataFieldPair.second, currentPData, currentPIndex);
+			currentPData._kCoeff *= invDeltaTimeSquared;
+		});
+	}
+
+	outIteration = 0;
+
+	//////////////////////////////////////////////////////////////////////////
+	// Start solver
+	//////////////////////////////////////////////////////////////////////////
+
+	float avg_density_err = 0.f;
+	bool chk;
+
+	constexpr const float k_epsilon = 0.00001f;
+
+	do
+	{
+		chk = true;
+
+		for (auto &dataFieldPair : _data)
+		{
+			avg_density_err = 0.f;
+
+			// Since data field was made from fluid particles, no need to check.
+			Storm::FluidParticleSystem &fluidPSystem = static_cast<Storm::FluidParticleSystem &>(*particleSystems.find(dataFieldPair.first)->second);
+
+			const float density0 = fluidPSystem.getRestDensity();
+
+			float density_error = 0.f;
+
+			const std::vector<float> &masses = fluidPSystem.getMasses();
+			const std::vector<Storm::ParticleNeighborhoodArray> &neighborhoodArrays = fluidPSystem.getNeighborhoodArrays();
+
+			//////////////////////////////////////////////////////////////////////////
+			// Compute pressure forces
+			//////////////////////////////////////////////////////////////////////////
+			Storm::runParallel(dataFieldPair.second, [&](Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex)
+			{
+				const float currentPMass = masses[currentPIndex];
+
+				//////////////////////////////////////////////////////////////////////////
+				// Evaluate rhs
+				//////////////////////////////////////////////////////////////////////////
+				const float b_i = currentPData._predictedDensity - 1.f;
+				const float ki = b_i * currentPData._kCoeff;
+
+				Storm::Vector3 &v_i = currentPData._predictedVelocity;
+
+				const Storm::DFSPHSolver::DFSPHSolverDataArray* neighborDataArray = &dataFieldPair.second;
+				const Storm::FluidParticleSystem* lastNeighborFluidSystem = &fluidPSystem;
+
+				const Storm::ParticleNeighborhoodArray &currentPNeighborhood = neighborhoodArrays[currentPIndex];
+				for (const Storm::NeighborParticleInfo &neighbor : currentPNeighborhood)
+				{
+					const Storm::Vector3 gradWij = gradKernel(iterationParameter._kernelLength, neighbor._positionDifferenceVector, neighbor._vectToParticleNorm);
+					if (neighbor._isFluidParticle)
+					{
+						if (neighbor._containingParticleSystem != lastNeighborFluidSystem)
+						{
+							lastNeighborFluidSystem = static_cast<const Storm::FluidParticleSystem*>(neighbor._containingParticleSystem);
+							neighborDataArray = &_data.find(lastNeighborFluidSystem->getId())->second;
+						}
+
+						const Storm::DFSPHSolverData &neighborData = (*neighborDataArray)[neighbor._particleIndex];
+
+						const float b_j = neighborData._predictedDensity - 1.f;
+						const float kj = b_j * neighborData._kCoeff;
+						const float kSum = ki + lastNeighborFluidSystem->getRestDensity() / density0 * kj;
+						if (std::fabs(kSum) > k_epsilon)
+						{
+							const Storm::Vector3 grad_p_j = -lastNeighborFluidSystem->getParticleVolume() * gradWij;
+
+							// Directly update velocities instead of storing pressure accelerations
+							v_i -= iterationParameter._deltaTime * kSum * grad_p_j;			// ki, kj already contain inverse density						
+						}
+					}
+					else if (std::fabs(ki) > k_epsilon)
+					{
+						const Storm::RigidBodyParticleSystem* neighborPSystemAsBoundary = static_cast<const Storm::RigidBodyParticleSystem*>(neighbor._containingParticleSystem);
+
+						const Storm::Vector3 grad_p_j = -neighborPSystemAsBoundary->getVolumes()[neighbor._particleIndex] * gradWij;
+
+						// Directly update velocities instead of storing pressure accelerations
+						const Storm::Vector3 velChange = -iterationParameter._deltaTime * 1.f * ki * grad_p_j;				// kj already contains inverse density
+						v_i += velChange;
+
+						// TODO : replicate force on rb
+						//bm_neighbor->addForce(xj, -currentPMass * velChange * invDeltaTime);
+					}
+				}
+			});
+
+			//////////////////////////////////////////////////////////////////////////
+			// Update rho_adv and density error
+			//////////////////////////////////////////////////////////////////////////
+			Storm::runParallel(dataFieldPair.second, [&](Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex)
+			{
+				this->computeDensityAdv(iterationParameter, fluidPSystem, &dataFieldPair.second, currentPData, currentPIndex);
+				density_error += density0 * currentPData._predictedDensity - density0;
+			});
+
+			avg_density_err = density_error / _totalParticleCountFl;
+
+			// Maximal allowed density fluctuation
+			const float eta = maxError * 0.01f * density0;  // maxError is given in percent
+			chk = chk && (avg_density_err <= eta);
+		}
+
+		++outIteration;
+	} while ((!chk || (outIteration < minIter)) && (outIteration < maxIter));
+}
+
+void Storm::DFSPHSolver::computeDFSPHFactor(const Storm::IterationParameter &iterationParameter, Storm::FluidParticleSystem &fluidPSystem, Storm::DFSPHSolver::DFSPHSolverDataArray &pSystemData)
+{
+	//////////////////////////////////////////////////////////////////////////
+	// Init parameters
+	//////////////////////////////////////////////////////////////////////////
+
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
+
+	const Storm::GeneralSimulationData &generalSimulConfig = configMgr.getGeneralSimulationData();
+
+	const Storm::GradKernelMethodDelegate gradKernel = Storm::retrieveGradKernelMethod(generalSimulConfig._kernelMode);
+
+	const std::vector<Storm::ParticleNeighborhoodArray> &neighborhoodArrays = fluidPSystem.getNeighborhoodArrays();
+
+	constexpr const float k_epsilon = 0.00001f;
+
+	//////////////////////////////////////////////////////////////////////////
+	// Compute pressure stiffness denominator
+	//////////////////////////////////////////////////////////////////////////
+	Storm::runParallel(pSystemData, [&iterationParameter, &gradKernel, &neighborhoodArrays](Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex)
+	{
+		const Storm::ParticleNeighborhoodArray &currentPNeighborhood = neighborhoodArrays[currentPIndex];
+
+		//////////////////////////////////////////////////////////////////////////
+		// Compute gradient dp_i/dx_j * (1/k)  and dp_j/dx_j * (1/k)
+		//////////////////////////////////////////////////////////////////////////
+		float sum_grad_p_k = 0.f;
+		Storm::Vector3 grad_p_i = Storm::Vector3::Zero();
+
+		for (const Storm::NeighborParticleInfo &neighbor : currentPNeighborhood)
+		{
+			const Storm::Vector3 gradWij = gradKernel(iterationParameter._kernelLength, neighbor._positionDifferenceVector, neighbor._vectToParticleNorm);
+			if (neighbor._isFluidParticle)
+			{
+				const Storm::FluidParticleSystem* neighborPSystemAsFluid = static_cast<const Storm::FluidParticleSystem*>(neighbor._containingParticleSystem);
+				const Storm::Vector3 grad_p_j = -neighborPSystemAsFluid->getParticleVolume() * gradWij;
+				sum_grad_p_k += grad_p_j.squaredNorm();
+				grad_p_i -= grad_p_j;
+			}
+			else
+			{
+				const Storm::RigidBodyParticleSystem* neighborPSystemAsBoundary = static_cast<const Storm::RigidBodyParticleSystem*>(neighbor._containingParticleSystem);
+				const Storm::Vector3 grad_p_j = -neighborPSystemAsBoundary->getVolumes()[neighbor._particleIndex] * gradWij;
+				grad_p_i -= grad_p_j;
+			}
+		}
+
+		sum_grad_p_k += grad_p_i.squaredNorm();
+
+		//////////////////////////////////////////////////////////////////////////
+		// Compute pressure stiffness denominator
+		//////////////////////////////////////////////////////////////////////////
+		if (sum_grad_p_k > k_epsilon)
+		{
+			currentPData._kCoeff = -1.f / sum_grad_p_k;
+		}
+		else
+		{
+			currentPData._kCoeff = 0.f;
+		}
+	});
+}
+
+void Storm::DFSPHSolver::computeDensityAdv(const Storm::IterationParameter &iterationParameter, Storm::FluidParticleSystem &fluidPSystem, const Storm::DFSPHSolver::DFSPHSolverDataArray* currentSystemData, Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex)
+{
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
+
+	const Storm::GeneralSimulationData &generalSimulConfig = configMgr.getGeneralSimulationData();
+
+	const Storm::GradKernelMethodDelegate gradKernel = Storm::retrieveGradKernelMethod(generalSimulConfig._kernelMode);
+
+	const float density = fluidPSystem.getDensities()[currentPIndex];
+	float &densityAdv = currentPData._predictedDensity;
+
+	const float density0 = fluidPSystem.getRestDensity();
+
+	const Storm::ParticleNeighborhoodArray &currentPNeighborhood = fluidPSystem.getNeighborhoodArrays()[currentPIndex];
+
+	const Storm::Vector3 &vi = currentPData._predictedVelocity;
+
+	const Storm::DFSPHSolver::DFSPHSolverDataArray* neighborDataArray = currentSystemData;
+	const Storm::FluidParticleSystem* lastNeighborFluidSystem = &fluidPSystem;
+
+	float delta = 0.f;
+	for (const Storm::NeighborParticleInfo &neighbor : currentPNeighborhood)
+	{
+		const Storm::Vector3 gradWij = gradKernel(iterationParameter._kernelLength, neighbor._positionDifferenceVector, neighbor._vectToParticleNorm);
+		if (neighbor._isFluidParticle)
+		{
+			if (neighbor._containingParticleSystem != lastNeighborFluidSystem)
+			{
+				lastNeighborFluidSystem = static_cast<const Storm::FluidParticleSystem*>(neighbor._containingParticleSystem);
+				neighborDataArray = &_data.find(lastNeighborFluidSystem->getId())->second;
+			}
+
+			const Storm::DFSPHSolverData &neighborData = (*neighborDataArray)[neighbor._particleIndex];
+
+			const Storm::Vector3 &vj = neighborData._predictedVelocity;
+			delta += lastNeighborFluidSystem->getParticleVolume() * (vi - vj).dot(gradWij);
+		}
+		else
+		{
+			const Storm::RigidBodyParticleSystem* neighborPSystemAsBoundary = static_cast<const Storm::RigidBodyParticleSystem*>(neighbor._containingParticleSystem);
+			const Storm::Vector3 &vj = neighborPSystemAsBoundary->getVelocity()[neighbor._particleIndex];
+			delta += neighborPSystemAsBoundary->getVolumes()[neighbor._particleIndex] * (vi - vj).dot(gradWij);
+		}
+	}
+
+	densityAdv = density / density0 + iterationParameter._deltaTime * delta;
+	densityAdv = std::max(densityAdv, 1.f);
+}
+
+void Storm::DFSPHSolver::computeDensityChange(const Storm::IterationParameter &iterationParameter, Storm::FluidParticleSystem &fluidPSystem, const Storm::DFSPHSolver::DFSPHSolverDataArray* currentSystemData, Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex)
+{
+	const Storm::ParticleNeighborhoodArray &currentPNeighborhood = fluidPSystem.getNeighborhoodArrays()[currentPIndex];
+
+	// in case of particle deficiency do not perform a divergence solve
+	if (currentPNeighborhood.size() >= 20)
+	{
+		const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+		const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
+
+		const Storm::GeneralSimulationData &generalSimulConfig = configMgr.getGeneralSimulationData();
+
+		const Storm::GradKernelMethodDelegate gradKernel = Storm::retrieveGradKernelMethod(generalSimulConfig._kernelMode);
+
+		float &densityAdv = currentPData._predictedDensity;
+		densityAdv = 0.f;
+
+		const Storm::DFSPHSolver::DFSPHSolverDataArray* neighborDataArray = currentSystemData;
+		const Storm::FluidParticleSystem* lastNeighborFluidSystem = &fluidPSystem;
+
+		const Storm::Vector3 &vi = currentPData._predictedVelocity;
+
+		for (const Storm::NeighborParticleInfo &neighbor : currentPNeighborhood)
+		{
+			const Storm::Vector3 gradWij = gradKernel(iterationParameter._kernelLength, neighbor._positionDifferenceVector, neighbor._vectToParticleNorm);
+			if (neighbor._isFluidParticle)
+			{
+				if (neighbor._containingParticleSystem != lastNeighborFluidSystem)
+				{
+					lastNeighborFluidSystem = static_cast<const Storm::FluidParticleSystem*>(neighbor._containingParticleSystem);
+					neighborDataArray = &_data.find(lastNeighborFluidSystem->getId())->second;
+				}
+
+				const Storm::DFSPHSolverData &neighborData = (*neighborDataArray)[neighbor._particleIndex];
+
+				const Storm::Vector3 &vj = neighborData._predictedVelocity;
+				densityAdv += lastNeighborFluidSystem->getParticleVolume() * (vi - vj).dot(gradWij);
+			}
+			else
+			{
+				const Storm::RigidBodyParticleSystem* neighborPSystemAsBoundary = static_cast<const Storm::RigidBodyParticleSystem*>(neighbor._containingParticleSystem);
+				const Storm::Vector3 &vj = neighborPSystemAsBoundary->getVelocity()[neighbor._particleIndex];
+				densityAdv += neighborPSystemAsBoundary->getVolumes()[neighbor._particleIndex] * (vi - vj).dot(gradWij);
+			}
+		}
+
+		// only correct positive divergence
+		densityAdv = std::max(densityAdv, 0.f);
+	}
 }
