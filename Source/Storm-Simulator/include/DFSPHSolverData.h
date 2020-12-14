@@ -13,5 +13,6 @@ namespace Storm
 
 		float _predictedDensity;
 		Storm::Vector3 _predictedVelocity;
+		Storm::Vector3 _finalPredictedVelocity;
 	};
 }
