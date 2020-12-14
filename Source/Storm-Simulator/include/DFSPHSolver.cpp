@@ -106,8 +106,6 @@ Storm::DFSPHSolver::~DFSPHSolver() = default;
 
 void Storm::DFSPHSolver::execute(const Storm::IterationParameter &iterationParameter)
 {
-	//STORM_NOT_IMPLEMENTED;
-
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
 
@@ -313,7 +311,7 @@ void Storm::DFSPHSolver::execute(const Storm::IterationParameter &iterationParam
 
 	///////////////////////////////////////////////////
 
-	// 11th : compute final positions
+	// 10th : compute final positions
 	this->transfertEndDataToSystems(particleSystems, iterationParameter, &_data, [](void* data, const unsigned int pSystemId, Storm::FluidParticleSystem &fluidParticleSystem, const Storm::IterationParameter &iterationParameter)
 	{
 		auto &dataField = reinterpret_cast<decltype(_data)*>(data)->find(pSystemId)->second;
@@ -361,7 +359,7 @@ void Storm::DFSPHSolver::execute(const Storm::IterationParameter &iterationParam
 		fluidParticleSystem.setIsDirty(dirtyTmp);
 	});
 
-	// 12th : flush physics state (rigid bodies)
+	// 11th : flush physics state (rigid bodies)
 	simulMgr.flushPhysics(iterationParameter._deltaTime);
 }
 
@@ -476,14 +474,21 @@ void Storm::DFSPHSolver::divergenceSolve(const Storm::IterationParameter &iterat
 					}
 					else if (std::fabs(ki) > k_epsilon)
 					{
-						const Storm::RigidBodyParticleSystem* neighborPSystemAsBoundary = static_cast<const Storm::RigidBodyParticleSystem*>(neighbor._containingParticleSystem);
+						Storm::RigidBodyParticleSystem* neighborPSystemAsBoundary = static_cast<Storm::RigidBodyParticleSystem*>(neighbor._containingParticleSystem);
 
 						const Storm::Vector3 grad_p_j = -neighborPSystemAsBoundary->getVolumes()[neighbor._particleIndex] * gradWij;
 						const Storm::Vector3 velChange = -iterationParameter._deltaTime * 1.f * ki * grad_p_j;				// kj already contains inverse density
 						v_i += velChange;
 
-						// TODO : replicate force on rb
-						//bm_neighbor->addForce(xj, -currentPMass * velChange * invertDeltaTime);
+						if (!neighborPSystemAsBoundary->isStatic())
+						{
+							Storm::Vector3 addedPressureForce = (-currentPMass * invertDeltaTime) * velChange;
+
+							Storm::Vector3 &tmpPressureForce = neighborPSystemAsBoundary->getTemporaryPressureForces()[neighbor._particleIndex];
+
+							std::lock_guard<std::mutex> lock{ neighbor._containingParticleSystem->_mutex };
+							tmpPressureForce += addedPressureForce;
+						}
 					}
 				}
 			});
@@ -637,7 +642,7 @@ void Storm::DFSPHSolver::pressureSolve(const Storm::IterationParameter &iteratio
 					}
 					else if (std::fabs(ki) > k_epsilon)
 					{
-						const Storm::RigidBodyParticleSystem* neighborPSystemAsBoundary = static_cast<const Storm::RigidBodyParticleSystem*>(neighbor._containingParticleSystem);
+						Storm::RigidBodyParticleSystem* neighborPSystemAsBoundary = static_cast<Storm::RigidBodyParticleSystem*>(neighbor._containingParticleSystem);
 
 						const Storm::Vector3 grad_p_j = -neighborPSystemAsBoundary->getVolumes()[neighbor._particleIndex] * gradWij;
 
@@ -645,8 +650,15 @@ void Storm::DFSPHSolver::pressureSolve(const Storm::IterationParameter &iteratio
 						const Storm::Vector3 velChange = -iterationParameter._deltaTime * 1.f * ki * grad_p_j;				// kj already contains inverse density
 						v_i += velChange;
 
-						// TODO : replicate force on rb
-						//bm_neighbor->addForce(xj, -currentPMass * velChange * invDeltaTime);
+						if (!neighborPSystemAsBoundary->isStatic())
+						{
+							Storm::Vector3 addedPressureForce = (-currentPMass * invDeltaTime) * velChange;
+
+							Storm::Vector3 &tmpPressureForce = neighborPSystemAsBoundary->getTemporaryPressureForces()[neighbor._particleIndex];
+
+							std::lock_guard<std::mutex> lock{ neighbor._containingParticleSystem->_mutex };
+							tmpPressureForce += addedPressureForce;
+						}
 					}
 				}
 			});
