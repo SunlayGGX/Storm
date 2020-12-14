@@ -108,7 +108,7 @@ namespace Storm
 
 	public:
 		template<class XmlTreeType, class DataContainerType, class XmlHandlerFunc, class PostLoadFunc>
-		static void readDataInList(const XmlTreeType &srcTree, const std::string &listTag, const std::string_view &elementTag, DataContainerType &inOutDataArray, const XmlHandlerFunc &xmlHandler, const PostLoadFunc &postLoad)
+		static bool readDataInList(const XmlTreeType &srcTree, const std::string &listTag, const std::string_view &elementTag, DataContainerType &inOutDataArray, const XmlHandlerFunc &xmlHandler, const PostLoadFunc &postLoad)
 		{
 			const auto &treeOptValue = srcTree.get_child_optional(listTag);
 			if (treeOptValue.has_value())
@@ -137,7 +137,11 @@ namespace Storm
 						LOG_ERROR << dataXmlElement.first + " is not a valid tag inside '" << listTag << "'. Only '" << elementTag << "' is accepted!";
 					}
 				}
+
+				return true;
 			}
+
+			return false;
 		}
 	};
 }

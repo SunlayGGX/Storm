@@ -33,12 +33,18 @@
     <ClCompile Include="..\include\ScriptManager.cpp">
       <Filter>Source Files\General</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\ScriptFile.cpp">
+      <Filter>Source Files\General</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-ScriptPCH.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\include\ScriptManager.h">
+      <Filter>Header Files\General</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ScriptFile.h">
       <Filter>Header Files\General</Filter>
     </ClInclude>
   </ItemGroup>

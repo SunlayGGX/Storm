@@ -843,6 +843,10 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 			Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._blowerId) + " should have defined a blower type, this is mandatory!");
 		}
 	});
+
+	/* Scripts */
+	Storm::ScriptData &scriptConfigData = *_sceneData->_scriptConfigData;
+
 }
 
 const Storm::SceneData& Storm::SceneConfig::getSceneData() const

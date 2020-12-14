@@ -362,5 +362,8 @@
     <ClInclude Include="..\include\IScriptManager.h">
       <Filter>Header Files\Singleton</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\ScriptData.h">
+      <Filter>Header Files\Modules\Config</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

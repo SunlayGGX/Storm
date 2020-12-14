@@ -6,6 +6,7 @@
 #include "BlowerData.h"
 #include "ConstraintData.h"
 #include "RecordConfigData.h"
+#include "ScriptData.h"
 
 #include "CollisionType.h"
 #include "SimulationMode.h"
@@ -149,11 +150,18 @@ Storm::RecordConfigData::RecordConfigData() :
 
 }
 
+Storm::ScriptData::ScriptData() :
+	_enabled{ false }
+{
+	_scriptFilePipes.reserve(4);
+}
+
 Storm::SceneData::SceneData() :
 	_generalSimulationData{ std::make_unique<Storm::GeneralSimulationData>() },
 	_graphicData{ std::make_unique<Storm::GraphicData>() },
 	_fluidData{ std::make_unique<Storm::FluidData>() },
-	_recordConfigData{ std::make_unique<Storm::RecordConfigData>() }
+	_recordConfigData{ std::make_unique<Storm::RecordConfigData>() },
+	_scriptConfigData{ std::make_unique<Storm::ScriptData>() }
 {
 
 }

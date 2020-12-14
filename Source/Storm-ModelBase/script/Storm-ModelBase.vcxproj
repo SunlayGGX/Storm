@@ -45,6 +45,7 @@
     <ClInclude Include="..\include\PushedParticleSystemData.h" />
     <ClInclude Include="..\include\RecordConfigData.h" />
     <ClInclude Include="..\include\RecordMode.h" />
+    <ClInclude Include="..\include\ScriptData.h" />
     <ClInclude Include="..\include\SerializeConstraintLayout.h" />
     <ClInclude Include="..\include\SerializeParticleSystemLayout.h" />
     <ClInclude Include="..\include\SerializeRecordContraintsData.h" />
