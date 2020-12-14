@@ -345,14 +345,18 @@ void Storm::DFSPHSolver::execute(const Storm::IterationParameter &iterationParam
 
 		Storm::runParallel(dataField, [&](const Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex)
 		{
-			const float currentPMass = masses[currentPIndex];
-
-			/*forces[currentPIndex] = currentPData._predictedAcceleration * currentPMass;
-			tmpPressureForces[currentPIndex] = (currentPData._predictedAcceleration - currentPData._nonPressureAcceleration) * currentPMass;*/
-
 			// Euler integration
 			Storm::Vector3 &currentPVelocity = velocities[currentPIndex];
 			Storm::Vector3 &currentPPositions = positions[currentPIndex];
+
+			const float currentPMass = masses[currentPIndex];
+
+			// Since all pressure computation was done on currentPData._predictedVelocity, then the difference is the velocity delta that was added from the pressure effect.
+			const Storm::Vector3 pressureVelocityAccel = (currentPData._predictedVelocity - currentPVelocity) / iterationParameter._deltaTime;
+			tmpPressureForces[currentPIndex] = pressureVelocityAccel * currentPMass;
+
+			const Storm::Vector3 totalAccel = currentPData._nonPressureAcceleration + pressureVelocityAccel;
+			forces[currentPIndex] = totalAccel * currentPMass;
 
 			currentPVelocity = currentPData._predictedVelocity;
 			currentPPositions += currentPVelocity * iterationParameter._deltaTime;
