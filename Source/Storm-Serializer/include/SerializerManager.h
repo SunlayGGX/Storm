@@ -48,6 +48,9 @@ namespace Storm
 		void loadState(Storm::StateLoadingOrders &inOutLoadingOrder) final override;
 
 	private:
+		void saveStateInternalImpl(const Storm::StateSavingOrders &savingOrder);
+
+	private:
 		std::thread _serializeThread;
 
 		// Recorder

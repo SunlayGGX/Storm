@@ -30,6 +30,8 @@
 
 #include "InvertPeriod.h"
 
+#include "StateSavingOrders.h"
+
 
 namespace
 {
@@ -270,10 +272,18 @@ bool Storm::SerializerManager::resetReplay()
 
 void Storm::SerializerManager::saveState(Storm::StateSavingOrders &&savingOrder)
 {
-	STORM_NOT_IMPLEMENTED;
+	executeOnSerializerThread([this, savingOrderFwd = Storm::FuncMovePass<Storm::StateSavingOrders>{ std::move(savingOrder) }]() mutable
+	{
+		this->saveStateInternalImpl(savingOrderFwd._object);
+	});
 }
 
 void Storm::SerializerManager::loadState(Storm::StateLoadingOrders &inOutLoadingOrder)
+{
+	STORM_NOT_IMPLEMENTED;
+}
+
+void Storm::SerializerManager::saveStateInternalImpl(const Storm::StateSavingOrders &savingOrder)
 {
 	STORM_NOT_IMPLEMENTED;
 }
