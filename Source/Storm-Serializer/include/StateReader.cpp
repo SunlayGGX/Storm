@@ -118,6 +118,14 @@ namespace
 		}
 	}
 
+	void validateOrders(const Storm::StateLoadingOrders &loadingOrder)
+	{
+		if (loadingOrder._simulationState == nullptr)
+		{
+			Storm::throwException<std::exception>("Simulation state object is null!");
+		}
+	}
+
 	void checkSettingsValidity(const Storm::StateLoadingOrders &inLoadingOrder)
 	{
 		const std::filesystem::path filePath{ inLoadingOrder._settings._filePath };
@@ -134,6 +142,7 @@ void Storm::StateReader::execute(Storm::StateLoadingOrders &inOutLoadingOrder)
 	STORM_NOT_IMPLEMENTED;
 
 	checkSettingsValidity(inOutLoadingOrder);
+	validateOrders(inOutLoadingOrder);
 
 	// TODO : Read
 

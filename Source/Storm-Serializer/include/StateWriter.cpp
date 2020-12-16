@@ -69,6 +69,11 @@ namespace
 
 	void validateOrders(const Storm::StateSavingOrders &savingOrder)
 	{
+		if (savingOrder._simulationState == nullptr)
+		{
+			Storm::throwException<std::exception>("Simulation state object is null!");
+		}
+
 		const Storm::SimulationState &simulationState = *savingOrder._simulationState;
 
 		if (simulationState._currentPhysicsTime < 0.f)
@@ -132,10 +137,6 @@ namespace
 
 	void StateWriterImpl::serialize(Storm::SerializePackage &package)
 	{
-		if (_savingOrder._simulationState == nullptr)
-		{
-			Storm::throwException<std::exception>("Simulation state object is null!");
-		}
 
 		Storm::SimulationState &simulationState = *_savingOrder._simulationState;
 		
