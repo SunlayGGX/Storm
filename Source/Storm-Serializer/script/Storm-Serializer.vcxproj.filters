@@ -66,10 +66,10 @@
     <ClCompile Include="..\include\RecordHandlerBase.cpp">
       <Filter>Source Files\Record\Handler</Filter>
     </ClCompile>
-    <ClCompile Include="..\include\StateSaver.cpp">
+    <ClCompile Include="..\include\StateReader.cpp">
       <Filter>Source Files\State</Filter>
     </ClCompile>
-    <ClCompile Include="..\include\StateLoader.cpp">
+    <ClCompile Include="..\include\StateWriter.cpp">
       <Filter>Source Files\State</Filter>
     </ClCompile>
   </ItemGroup>
@@ -95,10 +95,10 @@
     <ClInclude Include="..\include\RecordHandlerBase.h">
       <Filter>Header Files\Record\Handler</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\StateSaver.h">
+    <ClInclude Include="..\include\StateWriter.h">
       <Filter>Header Files\State</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\StateLoader.h">
+    <ClInclude Include="..\include\StateReader.h">
       <Filter>Header Files\State</Filter>
     </ClInclude>
   </ItemGroup>

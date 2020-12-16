@@ -7,7 +7,7 @@ namespace Storm
 {
 	struct StateLoadingOrders;
 
-	class StateLoader : private Storm::NonInstanciable
+	class StateReader : private Storm::NonInstanciable
 	{
 	public:
 		static void execute(Storm::StateLoadingOrders &inOutLoadingOrder);

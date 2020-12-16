@@ -31,8 +31,8 @@
 #include "InvertPeriod.h"
 
 #include "StateSavingOrders.h"
-#include "StateSaver.h"
-#include "StateLoader.h"
+#include "StateWriter.h"
+#include "StateReader.h"
 
 
 namespace
@@ -276,7 +276,7 @@ void Storm::SerializerManager::saveState(Storm::StateSavingOrders &&savingOrder)
 {
 	executeOnSerializerThread([this, savingOrderFwd = Storm::FuncMovePass<Storm::StateSavingOrders>{ std::move(savingOrder) }]() mutable
 	{
-		Storm::StateSaver::execute(savingOrderFwd._object);
+		Storm::StateWriter::execute(savingOrderFwd._object);
 	});
 }
 
@@ -284,5 +284,5 @@ void Storm::SerializerManager::loadState(Storm::StateLoadingOrders &inOutLoading
 {
 	assert(isSimulationThread() && "this method should only be called from simulation thread.");
 
-	Storm::StateLoader::execute(inOutLoadingOrder);
+	Storm::StateReader::execute(inOutLoadingOrder);
 }
