@@ -8,6 +8,9 @@ namespace Storm
 	struct SerializeRecordHeader;
 	struct SerializeRecordPendingData;
 
+	struct StateSavingOrders;
+	struct StateLoadingOrders;
+
 	class ISerializerManager : public Storm::ISingletonHeldInterface<Storm::ISerializerManager>
 	{
 	public:
@@ -25,5 +28,9 @@ namespace Storm
 		virtual bool obtainNextFrame(Storm::SerializeRecordPendingData &outPendingData) const = 0;
 
 		virtual bool resetReplay() = 0;
+
+	public:
+		virtual void saveState(Storm::StateSavingOrders &&savingOrder) = 0;
+		virtual void loadState(Storm::StateLoadingOrders &inOutLoadingOrder) = 0;
 	};
 }

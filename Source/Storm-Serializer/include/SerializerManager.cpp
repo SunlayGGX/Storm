@@ -267,3 +267,13 @@ bool Storm::SerializerManager::resetReplay()
 		Storm::throwException<std::exception>("We aren't replaying, therefore we cannot reset it!");
 	}
 }
+
+void Storm::SerializerManager::saveState(Storm::StateSavingOrders &&savingOrder)
+{
+	STORM_NOT_IMPLEMENTED;
+}
+
+void Storm::SerializerManager::loadState(Storm::StateLoadingOrders &inOutLoadingOrder)
+{
+	STORM_NOT_IMPLEMENTED;
+}

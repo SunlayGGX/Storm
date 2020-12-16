@@ -43,6 +43,10 @@ namespace Storm
 	public:
 		bool resetReplay() final override;
 
+	public:
+		void saveState(Storm::StateSavingOrders &&savingOrder) final override;
+		void loadState(Storm::StateLoadingOrders &inOutLoadingOrder) final override;
+
 	private:
 		std::thread _serializeThread;
 
