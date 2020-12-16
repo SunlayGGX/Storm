@@ -26,6 +26,8 @@
 #include "ThreadingSafety.h"
 #include "ThreadHelper.h"
 
+#include "FuncMovePass.h"
+
 #include "InvertPeriod.h"
 
 
@@ -48,6 +50,13 @@ namespace
 		{
 			return std::chrono::milliseconds{ 100 };
 		}
+	}
+
+	template<class Func>
+	void executeOnSerializerThread(Func &&func)
+	{
+		Storm::IThreadManager &threadMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>();
+		threadMgr.executeOnThread(Storm::ThreadEnumeration::SerializerThread, std::forward<Func>(func));
 	}
 }
 
@@ -160,15 +169,15 @@ void Storm::SerializerManager::processRecordQueue_Unchecked()
 
 void Storm::SerializerManager::recordFrame(Storm::SerializeRecordPendingData &&frameRecord)
 {
-	Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::SerializerThread, [this, rec = std::move(frameRecord)]() mutable
+	executeOnSerializerThread([this, rec = Storm::FuncMovePass<Storm::SerializeRecordPendingData>{ std::move(frameRecord) }]() mutable
 	{
-		_pendingRecord.emplace(std::make_unique<Storm::SerializeRecordPendingData>(std::move(rec)));
+		_pendingRecord.emplace(std::make_unique<Storm::SerializeRecordPendingData>(std::move(rec._object)));
 	});
 }
 
 void Storm::SerializerManager::beginRecord(Storm::SerializeRecordHeader &&recordHeader)
 {
-	Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::SerializerThread, [this, rec = std::move(recordHeader)]() mutable
+	executeOnSerializerThread([this, rec = Storm::FuncMovePass<Storm::SerializeRecordHeader>{ std::move(recordHeader) }]() mutable
 	{
 		std::lock_guard<std::mutex> lock{ _mutex };
 
@@ -176,7 +185,7 @@ void Storm::SerializerManager::beginRecord(Storm::SerializeRecordHeader &&record
 		{
 			if (!_recordWriter)
 			{
-				_recordWriter = std::make_unique<Storm::RecordWriter>(std::move(rec));
+				_recordWriter = std::make_unique<Storm::RecordWriter>(std::move(rec._object));
 				LOG_COMMENT << "Recording started";
 			}
 			else
