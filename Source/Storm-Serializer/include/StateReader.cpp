@@ -117,12 +117,25 @@ namespace
 			}
 		}
 	}
+
+	void checkSettingsValidity(const Storm::StateLoadingOrders &inLoadingOrder)
+	{
+		const std::filesystem::path filePath{ inLoadingOrder._settings._filePath };
+		if (!std::filesystem::is_regular_file(filePath))
+		{
+			Storm::throwException<std::exception>("'" + inLoadingOrder._settings._filePath + "' is not a file or doesn't exist");
+		}
+	}
 }
 
 
 void Storm::StateReader::execute(Storm::StateLoadingOrders &inOutLoadingOrder)
 {
 	STORM_NOT_IMPLEMENTED;
+
+	checkSettingsValidity(inOutLoadingOrder);
+
+	// TODO : Read
 
 	checkValidity(*inOutLoadingOrder._simulationState);
 	applySettings(inOutLoadingOrder);
