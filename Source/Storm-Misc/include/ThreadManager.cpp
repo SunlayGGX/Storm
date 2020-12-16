@@ -69,7 +69,7 @@ void Storm::ThreadManager::registerCurrentThread(Storm::ThreadEnumeration thread
 	}
 }
 
-void Storm::ThreadManager::executeOnThread(const std::thread::id &threadId, AsyncAction &&action)
+void Storm::ThreadManager::executeOnThread(const std::thread::id &threadId, Storm::AsyncAction &&action)
 {
 	// Warning : You should never call a executeOnThread from a runParallel that is executed inside an AsyncAction being executed in processCurrentThreadActions.
 	// If those 3 functions are present in your call stack, then a deadlock will occurs.
