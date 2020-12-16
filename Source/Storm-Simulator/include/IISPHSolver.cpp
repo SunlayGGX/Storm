@@ -161,8 +161,9 @@ void Storm::IISPHSolver::execute(const Storm::IterationParameter &iterationParam
 
 			const float density0 = fluidParticleSystem.getRestDensity();
 			const float density0Squared = density0 * density0;
+			const float particleVolume = fluidParticleSystem.getParticleVolume();
 			const std::vector<Storm::ParticleNeighborhoodArray> &neighborhoodArrays = currentParticleSystem.getNeighborhoodArrays();
-			const std::vector<float> &masses = fluidParticleSystem.getMasses();
+			std::vector<float> &masses = fluidParticleSystem.getMasses();
 			const std::vector<float> &densities = fluidParticleSystem.getDensities();
 			std::vector<Storm::Vector3> &temporaryPViscoForces = fluidParticleSystem.getTemporaryViscosityForces();
 
@@ -174,9 +175,11 @@ void Storm::IISPHSolver::execute(const Storm::IterationParameter &iterationParam
 
 			Storm::runParallel(fluidParticleSystem.getForces(), [&](Storm::Vector3 &currentPForce, const std::size_t currentPIndex)
 			{
-				const float currentPMass = masses[currentPIndex];
+				float &currentPMass = masses[currentPIndex];
 				const float currentPDensity = densities[currentPIndex];
 				const Storm::Vector3 &vi = velocities[currentPIndex];
+
+				currentPMass = particleVolume * currentPDensity;
 
 				const float restMassDensity = currentPMass * density0;
 
@@ -192,7 +195,6 @@ void Storm::IISPHSolver::execute(const Storm::IterationParameter &iterationParam
 					const float vijDotXij = vij.dot(neighbor._positionDifferenceVector);
 					const float viscoGlobalCoeff = currentPMass * 10.f * vijDotXij / (neighbor._vectToParticleSquaredNorm + viscoPrecoeff);
 
-					Storm::Vector3 pressureComponent;
 					Storm::Vector3 viscosityComponent;
 
 					if (neighbor._isFluidParticle)
@@ -227,14 +229,9 @@ void Storm::IISPHSolver::execute(const Storm::IterationParameter &iterationParam
 						// Mirror the force on the boundary solid following the 3rd newton law
 						if (!neighborPSystemAsBoundary->isStatic())
 						{
-							Storm::Vector3 &boundaryNeighborForce = neighbor._containingParticleSystem->getForces()[neighbor._particleIndex];
-							Storm::Vector3 &boundaryNeighborTmpPressureForce = neighbor._containingParticleSystem->getTemporaryPressureForces()[neighbor._particleIndex];
 							Storm::Vector3 &boundaryNeighborTmpViscosityForce = neighbor._containingParticleSystem->getTemporaryViscosityForces()[neighbor._particleIndex];
 
-							const Storm::Vector3 sumForces = pressureComponent + viscosityComponent;
-
 							std::lock_guard<std::mutex> lock{ neighbor._containingParticleSystem->_mutex };
-							boundaryNeighborForce -= sumForces;
 							boundaryNeighborTmpViscosityForce -= viscosityComponent;
 						}
 					}
