@@ -15,6 +15,7 @@ namespace Storm
 		};
 
 	public:
+		StateSavingOrders();
 		StateSavingOrders(StateSavingOrders &&);
 		~StateSavingOrders();
 

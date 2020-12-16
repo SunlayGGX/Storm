@@ -19,6 +19,7 @@ namespace Storm
 		};
 
 	public:
+		StateLoadingOrders();
 		~StateLoadingOrders();
 
 	public:
