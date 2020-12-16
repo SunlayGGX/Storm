@@ -1489,7 +1489,7 @@ void Storm::SimulatorManager::saveSimulationState() const
 	order._settings._filePath = configMgr.getTemporaryPath();
 	order._settings._filePath /= "States";
 	order._settings._filePath /= configMgr.getSceneName();
-	order._settings._filePath /= "state_" + std::to_string(timeMgr.getCurrentPhysicsDeltaTime()) + ".stState";
+	order._settings._filePath /= "state_" + std::to_string(timeMgr.getCurrentPhysicsElapsedTime()) + ".stState";
 
 	order._settings._overwrite = false;
 	order._settings._autoPathIfNoOwerwrite = true;
