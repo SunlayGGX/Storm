@@ -11,6 +11,7 @@ namespace Storm
 	{
 	public:
 		StateFileHeader();
+		virtual ~StateFileHeader();
 
 	public:
 		bool isValid() const;
@@ -24,7 +25,7 @@ namespace Storm
 		void serializePreheader(Storm::SerializePackage &package, bool end);
 		void serializeHeaderPart(Storm::SerializePackage &package);
 
-	private:
+	protected:
 		// Preheader
 		uint64_t _checksumMagicWord;
 		Storm::Version _stateFileVersion;

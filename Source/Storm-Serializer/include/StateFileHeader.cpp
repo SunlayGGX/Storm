@@ -31,6 +31,8 @@ Storm::StateFileHeader::StateFileHeader() :
 
 }
 
+Storm::StateFileHeader::~StateFileHeader() = default;
+
 bool Storm::StateFileHeader::isValid() const
 {
 	return _checksumMagicWord == Checksum::k_goodChecksum;
