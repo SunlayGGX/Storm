@@ -153,6 +153,12 @@ void Storm::SerializerManager::execute()
 			Storm::throwException<std::exception>("Cannot process recording if header isn't set (we haven't called beginRecord before)! Aborting!");
 		}
 	}
+
+	if (_stateSavingRequestOrders)
+	{
+		Storm::StateWriter::execute(*_stateSavingRequestOrders);
+		_stateSavingRequestOrders.reset();
+	}
 }
 
 void Storm::SerializerManager::clearRecordQueue()
@@ -276,7 +282,8 @@ void Storm::SerializerManager::saveState(Storm::StateSavingOrders &&savingOrder)
 {
 	executeOnSerializerThread([this, savingOrderFwd = Storm::FuncMovePass<Storm::StateSavingOrders>{ std::move(savingOrder) }]() mutable
 	{
-		Storm::StateWriter::execute(savingOrderFwd._object);
+		assert(_stateSavingRequestOrders == nullptr && "A state saving request is already pending!");
+		_stateSavingRequestOrders = std::make_unique<Storm::StateSavingOrders>(std::move(savingOrderFwd._object));
 	});
 }
 

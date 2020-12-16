@@ -48,15 +48,15 @@ namespace Storm
 		void loadState(Storm::StateLoadingOrders &inOutLoadingOrder) final override;
 
 	private:
-		void saveStateInternalImpl(const Storm::StateSavingOrders &savingOrder);
-
-	private:
 		std::thread _serializeThread;
 
 		// Recorder
 		std::unique_ptr<Storm::RecordReader> _recordReader;
 		std::unique_ptr<Storm::RecordWriter> _recordWriter;
 		std::queue<std::unique_ptr<Storm::SerializeRecordPendingData>> _pendingRecord;
+
+		// State recording
+		std::unique_ptr<Storm::StateSavingOrders> _stateSavingRequestOrders;
 
 		mutable std::mutex _mutex;
 	};
