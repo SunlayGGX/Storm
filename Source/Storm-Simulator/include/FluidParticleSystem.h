@@ -31,6 +31,8 @@ namespace Storm
 		void setParticleSystemPosition(const Storm::Vector3 &pSystemPosition) final override;
 		void setParticleSystemTotalForce(const Storm::Vector3 &pSystemTotalForce) final override;
 
+		void prepareSaving(const bool replayMode) final override;
+
 	public:
 		// Accessible by dynamic casting.
 		float getRestDensity() const noexcept;

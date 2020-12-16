@@ -139,6 +139,11 @@ void Storm::ParticleSystem::setIsDirty(bool dirty)
 	_isDirty = dirty;
 }
 
+void Storm::ParticleSystem::prepareSaving(const bool replayMode)
+{
+
+}
+
 void Storm::ParticleSystem::buildNeighborhood(const Storm::ParticleSystemContainer &allParticleSystems)
 {
 	// First, clear all neighborhood

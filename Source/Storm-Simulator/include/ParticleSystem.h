@@ -57,6 +57,8 @@ namespace Storm
 		virtual void setParticleSystemPosition(const Storm::Vector3 &pSystemPosition) = 0;
 		virtual void setParticleSystemTotalForce(const Storm::Vector3 &pSystemTotalForce) = 0;
 
+		virtual void prepareSaving(const bool replayMode);
+
 	public:
 		void buildNeighborhood(const Storm::ParticleSystemContainer &allParticleSystems);
 

@@ -20,6 +20,10 @@
 
 #include "ParticleSystemUtils.h"
 
+#define STORM_HIJACKED_TYPE float
+#	include "VectHijack.h"
+#undef STORM_HIJACKED_TYPE
+
 
 Storm::FluidParticleSystem::FluidParticleSystem(unsigned int particleSystemIndex, std::vector<Storm::Vector3> &&worldPositions) :
 	Storm::ParticleSystem{ particleSystemIndex, std::move(worldPositions) }
@@ -157,6 +161,28 @@ void Storm::FluidParticleSystem::setParticleSystemPosition(const Storm::Vector3 
 void Storm::FluidParticleSystem::setParticleSystemTotalForce(const Storm::Vector3 &pSystemTotalForce)
 {
 
+}
+
+void Storm::FluidParticleSystem::prepareSaving(const bool replayMode)
+{
+	Storm::ParticleSystem::prepareSaving(replayMode);
+
+	if (replayMode)
+	{
+		const std::size_t particleCount = _positions.size();
+		if (_masses.size() != particleCount)
+		{
+			_masses.reserve(particleCount);
+			Storm::setNumUninitialized_hijack(_masses, Storm::VectorHijacker{ particleCount });
+		}
+
+		const std::vector<float> &densities = this->getDensities();
+
+		Storm::runParallel(_masses, [&densities, pVolume = this->getParticleVolume()](float &currentPMass, const std::size_t currentPIndex)
+		{
+			currentPMass = densities[currentPIndex] * pVolume;
+		});
+	}
 }
 
 float Storm::FluidParticleSystem::getRestDensity() const noexcept
