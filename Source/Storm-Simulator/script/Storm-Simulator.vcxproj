@@ -26,6 +26,7 @@
     <ClCompile Include="..\include\SemiImplicitEulerSolver.cpp" />
     <ClCompile Include="..\include\SimulatorManager.cpp" />
     <ClCompile Include="..\include\SPHBaseSolver.cpp" />
+    <ClCompile Include="..\include\StateSaverHelper.cpp" />
     <ClCompile Include="..\include\Storm-SimulatorPCH.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
@@ -62,6 +63,7 @@
     <ClInclude Include="..\include\SolverCreationParameter.h" />
     <ClInclude Include="..\include\SPHBaseSolver.h" />
     <ClInclude Include="..\include\SplishSplashCubicSplineKernel.h" />
+    <ClInclude Include="..\include\StateSaverHelper.h" />
     <ClInclude Include="..\include\Storm-SimulatorPCH.h" />
     <ClInclude Include="..\include\WCSPHSolver.h" />
   </ItemGroup>

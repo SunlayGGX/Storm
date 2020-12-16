@@ -8,7 +8,7 @@ namespace Storm
 	public:
 		unsigned int _id;
 		bool _isFluid;
-		bool _isWall;
+		bool _isStatic;
 
 		Storm::Vector3 _globalPosition;
 		std::vector<Storm::Vector3> _positions;

@@ -60,6 +60,9 @@
 #include "SerializeRecordContraintsData.h"
 #include "SerializeRecordPendingData.h"
 
+#include "StateSavingOrders.h"
+#include "StateSaverHelper.h"
+
 #include "ExitCode.h"
 
 #include "UIField.h"
@@ -1471,6 +1474,37 @@ void Storm::SimulatorManager::resetReplay()
 	{
 		LOG_WARNING << "Simulation reset is only possible in Replay mode.";
 	}
+}
+
+void Storm::SimulatorManager::saveSimulationState() const
+{
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
+	const Storm::ITimeManager &timeMgr = singletonHolder.getSingleton<Storm::ITimeManager>();
+
+	Storm::StateSavingOrders order;
+
+	// Settings
+	order._settings._filePath = configMgr.getTemporaryPath();
+	order._settings._filePath /= "States";
+	order._settings._filePath /= configMgr.getSceneName();
+	order._settings._filePath /= "state_" + std::to_string(timeMgr.getCurrentPhysicsDeltaTime()) + ".stState";
+
+	order._settings._overwrite = false;
+	order._settings._autoPathIfNoOwerwrite = true;
+
+	// Pre-saving step
+	bool isReplayMode = configMgr.isInReplayMode();
+	for (auto &pSystemPair : _particleSystem)
+	{
+		pSystemPair.second->prepareSaving(isReplayMode);
+	}
+
+	// State update
+	Storm::StateSaverHelper::saveIntoState(*order._simulationState, _particleSystem);
+
+	Storm::ISerializerManager &serializerMgr = singletonHolder.getSingleton<Storm::ISerializerManager>();
+	serializerMgr.saveState(std::move(order));
 }
 
 void Storm::SimulatorManager::refreshParticlePartition(bool ignoreStatics /*= true*/) const

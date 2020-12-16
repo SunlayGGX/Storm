@@ -11,7 +11,9 @@ namespace Storm
 		struct SavingSettings
 		{
 		public:
-			std::string _filePath;
+			std::filesystem::path _filePath;
+			uint8_t _overwrite : 1;
+			uint8_t _autoPathIfNoOwerwrite : 1;
 		};
 
 	public:

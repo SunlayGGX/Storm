@@ -104,6 +104,9 @@ namespace Storm
 	public:
 		void resetReplay();
 
+	public:
+		void saveSimulationState() const;
+
 	private:
 		void refreshParticlePartition(bool ignoreStatics = true) const;
 

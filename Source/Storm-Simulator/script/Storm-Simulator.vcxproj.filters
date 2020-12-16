@@ -64,6 +64,12 @@
     <Filter Include="Source Files\Solver\SPHSolvers\Base">
       <UniqueIdentifier>{7b6f0106-3d21-4e92-8af5-7cd48508b195}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\State">
+      <UniqueIdentifier>{00055a64-597d-4294-8180-cb00c7b2fc3b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\State">
+      <UniqueIdentifier>{f2a1d575-648d-449f-8097-b83d9a6f62df}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-SimulatorPCH.cpp">
@@ -116,6 +122,9 @@
     </ClCompile>
     <ClCompile Include="..\include\KernelHandler.cpp">
       <Filter>Source Files\Kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\StateSaverHelper.cpp">
+      <Filter>Source Files\State</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -211,6 +220,9 @@
     </ClInclude>
     <ClInclude Include="..\include\SolverCreationParameter.h">
       <Filter>Header Files\Solver\SPHSolvers\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\StateSaverHelper.h">
+      <Filter>Header Files\State</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
