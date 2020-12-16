@@ -16,6 +16,7 @@
     <ClCompile Include="..\include\RecordReader.cpp" />
     <ClCompile Include="..\include\RecordWriter.cpp" />
     <ClCompile Include="..\include\SerializerManager.cpp" />
+    <ClCompile Include="..\include\StateFileHeader.cpp" />
     <ClCompile Include="..\include\StateReader.cpp" />
     <ClCompile Include="..\include\StateWriter.cpp" />
     <ClCompile Include="..\include\Storm-SerializerPCH.cpp">
@@ -30,6 +31,7 @@
     <ClInclude Include="..\include\RecordReader.h" />
     <ClInclude Include="..\include\RecordWriter.h" />
     <ClInclude Include="..\include\SerializerManager.h" />
+    <ClInclude Include="..\include\StateFileHeader.h" />
     <ClInclude Include="..\include\StateReader.h" />
     <ClInclude Include="..\include\StateWriter.h" />
     <ClInclude Include="..\include\Storm-SerializerPCH.h" />

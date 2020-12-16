@@ -72,6 +72,9 @@
     <ClCompile Include="..\include\StateWriter.cpp">
       <Filter>Source Files\State</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\StateFileHeader.cpp">
+      <Filter>Source Files\State</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-SerializerPCH.h">
@@ -99,6 +102,9 @@
       <Filter>Header Files\State</Filter>
     </ClInclude>
     <ClInclude Include="..\include\StateReader.h">
+      <Filter>Header Files\State</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\StateFileHeader.h">
       <Filter>Header Files\State</Filter>
     </ClInclude>
   </ItemGroup>

@@ -10,6 +10,6 @@ namespace Storm
 	class StateWriter : private Storm::NonInstanciable
 	{
 	public:
-		static void execute(const Storm::StateSavingOrders &savingOrder);
+		static void execute(Storm::StateSavingOrders &savingOrder);
 	};
 }
