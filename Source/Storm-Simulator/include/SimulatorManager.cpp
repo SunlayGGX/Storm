@@ -1395,6 +1395,7 @@ void Storm::SimulatorManager::pushRecord(float currentPhysicsTime, bool pushStat
 				const Storm::RigidBodyParticleSystem &pSystemRefAsRb = static_cast<const Storm::RigidBodyParticleSystem &>(pSystemRef);
 				framePSystemElementData._pSystemPosition = pSystemRefAsRb.getRbPosition();
 				framePSystemElementData._pSystemGlobalForce = pSystemRefAsRb.getRbTotalForce();
+				framePSystemElementData._volumes = pSystemRefAsRb.getVolumes();
 			}
 
 			framePSystemElementData._positions = pSystemRef.getPositions();
