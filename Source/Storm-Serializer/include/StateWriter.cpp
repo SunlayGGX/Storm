@@ -137,6 +137,7 @@ namespace
 
 	void StateWriterImpl::serialize(Storm::SerializePackage &package)
 	{
+		Storm::StateFileHeader::serialize(package);
 
 		Storm::SimulationState &simulationState = *_savingOrder._simulationState;
 		
