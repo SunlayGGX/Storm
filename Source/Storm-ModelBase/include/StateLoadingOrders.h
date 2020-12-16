@@ -12,6 +12,8 @@ namespace Storm
 		{
 		public:
 			std::string _filePath;
+
+			uint8_t _loadPhysicsTime : 1;
 			uint8_t _loadVelocities : 1;
 			uint8_t _loadForces : 1;
 		};

@@ -10,6 +10,7 @@ namespace Storm
 		~SimulationState();
 
 	public:
+		float _currentPhysicsTime;
 		std::vector<Storm::SystemSimulationStateObject> _pSystemStates;
 	};
 }
