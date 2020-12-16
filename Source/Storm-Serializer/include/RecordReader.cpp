@@ -36,6 +36,10 @@ Storm::RecordReader::RecordReader() :
 	{
 		_readMethodToUse = &Storm::RecordReader::readNextFrame_v1_3_0;
 	}
+	else if (currentRecordVersion == Storm::Version{ 1, 4, 0 })
+	{
+		_readMethodToUse = &Storm::RecordReader::readNextFrame_v1_4_0;
+	}
 	else
 	{
 		Storm::throwException<std::exception>("Cannot read the current record because the version " + Storm::toStdString(currentRecordVersion) + " isn't handled ");
@@ -246,6 +250,60 @@ bool Storm::RecordReader::readNextFrame_v1_3_0(Storm::SerializeRecordPendingData
 			frameData._forces <<
 			frameData._densities <<
 			frameData._pressures <<
+			frameData._pressureComponentforces <<
+			frameData._viscosityComponentforces
+			;
+	}
+
+	outPendingData._constraintElements.resize(_header._contraintLayouts.size());
+	for (Storm::SerializeRecordContraintsData &constraintData : outPendingData._constraintElements)
+	{
+		_package <<
+			constraintData._id <<
+			constraintData._position1 <<
+			constraintData._position2
+			;
+	}
+
+	return true;
+}
+
+bool Storm::RecordReader::readNextFrame_v1_4_0(Storm::SerializeRecordPendingData &outPendingData)
+{
+	uint64_t frameNumber = std::numeric_limits<uint64_t>::max();
+	_package << frameNumber;
+
+	_noMoreFrame = frameNumber >= _header._frameCount;
+	if (_noMoreFrame)
+	{
+		return false;
+	}
+
+	_package << outPendingData._physicsTime;
+
+	if (frameNumber == 0)
+	{
+		// If it is the first frame, then we would have all particles from all rigid bodies (static rigid bodies included).
+		outPendingData._particleSystemElements.resize(_header._particleSystemLayouts.size());
+	}
+	else
+	{
+		// The other frame have only the particle system that are allowed to move (gain some spaces).
+		outPendingData._particleSystemElements.resize(_movingSystemCount);
+	}
+
+	for (Storm::SerializeRecordParticleSystemData &frameData : outPendingData._particleSystemElements)
+	{
+		_package <<
+			frameData._systemId <<
+			frameData._pSystemPosition <<
+			frameData._pSystemGlobalForce <<
+			frameData._positions <<
+			frameData._velocities <<
+			frameData._forces <<
+			frameData._densities <<
+			frameData._pressures <<
+			frameData._volumes <<
 			frameData._pressureComponentforces <<
 			frameData._viscosityComponentforces
 			;

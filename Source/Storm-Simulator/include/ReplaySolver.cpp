@@ -6,6 +6,7 @@
 
 #include "ParticleSystem.h"
 #include "FluidParticleSystem.h"
+#include "RigidBodyParticleSystem.h"
 
 #include "SerializeRecordPendingData.h"
 #include "SerializeRecordParticleSystemData.h"
@@ -112,11 +113,15 @@ namespace
 			}
 			else
 			{
+				Storm::RigidBodyParticleSystem &currentPSystemAsRb = static_cast<Storm::RigidBodyParticleSystem &>(currentPSystem);
+				std::vector<float> &allVolumes = currentPSystemAsRb.getVolumes();
+
 				Storm::runParallel(frameBeforeElements._positions, [&](const Storm::Vector3 &currentPPosition, const std::size_t currentPIndex)
 				{
 					lerp(currentPPosition, frameAfterElements._positions[currentPIndex], coefficient, allPositions[currentPIndex]);
 					lerp(frameBeforeElements._velocities[currentPIndex], frameAfterElements._velocities[currentPIndex], coefficient, allVelocities[currentPIndex]);
 					lerp(frameBeforeElements._forces[currentPIndex], frameAfterElements._forces[currentPIndex], coefficient, allForces[currentPIndex]);
+					lerp(frameBeforeElements._volumes[currentPIndex], frameAfterElements._volumes[currentPIndex], coefficient, allVolumes[currentPIndex]);
 					lerp(frameBeforeElements._pressureComponentforces[currentPIndex], frameAfterElements._pressureComponentforces[currentPIndex], coefficient, allPressureForce[currentPIndex]);
 					lerp(frameBeforeElements._viscosityComponentforces[currentPIndex], frameAfterElements._viscosityComponentforces[currentPIndex], coefficient, allViscosityForce[currentPIndex]);
 				});
@@ -190,6 +195,7 @@ void Storm::ReplaySolver::transferFrameToParticleSystem_move(Storm::ParticleSyst
 		particleSystem.setVelocity(std::move(currentFrameElement._velocities));
 		particleSystem.setDensities(std::move(currentFrameElement._densities));
 		particleSystem.setPressures(std::move(currentFrameElement._pressures));
+		particleSystem.setVolumes(std::move(currentFrameElement._volumes));
 		particleSystem.setForces(std::move(currentFrameElement._forces));
 		particleSystem.setTmpPressureForces(std::move(currentFrameElement._pressureComponentforces));
 		particleSystem.setTmpViscosityForces(std::move(currentFrameElement._viscosityComponentforces));
@@ -230,11 +236,15 @@ void Storm::ReplaySolver::transferFrameToParticleSystem_copy(Storm::ParticleSyst
 		}
 		else
 		{
+			Storm::RigidBodyParticleSystem &currentPSystemAsRb = static_cast<Storm::RigidBodyParticleSystem &>(currentPSystem);
+			std::vector<float> &allVolumes = currentPSystemAsRb.getVolumes();
+
 			Storm::runParallel(frameElement._positions, [&](const Storm::Vector3 &currentPPosition, const std::size_t currentPIndex)
 			{
 				allPositions[currentPIndex] = currentPPosition;
 				allVelocities[currentPIndex] = frameElement._velocities[currentPIndex];
 				allForces[currentPIndex] = frameElement._forces[currentPIndex];
+				allVolumes[currentPIndex] = frameElement._volumes[currentPIndex];
 				allPressureForce[currentPIndex] = frameElement._pressureComponentforces[currentPIndex];
 				allViscosityForce[currentPIndex] = frameElement._viscosityComponentforces[currentPIndex];
 			});

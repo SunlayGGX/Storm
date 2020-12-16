@@ -25,6 +25,7 @@ namespace Storm
 		void setForces(std::vector<Storm::Vector3> &&forces) final override;
 		void setDensities(std::vector<float> &&densities) final override;
 		void setPressures(std::vector<float> &&pressures) final override;
+		void setVolumes(std::vector<float> &&volumes) final override;
 		void setTmpPressureForces(std::vector<Storm::Vector3> &&tmpPressureForces) final override;
 		void setTmpViscosityForces(std::vector<Storm::Vector3> &&tmpViscoForces) final override;
 		void setParticleSystemPosition(const Storm::Vector3 &pSystemPosition) final override;
