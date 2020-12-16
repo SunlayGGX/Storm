@@ -34,6 +34,7 @@
     <ClInclude Include="..\include\ExitCode.h" />
     <ClInclude Include="..\include\Facets.h" />
     <ClInclude Include="..\include\FacetsContainer.h" />
+    <ClInclude Include="..\include\FuncMovePass.h" />
     <ClInclude Include="..\include\ILoggerManager.h" />
     <ClInclude Include="..\include\InvertPeriod.h" />
     <ClInclude Include="..\include\LeanWindowsInclude.h" />
