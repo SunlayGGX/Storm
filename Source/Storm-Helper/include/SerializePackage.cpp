@@ -30,6 +30,7 @@ namespace
 		case Storm::SerializePackageCreationModality::SavingNew:
 		case Storm::SerializePackageCreationModality::SavingAppend:
 		case Storm::SerializePackageCreationModality::SavingAppendPreheaderProvidedAfter:
+		case Storm::SerializePackageCreationModality::SavingNewPreheaderProvidedAfter:
 			return true;
 		case Storm::SerializePackageCreationModality::Loading:
 		case Storm::SerializePackageCreationModality::LoadingManual:
@@ -60,6 +61,7 @@ Storm::SerializePackage::SerializePackage(Storm::SerializePackageCreationModalit
 			break;
 
 		case Storm::SerializePackageCreationModality::SavingNew:
+		case Storm::SerializePackageCreationModality::SavingNewPreheaderProvidedAfter:
 		case Storm::SerializePackageCreationModality::Loading:
 		case Storm::SerializePackageCreationModality::LoadingManual:
 		default:
@@ -82,7 +84,9 @@ Storm::SerializePackage::SerializePackage(Storm::SerializePackageCreationModalit
 		Storm::throwException<std::exception>(errorMsg);
 	}
 
-	if (modality != SerializePackageCreationModality::SavingAppendPreheaderProvidedAfter && modality != SerializePackageCreationModality::LoadingManual)
+	if (modality != SerializePackageCreationModality::SavingAppendPreheaderProvidedAfter &&
+		modality != SerializePackageCreationModality::SavingNewPreheaderProvidedAfter &&
+		modality != SerializePackageCreationModality::LoadingManual)
 	{
 		Storm::Version currentVersion = Storm::Version::retrieveCurrentStormVersion();
 		if (_isSaving)

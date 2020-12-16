@@ -9,5 +9,6 @@ namespace Storm
 		SavingNew,
 		SavingAppend,
 		SavingAppendPreheaderProvidedAfter,
+		SavingNewPreheaderProvidedAfter,
 	};
 }
