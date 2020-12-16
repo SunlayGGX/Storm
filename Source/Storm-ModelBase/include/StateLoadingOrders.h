@@ -11,7 +11,7 @@ namespace Storm
 		struct LoadingSettings
 		{
 		public:
-			std::string _filePath;
+			std::filesystem::path _filePath;
 
 			uint8_t _loadPhysicsTime : 1;
 			uint8_t _loadVelocities : 1;

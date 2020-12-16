@@ -4,6 +4,11 @@
 #include "SimulationState.h"
 #include "SystemSimulationStateObject.h"
 
+#include "StateFileHeader.h"
+
+#include "SerializePackage.h"
+#include "SerializePackageCreationModality.h"
+
 #include "RunnerHelper.h"
 
 #include "ThrowException.h"
@@ -128,10 +133,78 @@ namespace
 
 	void checkSettingsValidity(const Storm::StateLoadingOrders &inLoadingOrder)
 	{
-		const std::filesystem::path filePath{ inLoadingOrder._settings._filePath };
-		if (!std::filesystem::is_regular_file(filePath))
+		const Storm::StateLoadingOrders::LoadingSettings &loadSetting = inLoadingOrder._settings;
+		if (!std::filesystem::is_regular_file(loadSetting._filePath))
 		{
-			Storm::throwException<std::exception>("'" + inLoadingOrder._settings._filePath + "' is not a file or doesn't exist");
+			Storm::throwException<std::exception>("'" + Storm::toStdString(loadSetting._filePath) + "' is not a file or doesn't exist");
+		}
+	}
+
+	class StateReaderImpl : public Storm::StateFileHeader
+	{
+	public:
+		StateReaderImpl(Storm::StateLoadingOrders &savingOrder) :
+			_loadingOrder{ savingOrder }
+		{}
+
+	public:
+		void serialize(Storm::SerializePackage &package)
+		{
+			Storm::StateFileHeader::serialize(package);
+
+			if (_stateFileVersion < Storm::Version{ 1, 1, 0 })
+			{
+				this->serialize_v1_0_0(package);
+			}
+			else
+			{
+				Storm::throwException<std::exception>("Cannot read the current state because the version " + Storm::toStdString(_stateFileVersion) + " isn't handled ");
+			}
+		}
+
+	private:
+		void serialize_v1_0_0(Storm::SerializePackage &package);
+
+	private:
+		Storm::StateLoadingOrders &_loadingOrder;
+	};
+
+	void StateReaderImpl::serialize_v1_0_0(Storm::SerializePackage &package)
+	{
+		Storm::SimulationState &simulationState = *_loadingOrder._simulationState;
+
+		package << simulationState._currentPhysicsTime;
+
+		uint64_t pSystemCount = 0;
+		package << pSystemCount;
+
+		simulationState._pSystemStates.resize(pSystemCount);
+
+		for (Storm::SystemSimulationStateObject &pState : simulationState._pSystemStates)
+		{
+			package <<
+				pState._isFluid <<
+				pState._isStatic <<
+				pState._positions <<
+				pState._velocities <<
+				pState._forces
+				;
+
+			if (pState._isFluid)
+			{
+				package <<
+					pState._densities <<
+					pState._pressures <<
+					pState._masses
+					;
+			}
+			else
+			{
+				package <<
+					pState._globalPosition <<
+					pState._volumes
+					;
+			}
 		}
 	}
 }
@@ -139,12 +212,11 @@ namespace
 
 void Storm::StateReader::execute(Storm::StateLoadingOrders &inOutLoadingOrder)
 {
-	STORM_NOT_IMPLEMENTED;
-
 	checkSettingsValidity(inOutLoadingOrder);
 	validateOrders(inOutLoadingOrder);
 
-	// TODO : Read
+	Storm::SerializePackage package{ Storm::SerializePackageCreationModality::LoadingManual, Storm::toStdString(inOutLoadingOrder._settings._filePath) };
+	package << StateReaderImpl{ inOutLoadingOrder };
 
 	checkValidity(*inOutLoadingOrder._simulationState);
 	applySettings(inOutLoadingOrder);

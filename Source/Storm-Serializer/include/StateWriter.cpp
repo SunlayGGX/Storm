@@ -143,6 +143,9 @@ namespace
 		
 		package << simulationState._currentPhysicsTime;
 
+		uint64_t pSystemCount = static_cast<uint64_t>(simulationState._pSystemStates.size());
+		package << pSystemCount;
+
 		for (Storm::SystemSimulationStateObject &pState : simulationState._pSystemStates)
 		{
 			package <<
