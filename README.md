@@ -89,10 +89,10 @@ Here are the command lines allowed values for the different executables. Command
 ### Storm.exe
 This is the simulation application. Command lines are exposed like this : --key=value or --key.
 - **help (no value, facultative)**: Displays the help. The simulation won't be run and the other command line argument won't have any effect.
-- **scene (string, facultative)**: This is the scene config file path to use. If there is none, then we will ask the user to choose one at the start of the application with the default installed file explorer.
+- **scene (string, facultative, accept macro)**: This is the scene config file path to use. If there is none, then we will ask the user to choose one at the start of the application with the default installed file explorer.
 - **macroConfig (string, facultative, accept built-in only macros)**: This is the macro config file path to use. If there is none, then we will select the one inside the default Config folder (the one inside Custom/General takes precedence over the one inside Custom/General/Original).
-- **generalConfig (string, facultative)**: This is the general config file path to use. If there is none, then we will select the one inside the default Config folder (the one inside Custom/General takes precedence over the one inside Custom/General/Original).
-- **tempPath (string, facultative)**: This is the temporary path to use (to a folder). If there is none, then we will select the default temporary path folder.
+- **generalConfig (string, facultative, accept macro)**: This is the general config file path to use. If there is none, then we will select the one inside the default Config folder (the one inside Custom/General takes precedence over the one inside Custom/General/Original).
+- **tempPath (string, facultative, accept macro)**: This is the temporary path to use (to a folder). If there is none, then we will select the default temporary path folder.
 - **mode (string, facultative)**: Specify the record/replay mode of the simulator. Accepted (case unsensitive) values are "Record" or "Replay". If the simulator is in record mode, then the simulation played will be recorded for a future replay. Default is unset, which means the application will just simulate without doing anything.
 - **recordFile (string, facultative)**: Specify the path the recording will be. Record file path should remain unset if record mode is left unset, otherwise it should reference a valid record file in case we're in Replay mode (Note that this setting can be left Unset if there is a path inside the scene config loaded).
 - **regenPCache (no value, facultative)**: Specify this flag and we will regenerate the rigid body particle cache data.
