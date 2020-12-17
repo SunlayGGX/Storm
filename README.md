@@ -98,7 +98,7 @@ This is the simulation application. Command lines are exposed like this : --key=
 - **regenPCache (no value, facultative)**: Specify this flag and we will regenerate the rigid body particle cache data.
 - **noUI (no value, facultative)**: Specify we don't want to visualize the simulation (save and speed up CPU ressource to focus only on what is important). This should be used with Record mode. Default is unset (which displays the simulation inside a UI).
 - **threadPriority (string, facultative)**: Specify the priority of the simulation thread was should be taken. If it is unset, default OS priority will be applied. Accepted values (case unsensitive) are 'Below', 'Normal' or 'High'.
-- **stateFile (string, facultative, accept macro)**: Specify the simulation state file to load from. If unset, we won't load a state file. Default is unset.
+- **stateFile (string, facultative, accept macro)**: Specify the simulation state file to load from. If unset, we won't load a state file. Default is unset. Note that it doesn't make sense to start with a state file when we're replaying, therefore this setting isn't available if the mode is set to "Replay".
 - **noVelocityLoad (no value, facultative)**: Specify we don't want to load the velocities part of the simulation state file. Default is false (we want to load them). Note that the setting should only be used if we specified a state file to load.
 - **noForceLoad (no value, facultative)**: Specify we don't want to load the forces part of the simulation state file. Default is false (we want to load them). Note that the setting should only be used if we specified a state file to load.
 

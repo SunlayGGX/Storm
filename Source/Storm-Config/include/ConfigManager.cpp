@@ -273,6 +273,12 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 				generalConfigData._simulationNoWait = false;
 			}
 
+			// It doesn't make sense to start from a state file when we replay, since a replay is a bunch of state file that forces the simulation to behave exactly as what was recorded.
+			if (!_stateFileToLoad.empty())
+			{
+				Storm::throwException<std::exception>("We cannot load a state file in replay mode.");
+			}
+
 			break;
 		}
 
