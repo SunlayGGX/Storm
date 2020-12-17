@@ -32,6 +32,7 @@ namespace Storm
 		Storm::ThreadPriority getUserSetThreadPriority() const final override;
 
 		const std::string& getStateFilePath() const final override;
+		void stateShouldLoad(bool &outLoadForces, bool &outLoadVelocities) const final override;
 
 		const std::string& getLogFolderPath() const final override;
 		Storm::LogLevel getLogLevel() const final override;
@@ -85,6 +86,8 @@ namespace Storm
 		Storm::ThreadPriority _userSetThreadPriority;
 
 		std::string _stateFileToLoad;
+		bool _loadVelocities;
+		bool _loadForces;
 
 		// Computed
 		std::string _sceneFileName;

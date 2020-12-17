@@ -17,6 +17,8 @@ STORM_XMACRO_COMMANDLINE_ELEM("stateFile", std::string, std::string{}, "The path
 STORM_XMACRO_COMMANDLINE_ELEM("regenPCache", bool, false, "Force invalidating the particle cache data. Therefore regenerating all of them anew.", getShouldRegenerateParticleCache) \
 STORM_XMACRO_COMMANDLINE_ELEM("threadPriority", Storm::ThreadPriority, Storm::ThreadPriority::Unset, "Simulation thread priority between Normal/Below/High.", getThreadPriority, parseThreadPriority)	\
 STORM_XMACRO_COMMANDLINE_ELEM_NO_VALUE("noUI", false, "Setting it specify that we shouldn't start the UI and only focus on the simulation on the background.", getNoUI)				\
+STORM_XMACRO_COMMANDLINE_ELEM_NO_VALUE("noVelocityLoad", false, "Setting it specify that we shouldn't load velocities from state file (velocities will be set to null vector).", noVelocityLoad)		\
+STORM_XMACRO_COMMANDLINE_ELEM_NO_VALUE("noForceLoad", false, "Setting it specify that we shouldn't load forces from state file (forces will be set to null vector).", noForceLoad)						\
 
 
 namespace

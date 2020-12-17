@@ -209,6 +209,17 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 
 		_stateFileToLoad = _macroConfig(parser.getStateFilePath());
 
+		const bool noForcesLoadSpecified = parser.noForceLoad();
+		const bool noVelocitiesLoadSpecified = parser.noVelocityLoad();
+		
+		if (_stateFileToLoad.empty() && (noForcesLoadSpecified || noVelocitiesLoadSpecified))
+		{
+			Storm::throwException<std::exception>("Some command line flags referring to state file loading were used while we haven't specified a state file to load from. It is forbidden!");
+		}
+
+		_loadForces = !noForcesLoadSpecified;
+		_loadVelocities = !noVelocitiesLoadSpecified;
+
 		Storm::RecordConfigData &recordConfigData = *_sceneConfig.getSceneData()._recordConfigData;
 		recordConfigData._recordMode = chosenRecordMode;
 
@@ -323,6 +334,12 @@ Storm::ThreadPriority Storm::ConfigManager::getUserSetThreadPriority() const
 const std::string& Storm::ConfigManager::getStateFilePath() const
 {
 	return _stateFileToLoad;
+}
+
+void Storm::ConfigManager::stateShouldLoad(bool &outLoadForces, bool &outLoadVelocities) const
+{
+	outLoadForces = _loadForces;
+	outLoadVelocities = _loadVelocities;
 }
 
 bool Storm::ConfigManager::noPopup() const

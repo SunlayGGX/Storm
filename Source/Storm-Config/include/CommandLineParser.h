@@ -28,6 +28,9 @@ namespace Storm
 
 		bool getNoUI() const;
 
+		bool noVelocityLoad() const;
+		bool noForceLoad() const;
+
 		Storm::ThreadPriority getThreadPriority() const;
 
 	private:

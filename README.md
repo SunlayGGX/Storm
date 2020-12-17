@@ -99,6 +99,8 @@ This is the simulation application. Command lines are exposed like this : --key=
 - **noUI (no value, facultative)**: Specify we don't want to visualize the simulation (save and speed up CPU ressource to focus only on what is important). This should be used with Record mode. Default is unset (which displays the simulation inside a UI).
 - **threadPriority (string, facultative)**: Specify the priority of the simulation thread was should be taken. If it is unset, default OS priority will be applied. Accepted values (case unsensitive) are 'Below', 'Normal' or 'High'.
 - **stateFile (string, facultative, accept macro)**: Specify the simulation state file to load from. If unset, we won't load a state file. Default is unset.
+- **noVelocityLoad (no value, facultative)**: Specify we don't want to load the velocities part of the simulation state file. Default is false (we want to load them). Note that the setting should only be used if we specified a state file to load.
+- **noForceLoad (no value, facultative)**: Specify we don't want to load the forces part of the simulation state file. Default is false (we want to load them). Note that the setting should only be used if we specified a state file to load.
 
 
 ### Storm-LogViewer.exe
