@@ -22,6 +22,8 @@ namespace Storm
 		std::string getRecordModeStr() const;
 		std::string getRecordFilePath() const;
 
+		std::string getStateFilePath() const;
+
 		bool getShouldRegenerateParticleCache() const;
 
 		bool getNoUI() const;

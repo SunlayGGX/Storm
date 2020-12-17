@@ -207,6 +207,8 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 
 		_shouldRegenerateParticleCache = parser.getShouldRegenerateParticleCache();
 
+		_stateFileToLoad = _macroConfig(parser.getStateFilePath());
+
 		Storm::RecordConfigData &recordConfigData = *_sceneConfig.getSceneData()._recordConfigData;
 		recordConfigData._recordMode = chosenRecordMode;
 
@@ -316,6 +318,11 @@ bool Storm::ConfigManager::withUI() const
 Storm::ThreadPriority Storm::ConfigManager::getUserSetThreadPriority() const
 {
 	return _userSetThreadPriority;
+}
+
+const std::string& Storm::ConfigManager::getStateFilePath() const
+{
+	return _stateFileToLoad;
 }
 
 bool Storm::ConfigManager::noPopup() const

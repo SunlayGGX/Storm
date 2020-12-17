@@ -31,6 +31,8 @@ namespace Storm
 
 		Storm::ThreadPriority getUserSetThreadPriority() const final override;
 
+		const std::string& getStateFilePath() const final override;
+
 		const std::string& getLogFolderPath() const final override;
 		Storm::LogLevel getLogLevel() const final override;
 		int getRemoveLogOlderThanDaysCount() const final override;
@@ -81,6 +83,8 @@ namespace Storm
 		bool _shouldRegenerateParticleCache;
 		bool _withUI;
 		Storm::ThreadPriority _userSetThreadPriority;
+
+		std::string _stateFileToLoad;
 
 		// Computed
 		std::string _sceneFileName;
