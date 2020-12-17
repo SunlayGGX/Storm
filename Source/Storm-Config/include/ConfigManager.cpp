@@ -163,7 +163,10 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 
 		if (errorMsg.empty())
 		{
-			_macroConfig.registerMacro("SceneName", sceneConfigFilePath.stem().string());
+			_sceneFileName = sceneConfigFilePath.stem().string();
+
+			_macroConfig.registerMacro("SceneName", _sceneFileName);
+			_macroConfig.registerMacro("SceneStateFolder", (std::filesystem::path{ *_macroConfig.queryMacroValue("StormStates") } / _sceneFileName).string());
 			_macroConfig.resolveInternalMacro();
 
 			const std::string generalConfigFilePathStrFromCmdLine = _macroConfig(parser.getGeneralConfigFilePath());
@@ -174,7 +177,6 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 
 			_generalConfig.applyMacros(_macroConfig);
 
-			_sceneFileName = sceneConfigFilePath.stem().string();
 			_sceneConfig.read(_sceneConfigFilePath, _macroConfig, _generalConfig);
 		}
 		else
