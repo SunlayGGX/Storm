@@ -52,6 +52,8 @@ void Storm::StateSaverHelper::saveIntoState(Storm::SimulationState &state, const
 
 		Storm::SystemSimulationStateObject &pSystemState = state._pSystemStates.emplace_back();
 
+		pSystemState._id = pSystem.getId();
+
 		reserveResizeUnitialized(pSystemState._positions, hijacker);
 		reserveResizeUnitialized(pSystemState._velocities, hijacker);
 		reserveResizeUnitialized(pSystemState._forces, hijacker);
