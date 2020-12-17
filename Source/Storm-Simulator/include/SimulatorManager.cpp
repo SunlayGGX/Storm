@@ -62,6 +62,7 @@
 
 #include "StateSavingOrders.h"
 #include "StateSaverHelper.h"
+#include "SystemSimulationStateObject.h"
 
 #include "ExitCode.h"
 
@@ -81,10 +82,10 @@
 namespace
 {
 	template<class ParticleSystemType, class MapType, class ... Args>
-	void addParticleSystemToMap(MapType &map, unsigned int particleSystemId, Args &&... args)
+	auto& addParticleSystemToMap(MapType &map, unsigned int particleSystemId, Args &&... args)
 	{
 		std::unique_ptr<Storm::ParticleSystem> particleSystemPtr = std::make_unique<ParticleSystemType>(particleSystemId, std::forward<Args>(args)...);
-		map[particleSystemId] = std::move(particleSystemPtr);
+		return static_cast<ParticleSystemType &>(*(map[particleSystemId] = std::move(particleSystemPtr)));
 	}
 
 	class ParticleDataParser
@@ -1140,6 +1141,49 @@ void Storm::SimulatorManager::addRigidBodyParticleSystem(unsigned int id, std::v
 	addParticleSystemToMap<Storm::RigidBodyParticleSystem>(_particleSystem, id, std::move(particlePositions));
 
 	LOG_DEBUG << "Rigid body particle system " << id << " was created and successfully registered in simulator!";
+}
+
+void Storm::SimulatorManager::addFluidParticleSystem(Storm::SystemSimulationStateObject &&state)
+{
+	assert(!Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().isInReplayMode() && "This method should not be used in replay mode!");
+
+
+	const std::size_t initialParticleCount = state._positions.size();
+	LOG_COMMENT << "Creating fluid particle system with " << initialParticleCount << " particles.";
+
+	const Storm::GeneralSimulationData &generalConfigData = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().getGeneralSimulationData();
+	if (generalConfigData._removeFluidParticleCollidingWithRb)
+	{
+		LOG_COMMENT << "Removing fluid particles that collide with rigid bodies particles.";
+
+		removeParticleInsideRbPosition(state._positions, _particleSystem, generalConfigData._particleRadius);
+
+		LOG_DEBUG << "We removed " << initialParticleCount - state._positions.size() << " particle(s) after checking which collide with existing rigid bodies.";
+	}
+
+	Storm::FluidParticleSystem &newPSystem = addParticleSystemToMap<Storm::FluidParticleSystem>(_particleSystem, state._id, std::move(state._positions));
+	newPSystem.setVelocity(std::move(state._velocities));
+	newPSystem.setForces(std::move(state._forces));
+	newPSystem.setPressures(std::move(state._pressures));
+	newPSystem.setDensities(std::move(state._densities));
+	newPSystem.setMasses(std::move(state._masses));
+
+	LOG_DEBUG << "Fluid particle system " << state._id << " was created and successfully registered in simulator!";
+}
+
+void Storm::SimulatorManager::addRigidBodyParticleSystem(Storm::SystemSimulationStateObject &&state)
+{
+	assert(!Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().isInReplayMode() && "This method should not be used in replay mode!");
+
+	LOG_COMMENT << "Creating rigid body particle system with " << state._positions.size() << " particles.";
+
+	Storm::RigidBodyParticleSystem &newPSystem = addParticleSystemToMap<Storm::RigidBodyParticleSystem>(_particleSystem, state._id, std::move(state._positions));
+	newPSystem.setVelocity(std::move(state._velocities));
+	newPSystem.setForces(std::move(state._forces));
+	newPSystem.setVolumes(std::move(state._volumes));
+	newPSystem.setParticleSystemPosition(state._globalPosition);
+
+	LOG_DEBUG << "Rigid body particle system " << state._id << " was created and successfully registered in simulator!";
 }
 
 void Storm::SimulatorManager::addFluidParticleSystem(unsigned int id, const std::size_t particleCount)

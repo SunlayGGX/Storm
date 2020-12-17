@@ -271,6 +271,11 @@ void Storm::RigidBodyParticleSystem::setVolumes(std::vector<float> &&volumes)
 	_volumes = std::move(_volumes);
 }
 
+void Storm::RigidBodyParticleSystem::setMasses(std::vector<float> &&masses)
+{
+
+}
+
 void Storm::RigidBodyParticleSystem::setTmpPressureForces(std::vector<Storm::Vector3> &&tmpPressureForces)
 {
 	if (!this->isStatic())

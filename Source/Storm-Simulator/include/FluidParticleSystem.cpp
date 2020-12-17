@@ -143,6 +143,11 @@ void Storm::FluidParticleSystem::setVolumes(std::vector<float> &&volumes)
 
 }
 
+void Storm::FluidParticleSystem::setMasses(std::vector<float> &&masses)
+{
+	_masses = std::move(masses);
+}
+
 void Storm::FluidParticleSystem::setTmpPressureForces(std::vector<Storm::Vector3> &&tmpPressureForces)
 {
 	_tmpPressureForce = std::move(tmpPressureForces);
