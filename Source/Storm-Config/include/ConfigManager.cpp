@@ -212,9 +212,19 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 		const bool noForcesLoadSpecified = parser.noForceLoad();
 		const bool noVelocitiesLoadSpecified = parser.noVelocityLoad();
 		
-		if (_stateFileToLoad.empty() && (noForcesLoadSpecified || noVelocitiesLoadSpecified))
+		if (_stateFileToLoad.empty())
 		{
-			Storm::throwException<std::exception>("Some command line flags referring to state file loading were used while we haven't specified a state file to load from. It is forbidden!");
+			if (noForcesLoadSpecified || noVelocitiesLoadSpecified)
+			{
+				Storm::throwException<std::exception>(
+					"Some command line flags referring to state file loading were used while we haven't specified a state file to load from.\n"
+					"It is forbidden!"
+				);
+			}
+		}
+		else
+		{
+			LOG_WARNING << "State loading is an experimental feature and wasn't fully tested! It is still incomplete and could have bugs! Enable it at your own risks!";
 		}
 
 		_loadForces = !noForcesLoadSpecified;
