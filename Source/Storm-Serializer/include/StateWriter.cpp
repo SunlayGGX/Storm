@@ -149,6 +149,7 @@ namespace
 		for (Storm::SystemSimulationStateObject &pState : simulationState._pSystemStates)
 		{
 			package <<
+				pState._id <<
 				pState._isFluid <<
 				pState._isStatic <<
 				pState._positions <<
