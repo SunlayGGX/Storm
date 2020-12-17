@@ -459,6 +459,13 @@ case Storm::BlowerType::BlowerTypeName: \
 		simulMgr.loadBlower(blowerToLoad);
 	}
 
+	/* Set the physics time to what was saved in the state file if needed */
+	if (shouldLoadState && loadedState._settings._loadPhysicsTime)
+	{
+		Storm::ITimeManager &timeMgr = singletonHolder.getSingleton<Storm::ITimeManager>();
+		timeMgr.setCurrentPhysicsElapsedTime(loadedState._simulationState->_currentPhysicsTime);
+	}
+
 	/* Load fluid particles */
 	const Storm::GeneralSimulationData &generalConfigData = configMgr.getGeneralSimulationData();
 	if (generalConfigData._hasFluid)
