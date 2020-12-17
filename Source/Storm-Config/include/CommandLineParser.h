@@ -28,6 +28,7 @@ namespace Storm
 
 		bool getNoUI() const;
 
+		bool noPhysicsTimeLoad() const;
 		bool noVelocityLoad() const;
 		bool noForceLoad() const;
 

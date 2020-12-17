@@ -31,7 +31,7 @@ namespace Storm
 		virtual bool withUI() const = 0;
 		virtual Storm::ThreadPriority getUserSetThreadPriority() const = 0;
 		virtual const std::string& getStateFilePath() const = 0;
-		virtual void stateShouldLoad(bool &outLoadForces, bool &outLoadVelocities) const = 0;
+		virtual void stateShouldLoad(bool &outLoadPhysicsTime, bool &outLoadForces, bool &outLoadVelocities) const = 0;
 
 		// Logs
 		virtual const std::string& getLogFileName() const = 0;

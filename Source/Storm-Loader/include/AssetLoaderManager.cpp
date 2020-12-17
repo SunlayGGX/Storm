@@ -9,6 +9,7 @@
 #include "ISimulatorManager.h"
 #include "IThreadManager.h"
 #include "ISerializerManager.h"
+#include "ITimeManager.h"
 
 #include "GeneralSimulationData.h"
 #include "FluidData.h"
@@ -192,11 +193,12 @@ namespace
 
 		Storm::StateLoadingOrders::LoadingSettings &settings = inOutLoadingStateOrder._settings;
 
+		bool loadPhysicsTime;
 		bool loadForces;
 		bool loadVelocities;
-		configMgr.stateShouldLoad(loadForces, loadVelocities);
+		configMgr.stateShouldLoad(loadPhysicsTime, loadForces, loadVelocities);
 
-		settings._loadPhysicsTime = true;
+		settings._loadPhysicsTime = loadPhysicsTime;
 		settings._loadForces = loadForces;
 		settings._loadVelocities = loadVelocities;
 

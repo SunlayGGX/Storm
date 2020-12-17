@@ -209,12 +209,13 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 
 		_stateFileToLoad = _macroConfig(parser.getStateFilePath());
 
+		const bool noLoadPhysicsTime = parser.noPhysicsTimeLoad();
 		const bool noForcesLoadSpecified = parser.noForceLoad();
 		const bool noVelocitiesLoadSpecified = parser.noVelocityLoad();
 		
 		if (_stateFileToLoad.empty())
 		{
-			if (noForcesLoadSpecified || noVelocitiesLoadSpecified)
+			if (noLoadPhysicsTime || noForcesLoadSpecified || noVelocitiesLoadSpecified)
 			{
 				Storm::throwException<std::exception>(
 					"Some command line flags referring to state file loading were used while we haven't specified a state file to load from.\n"
@@ -227,6 +228,7 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 			LOG_WARNING << "State loading is an experimental feature and wasn't fully tested! It is still incomplete and could have bugs! Enable it at your own risks!";
 		}
 
+		_loadPhysicsTime = !noLoadPhysicsTime;
 		_loadForces = !noForcesLoadSpecified;
 		_loadVelocities = !noVelocitiesLoadSpecified;
 
@@ -352,8 +354,9 @@ const std::string& Storm::ConfigManager::getStateFilePath() const
 	return _stateFileToLoad;
 }
 
-void Storm::ConfigManager::stateShouldLoad(bool &outLoadForces, bool &outLoadVelocities) const
+void Storm::ConfigManager::stateShouldLoad(bool &outLoadPhysicsTime, bool &outLoadForces, bool &outLoadVelocities) const
 {
+	outLoadPhysicsTime = _loadPhysicsTime;
 	outLoadForces = _loadForces;
 	outLoadVelocities = _loadVelocities;
 }
