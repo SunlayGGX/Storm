@@ -119,5 +119,7 @@ void Storm::StateFileHeader::serializeHeaderPart(Storm::SerializePackage &packag
 	// This is here you can add additional data you want to save.
 	// Since the package file was validated and the right version was retrieved, we can execute the right retrocompatibility code.
 
+	package << _configFileNameUsed;
+
 	_bodyStreamPosition = package.getStreamPosition();
 }

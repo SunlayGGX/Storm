@@ -126,7 +126,10 @@ namespace
 	public:
 		StateWriterImpl(Storm::StateSavingOrders &savingOrder) :
 			_savingOrder{ savingOrder }
-		{}
+		{
+			// Fill header
+			_configFileNameUsed = savingOrder._simulationState->_configSceneName;
+		}
 
 	public:
 		void serialize(Storm::SerializePackage &package);

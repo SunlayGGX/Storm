@@ -143,8 +143,8 @@ namespace
 	class StateReaderImpl : public Storm::StateFileHeader
 	{
 	public:
-		StateReaderImpl(Storm::StateLoadingOrders &savingOrder) :
-			_loadingOrder{ savingOrder }
+		StateReaderImpl(Storm::StateLoadingOrders &loadingOrder) :
+			_loadingOrder{ loadingOrder }
 		{}
 
 	public:
@@ -160,6 +160,14 @@ namespace
 			{
 				Storm::throwException<std::exception>("Cannot read the current state because the version " + Storm::toStdString(_stateFileVersion) + " isn't handled ");
 			}
+
+			this->applyHeaderSettings();
+		}
+
+	private:
+		void applyHeaderSettings()
+		{
+			_loadingOrder._simulationState->_configSceneName = std::move(_configFileNameUsed);
 		}
 
 	private:

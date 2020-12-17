@@ -2,6 +2,7 @@
 
 #include "SingletonHolder.h"
 #include "ITimeManager.h"
+#include "IConfigManager.h"
 
 #include "ParticleSystem.h"
 #include "FluidParticleSystem.h"
@@ -36,8 +37,10 @@ void Storm::StateSaverHelper::saveIntoState(Storm::SimulationState &state, const
 {
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 	const Storm::ITimeManager &timeMgr = singletonHolder.getSingleton<Storm::ITimeManager>();
+	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
 
 	state._currentPhysicsTime = timeMgr.getCurrentPhysicsElapsedTime();
+	state._configSceneName = configMgr.getSceneName();
 
 	state._pSystemStates.reserve(pSystemContainer.size());
 	for (const auto &pSystemPair : pSystemContainer)

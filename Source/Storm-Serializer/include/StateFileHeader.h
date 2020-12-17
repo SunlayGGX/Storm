@@ -32,7 +32,7 @@ namespace Storm
 		uint64_t _stateFileSize;
 
 		// Header
-
+		std::string _configFileNameUsed;
 
 		// Additional variable
 		std::size_t _headerStreamPosition;

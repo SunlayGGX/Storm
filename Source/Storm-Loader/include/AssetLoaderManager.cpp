@@ -204,6 +204,22 @@ namespace
 
 		Storm::ISerializerManager &serializerMgr = singletonHolder.getSingleton<Storm::ISerializerManager>();
 		serializerMgr.loadState(inOutLoadingStateOrder);
+
+		// Provide a non existent protection, but at least, log it.
+		// Throwing is not the solution, we hope user know what it does but if it doesn't, then we warn him.
+		// If we throw, user that really wants it will just rename the config file. This is too easily bypassed
+		// (and no warning will be issued then because we don't look at the content of the config file (it is the purpose of this feature to reload from a state and
+		// try with different settings)), therefore, preventing the user with a throw is just more a pain in the ass than what is truly gained. 
+		// And I'm not a pro to needlessly overcomplexify things that could just be much more simpler for everyone... ;)
+		const std::string &currentSceneName = configMgr.getSceneName();
+		const std::string &stateSceneName = inOutLoadingStateOrder._simulationState->_configSceneName;
+		if (stateSceneName != currentSceneName)
+		{
+			LOG_WARNING <<
+				"We loaded a state made for another scene (" << stateSceneName << ") but loaded it into scene " << currentSceneName << ".\n"
+				"Be aware that this could produce unexpected results, behaviors and bugs."
+				;
+		}
 	}
 }
 

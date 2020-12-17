@@ -11,6 +11,7 @@ namespace Storm
 
 	public:
 		float _currentPhysicsTime;
+		std::string _configSceneName;
 		std::vector<Storm::SystemSimulationStateObject> _pSystemStates;
 	};
 }
