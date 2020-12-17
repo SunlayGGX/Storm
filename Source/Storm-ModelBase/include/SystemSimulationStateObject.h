@@ -6,9 +6,9 @@ namespace Storm
 	struct SystemSimulationStateObject
 	{
 	public:
-		unsigned int _id;
-		bool _isFluid;
-		bool _isStatic;
+		uint32_t _id;
+		uint8_t _isFluid;
+		uint8_t _isStatic;
 
 		Storm::Vector3 _globalPosition;
 		std::vector<Storm::Vector3> _positions;
