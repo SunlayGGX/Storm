@@ -6,17 +6,17 @@
 #include <boost\algorithm\string\case_conv.hpp>
 
 
-#define STORM_XMACRO_COMMANDLINE																																					\
-STORM_XMACRO_COMMANDLINE_ELEM("scene", std::string, std::string{}, "The scene config file to use (path).", getSceneFilePath)														\
-STORM_XMACRO_COMMANDLINE_ELEM("macroConfig", std::string, std::string{}, "The general config file to use (path).", getMacroConfigFilePath)											\
-STORM_XMACRO_COMMANDLINE_ELEM("generalConfig", std::string, std::string{}, "The general config file to use (path).", getGeneralConfigFilePath)										\
-STORM_XMACRO_COMMANDLINE_ELEM("tempPath", std::string, std::string{}, "The temporary path to use (path).", getTempPath)																\
-STORM_XMACRO_COMMANDLINE_ELEM("mode", std::string, std::string{}, "The mode the simulator is launched into.", getRecordModeStr)														\
-STORM_XMACRO_COMMANDLINE_ELEM("recordFile", std::string, std::string{}, "The path to the record file to write/read (path).", getRecordFilePath)										\
-STORM_XMACRO_COMMANDLINE_ELEM("stateFile", std::string, std::string{}, "The path to the simulation state file to load from (path).", getStateFilePath)								\
+#define STORM_XMACRO_COMMANDLINE																																										\
+STORM_XMACRO_COMMANDLINE_ELEM("scene", std::string, std::string{}, "The scene config file to use (path).", getSceneFilePath)																			\
+STORM_XMACRO_COMMANDLINE_ELEM("macroConfig", std::string, std::string{}, "The general config file to use (path).", getMacroConfigFilePath)																\
+STORM_XMACRO_COMMANDLINE_ELEM("generalConfig", std::string, std::string{}, "The general config file to use (path).", getGeneralConfigFilePath)															\
+STORM_XMACRO_COMMANDLINE_ELEM("tempPath", std::string, std::string{}, "The temporary path to use (path).", getTempPath)																					\
+STORM_XMACRO_COMMANDLINE_ELEM("mode", std::string, std::string{}, "The mode the simulator is launched into.", getRecordModeStr)																			\
+STORM_XMACRO_COMMANDLINE_ELEM("recordFile", std::string, std::string{}, "The path to the record file to write/read (path).", getRecordFilePath)															\
+STORM_XMACRO_COMMANDLINE_ELEM("stateFile", std::string, std::string{}, "The path to the simulation state file to load from (path).", getStateFilePath)													\
 STORM_XMACRO_COMMANDLINE_ELEM("threadPriority", Storm::ThreadPriority, Storm::ThreadPriority::Unset, "Simulation thread priority between Normal/Below/High.", getThreadPriority, parseThreadPriority)	\
 STORM_XMACRO_COMMANDLINE_ELEM_NO_VALUE("regenPCache", false, "Force invalidating the particle cache data. Therefore regenerating all of them anew.", getShouldRegenerateParticleCache)					\
-STORM_XMACRO_COMMANDLINE_ELEM_NO_VALUE("noUI", false, "Setting it specify that we shouldn't start the UI and only focus on the simulation on the background.", getNoUI)				\
+STORM_XMACRO_COMMANDLINE_ELEM_NO_VALUE("noUI", false, "Setting it specify that we shouldn't start the UI and only focus on the simulation on the background.", getNoUI)									\
 STORM_XMACRO_COMMANDLINE_ELEM_NO_VALUE("noVelocityLoad", false, "Setting it specify that we shouldn't load velocities from state file (velocities will be set to null vector).", noVelocityLoad)		\
 STORM_XMACRO_COMMANDLINE_ELEM_NO_VALUE("noForceLoad", false, "Setting it specify that we shouldn't load forces from state file (forces will be set to null vector).", noForceLoad)						\
 
