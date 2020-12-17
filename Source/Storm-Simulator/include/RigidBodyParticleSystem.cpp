@@ -268,7 +268,7 @@ void Storm::RigidBodyParticleSystem::setPressures(std::vector<float> &&)
 
 void Storm::RigidBodyParticleSystem::setVolumes(std::vector<float> &&volumes)
 {
-	_volumes = std::move(_volumes);
+	_volumes = std::move(volumes);
 }
 
 void Storm::RigidBodyParticleSystem::setMasses(std::vector<float> &&masses)
