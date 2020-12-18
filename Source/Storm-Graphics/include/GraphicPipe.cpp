@@ -17,7 +17,7 @@
 
 #if _WIN32
 #	define STORM_HIJACKED_TYPE Storm::GraphicParticleData
-#	include "VectHijack.h"
+#		include "VectHijack.h"
 #	undef STORM_HIJACKED_TYPE
 #endif
 

@@ -51,10 +51,14 @@ namespace Storm
 		virtual void setForces(std::vector<Storm::Vector3> &&forces) = 0;
 		virtual void setDensities(std::vector<float> &&densities) = 0;
 		virtual void setPressures(std::vector<float> &&pressures) = 0;
+		virtual void setVolumes(std::vector<float> &&volumes) = 0;
+		virtual void setMasses(std::vector<float> &&masses) = 0;
 		virtual void setTmpPressureForces(std::vector<Storm::Vector3> &&tmpPressureForces) = 0;
 		virtual void setTmpViscosityForces(std::vector<Storm::Vector3> &&tmpViscoForces) = 0;
 		virtual void setParticleSystemPosition(const Storm::Vector3 &pSystemPosition) = 0;
 		virtual void setParticleSystemTotalForce(const Storm::Vector3 &pSystemTotalForce) = 0;
+
+		virtual void prepareSaving(const bool replayMode);
 
 	public:
 		void buildNeighborhood(const Storm::ParticleSystemContainer &allParticleSystems);

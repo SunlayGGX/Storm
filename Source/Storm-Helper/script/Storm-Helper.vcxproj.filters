@@ -266,5 +266,8 @@
     <ClInclude Include="..\include\VectorHijacker.h">
       <Filter>Header Files\General\Misc\Hijack</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\FuncMovePass.h">
+      <Filter>Header Files\General\Misc</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

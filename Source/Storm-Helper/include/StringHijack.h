@@ -17,8 +17,9 @@ template<>
 template<>
 void std::string::_Construct<StdHijackerProxy>(StdHijackerProxy hijacker, const StdHijackerProxy, input_iterator_tag)
 {
-	this->reserve(hijacker._newAskedSize);
+	this->reserve(hijacker._newAskedSize + 1);
 	_Mypair._Myval2._Mysize = hijacker._newAskedSize;
+	*(this->data() + _Mypair._Myval2._Mysize) = static_cast<std::string::value_type>('\0');
 }
 
 #endif

@@ -92,15 +92,19 @@ Here are the command lines allowed values for the different executables. Command
 ### Storm.exe
 This is the simulation application. Command lines are exposed like this : --key=value or --key.
 - **help (no value, facultative)**: Displays the help. The simulation won't be run and the other command line argument won't have any effect.
-- **scene (string, facultative)**: This is the scene config file path to use. If there is none, then we will ask the user to choose one at the start of the application with the default installed file explorer.
+- **scene (string, facultative, accept macro)**: This is the scene config file path to use. If there is none, then we will ask the user to choose one at the start of the application with the default installed file explorer.
 - **macroConfig (string, facultative, accept built-in only macros)**: This is the macro config file path to use. If there is none, then we will select the one inside the default Config folder (the one inside Custom/General takes precedence over the one inside Custom/General/Original).
-- **generalConfig (string, facultative)**: This is the general config file path to use. If there is none, then we will select the one inside the default Config folder (the one inside Custom/General takes precedence over the one inside Custom/General/Original).
-- **tempPath (string, facultative)**: This is the temporary path to use (to a folder). If there is none, then we will select the default temporary path folder.
-- **regenPCache (no value, facultative)**: Specify this flag and we will regenerate the rigid body particle cache data.
+- **generalConfig (string, facultative, accept macro)**: This is the general config file path to use. If there is none, then we will select the one inside the default Config folder (the one inside Custom/General takes precedence over the one inside Custom/General/Original).
+- **tempPath (string, facultative, accept macro)**: This is the temporary path to use (to a folder). If there is none, then we will select the default temporary path folder.
 - **mode (string, facultative)**: Specify the record/replay mode of the simulator. Accepted (case unsensitive) values are "Record" or "Replay". If the simulator is in record mode, then the simulation played will be recorded for a future replay. Default is unset, which means the application will just simulate without doing anything.
 - **recordFile (string, facultative)**: Specify the path the recording will be. Record file path should remain unset if record mode is left unset, otherwise it should reference a valid record file in case we're in Replay mode (Note that this setting can be left Unset if there is a path inside the scene config loaded).
+- **regenPCache (no value, facultative)**: Specify this flag and we will regenerate the rigid body particle cache data.
 - **noUI (no value, facultative)**: Specify we don't want to visualize the simulation (save and speed up CPU ressource to focus only on what is important). This should be used with Record mode. Default is unset (which displays the simulation inside a UI).
 - **threadPriority (string, facultative)**: Specify the priority of the simulation thread was should be taken. If it is unset, default OS priority will be applied. Accepted values (case unsensitive) are 'Below', 'Normal' or 'High'.
+- **stateFile (string, facultative, accept macro)**: Specify the simulation state file to load from. If unset, we won't load a state file. Default is unset. Note that it doesn't make sense to start with a state file when we're replaying, therefore this setting isn't available if the mode is set to "Replay".
+- **noPhysicsTimeLoad (no value, facultative)**: Specify we don't want to load the physics time recorded in the state file. Default is false (we want to load it). Note that the setting should only be used if we specified a state file to load.
+- **noVelocityLoad (no value, facultative)**: Specify we don't want to load the velocities part of the simulation state file. Default is false (we want to load them). Note that the setting should only be used if we specified a state file to load.
+- **noForceLoad (no value, facultative)**: Specify we don't want to load the forces part of the simulation state file. Default is false (we want to load them). Note that the setting should only be used if we specified a state file to load.
 
 
 ### Storm-LogViewer.exe
@@ -156,12 +160,14 @@ There are some pre-built-in macros that aren't defined inside the macro file and
 + **$[StormResource]** will refer, in case StormRoot macro is valid, to where the Resource folder is.
 + **$[StormIntermediate]** will refer, in case StormRoot macro is valid, to where the Output folder is.
 + **$[StormRecord]** will refer, in case StormRoot macro is valid, to where the Record folder is.
++ **$[StormStates]** will refer, in case StormRoot macro is valid, to where the States folder is (where all states will be registered in a folder representing the scene name).
 + **$[StormTmp]** will refer to the StormIntermediate if StormRoot macro is valid, or to OS defined temporary location.
 + **$[DateTime]** will refer to the current date when the Application is run (in filesystem compatible format : Weekday_Year_Month_Day_Hour_Minute_Second ).
 + **$[Date]**, like DateTime, will refer to the current date when the Application is run but without hours and lesser time division (in filesystem compatible format : Weekday_Year_Month_Day ).
-+ **$[SceneName]** will refer to the chosen scene name. This is the only exception to the pre-build-in macros which can be used anywhere. This macro can only be used after selecting a scene, therefore can only be used at some point like when we read the general config and the scene config. Therefore, use caution when using this pre built macro.
++ **$[SceneName]** will refer to the chosen scene name. This is an exception to the pre-build-in macros which can be used anywhere. This macro can only be used after selecting a scene, therefore can only be used at some point like when we read the general config and the scene config. Therefore, be cautious when using this pre built macro.
++ **$[SceneStateFolder]** will refer to the default state folder path. Since this macro is made from SceneName macro, it is also an exception to the pre-build-in macros which can be used anywhere. This macro can only be used after selecting a scene, therefore can only be used at some point like when we read the general config and the scene config. Therefore, be cautious when using this pre built macro.
 
-	
+
 Note that macros are applied to command line as well except for the path to the macro configuration were we will use only the built-in macros (it is kind of expected since we don't know about those macros unless we get to read the file specified by the path of the command line...). But you're safe to use the prebuilt macros.
 
 
@@ -367,6 +373,7 @@ Note : If the term in the parenthesis is "Numpad", then the keybinding is the va
 - **I**: Reset the replaying to the first frame. This feature exists only in replay mode.
 - **C**: Request all forces check to zero as per physics conservation of momentum law says for isolated systems that is in an equilibrium state.
 - **J**: Force refresh watched script files. Or re read all of them.
+- **X**: Save the current simulation state.
 - **1 (Key)**: Decrease the physics delta time. Valid only if we are not in replay mode, or if CFL is disabled.
 - **2 (Key)**: Increase the physics delta time. Valid only if we are not in replay mode, or if CFL is disabled.
 - **F1**: Debug command to print to a human readable text giving all position, velocity and force values of all fluid particles. The data is printed inside the output (temp) directory inside "Debug" folder.

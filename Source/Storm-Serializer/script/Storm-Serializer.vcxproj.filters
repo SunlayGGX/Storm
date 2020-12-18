@@ -40,6 +40,12 @@
     <Filter Include="Source Files\Record\Handler">
       <UniqueIdentifier>{486ba608-59f9-4c15-b8c7-b9f5b311e0c6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\State">
+      <UniqueIdentifier>{869b99a6-b0e0-43fa-af76-fea2a83a42ae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\State">
+      <UniqueIdentifier>{b045714d-d364-4e68-bbb7-97a5b2c1c604}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-SerializerPCH.cpp">
@@ -59,6 +65,15 @@
     </ClCompile>
     <ClCompile Include="..\include\RecordHandlerBase.cpp">
       <Filter>Source Files\Record\Handler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\StateReader.cpp">
+      <Filter>Source Files\State</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\StateWriter.cpp">
+      <Filter>Source Files\State</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\StateFileHeader.cpp">
+      <Filter>Source Files\State</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -82,6 +97,15 @@
     </ClInclude>
     <ClInclude Include="..\include\RecordHandlerBase.h">
       <Filter>Header Files\Record\Handler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\StateWriter.h">
+      <Filter>Header Files\State</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\StateReader.h">
+      <Filter>Header Files\State</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\StateFileHeader.h">
+      <Filter>Header Files\State</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

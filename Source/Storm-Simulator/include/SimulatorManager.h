@@ -61,6 +61,9 @@ namespace Storm
 		void addFluidParticleSystem(unsigned int id, std::vector<Storm::Vector3> particlePositions) final override;
 		void addRigidBodyParticleSystem(unsigned int id, std::vector<Storm::Vector3> particlePositions) final override;
 
+		void addFluidParticleSystem(Storm::SystemSimulationStateObject &&state) final override;
+		void addRigidBodyParticleSystem(Storm::SystemSimulationStateObject &&state) final override;
+
 		void addFluidParticleSystem(unsigned int id, const std::size_t particleCount) final override;
 		void addRigidBodyParticleSystem(unsigned int id, const std::size_t particleCount) final override;
 
@@ -103,6 +106,9 @@ namespace Storm
 
 	public:
 		void resetReplay();
+
+	public:
+		void saveSimulationState() const;
 
 	private:
 		void refreshParticlePartition(bool ignoreStatics = true) const;

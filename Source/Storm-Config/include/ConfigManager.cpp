@@ -163,7 +163,10 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 
 		if (errorMsg.empty())
 		{
-			_macroConfig.registerMacro("SceneName", sceneConfigFilePath.stem().string());
+			_sceneFileName = sceneConfigFilePath.stem().string();
+
+			_macroConfig.registerMacro("SceneName", _sceneFileName);
+			_macroConfig.registerMacro("SceneStateFolder", (std::filesystem::path{ *_macroConfig.queryMacroValue("StormStates") } / _sceneFileName).string());
 			_macroConfig.resolveInternalMacro();
 
 			const std::string generalConfigFilePathStrFromCmdLine = _macroConfig(parser.getGeneralConfigFilePath());
@@ -174,7 +177,6 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 
 			_generalConfig.applyMacros(_macroConfig);
 
-			_sceneFileName = sceneConfigFilePath.stem().string();
 			_sceneConfig.read(_sceneConfigFilePath, _macroConfig, _generalConfig);
 		}
 		else
@@ -206,6 +208,31 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 		}
 
 		_shouldRegenerateParticleCache = parser.getShouldRegenerateParticleCache();
+
+		_stateFileToLoad = _macroConfig(parser.getStateFilePath());
+
+		const bool noLoadPhysicsTime = parser.noPhysicsTimeLoad();
+		const bool noForcesLoadSpecified = parser.noForceLoad();
+		const bool noVelocitiesLoadSpecified = parser.noVelocityLoad();
+		
+		if (_stateFileToLoad.empty())
+		{
+			if (noLoadPhysicsTime || noForcesLoadSpecified || noVelocitiesLoadSpecified)
+			{
+				Storm::throwException<std::exception>(
+					"Some command line flags referring to state file loading were used while we haven't specified a state file to load from.\n"
+					"It is forbidden!"
+				);
+			}
+		}
+		else
+		{
+			LOG_WARNING << "State loading is an experimental feature and wasn't fully tested! It is still incomplete and could have bugs! Enable it at your own risks!";
+		}
+
+		_loadPhysicsTime = !noLoadPhysicsTime;
+		_loadForces = !noForcesLoadSpecified;
+		_loadVelocities = !noVelocitiesLoadSpecified;
 
 		Storm::RecordConfigData &recordConfigData = *_sceneConfig.getSceneData()._recordConfigData;
 		recordConfigData._recordMode = chosenRecordMode;
@@ -258,6 +285,12 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 					"Therefore, since we are in replay mode. replayRealTime take precedence.";
 
 				generalConfigData._simulationNoWait = false;
+			}
+
+			// It doesn't make sense to start from a state file when we replay, since a replay is a bunch of state file that forces the simulation to behave exactly as what was recorded.
+			if (!_stateFileToLoad.empty())
+			{
+				Storm::throwException<std::exception>("We cannot load a state file in replay mode.");
 			}
 
 			break;
@@ -316,6 +349,18 @@ bool Storm::ConfigManager::withUI() const
 Storm::ThreadPriority Storm::ConfigManager::getUserSetThreadPriority() const
 {
 	return _userSetThreadPriority;
+}
+
+const std::string& Storm::ConfigManager::getStateFilePath() const
+{
+	return _stateFileToLoad;
+}
+
+void Storm::ConfigManager::stateShouldLoad(bool &outLoadPhysicsTime, bool &outLoadForces, bool &outLoadVelocities) const
+{
+	outLoadPhysicsTime = _loadPhysicsTime;
+	outLoadForces = _loadForces;
+	outLoadVelocities = _loadVelocities;
 }
 
 bool Storm::ConfigManager::noPopup() const

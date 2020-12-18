@@ -69,6 +69,8 @@ Storm::RigidBodyParticleSystem::RigidBodyParticleSystem(unsigned int particleSys
 	_isWall = currentRbData._isWall;
 	_isStatic = _isWall || currentRbData._static;
 
+	_volumes.resize(particleCount);
+
 	// No need to initialize the other arrays since we won't use them in replay mode.
 }
 
@@ -260,6 +262,16 @@ void Storm::RigidBodyParticleSystem::setDensities(std::vector<float> &&)
 }
 
 void Storm::RigidBodyParticleSystem::setPressures(std::vector<float> &&)
+{
+
+}
+
+void Storm::RigidBodyParticleSystem::setVolumes(std::vector<float> &&volumes)
+{
+	_volumes = std::move(volumes);
+}
+
+void Storm::RigidBodyParticleSystem::setMasses(std::vector<float> &&masses)
 {
 
 }

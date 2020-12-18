@@ -22,9 +22,15 @@ namespace Storm
 		std::string getRecordModeStr() const;
 		std::string getRecordFilePath() const;
 
+		std::string getStateFilePath() const;
+
 		bool getShouldRegenerateParticleCache() const;
 
 		bool getNoUI() const;
+
+		bool noPhysicsTimeLoad() const;
+		bool noVelocityLoad() const;
+		bool noForceLoad() const;
 
 		Storm::ThreadPriority getThreadPriority() const;
 

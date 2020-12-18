@@ -121,6 +121,15 @@
     <Filter Include="Header Files\Modules\Graphics\General">
       <UniqueIdentifier>{f0e231a6-47b1-46ce-bfd4-5877d8c0e606}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Modules\Serializer\State">
+      <UniqueIdentifier>{d3fcaf0b-ab65-47b8-a27b-c824aae0c000}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Modules\Serializer\State">
+      <UniqueIdentifier>{5983837c-020b-4218-a25b-1657e484949b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Modules\Serializer\Record">
+      <UniqueIdentifier>{42eb7e50-6932-44b9-a153-12b136b78500}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-ModelBasePCH.cpp">
@@ -141,14 +150,17 @@
     <ClCompile Include="..\include\ThreadingSafety.cpp">
       <Filter>Source Files\Modules\Threading</Filter>
     </ClCompile>
-    <ClCompile Include="..\include\SerializeRecordData.cpp">
-      <Filter>Source Files\Modules\Serializer</Filter>
-    </ClCompile>
     <ClCompile Include="..\include\UIField.cpp">
       <Filter>Source Files\Modules\Graphics\UI</Filter>
     </ClCompile>
     <ClCompile Include="..\include\ShaderMacroItem.cpp">
       <Filter>Source Files\Modules\Graphics\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\SerializeRecordData.cpp">
+      <Filter>Source Files\Modules\Serializer\Record</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\StateOrders.cpp">
+      <Filter>Source Files\Modules\Serializer\State</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -364,6 +376,18 @@
     </ClInclude>
     <ClInclude Include="..\include\ScriptData.h">
       <Filter>Header Files\Modules\Config</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\StateSavingOrders.h">
+      <Filter>Header Files\Modules\Serializer\State</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SystemSimulationStateObject.h">
+      <Filter>Header Files\Modules\Serializer\State</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\StateLoadingOrders.h">
+      <Filter>Header Files\Modules\Serializer\State</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SimulationState.h">
+      <Filter>Header Files\Modules\Serializer\State</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

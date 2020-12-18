@@ -26,7 +26,13 @@
 #include "ThreadingSafety.h"
 #include "ThreadHelper.h"
 
+#include "FuncMovePass.h"
+
 #include "InvertPeriod.h"
+
+#include "StateSavingOrders.h"
+#include "StateWriter.h"
+#include "StateReader.h"
 
 
 namespace
@@ -48,6 +54,13 @@ namespace
 		{
 			return std::chrono::milliseconds{ 100 };
 		}
+	}
+
+	template<class Func>
+	void executeOnSerializerThread(Func &&func)
+	{
+		Storm::IThreadManager &threadMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>();
+		threadMgr.executeOnThread(Storm::ThreadEnumeration::SerializerThread, std::forward<Func>(func));
 	}
 }
 
@@ -140,6 +153,12 @@ void Storm::SerializerManager::execute()
 			Storm::throwException<std::exception>("Cannot process recording if header isn't set (we haven't called beginRecord before)! Aborting!");
 		}
 	}
+
+	if (_stateSavingRequestOrders)
+	{
+		Storm::StateWriter::execute(*_stateSavingRequestOrders);
+		_stateSavingRequestOrders.reset();
+	}
 }
 
 void Storm::SerializerManager::clearRecordQueue()
@@ -160,15 +179,15 @@ void Storm::SerializerManager::processRecordQueue_Unchecked()
 
 void Storm::SerializerManager::recordFrame(Storm::SerializeRecordPendingData &&frameRecord)
 {
-	Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::SerializerThread, [this, rec = std::move(frameRecord)]() mutable
+	executeOnSerializerThread([this, rec = Storm::FuncMovePass<Storm::SerializeRecordPendingData>{ std::move(frameRecord) }]() mutable
 	{
-		_pendingRecord.emplace(std::make_unique<Storm::SerializeRecordPendingData>(std::move(rec)));
+		_pendingRecord.emplace(std::make_unique<Storm::SerializeRecordPendingData>(std::move(rec._object)));
 	});
 }
 
 void Storm::SerializerManager::beginRecord(Storm::SerializeRecordHeader &&recordHeader)
 {
-	Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::SerializerThread, [this, rec = std::move(recordHeader)]() mutable
+	executeOnSerializerThread([this, rec = Storm::FuncMovePass<Storm::SerializeRecordHeader>{ std::move(recordHeader) }]() mutable
 	{
 		std::lock_guard<std::mutex> lock{ _mutex };
 
@@ -176,7 +195,7 @@ void Storm::SerializerManager::beginRecord(Storm::SerializeRecordHeader &&record
 		{
 			if (!_recordWriter)
 			{
-				_recordWriter = std::make_unique<Storm::RecordWriter>(std::move(rec));
+				_recordWriter = std::make_unique<Storm::RecordWriter>(std::move(rec._object));
 				LOG_COMMENT << "Recording started";
 			}
 			else
@@ -257,4 +276,20 @@ bool Storm::SerializerManager::resetReplay()
 	{
 		Storm::throwException<std::exception>("We aren't replaying, therefore we cannot reset it!");
 	}
+}
+
+void Storm::SerializerManager::saveState(Storm::StateSavingOrders &&savingOrder)
+{
+	executeOnSerializerThread([this, savingOrderFwd = Storm::FuncMovePass<Storm::StateSavingOrders>{ std::move(savingOrder) }]() mutable
+	{
+		assert(_stateSavingRequestOrders == nullptr && "A state saving request is already pending!");
+		_stateSavingRequestOrders = std::make_unique<Storm::StateSavingOrders>(std::move(savingOrderFwd._object));
+	});
+}
+
+void Storm::SerializerManager::loadState(Storm::StateLoadingOrders &inOutLoadingOrder)
+{
+	assert(isSimulationThread() && "this method should only be called from simulation thread.");
+
+	Storm::StateReader::execute(inOutLoadingOrder);
 }

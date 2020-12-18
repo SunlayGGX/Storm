@@ -9,6 +9,7 @@
 #include "ISimulatorManager.h"
 #include "IThreadManager.h"
 #include "ISerializerManager.h"
+#include "ITimeManager.h"
 
 #include "GeneralSimulationData.h"
 #include "FluidData.h"
@@ -35,6 +36,10 @@
 #include "SerializeParticleSystemLayout.h"
 #include "SerializeConstraintLayout.h"
 #include "SerializeRecordHeader.h"
+
+#include "StateLoadingOrders.h"
+#include "SystemSimulationStateObject.h"
+#include "SimulationState.h"
 
 #include <Assimp\DefaultLogger.hpp>
 
@@ -180,6 +185,42 @@ namespace
 			Storm::throwException<std::exception>(errorMsg);
 		}
 	}
+
+	void loadState(Storm::StateLoadingOrders &inOutLoadingStateOrder)
+	{
+		const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+		const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
+
+		Storm::StateLoadingOrders::LoadingSettings &settings = inOutLoadingStateOrder._settings;
+
+		bool loadPhysicsTime;
+		bool loadForces;
+		bool loadVelocities;
+		configMgr.stateShouldLoad(loadPhysicsTime, loadForces, loadVelocities);
+
+		settings._loadPhysicsTime = loadPhysicsTime;
+		settings._loadForces = loadForces;
+		settings._loadVelocities = loadVelocities;
+
+		Storm::ISerializerManager &serializerMgr = singletonHolder.getSingleton<Storm::ISerializerManager>();
+		serializerMgr.loadState(inOutLoadingStateOrder);
+
+		// Provide a non existent protection, but at least, log it.
+		// Throwing is not the solution, we hope user know what it does but if it doesn't, then we warn him.
+		// If we throw, user that really wants it will just rename the config file. This is too easily bypassed
+		// (and no warning will be issued then because we don't look at the content of the config file (it is the purpose of this feature to reload from a state and
+		// try with different settings)), therefore, preventing the user with a throw is just more a pain in the ass than what is truly gained. 
+		// And I'm not a pro to needlessly overcomplexify things that could just be much more simpler for everyone... ;)
+		const std::string &currentSceneName = configMgr.getSceneName();
+		const std::string &stateSceneName = inOutLoadingStateOrder._simulationState->_configSceneName;
+		if (stateSceneName != currentSceneName)
+		{
+			LOG_WARNING <<
+				"We loaded a state made for another scene (" << stateSceneName << ") but loaded it into scene " << currentSceneName << ".\n"
+				"Be aware that this could produce unexpected results, behaviors and bugs."
+				;
+		}
+	}
 }
 
 #define STORM_EXECUTE_CASE_ON_DENSE_MODE(DenseModeEnum) case Storm::##DenseModeEnum: STORM_EXECUTE_METHOD_ON_DENSE_MODE(Storm::##DenseModeEnum) break
@@ -309,6 +350,18 @@ void Storm::AssetLoaderManager::initializeForSimulation()
 	Storm::IThreadManager &threadMgr = singletonHolder.getSingleton<Storm::IThreadManager>();
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
 
+	Storm::StateLoadingOrders loadedState;
+
+	const std::string &stateFileToLoad = configMgr.getStateFilePath();
+	const bool shouldLoadState = !stateFileToLoad.empty();
+	if (shouldLoadState)
+	{
+		LOG_DEBUG << "State file specified, we'll load from it.";
+
+		loadedState._settings._filePath = stateFileToLoad;
+		loadState(loadedState);
+	}
+
 	/* Load rigid bodies */
 	LOG_COMMENT << "Loading Rigid body";
 
@@ -322,11 +375,60 @@ void Storm::AssetLoaderManager::initializeForSimulation()
 		_rigidBodies.reserve(rigidBodyCount);
 		asyncLoadingArray.reserve(rigidBodyCount);
 
+		Storm::SimulationState &state = *loadedState._simulationState;
+
+		if (shouldLoadState)
+		{
+			const auto endRigidBodiesDataToLoadConfigIter = std::end(rigidBodiesDataToLoad);
+			for (const Storm::SystemSimulationStateObject &pSystem : state._pSystemStates)
+			{
+				if (!pSystem._isFluid)
+				{
+					if (auto found = std::find_if(std::begin(rigidBodiesDataToLoad), endRigidBodiesDataToLoadConfigIter, [id = pSystem._id](const Storm::RigidBodySceneData &rbData)
+					{
+						return rbData._rigidBodyID == id;
+					}); found == endRigidBodiesDataToLoadConfigIter)
+					{
+						Storm::throwException<std::exception>("Cannot link loaded particle system to one we set from the configuration !");
+					}
+				}
+			}
+		}
+
 		for (const auto &rbToLoad : rigidBodiesDataToLoad)
 		{
-			asyncLoadingArray.emplace_back(std::async(std::launch::async, [this, &graphicsMgr, &physicsMgr, &rbToLoad]()
+			asyncLoadingArray.emplace_back(std::async(std::launch::async, [this, &graphicsMgr, &physicsMgr, &rbToLoad, &state, shouldLoadState]()
 			{
-				std::shared_ptr<Storm::IRigidBody> loadedRigidBody = std::static_pointer_cast<Storm::IRigidBody>(std::make_shared<Storm::RigidBody>(rbToLoad));
+				Storm::SystemSimulationStateObject* rbStateFound = nullptr;
+				if (shouldLoadState)
+				{
+					const auto endStatesIter = std::end(state._pSystemStates);
+					if (auto found = std::find_if(std::begin(state._pSystemStates), endStatesIter, [id = rbToLoad._rigidBodyID](const auto &rbPSystemState)
+					{
+						return rbPSystemState._id == id;
+					}); found != endStatesIter)
+					{
+						rbStateFound = &*found;
+						if (rbStateFound->_isFluid)
+						{
+							Storm::throwException<std::exception>("The state " + std::to_string(rbToLoad._rigidBodyID) + " we're trying to load as a rigid body is in fact the state of a fluid system! It isn't allowed!");
+						}
+					}
+				}
+				
+				std::shared_ptr<Storm::IRigidBody> loadedRigidBody;
+				if (rbStateFound != nullptr)
+				{
+					Storm::RigidBodySceneData overridenRbDataConfig = rbToLoad;
+					overridenRbDataConfig._translation = rbStateFound->_globalPosition;
+
+					loadedRigidBody = std::static_pointer_cast<Storm::IRigidBody>(std::make_shared<Storm::RigidBody>(overridenRbDataConfig, std::move(*rbStateFound)));
+				}
+				else
+				{
+					loadedRigidBody = std::static_pointer_cast<Storm::IRigidBody>(std::make_shared<Storm::RigidBody>(rbToLoad));
+				}
+
 				const unsigned int emplacedRbId = loadedRigidBody->getRigidBodyID();
 
 				{
@@ -375,66 +477,106 @@ case Storm::BlowerType::BlowerTypeName: \
 		simulMgr.loadBlower(blowerToLoad);
 	}
 
+	/* Set the physics time to what was saved in the state file if needed */
+	if (shouldLoadState && loadedState._settings._loadPhysicsTime)
+	{
+		Storm::ITimeManager &timeMgr = singletonHolder.getSingleton<Storm::ITimeManager>();
+		timeMgr.setCurrentPhysicsElapsedTime(loadedState._simulationState->_currentPhysicsTime);
+	}
+
 	/* Load fluid particles */
 	const Storm::GeneralSimulationData &generalConfigData = configMgr.getGeneralSimulationData();
 	if (generalConfigData._hasFluid)
 	{
 		LOG_COMMENT << "Loading fluid particles";
 
-		const float particleRadius = generalConfigData._particleRadius;
-		const float particleDiameter = particleRadius * 2.f;
 		const auto &fluidsDataToLoad = configMgr.getFluidData();
-		std::vector<Storm::Vector3> fluidParticlePos;
-
-		// First, evaluate the particle total count we need to have (to avoid unneeded reallocations along the way)...
-		fluidParticlePos.reserve(std::accumulate(std::begin(fluidsDataToLoad._fluidGenData), std::end(fluidsDataToLoad._fluidGenData), static_cast<std::size_t>(0),
-			[particleDiameter](const std::size_t accumulatedVal, const Storm::FluidBlockData &fluidBlockGenerated)
+		if (shouldLoadState)
 		{
-			std::size_t particleXCount;
-			std::size_t particleYCount;
-			std::size_t particleZCount;
+			Storm::SimulationState &state = *loadedState._simulationState;
 
-			switch (fluidBlockGenerated._loadDenseMode)
+			const auto endStatesIter = std::end(state._pSystemStates);
+			if (auto fluidStateFound = std::find_if(std::begin(state._pSystemStates), endStatesIter, [id = fluidsDataToLoad._fluidId](const Storm::SystemSimulationStateObject &fluidState)
 			{
-#define STORM_EXECUTE_METHOD_ON_DENSE_MODE(DenseMode) computeParticleCountBoxExtents<DenseMode>(fluidBlockGenerated, particleDiameter, particleXCount, particleYCount, particleZCount);
+				return fluidState._id == id;
+			}); fluidStateFound != endStatesIter)
+			{
+				Storm::SystemSimulationStateObject &fluidState = *fluidStateFound;
+				if (!fluidState._isFluid)
+				{
+					Storm::throwException<std::exception>("The state " + std::to_string(fluidState._isFluid) + " we're trying to load as a fluid is in fact the state of a rigid body system! It isn't allowed!");
+				}
 
-				STORM_EXECUTE_CASE_ON_DENSE_MODE(FluidParticleLoadDenseMode::Normal);
-				STORM_EXECUTE_CASE_ON_DENSE_MODE(FluidParticleLoadDenseMode::AsSplishSplash);
+				waitForFutures(asyncLoadingArray);
+				this->removeRbInsiderFluidParticle(fluidState._positions);
 
-#undef STORM_EXECUTE_METHOD_ON_DENSE_MODE
+				// We need to update the position to regenerate the position of any rigid body particle according to its translation.
+				// This needs to be done only for rigid bodies. Fluids don't need it. 
+				simulMgr.refreshParticlesPosition();
 
-			default:
-				break;
+				simulMgr.addFluidParticleSystem(std::move(fluidState));
 			}
-
-			return accumulatedVal + particleXCount * particleYCount * particleZCount;
-		}));
-
-		for (const Storm::FluidBlockData &fluidBlockGenerated : fluidsDataToLoad._fluidGenData)
-		{
-			switch (fluidBlockGenerated._loadDenseMode)
+			else
 			{
-#define STORM_EXECUTE_METHOD_ON_DENSE_MODE(DenseMode) generateFluidParticles<DenseMode>(fluidParticlePos, fluidBlockGenerated, particleDiameter);
-
-				STORM_EXECUTE_CASE_ON_DENSE_MODE(FluidParticleLoadDenseMode::Normal);
-				STORM_EXECUTE_CASE_ON_DENSE_MODE(FluidParticleLoadDenseMode::AsSplishSplash);
-
-#undef STORM_EXECUTE_METHOD_ON_DENSE_MODE
-
-			default:
-				break;
+				Storm::throwException<std::exception>("We cannot find the fluid state with id matching the one in the configuration (" + std::to_string(fluidsDataToLoad._fluidId) + ')');
 			}
 		}
+		else
+		{
+			const float particleRadius = generalConfigData._particleRadius;
+			const float particleDiameter = particleRadius * 2.f;
+			std::vector<Storm::Vector3> fluidParticlePos;
 
-		waitForFutures(asyncLoadingArray);
+			// First, evaluate the particle total count we need to have (to avoid unneeded reallocations along the way)...
+			fluidParticlePos.reserve(std::accumulate(std::begin(fluidsDataToLoad._fluidGenData), std::end(fluidsDataToLoad._fluidGenData), static_cast<std::size_t>(0),
+				[particleDiameter](const std::size_t accumulatedVal, const Storm::FluidBlockData &fluidBlockGenerated)
+			{
+				std::size_t particleXCount;
+				std::size_t particleYCount;
+				std::size_t particleZCount;
 
-		this->removeRbInsiderFluidParticle(fluidParticlePos);
+				switch (fluidBlockGenerated._loadDenseMode)
+				{
+#define STORM_EXECUTE_METHOD_ON_DENSE_MODE(DenseMode) computeParticleCountBoxExtents<DenseMode>(fluidBlockGenerated, particleDiameter, particleXCount, particleYCount, particleZCount);
 
-		// We need to update the position to regenerate the position of any rigid body particle according to its translation.
-		// This needs to be done only for rigid bodies. Fluids don't need it. 
-		simulMgr.refreshParticlesPosition();
+					STORM_EXECUTE_CASE_ON_DENSE_MODE(FluidParticleLoadDenseMode::Normal);
+					STORM_EXECUTE_CASE_ON_DENSE_MODE(FluidParticleLoadDenseMode::AsSplishSplash);
 
-		simulMgr.addFluidParticleSystem(fluidsDataToLoad._fluidId, std::move(fluidParticlePos));
+#undef STORM_EXECUTE_METHOD_ON_DENSE_MODE
+
+				default:
+					break;
+				}
+
+				return accumulatedVal + particleXCount * particleYCount * particleZCount;
+			}));
+
+			for (const Storm::FluidBlockData &fluidBlockGenerated : fluidsDataToLoad._fluidGenData)
+			{
+				switch (fluidBlockGenerated._loadDenseMode)
+				{
+#define STORM_EXECUTE_METHOD_ON_DENSE_MODE(DenseMode) generateFluidParticles<DenseMode>(fluidParticlePos, fluidBlockGenerated, particleDiameter);
+
+					STORM_EXECUTE_CASE_ON_DENSE_MODE(FluidParticleLoadDenseMode::Normal);
+					STORM_EXECUTE_CASE_ON_DENSE_MODE(FluidParticleLoadDenseMode::AsSplishSplash);
+
+#undef STORM_EXECUTE_METHOD_ON_DENSE_MODE
+
+				default:
+					break;
+				}
+			}
+
+			waitForFutures(asyncLoadingArray);
+
+			this->removeRbInsiderFluidParticle(fluidParticlePos);
+
+			// We need to update the position to regenerate the position of any rigid body particle according to its translation.
+			// This needs to be done only for rigid bodies. Fluids don't need it. 
+			simulMgr.refreshParticlesPosition();
+
+			simulMgr.addFluidParticleSystem(fluidsDataToLoad._fluidId, std::move(fluidParticlePos));
+		}
 	}
 	else
 	{

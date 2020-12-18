@@ -65,6 +65,13 @@ Storm::RigidBody::RigidBody(const Storm::RigidBodySceneData &rbSceneData) :
 	this->load(rbSceneData);
 }
 
+Storm::RigidBody::RigidBody(const Storm::RigidBodySceneData &rbSceneData, Storm::SystemSimulationStateObject &&state) :
+	_meshPath{ rbSceneData._meshFilePath },
+	_rbId{ rbSceneData._rigidBodyID }
+{
+	this->loadFromState(rbSceneData, std::move(state));
+}
+
 Storm::RigidBody::RigidBody(const Storm::RigidBodySceneData &rbSceneData, ReplayMode) :
 	_meshPath{ rbSceneData._meshFilePath },
 	_rbId{ rbSceneData._rigidBodyID }
@@ -362,3 +369,16 @@ void Storm::RigidBody::loadForReplay(const Storm::RigidBodySceneData &rbSceneDat
 	this->baseLoadAssimp(rbSceneData, computeLayerDistance(configMgr.getGeneralSimulationData()._particleRadius));
 }
 
+void Storm::RigidBody::loadFromState(const Storm::RigidBodySceneData &rbSceneData, Storm::SystemSimulationStateObject &&state)
+{
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	Storm::ISimulatorManager &simulMgr = singletonHolder.getSingleton<Storm::ISimulatorManager>();
+	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
+
+	Storm::AssetLoaderManager &assetLoaderMgr = Storm::AssetLoaderManager::instance();
+
+	this->baseLoadAssimp(rbSceneData, computeLayerDistance(configMgr.getGeneralSimulationData()._particleRadius));
+
+	std::lock_guard<std::mutex> addingLock{ assetLoaderMgr.getAddingMutex() };
+	simulMgr.addRigidBodyParticleSystem(std::move(state));
+}

@@ -12,6 +12,7 @@ namespace Storm
 		std::vector<Storm::Vector3> _forces;
 		std::vector<float> _densities;
 		std::vector<float> _pressures;
+		std::vector<float> _volumes;
 		std::vector<Storm::Vector3> _pressureComponentforces;
 		std::vector<Storm::Vector3> _viscosityComponentforces;
 	};

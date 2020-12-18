@@ -7,14 +7,16 @@ namespace Storm
 {
 	struct RigidBodySceneData;
 	class AssetCacheData;
+	struct SystemSimulationStateObject;
 
 	class RigidBody : public Storm::IRigidBody
 	{
 	public:
-		struct ReplayMode{};
+		struct ReplayMode {};
 
 	public:
 		RigidBody(const Storm::RigidBodySceneData &rbSceneData);
+		RigidBody(const Storm::RigidBodySceneData &rbSceneData, Storm::SystemSimulationStateObject &&state);
 		RigidBody(const Storm::RigidBodySceneData &rbSceneData, ReplayMode);
 
 	public:
@@ -34,6 +36,7 @@ namespace Storm
 
 		void load(const Storm::RigidBodySceneData &rbSceneData);
 		void loadForReplay(const Storm::RigidBodySceneData &rbSceneData);
+		void loadFromState(const Storm::RigidBodySceneData &rbSceneData, Storm::SystemSimulationStateObject &&state);
 
 	private:
 		std::string _meshPath;

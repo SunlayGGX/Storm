@@ -76,6 +76,11 @@ namespace
 			return FALSE;
 		}
 	}
+
+	std::wstring toStdWString(const std::string &str)
+	{
+		return std::filesystem::path{ str }.wstring();
+	}
 }
 
 
@@ -168,6 +173,8 @@ void Storm::WindowsManager::initializeInternal()
 {
 	STORM_STATIC_ASSERT(Storm::WindowsManager::MAX_TITLE_COUNT > 20, "Minimal title character size must be 20.");
 
+	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
+
 	TCHAR szTitle[Storm::WindowsManager::MAX_TITLE_COUNT];
 
 	HINSTANCE dllInstance = GetModuleHandle(nullptr);
@@ -189,7 +196,7 @@ void Storm::WindowsManager::initializeInternal()
 	{
 		try
 		{
-			const std::wstring currentProcessIdStr = std::filesystem::path{ Storm::toStdString(GetCurrentProcessId()) }.wstring();
+			const std::wstring currentProcessIdStr = toStdWString(Storm::toStdString(GetCurrentProcessId()));
 			const std::size_t currentProcessIdStrLength = currentProcessIdStr.size();
 			const std::size_t toCopy = std::max(Storm::WindowsManager::MAX_TITLE_COUNT - 4 - static_cast<int>(titleLength + currentProcessIdStrLength), 0);
 			if (toCopy != 0)
@@ -199,13 +206,34 @@ void Storm::WindowsManager::initializeInternal()
 				memcpy(szTitle + titleLength, currentProcessIdStr.c_str(), currentProcessIdStrLength * sizeof(decltype(currentProcessIdStr)::value_type));
 				titleLength += currentProcessIdStrLength;
 				szTitle[titleLength++] = L')';
-				szTitle[titleLength] = L'\0';
 			}
 		}
 		catch (const std::exception &e)
 		{
 			LOG_ERROR << "Couldn't embed the process id into the application title. Reason : " << e.what();
 		}
+
+		try
+		{
+			const std::wstring currentSceneName = toStdWString(configMgr.getSceneName());
+
+			const std::size_t currentSceneNameStrLength = currentSceneName.size();
+			const std::size_t toCopy = std::max(titleLength - (currentSceneNameStrLength + 4), static_cast<std::size_t>(0));
+			if (toCopy != 0)
+			{
+				szTitle[titleLength++] = L' ';
+				szTitle[titleLength++] = L'-';
+				szTitle[titleLength++] = L' ';
+				memcpy(szTitle + titleLength, currentSceneName.c_str(), currentSceneNameStrLength * sizeof(decltype(currentSceneName)::value_type));
+				titleLength += currentSceneNameStrLength;
+			}
+		}
+		catch (const std::exception &e)
+		{
+			LOG_ERROR << "Couldn't embed the current scene name into the application title. Reason : " << e.what();
+		}
+
+		szTitle[titleLength] = L'\0';
 	}
 
 	TCHAR windowClass[Storm::WindowsManager::MAX_TITLE_COUNT];
@@ -241,7 +269,6 @@ void Storm::WindowsManager::initializeInternal()
 		RegisterClassEx(&wcex);
 	}
 
-	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
 	int xPos = configMgr.getWantedScreenXPosition();
 	int yPos = configMgr.getWantedScreenYPosition();
 
