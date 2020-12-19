@@ -22,7 +22,7 @@ TEST_CASE("SizeCounter", "[classic]")
 	CHECK(Storm::SizeCounter<int32_t[24]>::value == 96);
 }
 
-TEST_CASE("CorrectSettingChecker", "[classic]")
+TEST_CASE("CorrectSettingChecker.check", "[classic]")
 {
 	enum class EnumTest
 	{
