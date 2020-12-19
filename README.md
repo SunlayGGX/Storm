@@ -431,6 +431,7 @@ Finally, be aware that all scripting will be executed inside the same Scripting 
 #### SimulatorManager (simulMgr)
 
 - **void advanceOneFrame()**: Advance the simulation to the next frame. Avalaible only if the simulation is paused. This is the same method bound to the key inputs.
+- **void advanceByFrame(int frameCount)**: Advance the paused simulation by frameCount frames. The frameCount value must be positive !
 
 
 #### TimeManager (timeMgr)
