@@ -8,7 +8,7 @@ namespace Storm
 	class ScriptFile
 	{
 	public:
-		ScriptFile(const Storm::ThreadEnumeration associatedThread, const std::string &filePath);
+		ScriptFile(const std::string &filePath, bool prepareToCall = false);
 
 	public:
 		void update();
@@ -17,6 +17,5 @@ namespace Storm
 	private:
 		std::filesystem::path _filePath;
 		std::filesystem::file_time_type _lastWriteTime;
-		const Storm::ThreadEnumeration _associatedThread;
 	};
 }
