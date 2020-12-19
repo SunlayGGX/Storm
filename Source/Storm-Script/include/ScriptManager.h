@@ -8,6 +8,7 @@
 namespace Storm
 {
 	class ScriptFile;
+	class LuaScriptWrapper;
 
 	class ScriptManager :
 		private Storm::Singleton<ScriptManager>,
@@ -19,19 +20,25 @@ namespace Storm
 		void initialize_Implementation();
 		void cleanUp_Implementation();
 
-	private:
-		void executeScript(const std::string &script);
+	public:
+		void executeScript(const std::string &script); // Shouldn't be exposed to other modules!
 
 	public:
-		void execute(const Storm::ThreadEnumeration threadEnum, std::string script) final override;
 		void execute(std::string script) final override;
+
+	public:
+		Storm::IScriptManager::UsedScriptWrapper& getScriptWrapper();
 
 	private:
 		void rereadWatchedScriptFile();
 		void refreshWatchedScriptFile();
 
 	private:
-		std::vector<Storm::ScriptFile> _watchedScriptFiles;
+		std::unique_ptr<Storm::IScriptManager::UsedScriptWrapper> _scriptWrapper;
+
+		std::chrono::high_resolution_clock::time_point _nextWatchedScriptFileUpdate;
+		std::chrono::milliseconds _refreshTimeDuration;
+		std::unique_ptr<Storm::ScriptFile> _watchedScriptFile;
 
 		std::thread _scriptThread;
 	};

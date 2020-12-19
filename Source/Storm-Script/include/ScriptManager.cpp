@@ -4,6 +4,11 @@
 #include "IThreadManager.h"
 #include "ITimeManager.h"
 #include "IInputManager.h"
+#include "IConfigManager.h"
+
+#include "ScriptData.h"
+
+#include "LuaScriptWrapper.h"
 
 #include "ScriptFile.h"
 
@@ -12,8 +17,32 @@
 #include "ThreadEnumeration.h"
 #include "SpecialKey.h"
 
+#include "FuncMovePass.h"
 
-Storm::ScriptManager::ScriptManager() = default;
+
+namespace
+{
+	void invalidateWatchedScriptFile(Storm::ScriptFile &watchedFile)
+	{
+		watchedFile.invalidate();
+		watchedFile.update();
+	}
+
+	void updateWatchedScriptFile(Storm::ScriptFile &watchedFile)
+	{
+		watchedFile.update();
+	}
+}
+
+
+Storm::ScriptManager::ScriptManager() :
+	_scriptWrapper{ std::make_unique<Storm::IScriptManager::UsedScriptWrapper>() },
+	_nextWatchedScriptFileUpdate{ std::chrono::high_resolution_clock::now() },
+	_refreshTimeDuration{ 0 }
+{
+
+}
+
 Storm::ScriptManager::~ScriptManager() = default;
 
 void Storm::ScriptManager::initialize_Implementation()
@@ -21,6 +50,29 @@ void Storm::ScriptManager::initialize_Implementation()
 	LOG_COMMENT << "Initializing scripting manager";
 
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
+	
+	const Storm::ScriptData &scriptConfigData = configMgr.getScriptData();
+
+	if (scriptConfigData._enabled)
+	{
+		// Read the initialization file.
+		const std::string &initScriptFilePath = scriptConfigData._initScriptFiles._filePath;
+		if (!initScriptFilePath.empty())
+		{
+			LOG_DEBUG << "We'll execute the custom scripted initialization defined in the file " << initScriptFilePath;
+			Storm::ScriptFile initScriptFile{ initScriptFilePath, true };
+			initScriptFile.update();
+		}
+
+		const Storm::ScriptFilePipeData &filePipe = scriptConfigData._scriptFilePipe;
+		const std::string &watchedScriptFilePath = filePipe._filePath;
+		if (!watchedScriptFilePath.empty())
+		{
+			_watchedScriptFile = std::make_unique<Storm::ScriptFile>(watchedScriptFilePath);
+			_refreshTimeDuration = std::chrono::milliseconds{ filePipe._refreshRateInMillisec };
+		}
+	}
 
 	_scriptThread = std::thread{ [this, &singletonHolder]()
 	{
@@ -48,7 +100,7 @@ void Storm::ScriptManager::cleanUp_Implementation()
 
 	Storm::join(_scriptThread);
 
-	_watchedScriptFiles.clear();
+	_scriptWrapper.reset();
 }
 
 void Storm::ScriptManager::executeScript(const std::string &script)
@@ -57,7 +109,7 @@ void Storm::ScriptManager::executeScript(const std::string &script)
 
 	try
 	{
-		// TODO
+		_scriptWrapper->execute(script);
 	}
 	catch (const std::exception &ex)
 	{
@@ -73,37 +125,32 @@ void Storm::ScriptManager::execute(std::string script)
 {
 	if (!script.empty())
 	{
-		Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(std::this_thread::get_id(), [this, scriptContent = std::move(script)]()
+		Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::ScriptThread, [this, scriptContent = Storm::FuncMovePass<std::string>{ std::move(script) }]()
 		{
-			this->executeScript(scriptContent);
+			this->executeScript(scriptContent._object);
 		});
 	}
 }
 
+Storm::ScriptManager::UsedScriptWrapper& Storm::ScriptManager::getScriptWrapper()
+{
+	return *_scriptWrapper;
+}
+
 void Storm::ScriptManager::rereadWatchedScriptFile()
 {
-	for (Storm::ScriptFile &watchedFile : _watchedScriptFiles)
+	if (_watchedScriptFile)
 	{
-		watchedFile.invalidate();
-		watchedFile.update();
+		invalidateWatchedScriptFile(*_watchedScriptFile);
 	}
 }
 
 void Storm::ScriptManager::refreshWatchedScriptFile()
 {
-	for (Storm::ScriptFile &watchedFile : _watchedScriptFiles)
+	// Refresh the script once every 4 frames.
+	if (_watchedScriptFile && std::chrono::high_resolution_clock::now() > _nextWatchedScriptFileUpdate)
 	{
-		watchedFile.update();
-	}
-}
-
-void Storm::ScriptManager::execute(const Storm::ThreadEnumeration threadEnum, std::string script)
-{
-	if (!script.empty())
-	{
-		Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(threadEnum, [this, scriptContent = std::move(script)]()
-		{
-			this->executeScript(scriptContent);
-		});
+		updateWatchedScriptFile(*_watchedScriptFile);
+		_nextWatchedScriptFileUpdate = std::chrono::high_resolution_clock::now() + _refreshTimeDuration;
 	}
 }

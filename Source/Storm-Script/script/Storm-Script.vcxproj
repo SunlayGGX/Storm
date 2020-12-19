@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\include\LuaScriptWrapper.cpp" />
     <ClCompile Include="..\include\ScriptFile.cpp" />
     <ClCompile Include="..\include\ScriptManager.cpp" />
     <ClCompile Include="..\include\Storm-ScriptPCH.cpp">
@@ -19,6 +20,8 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\include\Inheritance.h" />
+    <ClInclude Include="..\include\LuaScriptWrapper.h" />
     <ClInclude Include="..\include\ScriptFile.h" />
     <ClInclude Include="..\include\ScriptManager.h" />
     <ClInclude Include="..\include\Storm-ScriptPCH.h" />

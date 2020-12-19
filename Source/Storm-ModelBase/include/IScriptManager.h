@@ -7,14 +7,17 @@
 namespace Storm
 {
 	enum class ThreadEnumeration;
+	class LuaScriptWrapper;
 
 	class IScriptManager : public Storm::ISingletonHeldInterface<IScriptManager>
 	{
 	public:
+		using UsedScriptWrapper = Storm::LuaScriptWrapper;
+
+	public:
 		virtual ~IScriptManager() = default;
 
 	public:
-		virtual void execute(const Storm::ThreadEnumeration threadEnum, std::string script) = 0;
 		virtual void execute(std::string script) = 0;
 	};
 }
