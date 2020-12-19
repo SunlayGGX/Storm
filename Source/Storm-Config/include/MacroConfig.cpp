@@ -67,6 +67,7 @@ void Storm::MacroConfig::initialize()
 	this->registerMacroInternal("StormIntermediate", outputPath.string());
 	this->registerMacroInternal("StormRecord", (outputPath / "Record").string());
 	this->registerMacroInternal("StormStates", (outputPath / "States").string());
+	this->registerMacroInternal("StormScripts", (outputPath / "Scripts").string());
 	this->registerMacroInternal("DateTime", Storm::TimeHelper::getCurrentDateTime(false));
 	this->registerMacroInternal("Date", Storm::TimeHelper::getCurrentDate());
 

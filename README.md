@@ -160,6 +160,7 @@ There are some pre-built-in macros that aren't defined inside the macro file and
 + **$[StormResource]** will refer, in case StormRoot macro is valid, to where the Resource folder is.
 + **$[StormIntermediate]** will refer, in case StormRoot macro is valid, to where the Output folder is.
 + **$[StormRecord]** will refer, in case StormRoot macro is valid, to where the Record folder is.
++ **$[StormScripts]** will refer, in case StormRoot macro is valid, to where the Scripts folder is (where scripts will be put by default).
 + **$[StormStates]** will refer, in case StormRoot macro is valid, to where the States folder is (where all states will be registered in a folder representing the scene name).
 + **$[StormTmp]** will refer to the StormIntermediate if StormRoot macro is valid, or to OS defined temporary location.
 + **$[DateTime]** will refer to the current date when the Application is run (in filesystem compatible format : Weekday_Year_Month_Day_Hour_Minute_Second ).
