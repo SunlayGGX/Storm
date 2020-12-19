@@ -151,9 +151,11 @@ Storm::RecordConfigData::RecordConfigData() :
 }
 
 Storm::ScriptData::ScriptData() :
-	_enabled{ false }
+	_enabled{ true }
 {
-	_scriptFilePipes.reserve(4);
+	_scriptFilePipe._refreshRateInMillisec = 100;
+
+	_scriptFilePipe._filePath = (std::filesystem::path{ "$[StormScripts]" } / "RuntimeScript.txt").string();
 }
 
 Storm::SceneData::SceneData() :

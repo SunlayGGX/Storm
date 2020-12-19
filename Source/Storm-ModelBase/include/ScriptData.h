@@ -8,8 +8,8 @@ namespace Storm
 	struct ScriptFilePipeData
 	{
 	public:
-		Storm::ThreadEnumeration _threadEnum;
 		std::string _filePath;
+		unsigned int _refreshRateInMillisec;
 	};
 
 	struct ScriptFileInitData
@@ -27,6 +27,6 @@ namespace Storm
 		bool _enabled;
 
 		Storm::ScriptFileInitData _initScriptFiles;
-		std::vector<Storm::ScriptFilePipeData> _scriptFilePipes;
+		Storm::ScriptFilePipeData _scriptFilePipe;
 	};
 }

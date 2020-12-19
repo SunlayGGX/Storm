@@ -11,6 +11,7 @@
 #include "BlowerData.h"
 #include "ConstraintData.h"
 #include "RecordConfigData.h"
+#include "ScriptData.h"
 
 #include "CollisionType.h"
 #include "SimulationMode.h"
@@ -384,6 +385,59 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 
 		// The other validations will be done later.
 	}
+
+	/* Script */
+	Storm::ScriptData &scriptConfigData = *_sceneData->_scriptConfigData;
+
+	const auto &scriptTreeOpt = srcTree.get_child_optional("Script");
+	if (scriptTreeOpt.has_value())
+	{
+		const auto &scriptTree = scriptTreeOpt.value();
+		for (const auto &scriptXmlElement : scriptTree)
+		{
+			if (scriptXmlElement.first == "Init")
+			{
+				auto &scriptInitConfigData = scriptConfigData._initScriptFiles;
+				for (const auto &scritpInitDataXml : scriptXmlElement.second)
+				{
+					if (
+						!Storm::XmlReader::handleXml(scritpInitDataXml, "initScriptFile", scriptInitConfigData._filePath)
+						)
+					{
+						LOG_ERROR << "tag '" << scritpInitDataXml.first << "' (inside Scene.Script.Init) is unknown, therefore it cannot be handled";
+					}
+				}
+			}
+			else if (scriptXmlElement.first == "Runtime")
+			{
+				auto &scriptRuntimeConfigData = scriptConfigData._scriptFilePipe;
+				for (const auto &scritpRuntimeDataXml : scriptXmlElement.second)
+				{
+					if (
+						!Storm::XmlReader::handleXml(scritpRuntimeDataXml, "watchedScriptFile", scriptRuntimeConfigData._filePath) &&
+						!Storm::XmlReader::handleXml(scritpRuntimeDataXml, "refreshTime", scriptRuntimeConfigData._refreshRateInMillisec)
+						)
+					{
+						LOG_ERROR << "tag '" << scritpRuntimeDataXml.first << "' (inside Scene.Script.Runtime) is unknown, therefore it cannot be handled";
+					}
+				}
+
+				if (scriptRuntimeConfigData._refreshRateInMillisec == 0)
+				{
+					Storm::throwException<std::exception>("Watched script file refresh rate cannot be equal to 0! Specify a non null positive value.");
+				}
+			}
+			else if (
+				!Storm::XmlReader::handleXml(scriptXmlElement, "enabled", scriptConfigData._enabled)
+				)
+			{
+				LOG_ERROR << "tag '" << scriptXmlElement.first << "' (inside Scene.Script) is unknown, therefore it cannot be handled";
+			}
+		}
+	}
+
+	macroConfig(scriptConfigData._initScriptFiles._filePath);
+	macroConfig(scriptConfigData._scriptFilePipe._filePath);
 
 	/* Fluids */
 	Storm::FluidData &fluidData = *_sceneData->_fluidData;
@@ -843,10 +897,6 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 			Storm::throwException<std::exception>("Blower " + std::to_string(blowerData._blowerId) + " should have defined a blower type, this is mandatory!");
 		}
 	});
-
-	/* Scripts */
-	Storm::ScriptData &scriptConfigData = *_sceneData->_scriptConfigData;
-
 }
 
 const Storm::SceneData& Storm::SceneConfig::getSceneData() const
