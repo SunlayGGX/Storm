@@ -31,12 +31,12 @@ namespace
 {
 	using SingletonAllocatorAlias = Storm::SingletonAllocator<
 		Storm::SingletonHolder,
+		Storm::ScriptManager,
 		Storm::ConfigManager,
 		Storm::LoggerManager,
 		Storm::SerializerManager,
 		Storm::ProfilerManager,
 		Storm::ThreadManager,
-		Storm::ScriptManager,
 		Storm::RandomManager,
 		Storm::OSManager,
 		Storm::TimeManager,
@@ -128,6 +128,7 @@ namespace
 
 			Storm::ProfilerManager::instance().initialize();
 
+			// Here will be executed the custom initialization from script.
 			Storm::ScriptManager::instance().initialize();
 		}
 
