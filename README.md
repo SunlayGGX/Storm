@@ -269,6 +269,15 @@ Unlike the others config files, it can be named as you want. Here the xml tags y
 - **replayRealTime (boolean, facultative)**: Fix the replay to be the nearest possible from a real time replay. It means that the simulation speed will try to be as near as possible to 1.0. Default is true.
 
 
+#### Script
+- **enabled (bool, facultative)**: Setting it to false prevent the engine to watch the scripting file. Default is true. Note that the scripting API will still be functional, it is that the engine won't be able to answer to outside commands.
+- **Init (tag)**: The is the section to control the initialization script call. For further details, please refer to "Scripting API" section.
+	+ **initScriptFile (string, facultative, accept macros)**: The path to the script init file containing the initialization script. Default is empty, we won't use any script to initialize the engine. Note that the path should either remain empty, be a valid path to a plain text file, or shouldn't exist (we'll create one for you).
+- **Runtime (tag)**: The is the section to control the script used as a way to communicate with the engine at runtime. For further details, please refer to "Scripting API" section.
+	+ **watchedScriptFile (string, facultative, accept macros)**: The path to the watched script file. Default is equivalent to "$[StormScripts]/RuntimeScript.txt". This path should either remain empty, point to a valid text file, or not exist (we'll create one for you).
+	+ **refreshTime (unsigned int, facultative)**: The refresh time in milliseconds of the watched script. Default is 100 ms. Cannot be equal to 0. Besides, note that even if it is below the framerate time of the engine, it won't be watched faster (in another word, the real value is the maximum between this "value" and "1000 / the expected engine framerate")
+
+
 #### Fluid
 This element is all setting appartaining to a fluid. Here the tag you can set inside :
 - **id (positive integer, mandatory)**: This is the unique id of the fluid. It should be unique (Note that it should not be equal to any rigid body id and blower id too).
@@ -343,7 +352,6 @@ Inside this element should be put all rigidbodies. Each rigidbody should be spec
 
 
 # Input bindings
-
 
 ## Key bindings
 
