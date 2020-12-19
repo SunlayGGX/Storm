@@ -51,3 +51,8 @@ bool Storm::isLoggerThread()
 {
 	return isExecutingOnRegisteredThread<Storm::ThreadEnumeration::LoggerThread>();
 }
+
+bool Storm::isScriptThread()
+{
+	return isExecutingOnRegisteredThread<Storm::ThreadEnumeration::ScriptThread>();
+}

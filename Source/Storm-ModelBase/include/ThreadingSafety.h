@@ -10,4 +10,5 @@ namespace Storm
 	bool isSpaceThread();
 	bool isInputThread();
 	bool isLoggerThread();
+	bool isScriptThread();
 }
