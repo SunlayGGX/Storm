@@ -21,6 +21,8 @@
 #include "SerializerManager.h"
 #include "ScriptManager.h"
 
+#include "ScriptImplementation.inl.h"
+
 #include "Version.h"
 #include "TimeHelper.h"
 #include "ThreadEnumeration.h"

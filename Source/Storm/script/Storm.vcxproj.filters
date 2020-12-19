@@ -38,6 +38,9 @@
     <ClInclude Include="resourceStorm.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\ScriptImplementation.inl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Storm.rc">

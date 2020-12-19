@@ -3,6 +3,7 @@
 
 #include "Singleton.h"
 #include "ISimulatorManager.h"
+#include "DeclareScriptableItem.h"
 
 #include "SingletonDefaultImplementation.h"
 
@@ -22,10 +23,11 @@ namespace Storm
 	struct SerializeRecordPendingData;
 
 	class SimulatorManager :
-		private Storm::Singleton<SimulatorManager, Storm::DefineDefaultCleanupImplementationOnly>,
+		private Storm::Singleton<Storm::SimulatorManager, Storm::DefineDefaultCleanupImplementationOnly>,
 		public Storm::ISimulatorManager
 	{
 		STORM_DECLARE_SINGLETON(SimulatorManager);
+		STORM_IS_SCRIPTABLE_ITEM;
 
 	private:
 		void initialize_Implementation();

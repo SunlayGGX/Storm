@@ -2,6 +2,8 @@
 
 #include "Singleton.h"
 #include "ITimeManager.h"
+#include "DeclareScriptableItem.h"
+
 #include "FPSWatcher.h"
 
 #include "UIFieldContainer.h"
@@ -16,6 +18,7 @@ namespace Storm
 		public Storm::ITimeManager
 	{
 		STORM_DECLARE_SINGLETON(TimeManager);
+		STORM_IS_SCRIPTABLE_ITEM;
 
 	private:
 		void initialize_Implementation();

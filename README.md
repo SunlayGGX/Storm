@@ -404,3 +404,35 @@ Note : If the term in the parenthesis is "Numpad", then the keybinding is the va
     - Increase/Decrease the camera motion speed 
     - Increase/Decrease the clipping plane motion speed
     - Increase/Decrease the physics time step change speed. Valid only if we are not in replay mode, or if CFL is disabled.
+
+
+# Scripting API
+
+Scripting is done with lua. You'll be able to send lua command to the engine from a plain text file that is watched once every "refreshTime" millisecond for any changes.
+Just save your file after modifying it and the content will be sent.
+There is also the initialization file that allows to customize further the initialization of the engine. This custom initialization is done after the engine ended its normal initialization.
+
+The reasons I decided to include a scripting API is because : 
+- we have too much inputs and too little keys to control all features I want to add. And it is starting to be a real bother to remember all keys.
+- we could control many instance of the application at the same time (just make them watch the same scripting file and they'll execute the command seemingly at the same time).
+- Better control over the parameter (where key input uses pre-built-in default value or separate manipulation to control how the action will respond, we can just pass users parameters to the script to execute).
+
+
+## Developpers notes
+
+The scripting wrapping was done to abstract modules from the scripting API we use. Like this, we could switch or add python, ... any scripting language we want with minimal effort.
+The entry point of the scripting API object/methods registration can be anything. Just use the macro "STORM_IS_SCRIPTABLE_ITEM" inside your class. If it is used inside a Singleton registered inside the SingletonAllocator, the call to the entry point will be automatic.
+Register all your methods, classes, ... inside ScriptImplementation.inl.h. An example of how to do it would be to look at how I did it with the SimulatorManager. Don't mind the include because this file will be included inside source file only + all singleton will be included anyway.
+Finally, be aware that all scripting will be executed inside the same Scripting thread that is a specific registered thread. Therefore, all method that the API calls should be responsible to dispatch the real execution to the expected threads to avoid any threading issues.
+
+
+## Exposed methods
+
+#### SimulatorManager (simulMgr)
+
+- **void advanceOneFrame()**: Advance the simulation to the next frame. Avalaible only if the simulation is paused. This is the same method bound to the key inputs.
+
+
+#### TimeManager (timeMgr)
+
+- **bool changeSimulationPauseState()**: Pause/Unpause the simulation. This is the same method bound to the key inputs.
