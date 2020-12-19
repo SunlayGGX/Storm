@@ -413,7 +413,8 @@ Storm::SimulatorManager::SimulatorManager() :
 	_runExitCode{ Storm::ExitCode::k_success },
 	_reinitFrameAfter{ false },
 	_progressRemainingTime{ STORM_TEXT("N/A") },
-	_uiFields{ std::make_unique<Storm::UIFieldContainer>() }
+	_uiFields{ std::make_unique<Storm::UIFieldContainer>() },
+	_frameAdvanceCount{ -1 }
 {
 
 }
@@ -790,7 +791,7 @@ Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 			}
 		}
 
-		++forcedPushFrameIterator;
+		this->notifyFrameAdvanced(forcedPushFrameIterator);
 
 	} while (true);
 }
@@ -943,7 +944,7 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 			}
 		}
 
-		++forcedPushFrameIterator;
+		this->notifyFrameAdvanced(forcedPushFrameIterator);
 
 		firstFrame = false;
 
@@ -1066,6 +1067,49 @@ void Storm::SimulatorManager::advanceOneFrame()
 	{
 		LOG_DEBUG_ERROR << "If the simulation is running, it is useless to move to next frame since it will come automatically.";
 	}
+}
+
+void Storm::SimulatorManager::advanceByFrame(int frameCount)
+{
+	if (frameCount >= 0)
+	{
+		const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+		Storm::ITimeManager &timeMgr = singletonHolder.getSingleton<Storm::ITimeManager>();
+		if (timeMgr.getStateNoSyncWait() == Storm::TimeWaitResult::Pause)
+		{
+			timeMgr.changeSimulationPauseState();
+			singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::MainThread, [this, frameCount, &timeMgr]()
+			{
+				_frameAdvanceCount = frameCount;
+			});
+		}
+		else
+		{
+			LOG_DEBUG_ERROR << "If the simulation is running, it is useless to move to next frame since it will come automatically.";
+		}
+	}
+	else
+	{
+		Storm::throwException<std::exception>("We must advance by a positive frame count (value " + std::to_string(frameCount) + " is invalid)!");
+	}
+}
+
+void Storm::SimulatorManager::notifyFrameAdvanced(unsigned int &frameIterator)
+{
+	if (_frameAdvanceCount != -1)
+	{
+		--_frameAdvanceCount;
+		if (_frameAdvanceCount == -1)
+		{
+			Storm::ITimeManager &timeMgr = Storm::SingletonHolder::instance().getSingleton<Storm::ITimeManager>();
+			if (!timeMgr.simulationIsPaused())
+			{
+				timeMgr.changeSimulationPauseState();
+			}
+		}
+	}
+
+	++frameIterator;
 }
 
 void Storm::SimulatorManager::flushPhysics(const float deltaTime)

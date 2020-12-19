@@ -46,7 +46,8 @@ void Storm::SimulatorManager::registerCurrentOnScript(IScriptWrapperInterface &s
 {
 	script.registerCurrentType(
 		
-		STORM_DECLARE_SCRIPTED_METHOD(advanceOneFrame)
+		STORM_DECLARE_SCRIPTED_METHOD(advanceOneFrame),
+		STORM_DECLARE_SCRIPTED_METHOD(advanceByFrame)
 
 	).registerCurrentInstance("simulMgr");
 }

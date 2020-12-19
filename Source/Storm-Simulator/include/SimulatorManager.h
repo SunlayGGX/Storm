@@ -51,6 +51,10 @@ namespace Storm
 		void revertIteration();
 
 		void advanceOneFrame();
+		void advanceByFrame(int frameCount);
+
+	private:
+		void notifyFrameAdvanced(unsigned int &frameIterator);
 
 	public:
 		void flushPhysics(const float deltaTime);
@@ -134,6 +138,8 @@ namespace Storm
 		bool _raycastEnabled;
 
 		Storm::ExitCode _runExitCode;
+
+		int _frameAdvanceCount;
 
 		// For replay
 		std::unique_ptr<Storm::SerializeRecordPendingData> _frameBefore;
