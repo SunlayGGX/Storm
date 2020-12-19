@@ -39,6 +39,7 @@
     <ClInclude Include="..\include\FluidParticleLoadDenseMode.h" />
     <ClInclude Include="..\include\GeneralSimulationData.h" />
     <ClInclude Include="..\include\GraphicData.h" />
+    <ClInclude Include="..\include\DeclareScriptableItem.h" />
     <ClInclude Include="..\include\IScriptManager.h" />
     <ClInclude Include="..\include\ISerializerManager.h" />
     <ClInclude Include="..\include\IDistanceSpacePartitionProxy.h" />
