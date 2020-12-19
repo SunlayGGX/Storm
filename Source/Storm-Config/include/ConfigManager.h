@@ -66,6 +66,7 @@ namespace Storm
 		const std::vector<Storm::BlowerData>& getBlowersData() const final override;
 		const std::vector<Storm::ConstraintData>& getConstraintsData() const final override;
 		const Storm::RigidBodySceneData& getRigidBodyData(unsigned int rbId) const final override;
+		const Storm::ScriptData& getScriptData() const final override;
 
 		bool isInReplayMode() const noexcept final override;
 		bool userCanModifyTimestep() const noexcept final override;

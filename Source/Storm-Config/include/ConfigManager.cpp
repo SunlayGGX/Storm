@@ -479,6 +479,11 @@ const Storm::RigidBodySceneData& Storm::ConfigManager::getRigidBodyData(unsigned
 	}
 }
 
+const Storm::ScriptData& Storm::ConfigManager::getScriptData() const
+{
+	return *_sceneConfig.getSceneData()._scriptConfigData;
+}
+
 const std::string& Storm::ConfigManager::getLogFileName() const
 {
 	return _generalConfig._logFileName;
