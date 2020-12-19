@@ -45,12 +45,36 @@ namespace Storm
 
 		}
 
+
+		template<class RealSingletonType>
+		static auto registerScripting(RealSingletonType* singletonPtr)
+			-> decltype(singletonPtr->registerCurrentOnScript(std::declval<Storm::IScriptManager::UsedScriptWrapper>()), void())
+		{
+			if (Storm::SingletonHolder::isAlive())
+			{
+				Storm::IScriptManager* scriptMgrInterfacePtr = Storm::SingletonHolder::instance().getFacet<Storm::IScriptManager>();
+				if (scriptMgrInterfacePtr != nullptr)
+				{
+					auto &scriptWrapper = static_cast<Storm::ScriptManager*>(scriptMgrInterfacePtr)->getScriptWrapper();
+					singletonPtr->registerCurrentOnScript(scriptWrapper);
+				}
+			}
+		}
+
+		// This one is when there is no Scripting defined in the project... (The feature doesn't exist)
+		template<class RealSingletonType>
+		static constexpr void registerScripting(void*)
+		{
+
+		}
+
 	public:
 		static void allocate(uint8_t* &memoryLocation)
 		{
 			assert(!SingletonType::isAlive() && "We mustn't allocate again a singleton.");
 			SingletonType::s_instance = new(static_cast<void*>(memoryLocation))SingletonType;
 			SingletonAllocatorHelper<SingletonType>::registerSingletonInterfaceIntoHolder<SingletonType>(SingletonType::s_instance);
+			SingletonAllocatorHelper<SingletonType>::registerScripting<SingletonType>(SingletonType::s_instance);
 
 			memoryLocation += Storm::SizeCounter<SingletonType>::value;
 		}
