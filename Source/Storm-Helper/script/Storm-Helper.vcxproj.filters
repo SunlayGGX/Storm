@@ -269,5 +269,8 @@
     <ClInclude Include="..\include\FuncMovePass.h">
       <Filter>Header Files\General\Misc</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\NameExtractor.h">
+      <Filter>Header Files\MetaP</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
