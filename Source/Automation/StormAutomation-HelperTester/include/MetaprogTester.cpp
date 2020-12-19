@@ -1,5 +1,6 @@
 #include "SizeCounter.h"
 #include "CorrectSettingChecker.h"
+#include "NameExtractor.h"
 
 namespace
 {
@@ -39,4 +40,12 @@ TEST_CASE("CorrectSettingChecker", "[classic]")
 	CHECK(CorrectSettingChecker::check<EnumTest::Val4>(EnumTest::Val4) == true);
 	CHECK(CorrectSettingChecker::check<EnumTest::Val1, EnumTest::Val2, EnumTest::Val4>(EnumTest::Val4) == true);
 	CHECK(CorrectSettingChecker::check<EnumTest::Val1, EnumTest::Val2, EnumTest::Val3, EnumTest::Val4>(EnumTest::Val4) == true);
+}
+
+TEST_CASE("NameExtractor.extractTypeNameFromType", "[classic]")
+{
+	CHECK(Storm::NameExtractor::extractTypeNameFromType("") == "");
+	CHECK(Storm::NameExtractor::extractTypeNameFromType("superman") == "superman");
+	CHECK(Storm::NameExtractor::extractTypeNameFromType("Storm::MegaClass") == "MegaClass");
+	CHECK(Storm::NameExtractor::extractTypeNameFromType("Storm::SomeNamespace::SomeNamespace2::details::TotoStruct") == "TotoStruct");
 }
