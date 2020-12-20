@@ -8,6 +8,7 @@ namespace Storm
 		Debug,
 		DebugWarning,
 		DebugError,
+		ScriptLogic,
 		Comment,
 		Warning,
 		Error,

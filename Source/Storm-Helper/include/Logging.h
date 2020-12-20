@@ -60,6 +60,7 @@ namespace Storm
 #define LOG_DEBUG           STORM_LOG_BASE_IMPL(Storm::LogLevel::Debug)
 #define LOG_DEBUG_WARNING   STORM_LOG_BASE_IMPL(Storm::LogLevel::DebugWarning)
 #define LOG_DEBUG_ERROR     STORM_LOG_BASE_IMPL(Storm::LogLevel::DebugError)
+#define LOG_SCRIPT_LOGIC    STORM_LOG_BASE_IMPL(Storm::LogLevel::ScriptLogic)
 #define LOG_COMMENT         STORM_LOG_BASE_IMPL(Storm::LogLevel::Comment)
 #define LOG_WARNING         STORM_LOG_BASE_IMPL(Storm::LogLevel::Warning)
 #define LOG_ERROR           STORM_LOG_BASE_IMPL(Storm::LogLevel::Error)

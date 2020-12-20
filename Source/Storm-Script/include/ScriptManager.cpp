@@ -105,7 +105,7 @@ void Storm::ScriptManager::cleanUp_Implementation()
 
 void Storm::ScriptManager::executeScript(const std::string &script)
 {
-	LOG_DEBUG << script;
+	LOG_SCRIPT_LOGIC << script;
 
 	try
 	{

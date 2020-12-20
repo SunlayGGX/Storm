@@ -11,6 +11,7 @@ namespace Storm_LogViewer.Source.Log
         Debug,
         DebugWarning,
         DebugError,
+        ScriptLogic,
         Comment,
         Warning,
         Error,
