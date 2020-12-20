@@ -1071,27 +1071,35 @@ void Storm::SimulatorManager::advanceOneFrame()
 
 void Storm::SimulatorManager::advanceByFrame(int frameCount)
 {
-	if (frameCount >= 0)
+	if (frameCount < 0)
 	{
-		const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
-		Storm::ITimeManager &timeMgr = singletonHolder.getSingleton<Storm::ITimeManager>();
-		if (timeMgr.getStateNoSyncWait() == Storm::TimeWaitResult::Pause)
+		Storm::throwException<std::exception>("We must advance by a positive frame count (value " + std::to_string(frameCount) + " is invalid)!");
+	}
+
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	Storm::ITimeManager &timeMgr = singletonHolder.getSingleton<Storm::ITimeManager>();
+
+	if (frameCount > 0)
+	{
+		if (timeMgr.simulationIsPaused())
 		{
 			timeMgr.changeSimulationPauseState();
-			singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::MainThread, [this, frameCount, &timeMgr]()
-			{
-				_frameAdvanceCount = frameCount;
-			});
 		}
 		else
 		{
 			LOG_DEBUG_ERROR << "If the simulation is running, it is useless to move to next frame since it will come automatically.";
+			return;
 		}
 	}
-	else
+	else if (/*frameCount == 0 &&*/ !timeMgr.simulationIsPaused())
 	{
-		Storm::throwException<std::exception>("We must advance by a positive frame count (value " + std::to_string(frameCount) + " is invalid)!");
+		timeMgr.changeSimulationPauseState();
 	}
+
+	singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::MainThread, [this, toAdvanceFrame = frameCount - 1, &timeMgr]()
+	{
+		_frameAdvanceCount = toAdvanceFrame;
+	});
 }
 
 void Storm::SimulatorManager::notifyFrameAdvanced(unsigned int &frameIterator)
