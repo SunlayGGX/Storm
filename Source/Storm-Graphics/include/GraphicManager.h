@@ -2,6 +2,7 @@
 
 #include "Singleton.h"
 #include "IGraphicsManager.h"
+#include "DeclareScriptableItem.h"
 
 
 namespace Storm
@@ -24,6 +25,7 @@ namespace Storm
 		public Storm::IGraphicsManager
 	{
 		STORM_DECLARE_SINGLETON(GraphicManager);
+		STORM_IS_SCRIPTABLE_ITEM;
 
 	private:
 		bool initialize_Implementation(const Storm::WithUI &);

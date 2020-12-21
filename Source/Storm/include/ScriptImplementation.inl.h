@@ -2,6 +2,7 @@
 
 #include "SimulatorManager.h"
 #include "TimeManager.h"
+#include "GraphicManager.h"
 
 
 #include "LuaScriptWrapper.h"
@@ -38,6 +39,7 @@
 /////////////////////////////////////////////////
 
 
+//---------------------------------------------------------------------
 
 #define STORM_CURRENT_REGISTERED_TYPE Storm::SimulatorManager
 
@@ -58,6 +60,7 @@ void Storm::SimulatorManager::registerCurrentOnScript(IScriptWrapperInterface &s
 #undef STORM_CURRENT_REGISTERED_TYPE
 
 
+//---------------------------------------------------------------------
 
 #define STORM_CURRENT_REGISTERED_TYPE Storm::TimeManager
 
@@ -69,6 +72,22 @@ void Storm::TimeManager::registerCurrentOnScript(IScriptWrapperInterface &script
 		STORM_DECLARE_SCRIPTED_METHOD(changeSimulationPauseState)
 
 	).registerCurrentInstance("timeMgr");
+}
+
+#undef STORM_CURRENT_REGISTERED_TYPE
+
+
+//---------------------------------------------------------------------
+
+#define STORM_CURRENT_REGISTERED_TYPE Storm::GraphicManager
+
+template<class IScriptWrapperInterface>
+void Storm::GraphicManager::registerCurrentOnScript(IScriptWrapperInterface &script) const
+{
+	script.registerCurrentType(
+
+
+	).registerCurrentInstance("graphicMgr");
 }
 
 #undef STORM_CURRENT_REGISTERED_TYPE

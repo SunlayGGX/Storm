@@ -416,6 +416,7 @@ The reasons I decided to include a scripting API is because :
 - we have too much inputs and too little keys to control all features I want to add. And it is starting to be a real bother to remember all keys.
 - we could control many instance of the application at the same time (just make them watch the same scripting file and they'll execute the command seemingly at the same time).
 - Better control over the parameter (where key input uses pre-built-in default value or separate manipulation to control how the action will respond, we can just pass users parameters to the script to execute).
+- Script is the only way to control the application when it doesn't run in UI mode.
 
 
 ## Developpers notes
@@ -438,3 +439,7 @@ Finally, be aware that all scripting will be executed inside the same Scripting 
 #### TimeManager (timeMgr)
 
 - **bool changeSimulationPauseState()**: Pause/Unpause the simulation. This is the same method bound to the key inputs.
+
+
+#### GraphicManager (graphicMgr)
+
