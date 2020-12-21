@@ -103,13 +103,25 @@ void Storm::ScriptManager::cleanUp_Implementation()
 	_scriptWrapper.reset();
 }
 
-void Storm::ScriptManager::executeScript(const std::string &script)
+void Storm::ScriptManager::executeScript_ScriptThread(const std::string &script)
 {
 	LOG_SCRIPT_LOGIC << script;
 
 	try
 	{
-		_scriptWrapper->execute(script);
+		std::string errorMsg;
+		
+		if (!_scriptWrapper->execute(script, errorMsg))
+		{
+			if (!errorMsg.empty())
+			{
+				LOG_ERROR << "Script execution failed! Error was :\n" << errorMsg;
+			}
+			else
+			{
+				LOG_ERROR << "Script execution failed with an unknown error!";
+			}
+		}
 	}
 	catch (const std::exception &ex)
 	{
@@ -127,7 +139,7 @@ void Storm::ScriptManager::execute(std::string script)
 	{
 		Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::ScriptThread, [this, scriptContent = Storm::FuncMovePass<std::string>{ std::move(script) }]()
 		{
-			this->executeScript(scriptContent._object);
+			this->executeScript_ScriptThread(scriptContent._object);
 		});
 	}
 }

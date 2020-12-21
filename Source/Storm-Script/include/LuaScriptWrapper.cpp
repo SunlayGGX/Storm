@@ -17,11 +17,11 @@ Storm::LuaScriptWrapper::LuaScriptWrapper()
 	);
 }
 
-bool Storm::LuaScriptWrapper::execute(const std::string &script, std::string &inOutErrorMsg /*= std::string{}*/)
+bool Storm::LuaScriptWrapper::execute(const std::string &scriptContent, std::string &inOutErrorMsg)
 {
 	assert(Storm::isScriptThread() && "This method should only be executed inside scripting thread!");
 
-	auto result = _lua.script(script);
+	auto result = _lua.safe_script(scriptContent);
 	if (result.valid())
 	{
 		return true;

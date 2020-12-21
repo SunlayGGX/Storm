@@ -77,7 +77,7 @@ namespace Storm
 		}
 
 	public:
-		bool execute(const std::string &script, std::string &inOutErrorMsg = std::string{});
+		bool execute(const std::string &scriptContent, std::string &inOutErrorMsg);
 
 	public:
 		sol::state& getUnderlying()

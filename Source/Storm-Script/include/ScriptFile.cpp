@@ -50,7 +50,7 @@ void Storm::ScriptFile::update()
 			std::ifstream scriptContentStream{ _filePath };
 			scriptContentStream.read(scriptContent.data(), fileSize);
 
-			Storm::ScriptManager::instance().executeScript(std::move(scriptContent));
+			Storm::ScriptManager::instance().executeScript_ScriptThread(scriptContent);
 		}
 		else
 		{
