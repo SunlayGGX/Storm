@@ -33,9 +33,15 @@ namespace Storm
 		}
 
 		template<class Field>
-		static auto parseToWString(Field val, int, void*) -> decltype(std::to_wstring(val))
+		static auto parseToWString(Field val, int, void*) -> decltype(std::enable_if_t<!std::is_same_v<Field, bool>, std::true_type>::value, std::to_wstring(val))
 		{
 			return std::to_wstring(val);
+		}
+
+		template<class Field>
+		static auto parseToWString(bool val, int, void*) -> decltype(std::enable_if_t<std::is_same_v<Field, bool>, std::true_type>::value, std::wstring())
+		{
+			return val ? L"true" : L"false";
 		}
 
 		template<class Field>
