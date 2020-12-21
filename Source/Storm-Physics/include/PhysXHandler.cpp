@@ -257,6 +257,7 @@ Storm::PhysXHandler::PhysXHandler() :
 
 	_scene->setFlag(physx::PxSceneFlag::Enum::eENABLE_KINEMATIC_PAIRS, true);
 	_scene->setFlag(physx::PxSceneFlag::Enum::eENABLE_KINEMATIC_STATIC_PAIRS, true);
+	_scene->setFlag(physx::PxSceneFlag::Enum::eENABLE_STABILIZATION, true);
 }
 
 Storm::PhysXHandler::~PhysXHandler()
@@ -329,6 +330,13 @@ Storm::UniquePointer<physx::PxRigidDynamic> Storm::PhysXHandler::createDynamicRi
 
 	Storm::UniquePointer<physx::PxRigidDynamic> result{ _physics->createRigidDynamic(initialPose) };
 	result->setMass(rbSceneData._mass);
+
+#if false
+	result->setLinearDamping(0.5f);
+	result->setAngularDamping(PX_MAX_F32);
+
+	result->setStabilizationThreshold(1.f);
+#endif
 
 	_scene->addActor(*result);
 
