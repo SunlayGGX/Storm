@@ -86,6 +86,7 @@ void Storm::GraphicManager::registerCurrentOnScript(IScriptWrapperInterface &scr
 {
 	script.registerCurrentType(
 
+		STORM_DECLARE_SCRIPTED_METHOD(cycleColoredSetting),
 
 	).registerCurrentInstance("graphicMgr");
 }

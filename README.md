@@ -443,3 +443,5 @@ Finally, be aware that all scripting will be executed inside the same Scripting 
 
 #### GraphicManager (graphicMgr)
 
+- **void cycleColoredSetting()**: Cycle the particle coloring observed quantities. This is the same method bound to the key inputs.
+
