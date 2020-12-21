@@ -137,6 +137,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(ProjectDir)../../../Dependencies\OIS\bin\$(Configuration);$(ProjectDir)../../../Dependencies\PhysX\physx\lib\$(Configuration);$(ProjectDir)../../../Dependencies\Assimp\bin\code\$(Configuration);$(ProjectDir)../../../Dependencies\Lua\bin\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AssemblyLinkResource>Storm-Windows.rc;%(AssemblyLinkResource)</AssemblyLinkResource>
+      <AdditionalOptions>/NODEFAULTLIB:libcmt.lib %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <ProjectReference />
     <ResourceCompile>
