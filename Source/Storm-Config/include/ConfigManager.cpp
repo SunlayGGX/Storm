@@ -418,11 +418,6 @@ bool Storm::ConfigManager::shouldDisplayHelp() const
 	return _shouldDisplayHelp;
 }
 
-const std::string& Storm::ConfigManager::getSceneName() const
-{
-	return _sceneFileName;
-}
-
 const Storm::SceneData& Storm::ConfigManager::getSceneData() const
 {
 	return _sceneConfig.getSceneData();
@@ -532,4 +527,14 @@ bool Storm::ConfigManager::isInReplayMode() const noexcept
 bool Storm::ConfigManager::userCanModifyTimestep() const noexcept
 {
 	return !(this->isInReplayMode() || this->getGeneralSimulationData()._computeCFL);
+}
+
+const std::string& Storm::ConfigManager::getSceneName() const
+{
+	return _sceneFileName;
+}
+
+const std::string& Storm::ConfigManager::getSimulationTypeName() const
+{
+	return this->getGeneralSimulationData()._simulationModeStr;
 }

@@ -56,7 +56,6 @@ namespace Storm
 
 		bool shouldDisplayHelp() const;
 
-		const std::string& getSceneName() const final override;
 		const Storm::SceneData& getSceneData() const final override;
 		const Storm::GraphicData& getGraphicData() const final override;
 		const Storm::GeneralSimulationData& getGeneralSimulationData() const final override;
@@ -70,6 +69,8 @@ namespace Storm
 
 		bool isInReplayMode() const noexcept final override;
 		bool userCanModifyTimestep() const noexcept final override;
+		const std::string& getSceneName() const final override;
+		const std::string& getSimulationTypeName() const final override;
 
 	private:
 		// Members that could be extracted from Command line.

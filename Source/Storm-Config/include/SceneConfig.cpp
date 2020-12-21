@@ -81,28 +81,28 @@ namespace
 		}
 	}
 
-	Storm::SimulationMode parseSimulationMode(std::string simulModeStr)
+	Storm::SimulationMode parseSimulationMode(std::string &inOutSimulModeStr)
 	{
-		boost::algorithm::to_lower(simulModeStr);
-		if (simulModeStr == "wcsph")
+		boost::algorithm::to_upper(inOutSimulModeStr);
+		if (inOutSimulModeStr == "WCSPH")
 		{
 			return Storm::SimulationMode::WCSPH;
 		}
-		else if (simulModeStr == "pcisph")
+		else if (inOutSimulModeStr == "PCISPH")
 		{
 			return Storm::SimulationMode::PCISPH;
 		}
-		else if (simulModeStr == "iisph")
+		else if (inOutSimulModeStr == "IISPH")
 		{
 			return Storm::SimulationMode::IISPH;
 		}
-		else if (simulModeStr == "dfsph")
+		else if (inOutSimulModeStr == "DFSPH")
 		{
 			return Storm::SimulationMode::DFSPH;
 		}
 		else
 		{
-			Storm::throwException<std::exception>("Simulation mode value is unknown : '" + simulModeStr + "'");
+			Storm::throwException<std::exception>("Simulation mode value is unknown : '" + inOutSimulModeStr + "'");
 		}
 	}
 
@@ -207,7 +207,7 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 		if (
 			!Storm::XmlReader::handleXml(generalXmlElement, "startPaused", generalData._startPaused) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "gravity", generalData._gravity, parseVector3Element) &&
-			!Storm::XmlReader::handleXml(generalXmlElement, "simulation", generalData._simulationMode, parseSimulationMode) &&
+			!Storm::XmlReader::handleXml(generalXmlElement, "simulation", generalData._simulationModeStr) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "kernel", generalData._kernelMode, parseKernelMode) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "kernelCoeff", generalData._kernelCoefficient) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "maxKernelIncrementCoeff", generalData._maxKernelIncrementCoeff) &&
@@ -229,6 +229,11 @@ void Storm::SceneConfig::read(const std::string &sceneConfigFilePathStr, const S
 		{
 			LOG_ERROR << "tag '" << generalXmlElement.first << "' (inside Scene.General) is unknown, therefore it cannot be handled";
 		}
+	}
+
+	if (!generalData._simulationModeStr.empty())
+	{
+		generalData._simulationMode = parseSimulationMode(generalData._simulationModeStr);
 	}
 
 	if (generalData._simulationMode == Storm::SimulationMode::None)

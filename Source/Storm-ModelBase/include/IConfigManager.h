@@ -59,7 +59,6 @@ namespace Storm
 		virtual bool getShouldProfileSimulationSpeed() const = 0;
 
 		// Scene data
-		virtual const std::string& getSceneName() const = 0;
 		virtual const Storm::SceneData& getSceneData() const = 0;
 		virtual const Storm::GraphicData& getGraphicData() const = 0;
 		virtual const Storm::GeneralSimulationData& getGeneralSimulationData() const = 0;
@@ -74,5 +73,7 @@ namespace Storm
 		// Special highly used method
 		virtual bool isInReplayMode() const noexcept = 0;
 		virtual bool userCanModifyTimestep() const noexcept = 0;
+		virtual const std::string& getSceneName() const = 0;
+		virtual const std::string& getSimulationTypeName() const = 0;
 	};
 }

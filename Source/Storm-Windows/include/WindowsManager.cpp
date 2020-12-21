@@ -81,6 +81,33 @@ namespace
 	{
 		return std::filesystem::path{ str }.wstring();
 	}
+
+	template<std::size_t maxTitleCount, class AddedStrType>
+	void appendToTitle(TCHAR(&inOutTitle)[maxTitleCount], std::size_t &titlePositionIter, const AddedStrType &addedStr, const std::string_view &operation)
+	{
+		try
+		{
+			if (!addedStr.empty())
+			{
+				const std::wstring convertedAddedWStr = toStdWString(addedStr);
+
+				const std::size_t currentAddedStrLength = convertedAddedWStr.size();
+				const std::size_t toCopy = std::max(titlePositionIter - (currentAddedStrLength + 4), static_cast<std::size_t>(0));
+				if (toCopy != 0)
+				{
+					inOutTitle[titlePositionIter++] = L' ';
+					inOutTitle[titlePositionIter++] = L'-';
+					inOutTitle[titlePositionIter++] = L' ';
+					memcpy(inOutTitle + titlePositionIter, convertedAddedWStr.c_str(), currentAddedStrLength * sizeof(TCHAR));
+					titlePositionIter += currentAddedStrLength;
+				}
+			}
+		}
+		catch (const std::exception &e)
+		{
+			LOG_ERROR << "Couldn't embed the " << operation << " into the application title. Reason : " << e.what();
+		}
+	}
 }
 
 
@@ -213,25 +240,8 @@ void Storm::WindowsManager::initializeInternal()
 			LOG_ERROR << "Couldn't embed the process id into the application title. Reason : " << e.what();
 		}
 
-		try
-		{
-			const std::wstring currentSceneName = toStdWString(configMgr.getSceneName());
-
-			const std::size_t currentSceneNameStrLength = currentSceneName.size();
-			const std::size_t toCopy = std::max(titleLength - (currentSceneNameStrLength + 4), static_cast<std::size_t>(0));
-			if (toCopy != 0)
-			{
-				szTitle[titleLength++] = L' ';
-				szTitle[titleLength++] = L'-';
-				szTitle[titleLength++] = L' ';
-				memcpy(szTitle + titleLength, currentSceneName.c_str(), currentSceneNameStrLength * sizeof(decltype(currentSceneName)::value_type));
-				titleLength += currentSceneNameStrLength;
-			}
-		}
-		catch (const std::exception &e)
-		{
-			LOG_ERROR << "Couldn't embed the current scene name into the application title. Reason : " << e.what();
-		}
+		appendToTitle(szTitle, titleLength, configMgr.getSceneName(), "current scene name");
+		appendToTitle(szTitle, titleLength, configMgr.getSimulationTypeName(), "current simulation type");
 
 		szTitle[titleLength] = L'\0';
 	}

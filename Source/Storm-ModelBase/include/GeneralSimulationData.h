@@ -39,6 +39,7 @@ namespace Storm
 		unsigned char _recomputeNeighborhoodStep;
 
 		Storm::SimulationMode _simulationMode;
+		std::string _simulationModeStr;
 
 		bool _removeFluidParticleCollidingWithRb;
 
