@@ -28,7 +28,6 @@ namespace Storm
 
 	private:
 		void executeOnThreadInternal(const std::thread::id &threadId, Storm::AsyncAction &&action);
-		void executeDefferedOnThreadInternal(const std::thread::id &threadId, Storm::AsyncAction &&action);
 
 	private:
 		mutable std::recursive_mutex _mutex;

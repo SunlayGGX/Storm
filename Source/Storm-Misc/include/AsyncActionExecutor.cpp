@@ -1,6 +1,8 @@
 #include "AsyncActionExecutor.h"
 
 
+
+
 void Storm::AsyncActionExecutor::execute()
 {
 	if (_internalCurrentFrameAsyncActions.empty())
@@ -10,11 +12,6 @@ void Storm::AsyncActionExecutor::execute()
 
 	Storm::prettyCallMultiCallback(_internalCurrentFrameAsyncActions);
 	this->clear();
-
-	if (!_internalNextFrameAsyncActions.empty())
-	{
-		_internalNextFrameAsyncActions.transfertTo(_internalCurrentFrameAsyncActions);
-	}
 }
 
 void Storm::AsyncActionExecutor::clear()
@@ -24,10 +21,20 @@ void Storm::AsyncActionExecutor::clear()
 
 void Storm::AsyncActionExecutor::bind(Storm::AsyncAction &&action)
 {
-	_internalCurrentFrameAsyncActions.add(std::move(action));
+	_internalNextFrameAsyncActions.add(std::move(action));
 }
 
-void Storm::AsyncActionExecutor::bindDeffered(Storm::AsyncAction &&action)
+void Storm::AsyncActionExecutor::prepare()
 {
-	_internalNextFrameAsyncActions.add(std::move(action));
+	if (!_internalNextFrameAsyncActions.empty())
+	{
+		_internalNextFrameAsyncActions.transfertTo(_internalCurrentFrameAsyncActions);
+	}
+}
+
+void Storm::AsyncActionExecutor::executeFastNoBind(Storm::AsyncAction &&action)
+{
+	Storm::MultiCallback<Storm::AsyncAction> tmp;
+	tmp.add(std::move(action));
+	Storm::prettyCallMultiCallback(tmp);
 }

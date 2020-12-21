@@ -12,10 +12,14 @@ namespace Storm
 		void execute();
 		void clear();
 		void bind(Storm::AsyncAction &&action);
-		void bindDeffered(Storm::AsyncAction &&action);
+		void prepare();
+
+	public:
+		static void executeFastNoBind(Storm::AsyncAction &&action);
 
 	private:
-		Storm::MultiCallback<Storm::AsyncAction> _internalCurrentFrameAsyncActions;
+		mutable std::mutex _mutex;
 		Storm::MultiCallback<Storm::AsyncAction> _internalNextFrameAsyncActions;
+		Storm::MultiCallback<Storm::AsyncAction> _internalCurrentFrameAsyncActions;
 	};
 }

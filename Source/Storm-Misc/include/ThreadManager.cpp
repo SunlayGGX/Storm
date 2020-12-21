@@ -88,14 +88,7 @@ void Storm::ThreadManager::executeDefferedOnThread(Storm::ThreadEnumeration thre
 	std::lock_guard<std::recursive_mutex> lock{ _mutex };
 	if (const auto found = _threadIdMapping.find(threadEnum); found != std::end(_threadIdMapping))
 	{
-		if (found->second != thisThreadId)
-		{
-			this->executeOnThreadInternal(found->second, std::move(action));
-		}
-		else
-		{
-			this->executeDefferedOnThreadInternal(found->second, std::move(action));
-		}
+		this->executeOnThreadInternal(found->second, std::move(action));
 	}
 	else
 	{
@@ -132,9 +125,7 @@ void Storm::ThreadManager::executeOnThread(Storm::ThreadEnumeration threadEnum, 
 
 	if (executeNow)
 	{
-		Storm::AsyncActionExecutor tmpExecutor{};
-		tmpExecutor.bind(std::move(action));
-		tmpExecutor.execute();
+		Storm::AsyncActionExecutor::executeFastNoBind(std::move(action));
 	}
 }
 
@@ -142,30 +133,51 @@ void Storm::ThreadManager::processCurrentThreadActions()
 {
 	const auto thisThreadId = std::this_thread::get_id();
 
-	std::lock_guard<std::recursive_mutex> lock{ _mutex };
-	if (const auto executorFound = _toExecute.find(thisThreadId); executorFound != std::end(_toExecute))
+	Storm::AsyncActionExecutor* currentThreadExecutor;
+
 	{
-		executorFound->second->execute();
+		std::lock_guard<std::recursive_mutex> lock{ _mutex };
+		if (const auto executorFound = _toExecute.find(thisThreadId); executorFound != std::end(_toExecute))
+		{
+			currentThreadExecutor = executorFound->second.get();
+			currentThreadExecutor->prepare();
+		}
+		else
+		{
+			Storm::throwException<std::exception>("Thread with id " + Storm::toStdString(thisThreadId) + " was not registered to execute any callback!");
+		}
 	}
-	else
-	{
-		Storm::throwException<std::exception>("Thread with id " + Storm::toStdString(thisThreadId) + " was not registered to execute any callback!");
-	}
+
+	currentThreadExecutor->execute();
 }
 
 void Storm::ThreadManager::processActionsOfThread(Storm::ThreadEnumeration threadEnum)
 {
-	std::lock_guard<std::recursive_mutex> lock{ _mutex };
-	if (const auto foundThreadId = _threadIdMapping.find(threadEnum); foundThreadId != std::end(_threadIdMapping))
+	Storm::AsyncActionExecutor* currentThreadExecutor;
+
 	{
-		if (const auto executorFound = _toExecute.find(foundThreadId->second); executorFound != std::end(_toExecute))
+		std::lock_guard<std::recursive_mutex> lock{ _mutex };
+		if (const auto foundThreadId = _threadIdMapping.find(threadEnum); foundThreadId != std::end(_threadIdMapping))
 		{
-			executorFound->second->execute();
+			if (const auto executorFound = _toExecute.find(foundThreadId->second); executorFound != std::end(_toExecute))
+			{
+				currentThreadExecutor = executorFound->second.get();
+				currentThreadExecutor->prepare();
+			}
+			else
+			{
+				currentThreadExecutor = nullptr;
+			}
+		}
+		else
+		{
+			Storm::throwException<std::exception>("Thread with enumeration " + Storm::toStdString(threadEnum) + " was not registered to execute any callback!");
 		}
 	}
-	else
+
+	if (currentThreadExecutor)
 	{
-		Storm::throwException<std::exception>("Thread with enumeration " + Storm::toStdString(threadEnum) + " was not registered to execute any callback!");
+		currentThreadExecutor->execute();
 	}
 }
 
@@ -207,18 +219,6 @@ void Storm::ThreadManager::executeOnThreadInternal(const std::thread::id &thread
 	if (const auto executorFound = _toExecute.find(threadId); executorFound != std::end(_toExecute))
 	{
 		executorFound->second->bind(std::move(action));
-	}
-	else
-	{
-		Storm::throwException<std::exception>("Thread with id " + Storm::toStdString(threadId) + " was not registered to execute any callback!");
-	}
-}
-
-void Storm::ThreadManager::executeDefferedOnThreadInternal(const std::thread::id &threadId, Storm::AsyncAction &&action)
-{
-	if (const auto executorFound = _toExecute.find(threadId); executorFound != std::end(_toExecute))
-	{
-		executorFound->second->bindDeffered(std::move(action));
 	}
 	else
 	{
