@@ -113,6 +113,9 @@ namespace Storm
 	public:
 		void resetReplay();
 
+	private:
+		void resetReplay_SimulationThread();
+
 	public:
 		void saveSimulationState() const;
 

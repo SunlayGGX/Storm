@@ -470,7 +470,7 @@ void Storm::SimulatorManager::initialize_Implementation()
 	inputMgr.bindKey(Storm::SpecialKey::KC_E, [this]() { this->tweekBlowerEnabling(); });
 	inputMgr.bindKey(Storm::SpecialKey::KC_R, [this]() { this->tweekRaycastEnabling(); });
 	inputMgr.bindKey(Storm::SpecialKey::KC_Y, [this]() { this->cycleSelectedParticleDisplayMode(); });
-	inputMgr.bindKey(Storm::SpecialKey::KC_I, [this]() { this->resetReplay(); });
+	inputMgr.bindKey(Storm::SpecialKey::KC_I, [this]() { this->resetReplay_SimulationThread(); });
 	inputMgr.bindKey(Storm::SpecialKey::KC_C, [this]() { this->executeAllForcesCheck(); });
 	inputMgr.bindKey(Storm::SpecialKey::KC_N, [this]() { this->advanceOneFrame(); });
 	inputMgr.bindKey(Storm::SpecialKey::KC_X, [this]() { this->saveSimulationState(); });
@@ -1539,6 +1539,15 @@ void Storm::SimulatorManager::applyReplayFrame(Storm::SerializeRecordPendingData
 }
 
 void Storm::SimulatorManager::resetReplay()
+{
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::MainThread, [this]()
+	{
+		this->resetReplay();
+	});
+}
+
+void Storm::SimulatorManager::resetReplay_SimulationThread()
 {
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
