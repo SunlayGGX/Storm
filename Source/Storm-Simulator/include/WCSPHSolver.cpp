@@ -103,7 +103,7 @@ void Storm::WCSPHSolver::execute(const Storm::IterationParameter &iterationParam
 			const float density0 = fluidParticleSystem.getRestDensity();
 			const float density0Squared = density0 * density0;
 			const std::vector<Storm::ParticleNeighborhoodArray> &neighborhoodArrays = currentParticleSystem.getNeighborhoodArrays();
-			const std::vector<float> &masses = fluidParticleSystem.getMasses();
+			std::vector<float> &masses = fluidParticleSystem.getMasses();
 			const std::vector<float> &densities = fluidParticleSystem.getDensities();
 			const std::vector<float> &pressures = fluidParticleSystem.getPressures();
 			const std::vector<Storm::Vector3> &velocities = fluidParticleSystem.getVelocity();
@@ -112,10 +112,12 @@ void Storm::WCSPHSolver::execute(const Storm::IterationParameter &iterationParam
 
 			Storm::runParallel(fluidParticleSystem.getForces(), [&](Storm::Vector3 &currentPForce, const std::size_t currentPIndex)
 			{
-				const float currentPMass = masses[currentPIndex];
+				float &currentPMass = masses[currentPIndex];
 				const float currentPDensity = densities[currentPIndex];
 				const float currentPPressure = pressures[currentPIndex];
 				const Storm::Vector3 &vi = velocities[currentPIndex];
+
+				currentPMass = currentPDensity * fluidParticleSystem.getParticleVolume();
 
 				const float currentPFluidPressureCoeff = currentPPressure / (currentPDensity * currentPDensity);
 
