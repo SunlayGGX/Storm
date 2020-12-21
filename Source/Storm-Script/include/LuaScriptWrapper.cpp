@@ -88,7 +88,7 @@ Storm::LuaScriptWrapper::LuaScriptWrapper()
 #else
 	luaL_setfuncs(currentState, g_redefinor, 0);
 #endif
-#undef STORM_LUA_VERSION_IS_GREATER_THAN
+#undef STORM_LUA_VERSION_IS_LOWER_THAN
 
 	lua_pop(currentState, 1);
 }
