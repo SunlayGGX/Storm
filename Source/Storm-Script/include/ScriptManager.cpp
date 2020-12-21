@@ -36,7 +36,7 @@ namespace
 
 
 Storm::ScriptManager::ScriptManager() :
-	_scriptWrapper{ std::make_unique<Storm::IScriptManager::UsedScriptWrapper>() },
+	_scriptWrapper{ std::make_unique<Storm::ScriptManager::UsedScriptWrapper>() },
 	_nextWatchedScriptFileUpdate{ std::chrono::high_resolution_clock::now() },
 	_refreshTimeDuration{ 0 }
 {

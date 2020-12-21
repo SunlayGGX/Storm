@@ -16,6 +16,9 @@ namespace Storm
 	{
 		STORM_DECLARE_SINGLETON(ScriptManager);
 
+	public:
+		using UsedScriptWrapper = Storm::LuaScriptWrapper;
+
 	private:
 		void initialize_Implementation();
 		void cleanUp_Implementation();
@@ -27,14 +30,14 @@ namespace Storm
 		void execute(std::string script) final override;
 
 	public:
-		Storm::IScriptManager::UsedScriptWrapper& getScriptWrapper();
+		Storm::ScriptManager::UsedScriptWrapper& getScriptWrapper();
 
 	private:
 		void rereadWatchedScriptFile();
 		void refreshWatchedScriptFile();
 
 	private:
-		std::unique_ptr<Storm::IScriptManager::UsedScriptWrapper> _scriptWrapper;
+		std::unique_ptr<Storm::ScriptManager::UsedScriptWrapper> _scriptWrapper;
 
 		std::chrono::high_resolution_clock::time_point _nextWatchedScriptFileUpdate;
 		std::chrono::milliseconds _refreshTimeDuration;

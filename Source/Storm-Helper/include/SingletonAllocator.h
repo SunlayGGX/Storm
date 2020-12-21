@@ -48,16 +48,13 @@ namespace Storm
 
 		template<class RealSingletonType>
 		static auto registerScripting(RealSingletonType* singletonPtr)
-			-> decltype(singletonPtr->registerCurrentOnScript(std::declval<Storm::IScriptManager::UsedScriptWrapper>()), void())
+			-> decltype(singletonPtr->registerCurrentOnScript(std::declval<Storm::ScriptManager::UsedScriptWrapper>()), void())
 		{
-			if (Storm::SingletonHolder::isAlive())
+			if (Storm::ScriptManager::isAlive())
 			{
-				Storm::IScriptManager* scriptMgrInterfacePtr = Storm::SingletonHolder::instance().getFacet<Storm::IScriptManager>();
-				if (scriptMgrInterfacePtr != nullptr)
-				{
-					auto &scriptWrapper = static_cast<Storm::ScriptManager*>(scriptMgrInterfacePtr)->getScriptWrapper();
-					singletonPtr->registerCurrentOnScript(scriptWrapper);
-				}
+				Storm::ScriptManager &scriptMgr = Storm::ScriptManager::instance();
+				auto &scriptWrapper = scriptMgr.getScriptWrapper();
+				singletonPtr->registerCurrentOnScript(scriptWrapper);
 			}
 		}
 
