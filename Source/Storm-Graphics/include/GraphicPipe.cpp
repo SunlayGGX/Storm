@@ -268,6 +268,34 @@ const Storm::GraphicPipe::ColorSetting& Storm::GraphicPipe::getUsedColorSetting(
 	return *_chosenColorSetting;
 }
 
+void Storm::GraphicPipe::setMinMaxColorationValue(float newMinValue, float newMaxValue, const Storm::ColoredSetting setting)
+{
+	if (newMinValue > newMaxValue)
+	{
+		Storm::throwException<std::exception>("new coloration min value (" + std::to_string(newMinValue) + ") cannot be greater than new coloration max value (" + std::to_string(newMaxValue) + ")!");
+	}
+
+	Storm::GraphicPipe::ColorSetting &settingToChange = this->getColorSettingFromSelection(setting);
+
+	const bool changed =
+		newMinValue != settingToChange._minValue ||
+		newMaxValue != settingToChange._maxValue
+		;
+
+	settingToChange._minValue = newMinValue;
+	settingToChange._maxValue = newMaxValue;
+
+	if (setting == _selectedColoredSetting && changed)
+	{
+		_fields->pushField(STORM_COLOR_VALUE_SETTING_FIELD_NAME);
+	}
+}
+
+void Storm::GraphicPipe::setMinMaxColorationValue(float newMinValue, float newMaxValue)
+{
+	this->setMinMaxColorationValue(newMinValue, newMaxValue, _selectedColoredSetting);
+}
+
 void Storm::GraphicPipe::changeMinColorationValue(float deltaValue, const Storm::ColoredSetting setting)
 {
 	if (deltaValue != 0.f)

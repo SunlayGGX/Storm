@@ -477,3 +477,14 @@ void Storm::GraphicManager::cycleColoredSetting()
 		});
 	}
 }
+
+void Storm::GraphicManager::setColorSettingMinMaxValue(float minValue, float maxValue)
+{
+	if (this->isActive())
+	{
+		Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::MainThread, [this, minValue, maxValue]()
+		{
+			_pipe->setMinMaxColorationValue(minValue, maxValue);
+		});
+	}
+}

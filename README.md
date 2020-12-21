@@ -444,4 +444,5 @@ Finally, be aware that all scripting will be executed inside the same Scripting 
 #### GraphicManager (graphicMgr)
 
 - **void cycleColoredSetting()**: Cycle the particle coloring observed quantities. This is the same method bound to the key inputs.
+- **void setColorSettingMinMaxValue(float minValue, float maxValue)**: Set the min and max values for the observed particle colors fields.
 

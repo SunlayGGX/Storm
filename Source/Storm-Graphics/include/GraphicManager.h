@@ -87,6 +87,7 @@ namespace Storm
 
 	public:
 		void cycleColoredSetting() final override;
+		void setColorSettingMinMaxValue(float minValue, float maxValue) final override;
 
 	private:
 		unsigned char _renderCounter;

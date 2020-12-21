@@ -58,5 +58,6 @@ namespace Storm
 
 	public:
 		virtual void cycleColoredSetting() = 0;
+		virtual void setColorSettingMinMaxValue(float minValue, float maxValue) = 0;
 	};
 }
