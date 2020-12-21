@@ -91,7 +91,7 @@ namespace Storm
 		float getKernelLength() const final override;
 
 	private:
-		void pushParticlesToGraphicModule(bool ignoreDirty, bool pushParallel = true) const;
+		void pushParticlesToGraphicModule(bool ignoreDirty) const;
 
 	private:
 		void cycleSelectedParticleDisplayMode();

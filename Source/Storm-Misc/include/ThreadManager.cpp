@@ -79,9 +79,6 @@ void Storm::ThreadManager::executeOnThread(const std::thread::id &threadId, Stor
 
 void Storm::ThreadManager::executeDefferedOnThread(Storm::ThreadEnumeration threadEnum, Storm::AsyncAction &&action)
 {
-	// Warning : You should never call a executeOnThread from a runParallel that is executed inside an AsyncAction being executed in processCurrentThreadActions.
-	// If those 3 functions are present in your call stack, then a deadlock will occurs.
-
 	const auto thisThreadId = std::this_thread::get_id();
 	bool executeNow = false;
 
@@ -97,9 +94,7 @@ void Storm::ThreadManager::executeDefferedOnThread(Storm::ThreadEnumeration thre
 }
 
 void Storm::ThreadManager::executeOnThread(Storm::ThreadEnumeration threadEnum, Storm::AsyncAction &&action)
-{// Warning : You should never call a executeOnThread from a runParallel that is executed inside an AsyncAction being executed in processCurrentThreadActions.
-	// If those 3 functions are present in your call stack, then a deadlock will occurs.
-
+{
 	const auto thisThreadId = std::this_thread::get_id();
 	bool executeNow = false;
 

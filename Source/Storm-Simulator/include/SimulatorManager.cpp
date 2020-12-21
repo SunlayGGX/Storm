@@ -553,7 +553,7 @@ void Storm::SimulatorManager::initialize_Implementation()
 
 				if (hasMadeSelectionChanges && timeMgr.simulationIsPaused())
 				{
-					this->pushParticlesToGraphicModule(true, false);
+					this->pushParticlesToGraphicModule(true);
 				}
 			} }.addPartitionFlag(Storm::PartitionSelection::DynamicRigidBody)
 			   .firstHitOnly())
@@ -1320,7 +1320,7 @@ float Storm::SimulatorManager::getKernelLength() const
 	return _kernelHandler.getKernelValue();
 }
 
-void Storm::SimulatorManager::pushParticlesToGraphicModule(bool ignoreDirty, bool pushParallel /*= true*/) const
+void Storm::SimulatorManager::pushParticlesToGraphicModule(bool ignoreDirty) const
 {
 	Storm::IGraphicsManager &graphicMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IGraphicsManager>();
 
@@ -1366,17 +1366,7 @@ void Storm::SimulatorManager::pushParticlesToGraphicModule(bool ignoreDirty, boo
 		}
 	};
 
-	if (pushParallel)
-	{
-		Storm::runParallel(_particleSystem, pushActionLambda);
-	}
-	else
-	{
-		for (const auto &particleSystPtr : _particleSystem)
-		{
-			pushActionLambda(particleSystPtr);
-		}
-	}
+	Storm::runParallel(_particleSystem, pushActionLambda);
 }
 
 void Storm::SimulatorManager::cycleSelectedParticleDisplayMode()
@@ -1388,7 +1378,7 @@ void Storm::SimulatorManager::cycleSelectedParticleDisplayMode()
 		const Storm::ITimeManager &timeMgr = Storm::SingletonHolder::instance().getSingleton<Storm::ITimeManager>();
 		if (timeMgr.getStateNoSyncWait() == Storm::TimeWaitResult::Pause)
 		{
-			this->pushParticlesToGraphicModule(true, false);
+			this->pushParticlesToGraphicModule(true);
 		}
 	}
 }
@@ -1423,7 +1413,7 @@ void Storm::SimulatorManager::requestCycleColoredSetting()
 	
 	if (singletonHolder.getSingleton<Storm::ITimeManager>().simulationIsPaused())
 	{
-		this->pushParticlesToGraphicModule(true, false);
+		this->pushParticlesToGraphicModule(true);
 	}
 }
 
@@ -1532,7 +1522,7 @@ void Storm::SimulatorManager::applyReplayFrame(Storm::SerializeRecordPendingData
 
 	this->refreshParticleSelection();
 
-	this->pushParticlesToGraphicModule(true, pushParallel);
+	this->pushParticlesToGraphicModule(true);
 
 	Storm::IPhysicsManager &physicsMgr = singletonHolder.getSingleton<Storm::IPhysicsManager>();
 	physicsMgr.pushConstraintsRecordedFrame(frame._constraintElements);
