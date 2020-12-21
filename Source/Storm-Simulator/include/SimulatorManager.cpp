@@ -1203,6 +1203,9 @@ void Storm::SimulatorManager::addFluidParticleSystem(Storm::SystemSimulationStat
 	const std::size_t initialParticleCount = state._positions.size();
 	LOG_COMMENT << "Creating fluid particle system with " << initialParticleCount << " particles.";
 
+#if false 
+
+	// FIXME : The algorithm to remove insider particle wasn't made with state reloading in mind (This feature was made long before I did the state reloading feature, I did YAGNI, and now I'm paying the price).
 	const Storm::GeneralSimulationData &generalConfigData = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().getGeneralSimulationData();
 	if (generalConfigData._removeFluidParticleCollidingWithRb)
 	{
@@ -1212,6 +1215,8 @@ void Storm::SimulatorManager::addFluidParticleSystem(Storm::SystemSimulationStat
 
 		LOG_DEBUG << "We removed " << initialParticleCount - state._positions.size() << " particle(s) after checking which collide with existing rigid bodies.";
 	}
+
+#endif
 
 	Storm::FluidParticleSystem &newPSystem = addParticleSystemToMap<Storm::FluidParticleSystem>(_particleSystem, state._id, std::move(state._positions));
 	newPSystem.setVelocity(std::move(state._velocities));
