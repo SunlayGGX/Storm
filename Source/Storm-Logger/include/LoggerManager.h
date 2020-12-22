@@ -42,7 +42,6 @@ namespace Storm
 
 		LogArray _buffer;
 
-		std::string _logFilePath;
 		std::string _xmlLogFilePath;
 	};
 }
