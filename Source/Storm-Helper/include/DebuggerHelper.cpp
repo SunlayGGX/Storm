@@ -189,7 +189,7 @@ namespace
 
 	private:
 		bool _active = false;
-		PVOID _handler;
+		PVOID _handler = nullptr;
 	} g_raiiHooker;
 }
 
