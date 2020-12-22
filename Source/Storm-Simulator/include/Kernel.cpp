@@ -4,8 +4,6 @@
 #include "Kernel.h"
 #include "KernelMode.h"
 
-#include "ThrowException.h"
-
 
 float Storm::CubicSplineKernel::s_rawPrecoeff = 0.f;
 float Storm::CubicSplineKernel::s_gradientPrecoeff = 0.f;

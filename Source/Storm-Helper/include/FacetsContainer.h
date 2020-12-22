@@ -2,7 +2,6 @@
 
 
 #include "Facets.h"
-#include "ThrowException.h"
 
 
 namespace Storm

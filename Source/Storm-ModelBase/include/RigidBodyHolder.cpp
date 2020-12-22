@@ -1,7 +1,5 @@
 #include "RigidBodyHolder.h"
 
-#include "ThrowException.h"
-
 
 void Storm::RigidBodyHolder::setRbParent(const std::shared_ptr<Storm::IRigidBody> &boundRbParent)
 {

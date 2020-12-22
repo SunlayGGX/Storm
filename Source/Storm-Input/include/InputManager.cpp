@@ -9,7 +9,6 @@
 
 #include "ThreadEnumeration.h"
 
-#include "ThrowException.h"
 #include "MemoryHelper.h"
 
 #include "Version.h"

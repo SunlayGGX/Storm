@@ -5,8 +5,6 @@
 #include "VoxelHelper.h"
 #include "Vector3Utils.h"
 
-#include "ThrowException.h"
-
 
 
 Storm::DistanceSpacePartitionProxy::DistanceSpacePartitionProxy(const Storm::Vector3 &upCorner, const Storm::Vector3 &downCorner, float voxelEdgeLength) :

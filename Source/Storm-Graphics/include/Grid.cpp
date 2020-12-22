@@ -1,4 +1,3 @@
-#include "ThrowException.h"
 #include "Grid.h"
 #include "GridShader.h"
 

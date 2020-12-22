@@ -1,7 +1,6 @@
 #include "WindowsManager.h"
 
 #include "resource.h"
-#include "ThrowException.h"
 #include "ThreadHelper.h"
 #include "ThreadEnumeration.h"
 

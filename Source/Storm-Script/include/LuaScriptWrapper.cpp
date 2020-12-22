@@ -1,6 +1,5 @@
 #include "LuaScriptWrapper.h"
 
-#include "ThrowException.h"
 #include "ThreadingSafety.h"
 
 

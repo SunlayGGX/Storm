@@ -1,7 +1,6 @@
 #pragma once
 
 #include "NonInstanciable.h"
-#include "ThrowException.h"
 
 
 namespace Storm

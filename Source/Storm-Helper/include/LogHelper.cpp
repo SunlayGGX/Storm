@@ -2,8 +2,6 @@
 
 #include "LogLevel.h"
 
-#include "ThrowException.h"
-
 
 std::string_view Storm::parseLogLevel(Storm::LogLevel logLevel)
 {

@@ -6,8 +6,6 @@
 #include "PhysicsManager.h"
 #include "PhysXHandler.h"
 
-#include "ThrowException.h"
-
 
 Storm::PhysicalShape::PhysicalShape(const Storm::RigidBodySceneData &rbSceneData, const std::vector<Storm::Vector3> &vertices, const std::vector<uint32_t> &indexes)
 {

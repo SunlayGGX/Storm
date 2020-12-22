@@ -3,8 +3,6 @@
 #include "LogLevel.h"
 #include "LogHelper.h"
 
-#include "ThrowException.h"
-
 #include <boost\property_tree\detail\xml_parser_write.hpp>
 #include <boost\property_tree\xml_parser.hpp>
 

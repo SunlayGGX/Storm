@@ -23,7 +23,6 @@
 #include "LayeringGenerationTechnique.h"
 
 #include "ColorChecker.h"
-#include "ThrowException.h"
 #include "XmlReader.h"
 
 #include <boost/property_tree/ptree.hpp>

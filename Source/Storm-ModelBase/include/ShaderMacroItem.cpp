@@ -1,7 +1,5 @@
 #include "ShaderMacroItem.h"
 
-#include "ThrowException.h"
-
 
 Storm::ShaderMacroItem::ShaderMacroItem(const std::string_view &macroName, std::string &&macroValue) :
 	_macroName{ macroName },

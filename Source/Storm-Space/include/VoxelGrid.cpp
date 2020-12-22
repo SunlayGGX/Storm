@@ -1,7 +1,6 @@
 #include "VoxelGrid.h"
 
 #include "StormMacro.h"
-#include "ThrowException.h"
 
 #include "Voxel.h"
 #include "MemoryHelper.h"

@@ -1,7 +1,5 @@
 #pragma once
 
-#include "ThrowException.h"
-
 #include <comdef.h>
 
 

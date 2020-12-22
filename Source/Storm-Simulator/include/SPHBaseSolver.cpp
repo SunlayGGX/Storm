@@ -2,8 +2,6 @@
 
 #include "SimulationMode.h"
 
-#include "ThrowException.h"
-
 #include "SolverCreationParameter.h"
 
 #include "WCSPHSolver.h"

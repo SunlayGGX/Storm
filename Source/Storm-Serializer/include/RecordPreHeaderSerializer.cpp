@@ -3,8 +3,6 @@
 #include "SerializePackage.h"
 #include "Version.h"
 
-#include "ThrowException.h"
-
 
 namespace
 {

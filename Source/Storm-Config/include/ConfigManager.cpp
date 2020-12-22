@@ -1,8 +1,6 @@
 #include "ConfigManager.h"
 #include "CommandLineParser.h"
 
-#include "ThrowException.h"
-
 #include "SingletonHolder.h"
 #include "IOSManager.h"
 

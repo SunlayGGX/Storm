@@ -1,6 +1,5 @@
 #include "PhysicsStaticsRigidBody.h"
 
-#include "ThrowException.h"
 #include "PhysXCoordHelpers.h"
 
 #include "PhysicsManager.h"

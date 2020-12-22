@@ -1,5 +1,4 @@
 #include "CommandLineParser.h"
-#include "ThrowException.h"
 
 #include "ThreadPriority.h"
 

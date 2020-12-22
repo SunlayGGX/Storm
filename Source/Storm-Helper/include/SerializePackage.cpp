@@ -1,6 +1,5 @@
 #include "SerializePackage.h"
 
-#include "ThrowException.h"
 #include "MemoryHelper.h"
 
 #include "Version.h"

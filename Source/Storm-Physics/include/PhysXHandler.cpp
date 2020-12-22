@@ -2,7 +2,6 @@
 
 #include "CustomPhysXLogger.h"
 
-#include "ThrowException.h"
 #include "Version.h"
 #include "PhysXCoordHelpers.h"
 

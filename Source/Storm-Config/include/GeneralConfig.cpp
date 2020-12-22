@@ -2,7 +2,6 @@
 
 #include "MacroConfig.h"
 
-#include "ThrowException.h"
 #include "XmlReader.h"
 
 #include "VectoredExceptionDisplayMode.h"

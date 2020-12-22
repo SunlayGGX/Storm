@@ -5,7 +5,6 @@
 #include "InsideParticleRemovalTechnique.h"
 #include "LayeringGenerationTechnique.h"
 
-#include "ThrowException.h"
 #include "Vector3Utils.h"
 #include "BoundingBox.h"
 

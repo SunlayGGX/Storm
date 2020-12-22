@@ -1,7 +1,6 @@
 #include "MacroConfig.h"
 #include "ConfigManager.h"
 
-#include "ThrowException.h"
 #include "TimeHelper.h"
 
 #include <boost/property_tree/ptree.hpp>

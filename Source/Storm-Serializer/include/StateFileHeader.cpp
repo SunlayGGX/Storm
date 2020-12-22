@@ -2,8 +2,6 @@
 
 #include "SerializePackage.h"
 
-#include "ThrowException.h"
-
 
 namespace
 {

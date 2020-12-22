@@ -26,7 +26,6 @@
 
 #include "RecordMode.h"
 
-#include "ThrowException.h"
 #include "SearchAlgo.h"
 
 namespace

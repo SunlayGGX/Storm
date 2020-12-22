@@ -10,8 +10,6 @@
 #include "SerializeRecordParticleSystemData.h"
 #include "SerializeRecordPendingData.h"
 
-#include "ThrowException.h"
-
 #define STORM_HIJACKED_TYPE Storm::Vector3
 #include "VectHijack.h"
 

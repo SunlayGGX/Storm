@@ -11,8 +11,6 @@
 
 #include "RunnerHelper.h"
 
-#include "ThrowException.h"
-
 
 namespace
 {

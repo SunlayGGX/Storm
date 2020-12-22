@@ -10,7 +10,6 @@
 #include "FluidParticleSystem.h"
 #include "RigidBodyParticleSystem.h"
 
-#include "ThrowException.h"
 #include "RunnerHelper.h"
 
 #include "Kernel.h"

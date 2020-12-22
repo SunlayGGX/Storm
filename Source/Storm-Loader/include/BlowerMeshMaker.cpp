@@ -5,7 +5,6 @@
 #include "BlowerData.h"
 #include "BlowerType.h"
 
-#include "ThrowException.h"
 #include "CorrectSettingChecker.h"
 
 

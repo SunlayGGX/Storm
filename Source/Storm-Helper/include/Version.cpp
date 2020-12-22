@@ -2,8 +2,6 @@
 
 #include "SerializePackage.h"
 
-#include "ThrowException.h"
-
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/lexical_cast.hpp>

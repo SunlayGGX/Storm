@@ -9,8 +9,6 @@
 #include "SerializePackageCreationModality.h"
 #include "SerializePackage.h"
 
-#include "ThrowException.h"
-
 
 namespace
 {

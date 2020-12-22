@@ -2,8 +2,6 @@
 
 #include "AsyncActionExecutor.h"
 
-#include "ThrowException.h"
-
 #include "ThreadPriority.h"
 
 #include "LeanWindowsInclude.h"

@@ -19,7 +19,6 @@
 
 #include "ThreadEnumeration.h"
 #include "ThreadingSafety.h"
-#include "ThrowException.h"
 
 
 namespace

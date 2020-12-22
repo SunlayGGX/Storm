@@ -3,7 +3,6 @@
 #include "ScriptManager.h"
 
 #include "StringHijack.h"
-#include "ThrowException.h"
 
 #include <fstream>
 
