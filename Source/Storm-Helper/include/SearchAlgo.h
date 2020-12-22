@@ -1,7 +1,6 @@
 #pragma once
 
 #include "NonInstanciable.h"
-#include "ThrowException.h"
 
 
 namespace Storm
@@ -18,7 +17,7 @@ namespace Storm
 			}
 			else
 			{
-				Storm::throwException<std::exception>("Trying to extract a null value! It is forbidden!");
+				Storm::throwException<Storm::StormException>("Trying to extract a null value! It is forbidden!");
 			}
 		}
 
@@ -80,7 +79,7 @@ namespace Storm
 		{
 			if (Storm::SearchAlgo::searchIfExistImpl(cont, valueOrPredicate, 0))
 			{
-				Storm::throwException<std::exception>(errorMsg);
+				Storm::throwException<Storm::StormException>(errorMsg);
 			}
 		}
 
@@ -111,7 +110,7 @@ namespace Storm
 		{
 			if (!Storm::SearchAlgo::executeOnObjectInContainerImpl(key, func, allContainers...))
 			{
-				Storm::throwException<std::exception>("Cannot find object with id " + Storm::toStdString(key) + " inside given maps. (" __FUNCSIG__ ")");
+				Storm::throwException<Storm::StormException>("Cannot find object with id " + Storm::toStdString(key) + " inside given maps. (" __FUNCSIG__ ")");
 			}
 		}
 

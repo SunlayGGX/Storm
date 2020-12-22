@@ -265,7 +265,7 @@ std::vector<Storm::Vector3> Storm::PoissonDiskSampler::process_v2(const int kTry
 
 	if (totalArea == 0.f)
 	{
-		Storm::throwException<std::exception>("A mesh to convert into particles must have a positive non zero area!");
+		Storm::throwException<Storm::StormException>("A mesh to convert into particles must have a positive non zero area!");
 	}
 
 	// Produce a set of point sampling the mesh...

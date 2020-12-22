@@ -1,7 +1,5 @@
 #include "ConfigManager.h"
 
-#include "ThrowException.h"
-
 #include "XmlReader.h"
 
 #include <boost\program_options\variables_map.hpp>
@@ -43,7 +41,7 @@ namespace
 		const std::string configFilePathStr = Storm::toStdString(configFilePath);
 		if (!std::filesystem::is_regular_file(configFilePath))
 		{
-			Storm::throwException<std::exception>(configFilePathStr + " doesn't exist or isn't a file!");
+			Storm::throwException<Storm::StormException>(configFilePathStr + " doesn't exist or isn't a file!");
 		}
 
 		boost::property_tree::ptree xmlTree;
@@ -74,7 +72,7 @@ namespace
 
 		if (inOutCopyVect.empty())
 		{
-			Storm::throwException<std::exception>("Something went wrong when reading " + configFilePathStr);
+			Storm::throwException<Storm::StormException>("Something went wrong when reading " + configFilePathStr);
 		}
 	}
 }

@@ -1,7 +1,5 @@
 #pragma once
 
-#include "ThrowException.h"
-
 #include <comdef.h>
 
 
@@ -11,7 +9,7 @@ namespace Storm
 	{
 		if (!SUCCEEDED(res))
 		{
-			Storm::throwException<std::exception>(callExpression + " failed! Error was " + Storm::toStdString(_com_error{ res }));
+			Storm::throwException<Storm::StormException>(callExpression + " failed! Error was " + Storm::toStdString(_com_error{ res }));
 		}
 	}
 

@@ -22,6 +22,16 @@ namespace
 	{
 		OutputDebugStringA(static_cast<LPCSTR>(msg.c_str()));
 	}
+
+	std::filesystem::path computeXmlLogFilePath(const Storm::IConfigManager* configMgr, const std::string &logFileName, const std::filesystem::path &xmlLogExtension, std::filesystem::path &outFolderPath)
+	{
+		const std::string &logFolderPathStr = configMgr->getLogFolderPath();
+		outFolderPath = std::filesystem::path{ logFolderPathStr.empty() ? configMgr->getTemporaryPath() : logFolderPathStr };
+		std::filesystem::create_directories(outFolderPath);
+
+		std::filesystem::path logFilePath = outFolderPath / logFileName;
+		return std::filesystem::path{ logFilePath }.replace_extension(xmlLogExtension);
+	}
 }
 
 
@@ -36,6 +46,34 @@ Storm::LoggerManager::LoggerManager() :
 Storm::LoggerManager::~LoggerManager()
 {
 	this->cleanUp();
+
+	// Pseudo initialization in case we logged something between the time the app was started, but before we initialized the LoggerManager but we stopped code execution in between due to something (like an exception for example).
+	// Since this needs the config manager to be minimally initialized at least (and maybe the throw happened while initializing it, therefore it was maybe mid init), we're taking some caution.
+	if (_xmlLogFilePath.empty())
+	{
+		if (Storm::SingletonHolder::isAlive())
+		{
+			const Storm::IConfigManager* configMgr = Storm::SingletonHolder::instance().getFacet<Storm::IConfigManager>();
+			if (configMgr != nullptr)
+			{
+				if (_currentPID == 0)
+				{
+					_currentPID = configMgr->getCurrentPID();
+				}
+
+				const std::string &logFileName = configMgr->getLogFileName();
+				if (!logFileName.empty())
+				{
+					const std::filesystem::path xmlLogExtension{ ".xml" };
+
+					std::filesystem::path logFolderPath;
+					const std::filesystem::path xmlLogFilePath = computeXmlLogFilePath(configMgr, logFileName, xmlLogExtension, logFolderPath);
+
+					_xmlLogFilePath = xmlLogFilePath.string();
+				}
+			}
+		}
+	}
 
 	this->writeLogs(_buffer, _currentPID);
 	_buffer.clear();
@@ -58,13 +96,9 @@ void Storm::LoggerManager::initialize_Implementation()
 	if (!logFileName.empty())
 	{
 		const std::filesystem::path xmlLogExtension{ ".xml" };
-
-		const std::string &logFolderPathStr = configMgr->getLogFolderPath();
-		const std::filesystem::path logFolderPath = std::filesystem::path{ logFolderPathStr.empty() ? configMgr->getTemporaryPath() : logFolderPathStr };
-		std::filesystem::create_directories(logFolderPath);
-
-		std::filesystem::path logFilePath = logFolderPath / logFileName;
-		const std::filesystem::path xmlLogFilePath = std::filesystem::path{ logFilePath }.replace_extension(xmlLogExtension);
+		
+		std::filesystem::path logFolderPath;
+		const std::filesystem::path xmlLogFilePath = computeXmlLogFilePath(configMgr, logFileName, xmlLogExtension, logFolderPath);
 
 		_xmlLogFilePath = xmlLogFilePath.string();
 

@@ -28,7 +28,6 @@
 #	include "VectHijack.h"
 #undef STORM_HIJACKED_TYPE
 
-#include "ThrowException.h"
 #include "RunnerHelper.h"
 
 

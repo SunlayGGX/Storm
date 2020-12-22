@@ -2,8 +2,6 @@
 
 #include "AsyncActionExecutor.h"
 
-#include "ThrowException.h"
-
 #include "ThreadPriority.h"
 
 #include "LeanWindowsInclude.h"
@@ -139,7 +137,7 @@ void Storm::ThreadManager::processCurrentThreadActions()
 		}
 		else
 		{
-			Storm::throwException<std::exception>("Thread with id " + Storm::toStdString(thisThreadId) + " was not registered to execute any callback!");
+			Storm::throwException<Storm::StormException>("Thread with id " + Storm::toStdString(thisThreadId) + " was not registered to execute any callback!");
 		}
 	}
 
@@ -166,7 +164,7 @@ void Storm::ThreadManager::processActionsOfThread(Storm::ThreadEnumeration threa
 		}
 		else
 		{
-			Storm::throwException<std::exception>("Thread with enumeration " + Storm::toStdString(threadEnum) + " was not registered to execute any callback!");
+			Storm::throwException<Storm::StormException>("Thread with enumeration " + Storm::toStdString(threadEnum) + " was not registered to execute any callback!");
 		}
 	}
 
@@ -217,6 +215,6 @@ void Storm::ThreadManager::executeOnThreadInternal(const std::thread::id &thread
 	}
 	else
 	{
-		Storm::throwException<std::exception>("Thread with id " + Storm::toStdString(threadId) + " was not registered to execute any callback!");
+		Storm::throwException<Storm::StormException>("Thread with id " + Storm::toStdString(threadId) + " was not registered to execute any callback!");
 	}
 }

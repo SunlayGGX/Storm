@@ -1,7 +1,6 @@
 #include "WindowsManager.h"
 
 #include "resource.h"
-#include "ThrowException.h"
 #include "ThreadHelper.h"
 #include "ThreadEnumeration.h"
 
@@ -324,7 +323,7 @@ void Storm::WindowsManager::initializeInternal()
 	}
 	else
 	{
-		Storm::throwException<std::exception>("Windows not created correctly!");
+		Storm::throwException<Storm::StormException>("Windows not created correctly!");
 	}
 }
 

@@ -1,5 +1,4 @@
 #include "MemoryHelper.h"
-#include "ThrowException.h"
 #include "ValueGuard.h"
 #include "StringHijack.h"
 

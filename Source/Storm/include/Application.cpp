@@ -69,10 +69,12 @@ namespace
 			"Current date is " << Storm::TimeHelper::getCurrentDateTime(true)
 			;
 		LOG_COMMENT << "Application Creation started";
-	
+
 		STORM_REGISTER_THREAD(MainThread);
 
 		Storm::ConfigManager::instance().initialize(argc, argv);
+
+		Storm::setLogVectoredExceptionsDisplayMode(Storm::ConfigManager::instance().getVectoredExceptionsDisplayMode());
 
 		Storm::LoggerManager::instance().initialize();
 
@@ -184,6 +186,8 @@ namespace
 			Storm::ConfigManager::instance().cleanUp();
 			Storm::LoggerManager::instance().cleanUp();
 
+			Storm::unhookVectoredExceptionsDebugging();
+
 			g_singletonMaker.reset();
 		}
 	}
@@ -217,6 +221,15 @@ Storm::ExitCode Storm::Application::run()
 			LOG_COMMENT << "Help requested, therefore the simulator wasn't initialized! We will exit now.";
 		}
 	}
+	catch (const Storm::StormException &ex)
+	{
+		LOG_FATAL <<
+			"Catched an unhandled Storm exception in the Application main loop (run). Process will exit.\n"
+			"Reason : " << ex.what() << ".\n"
+			"Stack trace was :\n" << ex.stackTrace();
+			;
+		throw;
+	}
 	catch (const std::exception &ex)
 	{
 		LOG_FATAL << "Catched an unhandled std exception in the Application main loop (run). Process will exit. Reason : " << ex.what();
@@ -243,6 +256,24 @@ Storm::EarlyExitAnswer Storm::Application::ensureCleanStateAfterException(const 
 		try
 		{
 			cleanUpStormApplication();
+		}
+		catch (const Storm::StormException &cleanUpEx)
+		{
+			std::string errorMsg2{ 
+				"Another exception happened during cleanup : " + Storm::toStdString(cleanUpEx) + ".\n"
+				"Stack trace :\n" + cleanUpEx.stackTrace()
+			};
+
+			if (Storm::LoggerManager::isAlive() && Storm::LoggerManager::instance().isInitialized())
+			{
+				LOG_FATAL << errorMsg2;
+			}
+			else
+			{
+				result._unconsumedErrorMsgs.emplace_back(std::move(errorMsg2));
+			}
+
+			result._exitCode = static_cast<int>(Storm::ExitCode::k_imbricatedStdException);
 		}
 		catch (const std::exception &cleanUpEx)
 		{

@@ -4,6 +4,7 @@
 namespace Storm
 {
 	class MacroConfig;
+	enum class VectoredExceptionDisplayMode;
 
 	class GeneralConfig
 	{
@@ -25,6 +26,9 @@ namespace Storm
 		bool _shouldLogGraphicDeviceMessage;
 		bool _shouldLogPhysics;
 		int _removeLogsOlderThanDays;
+
+		// Debug
+		Storm::VectoredExceptionDisplayMode _displayVectoredExceptions;
 
 		// Graphics
 		unsigned int _wantedApplicationWidth;

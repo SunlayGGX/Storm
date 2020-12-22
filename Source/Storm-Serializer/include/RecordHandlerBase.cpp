@@ -14,8 +14,6 @@
 
 #include "Version.h"
 
-#include "ThrowException.h"
-
 
 namespace
 {
@@ -75,7 +73,7 @@ void Storm::RecordHandlerBase::serializeHeader()
 		if (vect3ScalarTypeStr.empty())
 		{
 			// We shouldn't come here.
-			Storm::throwException<std::exception>("Unknown vector 3 scalar type!");
+			Storm::throwException<Storm::StormException>("Unknown vector 3 scalar type!");
 		}
 
 		_package << vect3ScalarTypeStr;
@@ -89,7 +87,7 @@ void Storm::RecordHandlerBase::serializeHeader()
 		{																														   \
 			if (vect3ScalarTypeStr != #Type)																					   \
 			{																													   \
-				Storm::throwException<std::exception>(																			   \
+				Storm::throwException<Storm::StormException>(																			   \
 					"Current recording to be read was written for a Vector3 with the internal layout type of " #Type ".\n"		   \
 					"But we're trying to read the record with another layout (" + vect3ScalarTypeStr + "). This isn't allowed!"	   \
 				);																												   \

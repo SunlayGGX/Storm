@@ -10,8 +10,6 @@
 #include "SerializeRecordParticleSystemData.h"
 #include "SerializeRecordPendingData.h"
 
-#include "ThrowException.h"
-
 #define STORM_HIJACKED_TYPE Storm::Vector3
 #include "VectHijack.h"
 
@@ -42,7 +40,7 @@ Storm::RecordReader::RecordReader() :
 	}
 	else
 	{
-		Storm::throwException<std::exception>("Cannot read the current record because the version " + Storm::toStdString(currentRecordVersion) + " isn't handled ");
+		Storm::throwException<Storm::StormException>("Cannot read the current record because the version " + Storm::toStdString(currentRecordVersion) + " isn't handled ");
 	}
 
 	Storm::RecordHandlerBase::serializeHeader();

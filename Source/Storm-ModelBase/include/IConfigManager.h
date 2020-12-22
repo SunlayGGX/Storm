@@ -16,6 +16,7 @@ namespace Storm
 	struct ScriptData;
 
 	enum class ThreadPriority;
+	enum class VectoredExceptionDisplayMode;
 
 	class IConfigManager : public Storm::ISingletonHeldInterface<IConfigManager>
 	{
@@ -44,6 +45,9 @@ namespace Storm
 		virtual bool getShouldLogGraphicDeviceMessage() const = 0;
 		virtual bool getShouldLogPhysics() const = 0;
 		virtual bool noPopup() const = 0;
+
+		// Debug
+		virtual Storm::VectoredExceptionDisplayMode getVectoredExceptionsDisplayMode() const = 0;
 
 		// General Graphics
 		virtual unsigned int getWantedScreenWidth() const = 0;

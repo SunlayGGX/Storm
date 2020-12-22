@@ -1,6 +1,5 @@
 #include "SerializePackage.h"
 
-#include "ThrowException.h"
 #include "MemoryHelper.h"
 
 #include "Version.h"
@@ -37,7 +36,7 @@ namespace
 			return false;
 
 		default:
-			Storm::throwException<std::exception>("Unknown serialize package creation modality");
+			Storm::throwException<Storm::StormException>("Unknown serialize package creation modality");
 		}
 	}
 }
@@ -74,14 +73,14 @@ Storm::SerializePackage::SerializePackage(Storm::SerializePackageCreationModalit
 		{
 			std::string errorMsg = "Unexpected error happened when trying to open " + packageFilePath + "!";
 			LOG_ERROR << errorMsg;
-			Storm::throwException<std::exception>(errorMsg);
+			Storm::throwException<Storm::StormException>(errorMsg);
 		}
 	}
 	else
 	{
 		std::string errorMsg = packageFilePath + " doesn't exists! We cannot serialize/deserialize it!";
 		LOG_ERROR << errorMsg;
-		Storm::throwException<std::exception>(errorMsg);
+		Storm::throwException<Storm::StormException>(errorMsg);
 	}
 
 	if (modality != SerializePackageCreationModality::SavingAppendPreheaderProvidedAfter &&
@@ -105,7 +104,7 @@ Storm::SerializePackage::SerializePackage(Storm::SerializePackageCreationModalit
 					"Therefore it isn't compatible with current version (" + static_cast<std::string>(currentVersion) + ")!";
 
 				LOG_ERROR << errorMsg;
-				Storm::throwException<std::exception>(errorMsg);
+				Storm::throwException<Storm::StormException>(errorMsg);
 			}
 		}
 	}

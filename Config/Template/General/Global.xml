@@ -8,4 +8,7 @@
 		<fpsWatching>false</fpsWatching>
 		<logGraphicDeviceMessage>false</logGraphicDeviceMessage>
 	</Log>
+  <Debug>
+    <displayVectoredException>FatalOnly</displayVectoredException>
+  </Debug>
 </General>

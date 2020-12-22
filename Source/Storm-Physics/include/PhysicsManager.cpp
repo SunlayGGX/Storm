@@ -26,7 +26,6 @@
 
 #include "RecordMode.h"
 
-#include "ThrowException.h"
 #include "SearchAlgo.h"
 
 namespace
@@ -124,7 +123,7 @@ void Storm::PhysicsManager::bindParentRbToPhysicalBody(const bool isStatic, cons
 		}
 		else
 		{
-			Storm::throwException<std::exception>("Cannot find static physics rigid body " + std::to_string(rbId));
+			Storm::throwException<Storm::StormException>("Cannot find static physics rigid body " + std::to_string(rbId));
 		}
 	}
 	else
@@ -135,7 +134,7 @@ void Storm::PhysicsManager::bindParentRbToPhysicalBody(const bool isStatic, cons
 		}
 		else
 		{
-			Storm::throwException<std::exception>("Cannot find dynamic physics rigid body " + std::to_string(rbId));
+			Storm::throwException<Storm::StormException>("Cannot find dynamic physics rigid body " + std::to_string(rbId));
 		}
 	}
 }
@@ -206,12 +205,12 @@ void Storm::PhysicsManager::loadRecordedConstraint(const Storm::SerializeConstra
 		}
 		else
 		{
-			Storm::throwException<std::exception>("Cannot find constraint config data with index " + std::to_string(constraintsRecordLayout._id));
+			Storm::throwException<Storm::StormException>("Cannot find constraint config data with index " + std::to_string(constraintsRecordLayout._id));
 		}
 	}
 	else
 	{
-		Storm::throwException<std::exception>(__FUNCTION__ " should only be used when replaying!");
+		Storm::throwException<Storm::StormException>(__FUNCTION__ " should only be used when replaying!");
 	}
 }
 
@@ -265,7 +264,7 @@ void Storm::PhysicsManager::pushConstraintsRecordedFrame(const std::vector<Storm
 			}
 			else
 			{
-				Storm::throwException<std::exception>("Unknown constraint requested to be updated (requested id was " + std::to_string(constraintData._id) + ")");
+				Storm::throwException<Storm::StormException>("Unknown constraint requested to be updated (requested id was " + std::to_string(constraintData._id) + ")");
 			}
 		}
 

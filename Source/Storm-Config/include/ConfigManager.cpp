@@ -1,8 +1,6 @@
 #include "ConfigManager.h"
 #include "CommandLineParser.h"
 
-#include "ThrowException.h"
-
 #include "SingletonHolder.h"
 #include "IOSManager.h"
 
@@ -75,7 +73,7 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 				break;
 
 			default:
-				Storm::throwException<std::exception>("Unknown record mode command line tag \"" + recordModeStr + '"');
+				Storm::throwException<Storm::StormException>("Unknown record mode command line tag \"" + recordModeStr + '"');
 			}
 		}
 
@@ -84,7 +82,7 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 		{
 			if (chosenRecordMode != Storm::RecordMode::Record)
 			{
-				Storm::throwException<std::exception>("When starting without a UI means that it is focused on recording! Not setting recording mode isn't allowed then.");
+				Storm::throwException<Storm::StormException>("When starting without a UI means that it is focused on recording! Not setting recording mode isn't allowed then.");
 			}
 		}
 
@@ -185,7 +183,7 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 		else
 		{
 			LOG_FATAL << errorMsg;
-			Storm::throwException<std::exception>(errorMsg);
+			Storm::throwException<Storm::StormException>(errorMsg);
 		}
 
 		_temporaryPath = _macroConfig(parser.getTempPath());
@@ -207,7 +205,7 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 		if (!errorMsg.empty())
 		{
 			LOG_FATAL << errorMsg;
-			Storm::throwException<std::exception>(errorMsg);
+			Storm::throwException<Storm::StormException>(errorMsg);
 		}
 
 		_shouldRegenerateParticleCache = parser.getShouldRegenerateParticleCache();
@@ -222,7 +220,7 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 		{
 			if (noLoadPhysicsTime || noForcesLoadSpecified || noVelocitiesLoadSpecified)
 			{
-				Storm::throwException<std::exception>(
+				Storm::throwException<Storm::StormException>(
 					"Some command line flags referring to state file loading were used while we haven't specified a state file to load from.\n"
 					"It is forbidden!"
 				);
@@ -253,11 +251,11 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 			_macroConfig(recordConfigData._recordFilePath);
 			if (recordConfigData._recordFilePath.empty())
 			{
-				Storm::throwException<std::exception>("Record file path should be set when in record mode!");
+				Storm::throwException<Storm::StormException>("Record file path should be set when in record mode!");
 			}
 			else if (recordConfigData._recordFps == -1.f) // Check manually set invalid values was done before. Here we check the unset.
 			{
-				Storm::throwException<std::exception>("Record fps wasn't set while we should be recording. We should always set one!");
+				Storm::throwException<Storm::StormException>("Record fps wasn't set while we should be recording. We should always set one!");
 			}
 
 			const std::filesystem::path recordFilePath{ recordConfigData._recordFilePath };
@@ -276,7 +274,7 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 			_macroConfig(recordConfigData._recordFilePath);
 			if (!std::filesystem::is_regular_file(recordConfigData._recordFilePath))
 			{
-				Storm::throwException<std::exception>(recordConfigData._recordFilePath + " doesn't exist or isn't a regular record file!");
+				Storm::throwException<Storm::StormException>(recordConfigData._recordFilePath + " doesn't exist or isn't a regular record file!");
 			}
 
 			Storm::GeneralSimulationData &generalConfigData = *_sceneConfig.getSceneData()._generalSimulationData;
@@ -293,7 +291,7 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 			// It doesn't make sense to start from a state file when we replay, since a replay is a bunch of state file that forces the simulation to behave exactly as what was recorded.
 			if (!_stateFileToLoad.empty())
 			{
-				Storm::throwException<std::exception>("We cannot load a state file in replay mode.");
+				Storm::throwException<Storm::StormException>("We cannot load a state file in replay mode.");
 			}
 
 			break;
@@ -304,7 +302,7 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 			recordFilePath = parser.getRecordFilePath();
 			if (!recordFilePath.empty())
 			{
-				Storm::throwException<std::exception>("A record file from command line has been set (" + recordFilePath + "). But we're not recording or replaying, it is forbidden!");
+				Storm::throwException<Storm::StormException>("A record file from command line has been set (" + recordFilePath + "). But we're not recording or replaying, it is forbidden!");
 			}
 			// No need to check the one coming from the scene config file because it is just a placeholder in case the command line one isn't set.
 			break;
@@ -369,6 +367,11 @@ void Storm::ConfigManager::stateShouldLoad(bool &outLoadPhysicsTime, bool &outLo
 bool Storm::ConfigManager::noPopup() const
 {
 	return _allowPopup;
+}
+
+Storm::VectoredExceptionDisplayMode Storm::ConfigManager::getVectoredExceptionsDisplayMode() const
+{
+	return _generalConfig._displayVectoredExceptions;
 }
 
 bool Storm::ConfigManager::getShouldProfileSimulationSpeed() const
@@ -473,7 +476,7 @@ const Storm::RigidBodySceneData& Storm::ConfigManager::getRigidBodyData(unsigned
 	}
 	else
 	{
-		Storm::throwException<std::exception>("Cannot find rigid body data with index " + std::to_string(rbId));
+		Storm::throwException<Storm::StormException>("Cannot find rigid body data with index " + std::to_string(rbId));
 	}
 }
 

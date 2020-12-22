@@ -2,8 +2,9 @@
 
 #include "MacroConfig.h"
 
-#include "ThrowException.h"
 #include "XmlReader.h"
+
+#include "VectoredExceptionDisplayMode.h"
 
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
@@ -29,7 +30,28 @@ namespace
 
 #undef STORM_RETURN_IF_LEVEL_IS
 
-		Storm::throwException<std::exception>("Unknown Log level : " + levelStr);
+		Storm::throwException<Storm::StormException>("Unknown Log level : " + levelStr);
+	}
+
+	Storm::VectoredExceptionDisplayMode parseVectoredExceptionDisplayMode(std::string valueStr)
+	{
+		boost::to_lower(valueStr);
+		if (valueStr == "none")
+		{
+			return Storm::VectoredExceptionDisplayMode::None;
+		}
+		else if (valueStr == "fatalonly")
+		{
+			return Storm::VectoredExceptionDisplayMode::DisplayFatal;
+		}
+		else if (valueStr == "all")
+		{
+			return Storm::VectoredExceptionDisplayMode::DisplayAll;
+		}
+		else
+		{
+			Storm::throwException<Storm::StormException>("Unknown vectored exception display mode requested : " + valueStr);
+		}
 	}
 }
 
@@ -50,7 +72,8 @@ Storm::GeneralConfig::GeneralConfig() :
 	_wantedApplicationYPos{ std::numeric_limits<int>::max() },
 	_fixNearFarPlanesWhenTranslating{ true },
 	_selectedParticleShouldBeTopMost{ false },
-	_selectedParticleForceShouldBeTopMost{ true }
+	_selectedParticleForceShouldBeTopMost{ true },
+	_displayVectoredExceptions{ Storm::VectoredExceptionDisplayMode::DisplayFatal }
 {
 
 }
@@ -117,6 +140,21 @@ bool Storm::GeneralConfig::read(const std::string &generalConfigFilePathStr)
 				}
 			}
 
+			const auto &debugTreeOpt = generalTree.get_child_optional("Debug");
+			if (debugTreeOpt.has_value())
+			{
+				const auto &debugTree = debugTreeOpt.value();
+				for (const auto &debugXmlElement : debugTree)
+				{
+					if (
+						!Storm::XmlReader::handleXml(debugXmlElement, "displayVectoredException", _displayVectoredExceptions, parseVectoredExceptionDisplayMode)
+						)
+					{
+						LOG_ERROR << debugXmlElement.first << " (inside General.Debug) is unknown, therefore it cannot be handled";
+					}
+				}
+			}
+
 			const auto &profileTreeOpt = generalTree.get_child_optional("Profile");
 			if (profileTreeOpt.has_value())
 			{
@@ -150,15 +188,15 @@ bool Storm::GeneralConfig::read(const std::string &generalConfigFilePathStr)
 
 			if (_wantedApplicationWidth == 0)
 			{
-				Storm::throwException<std::exception>("screenWidth cannot be null!");
+				Storm::throwException<Storm::StormException>("screenWidth cannot be null!");
 			}
 			else if (_wantedApplicationHeight == 0)
 			{
-				Storm::throwException<std::exception>("screenHeight cannot be null!");
+				Storm::throwException<Storm::StormException>("screenHeight cannot be null!");
 			}
 			else if (_fontSize <= 0)
 			{
-				Storm::throwException<std::exception>("Font size must be a strictly positive value! Current value was " + std::to_string(_fontSize));
+				Storm::throwException<Storm::StormException>("Font size must be a strictly positive value! Current value was " + std::to_string(_fontSize));
 			}
 
 			return true;

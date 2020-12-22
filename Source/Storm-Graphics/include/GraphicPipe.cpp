@@ -124,7 +124,7 @@ namespace
 		}
 #undef STORM_CASE_PARSE_COLORED_SETTING
 
-		Storm::throwException<std::exception>("Unknown colored setting chosen.");
+		Storm::throwException<Storm::StormException>("Unknown colored setting chosen.");
 	}
 
 	std::string parseFloatLeanAndMean(const float value)
@@ -214,7 +214,7 @@ std::vector<Storm::GraphicParticleData> Storm::GraphicPipe::fastOptimizedTransCo
 
 		case Storm::ColoredSetting::Count:
 		default:
-			Storm::throwException<std::exception>("Unknown colored setting chosen.");
+			Storm::throwException<Storm::StormException>("Unknown colored setting chosen.");
 		}
 #undef STORM_CASE_FAST_TRANSFER_WITH_COLORED_SETTING
 
@@ -248,7 +248,7 @@ Storm::GraphicPipe::ColorSetting& Storm::GraphicPipe::getColorSettingFromSelecti
 	case Storm::ColoredSetting::Pressure: return const_cast<Storm::GraphicPipe::ColorSetting &>(_pressureSetting);
 	case Storm::ColoredSetting::Density: return const_cast<Storm::GraphicPipe::ColorSetting &>(_densitySetting);
 	default:
-		Storm::throwException<std::exception>("Unknown colored setting chosen.");
+		Storm::throwException<Storm::StormException>("Unknown colored setting chosen.");
 	}
 }
 
@@ -272,7 +272,7 @@ void Storm::GraphicPipe::setMinMaxColorationValue(float newMinValue, float newMa
 {
 	if (newMinValue > newMaxValue)
 	{
-		Storm::throwException<std::exception>("new coloration min value (" + std::to_string(newMinValue) + ") cannot be greater than new coloration max value (" + std::to_string(newMaxValue) + ")!");
+		Storm::throwException<Storm::StormException>("new coloration min value (" + std::to_string(newMinValue) + ") cannot be greater than new coloration max value (" + std::to_string(newMaxValue) + ")!");
 	}
 
 	Storm::GraphicPipe::ColorSetting &settingToChange = this->getColorSettingFromSelection(setting);

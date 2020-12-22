@@ -9,8 +9,6 @@
 
 #include "Version.h"
 
-#include "ThrowException.h"
-
 // Keep it because even though it isn't used here, a compilation bug make it shared with the metaprog done and used inside the RecordReader.
 // Therefore we need it here also.
 #define STORM_HIJACKED_TYPE Storm::Vector3
@@ -54,7 +52,7 @@ void Storm::RecordWriter::write(/*const*/ Storm::SerializeRecordPendingData &dat
 {
 	if (!_preheaderSerializer)
 	{
-		Storm::throwException<std::exception>("We cannot write after we have ended the write!");
+		Storm::throwException<Storm::StormException>("We cannot write after we have ended the write!");
 	}
 
 	const std::size_t dataElementCount = data._particleSystemElements.size();
@@ -63,7 +61,7 @@ void Storm::RecordWriter::write(/*const*/ Storm::SerializeRecordPendingData &dat
 		(_frameNumber == 0 && dataElementCount == _header._particleSystemLayouts.size())
 		))
 	{
-		Storm::throwException<std::exception>(
+		Storm::throwException<Storm::StormException>(
 			"Frame particle system layout of what to be recorded doesn't match the frame data.\n"
 			"We should have " + std::to_string(_header._particleSystemLayouts.size()) + " particle systems.\n"
 			"But for the frame (" + std::to_string(_frameNumber) + "), we have " + std::to_string(dataElementCount) + " particle systems."
@@ -72,7 +70,7 @@ void Storm::RecordWriter::write(/*const*/ Storm::SerializeRecordPendingData &dat
 	const std::size_t constraintElementCount = data._constraintElements.size();
 	if (constraintElementCount != _header._contraintLayouts.size())
 	{
-		Storm::throwException<std::exception>(
+		Storm::throwException<Storm::StormException>(
 			"Frame constraint layout of what to be recorded doesn't match the frame data.\n"
 			"We should have " + std::to_string(_header._contraintLayouts.size()) + " constraints.\n"
 			"But for the frame (" + std::to_string(_frameNumber) + "), we have " + std::to_string(constraintElementCount) + " constraints."
@@ -148,7 +146,7 @@ void Storm::RecordWriter::ensureFrameDataCoherency(const Storm::SerializeRecordP
 		positionsCount != viscosityTmpForceCount
 		)
 	{
-		Storm::throwException<std::exception>("Frame " + std::to_string(_frameNumber) + " data particle count mismatches!");
+		Storm::throwException<Storm::StormException>("Frame " + std::to_string(_frameNumber) + " data particle count mismatches!");
 	}
 
 	const auto endHeaderParticleSystemLayout = std::end(_header._particleSystemLayouts);
@@ -159,12 +157,12 @@ void Storm::RecordWriter::ensureFrameDataCoherency(const Storm::SerializeRecordP
 
 	if (associatedLayout == endHeaderParticleSystemLayout)
 	{
-		Storm::throwException<std::exception>("Frame " + std::to_string(_frameNumber) + ": Unknown frame system id to record (" + std::to_string(frameData._systemId) + ")");
+		Storm::throwException<Storm::StormException>("Frame " + std::to_string(_frameNumber) + ": Unknown frame system id to record (" + std::to_string(frameData._systemId) + ")");
 	}
 
 	if (associatedLayout->_particlesCount != positionsCount)
 	{
-		Storm::throwException<std::exception>("Frame " + std::to_string(_frameNumber) + ", particle system " + std::to_string(frameData._systemId) + ": The particle count to record does not match what was registered as layout\n"
+		Storm::throwException<Storm::StormException>("Frame " + std::to_string(_frameNumber) + ", particle system " + std::to_string(frameData._systemId) + ": The particle count to record does not match what was registered as layout\n"
 			"We should have " + std::to_string(associatedLayout->_particlesCount) + " particles.\n"
 			"This frame contains " + std::to_string(positionsCount) + " particles.\n"
 			"Note that we don't support particles added to simulation when recording.");
@@ -181,7 +179,7 @@ void Storm::RecordWriter::ensureConstraintDataCoherency(const Storm::SerializeRe
 
 	if (associatedLayout == endHeaderConstraintsLayout)
 	{
-		Storm::throwException<std::exception>("Frame " + std::to_string(_frameNumber) + ": Unknown frame constraint id to record (" + std::to_string(constraintData._id) + ")");
+		Storm::throwException<Storm::StormException>("Frame " + std::to_string(_frameNumber) + ": Unknown frame constraint id to record (" + std::to_string(constraintData._id) + ")");
 	}
 }
 

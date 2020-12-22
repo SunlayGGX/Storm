@@ -3,6 +3,9 @@
 
 #include "StormStdPrerequisite.h"
 
+#include "StormException.h"
+#include "ThrowException.h"
+
 #include <catch2/catch.hpp>
 
 // 4624 : 'XXXX': destructor was implicitly defined as deleted => I did it on purpose!... It is to make non instanciable class (purely abstract class).

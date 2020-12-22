@@ -4,7 +4,6 @@
 
 #include "LeanWindowsInclude.h"
 
-#include "ThrowException.h"
 #include "StormMacro.h"
 
 #include <iostream>

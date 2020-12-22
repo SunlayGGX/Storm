@@ -3,7 +3,6 @@
 #include "ScriptManager.h"
 
 #include "StringHijack.h"
-#include "ThrowException.h"
 
 #include <fstream>
 
@@ -24,7 +23,7 @@ Storm::ScriptFile::ScriptFile(const std::string &filePath, bool prepareToCall /*
 
 	if (!std::filesystem::is_regular_file(_filePath))
 	{
-		Storm::throwException<std::exception>(filePath + " is not a regular plain file (it should be to be used as a scripting canvas)!");
+		Storm::throwException<Storm::StormException>(filePath + " is not a regular plain file (it should be to be used as a scripting canvas)!");
 	}
 
 	if (!prepareToCall)
