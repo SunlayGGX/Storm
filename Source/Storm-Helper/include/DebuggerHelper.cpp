@@ -6,10 +6,19 @@
 
 #include "VectoredExceptionDisplayMode.h"
 
+#include "UniversalString.h"
+
 #include <boost/stacktrace.hpp>
+
 
 namespace
 {
+	boost::stacktrace::stacktrace obtainStackTraceImpl(std::size_t toSkip = 1)
+	{
+		// The 2 more to skip are to skip the internal trace needed to get the stack trace (stacktrace will add 2 methods to the stack when it computes it, which we don't want).
+		return boost::stacktrace::stacktrace{ toSkip + static_cast<std::size_t>(2), std::numeric_limits<std::size_t>::max() };
+	}
+
 	static bool g_shouldLogAllVectoredExceptions = true;
 
 	static constexpr std::string_view unknownSeDescription()
@@ -111,13 +120,15 @@ namespace
 
 		if (!ignore)
 		{
+			const boost::stacktrace::stacktrace currentStacktrace = obtainStackTraceImpl();
+
 			if (isIrreversibleException)
 			{
 				// I know this isn't good (we shouldn't allocate or acquire OS resources in a vectored exception handler), but until issues happens, I'll keep it like this.
 				// Yuck. After all, even std::cout would acquire something because it is synchronized stdio (even if I think they would be safer, but anyway, I want to see my log so cout won't do for me).
 				LOG_FATAL <<
 					"Irreversible exception signal (fatal) received: " << seDescriptionStr << ".\n"
-					"The stacktrace :\n" << boost::stacktrace::stacktrace() << "\n";
+					"The stacktrace :\n" << currentStacktrace << "\n";
 
 				// Wait a little before terminating.
 				std::this_thread::sleep_for(std::chrono::milliseconds{ 1000 });
@@ -128,13 +139,13 @@ namespace
 				{
 					LOG_ERROR <<
 						"Non Continuable exception received: " << seDescriptionStr << ".\n"
-						"The stacktrace :\n" << boost::stacktrace::stacktrace() << "\n";
+						"The stacktrace :\n" << currentStacktrace << "\n";
 				}
 				else
 				{
 					LOG_ERROR <<
 						"Continuable exception received: " << seDescriptionStr << ".\n"
-						"The stacktrace :\n" << boost::stacktrace::stacktrace() << "\n";
+						"The stacktrace :\n" << currentStacktrace << "\n";
 				}
 			}
 		}
@@ -247,6 +258,28 @@ void Storm::setLogVectoredExceptionsDisplayMode(Storm::VectoredExceptionDisplayM
 	}
 }
 
+std::string Storm::obtainStackTrace(bool minimalString)
+{
+	const boost::stacktrace::stacktrace currentStacktrace = obtainStackTraceImpl(2);
+
+	if (minimalString)
+	{
+		return Storm::toStdString(currentStacktrace);
+	}
+	else
+	{
+		struct StackTracePolicyParser
+		{
+		public:
+			static std::string parsePolicyAgnostic(const boost::stacktrace::stacktrace &stacktraceObject)
+			{
+				return boost::stacktrace::to_string(stacktraceObject);
+			}
+		};
+
+		return Storm::toStdString<StackTracePolicyParser>(currentStacktrace);
+	}
+}
 
 // Good to know: we can also traduce SE exception to normal C++ exception using _set_se_translator.
 // Maybe I'll do it another day. For now I don't need it and I don't want to have throwing for any C signals happening like 0 division or numbers overflows...
