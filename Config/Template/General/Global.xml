@@ -1,7 +1,7 @@
 <General>
 	<Log>
 		<logFolderPath>$[StormTmp]\Logs</logFolderPath>
-		<logFileName>log_$[Date]</logFileName>
+		<logFileName>log_$[Date]_PID$[PID]</logFileName>
 		<logLevel>Debug</logLevel>
 		<override>true</override>
 		<removeOlderThanDays>7</removeOlderThanDays>

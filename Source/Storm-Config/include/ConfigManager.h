@@ -71,6 +71,7 @@ namespace Storm
 		bool userCanModifyTimestep() const noexcept final override;
 		const std::string& getSceneName() const final override;
 		const std::string& getSimulationTypeName() const final override;
+		unsigned int getCurrentPID() const final override;
 
 	private:
 		// Members that could be extracted from Command line.
@@ -94,6 +95,7 @@ namespace Storm
 
 		// Computed
 		std::string _sceneFileName;
+		unsigned int _currentPID;
 
 		// Configs
 		Storm::MacroConfig _macroConfig;

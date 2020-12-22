@@ -200,11 +200,13 @@ void Storm::WindowsManager::initializeInternal()
 {
 	STORM_STATIC_ASSERT(Storm::WindowsManager::MAX_TITLE_COUNT > 20, "Minimal title character size must be 20.");
 
-	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
+	const Storm::SingletonHolder &singletonMgr = Storm::SingletonHolder::instance();
+
+	const Storm::IConfigManager &configMgr = singletonMgr.getSingleton<Storm::IConfigManager>();
 
 	TCHAR szTitle[Storm::WindowsManager::MAX_TITLE_COUNT];
 
-	HINSTANCE dllInstance = GetModuleHandle(nullptr);
+	HINSTANCE dllInstance = ::GetModuleHandle(nullptr);
 
 	if (!LoadString(dllInstance, IDS_TITLE, szTitle, MAX_TITLE_COUNT))
 	{
@@ -223,7 +225,7 @@ void Storm::WindowsManager::initializeInternal()
 	{
 		try
 		{
-			const std::wstring currentProcessIdStr = toStdWString(Storm::toStdString(GetCurrentProcessId()));
+			const std::wstring currentProcessIdStr = toStdWString(Storm::toStdString(configMgr.getCurrentPID()));
 			const std::size_t currentProcessIdStrLength = currentProcessIdStr.size();
 			const std::size_t toCopy = std::max(Storm::WindowsManager::MAX_TITLE_COUNT - 4 - static_cast<int>(titleLength + currentProcessIdStrLength), 0);
 			if (toCopy != 0)

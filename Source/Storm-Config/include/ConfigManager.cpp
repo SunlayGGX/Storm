@@ -38,6 +38,9 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 		_exePath = argv[0];
 		const std::filesystem::path exePath{ _exePath };
 
+		Storm::IOSManager &iosMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IOSManager>();
+		_currentPID = iosMgr.obtainCurrentPID();
+
 		// If is not absolute, make it absolute.
 		bool hasMadeAbsolute = !exePath.is_absolute();
 		if (hasMadeAbsolute)
@@ -142,7 +145,7 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 				{ L"Xml file (*.xml)", L"*.xml" }
 			};
 
-			_sceneConfigFilePath = Storm::toStdString(Storm::SingletonHolder::instance().getSingleton<Storm::IOSManager>().openFileExplorerDialog(_defaultSceneConfigFolderPath, fileFilters));
+			_sceneConfigFilePath = Storm::toStdString(iosMgr.openFileExplorerDialog(_defaultSceneConfigFolderPath, fileFilters));
 		}
 
 		std::string errorMsg;
@@ -537,4 +540,9 @@ const std::string& Storm::ConfigManager::getSceneName() const
 const std::string& Storm::ConfigManager::getSimulationTypeName() const
 {
 	return this->getGeneralSimulationData()._simulationModeStr;
+}
+
+unsigned int Storm::ConfigManager::getCurrentPID() const
+{
+	return _currentPID;
 }

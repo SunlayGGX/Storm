@@ -70,6 +70,7 @@ void Storm::MacroConfig::initialize()
 	this->registerMacroInternal("StormScripts", (outputPath / "Scripts").string());
 	this->registerMacroInternal("DateTime", Storm::TimeHelper::getCurrentDateTime(false));
 	this->registerMacroInternal("Date", Storm::TimeHelper::getCurrentDate());
+	this->registerMacroInternal("PID", Storm::toStdString(configMgr.getCurrentPID()));
 
 	if (std::filesystem::exists(outputPath))
 	{

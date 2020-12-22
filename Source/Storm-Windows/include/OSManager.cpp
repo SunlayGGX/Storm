@@ -258,3 +258,8 @@ std::wstring Storm::OSManager::openFileExplorerDialog(const std::wstring &defaul
 
 	return resultSelectedFilePath;
 }
+
+unsigned int Storm::OSManager::obtainCurrentPID() const
+{
+	return ::GetCurrentProcessId();
+}

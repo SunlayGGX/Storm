@@ -165,6 +165,7 @@ There are some pre-built-in macros that aren't defined inside the macro file and
 + **$[StormTmp]** will refer to the StormIntermediate if StormRoot macro is valid, or to OS defined temporary location.
 + **$[DateTime]** will refer to the current date when the Application is run (in filesystem compatible format : Weekday_Year_Month_Day_Hour_Minute_Second ).
 + **$[Date]**, like DateTime, will refer to the current date when the Application is run but without hours and lesser time division (in filesystem compatible format : Weekday_Year_Month_Day ).
++ **$[PID]** will refer to the process unique ID (PID).
 + **$[SceneName]** will refer to the chosen scene name. This is an exception to the pre-build-in macros which can be used anywhere. This macro can only be used after selecting a scene, therefore can only be used at some point like when we read the general config and the scene config. Therefore, be cautious when using this pre built macro.
 + **$[SceneStateFolder]** will refer to the default state folder path. Since this macro is made from SceneName macro, it is also an exception to the pre-build-in macros which can be used anywhere. This macro can only be used after selecting a scene, therefore can only be used at some point like when we read the general config and the scene config. Therefore, be cautious when using this pre built macro.
 
@@ -184,7 +185,7 @@ Here the architecture of the config file (each section are a tag in xml where th
 
 #### Log (facultative)
 - **logFolderPath (string, facultative, accept macro)** : The folder where to gather the log files. The default is the temporary path (StormTmp macro). If it is empty, default is considered.
-- **logFileName (string, facultative, accept macro)** : The log file name of the current run. The default is empty. If it is empty, we won't log into a file (but the log will still be outputed to the console).
+- **logFileName (string, facultative, accept macro)** : The log file name of the current run. The default is empty. If it is empty, we won't log into a file (but the log will still be outputed to the console). Be aware to give unique name using the $[PID] macro or unexpected logging behavior could occurs because the file could be written by many processes at the same time (if you decides to start multiple Storm processes).
 - **logLevel (string, facultative)** : The threshold level under which we ignore the log. Accepted values are in that inmportance order : Debug, DebugWarning, DebugError, Comment, Warning, Error, Fatal.
 Note that the maximum value you can set is Fatal, it means that no matter what level you set, we would still log "Fatal" and "Always" logs. The default is Debug.
 - **override (boolean, facultative)** : If the log file specified should have its content overriden each time. If "false", the content will be appended instead. Default is "true".
