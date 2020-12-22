@@ -112,7 +112,7 @@ void Storm::LogItem::prepare(bool xmlToo)
 		logXml.add<decltype(codeLocationStr)>("<xmlattr>.codeLocation", codeLocationStr);
 		logXml.put_value(_msg);
 
-		boost::property_tree::xml_parser::write_xml_element(str, "log", logXml, 0, boost::property_tree::xml_writer_make_settings<std::string>());
+		boost::property_tree::xml_parser::write_xml_element(str, "log", logXml, 0, boost::property_tree::xml_writer_make_settings<std::string>('\n', 1));
 
 		_finalXml = str.str();
 	}
