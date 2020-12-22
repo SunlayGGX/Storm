@@ -91,6 +91,9 @@
     <Filter Include="Header Files\General\Misc\Hijack">
       <UniqueIdentifier>{3fb2e90f-607e-466a-8a3f-43e140186cc3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\General\Exception">
+      <UniqueIdentifier>{5ef0fe7f-65c3-49a0-821c-74e8b5dd6af3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-HelperPCH.cpp">
@@ -120,6 +123,9 @@
     <ClCompile Include="..\include\LogHelper.cpp">
       <Filter>Source Files\LoggerBase</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\StormException.cpp">
+      <Filter>Source Files\General</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-HelperPCH.h">
@@ -148,9 +154,6 @@
     </ClInclude>
     <ClInclude Include="..\include\StaticAssertionsMacros.h">
       <Filter>Header Files\Macro</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\ThrowException.h">
-      <Filter>Header Files\General\Misc</Filter>
     </ClInclude>
     <ClInclude Include="..\include\SingletonDefaultImplementation.h">
       <Filter>Header Files\General\Singleton</Filter>
@@ -274,6 +277,12 @@
     </ClInclude>
     <ClInclude Include="..\include\VectoredExceptionDisplayMode.h">
       <Filter>Header Files\OS\Debugging</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ThrowException.h">
+      <Filter>Header Files\General\Exception</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\StormException.h">
+      <Filter>Header Files\General\Exception</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
