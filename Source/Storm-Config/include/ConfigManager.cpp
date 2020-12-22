@@ -371,6 +371,11 @@ bool Storm::ConfigManager::noPopup() const
 	return _allowPopup;
 }
 
+Storm::VectoredExceptionDisplayMode Storm::ConfigManager::getVectoredExceptionsDisplayMode() const
+{
+	return _generalConfig._displayVectoredExceptions;
+}
+
 bool Storm::ConfigManager::getShouldProfileSimulationSpeed() const
 {
 	return _generalConfig._profileSimulationSpeed;

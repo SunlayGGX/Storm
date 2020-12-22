@@ -272,5 +272,8 @@
     <ClInclude Include="..\include\NameExtractor.h">
       <Filter>Header Files\MetaP</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\VectoredExceptionDisplayMode.h">
+      <Filter>Header Files\OS\Debugging</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

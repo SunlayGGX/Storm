@@ -5,6 +5,8 @@
 #include "ThrowException.h"
 #include "XmlReader.h"
 
+#include "VectoredExceptionDisplayMode.h"
+
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 #include <boost/algorithm/string.hpp>
@@ -31,6 +33,27 @@ namespace
 
 		Storm::throwException<std::exception>("Unknown Log level : " + levelStr);
 	}
+
+	Storm::VectoredExceptionDisplayMode parseVectoredExceptionDisplayMode(std::string valueStr)
+	{
+		boost::to_lower(valueStr);
+		if (valueStr == "none")
+		{
+			return Storm::VectoredExceptionDisplayMode::None;
+		}
+		else if (valueStr == "fatalonly")
+		{
+			return Storm::VectoredExceptionDisplayMode::DisplayFatal;
+		}
+		else if (valueStr == "all")
+		{
+			return Storm::VectoredExceptionDisplayMode::DisplayAll;
+		}
+		else
+		{
+			Storm::throwException<std::exception>("Unknown vectored exception display mode requested : " + valueStr);
+		}
+	}
 }
 
 
@@ -50,7 +73,8 @@ Storm::GeneralConfig::GeneralConfig() :
 	_wantedApplicationYPos{ std::numeric_limits<int>::max() },
 	_fixNearFarPlanesWhenTranslating{ true },
 	_selectedParticleShouldBeTopMost{ false },
-	_selectedParticleForceShouldBeTopMost{ true }
+	_selectedParticleForceShouldBeTopMost{ true },
+	_displayVectoredExceptions{ Storm::VectoredExceptionDisplayMode::DisplayFatal }
 {
 
 }
@@ -113,6 +137,21 @@ bool Storm::GeneralConfig::read(const std::string &generalConfigFilePathStr)
 						)
 					{
 						LOG_ERROR << graphicXmlElement.first << " (inside General.Graphics) is unknown, therefore it cannot be handled";
+					}
+				}
+			}
+
+			const auto &debugTreeOpt = generalTree.get_child_optional("Debug");
+			if (debugTreeOpt.has_value())
+			{
+				const auto &debugTree = debugTreeOpt.value();
+				for (const auto &debugXmlElement : debugTree)
+				{
+					if (
+						!Storm::XmlReader::handleXml(debugXmlElement, "displayVectoredException", _displayVectoredExceptions, parseVectoredExceptionDisplayMode)
+						)
+					{
+						LOG_ERROR << debugXmlElement.first << " (inside General.Debug) is unknown, therefore it cannot be handled";
 					}
 				}
 			}

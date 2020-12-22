@@ -43,6 +43,8 @@ namespace Storm
 		bool getShouldLogPhysics() const final override;
 		bool noPopup() const final override;
 
+		Storm::VectoredExceptionDisplayMode getVectoredExceptionsDisplayMode() const final override;
+		
 		bool getShouldProfileSimulationSpeed() const final override;
 
 		unsigned int getWantedScreenWidth() const final override;

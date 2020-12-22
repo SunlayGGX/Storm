@@ -69,10 +69,12 @@ namespace
 			"Current date is " << Storm::TimeHelper::getCurrentDateTime(true)
 			;
 		LOG_COMMENT << "Application Creation started";
-	
+
 		STORM_REGISTER_THREAD(MainThread);
 
 		Storm::ConfigManager::instance().initialize(argc, argv);
+
+		Storm::setLogVectoredExceptionsDisplayMode(Storm::ConfigManager::instance().getVectoredExceptionsDisplayMode());
 
 		Storm::LoggerManager::instance().initialize();
 
@@ -183,6 +185,8 @@ namespace
 			Storm::SerializerManager::instance().cleanUp();
 			Storm::ConfigManager::instance().cleanUp();
 			Storm::LoggerManager::instance().cleanUp();
+
+			Storm::unhookVectoredExceptionsDebugging();
 
 			g_singletonMaker.reset();
 		}
