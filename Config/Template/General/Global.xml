@@ -4,7 +4,7 @@
 		<logFileName>log_$[Date]_PID$[PID]</logFileName>
 		<logLevel>Debug</logLevel>
 		<override>true</override>
-		<removeOlderThanDays>7</removeOlderThanDays>
+		<removeOlderThanDays>5</removeOlderThanDays>
 		<fpsWatching>false</fpsWatching>
 		<logGraphicDeviceMessage>false</logGraphicDeviceMessage>
 	</Log>

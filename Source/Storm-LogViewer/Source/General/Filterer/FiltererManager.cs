@@ -205,32 +205,42 @@ namespace Storm_LogViewer.Source.General.Filterer
         {
             if (modulesName.Count > 0)
             {
+                bool reallyNews = false;
+
                 List<ModuleFilterCheckboxValue> otherTmpSoThreadSafe;
 
                 lock (_moduleFilters)
                 {
                     foreach (string moduleName in modulesName)
                     {
-                        ModuleFilterCheckboxValue newModuleFilter = new ModuleFilterCheckboxValue { _moduleName = moduleName };
-                        LogReaderManager.Instance.ListenModuleFilterCheckedChangedEvent(newModuleFilter);
-                        try
+                        if (!_moduleFilters.Any(alreadyRegistered => moduleName == alreadyRegistered.ModuleName))
                         {
-                            _moduleFilters.Add(newModuleFilter);
-                        }
-                        catch (System.Exception)
-                        {
-                            LogReaderManager.Instance.UnregisterFromModuleFilterCheckedChangedEvent(newModuleFilter);
-                            throw;
+                            ModuleFilterCheckboxValue newModuleFilter = new ModuleFilterCheckboxValue { _moduleName = moduleName };
+                            LogReaderManager.Instance.ListenModuleFilterCheckedChangedEvent(newModuleFilter);
+                            try
+                            {
+                                _moduleFilters.Add(newModuleFilter);
+                            }
+                            catch (System.Exception)
+                            {
+                                LogReaderManager.Instance.UnregisterFromModuleFilterCheckedChangedEvent(newModuleFilter);
+                                throw;
+                            }
+
+                            reallyNews = true;
                         }
                     }
 
                     otherTmpSoThreadSafe = _moduleFilters;
                 }
 
-                // Send the current state of the _moduleFilters... Not directly the reference of _moduleFilters...
-                // It allows to unlock the call and only working with a snapshot of the module filter, in case this one is updated in another thread.
-                // We won't have a data race (but we would work with deprecated data)... A tocttou can still happen but I don't care...
-                _onModuleFilterAdded?.Invoke(otherTmpSoThreadSafe);
+                if (reallyNews)
+                {
+                    // Send the current state of the _moduleFilters... Not directly the reference of _moduleFilters...
+                    // It allows to unlock the call and only working with a snapshot of the module filter, in case this one is updated in another thread.
+                    // We won't have a data race (but we would work with deprecated data)... A tocttou can still happen but I don't care...
+                    _onModuleFilterAdded?.Invoke(otherTmpSoThreadSafe);
+                }
             }
         }
 
@@ -238,32 +248,42 @@ namespace Storm_LogViewer.Source.General.Filterer
         {
             if (newPids.Count > 0)
             {
+                bool reallyNews = false;
+
                 List<PIDFilterCheckboxValue> otherTmpSoThreadSafe;
 
                 lock (_pidsFilters)
                 {
                     foreach (uint pid in newPids)
                     {
-                        PIDFilterCheckboxValue newPIDFilter = new PIDFilterCheckboxValue { _pid = pid };
-                        LogReaderManager.Instance.ListenPIDFilterCheckedChangedEvent(newPIDFilter);
-                        try
+                        if (!_pidsFilters.Any(alreadyRegistered => pid == alreadyRegistered.PID))
                         {
-                            _pidsFilters.Add(newPIDFilter);
-                        }
-                        catch (System.Exception)
-                        {
-                            LogReaderManager.Instance.UnregisterFromPIDFilterCheckedChangedEvent(newPIDFilter);
-                            throw;
+                            PIDFilterCheckboxValue newPIDFilter = new PIDFilterCheckboxValue { _pid = pid };
+                            LogReaderManager.Instance.ListenPIDFilterCheckedChangedEvent(newPIDFilter);
+                            try
+                            {
+                                _pidsFilters.Add(newPIDFilter);
+                            }
+                            catch (System.Exception)
+                            {
+                                LogReaderManager.Instance.UnregisterFromPIDFilterCheckedChangedEvent(newPIDFilter);
+                                throw;
+                            }
+
+                            reallyNews = true;
                         }
                     }
 
                     otherTmpSoThreadSafe = _pidsFilters;
                 }
 
-                // Send the current state of the _pidsFilters... Not directly the reference of _pidsFilters...
-                // It allows to unlock the call and only working with a snapshot of the pid filter, in case this one is updated in another thread.
-                // We won't have a data race (but we would work with deprecated data)... A tocttou can still happen but I don't care...
-                _onPIDFilterAdded?.Invoke(otherTmpSoThreadSafe);
+                if (reallyNews)
+                {
+                    // Send the current state of the _pidsFilters... Not directly the reference of _pidsFilters...
+                    // It allows to unlock the call and only working with a snapshot of the pid filter, in case this one is updated in another thread.
+                    // We won't have a data race (but we would work with deprecated data)... A tocttou can still happen but I don't care...
+                    _onPIDFilterAdded?.Invoke(otherTmpSoThreadSafe);
+                }
             }
         }
 
