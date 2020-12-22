@@ -10,7 +10,7 @@
 
 #define STORM_ENSURE_MESH_MAKER_USED_ON_RIGHT_SETTING(BlowerDataVariable, ...) 						\
 if (!CorrectSettingChecker<Storm::BlowerType>::check<__VA_ARGS__>(BlowerDataVariable._blowerType))	\
-	Storm::throwException<std::exception>(__FUNCTION__ " is intended to be used for " #__VA_ARGS__)	\
+	Storm::throwException<Storm::StormException>(__FUNCTION__ " is intended to be used for " #__VA_ARGS__)	\
 
 
 void Storm::BlowerCubeMeshMaker::generate(const Storm::BlowerData &blowerData, std::vector<Storm::Vector3> &outVertexes, std::vector<uint32_t> &outIndexes)

@@ -265,7 +265,7 @@ void Storm::GraphicManager::bindParentRbToMesh(unsigned int meshId, const std::s
 		}
 		else
 		{
-			Storm::throwException<std::exception>("Cannot find rb " + std::to_string(meshId) + " inside registered graphics meshes!");
+			Storm::throwException<Storm::StormException>("Cannot find rb " + std::to_string(meshId) + " inside registered graphics meshes!");
 		}
 	}
 }

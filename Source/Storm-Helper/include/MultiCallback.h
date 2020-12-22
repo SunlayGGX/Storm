@@ -148,6 +148,17 @@ namespace Storm
 					{
 						this->call(_callbacks[iter], currentReturnElement, 0, args...);
 					}
+					catch (const Storm::StormException &ex)
+					{
+						const std::string_view exceptionMsg = ex.what();
+						const std::string_view exceptionStackTrace = ex.stackTrace();
+
+						currentReturnElement._error.reserve(exceptionMsg.size() + exceptionStackTrace.size() + 16);
+
+						currentReturnElement._error += exceptionMsg;
+						currentReturnElement._error += ".\nStackTrace :\n";
+						currentReturnElement._error += exceptionStackTrace;
+					}
 					catch (const std::exception &ex)
 					{
 						currentReturnElement._error = ex.what();

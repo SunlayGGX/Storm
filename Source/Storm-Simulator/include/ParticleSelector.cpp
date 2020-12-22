@@ -24,7 +24,7 @@ namespace
 
 		case Storm::ParticleSelectionMode::SelectionModeCount:
 		default:
-			Storm::throwException<std::exception>("Unknown particle selection mode. Mode was " + Storm::toStdString(mode));
+			Storm::throwException<Storm::StormException>("Unknown particle selection mode. Mode was " + Storm::toStdString(mode));
 			break;
 		}
 	}
@@ -206,7 +206,7 @@ const Storm::Vector3& Storm::ParticleSelector::getSelectedForceToDisplay() const
 
 	case Storm::ParticleSelectionMode::SelectionModeCount:
 	default:
-		Storm::throwException<std::exception>("Unknown particle selection mode. Mode was " + Storm::toStdString(_currentParticleSelectionMode));
+		Storm::throwException<Storm::StormException>("Unknown particle selection mode. Mode was " + Storm::toStdString(_currentParticleSelectionMode));
 		break;
 	}
 }

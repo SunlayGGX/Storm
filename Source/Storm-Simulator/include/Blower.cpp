@@ -25,7 +25,7 @@ namespace
 
 #define STORM_ENSURE_CONSTRUCTED_ON_RIGHT_SETTING(BlowerDataVariable, ...)											\
 if (!CorrectSettingChecker<Storm::BlowerType>::check<__VA_ARGS__>(BlowerDataVariable._blowerType))					\
-	Storm::throwException<std::exception>(__FUNCTION__ " is intended to be used for " #__VA_ARGS__ " blowers!")		\
+	Storm::throwException<Storm::StormException>(__FUNCTION__ " is intended to be used for " #__VA_ARGS__ " blowers!")		\
 
 
 Storm::BlowerTimeHandlerBase::BlowerTimeHandlerBase(const Storm::BlowerData &blowerDataConfig) :

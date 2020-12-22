@@ -7,7 +7,7 @@ Storm::ShaderMacroItem::ShaderMacroItem(const std::string_view &macroName, std::
 {
 	if (_macroName.empty())
 	{
-		Storm::throwException<std::exception>("Macro name shouldn't be empty!");
+		Storm::throwException<Storm::StormException>("Macro name shouldn't be empty!");
 	}
 }
 

@@ -123,6 +123,14 @@ void Storm::ScriptManager::executeScript_ScriptThread(const std::string &script)
 			}
 		}
 	}
+	catch (const Storm::StormException &ex)
+	{
+		LOG_ERROR << 
+			"Script execution failed!\n"
+			"Error was :\n" << ex.what() << ".\n"
+			"Stack trace was :\n" << ex.stackTrace()
+			;
+	}
 	catch (const std::exception &ex)
 	{
 		LOG_ERROR << "Script execution failed! Error was :\n" << ex.what();

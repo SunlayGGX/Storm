@@ -116,7 +116,7 @@ bool Storm::MacroConfig::read(const std::string &macroConfigFilePathStr)
 					{
 						if (macroValue.find(macroKey) != std::string::npos)
 						{
-							Storm::throwException<std::exception>(macroValue + " contains its own key " + macroKey + ". This is not allowed as this would generate infinite recursion!");
+							Storm::throwException<Storm::StormException>(macroValue + " contains its own key " + macroKey + ". This is not allowed as this would generate infinite recursion!");
 						}
 
 						registeredMacro.emplace_back(_macros.emplace(std::move(macroKey), std::move(macroValue)).first->first);
@@ -140,7 +140,7 @@ bool Storm::MacroConfig::read(const std::string &macroConfigFilePathStr)
 				++watchdog;
 				if (watchdog == 20)
 				{
-					Storm::throwException<std::exception>(
+					Storm::throwException<Storm::StormException>(
 						"Detected infinite recursion when resolving a macro.\n"
 						"It means that a macro is referencing another that is referencing the first"
 					);

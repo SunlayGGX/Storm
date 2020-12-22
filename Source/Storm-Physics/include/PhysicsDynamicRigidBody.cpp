@@ -35,12 +35,12 @@ Storm::PhysicsDynamicRigidBody::PhysicsDynamicRigidBody(const Storm::RigidBodySc
 {
 	if (!_internalRb)
 	{
-		Storm::throwException<std::exception>("PhysX failed to create the internal rigid body for object " + std::to_string(rbSceneData._rigidBodyID));
+		Storm::throwException<Storm::StormException>("PhysX failed to create the internal rigid body for object " + std::to_string(rbSceneData._rigidBodyID));
 	}
 
 	if (_internalRbShape && !_internalRb->attachShape(*_internalRbShape))
 	{
-		Storm::throwException<std::exception>("We failed to attach the created shape to the rigid body " + std::to_string(rbSceneData._rigidBodyID));
+		Storm::throwException<Storm::StormException>("We failed to attach the created shape to the rigid body " + std::to_string(rbSceneData._rigidBodyID));
 	}
 }
 

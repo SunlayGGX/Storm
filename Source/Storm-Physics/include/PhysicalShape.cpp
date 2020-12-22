@@ -15,13 +15,13 @@ Storm::PhysicalShape::PhysicalShape(const Storm::RigidBodySceneData &rbSceneData
 		_internalRbMaterial = physicsHandler.createRigidBodyMaterial(rbSceneData);
 		if (!_internalRbMaterial)
 		{
-			Storm::throwException<std::exception>("PhysX failed to create the internal rigid body material for object " + std::to_string(rbSceneData._rigidBodyID));
+			Storm::throwException<Storm::StormException>("PhysX failed to create the internal rigid body material for object " + std::to_string(rbSceneData._rigidBodyID));
 		}
 
 		_internalRbShape = physicsHandler.createRigidBodyShape(rbSceneData, vertices, indexes, _internalRbMaterial.get());
 		if (!_internalRbShape)
 		{
-			Storm::throwException<std::exception>("PhysX failed to create the internal rigid body shape for object " + std::to_string(rbSceneData._rigidBodyID));
+			Storm::throwException<Storm::StormException>("PhysX failed to create the internal rigid body shape for object " + std::to_string(rbSceneData._rigidBodyID));
 		}
 	}
 }

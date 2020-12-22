@@ -57,7 +57,7 @@ namespace Storm
 				}
 				else
 				{
-					Storm::throwException<std::exception>("A facet was already found in the facet map position (" + toStdString(Facet::ID) + ")!");
+					Storm::throwException<Storm::StormException>("A facet was already found in the facet map position (" + toStdString(Facet::ID) + ")!");
 				}
 			}
 
@@ -118,7 +118,7 @@ namespace Storm
 				}
 				else
 				{
-					Storm::throwException<std::exception>("A facet was already found in the facet contiguous container position (" + toStdString(index) + ")!");
+					Storm::throwException<Storm::StormException>("A facet was already found in the facet contiguous container position (" + toStdString(index) + ")!");
 				}
 			}
 
@@ -163,7 +163,7 @@ namespace Storm
 				}
 				else if (ElementType &itemPosition = _array[index]; itemPosition != nullptr)
 				{
-					Storm::throwException<std::exception>("A facet was already found in the facet contiguous container position (" + toStdString(index) + ")!");
+					Storm::throwException<Storm::StormException>("A facet was already found in the facet contiguous container position (" + toStdString(index) + ")!");
 				}
 
 				_array[index] = std::forward<ItemType>(item);

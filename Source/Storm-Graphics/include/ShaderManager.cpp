@@ -248,7 +248,7 @@ void* Storm::ShaderManager::requestCompiledShaderBlobs(const std::string &shader
 		{
 			std::string fullError = "Blob creation failed : " + Storm::toStdString(_com_error{ res });
 			LOG_ERROR << fullError;
-			Storm::throwException<std::exception>(fullError);
+			Storm::throwException<Storm::StormException>(fullError);
 		}
 
 		char* blobData = static_cast<char*>(shaderBlob->GetBufferPointer());
@@ -263,7 +263,7 @@ void* Storm::ShaderManager::requestCompiledShaderBlobs(const std::string &shader
 		{
 			std::string fullError = "Shader compilation failure for '" + shaderFilePath + "' (compiling method " + shaderFuncName + ") : " + outCompileErrorMsg;
 			LOG_ERROR << fullError;
-			Storm::throwException<std::exception>("Shader compilation errors detected for '" + shaderFilePath + "' (compiling method " + shaderFuncName + ") : " + outCompileErrorMsg);
+			Storm::throwException<Storm::StormException>("Shader compilation errors detected for '" + shaderFilePath + "' (compiling method " + shaderFuncName + ") : " + outCompileErrorMsg);
 		}
 
 		// Save the blob file

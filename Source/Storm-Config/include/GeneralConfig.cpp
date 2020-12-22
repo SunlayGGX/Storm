@@ -30,7 +30,7 @@ namespace
 
 #undef STORM_RETURN_IF_LEVEL_IS
 
-		Storm::throwException<std::exception>("Unknown Log level : " + levelStr);
+		Storm::throwException<Storm::StormException>("Unknown Log level : " + levelStr);
 	}
 
 	Storm::VectoredExceptionDisplayMode parseVectoredExceptionDisplayMode(std::string valueStr)
@@ -50,7 +50,7 @@ namespace
 		}
 		else
 		{
-			Storm::throwException<std::exception>("Unknown vectored exception display mode requested : " + valueStr);
+			Storm::throwException<Storm::StormException>("Unknown vectored exception display mode requested : " + valueStr);
 		}
 	}
 }
@@ -188,15 +188,15 @@ bool Storm::GeneralConfig::read(const std::string &generalConfigFilePathStr)
 
 			if (_wantedApplicationWidth == 0)
 			{
-				Storm::throwException<std::exception>("screenWidth cannot be null!");
+				Storm::throwException<Storm::StormException>("screenWidth cannot be null!");
 			}
 			else if (_wantedApplicationHeight == 0)
 			{
-				Storm::throwException<std::exception>("screenHeight cannot be null!");
+				Storm::throwException<Storm::StormException>("screenHeight cannot be null!");
 			}
 			else if (_fontSize <= 0)
 			{
-				Storm::throwException<std::exception>("Font size must be a strictly positive value! Current value was " + std::to_string(_fontSize));
+				Storm::throwException<Storm::StormException>("Font size must be a strictly positive value! Current value was " + std::to_string(_fontSize));
 			}
 
 			return true;

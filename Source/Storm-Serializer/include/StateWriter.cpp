@@ -52,7 +52,7 @@ namespace
 				if (!found)
 				{
 					// We shouldn't come here. If we do, then it is really bad (we have more than 65535 state files inside the current folder).
-					Storm::throwException<std::exception>(
+					Storm::throwException<Storm::StormException>(
 						"'" + Storm::toStdString(settings._filePath) + "' already exists and the limit to generate a new file has been exceeded.\n"
 						"Please clean your folder!"
 					);
@@ -60,7 +60,7 @@ namespace
 			}
 			else
 			{
-				Storm::throwException<std::exception>("'" + Storm::toStdString(settings._filePath) + "' already exists and we specified we shouldn't overwrite it and this file path cannot be changed.");
+				Storm::throwException<Storm::StormException>("'" + Storm::toStdString(settings._filePath) + "' already exists and we specified we shouldn't overwrite it and this file path cannot be changed.");
 			}
 		}
 	}
@@ -69,21 +69,21 @@ namespace
 	{
 		if (savingOrder._simulationState == nullptr)
 		{
-			Storm::throwException<std::exception>("Simulation state object is null!");
+			Storm::throwException<Storm::StormException>("Simulation state object is null!");
 		}
 
 		const Storm::SimulationState &simulationState = *savingOrder._simulationState;
 
 		if (simulationState._currentPhysicsTime < 0.f)
 		{
-			Storm::throwException<std::exception>("Physics time cannot be negative (" + std::to_string(simulationState._currentPhysicsTime) + ")!");
+			Storm::throwException<Storm::StormException>("Physics time cannot be negative (" + std::to_string(simulationState._currentPhysicsTime) + ")!");
 		}
 
 		for (const Storm::SystemSimulationStateObject &pState : simulationState._pSystemStates)
 		{
 			if (pState._isFluid && pState._isStatic)
 			{
-				Storm::throwException<std::exception>("Particle system state " + std::to_string(pState._id) + " cannot be a fluid and static at the same time!");
+				Storm::throwException<Storm::StormException>("Particle system state " + std::to_string(pState._id) + " cannot be a fluid and static at the same time!");
 			}
 
 			const std::size_t positionsCount = pState._positions.size();
@@ -97,7 +97,7 @@ namespace
 #define STORM_VALIDATE_CONTAINER_SIZE_NO_MISMATCH(memberName)																															\
 			do if (positionsCount != pState.memberName.size())																															\
 			{																																											\
-				Storm::throwException<std::exception>("Particle system state " + std::to_string(pState._id) + "'s " STORM_STRINGIFY(memberName) " array have its size that mismatch!"); \
+				Storm::throwException<Storm::StormException>("Particle system state " + std::to_string(pState._id) + "'s " STORM_STRINGIFY(memberName) " array have its size that mismatch!"); \
 			} while (false)
 
 

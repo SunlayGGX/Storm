@@ -104,11 +104,11 @@ void Storm::RaycastManager::executeRaycast(const Storm::Vector3 &origin, const S
 
 	if (queryRequest._minDistance < 0.f)
 	{
-		Storm::throwException<std::exception>("min distance (" + std::to_string(queryRequest._minDistance) + ") raycast shouldn't be less than 0!");
+		Storm::throwException<Storm::StormException>("min distance (" + std::to_string(queryRequest._minDistance) + ") raycast shouldn't be less than 0!");
 	}
 	else if (queryRequest._minDistance >= queryRequest._maxDistance)
 	{
-		Storm::throwException<std::exception>("min distance (" + std::to_string(queryRequest._minDistance) + ") raycast shouldn't be greater than max distance (" + std::to_string(queryRequest._maxDistance) + ")!");
+		Storm::throwException<Storm::StormException>("min distance (" + std::to_string(queryRequest._minDistance) + ") raycast shouldn't be greater than max distance (" + std::to_string(queryRequest._maxDistance) + ")!");
 	}
 
 	std::vector<Storm::RaycastHitResult> results;

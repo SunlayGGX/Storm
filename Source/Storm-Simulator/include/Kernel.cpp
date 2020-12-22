@@ -123,7 +123,7 @@ Storm::RawKernelMethodDelegate Storm::retrieveRawKernelMethod(const Storm::Kerne
 	case Storm::KernelMode::SplishSplashCubicSpline: return Storm::SplishSplashCubicSplineKernel::raw;
 	}
 
-	Storm::throwException<std::exception>("Unknown kernel mode!");
+	Storm::throwException<Storm::StormException>("Unknown kernel mode!");
 }
 
 Storm::GradKernelMethodDelegate Storm::retrieveGradKernelMethod(const Storm::KernelMode kernelMode)
@@ -134,7 +134,7 @@ Storm::GradKernelMethodDelegate Storm::retrieveGradKernelMethod(const Storm::Ker
 	case Storm::KernelMode::SplishSplashCubicSpline: return Storm::SplishSplashCubicSplineKernel::gradient;
 	}
 
-	Storm::throwException<std::exception>("Unknown kernel mode!");
+	Storm::throwException<Storm::StormException>("Unknown kernel mode!");
 }
 
 float Storm::retrieveKernelZeroValue(const Storm::KernelMode kernelMode)
@@ -145,5 +145,5 @@ float Storm::retrieveKernelZeroValue(const Storm::KernelMode kernelMode)
 	case Storm::KernelMode::SplishSplashCubicSpline: return Storm::SplishSplashCubicSplineKernel::zeroValue();
 	}
 
-	Storm::throwException<std::exception>("Unknown kernel mode!");
+	Storm::throwException<Storm::StormException>("Unknown kernel mode!");
 }

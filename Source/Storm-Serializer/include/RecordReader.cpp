@@ -40,7 +40,7 @@ Storm::RecordReader::RecordReader() :
 	}
 	else
 	{
-		Storm::throwException<std::exception>("Cannot read the current record because the version " + Storm::toStdString(currentRecordVersion) + " isn't handled ");
+		Storm::throwException<Storm::StormException>("Cannot read the current record because the version " + Storm::toStdString(currentRecordVersion) + " isn't handled ");
 	}
 
 	Storm::RecordHandlerBase::serializeHeader();

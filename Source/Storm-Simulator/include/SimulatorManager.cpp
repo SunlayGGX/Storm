@@ -620,7 +620,7 @@ Storm::ExitCode Storm::SimulatorManager::run()
 
 	default:
 		__assume(false);
-		Storm::throwException<std::exception>("Unknown record mode!");
+		Storm::throwException<Storm::StormException>("Unknown record mode!");
 	}
 }
 
@@ -1073,7 +1073,7 @@ void Storm::SimulatorManager::advanceByFrame(int frameCount)
 {
 	if (frameCount < 0)
 	{
-		Storm::throwException<std::exception>("We must advance by a positive frame count (value " + std::to_string(frameCount) + " is invalid)!");
+		Storm::throwException<Storm::StormException>("We must advance by a positive frame count (value " + std::to_string(frameCount) + " is invalid)!");
 	}
 
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
@@ -1284,7 +1284,7 @@ case Storm::BlowerType::BlowerTypeName: appendNewBlower<Storm::BlowerType::Blowe
 			STORM_XMACRO_GENERATE_BLOWERS_CODE;
 
 		default:
-			Storm::throwException<std::exception>("Unhandled Blower Type creation requested! Value was " + std::to_string(static_cast<int>(blowerData._blowerType)));
+			Storm::throwException<Storm::StormException>("Unhandled Blower Type creation requested! Value was " + std::to_string(static_cast<int>(blowerData._blowerType)));
 		}
 
 #undef STORM_XMACRO_GENERATE_ELEMENTARY_BLOWER
@@ -1664,7 +1664,7 @@ Storm::ParticleSystem& Storm::SimulatorManager::getParticleSystem(unsigned int i
 	}
 	else
 	{
-		Storm::throwException<std::exception>("Particle system with id " + std::to_string(id) + " is unknown!");
+		Storm::throwException<Storm::StormException>("Particle system with id " + std::to_string(id) + " is unknown!");
 	}
 }
 
@@ -1700,7 +1700,7 @@ const Storm::ParticleSystem& Storm::SimulatorManager::getParticleSystem(unsigned
 	}
 	else
 	{
-		Storm::throwException<std::exception>("Particle system with id " + std::to_string(id) + " is unknown!");
+		Storm::throwException<Storm::StormException>("Particle system with id " + std::to_string(id) + " is unknown!");
 	}
 }
 

@@ -644,7 +644,7 @@ namespace
 			break;
 
 		default:
-			Storm::throwException<std::exception>("unknown position in domain value!");
+			Storm::throwException<Storm::StormException>("unknown position in domain value!");
 			break;
 		}
 

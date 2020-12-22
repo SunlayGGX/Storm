@@ -166,15 +166,44 @@ namespace
 			{
 				currentFutureToWait.get();
 			}
+			catch (const Storm::StormException &e)
+			{
+				const std::string iterStr = std::to_string(iter);
+				const std::string_view exceptionMsg = e.what();
+				const std::string_view exceptionStackTrace = e.stackTrace();
+
+				errorMsg.reserve(errorMsg.size() + iterStr.size() + exceptionMsg.size() + exceptionStackTrace.size() + 56);
+
+				errorMsg += "Future ";
+				errorMsg += iterStr;
+				errorMsg += " has thrown an exception : ";
+				errorMsg += exceptionMsg;
+				errorMsg += ".\nStackTrace:\n";
+				errorMsg += exceptionStackTrace;
+				errorMsg += '\n';
+			}
 			catch (const std::exception &e)
 			{
-				errorMsg += "Future " + std::to_string(iter) + " has thrown an exception : ";
-				errorMsg += e.what();
-				errorMsg += '\n';
+				const std::string iterStr = std::to_string(iter);
+				const std::string_view exceptionMsg = e.what();
+
+				errorMsg.reserve(errorMsg.size() + iterStr.size() + exceptionMsg.size() + 56);
+
+				errorMsg += "Future ";
+				errorMsg += iterStr;
+				errorMsg += " has thrown an exception : ";
+				errorMsg += exceptionMsg;
+				errorMsg += ".\n";
 			}
 			catch (...)
 			{
-				errorMsg += "Future " + std::to_string(iter) + " has thrown an unknown exception!\n";
+				const std::string iterStr = std::to_string(iter);
+
+				errorMsg.reserve(errorMsg.size() + iterStr.size() + 56);
+
+				errorMsg += "Future ";
+				errorMsg += iterStr;
+				errorMsg += " has thrown an unknown exception!\n";
 			}
 		}
 
@@ -182,7 +211,7 @@ namespace
 
 		if (!errorMsg.empty())
 		{
-			Storm::throwException<std::exception>(errorMsg);
+			Storm::throwException<Storm::StormException>(errorMsg);
 		}
 	}
 
@@ -250,7 +279,7 @@ void Storm::AssetLoaderManager::initialize_Implementation()
 		break;
 
 	default:
-		Storm::throwException<std::exception>("Unhandled initialization mode from specified record mode!");
+		Storm::throwException<Storm::StormException>("Unhandled initialization mode from specified record mode!");
 	}
 
 	LOG_DEBUG << "Cleaning asset loading cache data";
@@ -317,7 +346,7 @@ case Storm::BlowerType::BlowerTypeName: \
 
 		default:
 		case Storm::BlowerType::None:
-			Storm::throwException<std::exception>("Unknown Blower to be created!");
+			Storm::throwException<Storm::StormException>("Unknown Blower to be created!");
 			break;
 		}
 
@@ -389,7 +418,7 @@ void Storm::AssetLoaderManager::initializeForSimulation()
 						return rbData._rigidBodyID == id;
 					}); found == endRigidBodiesDataToLoadConfigIter)
 					{
-						Storm::throwException<std::exception>("Cannot link loaded particle system to one we set from the configuration !");
+						Storm::throwException<Storm::StormException>("Cannot link loaded particle system to one we set from the configuration !");
 					}
 				}
 			}
@@ -411,7 +440,7 @@ void Storm::AssetLoaderManager::initializeForSimulation()
 						rbStateFound = &*found;
 						if (rbStateFound->_isFluid)
 						{
-							Storm::throwException<std::exception>("The state " + std::to_string(rbToLoad._rigidBodyID) + " we're trying to load as a rigid body is in fact the state of a fluid system! It isn't allowed!");
+							Storm::throwException<Storm::StormException>("The state " + std::to_string(rbToLoad._rigidBodyID) + " we're trying to load as a rigid body is in fact the state of a fluid system! It isn't allowed!");
 						}
 					}
 				}
@@ -463,7 +492,7 @@ case Storm::BlowerType::BlowerTypeName: \
 
 		default:
 		case Storm::BlowerType::None:
-			Storm::throwException<std::exception>("Unknown Blower to be created!");
+			Storm::throwException<Storm::StormException>("Unknown Blower to be created!");
 			break;
 		}
 
@@ -504,7 +533,7 @@ case Storm::BlowerType::BlowerTypeName: \
 				Storm::SystemSimulationStateObject &fluidState = *fluidStateFound;
 				if (!fluidState._isFluid)
 				{
-					Storm::throwException<std::exception>("The state " + std::to_string(fluidState._isFluid) + " we're trying to load as a fluid is in fact the state of a rigid body system! It isn't allowed!");
+					Storm::throwException<Storm::StormException>("The state " + std::to_string(fluidState._isFluid) + " we're trying to load as a fluid is in fact the state of a rigid body system! It isn't allowed!");
 				}
 
 				waitForFutures(asyncLoadingArray);
@@ -518,7 +547,7 @@ case Storm::BlowerType::BlowerTypeName: \
 			}
 			else
 			{
-				Storm::throwException<std::exception>("We cannot find the fluid state with id matching the one in the configuration (" + std::to_string(fluidsDataToLoad._fluidId) + ')');
+				Storm::throwException<Storm::StormException>("We cannot find the fluid state with id matching the one in the configuration (" + std::to_string(fluidsDataToLoad._fluidId) + ')');
 			}
 		}
 		else

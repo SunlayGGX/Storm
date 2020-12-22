@@ -20,5 +20,5 @@ std::string_view Storm::parseLogLevel(Storm::LogLevel logLevel)
 	}
 #undef STORM_SWITCH_CASE_STRINGIFY
 
-	Storm::throwException<std::exception>("Unknown Level!");
+	Storm::throwException<Storm::StormException>("Unknown Level!");
 }

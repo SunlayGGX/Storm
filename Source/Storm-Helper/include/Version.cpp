@@ -28,7 +28,7 @@ Storm::Version::Version(const std::string &versionStr) :
 	case 0:
 		break;
 
-	default: Storm::throwException<std::exception>(versionStr + "isn't a valid version!");
+	default: Storm::throwException<Storm::StormException>(versionStr + " isn't a valid version!");
 	}
 }
 

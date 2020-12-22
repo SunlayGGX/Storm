@@ -103,7 +103,7 @@ Storm::Grid::Grid(const ComPtr<ID3D11Device> &device, Storm::Vector3 maxPt)
 	}
 	else
 	{
-		Storm::throwException<std::exception>("maxPt should be far enough from 0,?,0 to be displayed properly");
+		Storm::throwException<Storm::StormException>("maxPt should be far enough from 0,?,0 to be displayed properly");
 	}
 }
 

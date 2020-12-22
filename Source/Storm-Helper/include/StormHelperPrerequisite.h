@@ -8,6 +8,7 @@
 #include "ArchitectureMacros.h"
 #include "MacroConfig.h"
 
+#include "StormException.h"
 #include "ThrowException.h"
 
 

@@ -13,7 +13,7 @@ Storm::VoxelGrid::VoxelGrid(const Storm::Vector3 &upCorner, const Storm::Vector3
 	if (voxelEdgeLength < 0.00000001f || isnan(voxelEdgeLength) || isinf(voxelEdgeLength))
 	{
 		assert(false && "Invalid voxel length! This is forbidden!");
-		Storm::throwException<std::exception>("Invalid voxel length (" + std::to_string(voxelEdgeLength) + ")! This is forbidden!");
+		Storm::throwException<Storm::StormException>("Invalid voxel length (" + std::to_string(voxelEdgeLength) + ")! This is forbidden!");
 	}
 
 	const Storm::Vector3 diff = upCorner - downCorner;
