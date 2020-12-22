@@ -49,12 +49,27 @@ namespace Storm_LogViewer.Source.General.Filterer
             }
         }
 
+        private List<PIDFilterCheckboxValue> _pidsFilters = new List<PIDFilterCheckboxValue>(12);
+        public List<PIDFilterCheckboxValue> PIDsFilters
+        {
+            get
+            {
+                lock (_pidsFilters)
+                {
+                    return _pidsFilters;
+                }
+            }
+        }
+
         private string _lastFilter = string.Empty;
 
         #region Events
 
         public delegate void OnModuleFilterAdded(List<ModuleFilterCheckboxValue> moduleList);
         public event OnModuleFilterAdded _onModuleFilterAdded;
+
+        public delegate void OnPIDFilterAdded(List<PIDFilterCheckboxValue> pidsList);
+        public event OnPIDFilterAdded _onPIDFilterAdded;
 
         #endregion
 
@@ -110,6 +125,19 @@ namespace Storm_LogViewer.Source.General.Filterer
             return false;
         }
 
+        private bool ApplyPIDFilter(ref IEnumerable<LogItem> logItemsEnumerable)
+        {
+            List<PIDFilterCheckboxValue> pidsFilters = _pidsFilters.Where(pidFilter => pidFilter.Checked).ToList();
+            if (pidsFilters.Count != _pidsFilters.Count)
+            {
+                logItemsEnumerable = logItemsEnumerable.Where(item => item.LogLevel == LogLevelEnum.NewSession || pidsFilters.Any(pidFilter => pidFilter.PID == item.PID));
+
+                return true;
+            }
+
+            return false;
+        }
+
         private bool ApplyFilterText(ref IEnumerable<LogItem> logItemsEnumerable, string newFilterText)
         {
             if (!string.IsNullOrEmpty(newFilterText))
@@ -148,6 +176,7 @@ namespace Storm_LogViewer.Source.General.Filterer
 
             IEnumerable<LogItem> logFilterIEnum = logItems;
             hasAppliedAtLeastOneFilter |= this.ApplyLogLevelFilter(ref logFilterIEnum);
+            hasAppliedAtLeastOneFilter |= this.ApplyPIDFilter(ref logFilterIEnum);
             hasAppliedAtLeastOneFilter |= this.ApplyModuleFilter(ref logFilterIEnum);
             hasAppliedAtLeastOneFilter |= this.ApplyFilterText(ref logFilterIEnum, finalFilter);
 
@@ -202,6 +231,39 @@ namespace Storm_LogViewer.Source.General.Filterer
                 // It allows to unlock the call and only working with a snapshot of the module filter, in case this one is updated in another thread.
                 // We won't have a data race (but we would work with deprecated data)... A tocttou can still happen but I don't care...
                 _onModuleFilterAdded?.Invoke(otherTmpSoThreadSafe);
+            }
+        }
+
+        public void AddNewPIDFilters(List<uint> newPids)
+        {
+            if (newPids.Count > 0)
+            {
+                List<PIDFilterCheckboxValue> otherTmpSoThreadSafe;
+
+                lock (_pidsFilters)
+                {
+                    foreach (uint pid in newPids)
+                    {
+                        PIDFilterCheckboxValue newPIDFilter = new PIDFilterCheckboxValue { _pid = pid };
+                        LogReaderManager.Instance.ListenPIDFilterCheckedChangedEvent(newPIDFilter);
+                        try
+                        {
+                            _pidsFilters.Add(newPIDFilter);
+                        }
+                        catch (System.Exception)
+                        {
+                            LogReaderManager.Instance.UnregisterFromPIDFilterCheckedChangedEvent(newPIDFilter);
+                            throw;
+                        }
+                    }
+
+                    otherTmpSoThreadSafe = _pidsFilters;
+                }
+
+                // Send the current state of the _pidsFilters... Not directly the reference of _pidsFilters...
+                // It allows to unlock the call and only working with a snapshot of the pid filter, in case this one is updated in another thread.
+                // We won't have a data race (but we would work with deprecated data)... A tocttou can still happen but I don't care...
+                _onPIDFilterAdded?.Invoke(otherTmpSoThreadSafe);
             }
         }
 

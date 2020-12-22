@@ -89,7 +89,11 @@ namespace Storm_LogViewer
             ModuleLevelsFilter.DataContext = this;
             ModuleLevelsFilter.ItemsSource = filterMgr.ModuleFilters;
 
+            PIDsFilter.DataContext = this;
+            PIDsFilter.ItemsSource = filterMgr.PIDsFilters;
+
             filterMgr._onModuleFilterAdded += OnModuleFilterAdded;
+            filterMgr._onPIDFilterAdded += OnPIDsFilterAdded;
             configMgr._onShowEssentialCheckboxChanged += UpdateListViewEssentiality;
             configMgr._onAutoScrollCheckboxChanged += AutoScrollUpdated;
             loggerReaderMgr._onDisplayedLogItemsCollectionChanged += OnDisplayedLogItemsCollectionChanged;
@@ -103,6 +107,7 @@ namespace Storm_LogViewer
             LogReaderManager loggerReaderMgr = LogReaderManager.Instance;
 
             filterMgr._onModuleFilterAdded -= OnModuleFilterAdded;
+            filterMgr._onPIDFilterAdded -= OnPIDsFilterAdded;
             configMgr._onShowEssentialCheckboxChanged -= UpdateListViewEssentiality;
             configMgr._onAutoScrollCheckboxChanged -= AutoScrollUpdated;
             loggerReaderMgr._onDisplayedLogItemsCollectionChanged -= OnDisplayedLogItemsCollectionChanged;
@@ -154,6 +159,16 @@ namespace Storm_LogViewer
             {
                 ModuleLevelsFilter.ItemsSource = newModuleCheckboxFilters;
                 ICollectionView view = CollectionViewSource.GetDefaultView(ModuleLevelsFilter.ItemsSource);
+                view.Refresh();
+            }));
+        }
+
+        void OnPIDsFilterAdded(List<PIDFilterCheckboxValue> newPIDsCheckboxFilters)
+        {
+            ExecuteOnUIThread(new Action(() =>
+            {
+                PIDsFilter.ItemsSource = newPIDsCheckboxFilters;
+                ICollectionView view = CollectionViewSource.GetDefaultView(PIDsFilter.ItemsSource);
                 view.Refresh();
             }));
         }

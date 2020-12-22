@@ -22,6 +22,7 @@ namespace Storm_LogViewer.Source.Log
         private Thread _parserWatcherThread = null;
 
         private List<string> _moduleList = new List<string>(12);
+        private List<uint> _pidsList = new List<uint>(4);
 
         bool _shouldClearLogs = false;
         bool _shouldReReadLogs = false;
@@ -250,6 +251,7 @@ namespace Storm_LogViewer.Source.Log
             int preCollectionCount = _logItems.Count;
 
             List<string> newModuleAddedThisFrame = new List<string>(12);
+            List<uint> newPIDsAddedThisFrame = new List<uint>(2);
 
             XmlHelper.LoadAnyElementsXMLFrom(doc.Root, elem => 
             {
@@ -257,7 +259,7 @@ namespace Storm_LogViewer.Source.Log
 
                 if (elem.Name == "separator")
                 {
-                    this.AddLogItem(item, ref newModuleAddedThisFrame);
+                    this.AddLogItem(item, ref newModuleAddedThisFrame, ref newPIDsAddedThisFrame);
                 }
                 else if(!string.IsNullOrEmpty(elem.Value))
                 {
@@ -266,6 +268,7 @@ namespace Storm_LogViewer.Source.Log
                         .LoadAttributeIfExist("timestamp", value => item._timestamp = value)
                         .LoadAttributeIfExist("codeLocation", value => item._codeLocation = value)
                         .LoadAttributeIfExist("thread", value => item._threadId = value)
+                        .LoadAttributeIfExist("PID", value => item._pid = uint.Parse(value))
                         ;
                     if (
                         !string.IsNullOrEmpty(item._moduleName) &&
@@ -275,12 +278,14 @@ namespace Storm_LogViewer.Source.Log
                         )
                     {
                         item._msg = elem.Value;
-                        this.AddLogItem(item, ref newModuleAddedThisFrame);
+                        this.AddLogItem(item, ref newModuleAddedThisFrame, ref newPIDsAddedThisFrame);
                     }
                 }
             });
 
-            FiltererManager.Instance.AddNewModuleFilters(newModuleAddedThisFrame);
+            FiltererManager filterMgr = FiltererManager.Instance;
+            filterMgr.AddNewModuleFilters(newModuleAddedThisFrame);
+            filterMgr.AddNewPIDFilters(newPIDsAddedThisFrame);
 
             if (preCollectionCount != _logItems.Count && _isRunning)
             {
@@ -288,7 +293,7 @@ namespace Storm_LogViewer.Source.Log
             }
         }
 
-        public void AddLogItem(LogItem item, ref List<string> newModuleAddedThisFrame)
+        public void AddLogItem(LogItem item, ref List<string> newModuleAddedThisFrame, ref List<uint> newPIDsAddedThisFrame)
         {
             _logItems.Add(item);
 
@@ -296,6 +301,12 @@ namespace Storm_LogViewer.Source.Log
             {
                 _moduleList.Add(item._moduleName);
                 newModuleAddedThisFrame.Add(item._moduleName);
+            }
+
+            if (!_pidsList.Any(pid => pid == item._pid))
+            {
+                _pidsList.Add(item._pid);
+                newPIDsAddedThisFrame.Add(item._pid);
             }
         }
 
@@ -384,6 +395,16 @@ namespace Storm_LogViewer.Source.Log
         public void UnregisterFromModuleFilterCheckedChangedEvent(ModuleFilterCheckboxValue moduleFilter)
         {
             moduleFilter._onCheckedStateChanged -= this.OnFiltersChanged;
+        }
+
+        public void ListenPIDFilterCheckedChangedEvent(PIDFilterCheckboxValue pidFilter)
+        {
+            pidFilter._onCheckedStateChanged += this.OnFiltersChanged;
+        }
+
+        public void UnregisterFromPIDFilterCheckedChangedEvent(PIDFilterCheckboxValue pidFilter)
+        {
+            pidFilter._onCheckedStateChanged -= this.OnFiltersChanged;
         }
 
         public void NotifyLogItemsCollectionChanged()
