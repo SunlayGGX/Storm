@@ -64,7 +64,7 @@ Storm::LogItem::LogItem(const std::string_view &moduleName, const Storm::LogLeve
 
 }
 
-void Storm::LogItem::prepare(bool xmlToo)
+void Storm::LogItem::prepare(bool xmlToo, unsigned int processID)
 {
 	const std::string_view levelStr = Storm::parseLogLevel(_level);
 	const std::string timestampStr = timeStampToString(_timestamp);
@@ -110,9 +110,10 @@ void Storm::LogItem::prepare(bool xmlToo)
 		logXml.add<decltype(timestampStr)>("<xmlattr>.timestamp", timestampStr);
 		logXml.add<decltype(threadIdStr)>("<xmlattr>.thread", threadIdStr);
 		logXml.add<decltype(codeLocationStr)>("<xmlattr>.codeLocation", codeLocationStr);
+		logXml.add<decltype(processID)>("<xmlattr>.PID", processID);
 		logXml.put_value(_msg);
 
-		boost::property_tree::xml_parser::write_xml_element(str, "log", logXml, 0, boost::property_tree::xml_writer_make_settings<std::string>());
+		boost::property_tree::xml_parser::write_xml_element(str, "log", logXml, 0, boost::property_tree::xml_writer_make_settings<std::string>('\n', 1));
 
 		_finalXml = str.str();
 	}

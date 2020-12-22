@@ -27,7 +27,8 @@ namespace
 
 Storm::LoggerManager::LoggerManager() :
 	_level{ Storm::LogLevel::Debug },
-	_isRunning{ true }
+	_isRunning{ true },
+	_currentPID{ 0 }
 {
 	_buffer.reserve(16);
 }
@@ -36,7 +37,7 @@ Storm::LoggerManager::~LoggerManager()
 {
 	this->cleanUp();
 
-	this->writeLogs(_buffer);
+	this->writeLogs(_buffer, _currentPID);
 	_buffer.clear();
 }
 
@@ -56,7 +57,6 @@ void Storm::LoggerManager::initialize_Implementation()
 	const std::string &logFileName = configMgr->getLogFileName();
 	if (!logFileName.empty())
 	{
-		const std::filesystem::path logExtension{ ".log" };
 		const std::filesystem::path xmlLogExtension{ ".xml" };
 
 		const std::string &logFolderPathStr = configMgr->getLogFolderPath();
@@ -64,21 +64,16 @@ void Storm::LoggerManager::initialize_Implementation()
 		std::filesystem::create_directories(logFolderPath);
 
 		std::filesystem::path logFilePath = logFolderPath / logFileName;
-		logFilePath.replace_extension(logExtension);
-
 		const std::filesystem::path xmlLogFilePath = std::filesystem::path{ logFilePath }.replace_extension(xmlLogExtension);
 
-		_logFilePath = logFilePath.string();
 		_xmlLogFilePath = xmlLogFilePath.string();
 
 		if (configMgr->getShouldOverrideOldLog())
 		{
-			std::filesystem::remove(logFilePath);
 			std::filesystem::remove(xmlLogFilePath);
 		}
 		else
 		{
-			std::ofstream{ _logFilePath, std::ios_base::out | std::ios_base::app } << "\n\n\n---------------------------------------------\n\n\n";
 			std::ofstream{ _xmlLogFilePath, std::ios_base::out | std::ios_base::app } << "<separator/>";
 		}
 
@@ -89,7 +84,7 @@ void Storm::LoggerManager::initialize_Implementation()
 			for (const std::filesystem::directory_entry &logsFile : std::filesystem::recursive_directory_iterator{ logFolderPath })
 			{
 				const std::filesystem::path currentExtension = logsFile.path().extension();
-				if ((currentExtension == logExtension || currentExtension == xmlLogExtension) && (logsFile.is_character_file() || logsFile.is_regular_file()))
+				if (currentExtension == xmlLogExtension && (logsFile.is_character_file() || logsFile.is_regular_file()))
 				{
 					auto writeTime = logsFile.last_write_time();
 					if (writeTime <= threadhold)
@@ -100,6 +95,8 @@ void Storm::LoggerManager::initialize_Implementation()
 			}
 		}
 	}
+
+	_currentPID = configMgr->getCurrentPID();
 
 	bool canLeaveTmp = false;
 	std::condition_variable syncTmp;
@@ -125,13 +122,13 @@ void Storm::LoggerManager::initialize_Implementation()
 
 			lock.unlock();
 
-			this->writeLogs(tmpBuffer);
+			this->writeLogs(tmpBuffer, _currentPID);
 			tmpBuffer.clear();
 
 			lock.lock();
 		}
 
-		this->writeLogs(_buffer);
+		this->writeLogs(_buffer, _currentPID);
 		_buffer.clear();
 	} };
 
@@ -193,23 +190,21 @@ Storm::LogLevel Storm::LoggerManager::getLogLevel() const
 	return _level;
 }
 
-void Storm::LoggerManager::writeLogs(LogArray &logArray) const
+void Storm::LoggerManager::writeLogs(LogArray &logArray, const unsigned int currentPID) const
 {
 	const bool debuggerAttached = ::IsDebuggerPresent();
 
-	if (!_logFilePath.empty())
+	if (!_xmlLogFilePath.empty())
 	{
-		std::ofstream logFile{ _logFilePath, std::ios_base::out | std::ios_base::app };
 		std::ofstream xmlLogFile{ _xmlLogFilePath, std::ios_base::out | std::ios_base::app };
 		for (auto &logItem : logArray)
 		{
 			if (logItem._level >= _level)
 			{
-				logItem.prepare(true);
+				logItem.prepare(true, currentPID);
 
 				const std::string &fullLogMsg = logItem.rawMessage();
 				std::cout << fullLogMsg;
-				logFile << fullLogMsg;
 
 				if (debuggerAttached)
 				{
@@ -226,10 +221,11 @@ void Storm::LoggerManager::writeLogs(LogArray &logArray) const
 		{
 			if (logItem._level >= _level)
 			{
-				logItem.prepare(true);
+				logItem.prepare(true, currentPID);
 
 				const std::string &fullLogMsg = logItem.rawMessage();
 				std::cout << fullLogMsg;
+
 				if (debuggerAttached)
 				{
 					logToVisualStudioOutput(fullLogMsg);
@@ -241,5 +237,5 @@ void Storm::LoggerManager::writeLogs(LogArray &logArray) const
 
 void Storm::LoggerManager::logToTempFile(const std::string &fileName, const std::string &msg) const
 {
-	std::ofstream{ (std::filesystem::path{ Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().getTemporaryPath() } / fileName).string() } << msg;
+	std::ofstream{ std::filesystem::path{ Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().getTemporaryPath() } / fileName } << msg;
 }

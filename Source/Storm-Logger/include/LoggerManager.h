@@ -27,7 +27,7 @@ namespace Storm
 		Storm::LogLevel getLogLevel() const final override;
 
 	private:
-		void writeLogs(LogArray &logArray) const;
+		void writeLogs(LogArray &logArray, const unsigned int currentPID) const;
 
 	public:
 		void logToTempFile(const std::string &fileName, const std::string &msg) const final override;
@@ -38,11 +38,12 @@ namespace Storm
 		mutable std::mutex _loggerMutex;
 		std::condition_variable _loggerCV;
 
+		unsigned int _currentPID;
+
 		Storm::LogLevel _level;
 
 		LogArray _buffer;
 
-		std::string _logFilePath;
 		std::string _xmlLogFilePath;
 	};
 }

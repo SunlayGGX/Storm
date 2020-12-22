@@ -12,5 +12,6 @@ namespace Storm
 
 	public:
 		virtual std::wstring openFileExplorerDialog(const std::wstring &explorerWindowsTitle, const std::map<std::wstring, std::wstring> &filters) = 0;
+		virtual unsigned int obtainCurrentPID() const = 0;
 	};
 }

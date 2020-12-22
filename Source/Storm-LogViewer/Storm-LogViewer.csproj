@@ -61,11 +61,13 @@
     <Compile Include="Source\General\Config\MacroConfig.cs" />
     <Compile Include="Source\General\Filterer\FiltererManager.cs" />
     <Compile Include="Source\Helpers\XmlHelper.cs" />
+    <Compile Include="Source\Log\LogFileHandler.cs" />
     <Compile Include="Source\Log\LogItem.cs" />
     <Compile Include="Source\Log\LogLevelEnum.cs" />
     <Compile Include="Source\Log\LogLevelFilterCheckboxValue.cs" />
     <Compile Include="Source\Log\LogReaderManager.cs" />
     <Compile Include="Source\Log\ModuleFilterCheckboxValue.cs" />
+    <Compile Include="Source\Log\PIDFilterCheckboxValue.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

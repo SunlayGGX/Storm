@@ -15,13 +15,14 @@ namespace Storm_LogViewer.Source.Log
     {
         #region Members
 
-        private System.DateTime _lastLogFileWriteTime = DateTime.MinValue;
-        private System.DateTime _lastLogFileCreationTime = DateTime.MinValue;
-        private long _lastStreamPos = 0;
+        private System.DateTime _lastLogFileTime = DateTime.MinValue;
+        private List<LogFileHandler> _watchedLogFiles = new List<LogFileHandler>(4);
+        private List<LogFileHandler> _watcherToRemove = new List<LogFileHandler>(4);
 
         private Thread _parserWatcherThread = null;
 
         private List<string> _moduleList = new List<string>(12);
+        private List<uint> _pidsList = new List<uint>(4);
 
         bool _shouldClearLogs = false;
         bool _shouldReReadLogs = false;
@@ -94,18 +95,28 @@ namespace Storm_LogViewer.Source.Log
                 checkboxValue._onCheckedStateChanged += this.OnFiltersChanged;
             }
 
-            if (configMgr.NoInitialRead)
+            FileInfo logFileToReadInfo = null;
+            if (configMgr.ReadLast || configMgr.HasLogFilePath)
             {
                 string logFileToRead = this.GetLogFileToRead();
-                FileInfo logFileToReadInfo = new FileInfo(logFileToRead);
+                logFileToReadInfo = new FileInfo(logFileToRead);
 
-                _lastLogFileWriteTime = logFileToReadInfo.LastWriteTime;
-                _lastLogFileCreationTime = logFileToReadInfo.CreationTime;
-                _lastStreamPos = logFileToReadInfo.Length;
+                _watchedLogFiles.Add(new LogFileHandler()
+                {
+                    _logFileWriteTime = DateTime.MinValue,
+                    _logFileCreationTime = logFileToReadInfo.CreationTime,
+                    _lastStreamPos = 0,
+                    _logFileInfo = logFileToReadInfo
+                });
+
+                _lastLogFileTime = logFileToReadInfo.LastWriteTime;
+
+                this.GetLastLogFileFromFolder(LogReaderManager.GetIntermediateLogFolderPath(), ref logFileToReadInfo, ref _lastLogFileTime);
+                this.GetLastLogFileFromFolder(LogReaderManager.GetTempLogFolderPath(), ref logFileToReadInfo, ref _lastLogFileTime);
             }
             else
             {
-                this.TryRunParsingOnce();
+                this.FillNewWatchedFiles(true);
             }
 
             _parserWatcherThread = new Thread(() => this.Run());
@@ -162,133 +173,170 @@ namespace Storm_LogViewer.Source.Log
 
         private void TryRunParsingOnce()
         {
-            string logFilePath = this.GetLogFileToRead();
-
-            if (_isRunning && logFilePath != null)
+            if (_isRunning)
             {
-                FileInfo fileInfo = new FileInfo(logFilePath);
-                if (fileInfo.LastWriteTime > _lastLogFileWriteTime)
+                List<string> newModuleAddedThisFrame = new List<string>(12);
+                List<uint> newPIDsAddedThisFrame = new List<uint>(2);
+
+                this.FillNewWatchedFiles();
+
+                List<LogFileHandler> toExecute = new List<LogFileHandler>(_watchedLogFiles.Count);
+                toExecute.AddRange(_watchedLogFiles);
+
+                int preCollectionCount = _logItems.Count;
+
+                int watchdog = 10;
+
+                while (toExecute.Count > 0)
                 {
-                    this.ParseLogFile(fileInfo);
-                }
-            }
-        }
-
-        private void ParseLogFile(FileInfo logFileInfo)
-        {
-            XDocument doc = null;
-
-            int watchdog = 0;
-            do
-            {
-                if (!_isRunning)
-                {
-                    return;
-                }
-
-                try
-                {
-                    logFileInfo.Refresh();
-
-                    // If the Storm logger is set to override the file, then the last stream pos is invalid.
-                    DateTime logFileCreationTime = logFileInfo.CreationTime;
-                    if (_lastLogFileCreationTime < logFileCreationTime)
-                    {
-                        _lastLogFileCreationTime = logFileCreationTime;
-                        _lastStreamPos = 0;
-
-                        if (_logItems.Count > 0)
-                        {
-                            _logItems.Add(new LogItem { _level = LogLevelEnum.NewSession });
-                        }
-                    }
-
-                    int initialFileSize = (int)logFileInfo.Length;
-                    using (FileStream filestream = new FileStream(logFileInfo.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, initialFileSize, FileOptions.RandomAccess))
-                    {
-                        filestream.Position = _lastStreamPos <= initialFileSize ? _lastStreamPos : 0;
-
-                        long tmpPosition;
-
-                        string content = "<tmp>\n";
-                        using (StreamReader reader = new StreamReader(filestream))
-                        {
-                            logFileInfo.Refresh();
-                            _lastLogFileWriteTime = logFileInfo.LastWriteTime;
-
-                            content += reader.ReadToEnd();
-
-                            tmpPosition = filestream.Position;
-                        }
-
-                        doc = XDocument.Parse(content + "\n</tmp>");
-                        _lastStreamPos = tmpPosition;
-                    }
-                }
-                catch (System.Exception ex)
-                {
-                    doc = null;
-                    Console.WriteLine("Log parsing failed, reason was " + ex.Message);
-                }
-
-                if (doc == null)
-                {
-                    Thread.Sleep(100);
                     if (!_isRunning)
                     {
                         return;
                     }
-                }
 
-            } while (doc == null && ++watchdog < 10);
+                    List<LogFileHandler> completed = new List<LogFileHandler>(toExecute.Count);
 
-            if (watchdog == 10 && doc == null)
-            {
-                return;
-            }
-
-            int preCollectionCount = _logItems.Count;
-
-            List<string> newModuleAddedThisFrame = new List<string>(12);
-
-            XmlHelper.LoadAnyElementsXMLFrom(doc.Root, elem => 
-            {
-                LogItem item = new LogItem { _level = LogLevelEnum.NewSession };
-
-                if (elem.Name == "separator")
-                {
-                    this.AddLogItem(item, ref newModuleAddedThisFrame);
-                }
-                else if(!string.IsNullOrEmpty(elem.Value))
-                {
-                    elem.LoadAttributeIfExist("logLevel", value => item._level = LogLevelToStringConverter.FromString(value))
-                        .LoadAttributeIfExist("module", value => item._moduleName = value)
-                        .LoadAttributeIfExist("timestamp", value => item._timestamp = value)
-                        .LoadAttributeIfExist("codeLocation", value => item._codeLocation = value)
-                        .LoadAttributeIfExist("thread", value => item._threadId = value)
-                        ;
-                    if (
-                        !string.IsNullOrEmpty(item._moduleName) &&
-                        !string.IsNullOrEmpty(item._timestamp) &&
-                        !string.IsNullOrEmpty(item._codeLocation) &&
-                        !string.IsNullOrEmpty(item._threadId)
-                        )
+                    foreach (LogFileHandler watchedLogFile in toExecute)
                     {
-                        item._msg = elem.Value;
-                        this.AddLogItem(item, ref newModuleAddedThisFrame);
+                        if (_isRunning)
+                        {
+                            if (watchedLogFile.TryParseOnce(ref _isRunning, newModuleAddedThisFrame, newPIDsAddedThisFrame))
+                            {
+                                completed.Add(watchedLogFile);
+                            }
+                        }
+                        else
+                        {
+                            return;
+                        }
+                    }
+
+                    if (completed.Count > 0)
+                    {
+                        toExecute.RemoveAll(watched => completed.Contains(watched) || _watcherToRemove.Contains(watched));
+                    }
+                    else
+                    {
+                        Thread.Sleep(100);
+                        if (--watchdog == 0)
+                        {
+                            break;
+                        }
                     }
                 }
-            });
 
-            FiltererManager.Instance.AddNewModuleFilters(newModuleAddedThisFrame);
+                if (_isRunning)
+                {
+                    FiltererManager filterMgr = FiltererManager.Instance;
+                    filterMgr.AddNewModuleFilters(newModuleAddedThisFrame);
+                    filterMgr.AddNewPIDFilters(newPIDsAddedThisFrame);
 
-            if (preCollectionCount != _logItems.Count && _isRunning)
-            {
-                this.ApplyFilter();
+                    if (preCollectionCount != _logItems.Count && _isRunning)
+                    {
+                        this.ApplyFilter();
+                    }
+                }
             }
         }
 
-        public void AddLogItem(LogItem item, ref List<string> newModuleAddedThisFrame)
+        private void FillNewWatchedFileFromFolder(string logFileFolder, ref DateTime maxLogFileTime, bool init)
+        {
+            const int k_watchdogLastCount = 10;
+
+            ConfigManager configMgr = ConfigManager.Instance;
+
+            DirectoryInfo logFolderInfo = new DirectoryInfo(logFileFolder);
+            if (logFolderInfo.Exists)
+            {
+                foreach (FileInfo file in logFolderInfo.EnumerateFiles())
+                {
+                    if (file.Extension.ToLower() == ".xml")
+                    {
+                        int watchdog = 0;
+                        do
+                        {
+                            try
+                            {
+                                DateTime currentLastFileTime = file.LastWriteTime;
+                                if (currentLastFileTime > _lastLogFileTime)
+                                {
+                                    if (!_watchedLogFiles.Any(watchedLogFile => watchedLogFile._logFileInfo.FullName == file.FullName))
+                                    {
+                                        // This is a completely new log file.
+                                        if (file.CreationTime > _lastLogFileTime && !init)
+                                        {
+                                            _watchedLogFiles.Add(new LogFileHandler()
+                                            {
+                                                _logFileWriteTime = DateTime.MinValue,
+                                                _logFileCreationTime = file.CreationTime,
+                                                _lastStreamPos = 0,
+                                                _logFileInfo = file
+                                            });
+                                        }
+                                        else // The file existed before but wasn't watched. We just catch on.
+                                        {
+                                            if (configMgr.NoInitialRead)
+                                            {
+                                                _watchedLogFiles.Add(new LogFileHandler()
+                                                {
+                                                    _logFileWriteTime = file.LastWriteTime,
+                                                    _logFileCreationTime = file.CreationTime,
+                                                    _lastStreamPos = file.Length,
+                                                    _logFileInfo = file
+                                                });
+                                            }
+                                            else if (!init)
+                                            {
+                                                _watchedLogFiles.Add(new LogFileHandler()
+                                                {
+                                                    _logFileWriteTime = DateTime.MinValue,
+                                                    _logFileCreationTime = file.CreationTime,
+                                                    _lastStreamPos = 0,
+                                                    _logFileInfo = file
+                                                });
+                                            }
+                                        }
+                                    }
+
+                                    if (currentLastFileTime > maxLogFileTime)
+                                    {
+                                        maxLogFileTime = currentLastFileTime;
+                                    }
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                            }
+                            catch (System.Exception)
+                            {
+                                Thread.Sleep(100);
+
+                                if (!_isRunning)
+                                {
+                                    return;
+                                }
+
+                                file.Refresh();
+                            }
+
+                        } while (++watchdog < k_watchdogLastCount);
+                    }
+                }
+            }
+        }
+
+        private void FillNewWatchedFiles(bool init = false)
+        {
+            DateTime maxLogFileTime = _lastLogFileTime;
+
+            FillNewWatchedFileFromFolder(LogReaderManager.GetIntermediateLogFolderPath(), ref maxLogFileTime, init);
+            FillNewWatchedFileFromFolder(LogReaderManager.GetTempLogFolderPath(), ref maxLogFileTime, init);
+
+            _lastLogFileTime = maxLogFileTime;
+        }
+
+        public void AddLogItem(LogItem item, ref List<string> newModuleAddedThisFrame, ref List<uint> newPIDsAddedThisFrame)
         {
             _logItems.Add(item);
 
@@ -296,6 +344,12 @@ namespace Storm_LogViewer.Source.Log
             {
                 _moduleList.Add(item._moduleName);
                 newModuleAddedThisFrame.Add(item._moduleName);
+            }
+
+            if (!_pidsList.Any(pid => pid == item._pid))
+            {
+                _pidsList.Add(item._pid);
+                newPIDsAddedThisFrame.Add(item._pid);
             }
         }
 
@@ -345,8 +399,8 @@ namespace Storm_LogViewer.Source.Log
             FileInfo lastFile = null;
             DateTime lastDateTime = DateTime.MinValue;
 
-            this.GetLastLogFileFromFolder(Path.Combine(ConfigManager.Instance.MacrosConfig.GetMacroEndValue("StormIntermediate"), "Logs"), ref lastFile, ref lastDateTime);
-            this.GetLastLogFileFromFolder(Path.Combine(Path.GetTempPath(), "Storm", "Logs"), ref lastFile, ref lastDateTime);
+            this.GetLastLogFileFromFolder(LogReaderManager.GetIntermediateLogFolderPath(), ref lastFile, ref lastDateTime);
+            this.GetLastLogFileFromFolder(LogReaderManager.GetTempLogFolderPath(), ref lastFile, ref lastDateTime);
 
             if (_isRunning && lastFile != null)
             {
@@ -384,6 +438,16 @@ namespace Storm_LogViewer.Source.Log
         public void UnregisterFromModuleFilterCheckedChangedEvent(ModuleFilterCheckboxValue moduleFilter)
         {
             moduleFilter._onCheckedStateChanged -= this.OnFiltersChanged;
+        }
+
+        public void ListenPIDFilterCheckedChangedEvent(PIDFilterCheckboxValue pidFilter)
+        {
+            pidFilter._onCheckedStateChanged += this.OnFiltersChanged;
+        }
+
+        public void UnregisterFromPIDFilterCheckedChangedEvent(PIDFilterCheckboxValue pidFilter)
+        {
+            pidFilter._onCheckedStateChanged -= this.OnFiltersChanged;
         }
 
         public void NotifyLogItemsCollectionChanged()
@@ -427,10 +491,37 @@ namespace Storm_LogViewer.Source.Log
             {
                 _shouldReReadLogs = false;
 
-                _lastLogFileWriteTime = DateTime.MinValue;
+#if false
                 _lastLogFileCreationTime = DateTime.MinValue;
+                _lastLogFileWriteTime = DateTime.MinValue;
                 _lastStreamPos = 0;
+#else
+                foreach (LogFileHandler fileWatcher in _watchedLogFiles)
+                {
+                    fileWatcher.Reset();
+                }
+#endif
             }
+        }
+
+        internal void RemoveWatcher(LogFileHandler logFileHandler)
+        {
+            int index = _watchedLogFiles.IndexOf(logFileHandler);
+            if (index != -1)
+            {
+                _watcherToRemove.Add(logFileHandler);
+                _watchedLogFiles.RemoveAt(index);
+            }
+        }
+
+        private static string GetIntermediateLogFolderPath()
+        {
+            return Path.Combine(ConfigManager.Instance.MacrosConfig.GetMacroEndValue("StormIntermediate"), "Logs");
+        }
+
+        private static string GetTempLogFolderPath()
+        {
+            return Path.Combine(Path.GetTempPath(), "Storm", "Logs");
         }
 
         #endregion

@@ -78,6 +78,28 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{F98F7C
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Storm-Script", "Source\Storm-Script\script\Storm-Script.vcxproj", "{028BF684-49A8-44C0-861B-ADD005FA7D40}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Config", "Config", "{6F826875-D03B-4CA8-90B4-C83DECE63800}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Template", "Template", "{016E636E-C35D-49AD-8501-5C52B310B0E8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "General", "General", "{6F0D8944-AFB3-4306-BCFE-00CBADDBB2F1}"
+	ProjectSection(SolutionItems) = preProject
+		Config\Template\General\Global.xml = Config\Template\General\Global.xml
+		Config\Template\General\Macro.xml = Config\Template\General\Macro.xml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scenes", "Scenes", "{1C2891EB-43B4-4E2C-8517-59E80A43C3B7}"
+	ProjectSection(SolutionItems) = preProject
+		Config\Template\Scenes\BallsUnderBlowers WCSPH.xml = Config\Template\Scenes\BallsUnderBlowers WCSPH.xml
+		Config\Template\Scenes\Scene.xml = Config\Template\Scenes\Scene.xml
+		Config\Template\Scenes\WaterBreakingDam WCSPH.xml = Config\Template\Scenes\WaterBreakingDam WCSPH.xml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Packaging", "Packaging", "{C7CAFCCE-4275-4471-AD07-90DCE12EE6BC}"
+	ProjectSection(SolutionItems) = preProject
+		Config\Packaging\Packaging.xml = Config\Packaging\Packaging.xml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -199,6 +221,11 @@ Global
 		{02EAF0AA-DEFF-4C09-80A7-70A413568897} = {71FDD4FA-5CB7-4461-A3FD-A8818CF6C865}
 		{F98F7CDA-1DB8-439B-9673-B8C23D38E1F7} = {D56D6E97-088C-4FA6-9F12-D4B3B1BCDCA2}
 		{028BF684-49A8-44C0-861B-ADD005FA7D40} = {71FDD4FA-5CB7-4461-A3FD-A8818CF6C865}
+		{6F826875-D03B-4CA8-90B4-C83DECE63800} = {F3761E77-B57B-4CCF-AF7F-C97830641E49}
+		{016E636E-C35D-49AD-8501-5C52B310B0E8} = {6F826875-D03B-4CA8-90B4-C83DECE63800}
+		{6F0D8944-AFB3-4306-BCFE-00CBADDBB2F1} = {016E636E-C35D-49AD-8501-5C52B310B0E8}
+		{1C2891EB-43B4-4E2C-8517-59E80A43C3B7} = {016E636E-C35D-49AD-8501-5C52B310B0E8}
+		{C7CAFCCE-4275-4471-AD07-90DCE12EE6BC} = {6F826875-D03B-4CA8-90B4-C83DECE63800}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {AC48B795-9776-4952-84E0-CE8AB938B72B}

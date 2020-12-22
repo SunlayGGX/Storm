@@ -43,6 +43,12 @@ namespace Storm_LogViewer.Source.General.Config
             get => _noInitialRead;
         }
 
+        private bool _readLast = false;
+        public bool ReadLast
+        {
+            get => _readLast;
+        }
+
         private bool _filterStrictEquality = true;
         public bool FilterStrictEquality
         {
@@ -166,6 +172,10 @@ namespace Storm_LogViewer.Source.General.Config
                 else if (ConfigManager.IsCommandLine(arg, "NoInitialRead"))
                 {
                     _noInitialRead = true;
+                }
+                else if (ConfigManager.IsCommandLine(arg, "ReadLast"))
+                {
+                    _readLast = true;
                 }
             }
         }

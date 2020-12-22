@@ -43,6 +43,13 @@ namespace Storm_LogViewer.Source.Log
             set => _threadId = value;
         }
 
+        public uint _pid = 0;
+        public uint PID
+        {
+            get => _pid;
+            set => _pid = value;
+        }
+
         public string _msg = null;
         public string Message
         {

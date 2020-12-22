@@ -90,6 +90,11 @@ bool Storm::GeneralConfig::read(const std::string &generalConfigFilePathStr)
 				}
 			}
 
+			if (!_logFileName.empty() && _logFileName.find("$[PID]") == std::string::npos)
+			{
+				LOG_WARNING << "Log filename doesn't contain $[PID] macro, this could lead to unexpected behavior in case many instance of the application is run at the same time.";
+			}
+
 			const auto &graphicTreeOpt = generalTree.get_child_optional("Graphics");
 			if (graphicTreeOpt.has_value())
 			{
