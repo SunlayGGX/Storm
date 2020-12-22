@@ -6,4 +6,3 @@ But, to prevent any jokes, I'll ask you to tell me why it is bothersome for you 
 - Sometimes, building after changing the Configuration, entry point for PhysX isn't found even before Storm application start :
 	workaround is to link again the Storm-Physics project to force the post build step to run.
 
-- After the 1st error, all further script execution fails. (Under investigation).
