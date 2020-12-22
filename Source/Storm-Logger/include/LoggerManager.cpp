@@ -27,7 +27,8 @@ namespace
 
 Storm::LoggerManager::LoggerManager() :
 	_level{ Storm::LogLevel::Debug },
-	_isRunning{ true }
+	_isRunning{ true },
+	_currentPID{ 0 }
 {
 	_buffer.reserve(16);
 }
@@ -36,7 +37,7 @@ Storm::LoggerManager::~LoggerManager()
 {
 	this->cleanUp();
 
-	this->writeLogs(_buffer);
+	this->writeLogs(_buffer, _currentPID);
 	_buffer.clear();
 }
 
@@ -95,6 +96,8 @@ void Storm::LoggerManager::initialize_Implementation()
 		}
 	}
 
+	_currentPID = configMgr->getCurrentPID();
+
 	bool canLeaveTmp = false;
 	std::condition_variable syncTmp;
 
@@ -119,13 +122,13 @@ void Storm::LoggerManager::initialize_Implementation()
 
 			lock.unlock();
 
-			this->writeLogs(tmpBuffer);
+			this->writeLogs(tmpBuffer, _currentPID);
 			tmpBuffer.clear();
 
 			lock.lock();
 		}
 
-		this->writeLogs(_buffer);
+		this->writeLogs(_buffer, _currentPID);
 		_buffer.clear();
 	} };
 
@@ -187,7 +190,7 @@ Storm::LogLevel Storm::LoggerManager::getLogLevel() const
 	return _level;
 }
 
-void Storm::LoggerManager::writeLogs(LogArray &logArray) const
+void Storm::LoggerManager::writeLogs(LogArray &logArray, const unsigned int currentPID) const
 {
 	const bool debuggerAttached = ::IsDebuggerPresent();
 
@@ -198,7 +201,7 @@ void Storm::LoggerManager::writeLogs(LogArray &logArray) const
 		{
 			if (logItem._level >= _level)
 			{
-				logItem.prepare(true);
+				logItem.prepare(true, currentPID);
 
 				const std::string &fullLogMsg = logItem.rawMessage();
 				std::cout << fullLogMsg;
@@ -218,7 +221,7 @@ void Storm::LoggerManager::writeLogs(LogArray &logArray) const
 		{
 			if (logItem._level >= _level)
 			{
-				logItem.prepare(true);
+				logItem.prepare(true, currentPID);
 
 				const std::string &fullLogMsg = logItem.rawMessage();
 				std::cout << fullLogMsg;

@@ -11,7 +11,7 @@ namespace Storm
 		LogItem(const std::string_view &moduleName, const Storm::LogLevel level, const std::string_view &function, const int line, std::string &&msg);
 
 	public:
-		void prepare(bool xmlToo);
+		void prepare(bool xmlToo, unsigned int processID);
 
 	public:
 		const std::string& rawMessage() const;
