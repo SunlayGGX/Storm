@@ -110,13 +110,13 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>if "$(Configuration)" == "Debug" (
-    copy /y "$(ProjectDir)$(OutDir)$(TargetName).exe" "$(ProjectDir)../../bin/$(TargetName)_d.exe"
-    copy /y "$(ProjectDir)$(OutDir)$(TargetName).pdb" "$(ProjectDir)../../bin/$(TargetName)_d.pdb"
-    copy /y "$(ProjectDir)$(OutDir)$(TargetName).exe.config" "$(ProjectDir)../../bin/$(TargetName)_d.exe.config" 
+    copy /y "$(ProjectDir)$(OutDir)$(TargetName).exe" "$(ProjectDir)../../bin/$(Configuration)/$(TargetName)_d.exe"
+    copy /y "$(ProjectDir)$(OutDir)$(TargetName).pdb" "$(ProjectDir)../../bin/$(Configuration)/$(TargetName)_d.pdb"
+    copy /y "$(ProjectDir)$(OutDir)$(TargetName).exe.config" "$(ProjectDir)../../bin/$(Configuration)/$(TargetName)_d.exe.config" 
 ) else (
-    copy /y "$(ProjectDir)$(OutDir)$(TargetName).exe" "$(ProjectDir)../../bin/$(TargetName).exe"
-    copy /y "$(ProjectDir)$(OutDir)$(TargetName).pdb" "$(ProjectDir)../../bin/$(TargetName).pdb"
-    copy /y "$(ProjectDir)$(OutDir)$(TargetName).exe.config" "$(ProjectDir)../../bin/$(TargetName).exe.config" 
+    copy /y "$(ProjectDir)$(OutDir)$(TargetName).exe" "$(ProjectDir)../../bin/$(Configuration)/$(TargetName).exe"
+    copy /y "$(ProjectDir)$(OutDir)$(TargetName).pdb" "$(ProjectDir)../../bin/$(Configuration)/$(TargetName).pdb"
+    copy /y "$(ProjectDir)$(OutDir)$(TargetName).exe.config" "$(ProjectDir)../../bin/$(Configuration)/$(TargetName).exe.config" 
 )</PostBuildEvent>
   </PropertyGroup>
 </Project>

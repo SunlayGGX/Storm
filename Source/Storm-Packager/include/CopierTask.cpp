@@ -47,7 +47,7 @@ std::string StormPackager::CopierTask::prepare()
 		{
 			result += "Error: '";
 			result += toCopyPathStr;
-			result += "doesn't exist!\n";
+			result += "' doesn't exist!\n";
 
 			++fileCountNotExist;
 		}

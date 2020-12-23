@@ -2,6 +2,8 @@
 
 #include "XmlReader.h"
 
+#include "StormPathHelper.h"
+
 #include <boost\program_options\variables_map.hpp>
 #include <boost\program_options\parsers.hpp>
 #include <boost\program_options\options_description.hpp>
@@ -115,7 +117,7 @@ void StormPackager::ConfigManager::initialize_Implementation(int argc, const cha
 		_currentExePath = (std::filesystem::current_path() / exePath.filename()).string();
 	}
 
-	const std::filesystem::path rootPath = exePath.parent_path().parent_path();
+	const std::filesystem::path rootPath = Storm::StormPathHelper::findStormRootPath(exePath.parent_path());
 	_stormRootPath = rootPath.string();
 
 	const std::filesystem::path destinationPackageFolderPath = rootPath / "Intermediate" / "Package";

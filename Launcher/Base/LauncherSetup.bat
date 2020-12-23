@@ -1,4 +1,4 @@
-set STORM_BINARIES=../../bin
-set STORM_ROOT=..
+set STORM_BINARIES=../../bin/%~1
+set STORM_ROOT=../..
 
 cd %STORM_BINARIES%
