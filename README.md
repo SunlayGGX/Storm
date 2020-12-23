@@ -3,8 +3,8 @@ SPH reimplementation for fluids simulation
 
 
 # Setup
-From the root folder containing this README. Execute once Build\Script\Internal\Setup.bat, then modify the newly created Build\Script\Internal\UserSettings.bat to match the path of each dependencies in your workstation.
-Reexecute Build\Script\Internal\Setup.bat once all paths inside Build\Script\Internal\UserSettings.bat are ok.
+From the root folder containing this README. Execute once Build\Script\Setup.bat, then modify the newly created Build\Script\UserSettings.bat to match the path of each dependencies in your workstation.
+Reexecute Build\Script\Setup.bat once all paths inside Build\Script\UserSettings.bat are ok.
 Note that : 
 - you should have downloaded all dependencies beforehand and have done all setup that was specified (see next section).
 - We rely on junctions. It means that all your dependencies folder and Storm project should be on compatible disks format (i.e. NTFS). But if junctions don't work, we advise to copy your dependencies under the Storm's root "Dependencies" folder after calling Setup (also change the way the batch file are executed or you will remove those dependencies each time).
@@ -62,6 +62,7 @@ I'm using catch2 as our main unit test library. But to be able to use it, you sh
 - **Storm-ModelBase**: This module is the base for each modules. It contains everything that could be used to bind the modules together without the need to reference each other.
 - **Storm-Physics**: This module is responsible for initializing and managing Physics computations.
 - **Storm-Profiler**: This module is to allow getting some profiling data. This does not intend to replace the Visual Studio buit-in tool or any other external library, but just a way to register times, speed, ... and display it inside the Storm application UI or logging it.
+- **Storm-Script**: This module is to abstract scripting used inside the engine. Under the hood, it is lua, but it can change and this module is here to hide it.
 - **Storm-Serializer**: This module is to handle serialization process. Serialization for cooking the simulation into real time replay for example.
 - **Storm-Space**: This module is where we implement the space visualisation of the domain. Be it Voxels, Grids, octree, ... This is where we compute and store element for a fast neighborhood search.
 - **Storm-Simulator**: This module is where the Simulation classes would be. It is responsible to handle SPH.
