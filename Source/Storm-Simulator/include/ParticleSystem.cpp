@@ -154,16 +154,7 @@ void Storm::ParticleSystem::buildNeighborhood(const Storm::ParticleSystemContain
 
 	// Then fill them again with the right data
 	const float kernelLength = Storm::SimulatorManager::instance().getKernelLength();
-	const float kernelLengthSquared = kernelLength * kernelLength;
-
-#if STORM_USE_OPTIMIZED_NEIGHBORHOOD_ALGORITHM
-	this->buildNeighborhoodOnParticleSystemUsingSpacePartition(allParticleSystems, kernelLengthSquared);
-#else
-	std::for_each(std::begin(allParticleSystems), std::end(allParticleSystems), [this, kernelLength, kernelLengthSquared](const auto &particleSystem)
-	{
-		this->buildNeighborhoodOnParticleSystem(*particleSystem.second, kernelLengthSquared);
-	});
-#endif
+	this->buildNeighborhoodOnParticleSystemUsingSpacePartition(allParticleSystems, kernelLength);
 }
 
 void Storm::ParticleSystem::initializePreSimulation(const Storm::ParticleSystemContainer &allParticleSystems, const float kernelLengthSquared)

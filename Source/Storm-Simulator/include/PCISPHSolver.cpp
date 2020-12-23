@@ -191,15 +191,14 @@ void Storm::PCISPHSolver::execute(const Storm::IterationParameter &iterationPara
 				const Storm::ParticleNeighborhoodArray &currentPNeighborhood = neighborhoodArrays[currentPIndex];
 				for (const Storm::NeighborParticleInfo &neighbor : currentPNeighborhood)
 				{
-					const float kernelValue_Wij = rawKernel(iterationParameter._kernelLength, neighbor._vectToParticleNorm);
 					float deltaDensity;
 					if (neighbor._isFluidParticle)
 					{
-						deltaDensity = static_cast<Storm::FluidParticleSystem*>(neighbor._containingParticleSystem)->getParticleVolume() * kernelValue_Wij;
+						deltaDensity = static_cast<Storm::FluidParticleSystem*>(neighbor._containingParticleSystem)->getParticleVolume() * neighbor._Wij;
 					}
 					else
 					{
-						deltaDensity = static_cast<Storm::RigidBodyParticleSystem*>(neighbor._containingParticleSystem)->getVolumes()[neighbor._particleIndex] * kernelValue_Wij;
+						deltaDensity = static_cast<Storm::RigidBodyParticleSystem*>(neighbor._containingParticleSystem)->getVolumes()[neighbor._particleIndex] * neighbor._Wij;
 					}
 					currentPDensity += deltaDensity;
 				}
@@ -257,8 +256,6 @@ void Storm::PCISPHSolver::execute(const Storm::IterationParameter &iterationPara
 				const Storm::ParticleNeighborhoodArray &currentPNeighborhood = neighborhoodArrays[currentPIndex];
 				for (const Storm::NeighborParticleInfo &neighbor : currentPNeighborhood)
 				{
-					const Storm::Vector3 gradKernel_NablaWij = gradKernel(iterationParameter._kernelLength, neighbor._positionDifferenceVector, neighbor._vectToParticleNorm);
-
 					const Storm::Vector3 vij = vi - neighbor._containingParticleSystem->getVelocity()[neighbor._particleIndex];
 
 					const float vijDotXij = vij.dot(neighbor._positionDifferenceVector);
@@ -276,7 +273,7 @@ void Storm::PCISPHSolver::execute(const Storm::IterationParameter &iterationPara
 						const float neighborVolume = neighborPSystemAsFluid->getParticleVolume();
 
 						// Viscosity
-						viscosityComponent = (viscoGlobalCoeff * fluidConfigData._dynamicViscosity * neighborMass / neighborRawDensity) * gradKernel_NablaWij;
+						viscosityComponent = (viscoGlobalCoeff * fluidConfigData._dynamicViscosity * neighborMass / neighborRawDensity) * neighbor._gradWij;
 					}
 					else
 					{
@@ -288,7 +285,7 @@ void Storm::PCISPHSolver::execute(const Storm::IterationParameter &iterationPara
 						// Viscosity
 						if (rbViscosity > 0.f)
 						{
-							viscosityComponent = (viscoGlobalCoeff * rbViscosity * neighborVolume * density0 / currentPDensity) * gradKernel_NablaWij;
+							viscosityComponent = (viscoGlobalCoeff * rbViscosity * neighborVolume * density0 / currentPDensity) * neighbor._gradWij;
 						}
 						else
 						{

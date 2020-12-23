@@ -88,14 +88,18 @@ void Storm::RigidBodyParticleSystem::initializePreSimulation(const Storm::Partic
 			particleNeighbor.reserve(32);
 		}
 
-		const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
+		const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+
+		const Storm::ISpacePartitionerManager &spacePartitionerMgr = singletonHolder.getSingleton<Storm::ISpacePartitionerManager>();
+
+		const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
 		const Storm::GeneralSimulationData &generalSimulDataConfig = configMgr.getGeneralSimulationData();
 
 		const float currentKernelZero = Storm::retrieveKernelZeroValue(generalSimulDataConfig._kernelMode);
 		const Storm::RawKernelMethodDelegate rawKernelMeth = Storm::retrieveRawKernelMethod(generalSimulDataConfig._kernelMode);
+		const Storm::GradKernelMethodDelegate gradKernel = Storm::retrieveGradKernelMethod(generalSimulDataConfig._kernelMode);
 
-		const Storm::ISpacePartitionerManager &spacePartitionerMgr = Storm::SingletonHolder::instance().getSingleton<Storm::ISpacePartitionerManager>();
-		Storm::runParallel(staticNeighborhood, [this, &allParticleSystems, kernelLength, currentKernelZero, rawKernelMeth, kernelLengthSquared = kernelLength * kernelLength, &spacePartitionerMgr, currentSystemId = this->getId()](ParticleNeighborhoodArray &currentPStaticNeighborhood, const std::size_t particleIndex)
+		Storm::runParallel(staticNeighborhood, [this, &allParticleSystems, &spacePartitionerMgr, &rawKernelMeth, &gradKernel, kernelLength, currentKernelZero, kernelLengthSquared = kernelLength * kernelLength, currentSystemId = this->getId()](ParticleNeighborhoodArray &currentPStaticNeighborhood, const std::size_t particleIndex)
 		{
 			const std::vector<Storm::NeighborParticleReferral>* bundleContainingPtr;
 			const std::vector<Storm::NeighborParticleReferral>* outLinkedNeighborBundle[Storm::k_neighborLinkedBunkCount];
@@ -107,13 +111,16 @@ void Storm::RigidBodyParticleSystem::initializePreSimulation(const Storm::Partic
 			Storm::searchForNeighborhood<false, true>(
 				this,
 				allParticleSystems,
+				kernelLength,
 				kernelLengthSquared,
 				currentSystemId,
 				currentPStaticNeighborhood,
 				particleIndex,
 				currentPPosition,
 				*bundleContainingPtr,
-				outLinkedNeighborBundle
+				outLinkedNeighborBundle,
+				rawKernelMeth,
+				gradKernel
 			);
 
 			// Initialize the static volume.
@@ -165,11 +172,7 @@ void Storm::RigidBodyParticleSystem::onSubIterationStart(const Storm::ParticleSy
 		Storm::runParallel(_volumes, [this, currentKernelZero, rawKernelMeth, k_kernelLength](float &currentPVolume, const std::size_t currentPIndex)
 		{
 			// Compute the current boundary particle volume.
-#if STORM_USE_OPTIMIZED_NEIGHBORHOOD_ALGORITHM
 			const float initialVolumeValue = _staticVolumesInitValue[currentPIndex];
-#else
-			const float initialVolumeValue = currentKernelZero;
-#endif
 			currentPVolume = 1.f / computeParticleDeltaVolume(_neighborhood[currentPIndex], k_kernelLength, initialVolumeValue, rawKernelMeth); // ???
 		});
 	}
@@ -302,37 +305,21 @@ void Storm::RigidBodyParticleSystem::setParticleSystemTotalForce(const Storm::Ve
 	_rbTotalForce = rbTotalForce;
 }
 
-void Storm::RigidBodyParticleSystem::buildNeighborhoodOnParticleSystem(const Storm::ParticleSystem &otherParticleSystem, const float kernelLengthSquared)
+void Storm::RigidBodyParticleSystem::buildNeighborhoodOnParticleSystemUsingSpacePartition(const Storm::ParticleSystemContainer &allParticleSystems, const float kernelLength)
 {
-	if (!otherParticleSystem.isFluids())
-	{
-		Storm::runParallel(_positions, [this, kernelLengthSquared, &otherParticleSystem](const Storm::Vector3 &currentPPosition, const std::size_t currentPIndex)
-		{
-			std::vector<Storm::NeighborParticleInfo> &currentNeighborhoodToFill = _neighborhood[currentPIndex];
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 
-			const auto &otherParticleSystemPositionsArray = otherParticleSystem.getPositions();
-			const std::size_t otherParticleCount = otherParticleSystemPositionsArray.size();
+	const Storm::ISpacePartitionerManager &spacePartitionerMgr = singletonHolder.getSingleton<Storm::ISpacePartitionerManager>();
 
-			for (std::size_t particleIndex = 0; particleIndex < otherParticleCount; ++particleIndex)
-			{
-				const Storm::Vector3 positionDifference = currentPPosition - otherParticleSystemPositionsArray[particleIndex];
-				const float vectToParticleSquaredNorm = positionDifference.squaredNorm();
-				if (Storm::ParticleSystem::isElligibleNeighborParticle(kernelLengthSquared, vectToParticleSquaredNorm))
-				{
-					currentNeighborhoodToFill.emplace_back(const_cast<Storm::ParticleSystem*>(&otherParticleSystem), particleIndex, positionDifference, vectToParticleSquaredNorm, false);
-				}
-			}
-		});
-	}
-}
+	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
+	const Storm::GeneralSimulationData &generalSimulDataConfig = configMgr.getGeneralSimulationData();
 
-void Storm::RigidBodyParticleSystem::buildNeighborhoodOnParticleSystemUsingSpacePartition(const Storm::ParticleSystemContainer &allParticleSystems, const float kernelLengthSquared)
-{
-	const Storm::ISpacePartitionerManager &spacePartitionerMgr = Storm::SingletonHolder::instance().getSingleton<Storm::ISpacePartitionerManager>();
+	const Storm::RawKernelMethodDelegate rawKernelMeth = Storm::retrieveRawKernelMethod(generalSimulDataConfig._kernelMode);
+	const Storm::GradKernelMethodDelegate gradKernel = Storm::retrieveGradKernelMethod(generalSimulDataConfig._kernelMode);
 
 	if (this->isStatic())
 	{
-		Storm::runParallel(_neighborhood, [this, &allParticleSystems, kernelLengthSquared, &spacePartitionerMgr, currentSystemId = this->getId()](ParticleNeighborhoodArray &currentPNeighborhood, const std::size_t particleIndex)
+		Storm::runParallel(_neighborhood, [this, &allParticleSystems, &spacePartitionerMgr, &rawKernelMeth, &gradKernel, kernelLength, kernelLengthSquared = kernelLength * kernelLength, currentSystemId = this->getId()](ParticleNeighborhoodArray &currentPNeighborhood, const std::size_t particleIndex)
 		{
 			const std::vector<Storm::NeighborParticleReferral>* bundleContainingPtr;
 			const std::vector<Storm::NeighborParticleReferral>* outLinkedNeighborBundle[Storm::k_neighborLinkedBunkCount];
@@ -344,19 +331,22 @@ void Storm::RigidBodyParticleSystem::buildNeighborhoodOnParticleSystemUsingSpace
 			Storm::searchForNeighborhood<false, false>(
 				this,
 				allParticleSystems,
+				kernelLength,
 				kernelLengthSquared,
 				currentSystemId,
 				currentPNeighborhood,
 				particleIndex,
 				currentPPosition,
 				*bundleContainingPtr,
-				outLinkedNeighborBundle
+				outLinkedNeighborBundle,
+				rawKernelMeth,
+				gradKernel
 			);
 		});
 	}
 	else
 	{
-		Storm::runParallel(_neighborhood, [this, &allParticleSystems, kernelLengthSquared, &spacePartitionerMgr, currentSystemId = this->getId()](ParticleNeighborhoodArray &currentPNeighborhood, const std::size_t particleIndex)
+		Storm::runParallel(_neighborhood, [this, &allParticleSystems, &spacePartitionerMgr, &rawKernelMeth, &gradKernel, kernelLength, kernelLengthSquared = kernelLength * kernelLength, currentSystemId = this->getId()](ParticleNeighborhoodArray &currentPNeighborhood, const std::size_t particleIndex)
 		{
 			const std::vector<Storm::NeighborParticleReferral>* bundleContainingPtr;
 			const std::vector<Storm::NeighborParticleReferral>* outLinkedNeighborBundle[Storm::k_neighborLinkedBunkCount];
@@ -368,26 +358,32 @@ void Storm::RigidBodyParticleSystem::buildNeighborhoodOnParticleSystemUsingSpace
 			Storm::searchForNeighborhood<false, false>(
 				this,
 				allParticleSystems,
+				kernelLength,
 				kernelLengthSquared,
 				currentSystemId,
 				currentPNeighborhood,
 				particleIndex,
 				currentPPosition,
 				*bundleContainingPtr,
-				outLinkedNeighborBundle
+				outLinkedNeighborBundle,
+				rawKernelMeth,
+				gradKernel
 			);
 
 			spacePartitionerMgr.getAllBundles(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::DynamicRigidBody);
 			Storm::searchForNeighborhood<false, true>(
 				this,
 				allParticleSystems,
+				kernelLength,
 				kernelLengthSquared,
 				currentSystemId,
 				currentPNeighborhood,
 				particleIndex,
 				currentPPosition,
 				*bundleContainingPtr,
-				outLinkedNeighborBundle
+				outLinkedNeighborBundle,
+				rawKernelMeth,
+				gradKernel
 			);
 		});
 	}

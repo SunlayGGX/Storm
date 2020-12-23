@@ -28,8 +28,6 @@ void Storm::WCSPHSolver::execute(const Storm::IterationParameter &iterationParam
 	Storm::SimulatorManager &simulMgr = Storm::SimulatorManager::instance();
 
 	const float k_kernelZero = Storm::retrieveKernelZeroValue(generalSimulData._kernelMode);
-	const Storm::RawKernelMethodDelegate rawKernel = Storm::retrieveRawKernelMethod(generalSimulData._kernelMode);
-	const Storm::GradKernelMethodDelegate gradKernel = Storm::retrieveGradKernelMethod(generalSimulData._kernelMode);
 
 	Storm::ParticleSystemContainer &particleSystems = *iterationParameter._particleSystems;
 
@@ -59,15 +57,14 @@ void Storm::WCSPHSolver::execute(const Storm::IterationParameter &iterationParam
 				const Storm::ParticleNeighborhoodArray &currentPNeighborhood = neighborhoodArrays[currentPIndex];
 				for (const Storm::NeighborParticleInfo &neighbor : currentPNeighborhood)
 				{
-					const float kernelValue_Wij = rawKernel(iterationParameter._kernelLength, neighbor._vectToParticleNorm);
 					float deltaDensity;
 					if (neighbor._isFluidParticle)
 					{
-						deltaDensity = static_cast<Storm::FluidParticleSystem*>(neighbor._containingParticleSystem)->getParticleVolume() * kernelValue_Wij;
+						deltaDensity = static_cast<Storm::FluidParticleSystem*>(neighbor._containingParticleSystem)->getParticleVolume() * neighbor._Wij;
 					}
 					else
 					{
-						deltaDensity = static_cast<Storm::RigidBodyParticleSystem*>(neighbor._containingParticleSystem)->getVolumes()[neighbor._particleIndex] * kernelValue_Wij;
+						deltaDensity = static_cast<Storm::RigidBodyParticleSystem*>(neighbor._containingParticleSystem)->getVolumes()[neighbor._particleIndex] * neighbor._Wij;
 					}
 					currentPDensity += deltaDensity;
 				}
@@ -132,8 +129,6 @@ void Storm::WCSPHSolver::execute(const Storm::IterationParameter &iterationParam
 				const Storm::ParticleNeighborhoodArray &currentPNeighborhood = neighborhoodArrays[currentPIndex];
 				for (const Storm::NeighborParticleInfo &neighbor : currentPNeighborhood)
 				{
-					const Storm::Vector3 gradKernel_NablaWij = gradKernel(iterationParameter._kernelLength, neighbor._positionDifferenceVector, neighbor._vectToParticleNorm);
-
 					const Storm::Vector3 vij = vi - neighbor._containingParticleSystem->getVelocity()[neighbor._particleIndex];
 
 					const float vijDotXij = vij.dot(neighbor._positionDifferenceVector);
@@ -155,10 +150,10 @@ void Storm::WCSPHSolver::execute(const Storm::IterationParameter &iterationParam
 
 						// Pressure
 						const float neighborPressureCoeff = neighborPSystemAsFluid->getPressures()[neighbor._particleIndex] / (neighborDensity * neighborDensity);
-						pressureComponent = -(restMassDensity * neighborVolume * (currentPFluidPressureCoeff + neighborPressureCoeff)) * gradKernel_NablaWij;
+						pressureComponent = -(restMassDensity * neighborVolume * (currentPFluidPressureCoeff + neighborPressureCoeff)) * neighbor._gradWij;
 
 						// Viscosity
-						viscosityComponent = (viscoGlobalCoeff * fluidConfigData._cinematicViscosity * neighborMass / neighborRawDensity) * gradKernel_NablaWij;
+						viscosityComponent = (viscoGlobalCoeff * fluidConfigData._cinematicViscosity * neighborMass / neighborRawDensity) * neighbor._gradWij;
 					}
 					else
 					{
@@ -168,12 +163,12 @@ void Storm::WCSPHSolver::execute(const Storm::IterationParameter &iterationParam
 						const float rbViscosity = neighborPSystemAsBoundary->getViscosity();
 
 						// Pressure
-						pressureComponent = -(currentPRestMassDensityBoundaryPressureCoeff * neighborVolume) * gradKernel_NablaWij;
+						pressureComponent = -(currentPRestMassDensityBoundaryPressureCoeff * neighborVolume) * neighbor._gradWij;
 
 						// Viscosity
 						if (rbViscosity > 0.f)
 						{
-							viscosityComponent = (viscoGlobalCoeff * rbViscosity * neighborVolume * density0 / currentPDensity) * gradKernel_NablaWij;
+							viscosityComponent = (viscoGlobalCoeff * rbViscosity * neighborVolume * density0 / currentPDensity) * neighbor._gradWij;
 						}
 						else
 						{

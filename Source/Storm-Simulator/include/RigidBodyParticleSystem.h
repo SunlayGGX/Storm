@@ -44,8 +44,7 @@ namespace Storm
 		const Storm::Vector3& getRbTotalForce() const noexcept;
 
 	private:
-		void buildNeighborhoodOnParticleSystem(const Storm::ParticleSystem &otherParticleSystem, const float kernelLengthSquared) final override;
-		void buildNeighborhoodOnParticleSystemUsingSpacePartition(const Storm::ParticleSystemContainer &allParticleSystems, const float kernelLengthSquared) final override;
+		void buildNeighborhoodOnParticleSystemUsingSpacePartition(const Storm::ParticleSystemContainer &allParticleSystems, const float kernelLength) final override;
 
 	public:
 		bool computeVelocityChange(float deltaTimeInSec, float highVelocityThresholdSquared) final override;

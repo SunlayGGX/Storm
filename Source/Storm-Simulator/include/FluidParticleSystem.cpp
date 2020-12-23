@@ -14,6 +14,8 @@
 
 #include "SemiImplicitEulerSolver.h"
 
+#include "Kernel.h"
+
 #include "IBlower.h"
 
 #include "RunnerHelper.h"
@@ -230,66 +232,18 @@ const std::vector<float>& Storm::FluidParticleSystem::getPressures() const noexc
 	return _pressure;
 }
 
-void Storm::FluidParticleSystem::buildNeighborhoodOnParticleSystem(const Storm::ParticleSystem &otherParticleSystem, const float kernelLengthSquared)
+void Storm::FluidParticleSystem::buildNeighborhoodOnParticleSystemUsingSpacePartition(const Storm::ParticleSystemContainer &allParticleSystems, const float kernelLength)
 {
-	if (otherParticleSystem.getId() == this->getId())
-	{
-		const std::size_t particleCount = this->getParticleCount();
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	const Storm::ISpacePartitionerManager &spacePartitionerMgr = singletonHolder.getSingleton<Storm::ISpacePartitionerManager>();
 
-		Storm::runParallel(_positions, [this, kernelLengthSquared, particleCount](const Storm::Vector3 &currentParticlePosition, const std::size_t currentPIndex)
-		{
-			std::vector<Storm::NeighborParticleInfo> &currentNeighborhoodToFill = _neighborhood[currentPIndex];
+	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
+	const Storm::GeneralSimulationData &generalSimulDataConfig = configMgr.getGeneralSimulationData();
 
-			for (std::size_t particleIndex = 0; particleIndex < currentPIndex; ++particleIndex)
-			{
-				const Storm::Vector3 positionDifference = currentParticlePosition - _positions[particleIndex];
-				const float vectToParticleSquaredNorm = positionDifference.squaredNorm();
-				if (Storm::ParticleSystem::isElligibleNeighborParticle(kernelLengthSquared, vectToParticleSquaredNorm))
-				{
-					currentNeighborhoodToFill.emplace_back(this, particleIndex, positionDifference, vectToParticleSquaredNorm, true);
-				}
-			}
+	const Storm::RawKernelMethodDelegate rawKernel = Storm::retrieveRawKernelMethod(generalSimulDataConfig._kernelMode);
+	const Storm::GradKernelMethodDelegate gradKernel = Storm::retrieveGradKernelMethod(generalSimulDataConfig._kernelMode);
 
-			// We would skip the current particle (the current particle shouldn't be part of its own neighborhood).
-
-			for (std::size_t particleIndex = currentPIndex + 1; particleIndex < particleCount; ++particleIndex)
-			{
-				const Storm::Vector3 positionDifference = currentParticlePosition - _positions[particleIndex];
-				const float vectToParticleSquaredNorm = positionDifference.squaredNorm();
-				if (Storm::ParticleSystem::isElligibleNeighborParticle(kernelLengthSquared, vectToParticleSquaredNorm))
-				{
-					currentNeighborhoodToFill.emplace_back(this, particleIndex, positionDifference, vectToParticleSquaredNorm, true);
-				}
-			}
-		});
-	}
-	else
-	{
-		Storm::runParallel(_positions, [this, kernelLengthSquared, &otherParticleSystem](const Storm::Vector3 &currentPPosition, const std::size_t currentPIndex)
-		{
-			std::vector<Storm::NeighborParticleInfo> &currentNeighborhoodToFill = _neighborhood[currentPIndex];
-
-			const auto &otherParticleSystemPositionsArray = otherParticleSystem.getPositions();
-			const std::size_t otherParticleSizeCount = otherParticleSystemPositionsArray.size();
-			const bool otherParticleSystemIsFluid = otherParticleSystem.isFluids();
-
-			for (std::size_t particleIndex = 0; particleIndex < otherParticleSizeCount; ++particleIndex)
-			{
-				const Storm::Vector3 positionDifference = currentPPosition - otherParticleSystemPositionsArray[particleIndex];
-				const float vectToParticleSquaredNorm = positionDifference.squaredNorm();
-				if (Storm::ParticleSystem::isElligibleNeighborParticle(kernelLengthSquared, vectToParticleSquaredNorm))
-				{
-					currentNeighborhoodToFill.emplace_back(const_cast<Storm::ParticleSystem*>(&otherParticleSystem), particleIndex, positionDifference, vectToParticleSquaredNorm, otherParticleSystemIsFluid);
-				}
-			}
-		});
-	}
-}
-
-void Storm::FluidParticleSystem::buildNeighborhoodOnParticleSystemUsingSpacePartition(const Storm::ParticleSystemContainer &allParticleSystems, const float kernelLengthSquared)
-{
-	const Storm::ISpacePartitionerManager &spacePartitionerMgr = Storm::SingletonHolder::instance().getSingleton<Storm::ISpacePartitionerManager>();
-	Storm::runParallel(_neighborhood, [this, &allParticleSystems, kernelLengthSquared, &spacePartitionerMgr, currentSystemId = this->getId()](ParticleNeighborhoodArray &currentPNeighborhood, const std::size_t particleIndex)
+	Storm::runParallel(_neighborhood, [this, &allParticleSystems, &spacePartitionerMgr, &rawKernel, &gradKernel, kernelLength, kernelLengthSquared = kernelLength * kernelLength, currentSystemId = this->getId()](ParticleNeighborhoodArray &currentPNeighborhood, const std::size_t particleIndex)
 	{
 		const std::vector<Storm::NeighborParticleReferral>* bundleContainingPtr;
 		const std::vector<Storm::NeighborParticleReferral>* outLinkedNeighborBundle[Storm::k_neighborLinkedBunkCount];
@@ -301,39 +255,48 @@ void Storm::FluidParticleSystem::buildNeighborhoodOnParticleSystemUsingSpacePart
 		Storm::searchForNeighborhood<true, true>(
 			this,
 			allParticleSystems,
+			kernelLength,
 			kernelLengthSquared,
 			currentSystemId,
 			currentPNeighborhood,
 			particleIndex,
 			currentPPosition,
 			*bundleContainingPtr,
-			outLinkedNeighborBundle
+			outLinkedNeighborBundle,
+			rawKernel,
+			gradKernel
 		);
 
 		spacePartitionerMgr.getAllBundles(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::StaticRigidBody);
 		Storm::searchForNeighborhood<false, false>(
 			this,
 			allParticleSystems,
+			kernelLength,
 			kernelLengthSquared,
 			currentSystemId,
 			currentPNeighborhood,
 			particleIndex,
 			currentPPosition,
 			*bundleContainingPtr,
-			outLinkedNeighborBundle
+			outLinkedNeighborBundle,
+			rawKernel,
+			gradKernel
 		);
 
 		spacePartitionerMgr.getAllBundles(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::DynamicRigidBody);
 		Storm::searchForNeighborhood<false, false>(
 			this,
 			allParticleSystems,
+			kernelLength,
 			kernelLengthSquared,
 			currentSystemId,
 			currentPNeighborhood,
 			particleIndex,
 			currentPPosition,
 			*bundleContainingPtr,
-			outLinkedNeighborBundle
+			outLinkedNeighborBundle,
+			rawKernel,
+			gradKernel
 		);
 	});
 }
