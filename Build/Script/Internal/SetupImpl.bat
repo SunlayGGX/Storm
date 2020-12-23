@@ -12,6 +12,7 @@ if not exist "%STORM_DEPENDENCIES%" (
 )
 
 set makeFolderLink=call :CreateFolderLink
+set createFolderIfNeeded=call :CreateFolderIfNoExist
 
 
 
@@ -34,17 +35,25 @@ if exist "%CATCH2_DEPENDENCIES_PATH%" (
 
 :: Now, create the junction from the exe (where it should be) to Storm Shaders files.
 if not errorlevel 1 (
-	if not exist "%STORM_BINARY%" (
-		echo Creating "%STORM_BINARY%"
-		mkdir "%STORM_BINARY%"
-	)
+	%createFolderIfNeeded% "%STORM_BINARY%"
+	%createFolderIfNeeded% "%STORM_BINARY%\Debug"
+	%createFolderIfNeeded% "%STORM_BINARY%\Release"
 
-	%makeFolderLink% "%STORM_BINARY%\Shaders" "%STORM_REPO_ROOT%\Source\Shaders"
+	%makeFolderLink% "%STORM_BINARY%\Debug\Shaders" "%STORM_REPO_ROOT%\Source\Shaders"
+	%makeFolderLink% "%STORM_BINARY%\Release\Shaders" "%STORM_REPO_ROOT%\Source\Shaders"
 )
 
 
 exit /B %errorlevel%
 
+:CreateFolderIfNoExist
+if not errorlevel 1 (
+	if not exist "%~1" (
+		echo Creating "%~1"
+		mkdir "%~1"
+	)
+)
+exit /B errorlevel
 
 :CreateFolderLink
 if not errorlevel 1 (

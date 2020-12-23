@@ -2,6 +2,7 @@
 #include "ConfigManager.h"
 
 #include "TimeHelper.h"
+#include "StormPathHelper.h"
 
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
@@ -55,7 +56,9 @@ void Storm::MacroConfig::initialize()
 	const Storm::ConfigManager &configMgr = Storm::ConfigManager::instance();
 	const std::filesystem::path exePath = std::filesystem::path{ configMgr.getExePath() };
 	const std::filesystem::path exeFolderPath = exePath.parent_path();
-	const std::filesystem::path rootPath = exeFolderPath.parent_path();
+
+	const std::filesystem::path rootPath = Storm::StormPathHelper::findStormRootPath(exeFolderPath);
+
 	const std::filesystem::path outputPath = rootPath / "Intermediate";
 
 	this->registerMacroInternal("StormExe", configMgr.getExePath());

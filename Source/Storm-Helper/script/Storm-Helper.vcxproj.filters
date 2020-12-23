@@ -126,6 +126,9 @@
     <ClCompile Include="..\include\StormException.cpp">
       <Filter>Source Files\General</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\StormPathHelper.cpp">
+      <Filter>Source Files\Application</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-HelperPCH.h">
@@ -283,6 +286,9 @@
     </ClInclude>
     <ClInclude Include="..\include\StormException.h">
       <Filter>Header Files\General\Exception</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\StormPathHelper.h">
+      <Filter>Header Files\Application</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
