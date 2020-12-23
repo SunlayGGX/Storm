@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\include\CommandParser.cpp" />
     <ClCompile Include="..\include\LuaScriptWrapper.cpp" />
     <ClCompile Include="..\include\ScriptFile.cpp" />
     <ClCompile Include="..\include\ScriptManager.cpp" />
@@ -20,6 +21,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\include\CommandItem.h" />
+    <ClInclude Include="..\include\CommandParser.h" />
+    <ClInclude Include="..\include\CommandKeyword.h" />
     <ClInclude Include="..\include\Inheritance.h" />
     <ClInclude Include="..\include\LuaScriptWrapper.h" />
     <ClInclude Include="..\include\ScriptFile.h" />
