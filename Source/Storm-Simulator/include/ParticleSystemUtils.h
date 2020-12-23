@@ -15,12 +15,15 @@ namespace Storm
 			const VectOrIntrinsType _currentPPos;
 			const Storm::Vector3* _otherPPos;
 
+			const float _kernelLength;
 			const float _kernelLengthSquared;
 
 			VectOrIntrinsType _posDiff;
 
 			float _normSquared;
 
+			const RawKernelFunc &_rawKernelFunc;
+			const GradKernelFunc &_gradKernelFunc;
 		};
 	}
 
@@ -82,6 +85,9 @@ namespace Storm
 #else
 			Storm::NeighborParticleInfo &addedNeighbor = param._currentPNeighborhood.emplace_back(particleSystem, particleReferral._particleIndex, param._posDiff, param._normSquared, isFluid);
 #endif
+
+			addedNeighbor._Wij = param._rawKernelFunc(param._kernelLength, addedNeighbor._vectToParticleNorm);
+			addedNeighbor._gradWij = param._gradKernelFunc(param._kernelLength, addedNeighbor._positionDifferenceVector, addedNeighbor._vectToParticleNorm);
 		}
 	}
 
@@ -92,14 +98,20 @@ namespace Storm
 		details::NeighborSearchParamTmp<__m128, NeighborhoodArray, RawKernelFunc, GradKernelFunc> param {
 			._currentPNeighborhood = currentPNeighborhood,
 			._currentPPos = STORM_INTRINSICS_LOAD_PS_FROM_VECT3(currentPPosition),
+			._kernelLength = kernelLength,
 			._kernelLengthSquared = kernelLengthSquared,
+			._rawKernelFunc = rawKernelFunc,
+			._gradKernelFunc = gradKernelFunc,
 		};
 
 #else
 		details::NeighborSearchParamTmp<Storm::Vector3, NeighborhoodArray, RawKernelFunc, GradKernelFunc> param {
 			._currentPNeighborhood = currentPNeighborhood,
 			._currentPPos = currentPPosition,
+			._kernelLength = kernelLength,
 			._kernelLengthSquared = kernelLengthSquared,
+			._rawKernelFunc = rawKernelFunc,
+			._gradKernelFunc = gradKernelFunc,
 		};
 #endif
 

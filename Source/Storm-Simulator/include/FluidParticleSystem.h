@@ -47,7 +47,7 @@ namespace Storm
 		const std::vector<float>& getPressures() const noexcept;
 
 	public:
-		void buildNeighborhoodOnParticleSystemUsingSpacePartition(const Storm::ParticleSystemContainer &allParticleSystems, const float kernelLengthSquared) final override;
+		void buildNeighborhoodOnParticleSystemUsingSpacePartition(const Storm::ParticleSystemContainer &allParticleSystems, const float kernelLength) final override;
 
 	public:
 		bool computeVelocityChange(float deltaTimeInSec, float highVelocityThresholdSquared) final override;

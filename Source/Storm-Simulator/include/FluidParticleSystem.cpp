@@ -14,6 +14,8 @@
 
 #include "SemiImplicitEulerSolver.h"
 
+#include "Kernel.h"
+
 #include "IBlower.h"
 
 #include "RunnerHelper.h"
@@ -230,17 +232,18 @@ const std::vector<float>& Storm::FluidParticleSystem::getPressures() const noexc
 	return _pressure;
 }
 
-
-
-
-
-
-
-
-void Storm::FluidParticleSystem::buildNeighborhoodOnParticleSystemUsingSpacePartition(const Storm::ParticleSystemContainer &allParticleSystems, const float kernelLengthSquared)
+void Storm::FluidParticleSystem::buildNeighborhoodOnParticleSystemUsingSpacePartition(const Storm::ParticleSystemContainer &allParticleSystems, const float kernelLength)
 {
-	const Storm::ISpacePartitionerManager &spacePartitionerMgr = Storm::SingletonHolder::instance().getSingleton<Storm::ISpacePartitionerManager>();
-	Storm::runParallel(_neighborhood, [this, &allParticleSystems, kernelLengthSquared, &spacePartitionerMgr, currentSystemId = this->getId()](ParticleNeighborhoodArray &currentPNeighborhood, const std::size_t particleIndex)
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	const Storm::ISpacePartitionerManager &spacePartitionerMgr = singletonHolder.getSingleton<Storm::ISpacePartitionerManager>();
+
+	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
+	const Storm::GeneralSimulationData &generalSimulDataConfig = configMgr.getGeneralSimulationData();
+
+	const Storm::RawKernelMethodDelegate rawKernel = Storm::retrieveRawKernelMethod(generalSimulDataConfig._kernelMode);
+	const Storm::GradKernelMethodDelegate gradKernel = Storm::retrieveGradKernelMethod(generalSimulDataConfig._kernelMode);
+
+	Storm::runParallel(_neighborhood, [this, &allParticleSystems, &spacePartitionerMgr, &rawKernel, &gradKernel, kernelLength, kernelLengthSquared = kernelLength * kernelLength, currentSystemId = this->getId()](ParticleNeighborhoodArray &currentPNeighborhood, const std::size_t particleIndex)
 	{
 		const std::vector<Storm::NeighborParticleReferral>* bundleContainingPtr;
 		const std::vector<Storm::NeighborParticleReferral>* outLinkedNeighborBundle[Storm::k_neighborLinkedBunkCount];
@@ -252,39 +255,48 @@ void Storm::FluidParticleSystem::buildNeighborhoodOnParticleSystemUsingSpacePart
 		Storm::searchForNeighborhood<true, true>(
 			this,
 			allParticleSystems,
+			kernelLength,
 			kernelLengthSquared,
 			currentSystemId,
 			currentPNeighborhood,
 			particleIndex,
 			currentPPosition,
 			*bundleContainingPtr,
-			outLinkedNeighborBundle
+			outLinkedNeighborBundle,
+			rawKernel,
+			gradKernel
 		);
 
 		spacePartitionerMgr.getAllBundles(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::StaticRigidBody);
 		Storm::searchForNeighborhood<false, false>(
 			this,
 			allParticleSystems,
+			kernelLength,
 			kernelLengthSquared,
 			currentSystemId,
 			currentPNeighborhood,
 			particleIndex,
 			currentPPosition,
 			*bundleContainingPtr,
-			outLinkedNeighborBundle
+			outLinkedNeighborBundle,
+			rawKernel,
+			gradKernel
 		);
 
 		spacePartitionerMgr.getAllBundles(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::DynamicRigidBody);
 		Storm::searchForNeighborhood<false, false>(
 			this,
 			allParticleSystems,
+			kernelLength,
 			kernelLengthSquared,
 			currentSystemId,
 			currentPNeighborhood,
 			particleIndex,
 			currentPPosition,
 			*bundleContainingPtr,
-			outLinkedNeighborBundle
+			outLinkedNeighborBundle,
+			rawKernel,
+			gradKernel
 		);
 	});
 }
