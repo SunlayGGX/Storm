@@ -38,6 +38,10 @@ namespace Storm
 		const float _vectToParticleNorm; // the version non squared of _vectToParticleSquaredNorm
 		const bool _isFluidParticle;
 
+		// Making a cache of those value made an optimization of around 30% of the computational time
+		// (tested on 5 runs with and without those caches with the same settings and IISPH :
+		// with : average speed : 1s real time to simulate 1.396338s virtual simulation time
+		// without : average speed : 1s real time to simulate 1.079538s virtual simulation time
 		float _Wij;
 		Storm::Vector3 _gradWij;
 	};
