@@ -1,8 +1,3 @@
 Note : Some are by design. But some are because I don't have time and the task to implement them is the lowest of my priority into my backlog since they won't impact my master (the reason I'm making this software)... Sorry.
 If it is really bothersome for you, fill an issue and I will try to fix them. But since it doesn't bother me more than this, then I'll let them remain here until I have time to fix them...
 But, to prevent any jokes, I'll ask you to tell me why it is bothersome for you when you're filling an issue. Thanks for your consideration and for your time if your concerns are legit.
-
-
-- Sometimes, building after changing the Configuration, entry point for PhysX isn't found even before Storm application start :
-	workaround is to link again the Storm-Physics project to force the post build step to run.
-
