@@ -2,9 +2,6 @@
 
 
 
-#define STORM_USE_OPTIMIZED_NEIGHBORHOOD_ALGORITHM true
-
-
 // The storage type of the Singleton holder :
 // 0 : a std::map -> This was the initial and safer implementation but slower.
 // 1 : a std::vector (dynamic contiguous storage) -> The storage will be contiguous, therefore all get operation will be much faster. But it is allocated on the head (like map).

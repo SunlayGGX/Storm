@@ -165,11 +165,7 @@ void Storm::RigidBodyParticleSystem::onSubIterationStart(const Storm::ParticleSy
 		Storm::runParallel(_volumes, [this, currentKernelZero, rawKernelMeth, k_kernelLength](float &currentPVolume, const std::size_t currentPIndex)
 		{
 			// Compute the current boundary particle volume.
-#if STORM_USE_OPTIMIZED_NEIGHBORHOOD_ALGORITHM
 			const float initialVolumeValue = _staticVolumesInitValue[currentPIndex];
-#else
-			const float initialVolumeValue = currentKernelZero;
-#endif
 			currentPVolume = 1.f / computeParticleDeltaVolume(_neighborhood[currentPIndex], k_kernelLength, initialVolumeValue, rawKernelMeth); // ???
 		});
 	}
@@ -302,29 +298,8 @@ void Storm::RigidBodyParticleSystem::setParticleSystemTotalForce(const Storm::Ve
 	_rbTotalForce = rbTotalForce;
 }
 
-void Storm::RigidBodyParticleSystem::buildNeighborhoodOnParticleSystem(const Storm::ParticleSystem &otherParticleSystem, const float kernelLengthSquared)
-{
-	if (!otherParticleSystem.isFluids())
-	{
-		Storm::runParallel(_positions, [this, kernelLengthSquared, &otherParticleSystem](const Storm::Vector3 &currentPPosition, const std::size_t currentPIndex)
-		{
-			std::vector<Storm::NeighborParticleInfo> &currentNeighborhoodToFill = _neighborhood[currentPIndex];
 
-			const auto &otherParticleSystemPositionsArray = otherParticleSystem.getPositions();
-			const std::size_t otherParticleCount = otherParticleSystemPositionsArray.size();
 
-			for (std::size_t particleIndex = 0; particleIndex < otherParticleCount; ++particleIndex)
-			{
-				const Storm::Vector3 positionDifference = currentPPosition - otherParticleSystemPositionsArray[particleIndex];
-				const float vectToParticleSquaredNorm = positionDifference.squaredNorm();
-				if (Storm::ParticleSystem::isElligibleNeighborParticle(kernelLengthSquared, vectToParticleSquaredNorm))
-				{
-					currentNeighborhoodToFill.emplace_back(const_cast<Storm::ParticleSystem*>(&otherParticleSystem), particleIndex, positionDifference, vectToParticleSquaredNorm, false);
-				}
-			}
-		});
-	}
-}
 
 void Storm::RigidBodyParticleSystem::buildNeighborhoodOnParticleSystemUsingSpacePartition(const Storm::ParticleSystemContainer &allParticleSystems, const float kernelLengthSquared)
 {

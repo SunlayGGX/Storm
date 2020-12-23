@@ -230,61 +230,12 @@ const std::vector<float>& Storm::FluidParticleSystem::getPressures() const noexc
 	return _pressure;
 }
 
-void Storm::FluidParticleSystem::buildNeighborhoodOnParticleSystem(const Storm::ParticleSystem &otherParticleSystem, const float kernelLengthSquared)
-{
-	if (otherParticleSystem.getId() == this->getId())
-	{
-		const std::size_t particleCount = this->getParticleCount();
 
-		Storm::runParallel(_positions, [this, kernelLengthSquared, particleCount](const Storm::Vector3 &currentParticlePosition, const std::size_t currentPIndex)
-		{
-			std::vector<Storm::NeighborParticleInfo> &currentNeighborhoodToFill = _neighborhood[currentPIndex];
 
-			for (std::size_t particleIndex = 0; particleIndex < currentPIndex; ++particleIndex)
-			{
-				const Storm::Vector3 positionDifference = currentParticlePosition - _positions[particleIndex];
-				const float vectToParticleSquaredNorm = positionDifference.squaredNorm();
-				if (Storm::ParticleSystem::isElligibleNeighborParticle(kernelLengthSquared, vectToParticleSquaredNorm))
-				{
-					currentNeighborhoodToFill.emplace_back(this, particleIndex, positionDifference, vectToParticleSquaredNorm, true);
-				}
-			}
 
-			// We would skip the current particle (the current particle shouldn't be part of its own neighborhood).
 
-			for (std::size_t particleIndex = currentPIndex + 1; particleIndex < particleCount; ++particleIndex)
-			{
-				const Storm::Vector3 positionDifference = currentParticlePosition - _positions[particleIndex];
-				const float vectToParticleSquaredNorm = positionDifference.squaredNorm();
-				if (Storm::ParticleSystem::isElligibleNeighborParticle(kernelLengthSquared, vectToParticleSquaredNorm))
-				{
-					currentNeighborhoodToFill.emplace_back(this, particleIndex, positionDifference, vectToParticleSquaredNorm, true);
-				}
-			}
-		});
-	}
-	else
-	{
-		Storm::runParallel(_positions, [this, kernelLengthSquared, &otherParticleSystem](const Storm::Vector3 &currentPPosition, const std::size_t currentPIndex)
-		{
-			std::vector<Storm::NeighborParticleInfo> &currentNeighborhoodToFill = _neighborhood[currentPIndex];
 
-			const auto &otherParticleSystemPositionsArray = otherParticleSystem.getPositions();
-			const std::size_t otherParticleSizeCount = otherParticleSystemPositionsArray.size();
-			const bool otherParticleSystemIsFluid = otherParticleSystem.isFluids();
 
-			for (std::size_t particleIndex = 0; particleIndex < otherParticleSizeCount; ++particleIndex)
-			{
-				const Storm::Vector3 positionDifference = currentPPosition - otherParticleSystemPositionsArray[particleIndex];
-				const float vectToParticleSquaredNorm = positionDifference.squaredNorm();
-				if (Storm::ParticleSystem::isElligibleNeighborParticle(kernelLengthSquared, vectToParticleSquaredNorm))
-				{
-					currentNeighborhoodToFill.emplace_back(const_cast<Storm::ParticleSystem*>(&otherParticleSystem), particleIndex, positionDifference, vectToParticleSquaredNorm, otherParticleSystemIsFluid);
-				}
-			}
-		});
-	}
-}
 
 void Storm::FluidParticleSystem::buildNeighborhoodOnParticleSystemUsingSpacePartition(const Storm::ParticleSystemContainer &allParticleSystems, const float kernelLengthSquared)
 {

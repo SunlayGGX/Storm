@@ -64,7 +64,6 @@ namespace Storm
 		void buildNeighborhood(const Storm::ParticleSystemContainer &allParticleSystems);
 
 	protected:
-		virtual void buildNeighborhoodOnParticleSystem(const Storm::ParticleSystem &otherParticleSystem, const float kernelLengthSquared) = 0;
 		virtual void buildNeighborhoodOnParticleSystemUsingSpacePartition(const Storm::ParticleSystemContainer &allParticleSystems, const float kernelLengthSquared) = 0;
 
 	public:
