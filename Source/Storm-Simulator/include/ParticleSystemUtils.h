@@ -18,7 +18,7 @@ namespace Storm
 			const float _kernelLength;
 			const float _kernelLengthSquared;
 
-			VectOrIntrinsType _posDiff;
+			VectOrIntrinsType _xij;
 
 			float _normSquared;
 
@@ -33,17 +33,17 @@ namespace Storm
 	{
 		const Storm::Vector3 &toCheckPPos = *inOutParam._otherPPos;
 
-		float &outX = inOutParam._posDiff.x();
+		float &outX = inOutParam._xij.x();
 		outX = inOutParam._currentPPos.x() - toCheckPPos.x();
 		const float xDiffSquared = outX * outX;
 		if (xDiffSquared < kernelLengthSquared)
 		{
-			float &outY = inOutParam._posDiff.y();
+			float &outY = inOutParam._xij.y();
 			outY = inOutParam._currentPPos.y() - toCheckPPos.y();
 			const float yDiffSquared = outY * outY;
 			if (yDiffSquared < kernelLengthSquared)
 			{
-				float &outZ = inOutParam._posDiff.z();
+				float &outZ = inOutParam._xij.z();
 				outZ = inOutParam._currentPPos.z() - toCheckPPos.z();
 				inOutParam._normSquared = xDiffSquared + yDiffSquared + outZ * outZ;
 
@@ -68,9 +68,9 @@ namespace Storm
 		};
 
 		const Storm::Vector3 &toCheckPPos = *inOutParam._otherPPos;
-		inOutParam._posDiff = _mm_sub_ps(inOutParam._currentPPos, STORM_INTRINSICS_LOAD_PS_FROM_VECT3(toCheckPPos));
+		inOutParam._xij = _mm_sub_ps(inOutParam._currentPPos, STORM_INTRINSICS_LOAD_PS_FROM_VECT3(toCheckPPos));
 
-		inOutParam._normSquared = _mm_dp_ps(inOutParam._posDiff, inOutParam._posDiff, dotProductMask).m128_f32[0];
+		inOutParam._normSquared = _mm_dp_ps(inOutParam._xij, inOutParam._xij, dotProductMask).m128_f32[0];
 		return inOutParam._normSquared > 0.000000001f && inOutParam._normSquared < inOutParam._kernelLengthSquared;
 	}
 #endif
@@ -81,13 +81,13 @@ namespace Storm
 		if (Storm::isNeighborhood(param))
 		{
 #if STORM_USE_INTRINSICS
-			Storm::NeighborParticleInfo &addedNeighbor = param._currentPNeighborhood.emplace_back(particleSystem, particleReferral._particleIndex, param._posDiff.m128_f32[0], param._posDiff.m128_f32[1], param._posDiff.m128_f32[2], param._normSquared, isFluid);
+			Storm::NeighborParticleInfo &addedNeighbor = param._currentPNeighborhood.emplace_back(particleSystem, particleReferral._particleIndex, param._xij.m128_f32[0], param._xij.m128_f32[1], param._xij.m128_f32[2], param._normSquared, isFluid);
 #else
-			Storm::NeighborParticleInfo &addedNeighbor = param._currentPNeighborhood.emplace_back(particleSystem, particleReferral._particleIndex, param._posDiff, param._normSquared, isFluid);
+			Storm::NeighborParticleInfo &addedNeighbor = param._currentPNeighborhood.emplace_back(particleSystem, particleReferral._particleIndex, param._xij, param._normSquared, isFluid);
 #endif
 
-			addedNeighbor._Wij = param._rawKernelFunc(param._kernelLength, addedNeighbor._vectToParticleNorm);
-			addedNeighbor._gradWij = param._gradKernelFunc(param._kernelLength, addedNeighbor._positionDifferenceVector, addedNeighbor._vectToParticleNorm);
+			addedNeighbor._Wij = param._rawKernelFunc(param._kernelLength, addedNeighbor._xijNorm);
+			addedNeighbor._gradWij = param._gradKernelFunc(param._kernelLength, addedNeighbor._xij, addedNeighbor._xijNorm);
 		}
 	}
 

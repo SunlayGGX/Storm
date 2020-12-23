@@ -110,9 +110,9 @@ namespace
 				inOutResult += "; iter=";
 				inOutResult += Storm::toStdString<PolicyType>(neighbor._particleIndex);
 				inOutResult += "; r=";
-				inOutResult += Storm::toStdString<PolicyType>(neighbor._vectToParticleNorm);
+				inOutResult += Storm::toStdString<PolicyType>(neighbor._xijNorm);
 				inOutResult += "; xij=";
-				inOutResult += Storm::toStdString<PolicyType>(neighbor._positionDifferenceVector);
+				inOutResult += Storm::toStdString<PolicyType>(neighbor._xij);
 				inOutResult += "; fluid=";
 				inOutResult += Storm::toStdString<PolicyType>(neighbor._isFluidParticle);
 			}
