@@ -64,6 +64,7 @@
     <ClInclude Include="..\include\StormMacro.h" />
     <ClInclude Include="..\include\StormPathHelper.h" />
     <ClInclude Include="..\include\StormStdPrerequisite.h" />
+    <ClInclude Include="..\include\StringAlgo.h" />
     <ClInclude Include="..\include\StringHijack.h" />
     <ClInclude Include="..\include\StringOperator.h" />
     <ClInclude Include="..\include\ThreadHelper.h" />
