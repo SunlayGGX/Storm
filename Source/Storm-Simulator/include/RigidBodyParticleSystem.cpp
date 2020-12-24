@@ -27,7 +27,7 @@ namespace
 	{
 		for (const Storm::NeighborParticleInfo &boundaryNeighbor : currentPNeighborhood)
 		{
-			delta += rawKernelMeth(kernelLength, boundaryNeighbor._vectToParticleNorm);
+			delta += rawKernelMeth(kernelLength, boundaryNeighbor._xijNorm);
 		}
 
 		return delta;

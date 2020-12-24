@@ -131,10 +131,10 @@ void Storm::WCSPHSolver::execute(const Storm::IterationParameter &iterationParam
 				{
 					const Storm::Vector3 vij = vi - neighbor._containingParticleSystem->getVelocity()[neighbor._particleIndex];
 
-					const float vijDotXij = vij.dot(neighbor._positionDifferenceVector);
+					const float vijDotXij = vij.dot(neighbor._xij);
 
 					// the currentPMass is because the formula given produces an acceleration but we want a force at the end.
-					const float viscoGlobalCoeff = currentPMass * 10.f * vijDotXij / (neighbor._vectToParticleSquaredNorm + viscoPrecoeff);
+					const float viscoGlobalCoeff = currentPMass * 10.f * vijDotXij / (neighbor._xijSquaredNorm + viscoPrecoeff);
 
 					Storm::Vector3 pressureComponent;
 					Storm::Vector3 viscosityComponent;

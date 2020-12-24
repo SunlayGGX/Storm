@@ -13,18 +13,18 @@ namespace Storm
 		NeighborParticleInfo(Storm::ParticleSystem*const containingParticleSystem, std::size_t particleIndex, const Storm::Vector3 &positionDifferenceVector, float squaredNorm, bool isFluidP) :
 			_containingParticleSystem{ containingParticleSystem },
 			_particleIndex{ particleIndex },
-			_positionDifferenceVector{ positionDifferenceVector },
-			_vectToParticleSquaredNorm{ squaredNorm },
-			_vectToParticleNorm{ std::sqrtf(squaredNorm) },
+			_xij{ positionDifferenceVector },
+			_xijSquaredNorm{ squaredNorm },
+			_xijNorm{ std::sqrtf(squaredNorm) },
 			_isFluidParticle{ isFluidP }
 		{}
 
 		NeighborParticleInfo(Storm::ParticleSystem*const containingParticleSystem, std::size_t particleIndex, const float xDiff, const float yDiff, const float zDiff, const float squaredNorm, const bool isFluidP) :
 			_containingParticleSystem{ containingParticleSystem },
 			_particleIndex{ particleIndex },
-			_positionDifferenceVector{ xDiff, yDiff, zDiff },
-			_vectToParticleSquaredNorm{ squaredNorm },
-			_vectToParticleNorm{ std::sqrtf(squaredNorm) },
+			_xij{ xDiff, yDiff, zDiff },
+			_xijSquaredNorm{ squaredNorm },
+			_xijNorm{ std::sqrtf(squaredNorm) },
 			_isFluidParticle{ isFluidP }
 		{}
 
@@ -33,9 +33,9 @@ namespace Storm
 	public:
 		Storm::ParticleSystem*const _containingParticleSystem;
 		const std::size_t _particleIndex;
-		const Storm::Vector3 _positionDifferenceVector; // currentP_position - neighborhoodP_Position
-		const float _vectToParticleSquaredNorm; // Norm squared of _positionDifferenceVector
-		const float _vectToParticleNorm; // the version non squared of _vectToParticleSquaredNorm
+		const Storm::Vector3 _xij; // currentP_position - neighborhoodP_Position
+		const float _xijSquaredNorm; // Norm squared of _positionDifferenceVector
+		const float _xijNorm; // the version non squared of _vectToParticleSquaredNorm
 		const bool _isFluidParticle;
 
 		// Making a cache of those value made an optimization of around 30% of the computational time

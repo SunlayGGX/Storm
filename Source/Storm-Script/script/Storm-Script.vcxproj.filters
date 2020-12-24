@@ -25,6 +25,15 @@
     <Filter Include="Source Files\General">
       <UniqueIdentifier>{87f3ad97-7a02-4956-a890-081f72a0f88b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Command">
+      <UniqueIdentifier>{c7930772-3f9f-453a-a23e-102427fcd481}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Command">
+      <UniqueIdentifier>{298f91f2-2cfb-4eaa-ac78-c646c7a471b2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Command\CommandOverride">
+      <UniqueIdentifier>{ec919f90-ed31-45e0-9b31-2d1f19a0f161}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-ScriptPCH.cpp">
@@ -38,6 +47,15 @@
     </ClCompile>
     <ClCompile Include="..\include\LuaScriptWrapper.cpp">
       <Filter>Source Files\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\CommandParser.cpp">
+      <Filter>Source Files\Command</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\CommandItem.cpp">
+      <Filter>Source Files\Command</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\ScriptObject.cpp">
+      <Filter>Source Files\Command</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -55,6 +73,24 @@
     </ClInclude>
     <ClInclude Include="..\include\Inheritance.h">
       <Filter>Header Files\General</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\CommandParser.h">
+      <Filter>Header Files\Command</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\CommandItem.h">
+      <Filter>Header Files\Command</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\CommandKeyword.h">
+      <Filter>Header Files\Command</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ScriptObject.h">
+      <Filter>Header Files\Command</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\CommandLogicSupport.h">
+      <Filter>Header Files\Command</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\CommandPID.h">
+      <Filter>Header Files\Command\CommandOverride</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

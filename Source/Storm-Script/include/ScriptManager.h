@@ -24,7 +24,7 @@ namespace Storm
 		void cleanUp_Implementation();
 
 	public:
-		void executeScript_ScriptThread(const std::string &script); // Shouldn't be exposed to other modules!
+		void executeScript_ScriptThread(std::string &&script); // Shouldn't be exposed to other modules!
 
 	public:
 		void execute(std::string script) final override;

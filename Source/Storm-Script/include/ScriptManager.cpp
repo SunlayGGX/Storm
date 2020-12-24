@@ -12,6 +12,9 @@
 
 #include "ScriptFile.h"
 
+#include "CommandParser.h"
+#include "ScriptObject.h"
+
 #include "ThreadHelper.h"
 
 #include "ThreadEnumeration.h"
@@ -103,21 +106,47 @@ void Storm::ScriptManager::cleanUp_Implementation()
 	_scriptWrapper.reset();
 }
 
-void Storm::ScriptManager::executeScript_ScriptThread(const std::string &script)
+void Storm::ScriptManager::executeScript_ScriptThread(std::string &&script)
 {
-	LOG_SCRIPT_LOGIC << script;
-
 	try
 	{
-		std::string errorMsg;
-		
-		if (!_scriptWrapper->execute(script, errorMsg))
+		std::vector<Storm::ScriptObject> scriptObjects = Storm::CommandParser::parse(std::move(script));
+
+		for (const Storm::ScriptObject &scriptObj : scriptObjects)
 		{
-			if (!errorMsg.empty())
+			const std::string &scriptBody = scriptObj.getScript();
+
+			LOG_SCRIPT_LOGIC << scriptBody;
+
+			try
 			{
-				LOG_ERROR << "Script execution failed! Error was :\n" << errorMsg;
+				std::string errorMsg;
+
+				if (!_scriptWrapper->execute(scriptBody, errorMsg))
+				{
+					if (!errorMsg.empty())
+					{
+						LOG_ERROR << "Script execution failed! Error was :\n" << errorMsg;
+					}
+					else
+					{
+						LOG_ERROR << "Script execution failed with an unknown error!";
+					}
+				}
 			}
-			else
+			catch (const Storm::StormException &ex)
+			{
+				LOG_ERROR <<
+					"Script execution failed!\n"
+					"Error was :\n" << ex.what() << ".\n"
+					"Stack trace was :\n" << ex.stackTrace()
+					;
+			}
+			catch (const std::exception &ex)
+			{
+				LOG_ERROR << "Script execution failed! Error was :\n" << ex.what();
+			}
+			catch (...)
 			{
 				LOG_ERROR << "Script execution failed with an unknown error!";
 			}
@@ -125,19 +154,18 @@ void Storm::ScriptManager::executeScript_ScriptThread(const std::string &script)
 	}
 	catch (const Storm::StormException &ex)
 	{
-		LOG_ERROR << 
-			"Script execution failed!\n"
-			"Error was :\n" << ex.what() << ".\n"
-			"Stack trace was :\n" << ex.stackTrace()
+		LOG_ERROR <<
+			"Script command parsing failed at :\n" << ex.stackTrace() <<
+			"\n\n\nHere the details :\n\n" << ex.what()
 			;
 	}
 	catch (const std::exception &ex)
 	{
-		LOG_ERROR << "Script execution failed! Error was :\n" << ex.what();
+		LOG_ERROR << "Script command parsing failed! Error was :\n" << ex.what();
 	}
 	catch (...)
 	{
-		LOG_ERROR << "Script execution failed with an unknown error!";
+		LOG_ERROR << "Script command parsing failed with an unknown error!";
 	}
 }
 
@@ -145,9 +173,9 @@ void Storm::ScriptManager::execute(std::string script)
 {
 	if (!script.empty())
 	{
-		Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::ScriptThread, [this, scriptContent = Storm::FuncMovePass<std::string>{ std::move(script) }]()
+		Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::ScriptThread, [this, scriptContent = Storm::FuncMovePass<std::string>{ std::move(script) }]() mutable
 		{
-			this->executeScript_ScriptThread(scriptContent._object);
+			this->executeScript_ScriptThread(std::move(scriptContent._object));
 		});
 	}
 }

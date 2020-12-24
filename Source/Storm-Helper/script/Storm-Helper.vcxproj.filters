@@ -290,5 +290,8 @@
     <ClInclude Include="..\include\StormPathHelper.h">
       <Filter>Header Files\Application</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\StringAlgo.h">
+      <Filter>Header Files\General\Algorithm</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
