@@ -31,6 +31,9 @@
     <Filter Include="Source Files\Command">
       <UniqueIdentifier>{298f91f2-2cfb-4eaa-ac78-c646c7a471b2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Command\CommandOverride">
+      <UniqueIdentifier>{ec919f90-ed31-45e0-9b31-2d1f19a0f161}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-ScriptPCH.cpp">
@@ -46,6 +49,12 @@
       <Filter>Source Files\Lua</Filter>
     </ClCompile>
     <ClCompile Include="..\include\CommandParser.cpp">
+      <Filter>Source Files\Command</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\CommandItem.cpp">
+      <Filter>Source Files\Command</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\ScriptObject.cpp">
       <Filter>Source Files\Command</Filter>
     </ClCompile>
   </ItemGroup>
@@ -73,6 +82,15 @@
     </ClInclude>
     <ClInclude Include="..\include\CommandKeyword.h">
       <Filter>Header Files\Command</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ScriptObject.h">
+      <Filter>Header Files\Command</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\CommandLogicSupport.h">
+      <Filter>Header Files\Command</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\CommandPID.h">
+      <Filter>Header Files\Command\CommandOverride</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

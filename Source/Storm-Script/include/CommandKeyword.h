@@ -5,6 +5,6 @@ namespace Storm
 {
 	enum class CommandKeyword
 	{
-
+		PID,
 	};
 }

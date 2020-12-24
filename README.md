@@ -437,6 +437,18 @@ Register all your methods, classes, ... inside ScriptImplementation.inl.h. An ex
 Finally, be aware that all scripting will be executed inside the same Scripting thread that is a specific registered thread. Therefore, all method that the API calls should be responsible to dispatch the real execution to the expected threads to avoid any threading issues.
 
 
+## Commands
+
+Storm script commands are not part of any scripting language and are parsed separately from what is sent to the interpreter. Commands are also ignored by said interpreter.
+Commands are like headers those purpose is to control how the script will be played. A script can only have one or no header commands and it is placed after the header.
+Command part of the script are delimited by ##### 
+A header must begin and end by this delimitor. Afterward should follow the script that will be sent to the interpreter.
+A command inside the header is declared on the same line. 2 different lines are 2 different commands.
+A command is defined by a keyword defining what the command is, and some parameters. Both are separated by ':'.
+Here the list of available commands keywords :
+-**pid** : Parameters are the list of PIDs separated by a ' ' or a ','. It specifies that the following script must be executed only by the processes referred by the listed PIDs.
+
+
 ## Exposed methods
 
 #### SimulatorManager (simulMgr)

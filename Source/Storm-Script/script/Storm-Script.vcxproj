@@ -11,10 +11,12 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\include\CommandItem.cpp" />
     <ClCompile Include="..\include\CommandParser.cpp" />
     <ClCompile Include="..\include\LuaScriptWrapper.cpp" />
     <ClCompile Include="..\include\ScriptFile.cpp" />
     <ClCompile Include="..\include\ScriptManager.cpp" />
+    <ClCompile Include="..\include\ScriptObject.cpp" />
     <ClCompile Include="..\include\Storm-ScriptPCH.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
@@ -22,12 +24,15 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\CommandItem.h" />
+    <ClInclude Include="..\include\CommandLogicSupport.h" />
     <ClInclude Include="..\include\CommandParser.h" />
     <ClInclude Include="..\include\CommandKeyword.h" />
     <ClInclude Include="..\include\Inheritance.h" />
     <ClInclude Include="..\include\LuaScriptWrapper.h" />
+    <ClInclude Include="..\include\CommandPID.h" />
     <ClInclude Include="..\include\ScriptFile.h" />
     <ClInclude Include="..\include\ScriptManager.h" />
+    <ClInclude Include="..\include\ScriptObject.h" />
     <ClInclude Include="..\include\Storm-ScriptPCH.h" />
   </ItemGroup>
   <ItemGroup>
