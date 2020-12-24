@@ -431,22 +431,22 @@ The reasons I decided to include a scripting API is because :
 
 ## Developpers notes
 
-The scripting wrapping was done to abstract modules from the scripting API we use. Like this, we could switch or add python, ... any scripting language we want with minimal effort.
-The entry point of the scripting API object/methods registration can be anything. Just use the macro "STORM_IS_SCRIPTABLE_ITEM" inside your class. If it is used inside a Singleton registered inside the SingletonAllocator, the call to the entry point will be automatic.
-Register all your methods, classes, ... inside ScriptImplementation.inl.h. An example of how to do it would be to look at how I did it with the SimulatorManager. Don't mind the include because this file will be included inside source file only + all singleton will be included anyway.
+The scripting wrapping was done to abstract modules from the scripting API we use. Like this, we could switch or add python, ... any scripting language we want with minimal effort. <br>
+The entry point of the scripting API object/methods registration can be anything. Just use the macro "STORM_IS_SCRIPTABLE_ITEM" inside your class. If it is used inside a Singleton registered inside the SingletonAllocator, the call to the entry point will be automatic.<br>
+Register all your methods, classes, ... inside ScriptImplementation.inl.h. An example of how to do it would be to look at how I did it with the SimulatorManager. Don't mind the include because this file will be included inside source file only + all singleton will be included anyway.<br>
 Finally, be aware that all scripting will be executed inside the same Scripting thread that is a specific registered thread. Therefore, all method that the API calls should be responsible to dispatch the real execution to the expected threads to avoid any threading issues.
 
 
 ## Commands
 
 Storm script commands are not part of any scripting language and are parsed separately from what is sent to the interpreter. Commands are also ignored by said interpreter.
-Commands are like headers those purpose is to control how the script will be played. A script can only have one or no header commands and it is placed after the header.
-Command part of the script are delimited by ##### 
-A header must begin and end by this delimitor. Afterward should follow the script that will be sent to the interpreter.
-A command inside the header is declared on the same line. 2 different lines are 2 different commands.
-A command is defined by a keyword defining what the command is, and some parameters. Both are separated by ':'.
-Here the list of available commands keywords :
--**pid** : Parameters are the list of PIDs separated by a ' ' or a ','. It specifies that the following script must be executed only by the processes referred by the listed PIDs.
+They are like headers those purpose is to control how the script will be played. A script body can only have one or no header commands and is placed after the header.<br>
+Header part of the script where commands are defined must begin and end by the delimitor string "**#####**".<br>
+Then should follow the script body that will be sent to the interpreter. <br>
+A command inside the header is declared on the same line : In another word, 2 different lines are 2 different commands.<br>
+A command must start with a keyword defining what it is, folowwed by some parameters if needed. Both are separated by the character "**:**" .<br><br>
+Here the list of available commands :
+- **pid** : Parameters are the list of PIDs separated by a ' ' or a ','. It specifies that the following script must be executed only by the processes referred by the listed PIDs.
 
 
 ## Exposed methods
