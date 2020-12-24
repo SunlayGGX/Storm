@@ -2,8 +2,6 @@
 
 #include "ScriptManager.h"
 
-#include "StringHijack.h"
-
 #include <fstream>
 
 
@@ -44,12 +42,11 @@ void Storm::ScriptFile::update()
 		if (fileSize > 0)
 		{
 			std::string scriptContent;
-			Storm::resize_hijack(scriptContent, fileSize);
+			scriptContent.reserve(fileSize);
 
-			std::ifstream scriptContentStream{ _filePath };
-			scriptContentStream.read(scriptContent.data(), fileSize);
+			std::copy(std::istreambuf_iterator<char>{std::ifstream{ _filePath }}, std::istreambuf_iterator<char>{}, std::back_inserter(scriptContent));
 
-			Storm::ScriptManager::instance().executeScript_ScriptThread(scriptContent);
+			Storm::ScriptManager::instance().executeScript_ScriptThread(std::move(scriptContent));
 		}
 		else
 		{
