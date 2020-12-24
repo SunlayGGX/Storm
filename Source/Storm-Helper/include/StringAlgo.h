@@ -107,7 +107,8 @@ namespace Storm
 			{}
 
 		public:
-			bool operator()(const PredicateSearchInParam<StringType> &inParam, PredicateSearchOutParam<StringType> &inOutParam) const noexcept
+			template<class StringParamType>
+			bool operator()(const PredicateSearchInParam<StringParamType> &inParam, PredicateSearchOutParam<StringParamType> &inOutParam) const noexcept
 			{
 				if constexpr (std::is_same_v<SearchTag, Or>)
 				{
@@ -153,7 +154,8 @@ namespace Storm
 			}
 
 		public:
-			bool operator()(const PredicateSearchInParam<StringType> &inParam, PredicateSearchOutParam<StringType> &inOutParam) const noexcept
+			template<class StringParamType>
+			bool operator()(const PredicateSearchInParam<StringParamType> &inParam, PredicateSearchOutParam<StringParamType> &inOutParam) const noexcept
 			{
 				inOutParam._lastPredicateSize = _predicateSize;
 
@@ -411,7 +413,7 @@ namespace Storm
 		template<class ReplacementType, class InputStringType, class Predicate>
 		static auto replaceAllCopy(InputStringType &&inOutStr, const ReplacementType &replacement, const Predicate &pred)
 		{
-			AutoString<InputStringType>::template Type result = std::forward<InputStringType>(inOutStr);
+			auto result = AutoString<InputStringType>::template Type{ std::forward<InputStringType>(inOutStr) };
 			Storm::StringAlgo::replaceAll(result, replacement, pred);
 			return result;
 		}
