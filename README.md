@@ -208,6 +208,10 @@ Note that the maximum value you can set is Fatal, it means that no matter what l
   + **"All"**: This is the verbose setting. Enable it only if you want to troubleshoot "..." issues (along with a lot of other irrelevant ones)
 
 
+#### Misc (facultative)
+- **urlIncognito (boolean, facultative)**: Specify we want to open a new browser window in incognito mode when we'll browse through an url. Default is false.
+
+
 #### Graphics (facultative)
 - **screenWidth (unsigned integer, facultative)** : Set the expected windows width at startup. Note that it could be something else near this value... Default is 1200.
 - **screenHeight (unsigned integer, facultative)** : Set the expected windows height at startup. Note that it could be something else near this value... Default is 800.

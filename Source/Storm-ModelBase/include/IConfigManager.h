@@ -62,6 +62,9 @@ namespace Storm
 		// Profile
 		virtual bool getShouldProfileSimulationSpeed() const = 0;
 
+		// Misc
+		virtual bool urlOpenIncognito() const = 0;
+
 		// Scene data
 		virtual const Storm::SceneData& getSceneData() const = 0;
 		virtual const Storm::GraphicData& getGraphicData() const = 0;

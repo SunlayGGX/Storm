@@ -73,7 +73,8 @@ Storm::GeneralConfig::GeneralConfig() :
 	_fixNearFarPlanesWhenTranslating{ true },
 	_selectedParticleShouldBeTopMost{ false },
 	_selectedParticleForceShouldBeTopMost{ true },
-	_displayVectoredExceptions{ Storm::VectoredExceptionDisplayMode::DisplayFatal }
+	_displayVectoredExceptions{ Storm::VectoredExceptionDisplayMode::DisplayFatal },
+	_urlOpenIncognito{ false }
 {
 
 }
@@ -118,6 +119,7 @@ bool Storm::GeneralConfig::read(const std::string &generalConfigFilePathStr)
 				LOG_WARNING << "Log filename doesn't contain $[PID] macro, this could lead to unexpected behavior in case many instance of the application is run at the same time.";
 			}
 
+			/* Graphic */
 			const auto &graphicTreeOpt = generalTree.get_child_optional("Graphics");
 			if (graphicTreeOpt.has_value())
 			{
@@ -140,6 +142,7 @@ bool Storm::GeneralConfig::read(const std::string &generalConfigFilePathStr)
 				}
 			}
 
+			/* Debug */
 			const auto &debugTreeOpt = generalTree.get_child_optional("Debug");
 			if (debugTreeOpt.has_value())
 			{
@@ -155,6 +158,23 @@ bool Storm::GeneralConfig::read(const std::string &generalConfigFilePathStr)
 				}
 			}
 
+			/* Misc */
+			const auto &miscTreeOpt = generalTree.get_child_optional("Misc");
+			if (miscTreeOpt.has_value())
+			{
+				const auto &miscTree = miscTreeOpt.value();
+				for (const auto &miscXmlElement : miscTree)
+				{
+					if (
+						!Storm::XmlReader::handleXml(miscXmlElement, "urlIncognito", _urlOpenIncognito)
+						)
+					{
+						LOG_ERROR << miscXmlElement.first << " (inside General.Misc) is unknown, therefore it cannot be handled";
+					}
+				}
+			}
+
+			/* Profile */
 			const auto &profileTreeOpt = generalTree.get_child_optional("Profile");
 			if (profileTreeOpt.has_value())
 			{

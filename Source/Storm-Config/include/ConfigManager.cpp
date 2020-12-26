@@ -380,6 +380,11 @@ bool Storm::ConfigManager::getShouldProfileSimulationSpeed() const
 	return _generalConfig._profileSimulationSpeed;
 }
 
+bool Storm::ConfigManager::urlOpenIncognito() const
+{
+	return _generalConfig._urlOpenIncognito;
+}
+
 unsigned int Storm::ConfigManager::getWantedScreenWidth() const
 {
 	return _generalConfig._wantedApplicationWidth;

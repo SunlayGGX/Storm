@@ -40,6 +40,9 @@ namespace Storm
 		bool _selectedParticleShouldBeTopMost;
 		bool _selectedParticleForceShouldBeTopMost;
 
+		// Misc
+		bool _urlOpenIncognito;
+
 		// Profile
 		bool _profileSimulationSpeed;
 

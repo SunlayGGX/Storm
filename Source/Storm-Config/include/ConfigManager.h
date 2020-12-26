@@ -47,6 +47,8 @@ namespace Storm
 		
 		bool getShouldProfileSimulationSpeed() const final override;
 
+		bool urlOpenIncognito() const final override;
+
 		unsigned int getWantedScreenWidth() const final override;
 		unsigned int getWantedScreenHeight() const final override;
 		int getWantedScreenXPosition() const final override;
