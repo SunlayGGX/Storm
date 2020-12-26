@@ -256,6 +256,8 @@ namespace Storm_LogViewer
 
         public void AutoScrollUpdated()
         {
+            Console.WriteLine("Auto scroll set to " + ConfigManager.Instance.AutoScrollEnabled);
+
             ExecuteOnUIThread(new Action(() =>
             {
                 lock (_mutex)
