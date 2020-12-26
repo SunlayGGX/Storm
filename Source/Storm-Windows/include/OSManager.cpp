@@ -94,7 +94,7 @@ std::wstring Storm::OSManager::openFileExplorerDialog(const std::wstring &defaul
 
 	// CoCreate the File Open Dialog object.
 	CComPtr<IFileDialog> fileDialog = nullptr;
-	HRESULT hr = CoCreateInstance(
+	HRESULT hr = ::CoCreateInstance(
 		CLSID_FileOpenDialog,
 		NULL,
 		CLSCTX_INPROC_SERVER,
@@ -146,7 +146,7 @@ std::wstring Storm::OSManager::openFileExplorerDialog(const std::wstring &defaul
 											// Create the start folder command.
 											CComPtr<IShellItem> psiFolder;
 
-											hr = SHCreateItemFromParsingName(defaultStartingPath.c_str(), NULL, IID_PPV_ARGS(&psiFolder));
+											hr = ::SHCreateItemFromParsingName(defaultStartingPath.c_str(), NULL, IID_PPV_ARGS(&psiFolder));
 											if (SUCCEEDED(hr))
 											{
 												hr = fileDialog->SetFolder(psiFolder);
@@ -198,7 +198,7 @@ std::wstring Storm::OSManager::openFileExplorerDialog(const std::wstring &defaul
 											);
 											if (SUCCEEDED(hr))
 											{
-												std::unique_ptr<WCHAR, decltype(&CoTaskMemFree)> pszFilePathHolder{ pszFilePath, &CoTaskMemFree };
+												std::unique_ptr<WCHAR, decltype(&::CoTaskMemFree)> pszFilePathHolder{ pszFilePath, &::CoTaskMemFree };
 												resultSelectedFilePath = pszFilePath;
 											}
 											else

@@ -303,11 +303,11 @@ void Storm::WindowsManager::initializeInternal()
 
 	if (windowVisuHandle != nullptr)
 	{
-		_accelerationTable = LoadAccelerators(dllInstance, MAKEINTRESOURCE(IDR_ACCELERATOR1));
+		_accelerationTable = ::LoadAccelerators(dllInstance, MAKEINTRESOURCE(IDR_ACCELERATOR1));
 
-		ShowCursor(true);
-		ShowWindow(windowVisuHandle, SW_SHOWNORMAL);
-		UpdateWindow(windowVisuHandle);
+		::ShowCursor(true);
+		::ShowWindow(windowVisuHandle, SW_SHOWNORMAL);
+		::UpdateWindow(windowVisuHandle);
 
 		_windowVisuHandle = windowVisuHandle;
 		_windowClass = validator;
