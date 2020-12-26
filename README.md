@@ -63,6 +63,7 @@ I'm using catch2 as our main unit test library. But to be able to use it, you sh
 - **Storm-Loader**: This module's purpose is to load external object like meshes.
 - **Storm-Logger**: This module is for logging.
 - **Storm-Misc**: This module is intended to gather module manager helper that shouldn't be made into helpers since they are Storm project implementation related but cannot be put into any other modules. Example are the RandomManager (that should be deterministic), the TimeManager (that should be compliant with Storm simulator), the ThreadManager (that is intended to be executed in the main Simulation loop like Unreal's Async method), ... .
+- **Storm-Network**: This module is intended to be the crossroad with the outside. It contains everything that could be used to manage network and web.
 - **Storm-ModelBase**: This module is the base for each modules. It contains everything that could be used to bind the modules together without the need to reference each other.
 - **Storm-Physics**: This module is responsible for initializing and managing Physics computations.
 - **Storm-Profiler**: This module is to allow getting some profiling data. This does not intend to replace the Visual Studio buit-in tool or any other external library, but just a way to register times, speed, ... and display it inside the Storm application UI or logging it.

@@ -136,6 +136,12 @@
     <Filter Include="Header Files\Modules\Process">
       <UniqueIdentifier>{6da7ee59-9301-47b4-a812-77139881bc03}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Modules\Network">
+      <UniqueIdentifier>{c265f47a-1372-40bc-8d84-68984b0b507f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Modules\Network\Web">
+      <UniqueIdentifier>{5eab4217-e52b-454a-9134-1d26ae047ad4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-ModelBasePCH.cpp">
@@ -400,6 +406,9 @@
     </ClInclude>
     <ClInclude Include="..\include\StormProcessStartup.h">
       <Filter>Header Files\Modules\Process</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\IWebManager.h">
+      <Filter>Header Files\Singleton</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
