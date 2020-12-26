@@ -12,6 +12,8 @@
 
 #include "UIModality.h"
 
+#include "StormProcessOpener.h"
+
 
 namespace
 {
@@ -33,6 +35,8 @@ namespace
 
 		case WM_COMMAND:
 		{
+			std::size_t outProcessUID;
+
 			const int wmId = LOWORD(wParam);
 			// Analyze menu selection
 			switch (wmId)
@@ -41,6 +45,29 @@ namespace
 			case ID_FILE_QUIT:
 				Storm::WindowsManager::instance().callQuitCallback();
 				break;
+
+			case ID_TOOLS_STORM: // In fact it is the logviewer.
+			case ID_STORM_LOG_VIEWER:
+				Storm::StormProcessOpener::openStormLogViewer(Storm::StormProcessOpener::OpenParameter{
+					._failureQuit = false
+				}, outProcessUID);
+				break;
+
+			case ID_TOOLS_SCRIPT:
+			case ID_STORM_SCRIPT:
+			case ID_NOTEPAD_SCRIPT:
+				Storm::StormProcessOpener::openRuntimeScript(Storm::StormProcessOpener::OpenParameter{
+					._failureQuit = false
+				}, outProcessUID);
+				break;
+
+			case ID_STORM_CONFIG:
+			case ID_NOTEPAD_SCENECONFIGXML:
+				Storm::StormProcessOpener::openCurrentConfigFile(Storm::StormProcessOpener::OpenParameter{
+					._failureQuit = false
+				}, outProcessUID);
+				break;
+				
 			default:
 				return DefWindowProc(hWnd, message, wParam, lParam);
 			}

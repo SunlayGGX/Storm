@@ -407,6 +407,9 @@ Note : If the term in the parenthesis is "Numpad", then the keybinding is the va
 - **F7**: Set solid state without back face culling.
 - **F8**: Set rendering to display all particles.
 - **F9**: Set particle state without rendering walls.
+- **Ctrl+S**: Open the script file inside notepad++ (or notepad if notepad++ isn't installed).
+- **Ctrl+X**: Open the current xml config file inside notepad++ (or notepad if notepad++ isn't installed).
+- **Ctrl+L**: Open the Storm log viewer. This application will have its life shared with the Storm application.
 
 
 ## Mouse bindings
