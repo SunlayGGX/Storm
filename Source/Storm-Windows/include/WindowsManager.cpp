@@ -76,11 +76,6 @@ namespace
 		}
 	}
 
-	std::wstring toStdWString(const std::string &str)
-	{
-		return std::filesystem::path{ str }.wstring();
-	}
-
 	template<std::size_t maxTitleCount, class AddedStrType>
 	void appendToTitle(TCHAR(&inOutTitle)[maxTitleCount], std::size_t &titlePositionIter, const AddedStrType &addedStr, const std::string_view &operation)
 	{
@@ -88,7 +83,7 @@ namespace
 		{
 			if (!addedStr.empty())
 			{
-				const std::wstring convertedAddedWStr = toStdWString(addedStr);
+				const std::wstring convertedAddedWStr = Storm::toStdWString(addedStr);
 
 				const std::size_t currentAddedStrLength = convertedAddedWStr.size();
 				const std::size_t toCopy = std::max(titlePositionIter - (currentAddedStrLength + 4), static_cast<std::size_t>(0));
