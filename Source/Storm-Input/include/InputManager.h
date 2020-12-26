@@ -31,6 +31,8 @@ namespace Storm
 	private:
 		void refreshMouseState();
 
+		bool isAnyConventionalModifierDown() const;
+
 	public:
 		Storm::CallbackIdType bindKey(Storm::SpecialKey key, Storm::KeyBinding &&binding) final override;
 		void unbindKey(Storm::SpecialKey key, Storm::CallbackIdType callbackId) final override;

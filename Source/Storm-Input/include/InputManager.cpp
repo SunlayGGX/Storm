@@ -342,6 +342,22 @@ void Storm::InputManager::refreshMouseState()
 	Storm::SingletonHolder::instance().getSingleton<Storm::IWindowsManager>().retrieveWindowsDimension(mouseState.width, mouseState.height);
 }
 
+bool Storm::InputManager::isAnyConventionalModifierDown() const
+{
+	if (g_keyboard->isModifierDown(OIS::Keyboard::Ctrl))
+	{
+		return true;
+	}
+
+	if (g_keyboard->isModifierDown(OIS::Keyboard::Alt))
+	{
+		return true;
+	}
+
+	// I won't consider Shift, Caps lock and num locks
+	return false;
+}
+
 Storm::CallbackIdType Storm::InputManager::bindKey(Storm::SpecialKey key, Storm::KeyBinding &&binding)
 {
 	return _inputHandler->bindKey(traduce(key), std::move(binding));
