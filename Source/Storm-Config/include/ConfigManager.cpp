@@ -8,6 +8,7 @@
 #include "RigidBodySceneData.h"
 #include "RecordConfigData.h"
 #include "GeneralSimulationData.h"
+#include "ScriptData.h"
 
 #include "RecordMode.h"
 
@@ -548,4 +549,14 @@ const std::string& Storm::ConfigManager::getSimulationTypeName() const
 unsigned int Storm::ConfigManager::getCurrentPID() const
 {
 	return _currentPID;
+}
+
+const std::string& Storm::ConfigManager::getSceneConfigFilePath() const
+{
+	return _sceneConfigFilePath;
+}
+
+const std::string& Storm::ConfigManager::getScriptFilePath() const
+{
+	return this->getScriptData()._scriptFilePipe._filePath;
 }

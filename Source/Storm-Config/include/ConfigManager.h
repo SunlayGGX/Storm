@@ -74,6 +74,8 @@ namespace Storm
 		const std::string& getSceneName() const final override;
 		const std::string& getSimulationTypeName() const final override;
 		unsigned int getCurrentPID() const final override;
+		const std::string& getSceneConfigFilePath() const final override;
+		const std::string& getScriptFilePath() const final override;
 
 	private:
 		// Members that could be extracted from Command line.

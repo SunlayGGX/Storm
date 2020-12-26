@@ -80,5 +80,7 @@ namespace Storm
 		virtual const std::string& getSceneName() const = 0;
 		virtual const std::string& getSimulationTypeName() const = 0;
 		virtual unsigned int getCurrentPID() const = 0; // PID = Process ID
+		virtual const std::string& getSceneConfigFilePath() const = 0;
+		virtual const std::string& getScriptFilePath() const = 0;
 	};
 }
