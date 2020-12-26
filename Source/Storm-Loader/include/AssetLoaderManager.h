@@ -11,7 +11,7 @@ namespace Storm
 	class AssetCacheData;
 	struct AssetCacheDataOrder;
 
-	class AssetLoaderManager :
+	class AssetLoaderManager final :
 		private Storm::Singleton<AssetLoaderManager>,
 		public Storm::IAssetLoaderManager
 	{

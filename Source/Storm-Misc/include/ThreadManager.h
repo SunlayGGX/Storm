@@ -9,7 +9,7 @@ namespace Storm
 {
 	class AsyncActionExecutor;
 
-	class ThreadManager :
+	class ThreadManager final :
 		private Storm::Singleton<ThreadManager, Storm::DefineDefaultInitAndCleanupImplementation>,
 		public Storm::IThreadManager
 	{

@@ -11,7 +11,7 @@
 
 namespace Storm
 {
-	class ConfigManager :
+	class ConfigManager final :
 		private Storm::Singleton<ConfigManager, Storm::DefineDefaultCleanupImplementationOnly>,
 		public Storm::IConfigManager
 	{

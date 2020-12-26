@@ -15,7 +15,7 @@ namespace Storm
 
 	class StormProcess;
 
-	class OSManager :
+	class OSManager final :
 		private Storm::Singleton<OSManager, Storm::DefineDefaultInitImplementationOnly>,
 		public Storm::IOSManager
 	{

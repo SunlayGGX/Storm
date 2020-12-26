@@ -7,7 +7,7 @@ namespace StormPackager
 {
 	class ITaskLogic;
 
-	class PackagerManager : private Storm::Singleton<StormPackager::PackagerManager>
+	class PackagerManager final : private Storm::Singleton<StormPackager::PackagerManager>
 	{
 		STORM_DECLARE_SINGLETON(PackagerManager);
 

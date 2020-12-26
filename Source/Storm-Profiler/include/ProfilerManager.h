@@ -9,7 +9,7 @@ namespace Storm
 {
 	class SpeedProfileHandler;
 
-	class ProfilerManager :
+	class ProfilerManager final :
 		private Storm::Singleton<Storm::ProfilerManager, Storm::DefineDefaultCleanupImplementationOnly>,
 		public Storm::IProfilerManager
 	{

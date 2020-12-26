@@ -12,7 +12,7 @@ namespace Storm
 	struct WithUI;
 	struct NoUI;
 
-	class InputManager :
+	class InputManager final :
 		private Storm::Singleton<InputManager>,
 		public Storm::IInputManager
 	{

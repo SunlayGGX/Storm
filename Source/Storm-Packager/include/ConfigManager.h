@@ -5,7 +5,7 @@
 
 namespace StormPackager
 {
-	class ConfigManager : private Storm::Singleton<StormPackager::ConfigManager>
+	class ConfigManager final : private Storm::Singleton<StormPackager::ConfigManager>
 	{
 		STORM_DECLARE_SINGLETON(ConfigManager);
 

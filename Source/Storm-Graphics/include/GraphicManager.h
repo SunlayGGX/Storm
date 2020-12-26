@@ -20,7 +20,7 @@ namespace Storm
 	struct WithUI;
 	struct NoUI;
 
-	class GraphicManager :
+	class GraphicManager final :
 		private Storm::Singleton<GraphicManager>,
 		public Storm::IGraphicsManager
 	{

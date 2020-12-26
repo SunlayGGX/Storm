@@ -11,7 +11,7 @@ namespace Storm
 	struct WithUI;
 	struct NoUI;
 
-	class WindowsManager :
+	class WindowsManager final :
 		private Storm::Singleton<Storm::WindowsManager>,
 		public Storm::IWindowsManager
 	{

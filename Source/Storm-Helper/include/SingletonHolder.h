@@ -23,7 +23,7 @@ namespace Storm
 {
 	class SingletonHeldInterfaceBase;
 
-	class SingletonHolder :
+	class SingletonHolder final :
 		private Storm::Singleton<Storm::SingletonHolder, Storm::DefineDefaultInitAndCleanupImplementation>,
 		public Storm::FacetContainer<Storm::SingletonHeldInterfaceBase, Storm::FacetContainerIsNotOwner, STORM_SINGLETON_HOLDER_STORAGE_TYPE>
 	{

@@ -6,7 +6,7 @@
 
 namespace StormPackager
 {
-	class LoggerManager :
+	class LoggerManager final :
 		private Storm::Singleton<StormPackager::LoggerManager>,
 		public Storm::ILoggerManager
 	{

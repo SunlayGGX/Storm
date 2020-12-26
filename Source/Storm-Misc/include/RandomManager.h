@@ -11,7 +11,7 @@ namespace Storm
 {
 	class SerializePackage;
 
-	class RandomManager :
+	class RandomManager final :
 		private Storm::Singleton<RandomManager, Storm::DefineDefaultInitAndCleanupImplementation>,
 		public Storm::IRandomManager
 	{

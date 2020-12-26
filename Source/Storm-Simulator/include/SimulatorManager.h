@@ -22,7 +22,7 @@ namespace Storm
 	struct GeneralSimulationData;
 	struct SerializeRecordPendingData;
 
-	class SimulatorManager :
+	class SimulatorManager final :
 		private Storm::Singleton<Storm::SimulatorManager, Storm::DefineDefaultCleanupImplementationOnly>,
 		public Storm::ISimulatorManager
 	{
