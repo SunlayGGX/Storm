@@ -55,3 +55,10 @@
 #else
 #	define STORM_TEXT(val) val
 #endif
+
+
+#ifdef __has_include
+#	define STORM_HAS_INCLUDE(includeName) __has_include(includeName)
+#else
+#	define STORM_HAS_INCLUDE(includeName) true
+#endif
