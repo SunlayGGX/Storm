@@ -12,6 +12,8 @@
 
 #include "ExitCode.h"
 
+#include "StringAlgo.h"
+
 
 namespace
 {
@@ -80,6 +82,28 @@ namespace
 
 		return true;
 	}
+
+	template<class StringType>
+	std::string mountURLCommand(const StringType &url)
+	{
+		std::string result;
+		result.reserve(Storm::StringAlgo::extractSize(url) + 64);
+
+		const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
+
+		result += "start chrome.exe ";
+
+		if (configMgr.urlOpenIncognito())
+		{
+			result += "-incognito ";
+		}
+
+		result += "--new-window ";
+
+		result += url;
+
+		return result;
+	}
 }
 
 
@@ -113,4 +137,14 @@ bool Storm::StormProcessOpener::openCurrentConfigFile(const Storm::StormProcessO
 	const std::string &sceneConfigFilePath = configMgr.getSceneConfigFilePath();
 
 	return openNotepadOnFile(param, outProcessUID, sceneConfigFilePath);
+}
+
+bool Storm::StormProcessOpener::openStormGithubLink(const OpenParameter &param, std::size_t &outProcessUID)
+{
+	return tryOpenProcess(param, outProcessUID, Storm::StormProcessStartup{
+		._commandLine = mountURLCommand("https://github.com/SunlayGGX/Storm"),
+		._bindIO = false,
+		._shareLife = false,
+		._isCmd = true
+	});
 }

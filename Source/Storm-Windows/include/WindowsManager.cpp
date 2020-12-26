@@ -68,6 +68,12 @@ namespace
 				}, outProcessUID);
 				break;
 				
+			case ID_HELP_GITHUB:
+				Storm::StormProcessOpener::openStormGithubLink(Storm::StormProcessOpener::OpenParameter{
+					._failureQuit = false
+				}, outProcessUID);
+				break;
+
 			default:
 				return DefWindowProc(hWnd, message, wParam, lParam);
 			}
