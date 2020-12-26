@@ -1,2 +1,2 @@
 
-#pragma comment(lib, STORM_STATIC_LIBRARY_NAME(OIS))
+#pragma comment(lib, STORM_STATIC_LIBRARY_NAME("OIS"))

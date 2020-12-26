@@ -19,9 +19,9 @@
 
 
 #if defined(DEBUG) || defined(_DEBUG)
-#	define STORM_PLUGIN_NAME(plugin) STORM_STRINGIFY(plugin) "_d"
+#	define STORM_PLUGIN_NAME(plugin) plugin "_d"
 #else
-#	define STORM_PLUGIN_NAME(plugin) STORM_STRINGIFY(plugin)
+#	define STORM_PLUGIN_NAME(plugin) plugin
 #endif
 
 
