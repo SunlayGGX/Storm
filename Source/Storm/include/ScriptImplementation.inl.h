@@ -1,14 +1,13 @@
 #pragma once
 
-#include "SimulatorManager.h"
-#include "TimeManager.h"
-#include "GraphicManager.h"
-
 
 #include "LuaScriptWrapper.h"
 
 #include "NameExtractor.h"
 
+#include "SimulatorManager.h"
+#include "TimeManager.h"
+#include "GraphicManager.h"
 
 /////////////////////////////////////////////////
 /////////////// Utility Macros //////////////////
