@@ -47,6 +47,7 @@
     <ClInclude Include="..\include\MemoryHelper.h" />
     <ClInclude Include="..\include\MultiCallback.h" />
     <ClInclude Include="..\include\NonInstanciable.h" />
+    <ClInclude Include="..\include\RAII.h" />
     <ClInclude Include="..\include\RunnerHelper.h" />
     <ClInclude Include="..\include\SearchAlgo.h" />
     <ClInclude Include="..\include\SerializePackage.h" />
