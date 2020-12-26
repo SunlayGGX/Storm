@@ -187,7 +187,7 @@ namespace
 	{
 	protected:
 		template<bool clearAfter>
-		void parseMessage(LogParserTraits::StringType<clearAfter> &err, const std::string &processPIDStr, const std::string &applicationNameStr)
+		void parseMessage(LogParserTraits::StringType<clearAfter> &err, const Storm::StormProcessStartup &, const std::string &processPIDStr, const std::string &applicationNameStr)
 		{
 			LOG_ERROR <<
 				"Error message received from process " << processPIDStr << " (" << applicationNameStr << ") :\n" <<
@@ -340,20 +340,6 @@ namespace
 		}
 
 	private:
-		template<class PipeLogHandler>
-		auto doParse(std::string &msg, const std::string &applicationNameStr, const std::string &processPIDStr)
-			-> decltype(PipeLogHandler::parseMessage<true>(msg, _startupParam, processPIDStr, applicationNameStr))
-		{
-			return PipeLogHandler::parseMessage<true>(msg, _startupParam, processPIDStr, applicationNameStr);
-		}
-
-		template<class PipeLogHandler>
-		auto doParse(std::string &msg, const std::string &applicationNameStr, const std::string &processPIDStr)
-			-> decltype(PipeLogHandler::parseMessage<true>(msg, processPIDStr, applicationNameStr))
-		{
-			return PipeLogHandler::parseMessage<true>(msg, processPIDStr, applicationNameStr);
-		}
-
 		template<class PipeLogHandler, std::size_t bufferCount>
 		void parseMsgTransaction(std::string &msg, const std::string &applicationNameStr, const std::string &processPIDStr, char(&bufferData)[bufferCount])
 		{
@@ -371,7 +357,7 @@ namespace
 						msg.pop_back();
 					}
 
-					this->doParse<PipeLogHandler>(msg, processPIDStr, applicationNameStr);
+					PipeLogHandler::parseMessage<true>(msg, _startupParam, processPIDStr, applicationNameStr);
 				}
 			}
 		}
@@ -438,13 +424,13 @@ namespace
 			_outputMsg += outBufferData;
 			if (!_outputMsg.empty())
 			{
-				this->doParse<OutputPipeLogHandler>(_outputMsg, processPIDStr, applicationNameStr);
+				OutputPipeLogHandler::parseMessage<true>(_outputMsg, _startupParam, processPIDStr, applicationNameStr);
 			}
 
 			_errMsg += errBufferData;
 			if (!_errMsg.empty())
 			{
-				this->doParse<ErrorPipeLogHandler>(_errMsg, processPIDStr, applicationNameStr);
+				ErrorPipeLogHandler::parseMessage<true>(_errMsg, _startupParam, processPIDStr, applicationNameStr);
 			}
 		}
 #undef STORM_OUT_BUFFER
