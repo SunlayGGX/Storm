@@ -21,7 +21,11 @@ Note that :
 
 
 # Dependencies list
-- **Boost 1.72** compiled for Visual Studio 2019 (link: https://www.boost.org/users/history/version_1_72_0.html ). Follow the instructions on their site.
+- **Boost 1.75** compiled for Visual Studio 2019 (link: https://sourceforge.net/projects/boost/files/boost-binaries/1.75.0/ ). Choose the right and execute the downloaded executable (for me, since I'm using VS 2019 with a x64 architecture, I downloaded "boost_1_75_0-msvc-14.2-64.exe").
+	+ Choose to extract boost into a new folder named boost_1_75_0__2019 inside your dependencies folder (if not, you'll have to change the path to boost dependencies inside UserSettings.bat).
+    + Rename the folder "lib[xx]-msvc-[yy.y]" to "lib" with xx your platform architecture (for me it was 64 because I'm working on a x64 architecture) and yy.y your toolset version (For me, it was 14.2).
+    + Create a new folder inside boost_1_75_0__2019 named "include".
+    + Move the folder "boost" ([YourDependenciesFolder]/boost_1_75_0__2019/boost) into the new include folder ([YourDependenciesFolder]/boost_1_75_0__2019/include). You should have your boost folder at path ([YourDependenciesFolder]/boost_1_75_0__2019/include/boost).
 - **Eigen 3.3.7** (link: https://gitlab.com/libeigen/eigen/-/tree/3.3.7).
 - **OIS v1.5** compiled for Visual Studio 2019 (link: https://github.com/wgois/OIS/tree/v1.5 ). Follow the instructions on their site.
 	+ Generate the Visual studio file inside a folder named "bin" at OIS root folder (i.e if OIS is installed like this : C:/dep/OIS, then generate the vs project file into C:/dep/OIS/bin).
