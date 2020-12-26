@@ -63,7 +63,6 @@ namespace
 	bool openNotepadOnFile(const Storm::StormProcessOpener::OpenParameter &param, std::size_t &outProcessUID, const std::string &onFilePath)
 	{
 		if (!tryOpenProcess(param, outProcessUID, Storm::StormProcessStartup{
-				._exePath = "",
 				._commandLine = "start notepad++ \"" + onFilePath + '"',
 				._bindIO = false,
 				._shareLife = false,
@@ -72,7 +71,6 @@ namespace
 		{
 			// If we don't have notepad++ installed, just start the old, weird, ugly, unfit to work with... Windows embedded notepad.
 			return tryOpenProcess(param, outProcessUID, Storm::StormProcessStartup{
-				._exePath = "",
 				._commandLine = "notepad \"" + onFilePath + '"',
 				._bindIO = false,
 				._shareLife = false,
