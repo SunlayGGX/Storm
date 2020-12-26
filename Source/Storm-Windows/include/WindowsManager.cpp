@@ -141,6 +141,12 @@ void Storm::WindowsManager::initialize_Implementation(const Storm::WithUI &)
 		Storm::IInputManager &inputMgr = singletonHolder.getSingleton<Storm::IInputManager>();
 		Storm::IThreadManager &threadMgr = singletonHolder.getSingleton<Storm::IThreadManager>();
 
+		inputMgr.bindMouseLeftClick([this, &inputMgr](int, int, int, int)
+		{
+			this->focus();
+			inputMgr.clearKeyboardState();
+		});
+
 		constexpr const std::chrono::milliseconds k_windowsThreadRefreshRate{ 100 };
 		while (timeMgr.waitForTimeOrExit(k_windowsThreadRefreshRate))
 		{

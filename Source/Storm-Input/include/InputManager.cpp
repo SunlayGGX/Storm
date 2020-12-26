@@ -320,10 +320,19 @@ void Storm::InputManager::update()
 	{
 		if (g_keyboard != nullptr)
 		{
-			g_keyboard->capture();
-			if (!g_keyboard->buffered())
+			// I don't want to handle modifiers
+			if (!this->isAnyConventionalModifierDown())
 			{
-				this->handleNonBufferedKeys();
+				g_keyboard->capture();
+
+				if (!g_keyboard->buffered())
+				{
+					this->handleNonBufferedKeys();
+				}
+			}
+			else
+			{
+				this->clearKeyStates_Internal(false, true);
 			}
 		}
 		if (g_mouse != nullptr)
