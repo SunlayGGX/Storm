@@ -60,6 +60,9 @@ namespace Storm
 	public:
 		void callWindowsResizedCallback(unsigned int newWidth, unsigned int newHeight);
 
+	public:
+		void focus() final override;
+
 	private:
 		void* /*HWND*/ _windowVisuHandle;
 		std::wstring _windowClass;

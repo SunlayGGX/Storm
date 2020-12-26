@@ -457,3 +457,12 @@ void Storm::WindowsManager::unbindCallbacks()
 	_finishedInitCallback.clear();
 	_windowsResizedCallback.clear();
 }
+
+void Storm::WindowsManager::focus()
+{
+	if (_windowVisuHandle != nullptr)
+	{
+		//::PostMessage(static_cast<HWND>(_windowVisuHandle), WM_SETFOCUS, 0, 0);
+		::SetFocus(static_cast<HWND>(_windowVisuHandle));
+	}
+}
