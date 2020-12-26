@@ -51,7 +51,7 @@
 
 
 #if UNICODE
-#	define STORM_TEXT(val) L##val
+#	define STORM_TEXT(val) STORM_CONCAT(L, val)
 #else
 #	define STORM_TEXT(val) val
 #endif
