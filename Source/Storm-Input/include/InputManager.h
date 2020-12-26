@@ -34,6 +34,12 @@ namespace Storm
 		bool isAnyConventionalModifierDown() const;
 
 	public:
+		void clearKeyboardState() final override;
+
+	public:
+		void clearKeyStates_Internal(const bool clearModifiers, const bool clearKeyStates);
+
+	public:
 		Storm::CallbackIdType bindKey(Storm::SpecialKey key, Storm::KeyBinding &&binding) final override;
 		void unbindKey(Storm::SpecialKey key, Storm::CallbackIdType callbackId) final override;
 		Storm::CallbackIdType bindMouseRightClick(Storm::MouseBinding &&binding) final override;

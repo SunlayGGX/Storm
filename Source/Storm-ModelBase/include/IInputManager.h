@@ -28,5 +28,7 @@ namespace Storm
 		virtual void unbindMouseMiddleClick(Storm::CallbackIdType callbackId) = 0;
 		virtual Storm::CallbackIdType bindMouseWheel(Storm::WheelBinding &&binding) = 0;
 		virtual void unbindMouseWheel(Storm::CallbackIdType callbackId) = 0;
+
+		virtual void clearKeyboardState() = 0;
 	};
 }
