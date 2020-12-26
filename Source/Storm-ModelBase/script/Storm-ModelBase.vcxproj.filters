@@ -133,6 +133,9 @@
     <Filter Include="Header Files\Modules\Script">
       <UniqueIdentifier>{c37f756d-fe33-4612-bd3d-56d53bea8fe6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Modules\Process">
+      <UniqueIdentifier>{6da7ee59-9301-47b4-a812-77139881bc03}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-ModelBasePCH.cpp">
@@ -394,6 +397,9 @@
     </ClInclude>
     <ClInclude Include="..\include\DeclareScriptableItem.h">
       <Filter>Header Files\Modules\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\StormProcessStartup.h">
+      <Filter>Header Files\Modules\Process</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

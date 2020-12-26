@@ -57,6 +57,7 @@
     <ClInclude Include="..\include\ShaderMacroItem.h" />
     <ClInclude Include="..\include\SimulationState.h" />
     <ClInclude Include="..\include\StateLoadingOrders.h" />
+    <ClInclude Include="..\include\StormProcessStartup.h" />
     <ClInclude Include="..\include\SystemSimulationStateObject.h" />
     <ClInclude Include="..\include\StateSavingOrders.h" />
     <ClInclude Include="..\include\ThreadingSafety.h" />
