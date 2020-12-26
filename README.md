@@ -472,3 +472,7 @@ Here the list of available commands :
 - **void cycleColoredSetting()**: Cycle the particle coloring observed quantities. This is the same method bound to the key inputs.
 - **void setColorSettingMinMaxValue(float minValue, float maxValue)**: Set the min and max values for the observed particle colors fields.
 
+
+#### OSManager (osMgr)
+
+- **void clearProcesses()**: Clear all processes (this closes all processes those life will be shared with Storm application).

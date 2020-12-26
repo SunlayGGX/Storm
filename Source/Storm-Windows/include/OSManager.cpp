@@ -3,6 +3,8 @@
 #include "CDialogEventHandler.h"
 #include "CoInitializerRAII.h"
 
+#include "StormProcess.h"
+
 #include <atlbase.h>
 #include <comdef.h>
 
@@ -76,8 +78,87 @@ namespace
 	};
 }
 
-Storm::OSManager::OSManager() = default;
+namespace Storm
+{
+	namespace details
+	{
+		class ProcessesHolder
+		{
+		private:
+			template<class ProcessesContainer>
+			static void prepareDestroyAll(ProcessesContainer &procArray)
+			{
+				for (auto &processPair : procArray)
+				{
+					processPair.second.prepareDestroy();
+				}
+			}
+
+		public:
+			~ProcessesHolder()
+			{
+				Storm::details::ProcessesHolder::prepareDestroyAll(_processes);
+			}
+
+		public:
+			std::size_t startProcess(Storm::StormProcessStartup &&startup)
+			{
+				Storm::StormProcess tmp{ std::move(startup) };
+
+				std::lock_guard<std::mutex> lock{ _processMutex };
+				_processes.emplace(++_referralId, std::move(tmp));
+				return _referralId;
+			}
+
+			void clearProcesses()
+			{
+				decltype(_processes) tmp;
+
+				{
+					std::lock_guard<std::mutex> lock{ _processMutex };
+					std::swap(tmp, _processes);
+				}
+
+				Storm::details::ProcessesHolder::prepareDestroyAll(tmp);
+			}
+
+			int queryProcessExitCode(const std::size_t processUID, bool &outReturned, bool &outFailure) const
+			{
+				std::lock_guard<std::mutex> lock{ _processMutex };
+				if (const auto found = _processes.find(processUID); found != std::end(_processes))
+				{
+					const Storm::StormProcess &proc = found->second;
+					return proc.getExitCode(outReturned, outFailure);
+				}
+				else
+				{
+					Storm::throwException<Storm::StormException>("Cannot find the process " + Storm::toStdString(processUID) + " managed by this module");
+				}
+			}
+
+		private:
+			std::map<std::size_t, Storm::StormProcess> _processes;
+			std::size_t _referralId;
+			mutable std::mutex _processMutex;
+		};
+	}
+}
+
+Storm::OSManager::OSManager() :
+	_processHolder{ std::make_unique<Storm::details::ProcessesHolder>() }
+{}
+
 Storm::OSManager::~OSManager() = default;
+
+void Storm::OSManager::cleanUp_Implementation()
+{
+	_processHolder.reset();
+}
+
+void Storm::OSManager::clearProcesses()
+{
+	_processHolder->clearProcesses();
+}
 
 std::wstring Storm::OSManager::openFileExplorerDialog(const std::wstring &defaultStartingPath, const std::map<std::wstring, std::wstring> &filters)
 {
@@ -262,4 +343,14 @@ std::wstring Storm::OSManager::openFileExplorerDialog(const std::wstring &defaul
 unsigned int Storm::OSManager::obtainCurrentPID() const
 {
 	return ::GetCurrentProcessId();
+}
+
+std::size_t Storm::OSManager::startProcess(Storm::StormProcessStartup &&startup)
+{
+	return _processHolder->startProcess(std::move(startup));
+}
+
+int Storm::OSManager::queryProcessExitCode(const std::size_t processUID, bool &outReturned, bool &outFailure) const
+{
+	return _processHolder->queryProcessExitCode(processUID, outReturned, outFailure);
 }
