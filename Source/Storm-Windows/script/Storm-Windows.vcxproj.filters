@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\Process">
+      <UniqueIdentifier>{bd387df6-386e-447e-adc7-f031879c35ea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Process">
+      <UniqueIdentifier>{5813ea2b-8030-46d8-97d3-b4b8357148aa}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-WindowsPCH.cpp">
@@ -26,6 +32,12 @@
     </ClCompile>
     <ClCompile Include="..\include\CDialogEventHandler.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\StormProcess.cpp">
+      <Filter>Source Files\Process</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\StormProcessOpener.cpp">
+      <Filter>Source Files\Process</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -43,6 +55,12 @@
     </ClInclude>
     <ClInclude Include="..\include\CDialogEventHandler.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\StormProcess.h">
+      <Filter>Header Files\Process</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\StormProcessOpener.h">
+      <Filter>Header Files\Process</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -18,6 +18,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\include\StormProcess.cpp" />
+    <ClCompile Include="..\include\StormProcessOpener.cpp" />
     <ClCompile Include="..\include\WindowsManager.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -25,6 +26,7 @@
     <ClInclude Include="..\include\OSManager.h" />
     <ClInclude Include="..\include\Storm-WindowsPCH.h" />
     <ClInclude Include="..\include\StormProcess.h" />
+    <ClInclude Include="..\include\StormProcessOpener.h" />
     <ClInclude Include="..\include\WindowsManager.h" />
     <ClInclude Include="..\ressource\resource.h" />
   </ItemGroup>
