@@ -117,7 +117,7 @@ namespace Storm
 		void resetReplay_SimulationThread();
 
 	public:
-		void saveSimulationState() const;
+		void saveSimulationState() const final override;
 
 	private:
 		void refreshParticlePartition(bool ignoreStatics = true) const;

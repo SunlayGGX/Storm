@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\include\NetworkManager.cpp" />
     <ClCompile Include="..\include\Storm-NetworkPCH.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
@@ -18,6 +19,7 @@
     <ClCompile Include="..\include\WebManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\include\NetworkManager.h" />
     <ClInclude Include="..\include\Storm-NetworkPCH.h" />
     <ClInclude Include="..\include\WebManager.h" />
   </ItemGroup>

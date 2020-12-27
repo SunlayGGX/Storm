@@ -21,6 +21,7 @@
 #include "SerializerManager.h"
 #include "ScriptManager.h"
 #include "WebManager.h"
+#include "NetworkManager.h"
 
 #include "ScriptImplementation.inl.h"
 
@@ -41,6 +42,7 @@ namespace
 		Storm::ProfilerManager,
 		Storm::ThreadManager,
 		Storm::RandomManager,
+		Storm::NetworkManager,
 		Storm::OSManager,
 		Storm::TimeManager,
 		Storm::InputManager,
@@ -89,6 +91,7 @@ namespace
 			Storm::RandomManager::instance().initialize();
 			Storm::OSManager::instance().initialize();
 
+			Storm::NetworkManager::instance().initialize();
 			Storm::WebManager::instance().initialize();
 
 			if (hasUI)
@@ -184,6 +187,7 @@ namespace
 
 			Storm::WebManager::instance().cleanUp();
 			Storm::OSManager::instance().cleanUp();
+			Storm::NetworkManager::instance().cleanUp();
 			Storm::RandomManager::instance().cleanUp();
 			Storm::SerializerManager::instance().cleanUp();
 			Storm::ConfigManager::instance().cleanUp();

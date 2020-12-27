@@ -6,6 +6,7 @@
 #include "ITimeManager.h"
 #include "IInputManager.h"
 #include "IThreadManager.h"
+#include "ISimulatorManager.h"
 #include "IConfigManager.h"
 
 #include "GeneralGraphicConfig.h"
@@ -47,6 +48,10 @@ namespace
 			case IDCLOSE:
 			case ID_FILE_QUIT:
 				Storm::WindowsManager::instance().callQuitCallback();
+				break;
+
+			case ID_FILE_SAVE:
+				Storm::SingletonHolder::instance().getSingleton<Storm::ISimulatorManager>().saveSimulationState();
 				break;
 
 			case ID_TOOLS_STORM: // In fact it is the logviewer.
@@ -244,7 +249,7 @@ void Storm::WindowsManager::initializeInternal()
 
 	HINSTANCE dllInstance = ::GetModuleHandle(nullptr);
 
-	if (!LoadString(dllInstance, IDS_TITLE, szTitle, MAX_TITLE_COUNT))
+	if (!::LoadString(dllInstance, IDS_TITLE, szTitle, MAX_TITLE_COUNT))
 	{
 		LOG_ERROR << "Windows application name couldn't be loaded. Error code is " << Storm::toStdString(GetLastError());
 	}
@@ -285,7 +290,7 @@ void Storm::WindowsManager::initializeInternal()
 	}
 
 	TCHAR windowClass[Storm::WindowsManager::MAX_TITLE_COUNT];
-	if (!LoadString(dllInstance, IDR_STORM, windowClass, MAX_TITLE_COUNT))
+	if (!::LoadString(dllInstance, IDS_STORM, windowClass, MAX_TITLE_COUNT))
 	{
 		LOG_ERROR << "Windows application class couldn't be loaded. Error code is " << Storm::toStdString(GetLastError());
 	}

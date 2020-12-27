@@ -46,5 +46,8 @@ namespace Storm
 
 	public:
 		virtual void exitWithCode(Storm::ExitCode code) = 0;
+
+	public:
+		virtual void saveSimulationState() const = 0;
 	};
 }

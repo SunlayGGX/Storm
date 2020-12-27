@@ -51,6 +51,8 @@ void Storm::SimulatorManager::registerCurrentOnScript(IScriptWrapperInterface &s
 		
 		STORM_DECLARE_SCRIPTED_METHOD(resetReplay),
 
+		STORM_DECLARE_SCRIPTED_METHOD(saveSimulationState),
+
 		// Frame advance manip
 		STORM_DECLARE_SCRIPTED_METHOD(advanceOneFrame),
 		STORM_DECLARE_SCRIPTED_METHOD(advanceByFrame)

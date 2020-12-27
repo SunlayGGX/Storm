@@ -470,6 +470,7 @@ Here the list of available commands :
 #### SimulatorManager (simulMgr)
 
 - **void resetReplay()**: Reset the replay. This is the same method bound to the key inputs.
+- **void saveSimulationState()**: Save the simulation state into a state file. This is the same method bound to the key inputs.
 - **void advanceOneFrame()**: Advance the simulation to the next frame. Available only if the simulation is paused. This is the same method bound to the key inputs.
 - **void advanceByFrame(int frameCount)**: Advance the paused simulation by frameCount frames. The frameCount value must be positive !
 

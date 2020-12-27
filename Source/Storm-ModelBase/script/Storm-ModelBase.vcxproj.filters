@@ -437,5 +437,8 @@
     <ClInclude Include="..\include\GeneralSimulationConfig.h">
       <Filter>Header Files\Modules\Config\General</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\INetworkManager.h">
+      <Filter>Header Files\Singleton</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
