@@ -12,6 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\ColorChecker.cpp" />
+    <ClCompile Include="..\include\GeneralConfig.cpp" />
     <ClCompile Include="..\include\RaycastRequestObject.cpp" />
     <ClCompile Include="..\include\RigidBodyHolder.cpp" />
     <ClCompile Include="..\include\SceneConfig.cpp" />
@@ -27,6 +28,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\AsyncAction.h" />
+    <ClInclude Include="..\include\GeneralConfig.h" />
+    <ClInclude Include="..\include\GeneralDebugConfig.h" />
+    <ClInclude Include="..\include\GeneralGraphicConfig.h" />
+    <ClInclude Include="..\include\GeneralSimulationConfig.h" />
     <ClInclude Include="..\include\SceneBlowerConfig.h" />
     <ClInclude Include="..\include\BlowerDef.h" />
     <ClInclude Include="..\include\BlowerState.h" />
@@ -38,6 +43,7 @@
     <ClInclude Include="..\include\SceneConstraintConfig.h" />
     <ClInclude Include="..\include\FluidParticleLoadDenseMode.h" />
     <ClInclude Include="..\include\SceneSimulationConfig.h" />
+    <ClInclude Include="..\include\GeneralWebConfig.h" />
     <ClInclude Include="..\include\SceneGraphicConfig.h" />
     <ClInclude Include="..\include\DeclareScriptableItem.h" />
     <ClInclude Include="..\include\IScriptManager.h" />

@@ -16,10 +16,12 @@
 #include "SpecialKey.h"
 
 #include "SceneSimulationConfig.h"
+#include "GeneralDebugConfig.h"
 
 #include "UIField.h"
 
 #include "LeanWindowsInclude.h"
+
 #include <timeapi.h>
 
 #define STORM_ELAPSED_TIME_FIELD_NAME "elapsed time"
@@ -90,7 +92,7 @@ void Storm::TimeManager::initialize_Implementation()
 		this->setExpectedFrameFPS(requestedFps);
 	}
 
-	_shouldLogFPSWatching = configMgr.getShouldLogFpsWatching();
+	_shouldLogFPSWatching = configMgr.getGeneralDebugConfig()._shouldLogFPSWatching;
 
 	_fields
 		.bindField(STORM_ELAPSED_TIME_FIELD_NAME, _physicsElapsedTimeInSeconds)

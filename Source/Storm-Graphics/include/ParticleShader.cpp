@@ -4,6 +4,7 @@
 #include "SingletonHolder.h"
 #include "IConfigManager.h"
 
+#include "GeneralGraphicConfig.h"
 #include "SceneSimulationConfig.h"
 
 #include "ShaderMacroItem.h"
@@ -65,7 +66,7 @@ namespace
 		const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
 
 		return Storm::ShaderMacroContainer{}
-			.addMacro("STORM_SELECTED_PARTICLE_ON_TOP", configMgr.getSelectedParticleShouldBeTopMost())
+			.addMacro("STORM_SELECTED_PARTICLE_ON_TOP", configMgr.getGeneralGraphicConfig()._selectedParticleShouldBeTopMost)
 			;
 	}
 }

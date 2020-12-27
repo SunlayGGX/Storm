@@ -33,10 +33,10 @@
     <ClCompile Include="..\include\MacroConfig.cpp">
       <Filter>Source Files\ConfigHolder</Filter>
     </ClCompile>
-    <ClCompile Include="..\include\GeneralConfig.cpp">
+    <ClCompile Include="..\include\SceneConfigHolder.cpp">
       <Filter>Source Files\ConfigHolder</Filter>
     </ClCompile>
-    <ClCompile Include="..\include\SceneConfigHolder.cpp">
+    <ClCompile Include="..\include\GeneralConfigHolder.cpp">
       <Filter>Source Files\ConfigHolder</Filter>
     </ClCompile>
   </ItemGroup>
@@ -53,10 +53,10 @@
     <ClInclude Include="..\include\MacroConfig.h">
       <Filter>Header Files\ConfigHolder</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\GeneralConfig.h">
+    <ClInclude Include="..\include\SceneConfigHolder.h">
       <Filter>Header Files\ConfigHolder</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\SceneConfigHolder.h">
+    <ClInclude Include="..\include\GeneralConfigHolder.h">
       <Filter>Header Files\ConfigHolder</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,29 +1,30 @@
 #pragma once
 
+#include "SceneSimulationConfig.h"
+#include "SceneGraphicConfig.h"
+#include "SceneFluidConfig.h"
+#include "SceneRecordConfig.h"
+#include "SceneScriptConfig.h"
+
 
 namespace Storm
 {
-	struct SceneSimulationConfig;
-	struct SceneGraphicConfig;
-	struct SceneFluidConfig;
 	struct SceneRigidBodyConfig;
 	struct SceneBlowerConfig;
 	struct SceneConstraintConfig;
-	struct SceneRecordConfig;
-	struct SceneScriptConfig;
 
 	struct SceneConfig
 	{
 	public:
-		SceneConfig();
 		~SceneConfig();
 
 	public:
-		std::unique_ptr<Storm::SceneSimulationConfig> _simulationConfig;
-		std::unique_ptr<Storm::SceneGraphicConfig> _graphicConfig;
-		std::unique_ptr<Storm::SceneFluidConfig> _fluidConfig;
-		std::unique_ptr<Storm::SceneRecordConfig> _recordConfig;
-		std::unique_ptr<Storm::SceneScriptConfig> _scriptConfig;
+		Storm::SceneSimulationConfig _simulationConfig;
+		Storm::SceneGraphicConfig _graphicConfig;
+		Storm::SceneFluidConfig _fluidConfig;
+		Storm::SceneRecordConfig _recordConfig;
+		Storm::SceneScriptConfig _scriptConfig;
+
 		std::vector<Storm::SceneRigidBodyConfig> _rigidBodiesConfig;
 		std::vector<Storm::SceneBlowerConfig> _blowersConfig;
 		std::vector<Storm::SceneConstraintConfig> _contraintsConfig;

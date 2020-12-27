@@ -1,14 +1,17 @@
 #include "WindowsManager.h"
 
 #include "resource.h"
-#include "ThreadHelper.h"
-#include "ThreadEnumeration.h"
 
 #include "SingletonHolder.h"
 #include "ITimeManager.h"
 #include "IInputManager.h"
 #include "IThreadManager.h"
 #include "IConfigManager.h"
+
+#include "GeneralGraphicConfig.h"
+
+#include "ThreadHelper.h"
+#include "ThreadEnumeration.h"
 
 #include "UIModality.h"
 
@@ -314,8 +317,10 @@ void Storm::WindowsManager::initializeInternal()
 		RegisterClassEx(&wcex);
 	}
 
-	int xPos = configMgr.getWantedScreenXPosition();
-	int yPos = configMgr.getWantedScreenYPosition();
+	const Storm::GeneralGraphicConfig &generalGraphicConfig = configMgr.getGeneralGraphicConfig();
+
+	int xPos = generalGraphicConfig._wantedApplicationXPos;
+	int yPos = generalGraphicConfig._wantedApplicationYPos;
 
 	if (xPos == std::numeric_limits<int>::max())
 	{

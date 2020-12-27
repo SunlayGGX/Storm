@@ -18,6 +18,7 @@
 #include "FluidParticleSystem.h"
 #include "RigidBodyParticleSystem.h"
 
+#include "GeneralDebugConfig.h"
 #include "SceneSimulationConfig.h"
 #include "SceneFluidConfig.h"
 #include "SceneRecordConfig.h"
@@ -635,7 +636,7 @@ Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 
 	Storm::ITimeManager &timeMgr = singletonHolder.getSingleton<Storm::ITimeManager>();
 	Storm::IThreadManager &threadMgr = singletonHolder.getSingleton<Storm::IThreadManager>();
-	Storm::IProfilerManager* profilerMgrNullablePtr = configMgr.getShouldProfileSimulationSpeed() ? singletonHolder.getFacet<Storm::IProfilerManager>() : nullptr;
+	Storm::IProfilerManager* profilerMgrNullablePtr = configMgr.getGeneralDebugConfig()._profileSimulationSpeed ? singletonHolder.getFacet<Storm::IProfilerManager>() : nullptr;
 
 	const Storm::SceneRecordConfig &sceneRecordConfig = configMgr.getSceneRecordConfig();
 	Storm::ISerializerManager &serializerMgr = singletonHolder.getSingleton<Storm::ISerializerManager>();
@@ -812,7 +813,7 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 
 	assert(!configMgr.isInReplayMode() && "runSimulation_Internal shouldn't be used in replay mode!");
 
-	Storm::IProfilerManager* profilerMgrNullablePtr = configMgr.getShouldProfileSimulationSpeed() ? singletonHolder.getFacet<Storm::IProfilerManager>() : nullptr;
+	Storm::IProfilerManager* profilerMgrNullablePtr = configMgr.getGeneralDebugConfig()._profileSimulationSpeed ? singletonHolder.getFacet<Storm::IProfilerManager>() : nullptr;
 	const bool hasUI = configMgr.withUI();
 
 	std::vector<Storm::SimulationCallback> tmpSimulationCallback;

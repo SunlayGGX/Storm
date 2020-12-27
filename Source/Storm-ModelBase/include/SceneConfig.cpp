@@ -1,4 +1,5 @@
 #include "SceneConfig.h"
+
 #include "SceneSimulationConfig.h"
 #include "SceneRigidBodyConfig.h"
 #include "SceneGraphicConfig.h"
@@ -156,16 +157,6 @@ Storm::SceneScriptConfig::SceneScriptConfig() :
 	_scriptFilePipe._refreshRateInMillisec = 100;
 
 	_scriptFilePipe._filePath = (std::filesystem::path{ "$[StormScripts]" } / "RuntimeScript.txt").string();
-}
-
-Storm::SceneConfig::SceneConfig() :
-	_simulationConfig{ std::make_unique<Storm::SceneSimulationConfig>() },
-	_graphicConfig{ std::make_unique<Storm::SceneGraphicConfig>() },
-	_fluidConfig{ std::make_unique<Storm::SceneFluidConfig>() },
-	_recordConfig{ std::make_unique<Storm::SceneRecordConfig>() },
-	_scriptConfig{ std::make_unique<Storm::SceneScriptConfig>() }
-{
-
 }
 
 // Needed for prototypes. Otherwise, std::vector declared inside this structure won't compile anywhere else because the underlying structure wasn't defined (vector cannot destroy undefined element)...

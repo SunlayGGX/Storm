@@ -93,10 +93,10 @@ namespace
 
 		result += "start chrome.exe ";
 
-		if (configMgr.urlOpenIncognito())
+		/*if (configMgr.urlOpenIncognito())
 		{
 			result += "-incognito ";
-		}
+		}*/
 
 		result += "--new-window ";
 

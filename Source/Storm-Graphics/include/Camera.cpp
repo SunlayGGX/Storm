@@ -3,6 +3,7 @@
 #include "IConfigManager.h"
 #include "SingletonHolder.h"
 
+#include "GeneralGraphicConfig.h"
 #include "SceneGraphicConfig.h"
 
 #include "UIFieldBase.h"
@@ -227,7 +228,7 @@ Storm::Camera::Camera(float viewportWidth, float viewportHeight) :
 		;
 
 	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
-	_planesFixedFromTranslatMoves = configMgr.getFixNearFarPlanesWhenTranslatingFlag();
+	_planesFixedFromTranslatMoves = configMgr.getGeneralGraphicConfig()._fixNearFarPlanesWhenTranslating;
 }
 
 Storm::Camera::~Camera() = default;

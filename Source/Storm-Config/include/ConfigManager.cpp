@@ -4,6 +4,8 @@
 #include "SingletonHolder.h"
 #include "IOSManager.h"
 
+#include "GeneralConfig.h"
+
 #include "SceneConfig.h"
 #include "SceneRigidBodyConfig.h"
 #include "SceneRecordConfig.h"
@@ -172,14 +174,17 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 			_macroConfig.resolveInternalMacro();
 
 			const std::string generalConfigFilePathStrFromCmdLine = _macroConfig(parser.getGeneralConfigFilePath());
-			if (generalConfigFilePathStrFromCmdLine.empty() || !_generalConfig.read(generalConfigFilePathStrFromCmdLine))
+			if (generalConfigFilePathStrFromCmdLine.empty() || !_generalConfigHolder.read(generalConfigFilePathStrFromCmdLine))
 			{
-				_generalConfig.read(defaultGeneralConfigFilePath.string());
+				_generalConfigHolder.read(defaultGeneralConfigFilePath.string());
 			}
 
-			_generalConfig.applyMacros(_macroConfig);
+			// Now that we have read the general config and know what to do with vectored exception, set it here.
+			Storm::setLogVectoredExceptionsDisplayMode(this->getGeneralDebugConfig()._displayVectoredExceptions);
 
-			_sceneConfigHolder.read(_sceneConfigFilePath, _macroConfig, _generalConfig);
+			_generalConfigHolder.applyMacros(_macroConfig);
+
+			_sceneConfigHolder.read(_sceneConfigFilePath, _macroConfig, _generalConfigHolder);
 		}
 		else
 		{
@@ -232,13 +237,13 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 			LOG_WARNING << "State loading is an experimental feature and wasn't fully tested! It is still incomplete and could have bugs! Enable it at your own risks!";
 		}
 
-		const Storm::SceneConfig &sceneConfig = _sceneConfigHolder.getSceneConfig();
+		Storm::SceneConfig &sceneConfig = _sceneConfigHolder.getConfig();
 
 		_loadPhysicsTime = !noLoadPhysicsTime;
 		_loadForces = !noForcesLoadSpecified;
 		_loadVelocities = !noVelocitiesLoadSpecified;
 
-		Storm::SceneRecordConfig &sceneRecordConfig = *sceneConfig._recordConfig;
+		Storm::SceneRecordConfig &sceneRecordConfig = sceneConfig._recordConfig;
 		sceneRecordConfig._recordMode = chosenRecordMode;
 
 		std::string recordFilePath;
@@ -280,7 +285,7 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 				Storm::throwException<Storm::StormException>(sceneRecordConfig._recordFilePath + " doesn't exist or isn't a regular record file!");
 			}
 
-			Storm::SceneSimulationConfig &sceneSimulationConfig = *sceneConfig._simulationConfig;
+			Storm::SceneSimulationConfig &sceneSimulationConfig = sceneConfig._simulationConfig;
 			if (sceneRecordConfig._replayRealTime && sceneSimulationConfig._simulationNoWait)
 			{
 				LOG_WARNING <<
@@ -314,7 +319,7 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 		_withUI = !noUI;
 		if (noUI)
 		{
-			bool &startPaused = sceneConfig._simulationConfig->_startPaused;
+			bool &startPaused = sceneConfig._simulationConfig._startPaused;
 			if (startPaused)
 			{
 				startPaused = false;
@@ -367,114 +372,69 @@ void Storm::ConfigManager::stateShouldLoad(bool &outLoadPhysicsTime, bool &outLo
 	outLoadVelocities = _loadVelocities;
 }
 
-bool Storm::ConfigManager::noPopup() const
-{
-	return _allowPopup;
-}
-
-Storm::VectoredExceptionDisplayMode Storm::ConfigManager::getVectoredExceptionsDisplayMode() const
-{
-	return _generalConfig._displayVectoredExceptions;
-}
-
-bool Storm::ConfigManager::getShouldProfileSimulationSpeed() const
-{
-	return _generalConfig._profileSimulationSpeed;
-}
-
-bool Storm::ConfigManager::urlOpenIncognito() const
-{
-	return _generalConfig._urlOpenIncognito;
-}
-
-unsigned int Storm::ConfigManager::getWantedScreenWidth() const
-{
-	return _generalConfig._wantedApplicationWidth;
-}
-
-unsigned int Storm::ConfigManager::getWantedScreenHeight() const
-{
-	return _generalConfig._wantedApplicationHeight;
-}
-
-int Storm::ConfigManager::getWantedScreenXPosition() const
-{
-	return _generalConfig._wantedApplicationXPos;
-}
-
-int Storm::ConfigManager::getWantedScreenYPosition() const
-{
-	return _generalConfig._wantedApplicationYPos;
-}
-
-float Storm::ConfigManager::getFontSize() const
-{
-	return _generalConfig._fontSize;
-}
-
-bool Storm::ConfigManager::getFixNearFarPlanesWhenTranslatingFlag() const
-{
-	return _generalConfig._fixNearFarPlanesWhenTranslating;
-}
-
-bool Storm::ConfigManager::getSelectedParticleShouldBeTopMost() const
-{
-	return _generalConfig._selectedParticleShouldBeTopMost;
-}
-
-bool Storm::ConfigManager::getSelectedParticleForceShouldBeTopMost() const
-{
-	return _generalConfig._selectedParticleForceShouldBeTopMost;
-}
-
 bool Storm::ConfigManager::shouldDisplayHelp() const
 {
 	return _shouldDisplayHelp;
 }
 
-const Storm::SceneConfig& Storm::ConfigManager::getSceneConfig() const
+const Storm::GeneralGraphicConfig& Storm::ConfigManager::getGeneralGraphicConfig() const
 {
-	return _sceneConfigHolder.getSceneConfig();
+	return _generalConfigHolder.getConfig()._generalGraphicConfig;
+}
+
+const Storm::GeneralSimulationConfig& Storm::ConfigManager::getGeneralSimulationConfig() const
+{
+	return _generalConfigHolder.getConfig()._generalSimulationConfig;
+}
+
+const Storm::GeneralWebConfig& Storm::ConfigManager::getGeneralWebConfig() const
+{
+	return _generalConfigHolder.getConfig()._generalWebConfig;
+}
+
+const Storm::GeneralDebugConfig& Storm::ConfigManager::getGeneralDebugConfig() const
+{
+	return _generalConfigHolder.getConfig()._generalDebugConfig;
 }
 
 const Storm::SceneGraphicConfig& Storm::ConfigManager::getSceneGraphicConfig() const
 {
-	return *_sceneConfigHolder.getSceneConfig()._graphicConfig;
+	return _sceneConfigHolder.getConfig()._graphicConfig;
 }
 
 const Storm::SceneSimulationConfig& Storm::ConfigManager::getSceneSimulationConfig() const
 {
-	return *_sceneConfigHolder.getSceneConfig()._simulationConfig;
+	return _sceneConfigHolder.getConfig()._simulationConfig;
 }
 
 const std::vector<Storm::SceneRigidBodyConfig>& Storm::ConfigManager::getSceneRigidBodiesConfig() const
 {
-	return _sceneConfigHolder.getSceneConfig()._rigidBodiesConfig;
+	return _sceneConfigHolder.getConfig()._rigidBodiesConfig;
 }
 
 const Storm::SceneFluidConfig& Storm::ConfigManager::getSceneFluidConfig() const
 {
-	return *_sceneConfigHolder.getSceneConfig()._fluidConfig;
+	return _sceneConfigHolder.getConfig()._fluidConfig;
 }
 
 const Storm::SceneRecordConfig& Storm::ConfigManager::getSceneRecordConfig() const
 {
-	return *_sceneConfigHolder.getSceneConfig()._recordConfig;
+	return _sceneConfigHolder.getConfig()._recordConfig;
 }
 
 const std::vector<Storm::SceneBlowerConfig>& Storm::ConfigManager::getSceneBlowersConfig() const
 {
-	return _sceneConfigHolder.getSceneConfig()._blowersConfig;
+	return _sceneConfigHolder.getConfig()._blowersConfig;
 }
 
 const std::vector<Storm::SceneConstraintConfig>& Storm::ConfigManager::getSceneConstraintsConfig() const
 {
-	return _sceneConfigHolder.getSceneConfig()._contraintsConfig;
+	return _sceneConfigHolder.getConfig()._contraintsConfig;
 }
 
 const Storm::SceneRigidBodyConfig& Storm::ConfigManager::getSceneRigidBodyConfig(unsigned int rbId) const
 {
-	const std::vector<Storm::SceneRigidBodyConfig> &rbConfigArrays = _sceneConfigHolder.getSceneConfig()._rigidBodiesConfig;
+	const std::vector<Storm::SceneRigidBodyConfig> &rbConfigArrays = _sceneConfigHolder.getConfig()._rigidBodiesConfig;
 	if (const auto currentRbConfigIter = std::find_if(std::begin(rbConfigArrays), std::end(rbConfigArrays), [rbId](const Storm::SceneRigidBodyConfig &rb)
 	{
 		return rb._rigidBodyID == rbId;
@@ -490,52 +450,12 @@ const Storm::SceneRigidBodyConfig& Storm::ConfigManager::getSceneRigidBodyConfig
 
 const Storm::SceneScriptConfig& Storm::ConfigManager::getSceneScriptConfig() const
 {
-	return *_sceneConfigHolder.getSceneConfig()._scriptConfig;
-}
-
-const std::string& Storm::ConfigManager::getLogFileName() const
-{
-	return _generalConfig._logFileName;
-}
-
-const std::string& Storm::ConfigManager::getLogFolderPath() const
-{
-	return _generalConfig._logFolderPath;
-}
-
-Storm::LogLevel Storm::ConfigManager::getLogLevel() const
-{
-	return _generalConfig._logLevel;
-}
-
-int Storm::ConfigManager::getRemoveLogOlderThanDaysCount() const
-{
-	return _generalConfig._removeLogsOlderThanDays;
-}
-
-bool Storm::ConfigManager::getShouldOverrideOldLog() const
-{
-	return _generalConfig._overrideLogs;
-}
-
-bool Storm::ConfigManager::getShouldLogFpsWatching() const
-{
-	return _generalConfig._shouldLogFPSWatching;
-}
-
-bool Storm::ConfigManager::getShouldLogGraphicDeviceMessage() const
-{
-	return _generalConfig._shouldLogGraphicDeviceMessage;
-}
-
-bool Storm::ConfigManager::getShouldLogPhysics() const
-{
-	return _generalConfig._shouldLogPhysics;
+	return _sceneConfigHolder.getConfig()._scriptConfig;
 }
 
 bool Storm::ConfigManager::isInReplayMode() const noexcept
 {
-	return _sceneConfigHolder.getSceneConfig()._recordConfig->_recordMode == Storm::RecordMode::Replay;
+	return _sceneConfigHolder.getConfig()._recordConfig._recordMode == Storm::RecordMode::Replay;
 }
 
 bool Storm::ConfigManager::userCanModifyTimestep() const noexcept

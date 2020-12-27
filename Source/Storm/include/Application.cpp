@@ -76,8 +76,6 @@ namespace
 
 		Storm::ConfigManager::instance().initialize(argc, argv);
 
-		Storm::setLogVectoredExceptionsDisplayMode(Storm::ConfigManager::instance().getVectoredExceptionsDisplayMode());
-
 		Storm::LoggerManager::instance().initialize();
 
 		Storm::ThreadManager::instance().initialize();

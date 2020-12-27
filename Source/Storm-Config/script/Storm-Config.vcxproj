@@ -13,7 +13,7 @@
   <ItemGroup>
     <ClCompile Include="..\include\CommandLineParser.cpp" />
     <ClCompile Include="..\include\ConfigManager.cpp" />
-    <ClCompile Include="..\include\GeneralConfig.cpp" />
+    <ClCompile Include="..\include\GeneralConfigHolder.cpp" />
     <ClCompile Include="..\include\MacroConfig.cpp" />
     <ClCompile Include="..\include\SceneConfigHolder.cpp" />
     <ClCompile Include="..\include\Storm-ConfigPCH.cpp">
@@ -24,7 +24,7 @@
   <ItemGroup>
     <ClInclude Include="..\include\CommandLineParser.h" />
     <ClInclude Include="..\include\ConfigManager.h" />
-    <ClInclude Include="..\include\GeneralConfig.h" />
+    <ClInclude Include="..\include\GeneralConfigHolder.h" />
     <ClInclude Include="..\include\MacroConfig.h" />
     <ClInclude Include="..\include\SceneConfigHolder.h" />
     <ClInclude Include="..\include\Storm-ConfigPCH.h" />

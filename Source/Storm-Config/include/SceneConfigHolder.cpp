@@ -1,7 +1,7 @@
 #include "SceneConfigHolder.h"
 
 #include "MacroConfig.h"
-#include "GeneralConfig.h"
+#include "GeneralConfigHolder.h"
 
 #include "SceneConfig.h"
 #include "SceneSimulationConfig.h"
@@ -12,6 +12,8 @@
 #include "SceneConstraintConfig.h"
 #include "SceneRecordConfig.h"
 #include "SceneScriptConfig.h"
+
+#include "GeneralConfig.h"
 
 #include "CollisionType.h"
 #include "SimulationMode.h"
@@ -188,7 +190,7 @@ if (blowerTypeStr == BlowerTypeXmlName) return Storm::BlowerType::BlowerTypeName
 }
 
 
-void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, const Storm::MacroConfig &macroConfig, const Storm::GeneralConfig &generalConfig)
+void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, const Storm::MacroConfig &macroConfig, const Storm::GeneralConfigHolder &generalConfigHolder)
 {
 	_sceneConfig = std::make_unique<Storm::SceneConfig>();
 
@@ -199,7 +201,8 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 
 	/* General */
 	// This is mandatory, so no optional
-	Storm::SceneSimulationConfig &sceneSimulationConfig = *_sceneConfig->_simulationConfig;
+	Storm::SceneSimulationConfig &sceneSimulationConfig = _sceneConfig->_simulationConfig;
+
 	const auto &generalTree = srcTree.get_child("General");
 	for (const auto &generalXmlElement : generalTree)
 	{
@@ -299,7 +302,7 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 	/* Graphic */
 	const float defaultLineThickness = sceneSimulationConfig._particleRadius / 3.f;
 
-	Storm::SceneGraphicConfig &graphicConfig = *_sceneConfig->_graphicConfig;
+	Storm::SceneGraphicConfig &graphicConfig = _sceneConfig->_graphicConfig;
 	graphicConfig._constraintThickness = defaultLineThickness;
 	graphicConfig._forceThickness = defaultLineThickness;
 
@@ -367,7 +370,7 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 	const auto &recordTreeOpt = srcTree.get_child_optional("Record");
 	if (recordTreeOpt.has_value())
 	{
-		Storm::SceneRecordConfig &recordConfig = *_sceneConfig->_recordConfig;
+		Storm::SceneRecordConfig &recordConfig = _sceneConfig->_recordConfig;
 
 		const auto &recordTree = recordTreeOpt.value();
 		for (const auto &recordXmlElement : recordTree)
@@ -391,7 +394,7 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 	}
 
 	/* Script */
-	Storm::SceneScriptConfig &scriptConfig = *_sceneConfig->_scriptConfig;
+	Storm::SceneScriptConfig &scriptConfig = _sceneConfig->_scriptConfig;
 
 	const auto &scriptTreeOpt = srcTree.get_child_optional("Script");
 	if (scriptTreeOpt.has_value())
@@ -402,27 +405,27 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 			if (scriptXmlElement.first == "Init")
 			{
 				auto &scriptInitConfigData = scriptConfig._initScriptFiles;
-				for (const auto &scritpInitDataXml : scriptXmlElement.second)
+				for (const auto &scriptInitDataXml : scriptXmlElement.second)
 				{
 					if (
-						!Storm::XmlReader::handleXml(scritpInitDataXml, "initScriptFile", scriptInitConfigData._filePath)
+						!Storm::XmlReader::handleXml(scriptInitDataXml, "initScriptFile", scriptInitConfigData._filePath)
 						)
 					{
-						LOG_ERROR << "tag '" << scritpInitDataXml.first << "' (inside Scene.Script.Init) is unknown, therefore it cannot be handled";
+						LOG_ERROR << "tag '" << scriptInitDataXml.first << "' (inside Scene.Script.Init) is unknown, therefore it cannot be handled";
 					}
 				}
 			}
 			else if (scriptXmlElement.first == "Runtime")
 			{
 				auto &scriptRuntimeConfigData = scriptConfig._scriptFilePipe;
-				for (const auto &scritpRuntimeDataXml : scriptXmlElement.second)
+				for (const auto &scriptRuntimeDataXml : scriptXmlElement.second)
 				{
 					if (
-						!Storm::XmlReader::handleXml(scritpRuntimeDataXml, "watchedScriptFile", scriptRuntimeConfigData._filePath) &&
-						!Storm::XmlReader::handleXml(scritpRuntimeDataXml, "refreshTime", scriptRuntimeConfigData._refreshRateInMillisec)
+						!Storm::XmlReader::handleXml(scriptRuntimeDataXml, "watchedScriptFile", scriptRuntimeConfigData._filePath) &&
+						!Storm::XmlReader::handleXml(scriptRuntimeDataXml, "refreshTime", scriptRuntimeConfigData._refreshRateInMillisec)
 						)
 					{
-						LOG_ERROR << "tag '" << scritpRuntimeDataXml.first << "' (inside Scene.Script.Runtime) is unknown, therefore it cannot be handled";
+						LOG_ERROR << "tag '" << scriptRuntimeDataXml.first << "' (inside Scene.Script.Runtime) is unknown, therefore it cannot be handled";
 					}
 				}
 
@@ -444,7 +447,8 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 	macroConfig(scriptConfig._scriptFilePipe._filePath);
 
 	/* Fluids */
-	Storm::SceneFluidConfig &fluidConfig = *_sceneConfig->_fluidConfig;
+	Storm::SceneFluidConfig &fluidConfig = _sceneConfig->_fluidConfig;
+
 	const auto &fluidTreeOpt = srcTree.get_child_optional("Fluid");
 	if (fluidTreeOpt.has_value())
 	{
@@ -526,7 +530,7 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 
 		fluidConfig._cinematicViscosity = fluidConfig._dynamicViscosity / fluidConfig._density;
 	}
-	else if (generalConfig._allowNoFluid)
+	else if (generalConfigHolder.getConfig()._generalSimulationConfig._allowNoFluid)
 	{
 		sceneSimulationConfig._hasFluid = false;
 	}
@@ -537,6 +541,7 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 
 	/* RigidBodies */
 	auto &rigidBodiesConfigArray = _sceneConfig->_rigidBodiesConfig;
+
 	Storm::XmlReader::readDataInList(srcTree, "RigidBodies", "RigidBody", rigidBodiesConfigArray,
 		[](const auto &rigidBodyConfigXml, Storm::SceneRigidBodyConfig &rbConfig)
 	{
@@ -658,6 +663,7 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 
 	/* Blowers */
 	auto &blowersConfigArray = _sceneConfig->_blowersConfig;
+
 	Storm::XmlReader::readDataInList(srcTree, "Blowers", "Blower", blowersConfigArray,
 		[](const auto &blowerConfigXml, Storm::SceneBlowerConfig &blowerConfig)
 	{
@@ -903,7 +909,12 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 	});
 }
 
-const Storm::SceneConfig& Storm::SceneConfigHolder::getSceneConfig() const
+const Storm::SceneConfig& Storm::SceneConfigHolder::getConfig() const
+{
+	return *_sceneConfig;
+}
+
+Storm::SceneConfig& Storm::SceneConfigHolder::getConfig()
 {
 	return *_sceneConfig;
 }

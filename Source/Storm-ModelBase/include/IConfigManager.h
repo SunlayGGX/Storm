@@ -5,6 +5,11 @@
 
 namespace Storm
 {
+	struct GeneralGraphicConfig;
+	struct GeneralSimulationConfig;
+	struct GeneralWebConfig;
+	struct GeneralDebugConfig;
+
 	struct SceneConfig;
 	struct SceneGraphicConfig;
 	struct SceneRigidBodyConfig;
@@ -35,38 +40,13 @@ namespace Storm
 		virtual const std::string& getStateFilePath() const = 0;
 		virtual void stateShouldLoad(bool &outLoadPhysicsTime, bool &outLoadForces, bool &outLoadVelocities) const = 0;
 
-		// Logs
-		virtual const std::string& getLogFileName() const = 0;
-		virtual const std::string& getLogFolderPath() const = 0;
-		virtual Storm::LogLevel getLogLevel() const = 0;
-		virtual int getRemoveLogOlderThanDaysCount() const = 0;
-		virtual bool getShouldOverrideOldLog() const = 0;
-		virtual bool getShouldLogFpsWatching() const = 0;
-		virtual bool getShouldLogGraphicDeviceMessage() const = 0;
-		virtual bool getShouldLogPhysics() const = 0;
-		virtual bool noPopup() const = 0;
+		// General config
+		virtual const Storm::GeneralGraphicConfig& getGeneralGraphicConfig() const = 0;
+		virtual const Storm::GeneralSimulationConfig& getGeneralSimulationConfig() const = 0;
+		virtual const Storm::GeneralWebConfig& getGeneralWebConfig() const = 0;
+		virtual const Storm::GeneralDebugConfig& getGeneralDebugConfig() const = 0;
 
-		// Debug
-		virtual Storm::VectoredExceptionDisplayMode getVectoredExceptionsDisplayMode() const = 0;
-
-		// General Graphics
-		virtual unsigned int getWantedScreenWidth() const = 0;
-		virtual unsigned int getWantedScreenHeight() const = 0;
-		virtual int getWantedScreenXPosition() const = 0;
-		virtual int getWantedScreenYPosition() const = 0;
-		virtual float getFontSize() const = 0;
-		virtual bool getFixNearFarPlanesWhenTranslatingFlag() const = 0;
-		virtual bool getSelectedParticleShouldBeTopMost() const = 0;
-		virtual bool getSelectedParticleForceShouldBeTopMost() const = 0;
-
-		// Profile
-		virtual bool getShouldProfileSimulationSpeed() const = 0;
-
-		// Misc
-		virtual bool urlOpenIncognito() const = 0;
-
-		// Scene data
-		virtual const Storm::SceneConfig& getSceneConfig() const = 0;
+		// Scene config
 		virtual const Storm::SceneGraphicConfig& getSceneGraphicConfig() const = 0;
 		virtual const Storm::SceneSimulationConfig& getSceneSimulationConfig() const = 0;
 		virtual const std::vector<Storm::SceneRigidBodyConfig>& getSceneRigidBodiesConfig() const = 0;

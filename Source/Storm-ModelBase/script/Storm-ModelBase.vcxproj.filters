@@ -180,6 +180,9 @@
     <ClCompile Include="..\include\SceneConfig.cpp">
       <Filter>Source Files\Modules\Config</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\GeneralConfig.cpp">
+      <Filter>Source Files\Modules\Config</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-ModelBasePCH.h">
@@ -404,6 +407,9 @@
     <ClInclude Include="..\include\SceneSimulationConfig.h">
       <Filter>Header Files\Modules\Config\Scene</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\GeneralWebConfig.h">
+      <Filter>Header Files\Modules\Config\General</Filter>
+    </ClInclude>
     <ClInclude Include="..\include\SceneGraphicConfig.h">
       <Filter>Header Files\Modules\Config\Scene</Filter>
     </ClInclude>
@@ -418,6 +424,18 @@
     </ClInclude>
     <ClInclude Include="..\include\SceneScriptConfig.h">
       <Filter>Header Files\Modules\Config\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\GeneralConfig.h">
+      <Filter>Header Files\Modules\Config</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\GeneralGraphicConfig.h">
+      <Filter>Header Files\Modules\Config\General</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\GeneralDebugConfig.h">
+      <Filter>Header Files\Modules\Config\General</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\GeneralSimulationConfig.h">
+      <Filter>Header Files\Modules\Config\General</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
