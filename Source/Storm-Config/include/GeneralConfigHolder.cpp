@@ -69,11 +69,11 @@ namespace
 		boost::to_lower(valueStr);
 		if (valueStr == "chrome")
 		{
-			return Storm::PreferredBrowser::Firefox;
+			return Storm::PreferredBrowser::Chrome;
 		}
 		else if (valueStr == "firefox")
 		{
-			return Storm::PreferredBrowser::Chrome;
+			return Storm::PreferredBrowser::Firefox;
 		}
 		else if (valueStr == "edge")
 		{
