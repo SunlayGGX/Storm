@@ -6,7 +6,7 @@
 namespace Storm
 {
 	using SimulationCallback = std::function<void()>;
-	struct BlowerData;
+	struct SceneBlowerConfig;
 	struct SystemSimulationStateObject;
 	enum class ExitCode;
 
@@ -36,7 +36,7 @@ namespace Storm
 		virtual void refreshParticlesPosition() = 0;
 
 	public:
-		virtual void loadBlower(const Storm::BlowerData &blowerData) = 0;
+		virtual void loadBlower(const Storm::SceneBlowerConfig &blowerConfig) = 0;
 
 	public:
 		virtual float getKernelLength() const = 0;

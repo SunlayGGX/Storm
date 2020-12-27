@@ -1,12 +1,12 @@
-#include "SceneData.h"
-#include "GeneralSimulationData.h"
-#include "RigidBodySceneData.h"
-#include "GraphicData.h"
-#include "FluidData.h"
-#include "BlowerData.h"
-#include "ConstraintData.h"
-#include "RecordConfigData.h"
-#include "ScriptData.h"
+#include "SceneConfig.h"
+#include "SceneSimulationConfig.h"
+#include "SceneRigidBodyConfig.h"
+#include "SceneGraphicConfig.h"
+#include "SceneFluidConfig.h"
+#include "SceneBlowerConfig.h"
+#include "SceneConstraintConfig.h"
+#include "SceneRecordConfig.h"
+#include "SceneScriptConfig.h"
 
 #include "CollisionType.h"
 #include "SimulationMode.h"
@@ -18,7 +18,7 @@
 #include "LayeringGenerationTechnique.h"
 
 
-Storm::GeneralSimulationData::GeneralSimulationData() :
+Storm::SceneSimulationConfig::SceneSimulationConfig() :
 	_gravity{ 0.f, -9.81f, 0.f },
 	_particleRadius{ 0.05f },
 	_kernelCoefficient{ 4.f },
@@ -46,7 +46,7 @@ Storm::GeneralSimulationData::GeneralSimulationData() :
 
 }
 
-Storm::RigidBodySceneData::RigidBodySceneData() :
+Storm::SceneRigidBodyConfig::SceneRigidBodyConfig() :
 	_rigidBodyID{ std::numeric_limits<decltype(_rigidBodyID)>::max() },
 	_static{ true },
 	_isWall{ false },
@@ -66,7 +66,7 @@ Storm::RigidBodySceneData::RigidBodySceneData() :
 
 }
 
-Storm::GraphicData::GraphicData() :
+Storm::SceneGraphicConfig::SceneGraphicConfig() :
 	_cameraPosition{ 0.f, 0.f, -10.f },
 	_cameraLookAt{ 0.f, 0.f, 0.f },
 	_zNear{ 0.01f },
@@ -80,15 +80,15 @@ Storm::GraphicData::GraphicData() :
 	_densityMinColor{ 0.f },
 	_densityMaxColor{ 2000.f },
 	_blowerAlpha{ 0.25f },
-	//_constraintThickness{}, => Defined from Storm::GeneralSimulationData::_particleRadius
+	//_constraintThickness{}, => Defined from Storm::SceneSimulationConfig::_particleRadius
 	_constraintColor{ 1.f, 0.1f, 0.1f, 0.8f },
-	// _forceThickness{}, => Defined from Storm::GeneralSimulationData::_particleRadius
+	// _forceThickness{}, => Defined from Storm::SceneSimulationConfig::_particleRadius
 	_forceColor{ 0.f, 1.f, 1.f, 0.8f }
 {
 
 }
 
-Storm::FluidBlockData::FluidBlockData() :
+Storm::SceneFluidBlockConfig::SceneFluidBlockConfig() :
 	_firstPoint{ Vector3::Zero() },
 	_secondPoint{ Vector3::Zero() }, 
 	_loadDenseMode{ Storm::FluidParticleLoadDenseMode::Normal }
@@ -96,7 +96,7 @@ Storm::FluidBlockData::FluidBlockData() :
 
 }
 
-Storm::FluidData::FluidData() :
+Storm::SceneFluidConfig::SceneFluidConfig() :
 	_fluidId{ std::numeric_limits<decltype(_fluidId)>::max() },
 	_density{ 1.2754f }, // Dry air density at 0 °C degrees and normal ATM pressure. https://en.wikipedia.org/wiki/Density_of_air.
 	_dynamicViscosity{ 0.00001715f }, // Dry air dynamic viscosity at 0 °C degrees and normal ATM pressure. https://www.engineeringtoolbox.com/air-absolute-kinematic-viscosity-d_601.html.
@@ -111,7 +111,7 @@ Storm::FluidData::FluidData() :
 
 }
 
-Storm::BlowerData::BlowerData() :
+Storm::SceneBlowerConfig::SceneBlowerConfig() :
 	_blowerId{ std::numeric_limits<decltype(_blowerId)>::max() },
 	_startTimeInSeconds{ 0.f },
 	_stopTimeInSeconds{ -1.f },
@@ -129,7 +129,7 @@ Storm::BlowerData::BlowerData() :
 
 }
 
-Storm::ConstraintData::ConstraintData() :
+Storm::SceneConstraintConfig::SceneConstraintConfig() :
 	_rigidBodyId1{ std::numeric_limits<decltype(_rigidBodyId1)>::max() },
 	_rigidBodyId2{ std::numeric_limits<decltype(_rigidBodyId2)>::max() },
 	_constraintsLength{ 0.f },
@@ -141,7 +141,7 @@ Storm::ConstraintData::ConstraintData() :
 
 }
 
-Storm::RecordConfigData::RecordConfigData() :
+Storm::SceneRecordConfig::SceneRecordConfig() :
 	_recordMode{ Storm::RecordMode::None },
 	_recordFps{ -1.f },
 	_recordFilePath{},
@@ -150,7 +150,7 @@ Storm::RecordConfigData::RecordConfigData() :
 
 }
 
-Storm::ScriptData::ScriptData() :
+Storm::SceneScriptConfig::SceneScriptConfig() :
 	_enabled{ true }
 {
 	_scriptFilePipe._refreshRateInMillisec = 100;
@@ -158,15 +158,15 @@ Storm::ScriptData::ScriptData() :
 	_scriptFilePipe._filePath = (std::filesystem::path{ "$[StormScripts]" } / "RuntimeScript.txt").string();
 }
 
-Storm::SceneData::SceneData() :
-	_generalSimulationData{ std::make_unique<Storm::GeneralSimulationData>() },
-	_graphicData{ std::make_unique<Storm::GraphicData>() },
-	_fluidData{ std::make_unique<Storm::FluidData>() },
-	_recordConfigData{ std::make_unique<Storm::RecordConfigData>() },
-	_scriptConfigData{ std::make_unique<Storm::ScriptData>() }
+Storm::SceneConfig::SceneConfig() :
+	_simulationConfig{ std::make_unique<Storm::SceneSimulationConfig>() },
+	_graphicConfig{ std::make_unique<Storm::SceneGraphicConfig>() },
+	_fluidConfig{ std::make_unique<Storm::SceneFluidConfig>() },
+	_recordConfig{ std::make_unique<Storm::SceneRecordConfig>() },
+	_scriptConfig{ std::make_unique<Storm::SceneScriptConfig>() }
 {
 
 }
 
 // Needed for prototypes. Otherwise, std::vector declared inside this structure won't compile anywhere else because the underlying structure wasn't defined (vector cannot destroy undefined element)...
-Storm::SceneData::~SceneData() = default;
+Storm::SceneConfig::~SceneConfig() = default;

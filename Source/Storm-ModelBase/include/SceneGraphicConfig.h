@@ -3,10 +3,10 @@
 
 namespace Storm
 {
-	struct GraphicData
+	struct SceneGraphicConfig
 	{
 	public:
-		GraphicData();
+		SceneGraphicConfig();
 
 	public:
 		// Camera

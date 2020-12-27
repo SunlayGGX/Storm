@@ -5,10 +5,10 @@ namespace Storm
 {
 	enum class RecordMode;
 
-	struct RecordConfigData
+	struct SceneRecordConfig
 	{
 	public:
-		RecordConfigData();
+		SceneRecordConfig();
 
 	public:
 		Storm::RecordMode _recordMode;

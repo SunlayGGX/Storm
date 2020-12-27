@@ -8,14 +8,14 @@
 
 namespace Storm
 {
-	struct RigidBodySceneData;
+	struct SceneRigidBodyConfig;
 
 	class PhysicsStaticsRigidBody :
 		public Storm::RigidBodyHolder,
 		public Storm::PhysicalShape
 	{
 	public:
-		PhysicsStaticsRigidBody(const Storm::RigidBodySceneData &rbSceneData, const std::vector<Storm::Vector3> &vertices, const std::vector<uint32_t> &indexes);
+		PhysicsStaticsRigidBody(const Storm::SceneRigidBodyConfig &rbSceneConfig, const std::vector<Storm::Vector3> &vertices, const std::vector<uint32_t> &indexes);
 
 	public:
 		void onIterationStart() noexcept;

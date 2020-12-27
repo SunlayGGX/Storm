@@ -4,8 +4,8 @@
 #include "IConfigManager.h"
 #include "SimulatorManager.h"
 
-#include "GeneralSimulationData.h"
-#include "FluidData.h"
+#include "SceneSimulationConfig.h"
+#include "SceneFluidConfig.h"
 
 #include "RunnerHelper.h"
 
@@ -188,7 +188,7 @@ void Storm::ParticleSystem::onSubIterationStart(const Storm::ParticleSystemConta
 float Storm::ParticleSystem::computeParticleDefaultVolume()
 {
 	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
-	const float particleDiameter = 2.f * configMgr.getGeneralSimulationData()._particleRadius;
+	const float particleDiameter = 2.f * configMgr.getSceneSimulationConfig()._particleRadius;
 	return particleDiameter * particleDiameter * particleDiameter;
 }
 

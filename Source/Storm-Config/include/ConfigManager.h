@@ -6,7 +6,7 @@
 
 #include "MacroConfig.h"
 #include "GeneralConfig.h"
-#include "SceneConfig.h"
+#include "SceneConfigHolder.h"
 
 
 namespace Storm
@@ -60,16 +60,16 @@ namespace Storm
 
 		bool shouldDisplayHelp() const;
 
-		const Storm::SceneData& getSceneData() const final override;
-		const Storm::GraphicData& getGraphicData() const final override;
-		const Storm::GeneralSimulationData& getGeneralSimulationData() const final override;
-		const std::vector<Storm::RigidBodySceneData>& getRigidBodiesData() const final override;
-		const Storm::FluidData& getFluidData() const final override;
-		const Storm::RecordConfigData& getRecordConfigData() const final override;
-		const std::vector<Storm::BlowerData>& getBlowersData() const final override;
-		const std::vector<Storm::ConstraintData>& getConstraintsData() const final override;
-		const Storm::RigidBodySceneData& getRigidBodyData(unsigned int rbId) const final override;
-		const Storm::ScriptData& getScriptData() const final override;
+		const Storm::SceneConfig& getSceneConfig() const final override;
+		const Storm::SceneGraphicConfig& getSceneGraphicConfig() const final override;
+		const Storm::SceneSimulationConfig& getSceneSimulationConfig() const final override;
+		const std::vector<Storm::SceneRigidBodyConfig>& getSceneRigidBodiesConfig() const final override;
+		const Storm::SceneFluidConfig& getSceneFluidConfig() const final override;
+		const Storm::SceneRecordConfig& getSceneRecordConfig() const final override;
+		const std::vector<Storm::SceneBlowerConfig>& getSceneBlowersConfig() const final override;
+		const std::vector<Storm::SceneConstraintConfig>& getSceneConstraintsConfig() const final override;
+		const Storm::SceneRigidBodyConfig& getSceneRigidBodyConfig(unsigned int rbId) const final override;
+		const Storm::SceneScriptConfig& getSceneScriptConfig() const final override;
 
 		bool isInReplayMode() const noexcept final override;
 		bool userCanModifyTimestep() const noexcept final override;
@@ -106,6 +106,6 @@ namespace Storm
 		// Configs
 		Storm::MacroConfig _macroConfig;
 		Storm::GeneralConfig _generalConfig;
-		Storm::SceneConfig _sceneConfig;
+		Storm::SceneConfigHolder _sceneConfigHolder;
 	};
 }

@@ -6,10 +6,10 @@ namespace Storm
 	enum class SimulationMode;
 	enum class KernelMode;
 
-	struct GeneralSimulationData
+	struct SceneSimulationConfig
 	{
 	public:
-		GeneralSimulationData();
+		SceneSimulationConfig();
 
 	public:
 		Storm::Vector3 _gravity;

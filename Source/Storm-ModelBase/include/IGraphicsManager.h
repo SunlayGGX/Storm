@@ -6,7 +6,7 @@
 namespace Storm
 {
 	enum class BlowerState;
-	struct BlowerData;
+	struct SceneBlowerConfig;
 	class IRigidBody;
 	struct PushedParticleSystemDataParameter;
 
@@ -23,7 +23,7 @@ namespace Storm
 		virtual void bindParentRbToMesh(unsigned int meshId, const std::shared_ptr<Storm::IRigidBody> &parentRb) const = 0;
 
 	public:
-		virtual void loadBlower(const Storm::BlowerData &blowerData, const std::vector<Storm::Vector3> &vertexes, const std::vector<unsigned int> &indexes) = 0;
+		virtual void loadBlower(const Storm::SceneBlowerConfig &blowerConfig, const std::vector<Storm::Vector3> &vertexes, const std::vector<unsigned int> &indexes) = 0;
 
 	public:
 		// Warning : the caller makes the copy (a copy of the data will be made). It cannot be avoided to prevent data races but this is the most efficient way I thought...

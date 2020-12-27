@@ -7,13 +7,13 @@ namespace Storm
 {
 	enum class BlowerType;
 	enum class BlowerState;
-	struct BlowerData;
+	struct SceneBlowerConfig;
 	class BlowerShader;
 
 	class GraphicBlower : public Storm::IRenderedElement
 	{
 	public:
-		GraphicBlower(const ComPtr<ID3D11Device> &device, const Storm::BlowerData &blowerData, const std::vector<Storm::Vector3> &vertexes, const std::vector<unsigned int> &indexes);
+		GraphicBlower(const ComPtr<ID3D11Device> &device, const Storm::SceneBlowerConfig &blowerConfig, const std::vector<Storm::Vector3> &vertexes, const std::vector<unsigned int> &indexes);
 		~GraphicBlower();
 
 	protected:

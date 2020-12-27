@@ -6,7 +6,7 @@
 #include "IConfigManager.h"
 #include "ISimulatorManager.h"
 
-#include "GeneralSimulationData.h"
+#include "SceneSimulationConfig.h"
 
 #include "ThreadEnumeration.h"
 
@@ -42,7 +42,7 @@ namespace
 		const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 		const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
 
-		const float expectedFps = configMgr.getGeneralSimulationData()._expectedFps;
+		const float expectedFps = configMgr.getSceneSimulationConfig()._expectedFps;
 		if (expectedFps > 0.f)
 		{
 			// I want Serializer thread to run 5 time slower than the expected fps

@@ -4,8 +4,8 @@
 #include "IConfigManager.h"
 #include "ISpacePartitionerManager.h"
 
-#include "GeneralSimulationData.h"
-#include "FluidData.h"
+#include "SceneSimulationConfig.h"
+#include "SceneFluidConfig.h"
 
 #include "SimulationMode.h"
 
@@ -32,14 +32,14 @@ Storm::FluidParticleSystem::FluidParticleSystem(unsigned int particleSystemIndex
 {
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
-	const Storm::GeneralSimulationData &generalSimulDataConfig = configMgr.getGeneralSimulationData();
-	const Storm::FluidData &fluidDataConfig = configMgr.getFluidData();
+	const Storm::SceneSimulationConfig &sceneSimulationConfig = configMgr.getSceneSimulationConfig();
+	const Storm::SceneFluidConfig &fluidConfig = configMgr.getSceneFluidConfig();
 
-	_restDensity = fluidDataConfig._density;
+	_restDensity = fluidConfig._density;
 
 	const std::size_t particleCount = this->getParticleCount();
 
-	const float particleDiameter = generalSimulDataConfig._particleRadius * 2.f;
+	const float particleDiameter = sceneSimulationConfig._particleRadius * 2.f;
 
 	_particleVolume = particleDiameter * particleDiameter * particleDiameter;
 
@@ -86,10 +86,10 @@ void Storm::FluidParticleSystem::onSubIterationStart(const Storm::ParticleSystem
 
 	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
 
-	const Storm::GeneralSimulationData &generalSimulData = configMgr.getGeneralSimulationData();
-	const Storm::FluidData &fluidSimulData = configMgr.getFluidData();
+	const Storm::SceneSimulationConfig &sceneSimulationConfig = configMgr.getSceneSimulationConfig();
+	const Storm::SceneFluidConfig &fluidConfig = configMgr.getSceneFluidConfig();
 
-	const Storm::Vector3 gravityAccel = fluidSimulData._gravityEnabled ? generalSimulData._gravity : Storm::Vector3::Zero();
+	const Storm::Vector3 gravityAccel = fluidConfig._gravityEnabled ? sceneSimulationConfig._gravity : Storm::Vector3::Zero();
 
 	Storm::runParallel(_force, [this, &gravityAccel, &blowers](Storm::Vector3 &currentPForce, const std::size_t currentPIndex)
 	{
@@ -238,10 +238,10 @@ void Storm::FluidParticleSystem::buildNeighborhoodOnParticleSystemUsingSpacePart
 	const Storm::ISpacePartitionerManager &spacePartitionerMgr = singletonHolder.getSingleton<Storm::ISpacePartitionerManager>();
 
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
-	const Storm::GeneralSimulationData &generalSimulDataConfig = configMgr.getGeneralSimulationData();
+	const Storm::SceneSimulationConfig &sceneSimulationConfig = configMgr.getSceneSimulationConfig();
 
-	const Storm::RawKernelMethodDelegate rawKernel = Storm::retrieveRawKernelMethod(generalSimulDataConfig._kernelMode);
-	const Storm::GradKernelMethodDelegate gradKernel = Storm::retrieveGradKernelMethod(generalSimulDataConfig._kernelMode);
+	const Storm::RawKernelMethodDelegate rawKernel = Storm::retrieveRawKernelMethod(sceneSimulationConfig._kernelMode);
+	const Storm::GradKernelMethodDelegate gradKernel = Storm::retrieveGradKernelMethod(sceneSimulationConfig._kernelMode);
 
 	Storm::runParallel(_neighborhood, [this, &allParticleSystems, &spacePartitionerMgr, &rawKernel, &gradKernel, kernelLength, kernelLengthSquared = kernelLength * kernelLength, currentSystemId = this->getId()](ParticleNeighborhoodArray &currentPNeighborhood, const std::size_t particleIndex)
 	{
@@ -347,10 +347,10 @@ void Storm::FluidParticleSystem::updatePosition(float deltaTimeInSec, bool)
 void Storm::FluidParticleSystem::revertToCurrentTimestep(const std::vector<std::unique_ptr<Storm::IBlower>> &blowers)
 {
 	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
-	const Storm::GeneralSimulationData &generalSimulData = configMgr.getGeneralSimulationData();
-	const Storm::FluidData &fluidSimulData = configMgr.getFluidData();
+	const Storm::SceneSimulationConfig &sceneSimulationConfig = configMgr.getSceneSimulationConfig();
+	const Storm::SceneFluidConfig &fluidConfig = configMgr.getSceneFluidConfig();
 
-	const Storm::Vector3 gravityAccel = fluidSimulData._gravityEnabled ? generalSimulData._gravity : Storm::Vector3::Zero();
+	const Storm::Vector3 gravityAccel = fluidConfig._gravityEnabled ? sceneSimulationConfig._gravity : Storm::Vector3::Zero();
 
 	Storm::runParallel(_force, [this, &blowers, &gravityAccel](Storm::Vector3 &force, const std::size_t currentPIndex)
 	{

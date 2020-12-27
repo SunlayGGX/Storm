@@ -5,7 +5,7 @@
 
 namespace Storm
 {
-	struct RigidBodySceneData;
+	struct SceneRigidBodyConfig;
 	class AssetCacheData;
 	struct SystemSimulationStateObject;
 
@@ -15,9 +15,9 @@ namespace Storm
 		struct ReplayMode {};
 
 	public:
-		RigidBody(const Storm::RigidBodySceneData &rbSceneData);
-		RigidBody(const Storm::RigidBodySceneData &rbSceneData, Storm::SystemSimulationStateObject &&state);
-		RigidBody(const Storm::RigidBodySceneData &rbSceneData, ReplayMode);
+		RigidBody(const Storm::SceneRigidBodyConfig &rbSceneConfig);
+		RigidBody(const Storm::SceneRigidBodyConfig &rbSceneConfig, Storm::SystemSimulationStateObject &&state);
+		RigidBody(const Storm::SceneRigidBodyConfig &rbSceneConfig, ReplayMode);
 
 	public:
 		const std::string& getRigidBodyName() const final override;
@@ -32,11 +32,11 @@ namespace Storm
 		static std::filesystem::path retrieveParticleDataCacheFolder();
 
 	private:
-		std::shared_ptr<Storm::AssetCacheData> baseLoadAssimp(const Storm::RigidBodySceneData &rbSceneData, const float layerDist);
+		std::shared_ptr<Storm::AssetCacheData> baseLoadAssimp(const Storm::SceneRigidBodyConfig &rbSceneConfig, const float layerDist);
 
-		void load(const Storm::RigidBodySceneData &rbSceneData);
-		void loadForReplay(const Storm::RigidBodySceneData &rbSceneData);
-		void loadFromState(const Storm::RigidBodySceneData &rbSceneData, Storm::SystemSimulationStateObject &&state);
+		void load(const Storm::SceneRigidBodyConfig &rbSceneConfig);
+		void loadForReplay(const Storm::SceneRigidBodyConfig &rbSceneConfig);
+		void loadFromState(const Storm::SceneRigidBodyConfig &rbSceneConfig, Storm::SystemSimulationStateObject &&state);
 
 	private:
 		std::string _meshPath;

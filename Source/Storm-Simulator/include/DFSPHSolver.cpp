@@ -15,8 +15,8 @@
 #include "IConfigManager.h"
 #include "SimulatorManager.h"
 
-#include "GeneralSimulationData.h"
-#include "FluidData.h"
+#include "SceneSimulationConfig.h"
+#include "SceneFluidConfig.h"
 
 #include "Kernel.h"
 
@@ -98,12 +98,12 @@ void Storm::DFSPHSolver::execute(const Storm::IterationParameter &iterationParam
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
 
-	const Storm::GeneralSimulationData &generalSimulConfig = configMgr.getGeneralSimulationData();
-	const Storm::FluidData &fluidConfigData = configMgr.getFluidData();
+	const Storm::SceneSimulationConfig &sceneSimulationConfig = configMgr.getSceneSimulationConfig();
+	const Storm::SceneFluidConfig &fluidConfig = configMgr.getSceneFluidConfig();
 
 	Storm::SimulatorManager &simulMgr = Storm::SimulatorManager::instance();
 
-	const float k_kernelZero = Storm::retrieveKernelZeroValue(generalSimulConfig._kernelMode);
+	const float k_kernelZero = Storm::retrieveKernelZeroValue(sceneSimulationConfig._kernelMode);
 
 	const float k_kernelLengthSquared = iterationParameter._kernelLength * iterationParameter._kernelLength;
 
@@ -178,7 +178,7 @@ void Storm::DFSPHSolver::execute(const Storm::IterationParameter &iterationParam
 		averageErrorV = 0.f;
 	}
 
-	this->updateCurrentPredictionIter(iterationV, generalSimulConfig._maxPredictIteration, averageErrorV, generalSimulConfig._maxDensityError, 0);
+	this->updateCurrentPredictionIter(iterationV, sceneSimulationConfig._maxPredictIteration, averageErrorV, sceneSimulationConfig._maxDensityError, 0);
 
 	// 7th : Compute the non pressure forces (viscosity)
 	// Compute accelerations: a(t)
@@ -235,7 +235,7 @@ void Storm::DFSPHSolver::execute(const Storm::IterationParameter &iterationParam
 						const float neighborVolume = neighborPSystemAsFluid->getParticleVolume();
 
 						// Viscosity
-						viscosityComponent = (viscoGlobalCoeff * fluidConfigData._dynamicViscosity * neighborMass / neighborRawDensity) * neighbor._gradWij;
+						viscosityComponent = (viscoGlobalCoeff * fluidConfig._dynamicViscosity * neighborMass / neighborRawDensity) * neighbor._gradWij;
 					}
 					else
 					{
@@ -291,7 +291,7 @@ void Storm::DFSPHSolver::execute(const Storm::IterationParameter &iterationParam
 	float averageError;
 	this->pressureSolve(iterationParameter, iteration, averageError);
 
-	this->updateCurrentPredictionIter(iteration, generalSimulConfig._maxPredictIteration, averageError, generalSimulConfig._maxDensityError, 1);
+	this->updateCurrentPredictionIter(iteration, sceneSimulationConfig._maxPredictIteration, averageError, sceneSimulationConfig._maxDensityError, 1);
 
 	///////////////////////////////////////////////////
 
@@ -352,7 +352,7 @@ void Storm::DFSPHSolver::divergenceSolve(const Storm::IterationParameter &iterat
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
 
-	const Storm::GeneralSimulationData &generalSimulConfig = configMgr.getGeneralSimulationData();
+	const Storm::SceneSimulationConfig &sceneSimulationConfig = configMgr.getSceneSimulationConfig();
 
 	Storm::SimulatorManager &simulMgr = Storm::SimulatorManager::instance();
 
@@ -364,9 +364,9 @@ void Storm::DFSPHSolver::divergenceSolve(const Storm::IterationParameter &iterat
 
 	const float invertDeltaTime = 1.f / iterationParameter._deltaTime;
 
-	const unsigned int minIter = generalSimulConfig._minPredictIteration;
-	const unsigned int maxIter = generalSimulConfig._maxPredictIteration;
-	const float maxError = generalSimulConfig._maxDensityError;
+	const unsigned int minIter = sceneSimulationConfig._minPredictIteration;
+	const unsigned int maxIter = sceneSimulationConfig._maxPredictIteration;
+	const float maxError = sceneSimulationConfig._maxDensityError;
 
 	//////////////////////////////////////////////////////////////////////////
 	// Compute velocity of density change
@@ -531,15 +531,15 @@ void Storm::DFSPHSolver::pressureSolve(const Storm::IterationParameter &iteratio
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
 
-	const Storm::GeneralSimulationData &generalSimulConfig = configMgr.getGeneralSimulationData();
+	const Storm::SceneSimulationConfig &sceneSimulationConfig = configMgr.getSceneSimulationConfig();
 
 	Storm::SimulatorManager &simulMgr = Storm::SimulatorManager::instance();
 
 	Storm::ParticleSystemContainer &particleSystems = *iterationParameter._particleSystems;
 
-	const unsigned int minIter = generalSimulConfig._minPredictIteration;
-	const unsigned int maxIter = generalSimulConfig._maxPredictIteration;
-	const float maxError = generalSimulConfig._maxDensityError;
+	const unsigned int minIter = sceneSimulationConfig._minPredictIteration;
+	const unsigned int maxIter = sceneSimulationConfig._maxPredictIteration;
+	const float maxError = sceneSimulationConfig._maxDensityError;
 
 	const float deltaTimeSquared = iterationParameter._deltaTime * iterationParameter._deltaTime;
 	const float invDeltaTime = 1.f / iterationParameter._deltaTime;

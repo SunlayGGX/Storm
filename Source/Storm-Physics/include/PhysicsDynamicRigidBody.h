@@ -8,7 +8,7 @@
 
 namespace Storm
 {
-	struct RigidBodySceneData;
+	struct SceneRigidBodyConfig;
 	class PhysicsConstraint;
 
 	class PhysicsDynamicRigidBody :
@@ -16,7 +16,7 @@ namespace Storm
 		public Storm::PhysicalShape
 	{
 	public:
-		PhysicsDynamicRigidBody(const Storm::RigidBodySceneData &rbSceneData, const std::vector<Storm::Vector3> &vertices, const std::vector<uint32_t> &indexes);
+		PhysicsDynamicRigidBody(const Storm::SceneRigidBodyConfig &rbSceneConfig, const std::vector<Storm::Vector3> &vertices, const std::vector<uint32_t> &indexes);
 
 	public:
 		void onIterationStart() noexcept;

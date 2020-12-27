@@ -142,13 +142,16 @@
     <Filter Include="Header Files\Modules\Network\Web">
       <UniqueIdentifier>{5eab4217-e52b-454a-9134-1d26ae047ad4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Modules\Config\General">
+      <UniqueIdentifier>{b04a620e-016b-4e4c-828c-0d712221c069}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Modules\Config\Scene">
+      <UniqueIdentifier>{f76a588c-1ed7-4b84-abb1-8cb2ea741874}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-ModelBasePCH.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\include\SceneData.cpp">
-      <Filter>Source Files\Modules\Config</Filter>
     </ClCompile>
     <ClCompile Include="..\include\RigidBodyHolder.cpp">
       <Filter>Source Files\Modules\Simulation\RigidBodies</Filter>
@@ -173,6 +176,9 @@
     </ClCompile>
     <ClCompile Include="..\include\StateOrders.cpp">
       <Filter>Source Files\Modules\Serializer\State</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\SceneConfig.cpp">
+      <Filter>Source Files\Modules\Config</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -215,20 +221,11 @@
     <ClInclude Include="..\include\InputEvents.h">
       <Filter>Header Files\Modules\Input</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\RigidBodySceneData.h">
-      <Filter>Header Files\Modules\Config</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\Vector3.h">
       <Filter>Header Files\General</Filter>
     </ClInclude>
     <ClInclude Include="..\include\StormPrerequisite.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\SceneData.h">
-      <Filter>Header Files\Modules\Config</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\GraphicData.h">
-      <Filter>Header Files\Modules\Config</Filter>
     </ClInclude>
     <ClInclude Include="..\include\IShaderManager.h">
       <Filter>Header Files\Singleton</Filter>
@@ -241,9 +238,6 @@
     </ClInclude>
     <ClInclude Include="..\include\CollisionType.h">
       <Filter>Header Files\Modules\Physics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\GeneralSimulationData.h">
-      <Filter>Header Files\Modules\Config</Filter>
     </ClInclude>
     <ClInclude Include="..\include\RigidBodyHolder.h">
       <Filter>Header Files\Modules\Simulation\RigidBodies</Filter>
@@ -259,9 +253,6 @@
     </ClInclude>
     <ClInclude Include="..\include\ThreadEnumeration.h">
       <Filter>Header Files\Modules\Threading</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\FluidData.h">
-      <Filter>Header Files\Modules\Config</Filter>
     </ClInclude>
     <ClInclude Include="..\include\SimulationMode.h">
       <Filter>Header Files\Modules\Simulation</Filter>
@@ -290,17 +281,11 @@
     <ClInclude Include="..\include\IProfilerManager.h">
       <Filter>Header Files\Singleton</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\BlowerData.h">
-      <Filter>Header Files\Modules\Config</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\BlowerType.h">
       <Filter>Header Files\Modules\Simulation\Blowers</Filter>
     </ClInclude>
     <ClInclude Include="..\include\BlowerState.h">
       <Filter>Header Files\Modules\Simulation\Blowers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\ConstraintData.h">
-      <Filter>Header Files\Modules\Config</Filter>
     </ClInclude>
     <ClInclude Include="..\include\BlowerDef.h">
       <Filter>Header Files\Modules\Simulation\Blowers</Filter>
@@ -331,9 +316,6 @@
     </ClInclude>
     <ClInclude Include="..\include\RecordMode.h">
       <Filter>Header Files\Modules\Serializer\Record</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\RecordConfigData.h">
-      <Filter>Header Files\Modules\Config</Filter>
     </ClInclude>
     <ClInclude Include="..\include\SerializeParticleSystemLayout.h">
       <Filter>Header Files\Modules\Serializer\Record\Header\Layout</Filter>
@@ -386,9 +368,6 @@
     <ClInclude Include="..\include\IScriptManager.h">
       <Filter>Header Files\Singleton</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\ScriptData.h">
-      <Filter>Header Files\Modules\Config</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\StateSavingOrders.h">
       <Filter>Header Files\Modules\Serializer\State</Filter>
     </ClInclude>
@@ -412,6 +391,33 @@
     </ClInclude>
     <ClInclude Include="..\include\PreferredBrowser.h">
       <Filter>Header Files\Modules\Network\Web</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SceneBlowerConfig.h">
+      <Filter>Header Files\Modules\Config\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SceneConstraintConfig.h">
+      <Filter>Header Files\Modules\Config\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SceneFluidConfig.h">
+      <Filter>Header Files\Modules\Config\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SceneSimulationConfig.h">
+      <Filter>Header Files\Modules\Config\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SceneGraphicConfig.h">
+      <Filter>Header Files\Modules\Config\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SceneRecordConfig.h">
+      <Filter>Header Files\Modules\Config\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SceneRigidBodyConfig.h">
+      <Filter>Header Files\Modules\Config\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SceneConfig.h">
+      <Filter>Header Files\Modules\Config</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SceneScriptConfig.h">
+      <Filter>Header Files\Modules\Config\Scene</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

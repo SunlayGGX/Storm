@@ -7,10 +7,10 @@ namespace Storm
 	enum class InsideParticleRemovalTechnique;
 	enum class LayeringGenerationTechnique;
 
-	struct RigidBodySceneData
+	struct SceneRigidBodyConfig
 	{
 	public:
-		RigidBodySceneData();
+		SceneRigidBodyConfig();
 
 	public:
 		unsigned int _rigidBodyID;

@@ -8,7 +8,7 @@
 
 #include "StormProcessStartup.h"
 
-#include "ScriptData.h"
+#include "SceneScriptConfig.h"
 
 #include "ExitCode.h"
 
@@ -126,7 +126,7 @@ bool Storm::StormProcessOpener::openStormLogViewer(const Storm::StormProcessOpen
 bool Storm::StormProcessOpener::openRuntimeScript(const Storm::StormProcessOpener::OpenParameter &param, std::size_t &outProcessUID)
 {
 	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
-	const std::string &scriptPath = configMgr.getScriptData()._scriptFilePipe._filePath;
+	const std::string &scriptPath = configMgr.getSceneScriptConfig()._scriptFilePipe._filePath;
 
 	return openNotepadOnFile(param, outProcessUID, scriptPath);
 }

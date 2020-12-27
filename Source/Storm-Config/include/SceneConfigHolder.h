@@ -3,19 +3,19 @@
 
 namespace Storm
 {
-	struct SceneData;
+	struct SceneConfig;
 	class MacroConfig;
 	class GeneralConfig;
 
-	class SceneConfig
+	class SceneConfigHolder
 	{
 	public:
 		void read(const std::string &sceneConfigFilePathStr, const Storm::MacroConfig &macroConfig, const Storm::GeneralConfig &generalConfig);
 
 	public:
-		const Storm::SceneData& getSceneData() const;
+		const Storm::SceneConfig& getSceneConfig() const;
 
 	private:
-		std::unique_ptr<Storm::SceneData> _sceneData;
+		std::unique_ptr<Storm::SceneConfig> _sceneConfig;
 	};
 }

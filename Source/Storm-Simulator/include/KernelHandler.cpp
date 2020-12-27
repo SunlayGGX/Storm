@@ -3,7 +3,7 @@
 #include "SingletonHolder.h"
 #include "IConfigManager.h"
 
-#include "GeneralSimulationData.h"
+#include "SceneSimulationConfig.h"
 
 #include "UIField.h"
 #include "UIFieldContainer.h"
@@ -13,9 +13,9 @@
 
 namespace
 {
-	float computeNewKernelValue(const Storm::GeneralSimulationData &generalSimulationConfigData, const float dynamicIncrementCoeff)
+	float computeNewKernelValue(const Storm::SceneSimulationConfig &sceneSimulationConfig, const float dynamicIncrementCoeff)
 	{
-		return generalSimulationConfigData._particleRadius * (generalSimulationConfigData._kernelCoefficient + dynamicIncrementCoeff);
+		return sceneSimulationConfig._particleRadius * (sceneSimulationConfig._kernelCoefficient + dynamicIncrementCoeff);
 	}
 }
 
@@ -30,10 +30,10 @@ Storm::KernelHandler::~KernelHandler() = default;
 
 void Storm::KernelHandler::initialize()
 {
-	const Storm::GeneralSimulationData &generalSimulationConfigData = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().getGeneralSimulationData();
+	const Storm::SceneSimulationConfig &sceneSimulationConfig = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().getSceneSimulationConfig();
 
-	_currentKernelValue = computeNewKernelValue(generalSimulationConfigData, 0.f);
-	_shouldIncrementKernel = generalSimulationConfigData._kernelIncrementSpeedInSeconds != -1.f && generalSimulationConfigData._maxKernelIncrementCoeff != 0.f;
+	_currentKernelValue = computeNewKernelValue(sceneSimulationConfig, 0.f);
+	_shouldIncrementKernel = sceneSimulationConfig._kernelIncrementSpeedInSeconds != -1.f && sceneSimulationConfig._maxKernelIncrementCoeff != 0.f;
 
 	(*_uiFields)
 		.bindField(STORM_KERNEL_VALUE_FIELD_NAME, _currentKernelValue)
@@ -44,19 +44,19 @@ void Storm::KernelHandler::update(const float currentPhysicsTimeInSeconds)
 {
 	if (_shouldIncrementKernel)
 	{
-		const Storm::GeneralSimulationData &generalSimulationConfigData = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().getGeneralSimulationData();
+		const Storm::SceneSimulationConfig &sceneSimulationConfig = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().getSceneSimulationConfig();
 
-		if (currentPhysicsTimeInSeconds >= generalSimulationConfigData._kernelIncrementSpeedInSeconds)
+		if (currentPhysicsTimeInSeconds >= sceneSimulationConfig._kernelIncrementSpeedInSeconds)
 		{
 			this->setKernelValue(
-				computeNewKernelValue(generalSimulationConfigData, generalSimulationConfigData._maxKernelIncrementCoeff)
+				computeNewKernelValue(sceneSimulationConfig, sceneSimulationConfig._maxKernelIncrementCoeff)
 			);
 		}
 		else
 		{
 			const float newKernelValue = computeNewKernelValue(
-				generalSimulationConfigData,
-				generalSimulationConfigData._maxKernelIncrementCoeff * currentPhysicsTimeInSeconds / generalSimulationConfigData._kernelIncrementSpeedInSeconds
+				sceneSimulationConfig,
+				sceneSimulationConfig._maxKernelIncrementCoeff * currentPhysicsTimeInSeconds / sceneSimulationConfig._kernelIncrementSpeedInSeconds
 			);
 
 			this->setKernelValue(newKernelValue);

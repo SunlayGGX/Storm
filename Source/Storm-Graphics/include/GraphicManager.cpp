@@ -14,9 +14,9 @@
 #include "PushedParticleSystemData.h"
 #include "GraphicPipe.h"
 
-#include "BlowerData.h"
-#include "GraphicData.h"
-#include "GeneralSimulationData.h"
+#include "SceneBlowerConfig.h"
+#include "SceneGraphicConfig.h"
+#include "SceneSimulationConfig.h"
 
 #include "SingletonHolder.h"
 #include "IWindowsManager.h"
@@ -125,8 +125,8 @@ void Storm::GraphicManager::initialize_Implementation(void* hwnd)
 	_camera = std::make_unique<Storm::Camera>(_directXController->getViewportWidth(), _directXController->getViewportHeight());
 
 	const auto &device = _directXController->getDirectXDevice();
-	const Storm::GraphicData &graphicData = configMgr.getGraphicData();
-	_renderedElements.emplace_back(std::make_unique<Storm::Grid>(device, graphicData._grid));
+	const Storm::SceneGraphicConfig &sceneGraphicConfig = configMgr.getSceneGraphicConfig();
+	_renderedElements.emplace_back(std::make_unique<Storm::Grid>(device, sceneGraphicConfig._grid));
 
 	_graphicParticlesSystem = std::make_unique<Storm::GraphicParticleSystem>(device);
 
@@ -139,7 +139,7 @@ void Storm::GraphicManager::initialize_Implementation(void* hwnd)
 		meshesPair.second->initializeRendering(device);
 	}
 
-	if (graphicData._displaySolidAsParticles)
+	if (sceneGraphicConfig._displaySolidAsParticles)
 	{
 		_directXController->setAllParticleState();
 	}
@@ -270,16 +270,16 @@ void Storm::GraphicManager::bindParentRbToMesh(unsigned int meshId, const std::s
 	}
 }
 
-void Storm::GraphicManager::loadBlower(const Storm::BlowerData &blowerData, const std::vector<Storm::Vector3> &vertexes, const std::vector<unsigned int> &indexes)
+void Storm::GraphicManager::loadBlower(const Storm::SceneBlowerConfig &blowerConfig, const std::vector<Storm::Vector3> &vertexes, const std::vector<unsigned int> &indexes)
 {
 	if (this->isActive())
 	{
 		const ComPtr<ID3D11Device> &currentDevice = _directXController->getDirectXDevice();
 
-		std::unique_ptr<Storm::GraphicBlower> graphicBlower = std::make_unique<Storm::GraphicBlower>(currentDevice, blowerData, vertexes, indexes);
-		_blowersMap[blowerData._blowerId] = std::move(graphicBlower);
+		std::unique_ptr<Storm::GraphicBlower> graphicBlower = std::make_unique<Storm::GraphicBlower>(currentDevice, blowerConfig, vertexes, indexes);
+		_blowersMap[blowerConfig._blowerId] = std::move(graphicBlower);
 
-		LOG_DEBUG << "Graphic blower " << blowerData._blowerId << " was created.";
+		LOG_DEBUG << "Graphic blower " << blowerConfig._blowerId << " was created.";
 	}
 }
 

@@ -5,8 +5,8 @@
 
 #include "SimulatorManager.h"
 
-#include "GeneralSimulationData.h"
-#include "FluidData.h"
+#include "SceneSimulationConfig.h"
+#include "SceneFluidConfig.h"
 
 #include "PCISPHSolverData.h"
 
@@ -73,15 +73,15 @@ Storm::PCISPHSolver::PCISPHSolver(const float k_kernelLength, const Storm::Parti
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
-	const Storm::GeneralSimulationData &generalSimulData = configMgr.getGeneralSimulationData();
+	const Storm::SceneSimulationConfig &sceneSimulationConfig = configMgr.getSceneSimulationConfig();
 
 	const float k_kernelLengthSquared = k_kernelLength * k_kernelLength;
 
 	const float coordinateBegin = -k_kernelLength;
-	const float particleDiameter = generalSimulData._particleRadius * 2.f;
-	const unsigned int uniformComputationEndIter = std::max(static_cast<unsigned int>(std::ceilf(k_kernelLength / generalSimulData._particleRadius)) - 1, static_cast<unsigned int>(0));
+	const float particleDiameter = sceneSimulationConfig._particleRadius * 2.f;
+	const unsigned int uniformComputationEndIter = std::max(static_cast<unsigned int>(std::ceilf(k_kernelLength / sceneSimulationConfig._particleRadius)) - 1, static_cast<unsigned int>(0));
 
-	const auto k_gradMethod = Storm::retrieveGradKernelMethod(generalSimulData._kernelMode);
+	const auto k_gradMethod = Storm::retrieveGradKernelMethod(sceneSimulationConfig._kernelMode);
 
 	Storm::Vector3 neighborUniformPos;
 
@@ -143,16 +143,16 @@ void Storm::PCISPHSolver::execute(const Storm::IterationParameter &iterationPara
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
-	const Storm::GeneralSimulationData &generalSimulData = configMgr.getGeneralSimulationData();
-	const Storm::FluidData &fluidConfigData = configMgr.getFluidData();
+	const Storm::SceneSimulationConfig &sceneSimulationConfig = configMgr.getSceneSimulationConfig();
+	const Storm::SceneFluidConfig &fluidConfig = configMgr.getSceneFluidConfig();
 
 	Storm::SimulatorManager &simulMgr = Storm::SimulatorManager::instance();
 
-	const float k_kernelZero = Storm::retrieveKernelZeroValue(generalSimulData._kernelMode);
-	const Storm::RawKernelMethodDelegate rawKernel = Storm::retrieveRawKernelMethod(generalSimulData._kernelMode);
-	const Storm::GradKernelMethodDelegate gradKernel = Storm::retrieveGradKernelMethod(generalSimulData._kernelMode);
+	const float k_kernelZero = Storm::retrieveKernelZeroValue(sceneSimulationConfig._kernelMode);
+	const Storm::RawKernelMethodDelegate rawKernel = Storm::retrieveRawKernelMethod(sceneSimulationConfig._kernelMode);
+	const Storm::GradKernelMethodDelegate gradKernel = Storm::retrieveGradKernelMethod(sceneSimulationConfig._kernelMode);
 
-	const float k_maxDensityError = generalSimulData._maxDensityError;
+	const float k_maxDensityError = sceneSimulationConfig._maxDensityError;
 	unsigned int currentPredictionIter = 0;
 
 	const float deltaTimeSquared = iterationParameter._deltaTime * iterationParameter._deltaTime;
@@ -215,7 +215,7 @@ void Storm::PCISPHSolver::execute(const Storm::IterationParameter &iterationPara
 				}
 				else
 				{
-					currentPPressure = fluidConfigData._kPressureStiffnessCoeff * (std::powf(currentPDensity / density0, fluidConfigData._kPressureExponentCoeff) - 1.f);
+					currentPPressure = fluidConfig._kPressureStiffnessCoeff * (std::powf(currentPDensity / density0, fluidConfig._kPressureExponentCoeff) - 1.f);
 				}
 			});
 		}
@@ -273,7 +273,7 @@ void Storm::PCISPHSolver::execute(const Storm::IterationParameter &iterationPara
 						const float neighborVolume = neighborPSystemAsFluid->getParticleVolume();
 
 						// Viscosity
-						viscosityComponent = (viscoGlobalCoeff * fluidConfigData._dynamicViscosity * neighborMass / neighborRawDensity) * neighbor._gradWij;
+						viscosityComponent = (viscoGlobalCoeff * fluidConfig._dynamicViscosity * neighborMass / neighborRawDensity) * neighbor._gradWij;
 					}
 					else
 					{
@@ -541,9 +541,9 @@ void Storm::PCISPHSolver::execute(const Storm::IterationParameter &iterationPara
 
 		++currentPredictionIter;
 
-	} while (currentPredictionIter < generalSimulData._minPredictIteration || (currentPredictionIter < generalSimulData._maxPredictIteration && averageDensityError > generalSimulData._maxDensityError));
+	} while (currentPredictionIter < sceneSimulationConfig._minPredictIteration || (currentPredictionIter < sceneSimulationConfig._maxPredictIteration && averageDensityError > sceneSimulationConfig._maxDensityError));
 
-	this->updateCurrentPredictionIter(currentPredictionIter, generalSimulData._maxPredictIteration, averageDensityError, generalSimulData._maxDensityError, 0);
+	this->updateCurrentPredictionIter(currentPredictionIter, sceneSimulationConfig._maxPredictIteration, averageDensityError, sceneSimulationConfig._maxDensityError, 0);
 	this->transfertEndDataToSystems(particleSystems, iterationParameter, &_data, [](void* data, const unsigned int pSystemId, Storm::FluidParticleSystem &fluidParticleSystem, const Storm::IterationParameter &iterationParameter)
 	{
 		auto &dataField = reinterpret_cast<decltype(_data)*>(data)->find(pSystemId)->second;

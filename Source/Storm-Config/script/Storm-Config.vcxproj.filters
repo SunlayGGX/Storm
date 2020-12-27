@@ -13,10 +13,10 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Header Files\Config">
+    <Filter Include="Header Files\ConfigHolder">
       <UniqueIdentifier>{76d416fc-2ea7-482f-bfae-1024ca95e41d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Config">
+    <Filter Include="Source Files\ConfigHolder">
       <UniqueIdentifier>{9a685102-662c-46b9-ac0c-3645e9698384}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -30,14 +30,14 @@
     <ClCompile Include="..\include\CommandLineParser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\include\SceneConfig.cpp">
-      <Filter>Source Files\Config</Filter>
-    </ClCompile>
     <ClCompile Include="..\include\MacroConfig.cpp">
-      <Filter>Source Files\Config</Filter>
+      <Filter>Source Files\ConfigHolder</Filter>
     </ClCompile>
     <ClCompile Include="..\include\GeneralConfig.cpp">
-      <Filter>Source Files\Config</Filter>
+      <Filter>Source Files\ConfigHolder</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\SceneConfigHolder.cpp">
+      <Filter>Source Files\ConfigHolder</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -50,14 +50,14 @@
     <ClInclude Include="..\include\CommandLineParser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\SceneConfig.h">
-      <Filter>Header Files\Config</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\MacroConfig.h">
-      <Filter>Header Files\Config</Filter>
+      <Filter>Header Files\ConfigHolder</Filter>
     </ClInclude>
     <ClInclude Include="..\include\GeneralConfig.h">
-      <Filter>Header Files\Config</Filter>
+      <Filter>Header Files\ConfigHolder</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SceneConfigHolder.h">
+      <Filter>Header Files\ConfigHolder</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

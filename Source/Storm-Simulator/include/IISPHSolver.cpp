@@ -14,8 +14,8 @@
 
 #include "Kernel.h"
 
-#include "GeneralSimulationData.h"
-#include "FluidData.h"
+#include "SceneSimulationConfig.h"
+#include "SceneFluidConfig.h"
 
 #include "IterationParameter.h"
 
@@ -89,14 +89,14 @@ void Storm::IISPHSolver::execute(const Storm::IterationParameter &iterationParam
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
-	const Storm::GeneralSimulationData &generalSimulData = configMgr.getGeneralSimulationData();
-	const Storm::FluidData &fluidConfigData = configMgr.getFluidData();
+	const Storm::SceneSimulationConfig &sceneSimulationConfig = configMgr.getSceneSimulationConfig();
+	const Storm::SceneFluidConfig &fluidConfig = configMgr.getSceneFluidConfig();
 	
 	Storm::SimulatorManager &simulMgr = Storm::SimulatorManager::instance();
 
-	const float k_kernelZero = Storm::retrieveKernelZeroValue(generalSimulData._kernelMode);
+	const float k_kernelZero = Storm::retrieveKernelZeroValue(sceneSimulationConfig._kernelMode);
 
-	const float k_maxDensityError = generalSimulData._maxDensityError;
+	const float k_maxDensityError = sceneSimulationConfig._maxDensityError;
 	unsigned int currentPredictionIter = 0;
 
 	const float deltaTimeSquared = iterationParameter._deltaTime * iterationParameter._deltaTime;
@@ -201,7 +201,7 @@ void Storm::IISPHSolver::execute(const Storm::IterationParameter &iterationParam
 						const float neighborVolume = neighborPSystemAsFluid->getParticleVolume();
 
 						// Viscosity
-						viscosityComponent = (viscoGlobalCoeff * fluidConfigData._dynamicViscosity * neighborMass / neighborRawDensity) * neighbor._gradWij;
+						viscosityComponent = (viscoGlobalCoeff * fluidConfig._dynamicViscosity * neighborMass / neighborRawDensity) * neighbor._gradWij;
 					}
 					else
 					{
@@ -339,7 +339,7 @@ void Storm::IISPHSolver::execute(const Storm::IterationParameter &iterationParam
 
 			// From the original 2014 article (the one written by Ihmsen, not the tutorial). IISPH initialized the pressure to 0.5 of the pressure from last simulation step.
 			// It was an empirical value motivated by greater convergence, the downside than the nearest it is from 0, the slower the convergence would get.
-			currentPPressure *= fluidConfigData._pressureInitRelaxationCoefficient;
+			currentPPressure *= fluidConfig._pressureInitRelaxationCoefficient;
 
 			currentPData._diiP = currentPData._dii * currentPPressure;
 		});
@@ -446,8 +446,8 @@ void Storm::IISPHSolver::execute(const Storm::IterationParameter &iterationParam
 					const float densityAdvectionReverse = 1.f - currentPData._advectedDensity;
 
 					currentPData._predictedPressure =
-						fluidConfigData._relaxationCoefficient * (densityAdvectionReverse - deltaTimeSquared * tmpSum) / denom +
-						currentPPressure * (1.f - fluidConfigData._relaxationCoefficient)
+						fluidConfig._relaxationCoefficient * (densityAdvectionReverse - deltaTimeSquared * tmpSum) / denom +
+						currentPPressure * (1.f - fluidConfig._relaxationCoefficient)
 						;
 
 					if (currentPData._predictedPressure > 0.f)
@@ -488,9 +488,9 @@ void Storm::IISPHSolver::execute(const Storm::IterationParameter &iterationParam
 
 		++currentPredictionIter;
 
-	} while (currentPredictionIter < generalSimulData._minPredictIteration || (currentPredictionIter < generalSimulData._maxPredictIteration && averageDensityError > generalSimulData._maxDensityError));
+	} while (currentPredictionIter < sceneSimulationConfig._minPredictIteration || (currentPredictionIter < sceneSimulationConfig._maxPredictIteration && averageDensityError > sceneSimulationConfig._maxDensityError));
 
-	this->updateCurrentPredictionIter(currentPredictionIter, generalSimulData._maxPredictIteration, averageDensityError, generalSimulData._maxDensityError, 0);
+	this->updateCurrentPredictionIter(currentPredictionIter, sceneSimulationConfig._maxPredictIteration, averageDensityError, sceneSimulationConfig._maxDensityError, 0);
 
 	// 6th : Compute the pressure force
 	for (auto &dataFieldPair : _data)

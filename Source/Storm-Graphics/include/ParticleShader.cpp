@@ -4,7 +4,7 @@
 #include "SingletonHolder.h"
 #include "IConfigManager.h"
 
-#include "GeneralSimulationData.h"
+#include "SceneSimulationConfig.h"
 
 #include "ShaderMacroItem.h"
 
@@ -91,7 +91,7 @@ void Storm::ParticleShader::setup(const ComPtr<ID3D11Device> &device, const ComP
 
 		ressourceDataPtr->_viewMatrix = currentCamera.getTransposedViewMatrix();
 		ressourceDataPtr->_projMatrix = currentCamera.getTransposedProjectionMatrix();
-		ressourceDataPtr->_pointSize = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().getGeneralSimulationData()._particleRadius;
+		ressourceDataPtr->_pointSize = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().getSceneSimulationConfig()._particleRadius;
 		ressourceDataPtr->_nearPlaneDist = currentCamera.getNearPlane();
 	}
 

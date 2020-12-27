@@ -6,7 +6,7 @@
 #include "IInputManager.h"
 #include "IConfigManager.h"
 
-#include "ScriptData.h"
+#include "SceneScriptConfig.h"
 
 #include "LuaScriptWrapper.h"
 
@@ -55,12 +55,12 @@ void Storm::ScriptManager::initialize_Implementation()
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
 	
-	const Storm::ScriptData &scriptConfigData = configMgr.getScriptData();
+	const Storm::SceneScriptConfig &sceneScriptConfig = configMgr.getSceneScriptConfig();
 
-	if (scriptConfigData._enabled)
+	if (sceneScriptConfig._enabled)
 	{
 		// Read the initialization file.
-		const std::string &initScriptFilePath = scriptConfigData._initScriptFiles._filePath;
+		const std::string &initScriptFilePath = sceneScriptConfig._initScriptFiles._filePath;
 		if (!initScriptFilePath.empty())
 		{
 			LOG_DEBUG << "We'll execute the custom scripted initialization defined in the file " << initScriptFilePath;
@@ -68,12 +68,12 @@ void Storm::ScriptManager::initialize_Implementation()
 			initScriptFile.update();
 		}
 
-		const Storm::ScriptFilePipeData &filePipe = scriptConfigData._scriptFilePipe;
-		const std::string &watchedScriptFilePath = filePipe._filePath;
+		const Storm::ScriptFilePipeConfig &filePipeConfig = sceneScriptConfig._scriptFilePipe;
+		const std::string &watchedScriptFilePath = filePipeConfig._filePath;
 		if (!watchedScriptFilePath.empty())
 		{
 			_watchedScriptFile = std::make_unique<Storm::ScriptFile>(watchedScriptFilePath);
-			_refreshTimeDuration = std::chrono::milliseconds{ filePipe._refreshRateInMillisec };
+			_refreshTimeDuration = std::chrono::milliseconds{ filePipeConfig._refreshRateInMillisec };
 		}
 	}
 

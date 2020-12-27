@@ -5,10 +5,10 @@ namespace Storm
 {
 	enum class FluidParticleLoadDenseMode;
 
-	struct FluidBlockData
+	struct SceneFluidBlockConfig
 	{
 	public:
-		FluidBlockData();
+		SceneFluidBlockConfig();
 
 	public:
 		Storm::Vector3 _firstPoint;
@@ -16,14 +16,14 @@ namespace Storm
 		Storm::FluidParticleLoadDenseMode _loadDenseMode;
 	};
 
-	struct FluidData
+	struct SceneFluidConfig
 	{
 	public:
-		FluidData();
+		SceneFluidConfig();
 
 	public:
 		unsigned int _fluidId;
-		std::vector<Storm::FluidBlockData> _fluidGenData;
+		std::vector<Storm::SceneFluidBlockConfig> _fluidGenConfig;
 		float _density;
 		float _dynamicViscosity;
 		float _cinematicViscosity;

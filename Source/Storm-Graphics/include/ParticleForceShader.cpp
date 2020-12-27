@@ -5,7 +5,7 @@
 #include "SingletonHolder.h"
 #include "IConfigManager.h"
 
-#include "GraphicData.h"
+#include "SceneGraphicConfig.h"
 
 #include "MemoryHelper.h"
 #include "ResourceMapperGuard.h"
@@ -69,7 +69,7 @@ void Storm::ParticleForceShader::setup(const ComPtr<ID3D11Device> &device, const
 	this->setupDeviceContext(deviceContext);
 
 	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
-	const Storm::GraphicData &graphicConfig = configMgr.getGraphicData();
+	const Storm::SceneGraphicConfig &graphicConfig = configMgr.getSceneGraphicConfig();
 
 	// Write shaders parameters
 	{

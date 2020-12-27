@@ -5,15 +5,15 @@
 
 namespace Storm
 {
-	struct SceneData;
-	struct GraphicData;
-	struct RigidBodySceneData;
-	struct FluidData;
-	struct BlowerData;
-	struct ConstraintData;
-	struct GeneralSimulationData;
-	struct RecordConfigData;
-	struct ScriptData;
+	struct SceneConfig;
+	struct SceneGraphicConfig;
+	struct SceneRigidBodyConfig;
+	struct SceneFluidConfig;
+	struct SceneBlowerConfig;
+	struct SceneConstraintConfig;
+	struct SceneSimulationConfig;
+	struct SceneRecordConfig;
+	struct SceneScriptConfig;
 
 	enum class ThreadPriority;
 	enum class VectoredExceptionDisplayMode;
@@ -66,16 +66,16 @@ namespace Storm
 		virtual bool urlOpenIncognito() const = 0;
 
 		// Scene data
-		virtual const Storm::SceneData& getSceneData() const = 0;
-		virtual const Storm::GraphicData& getGraphicData() const = 0;
-		virtual const Storm::GeneralSimulationData& getGeneralSimulationData() const = 0;
-		virtual const std::vector<Storm::RigidBodySceneData>& getRigidBodiesData() const = 0;
-		virtual const Storm::FluidData& getFluidData() const = 0;
-		virtual const Storm::RecordConfigData& getRecordConfigData() const = 0;
-		virtual const std::vector<Storm::BlowerData>& getBlowersData() const = 0;
-		virtual const std::vector<Storm::ConstraintData>& getConstraintsData() const = 0;
-		virtual const Storm::RigidBodySceneData& getRigidBodyData(unsigned int rbId) const = 0;
-		virtual const Storm::ScriptData& getScriptData() const = 0;
+		virtual const Storm::SceneConfig& getSceneConfig() const = 0;
+		virtual const Storm::SceneGraphicConfig& getSceneGraphicConfig() const = 0;
+		virtual const Storm::SceneSimulationConfig& getSceneSimulationConfig() const = 0;
+		virtual const std::vector<Storm::SceneRigidBodyConfig>& getSceneRigidBodiesConfig() const = 0;
+		virtual const Storm::SceneFluidConfig& getSceneFluidConfig() const = 0;
+		virtual const Storm::SceneRecordConfig& getSceneRecordConfig() const = 0;
+		virtual const std::vector<Storm::SceneBlowerConfig>& getSceneBlowersConfig() const = 0;
+		virtual const std::vector<Storm::SceneConstraintConfig>& getSceneConstraintsConfig() const = 0;
+		virtual const Storm::SceneRigidBodyConfig& getSceneRigidBodyConfig(unsigned int rbId) const = 0;
+		virtual const Storm::SceneScriptConfig& getSceneScriptConfig() const = 0;
 
 		// Special highly used method
 		virtual bool isInReplayMode() const noexcept = 0;

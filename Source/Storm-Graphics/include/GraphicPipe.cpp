@@ -10,7 +10,7 @@
 #include "SingletonHolder.h"
 #include "IConfigManager.h"
 
-#include "GraphicData.h"
+#include "SceneGraphicConfig.h"
 
 #include "UIField.h"
 #include "UIFieldContainer.h"
@@ -165,14 +165,14 @@ Storm::GraphicPipe::GraphicPipe() :
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
 
-	const Storm::GraphicData &graphicDataConfig = configMgr.getGraphicData();
+	const Storm::SceneGraphicConfig &sceneGraphicConfig = configMgr.getSceneGraphicConfig();
 
-	_velocitySetting._minValue = graphicDataConfig._velocityNormMinColor;
-	_velocitySetting._maxValue = graphicDataConfig._velocityNormMaxColor;
-	_pressureSetting._minValue = graphicDataConfig._pressureMinColor;
-	_pressureSetting._maxValue = graphicDataConfig._pressureMaxColor;
-	_densitySetting._minValue = graphicDataConfig._densityMinColor;
-	_densitySetting._maxValue = graphicDataConfig._densityMaxColor;
+	_velocitySetting._minValue = sceneGraphicConfig._velocityNormMinColor;
+	_velocitySetting._maxValue = sceneGraphicConfig._velocityNormMaxColor;
+	_pressureSetting._minValue = sceneGraphicConfig._pressureMinColor;
+	_pressureSetting._maxValue = sceneGraphicConfig._pressureMaxColor;
+	_densitySetting._minValue = sceneGraphicConfig._densityMinColor;
+	_densitySetting._maxValue = sceneGraphicConfig._densityMaxColor;
 
 	_coloredSettingWStr = parseColoredSetting(_selectedColoredSetting);
 
