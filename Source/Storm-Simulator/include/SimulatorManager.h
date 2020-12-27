@@ -19,10 +19,10 @@ namespace Storm
 	class IBlower;
 	class ISPHBaseSolver;
 	class UIFieldContainer;
-	struct GeneralSimulationData;
+	struct SceneSimulationConfig;
 	struct SerializeRecordPendingData;
 
-	class SimulatorManager :
+	class SimulatorManager final :
 		private Storm::Singleton<Storm::SimulatorManager, Storm::DefineDefaultCleanupImplementationOnly>,
 		public Storm::ISimulatorManager
 	{
@@ -41,7 +41,7 @@ namespace Storm
 
 	private:
 		// CFL : Courant-Friedrich-Levy
-		bool applyCFLIfNeeded(const Storm::GeneralSimulationData &generalSimulationDataConfig);
+		bool applyCFLIfNeeded(const Storm::SceneSimulationConfig &sceneSimulationConfig);
 
 	private:
 		void initializePreSimulation();
@@ -77,7 +77,7 @@ namespace Storm
 		const std::vector<Storm::Vector3>& getParticleSystemPositionsReferences(unsigned int id) const final override;
 
 	public:
-		void loadBlower(const Storm::BlowerData &blowerData) final override;
+		void loadBlower(const Storm::SceneBlowerConfig &blowerConfig) final override;
 		void tweekBlowerEnabling();
 		void advanceBlowersTime(const float deltaTime);
 

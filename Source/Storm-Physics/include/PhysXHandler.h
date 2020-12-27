@@ -5,8 +5,8 @@
 
 namespace Storm
 {
-	struct RigidBodySceneData;
-	struct ConstraintData;
+	struct SceneRigidBodyConfig;
+	struct SceneConstraintConfig;
 
 	class PhysXHandler : public physx::PxDeletionListener
 	{
@@ -28,14 +28,14 @@ namespace Storm
 		void update(std::mutex &fetchingMutex, float deltaTime);
 
 	public:
-		Storm::UniquePointer<physx::PxRigidStatic> createStaticRigidBody(const Storm::RigidBodySceneData &rbSceneData);
-		Storm::UniquePointer<physx::PxRigidDynamic> createDynamicRigidBody(const Storm::RigidBodySceneData &rbSceneData);
+		Storm::UniquePointer<physx::PxRigidStatic> createStaticRigidBody(const Storm::SceneRigidBodyConfig &rbSceneConfig);
+		Storm::UniquePointer<physx::PxRigidDynamic> createDynamicRigidBody(const Storm::SceneRigidBodyConfig &rbSceneConfig);
 		
-		Storm::UniquePointer<physx::PxMaterial> createRigidBodyMaterial(const Storm::RigidBodySceneData &rbSceneData);
-		Storm::UniquePointer<physx::PxShape> createRigidBodyShape(const Storm::RigidBodySceneData &rbSceneData, const std::vector<Storm::Vector3> &vertices, const std::vector<uint32_t> &indexes, physx::PxMaterial* rbMaterial);
+		Storm::UniquePointer<physx::PxMaterial> createRigidBodyMaterial(const Storm::SceneRigidBodyConfig &rbSceneConfig);
+		Storm::UniquePointer<physx::PxShape> createRigidBodyShape(const Storm::SceneRigidBodyConfig &rbSceneConfig, const std::vector<Storm::Vector3> &vertices, const std::vector<uint32_t> &indexes, physx::PxMaterial* rbMaterial);
 
-		Storm::UniquePointer<physx::PxJoint> createDistanceJoint(const Storm::ConstraintData &constraintData, physx::PxRigidActor* actor1, physx::PxRigidActor* actor2);
-		std::pair<Storm::UniquePointer<physx::PxJoint>, Storm::UniquePointer<physx::PxJoint>> createSpinnableJoint(const Storm::ConstraintData &constraintData, physx::PxRigidActor* actor1, physx::PxRigidActor* actor2);
+		Storm::UniquePointer<physx::PxJoint> createDistanceJoint(const Storm::SceneConstraintConfig &constraintConfig, physx::PxRigidActor* actor1, physx::PxRigidActor* actor2);
+		std::pair<Storm::UniquePointer<physx::PxJoint>, Storm::UniquePointer<physx::PxJoint>> createSpinnableJoint(const Storm::SceneConstraintConfig &constraintConfig, physx::PxRigidActor* actor1, physx::PxRigidActor* actor2);
 
 	private:
 		Storm::UniquePointer<physx::PxFoundation> _foundationInstance;

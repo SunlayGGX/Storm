@@ -5,7 +5,8 @@
 #include "SingletonHolder.h"
 #include "IConfigManager.h"
 
-#include "GraphicData.h"
+#include "GeneralGraphicConfig.h"
+#include "SceneGraphicConfig.h"
 
 #include "MemoryHelper.h"
 #include "ResourceMapperGuard.h"
@@ -60,7 +61,7 @@ Storm::ParticleForceShader::ParticleForceShader(const ComPtr<ID3D11Device> &devi
 	Storm::ConstantBufferHolder::initialize<ConstantBuffer>(device);
 
 	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
-	_alwaysOnTop = configMgr.getSelectedParticleForceShouldBeTopMost();
+	_alwaysOnTop = configMgr.getGeneralGraphicConfig()._selectedParticleShouldBeTopMost;
 }
 
 void Storm::ParticleForceShader::setup(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera)
@@ -69,7 +70,7 @@ void Storm::ParticleForceShader::setup(const ComPtr<ID3D11Device> &device, const
 	this->setupDeviceContext(deviceContext);
 
 	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
-	const Storm::GraphicData &graphicConfig = configMgr.getGraphicData();
+	const Storm::SceneGraphicConfig &graphicConfig = configMgr.getSceneGraphicConfig();
 
 	// Write shaders parameters
 	{

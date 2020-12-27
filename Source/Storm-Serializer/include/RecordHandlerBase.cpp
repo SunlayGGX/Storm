@@ -3,7 +3,7 @@
 #include "SingletonHolder.h"
 #include "IConfigManager.h"
 
-#include "RecordConfigData.h"
+#include "SceneRecordConfig.h"
 
 #include "RecordPreHeaderSerializer.h"
 
@@ -20,7 +20,7 @@ namespace
 	inline std::string retrieveRecordFilePath()
 	{
 		const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
-		return configMgr.getRecordConfigData()._recordFilePath;
+		return configMgr.getSceneRecordConfig()._recordFilePath;
 	}
 }
 

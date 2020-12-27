@@ -293,5 +293,8 @@
     <ClInclude Include="..\include\StringAlgo.h">
       <Filter>Header Files\General\Algorithm</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\RAII.h">
+      <Filter>Header Files\General\Misc</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

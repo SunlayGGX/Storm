@@ -3,7 +3,8 @@
 #include "IConfigManager.h"
 #include "SingletonHolder.h"
 
-#include "GraphicData.h"
+#include "GeneralGraphicConfig.h"
+#include "SceneGraphicConfig.h"
 
 #include "UIFieldBase.h"
 #include "UIFieldContainer.h"
@@ -227,7 +228,7 @@ Storm::Camera::Camera(float viewportWidth, float viewportHeight) :
 		;
 
 	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
-	_planesFixedFromTranslatMoves = configMgr.getFixNearFarPlanesWhenTranslatingFlag();
+	_planesFixedFromTranslatMoves = configMgr.getGeneralGraphicConfig()._fixNearFarPlanesWhenTranslating;
 }
 
 Storm::Camera::~Camera() = default;
@@ -239,18 +240,18 @@ void Storm::Camera::reset()
 	this->setCameraRotateSpeed(10.f);
 
 	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
-	const Storm::GraphicData &currentGraphicData = configMgr.getGraphicData();
+	const Storm::SceneGraphicConfig &sceneGraphicConfig = configMgr.getSceneGraphicConfig();
 
-	_nearPlane = currentGraphicData._zNear;
-	_farPlane = currentGraphicData._zFar;
+	_nearPlane = sceneGraphicConfig._zNear;
+	_farPlane = sceneGraphicConfig._zFar;
 
-	_position.x = currentGraphicData._cameraPosition.x();
-	_position.y = currentGraphicData._cameraPosition.y();
-	_position.z = currentGraphicData._cameraPosition.z();
+	_position.x = sceneGraphicConfig._cameraPosition.x();
+	_position.y = sceneGraphicConfig._cameraPosition.y();
+	_position.z = sceneGraphicConfig._cameraPosition.z();
 
-	_target.x = currentGraphicData._cameraLookAt.x();
-	_target.y = currentGraphicData._cameraLookAt.y();
-	_target.z = currentGraphicData._cameraLookAt.z();
+	_target.x = sceneGraphicConfig._cameraLookAt.x();
+	_target.y = sceneGraphicConfig._cameraLookAt.y();
+	_target.z = sceneGraphicConfig._cameraLookAt.z();
 
 	DirectX::XMFLOAT3 upFloat3{ 0.f, 1.f, 0.f };
 	_up = DirectX::XMLoadFloat3(&upFloat3);

@@ -1,4 +1,4 @@
-#include "BlowerData.h"
+#include "SceneBlowerConfig.h"
 
 #include "BlowerTimeHandler.h"
 #include "BlowerEffectArea.h"
@@ -28,16 +28,16 @@ if (!CorrectSettingChecker<Storm::BlowerType>::check<__VA_ARGS__>(BlowerDataVari
 	Storm::throwException<Storm::StormException>(__FUNCTION__ " is intended to be used for " #__VA_ARGS__ " blowers!")		\
 
 
-Storm::BlowerTimeHandlerBase::BlowerTimeHandlerBase(const Storm::BlowerData &blowerDataConfig) :
-	_startTime{ blowerDataConfig._startTimeInSeconds },
-	_stopTime{ blowerDataConfig._stopTimeInSeconds },
+Storm::BlowerTimeHandlerBase::BlowerTimeHandlerBase(const Storm::SceneBlowerConfig &blowerConfig) :
+	_startTime{ blowerConfig._startTimeInSeconds },
+	_stopTime{ blowerConfig._stopTimeInSeconds },
 	_currentTime{ 0.f }
 {
 
 }
 
-Storm::BlowerPulseTimeHandler::BlowerPulseTimeHandler(const Storm::BlowerData &blowerDataConfig) :
-	_startTime{ blowerDataConfig._startTimeInSeconds },
+Storm::BlowerPulseTimeHandler::BlowerPulseTimeHandler(const Storm::SceneBlowerConfig &blowerConfig) :
+	_startTime{ blowerConfig._startTimeInSeconds },
 	_currentTime{ 0.f },
 	_enabled{ true }
 {
@@ -65,24 +65,24 @@ bool Storm::BlowerTimeHandlerBase::advanceTime(const float deltaTimeInSeconds)
 	return _currentTime >= _startTime && (_stopTime == -1.f || _currentTime < _stopTime);
 }
 
-Storm::FadeInTimeHandler::FadeInTimeHandler(const Storm::BlowerData &blowerDataConfig) :
-	Storm::BlowerTimeHandlerBase::BlowerTimeHandlerBase{ blowerDataConfig },
-	Storm::FadeInTimeHandler::UnderlyingFadeInType{ blowerDataConfig._startTimeInSeconds, blowerDataConfig._fadeInTimeInSeconds }
+Storm::FadeInTimeHandler::FadeInTimeHandler(const Storm::SceneBlowerConfig &blowerConfig) :
+	Storm::BlowerTimeHandlerBase::BlowerTimeHandlerBase{ blowerConfig },
+	Storm::FadeInTimeHandler::UnderlyingFadeInType{ blowerConfig._startTimeInSeconds, blowerConfig._fadeInTimeInSeconds }
 {
 
 }
 
-Storm::FadeOutTimeHandler::FadeOutTimeHandler(const Storm::BlowerData &blowerDataConfig) :
-	Storm::BlowerTimeHandlerBase::BlowerTimeHandlerBase{ blowerDataConfig },
-	Storm::FadeOutTimeHandler::UnderlyingFadeOutType{ blowerDataConfig._stopTimeInSeconds - blowerDataConfig._fadeOutTimeInSeconds, blowerDataConfig._fadeOutTimeInSeconds }
+Storm::FadeOutTimeHandler::FadeOutTimeHandler(const Storm::SceneBlowerConfig &blowerConfig) :
+	Storm::BlowerTimeHandlerBase::BlowerTimeHandlerBase{ blowerConfig },
+	Storm::FadeOutTimeHandler::UnderlyingFadeOutType{ blowerConfig._stopTimeInSeconds - blowerConfig._fadeOutTimeInSeconds, blowerConfig._fadeOutTimeInSeconds }
 {
 
 }
 
-Storm::FadeInOutTimeHandler::FadeInOutTimeHandler(const Storm::BlowerData &blowerDataConfig) :
-	Storm::BlowerTimeHandlerBase::BlowerTimeHandlerBase{ blowerDataConfig },
-	Storm::FadeInOutTimeHandler::UnderlyingFadeInType{ blowerDataConfig._startTimeInSeconds, blowerDataConfig._fadeInTimeInSeconds },
-	Storm::FadeInOutTimeHandler::UnderlyingFadeOutType{ blowerDataConfig._stopTimeInSeconds - blowerDataConfig._fadeOutTimeInSeconds, blowerDataConfig._fadeOutTimeInSeconds }
+Storm::FadeInOutTimeHandler::FadeInOutTimeHandler(const Storm::SceneBlowerConfig &blowerConfig) :
+	Storm::BlowerTimeHandlerBase::BlowerTimeHandlerBase{ blowerConfig },
+	Storm::FadeInOutTimeHandler::UnderlyingFadeInType{ blowerConfig._startTimeInSeconds, blowerConfig._fadeInTimeInSeconds },
+	Storm::FadeInOutTimeHandler::UnderlyingFadeOutType{ blowerConfig._stopTimeInSeconds - blowerConfig._fadeOutTimeInSeconds, blowerConfig._fadeOutTimeInSeconds }
 {
 
 }
@@ -137,49 +137,49 @@ void Storm::BlowerExplosionSphereArea::applyDistanceEffectToTemporary(const Stor
 	}
 }
 
-Storm::BlowerCubeArea::BlowerCubeArea(const Storm::BlowerData &blowerDataConfig) :
-	_dimension{ blowerDataConfig._blowerDimension / 2.f }
+Storm::BlowerCubeArea::BlowerCubeArea(const Storm::SceneBlowerConfig &blowerConfig) :
+	_dimension{ blowerConfig._blowerDimension / 2.f }
 {
-	STORM_ENSURE_CONSTRUCTED_ON_RIGHT_SETTING(blowerDataConfig, Storm::BlowerType::Cube);
+	STORM_ENSURE_CONSTRUCTED_ON_RIGHT_SETTING(blowerConfig, Storm::BlowerType::Cube);
 }
 
-Storm::BlowerSphereArea::BlowerSphereArea(const Storm::BlowerData &blowerDataConfig) :
-	Storm::BlowerSphereArea{ blowerDataConfig, 0 }
+Storm::BlowerSphereArea::BlowerSphereArea(const Storm::SceneBlowerConfig &blowerConfig) :
+	Storm::BlowerSphereArea{ blowerConfig, 0 }
 {
-	STORM_ENSURE_CONSTRUCTED_ON_RIGHT_SETTING(blowerDataConfig, Storm::BlowerType::Sphere);
+	STORM_ENSURE_CONSTRUCTED_ON_RIGHT_SETTING(blowerConfig, Storm::BlowerType::Sphere);
 }
 
-Storm::BlowerSphereArea::BlowerSphereArea(const Storm::BlowerData &blowerDataConfig, int)
+Storm::BlowerSphereArea::BlowerSphereArea(const Storm::SceneBlowerConfig &blowerConfig, int)
 {
-	_radiusSquared = blowerDataConfig._radius * blowerDataConfig._radius;
+	_radiusSquared = blowerConfig._radius * blowerConfig._radius;
 }
 
-Storm::BlowerRepulsionSphereArea::BlowerRepulsionSphereArea(const Storm::BlowerData &blowerDataConfig) :
-	Storm::BlowerSphereArea{ blowerDataConfig, 0 }
+Storm::BlowerRepulsionSphereArea::BlowerRepulsionSphereArea(const Storm::SceneBlowerConfig &blowerConfig) :
+	Storm::BlowerSphereArea{ blowerConfig, 0 }
 {
-	STORM_ENSURE_CONSTRUCTED_ON_RIGHT_SETTING(blowerDataConfig, Storm::BlowerType::RepulsionSphere);
+	STORM_ENSURE_CONSTRUCTED_ON_RIGHT_SETTING(blowerConfig, Storm::BlowerType::RepulsionSphere);
 }
 
-Storm::BlowerExplosionSphereArea::BlowerExplosionSphereArea(const Storm::BlowerData &blowerDataConfig) :
-	Storm::BlowerSphereArea{ blowerDataConfig, 0 },
-	_radius{ blowerDataConfig._radius }
+Storm::BlowerExplosionSphereArea::BlowerExplosionSphereArea(const Storm::SceneBlowerConfig &blowerConfig) :
+	Storm::BlowerSphereArea{ blowerConfig, 0 },
+	_radius{ blowerConfig._radius }
 {
-	STORM_ENSURE_CONSTRUCTED_ON_RIGHT_SETTING(blowerDataConfig, Storm::BlowerType::ExplosionSphere, Storm::BlowerType::PulseExplosionSphere);
+	STORM_ENSURE_CONSTRUCTED_ON_RIGHT_SETTING(blowerConfig, Storm::BlowerType::ExplosionSphere, Storm::BlowerType::PulseExplosionSphere);
 }
 
-Storm::BlowerCylinderArea::BlowerCylinderArea(const Storm::BlowerData &blowerDataConfig) :
-	_radiusSquared{ blowerDataConfig._radius * blowerDataConfig._radius },
-	_midHeight{ blowerDataConfig._height / 2.f }
+Storm::BlowerCylinderArea::BlowerCylinderArea(const Storm::SceneBlowerConfig &blowerConfig) :
+	_radiusSquared{ blowerConfig._radius * blowerConfig._radius },
+	_midHeight{ blowerConfig._height / 2.f }
 {
-	STORM_ENSURE_CONSTRUCTED_ON_RIGHT_SETTING(blowerDataConfig, Storm::BlowerType::Cylinder);
+	STORM_ENSURE_CONSTRUCTED_ON_RIGHT_SETTING(blowerConfig, Storm::BlowerType::Cylinder);
 }
 
-Storm::BlowerConeArea::BlowerConeArea(const Storm::BlowerData &blowerDataConfig) :
-	_downRadiusSquared{ blowerDataConfig._downRadius * blowerDataConfig._downRadius },
-	_midHeight{ blowerDataConfig._height / 2.f }
+Storm::BlowerConeArea::BlowerConeArea(const Storm::SceneBlowerConfig &blowerConfig) :
+	_downRadiusSquared{ blowerConfig._downRadius * blowerConfig._downRadius },
+	_midHeight{ blowerConfig._height / 2.f }
 {
-	STORM_ENSURE_CONSTRUCTED_ON_RIGHT_SETTING(blowerDataConfig, Storm::BlowerType::Cone);
+	STORM_ENSURE_CONSTRUCTED_ON_RIGHT_SETTING(blowerConfig, Storm::BlowerType::Cone);
 
-	const float upRadiusSquared = blowerDataConfig._upRadius * blowerDataConfig._upRadius;
+	const float upRadiusSquared = blowerConfig._upRadius * blowerConfig._upRadius;
 	_diffRadiusSquared = upRadiusSquared - _downRadiusSquared;
 }

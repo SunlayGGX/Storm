@@ -8,7 +8,7 @@
 
 namespace Storm
 {
-	class RaycastManager :
+	class RaycastManager final :
 		private Storm::Singleton<Storm::RaycastManager, Storm::DefineDefaultInitAndCleanupImplementation>,
 		public Storm::IRaycastManager
 	{

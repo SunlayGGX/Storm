@@ -3,10 +3,10 @@
 
 namespace Storm
 {
-	struct ConstraintData
+	struct SceneConstraintConfig
 	{
 	public:
-		ConstraintData();
+		SceneConstraintConfig();
 
 	public:
 		unsigned int _constraintId;

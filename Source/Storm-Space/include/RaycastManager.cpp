@@ -15,7 +15,7 @@
 #include "RaycastQueryRequest.h"
 #include "RaycastHitResult.h"
 
-#include "GeneralSimulationData.h"
+#include "SceneSimulationConfig.h"
 
 #include "ThreadEnumeration.h"
 #include "ThreadingSafety.h"
@@ -121,7 +121,7 @@ void Storm::RaycastManager::executeRaycast(const Storm::Vector3 &origin, const S
 	const Storm::SpacePartitionerManager &spacePartitionMgr = Storm::SpacePartitionerManager::instance();
 
 	const float voxelLength = spacePartitionMgr.getPartitionLength();
-	const float particleRadius = configMgr.getGeneralSimulationData()._particleRadius;
+	const float particleRadius = configMgr.getSceneSimulationConfig()._particleRadius;
 	const float particleRadiusSquared = particleRadius * particleRadius;
 	for (const Storm::PartitionSelection selection : queryRequest._particleSystemSelectionFlag)
 	{

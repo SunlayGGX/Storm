@@ -7,10 +7,10 @@
 
 #include "PhysicsConstraint.h"
 
-#include "RigidBodySceneData.h"
-#include "ConstraintData.h"
-#include "GeneralSimulationData.h"
-#include "RecordConfigData.h"
+#include "SceneRigidBodyConfig.h"
+#include "SceneConstraintConfig.h"
+#include "SceneSimulationConfig.h"
+#include "SceneRecordConfig.h"
 
 #include "SingletonHolder.h"
 #include "IGraphicsManager.h"
@@ -61,7 +61,7 @@ void Storm::PhysicsManager::initialize_Implementation()
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
 
-	_rigidBodiesFixated = configMgr.getGeneralSimulationData()._fixRigidBodyAtStartTime;
+	_rigidBodiesFixated = configMgr.getSceneSimulationConfig()._fixRigidBodyAtStartTime;
 
 	Storm::IInputManager &inputMgr = singletonHolder.getSingleton<Storm::IInputManager>();
 	inputMgr.bindKey(Storm::SpecialKey::KC_L, [this]() { _rigidBodiesFixated = !_rigidBodiesFixated; });
@@ -101,15 +101,15 @@ void Storm::PhysicsManager::update(float deltaTime)
 	}
 }
 
-void Storm::PhysicsManager::addPhysicalBody(const Storm::RigidBodySceneData &rbSceneData, const std::vector<Storm::Vector3> &vertexes, const std::vector<uint32_t> &indexes)
+void Storm::PhysicsManager::addPhysicalBody(const Storm::SceneRigidBodyConfig &rbSceneConfig, const std::vector<Storm::Vector3> &vertexes, const std::vector<uint32_t> &indexes)
 {
-	if (rbSceneData._static)
+	if (rbSceneConfig._static)
 	{
-		_staticsRbMap[rbSceneData._rigidBodyID] = std::make_unique<Storm::PhysicsStaticsRigidBody>(rbSceneData, vertexes, indexes);
+		_staticsRbMap[rbSceneConfig._rigidBodyID] = std::make_unique<Storm::PhysicsStaticsRigidBody>(rbSceneConfig, vertexes, indexes);
 	}
 	else
 	{
-		_dynamicsRbMap[rbSceneData._rigidBodyID] = std::make_unique<Storm::PhysicsDynamicRigidBody>(rbSceneData, vertexes, indexes);
+		_dynamicsRbMap[rbSceneConfig._rigidBodyID] = std::make_unique<Storm::PhysicsDynamicRigidBody>(rbSceneConfig, vertexes, indexes);
 	}
 }
 
@@ -139,19 +139,19 @@ void Storm::PhysicsManager::bindParentRbToPhysicalBody(const bool isStatic, cons
 	}
 }
 
-void Storm::PhysicsManager::bindParentRbToPhysicalBody(const Storm::RigidBodySceneData &rbSceneData, const std::shared_ptr<Storm::IRigidBody> &parentRb) const
+void Storm::PhysicsManager::bindParentRbToPhysicalBody(const Storm::SceneRigidBodyConfig &rbSceneConfig, const std::shared_ptr<Storm::IRigidBody> &parentRb) const
 {
-	this->bindParentRbToPhysicalBody(rbSceneData._static, rbSceneData._rigidBodyID, parentRb);
+	this->bindParentRbToPhysicalBody(rbSceneConfig._static, rbSceneConfig._rigidBodyID, parentRb);
 }
 
-void Storm::PhysicsManager::addConstraint(const Storm::ConstraintData &constraintData)
+void Storm::PhysicsManager::addConstraint(const Storm::SceneConstraintConfig &constraintConfig)
 {
-	Storm::SearchAlgo::executeOnObjectInContainer(constraintData._rigidBodyId1, [&](auto &rb1)
+	Storm::SearchAlgo::executeOnObjectInContainer(constraintConfig._rigidBodyId1, [&](auto &rb1)
 	{
 		std::shared_ptr<Storm::PhysicsConstraint> addedConstraint;
-		Storm::SearchAlgo::executeOnObjectInContainer(constraintData._rigidBodyId2, [&](auto &rb2)
+		Storm::SearchAlgo::executeOnObjectInContainer(constraintConfig._rigidBodyId2, [&](auto &rb2)
 		{
-			addedConstraint = std::make_shared<Storm::PhysicsConstraint>(constraintData, rb1.getInternalPhysicsPointer(), rb2.getInternalPhysicsPointer());
+			addedConstraint = std::make_shared<Storm::PhysicsConstraint>(constraintConfig, rb1.getInternalPhysicsPointer(), rb2.getInternalPhysicsPointer());
 			
 			registerConstraint(rb2, addedConstraint, 0);
 			registerConstraint(rb1, addedConstraint, 0);
@@ -164,7 +164,7 @@ void Storm::PhysicsManager::addConstraint(const Storm::ConstraintData &constrain
 	LOG_DEBUG << "Constraint loaded";
 }
 
-void Storm::PhysicsManager::loadConstraints(const std::vector<Storm::ConstraintData> &constraintsToLoad)
+void Storm::PhysicsManager::loadConstraints(const std::vector<Storm::SceneConstraintConfig> &constraintsToLoad)
 {
 	const std::size_t constraintsCount = constraintsToLoad.size();
 	if (constraintsCount > 0)
@@ -173,7 +173,7 @@ void Storm::PhysicsManager::loadConstraints(const std::vector<Storm::ConstraintD
 
 		_constraints.reserve(_constraints.size() + constraintsCount);
 
-		for (const Storm::ConstraintData &constraint : constraintsToLoad)
+		for (const Storm::SceneConstraintConfig &constraint : constraintsToLoad)
 		{
 			this->addConstraint(constraint);
 		}
@@ -190,15 +190,15 @@ void Storm::PhysicsManager::loadConstraints(const std::vector<Storm::ConstraintD
 void Storm::PhysicsManager::loadRecordedConstraint(const Storm::SerializeConstraintLayout &constraintsRecordLayout)
 {
 	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
-	if (configMgr.getRecordConfigData()._recordMode == Storm::RecordMode::Replay)
+	if (configMgr.getSceneRecordConfig()._recordMode == Storm::RecordMode::Replay)
 	{
-		const std::vector<Storm::ConstraintData> &constraintDataArrays = configMgr.getConstraintsData();
-		if (const auto found = std::find_if(std::begin(constraintDataArrays), std::end(constraintDataArrays), [id = constraintsRecordLayout._id](const Storm::ConstraintData &data)
+		const std::vector<Storm::SceneConstraintConfig> &constraintConfigArrays = configMgr.getSceneConstraintsConfig();
+		if (const auto found = std::find_if(std::begin(constraintConfigArrays), std::end(constraintConfigArrays), [id = constraintsRecordLayout._id](const Storm::SceneConstraintConfig &data)
 		{
 			return data._constraintId == id;
-		}); found != std::end(constraintDataArrays))
+		}); found != std::end(constraintConfigArrays))
 		{
-			const Storm::ConstraintData &constraintConfig = *found;
+			const Storm::SceneConstraintConfig &constraintConfig = *found;
 			_constraints.emplace_back(std::make_shared<Storm::PhysicsConstraint>(constraintConfig));
 
 			LOG_DEBUG << "Recorded constraint loaded";

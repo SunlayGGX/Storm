@@ -1,8 +1,8 @@
 #include "RigidBody.h"
 
 #include "PoissonDiskSampler.h"
-#include "RigidBodySceneData.h"
-#include "GeneralSimulationData.h"
+#include "SceneRigidBodyConfig.h"
+#include "SceneSimulationConfig.h"
 
 #include "SingletonHolder.h"
 #include "IConfigManager.h"
@@ -27,22 +27,22 @@
 
 namespace
 {
-	std::filesystem::path computeRightCachedFilePath(const Storm::RigidBodySceneData &rbSceneData, const std::filesystem::path &meshPath, float particleRadius)
+	std::filesystem::path computeRightCachedFilePath(const Storm::SceneRigidBodyConfig &rbSceneConfig, const std::filesystem::path &meshPath, float particleRadius)
 	{
 		std::string suffix;
 		suffix.reserve(40);
 		suffix += "_x";
-		suffix += std::to_string(rbSceneData._scale.x());
+		suffix += std::to_string(rbSceneConfig._scale.x());
 		suffix += "_y";
-		suffix += std::to_string(rbSceneData._scale.y());
+		suffix += std::to_string(rbSceneConfig._scale.y());
 		suffix += "_z";
-		suffix += std::to_string(rbSceneData._scale.z());
+		suffix += std::to_string(rbSceneConfig._scale.z());
 		suffix += "_rad";
 		suffix += std::to_string(particleRadius);
 		suffix += "_l";
-		suffix += Storm::toStdString(rbSceneData._layerGenerationMode);
+		suffix += Storm::toStdString(rbSceneConfig._layerGenerationMode);
 		suffix += "x";
-		suffix += std::to_string(rbSceneData._layerCount);
+		suffix += std::to_string(rbSceneConfig._layerCount);
 
 		boost::algorithm::replace_all(suffix, ".", "_");
 
@@ -58,25 +58,25 @@ namespace
 }
 
 
-Storm::RigidBody::RigidBody(const Storm::RigidBodySceneData &rbSceneData) :
-	_meshPath{ rbSceneData._meshFilePath },
-	_rbId{ rbSceneData._rigidBodyID }
+Storm::RigidBody::RigidBody(const Storm::SceneRigidBodyConfig &rbSceneConfig) :
+	_meshPath{ rbSceneConfig._meshFilePath },
+	_rbId{ rbSceneConfig._rigidBodyID }
 {
-	this->load(rbSceneData);
+	this->load(rbSceneConfig);
 }
 
-Storm::RigidBody::RigidBody(const Storm::RigidBodySceneData &rbSceneData, Storm::SystemSimulationStateObject &&state) :
-	_meshPath{ rbSceneData._meshFilePath },
-	_rbId{ rbSceneData._rigidBodyID }
+Storm::RigidBody::RigidBody(const Storm::SceneRigidBodyConfig &rbSceneConfig, Storm::SystemSimulationStateObject &&state) :
+	_meshPath{ rbSceneConfig._meshFilePath },
+	_rbId{ rbSceneConfig._rigidBodyID }
 {
-	this->loadFromState(rbSceneData, std::move(state));
+	this->loadFromState(rbSceneConfig, std::move(state));
 }
 
-Storm::RigidBody::RigidBody(const Storm::RigidBodySceneData &rbSceneData, ReplayMode) :
-	_meshPath{ rbSceneData._meshFilePath },
-	_rbId{ rbSceneData._rigidBodyID }
+Storm::RigidBody::RigidBody(const Storm::SceneRigidBodyConfig &rbSceneConfig, ReplayMode) :
+	_meshPath{ rbSceneConfig._meshFilePath },
+	_rbId{ rbSceneConfig._rigidBodyID }
 {
-	this->loadForReplay(rbSceneData);
+	this->loadForReplay(rbSceneConfig);
 }
 
 const std::string& Storm::RigidBody::getRigidBodyName() const
@@ -128,7 +128,7 @@ std::filesystem::path Storm::RigidBody::retrieveParticleDataCacheFolder()
 	return std::filesystem::path{ configMgr.getTemporaryPath() } / "ParticleData";
 }
 
-std::shared_ptr<Storm::AssetCacheData> Storm::RigidBody::baseLoadAssimp(const Storm::RigidBodySceneData &rbSceneData, const float layerDist)
+std::shared_ptr<Storm::AssetCacheData> Storm::RigidBody::baseLoadAssimp(const Storm::SceneRigidBodyConfig &rbSceneConfig, const float layerDist)
 {
 	std::shared_ptr<Storm::AssetCacheData> cachedDataPtr;
 
@@ -141,7 +141,7 @@ std::shared_ptr<Storm::AssetCacheData> Storm::RigidBody::baseLoadAssimp(const St
 			this,
 			&graphicsMgr = singletonHolder.getSingleton<Storm::IGraphicsManager>(),
 			&physicsMgr = singletonHolder.getSingleton<Storm::IPhysicsManager>(),
-			&rbSceneData, 
+			&rbSceneConfig, 
 			&assetLoaderMgr
 		](const std::shared_ptr<Storm::AssetCacheData> &cachedDataPtr)
 	{
@@ -151,10 +151,10 @@ std::shared_ptr<Storm::AssetCacheData> Storm::RigidBody::baseLoadAssimp(const St
 
 		std::lock_guard<std::mutex> lock{ assetLoaderMgr.getAddingMutex() };
 		graphicsMgr.addMesh(_rbId, verticesPos, normalsPos, indexes);
-		physicsMgr.addPhysicalBody(rbSceneData, verticesPos, indexes);
+		physicsMgr.addPhysicalBody(rbSceneConfig, verticesPos, indexes);
 	};
 
-	Storm::AssetCacheDataOrder order{ rbSceneData, nullptr, layerDist };
+	Storm::AssetCacheDataOrder order{ rbSceneConfig, nullptr, layerDist };
 	order._considerFinalInEquivalence = true;
 
 	cachedDataPtr = assetLoaderMgr.retrieveAssetData(order);
@@ -203,7 +203,7 @@ std::shared_ptr<Storm::AssetCacheData> Storm::RigidBody::baseLoadAssimp(const St
 	return cachedDataPtr;
 }
 
-void Storm::RigidBody::load(const Storm::RigidBodySceneData &rbSceneData)
+void Storm::RigidBody::load(const Storm::SceneRigidBodyConfig &rbSceneConfig)
 {
 	enum : uint64_t
 	{
@@ -215,15 +215,15 @@ void Storm::RigidBody::load(const Storm::RigidBodySceneData &rbSceneData)
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
-	const float currentParticleRadius = configMgr.getGeneralSimulationData()._particleRadius;
+	const float currentParticleRadius = configMgr.getSceneSimulationConfig()._particleRadius;
 
-	std::shared_ptr<Storm::AssetCacheData> cachedDataPtr = this->baseLoadAssimp(rbSceneData, computeLayerDistance(currentParticleRadius));
+	std::shared_ptr<Storm::AssetCacheData> cachedDataPtr = this->baseLoadAssimp(rbSceneConfig, computeLayerDistance(currentParticleRadius));
 
 	std::vector<Storm::Vector3> particlePos;
 
 	const std::string meshPathLowerStr = boost::algorithm::to_lower_copy(_meshPath);
 	const std::filesystem::path meshPath = meshPathLowerStr;
-	const std::filesystem::path cachedPath = computeRightCachedFilePath(rbSceneData, meshPath, currentParticleRadius);
+	const std::filesystem::path cachedPath = computeRightCachedFilePath(rbSceneConfig, meshPath, currentParticleRadius);
 	const std::wstring cachedPathStr = cachedPath.wstring();
 	constexpr const Storm::Version currentVersion = Storm::Version::retrieveCurrentStormVersion();
 
@@ -358,7 +358,7 @@ void Storm::RigidBody::load(const Storm::RigidBodySceneData &rbSceneData)
 	simulMgr.addRigidBodyParticleSystem(_rbId, std::move(particlePos));
 }
 
-void Storm::RigidBody::loadForReplay(const Storm::RigidBodySceneData &rbSceneData)
+void Storm::RigidBody::loadForReplay(const Storm::SceneRigidBodyConfig &rbSceneConfig)
 {
 	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
 	if (!configMgr.isInReplayMode())
@@ -366,10 +366,10 @@ void Storm::RigidBody::loadForReplay(const Storm::RigidBodySceneData &rbSceneDat
 		Storm::throwException<Storm::StormException>(__FUNCSIG__ " should only be used in replay mode!");
 	}
 
-	this->baseLoadAssimp(rbSceneData, computeLayerDistance(configMgr.getGeneralSimulationData()._particleRadius));
+	this->baseLoadAssimp(rbSceneConfig, computeLayerDistance(configMgr.getSceneSimulationConfig()._particleRadius));
 }
 
-void Storm::RigidBody::loadFromState(const Storm::RigidBodySceneData &rbSceneData, Storm::SystemSimulationStateObject &&state)
+void Storm::RigidBody::loadFromState(const Storm::SceneRigidBodyConfig &rbSceneConfig, Storm::SystemSimulationStateObject &&state)
 {
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 	Storm::ISimulatorManager &simulMgr = singletonHolder.getSingleton<Storm::ISimulatorManager>();
@@ -377,7 +377,7 @@ void Storm::RigidBody::loadFromState(const Storm::RigidBodySceneData &rbSceneDat
 
 	Storm::AssetLoaderManager &assetLoaderMgr = Storm::AssetLoaderManager::instance();
 
-	this->baseLoadAssimp(rbSceneData, computeLayerDistance(configMgr.getGeneralSimulationData()._particleRadius));
+	this->baseLoadAssimp(rbSceneConfig, computeLayerDistance(configMgr.getSceneSimulationConfig()._particleRadius));
 
 	std::lock_guard<std::mutex> addingLock{ assetLoaderMgr.getAddingMutex() };
 	simulMgr.addRigidBodyParticleSystem(std::move(state));

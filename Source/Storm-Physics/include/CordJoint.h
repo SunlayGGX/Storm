@@ -6,12 +6,12 @@
 
 namespace Storm
 {
-	struct ConstraintData;
+	struct SceneConstraintConfig;
 
 	class CordJoint : public Storm::JointBase
 	{
 	public:
-		CordJoint(const Storm::ConstraintData &data, physx::PxRigidActor* actor1, physx::PxRigidActor* actor2);
+		CordJoint(const Storm::SceneConstraintConfig &data, physx::PxRigidActor* actor1, physx::PxRigidActor* actor2);
 
 	public:
 		void getJointPositionToArray(Storm::Vector3 &outPos1, Storm::Vector3 &outPos2) const;

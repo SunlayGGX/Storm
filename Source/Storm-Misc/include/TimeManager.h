@@ -13,7 +13,7 @@ namespace Storm
 {
 	class SerializePackage;
 
-	class TimeManager :
+	class TimeManager final :
 		private Storm::Singleton<TimeManager>,
 		public Storm::ITimeManager
 	{

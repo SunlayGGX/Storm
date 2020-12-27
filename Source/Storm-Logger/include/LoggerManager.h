@@ -9,7 +9,7 @@ namespace Storm
 	class LogItem;
 	enum class LogLevel;
 
-	class LoggerManager :
+	class LoggerManager final :
 		private Storm::Singleton<LoggerManager>,
 		public Storm::ILoggerManager
 	{

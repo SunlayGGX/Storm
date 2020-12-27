@@ -11,6 +11,9 @@
 #include "IConfigManager.h"
 #include "GraphicManager.h"
 
+#include "GeneralGraphicConfig.h"
+#include "GeneralDebugConfig.h"
+
 #include "MemoryHelper.h"
 #include "DirectXHardwareInfo.h"
 #include "ResourceMapperGuard.h"
@@ -116,7 +119,7 @@ void Storm::DirectXController::initialize(HWND hwnd)
 	this->internalCreateDirect2DDevices(hwnd);
 	this->internalCreateDirectWrite();
 
-	_logDeviceMessage = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().getShouldLogGraphicDeviceMessage();
+	_logDeviceMessage = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().getGeneralDebugConfig()._shouldLogGraphicDeviceMessage;
 }
 
 void Storm::DirectXController::cleanUp()
@@ -430,12 +433,13 @@ void Storm::DirectXController::internalCreateDXDevices(HWND hwnd)
 	Storm::ZeroMemories(swapChainDesc);
 
 	{
-		Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
+		const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
+		const Storm::GeneralGraphicConfig &generalGraphicConfig = configMgr.getGeneralGraphicConfig();
 
 		DXGI_MODE_DESC descModeWanted;
 		descModeWanted.Format = DXGI_FORMAT::DXGI_FORMAT_B8G8R8A8_UNORM;
-		descModeWanted.Height = configMgr.getWantedScreenHeight();
-		descModeWanted.Width = configMgr.getWantedScreenWidth();
+		descModeWanted.Height = generalGraphicConfig._wantedApplicationHeight;
+		descModeWanted.Width = generalGraphicConfig._wantedApplicationWidth;
 		descModeWanted.RefreshRate.Numerator = k_wantedFPS;
 		descModeWanted.RefreshRate.Denominator = 1;
 		descModeWanted.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER::DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
@@ -717,7 +721,8 @@ void Storm::DirectXController::internalCreateDirectWrite()
 	Storm::throwIfFailed(DWriteCreateFactory(DWRITE_FACTORY_TYPE::DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory) , &_writeFactory));
 
 	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
-	_textHeightCoeff = configMgr.getFontSize();
+	const Storm::GeneralGraphicConfig &generalGraphicConfig = configMgr.getGeneralGraphicConfig();
+	_textHeightCoeff = generalGraphicConfig._fontSize;
 
 	Storm::throwIfFailed(_writeFactory->CreateTextFormat(
 		L"Arial",

@@ -1,14 +1,16 @@
 <General>
-	<Log>
-		<logFolderPath>$[StormTmp]\Logs</logFolderPath>
-		<logFileName>log_$[Date]_PID$[PID]</logFileName>
-		<logLevel>Debug</logLevel>
-		<override>true</override>
-		<removeOlderThanDays>5</removeOlderThanDays>
-		<fpsWatching>false</fpsWatching>
-		<logGraphicDeviceMessage>false</logGraphicDeviceMessage>
-	</Log>
   <Debug>
-    <displayVectoredException>FatalOnly</displayVectoredException>
+    <Log>
+      <logFolderPath>$[StormTmp]\Logs</logFolderPath>
+      <logFileName>log_$[Date]_PID$[PID]</logFileName>
+      <logLevel>Debug</logLevel>
+      <override>true</override>
+      <removeOlderThanDays>5</removeOlderThanDays>
+      <fpsWatching>false</fpsWatching>
+      <logGraphicDeviceMessage>false</logGraphicDeviceMessage>
+    </Log>
+    <Exception>
+      <displayVectoredException>FatalOnly</displayVectoredException>
+    </Exception>
   </Debug>
 </General>

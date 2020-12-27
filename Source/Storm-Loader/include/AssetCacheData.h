@@ -5,7 +5,7 @@ struct aiScene;
 
 namespace Storm
 {
-	struct RigidBodySceneData;
+	struct SceneRigidBodyConfig;
 
 	class AssetCacheData
 	{
@@ -17,11 +17,11 @@ namespace Storm
 		};
 
 	public:
-		AssetCacheData(const Storm::RigidBodySceneData &rbConfig, const aiScene* meshScene, const float layerDistance);
-		AssetCacheData(const Storm::RigidBodySceneData &rbConfig, const Storm::AssetCacheData &srcCachedData, const float layerDistance);
+		AssetCacheData(const Storm::SceneRigidBodyConfig &rbConfig, const aiScene* meshScene, const float layerDistance);
+		AssetCacheData(const Storm::SceneRigidBodyConfig &rbConfig, const Storm::AssetCacheData &srcCachedData, const float layerDistance);
 
 	public:
-		bool isEquivalentWith(const Storm::RigidBodySceneData &rbConfig, bool considerFinal) const;
+		bool isEquivalentWith(const Storm::SceneRigidBodyConfig &rbConfig, bool considerFinal) const;
 		bool isInsideFinalBoundingBox(const Storm::Vector3 &pos) const;
 
 		const Storm::Vector3& getFinalBoundingBoxMin() const noexcept;
@@ -41,7 +41,7 @@ namespace Storm
 		const std::vector<Storm::Vector3>& getFinalVertices() const noexcept;
 		const std::vector<Storm::Vector3>& getFinalNormals() const noexcept;
 		const std::vector<uint32_t>& getIndices() const noexcept;
-		const Storm::RigidBodySceneData& getAssociatedRbConfig() const noexcept;
+		const Storm::SceneRigidBodyConfig& getAssociatedRbConfig() const noexcept;
 
 	private:
 		void generateCurrentData(const float layerDistance);
@@ -49,7 +49,7 @@ namespace Storm
 		void generateDissociatedTriangleLayers(const float layerDistance);
 
 	private:
-		const Storm::RigidBodySceneData &_rbConfig;
+		const Storm::SceneRigidBodyConfig &_rbConfig;
 		std::shared_ptr<Storm::AssetCacheData::MeshData> _src;
 		Storm::AssetCacheData::MeshData _scaledCurrent;
 		Storm::AssetCacheData::MeshData _finalCurrent;

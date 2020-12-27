@@ -10,7 +10,7 @@ namespace Storm
 	class ScriptFile;
 	class LuaScriptWrapper;
 
-	class ScriptManager :
+	class ScriptManager final :
 		private Storm::Singleton<ScriptManager>,
 		public Storm::IScriptManager
 	{

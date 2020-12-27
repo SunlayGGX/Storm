@@ -9,8 +9,8 @@
 #include "NeighborParticleReferral.h"
 #include "PartitionSelection.h"
 
-#include "GeneralSimulationData.h"
-#include "RigidBodySceneData.h"
+#include "SceneSimulationConfig.h"
+#include "SceneRigidBodyConfig.h"
 #include "CollisionType.h"
 
 #include "RunnerHelper.h"
@@ -42,12 +42,12 @@ Storm::RigidBodyParticleSystem::RigidBodyParticleSystem(unsigned int particleSys
 	_rbTotalForce{ Storm::Vector3::Zero() }
 {
 	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
-	const Storm::RigidBodySceneData &currentRbData = configMgr.getRigidBodyData(particleSystemIndex);
+	const Storm::SceneRigidBodyConfig &currentRbConfig = configMgr.getSceneRigidBodyConfig(particleSystemIndex);
 
-	_viscosity = currentRbData._viscosity;
+	_viscosity = currentRbConfig._viscosity;
 
-	_isWall = currentRbData._isWall;
-	_isStatic = _isWall || currentRbData._static;
+	_isWall = currentRbConfig._isWall;
+	_isStatic = _isWall || currentRbConfig._static;
 
 	const std::size_t particleCount = this->getParticleCount();
 
@@ -65,9 +65,9 @@ Storm::RigidBodyParticleSystem::RigidBodyParticleSystem(unsigned int particleSys
 	_rbTotalForce{ Storm::Vector3::Zero() }
 {
 	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
-	const Storm::RigidBodySceneData &currentRbData = configMgr.getRigidBodyData(particleSystemIndex);
-	_isWall = currentRbData._isWall;
-	_isStatic = _isWall || currentRbData._static;
+	const Storm::SceneRigidBodyConfig &currentRbConfig = configMgr.getSceneRigidBodyConfig(particleSystemIndex);
+	_isWall = currentRbConfig._isWall;
+	_isStatic = _isWall || currentRbConfig._static;
 
 	_volumes.resize(particleCount);
 
@@ -93,11 +93,11 @@ void Storm::RigidBodyParticleSystem::initializePreSimulation(const Storm::Partic
 		const Storm::ISpacePartitionerManager &spacePartitionerMgr = singletonHolder.getSingleton<Storm::ISpacePartitionerManager>();
 
 		const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
-		const Storm::GeneralSimulationData &generalSimulDataConfig = configMgr.getGeneralSimulationData();
+		const Storm::SceneSimulationConfig &sceneSimulationConfig = configMgr.getSceneSimulationConfig();
 
-		const float currentKernelZero = Storm::retrieveKernelZeroValue(generalSimulDataConfig._kernelMode);
-		const Storm::RawKernelMethodDelegate rawKernelMeth = Storm::retrieveRawKernelMethod(generalSimulDataConfig._kernelMode);
-		const Storm::GradKernelMethodDelegate gradKernel = Storm::retrieveGradKernelMethod(generalSimulDataConfig._kernelMode);
+		const float currentKernelZero = Storm::retrieveKernelZeroValue(sceneSimulationConfig._kernelMode);
+		const Storm::RawKernelMethodDelegate rawKernelMeth = Storm::retrieveRawKernelMethod(sceneSimulationConfig._kernelMode);
+		const Storm::GradKernelMethodDelegate gradKernel = Storm::retrieveGradKernelMethod(sceneSimulationConfig._kernelMode);
 
 		Storm::runParallel(staticNeighborhood, [this, &allParticleSystems, &spacePartitionerMgr, &rawKernelMeth, &gradKernel, kernelLength, currentKernelZero, kernelLengthSquared = kernelLength * kernelLength, currentSystemId = this->getId()](ParticleNeighborhoodArray &currentPStaticNeighborhood, const std::size_t particleIndex)
 		{
@@ -160,12 +160,12 @@ void Storm::RigidBodyParticleSystem::onSubIterationStart(const Storm::ParticleSy
 
 	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
 
-	const Storm::GeneralSimulationData &generalSimulDataConfig = configMgr.getGeneralSimulationData();
+	const Storm::SceneSimulationConfig &sceneSimulationConfig = configMgr.getSceneSimulationConfig();
 
 	const float k_kernelLength = Storm::SimulatorManager::instance().getKernelLength();
 
-	const float currentKernelZero = Storm::retrieveKernelZeroValue(generalSimulDataConfig._kernelMode);
-	const Storm::RawKernelMethodDelegate rawKernelMeth = Storm::retrieveRawKernelMethod(generalSimulDataConfig._kernelMode);
+	const float currentKernelZero = Storm::retrieveKernelZeroValue(sceneSimulationConfig._kernelMode);
+	const Storm::RawKernelMethodDelegate rawKernelMeth = Storm::retrieveRawKernelMethod(sceneSimulationConfig._kernelMode);
 
 	if (this->isStatic())
 	{
@@ -312,10 +312,10 @@ void Storm::RigidBodyParticleSystem::buildNeighborhoodOnParticleSystemUsingSpace
 	const Storm::ISpacePartitionerManager &spacePartitionerMgr = singletonHolder.getSingleton<Storm::ISpacePartitionerManager>();
 
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
-	const Storm::GeneralSimulationData &generalSimulDataConfig = configMgr.getGeneralSimulationData();
+	const Storm::SceneSimulationConfig &sceneSimulationConfig = configMgr.getSceneSimulationConfig();
 
-	const Storm::RawKernelMethodDelegate rawKernelMeth = Storm::retrieveRawKernelMethod(generalSimulDataConfig._kernelMode);
-	const Storm::GradKernelMethodDelegate gradKernel = Storm::retrieveGradKernelMethod(generalSimulDataConfig._kernelMode);
+	const Storm::RawKernelMethodDelegate rawKernelMeth = Storm::retrieveRawKernelMethod(sceneSimulationConfig._kernelMode);
+	const Storm::GradKernelMethodDelegate gradKernel = Storm::retrieveGradKernelMethod(sceneSimulationConfig._kernelMode);
 
 	if (this->isStatic())
 	{

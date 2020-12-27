@@ -12,9 +12,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\ColorChecker.cpp" />
+    <ClCompile Include="..\include\GeneralConfig.cpp" />
     <ClCompile Include="..\include\RaycastRequestObject.cpp" />
     <ClCompile Include="..\include\RigidBodyHolder.cpp" />
-    <ClCompile Include="..\include\SceneData.cpp" />
+    <ClCompile Include="..\include\SceneConfig.cpp" />
     <ClCompile Include="..\include\SerializeRecordData.cpp" />
     <ClCompile Include="..\include\ShaderMacroItem.cpp" />
     <ClCompile Include="..\include\StateOrders.cpp" />
@@ -27,7 +28,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\AsyncAction.h" />
-    <ClInclude Include="..\include\BlowerData.h" />
+    <ClInclude Include="..\include\GeneralConfig.h" />
+    <ClInclude Include="..\include\GeneralDebugConfig.h" />
+    <ClInclude Include="..\include\GeneralGraphicConfig.h" />
+    <ClInclude Include="..\include\GeneralSimulationConfig.h" />
+    <ClInclude Include="..\include\SceneBlowerConfig.h" />
     <ClInclude Include="..\include\BlowerDef.h" />
     <ClInclude Include="..\include\BlowerState.h" />
     <ClInclude Include="..\include\BlowerType.h" />
@@ -35,19 +40,22 @@
     <ClInclude Include="..\include\CollisionType.h" />
     <ClInclude Include="..\include\ColoredSetting.h" />
     <ClInclude Include="..\include\ColorChecker.h" />
-    <ClInclude Include="..\include\ConstraintData.h" />
+    <ClInclude Include="..\include\SceneConstraintConfig.h" />
     <ClInclude Include="..\include\FluidParticleLoadDenseMode.h" />
-    <ClInclude Include="..\include\GeneralSimulationData.h" />
-    <ClInclude Include="..\include\GraphicData.h" />
+    <ClInclude Include="..\include\SceneSimulationConfig.h" />
+    <ClInclude Include="..\include\GeneralWebConfig.h" />
+    <ClInclude Include="..\include\SceneGraphicConfig.h" />
     <ClInclude Include="..\include\DeclareScriptableItem.h" />
     <ClInclude Include="..\include\IScriptManager.h" />
     <ClInclude Include="..\include\ISerializerManager.h" />
     <ClInclude Include="..\include\IDistanceSpacePartitionProxy.h" />
+    <ClInclude Include="..\include\IWebManager.h" />
     <ClInclude Include="..\include\LayeringGenerationTechnique.h" />
+    <ClInclude Include="..\include\PreferredBrowser.h" />
     <ClInclude Include="..\include\PushedParticleSystemData.h" />
-    <ClInclude Include="..\include\RecordConfigData.h" />
+    <ClInclude Include="..\include\SceneRecordConfig.h" />
     <ClInclude Include="..\include\RecordMode.h" />
-    <ClInclude Include="..\include\ScriptData.h" />
+    <ClInclude Include="..\include\SceneScriptConfig.h" />
     <ClInclude Include="..\include\SerializeConstraintLayout.h" />
     <ClInclude Include="..\include\SerializeParticleSystemLayout.h" />
     <ClInclude Include="..\include\SerializeRecordContraintsData.h" />
@@ -57,6 +65,7 @@
     <ClInclude Include="..\include\ShaderMacroItem.h" />
     <ClInclude Include="..\include\SimulationState.h" />
     <ClInclude Include="..\include\StateLoadingOrders.h" />
+    <ClInclude Include="..\include\StormProcessStartup.h" />
     <ClInclude Include="..\include\SystemSimulationStateObject.h" />
     <ClInclude Include="..\include\StateSavingOrders.h" />
     <ClInclude Include="..\include\ThreadingSafety.h" />
@@ -75,18 +84,18 @@
     <ClInclude Include="..\include\IShaderManager.h" />
     <ClInclude Include="..\include\ISpacePartitionerManager.h" />
     <ClInclude Include="..\include\IThreadManager.h" />
-    <ClInclude Include="..\include\FluidData.h" />
+    <ClInclude Include="..\include\SceneFluidConfig.h" />
     <ClInclude Include="..\include\KernelMode.h" />
     <ClInclude Include="..\include\NeighborParticleReferral.h" />
     <ClInclude Include="..\include\PartitionSelection.h" />
     <ClInclude Include="..\include\RaycastHitResult.h" />
     <ClInclude Include="..\include\RaycastQueryRequest.h" />
     <ClInclude Include="..\include\RigidBodyHolder.h" />
-    <ClInclude Include="..\include\RigidBodySceneData.h" />
+    <ClInclude Include="..\include\SceneRigidBodyConfig.h" />
     <ClInclude Include="..\include\ISimulatorManager.h" />
     <ClInclude Include="..\include\ITimeManager.h" />
     <ClInclude Include="..\include\IWindowsManager.h" />
-    <ClInclude Include="..\include\SceneData.h" />
+    <ClInclude Include="..\include\SceneConfig.h" />
     <ClInclude Include="..\include\SimulationMode.h" />
     <ClInclude Include="..\include\SpacePartitionConstants.h" />
     <ClInclude Include="..\include\SpecialKey.h" />

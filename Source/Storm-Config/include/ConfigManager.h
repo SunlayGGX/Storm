@@ -5,13 +5,13 @@
 #include "SingletonDefaultImplementation.h"
 
 #include "MacroConfig.h"
-#include "GeneralConfig.h"
-#include "SceneConfig.h"
+#include "GeneralConfigHolder.h"
+#include "SceneConfigHolder.h"
 
 
 namespace Storm
 {
-	class ConfigManager :
+	class ConfigManager final :
 		private Storm::Singleton<ConfigManager, Storm::DefineDefaultCleanupImplementationOnly>,
 		public Storm::IConfigManager
 	{
@@ -22,7 +22,6 @@ namespace Storm
 
 	public:
 		const std::string& getTemporaryPath() const final override;
-		const std::string& getLogFileName() const final override;
 		const std::string& getExePath() const final override;
 
 		bool shouldRegenerateParticleCache() const final override;
@@ -34,46 +33,30 @@ namespace Storm
 		const std::string& getStateFilePath() const final override;
 		void stateShouldLoad(bool &outLoadPhysicsTime, bool &outLoadForces, bool &outLoadVelocities) const final override;
 
-		const std::string& getLogFolderPath() const final override;
-		Storm::LogLevel getLogLevel() const final override;
-		int getRemoveLogOlderThanDaysCount() const final override;
-		bool getShouldOverrideOldLog() const final override;
-		bool getShouldLogFpsWatching() const final override;
-		bool getShouldLogGraphicDeviceMessage() const final override;
-		bool getShouldLogPhysics() const final override;
-		bool noPopup() const final override;
-
-		Storm::VectoredExceptionDisplayMode getVectoredExceptionsDisplayMode() const final override;
-		
-		bool getShouldProfileSimulationSpeed() const final override;
-
-		unsigned int getWantedScreenWidth() const final override;
-		unsigned int getWantedScreenHeight() const final override;
-		int getWantedScreenXPosition() const final override;
-		int getWantedScreenYPosition() const final override;
-		float getFontSize() const final override;
-		bool getFixNearFarPlanesWhenTranslatingFlag() const final override;
-		bool getSelectedParticleShouldBeTopMost() const final override;
-		bool getSelectedParticleForceShouldBeTopMost() const final override;
-
 		bool shouldDisplayHelp() const;
 
-		const Storm::SceneData& getSceneData() const final override;
-		const Storm::GraphicData& getGraphicData() const final override;
-		const Storm::GeneralSimulationData& getGeneralSimulationData() const final override;
-		const std::vector<Storm::RigidBodySceneData>& getRigidBodiesData() const final override;
-		const Storm::FluidData& getFluidData() const final override;
-		const Storm::RecordConfigData& getRecordConfigData() const final override;
-		const std::vector<Storm::BlowerData>& getBlowersData() const final override;
-		const std::vector<Storm::ConstraintData>& getConstraintsData() const final override;
-		const Storm::RigidBodySceneData& getRigidBodyData(unsigned int rbId) const final override;
-		const Storm::ScriptData& getScriptData() const final override;
+		const Storm::GeneralGraphicConfig& getGeneralGraphicConfig() const final override;
+		const Storm::GeneralSimulationConfig& getGeneralSimulationConfig() const final override;
+		const Storm::GeneralWebConfig& getGeneralWebConfig() const final override;
+		const Storm::GeneralDebugConfig& getGeneralDebugConfig() const final override;
+
+		const Storm::SceneGraphicConfig& getSceneGraphicConfig() const final override;
+		const Storm::SceneSimulationConfig& getSceneSimulationConfig() const final override;
+		const std::vector<Storm::SceneRigidBodyConfig>& getSceneRigidBodiesConfig() const final override;
+		const Storm::SceneFluidConfig& getSceneFluidConfig() const final override;
+		const Storm::SceneRecordConfig& getSceneRecordConfig() const final override;
+		const std::vector<Storm::SceneBlowerConfig>& getSceneBlowersConfig() const final override;
+		const std::vector<Storm::SceneConstraintConfig>& getSceneConstraintsConfig() const final override;
+		const Storm::SceneRigidBodyConfig& getSceneRigidBodyConfig(unsigned int rbId) const final override;
+		const Storm::SceneScriptConfig& getSceneScriptConfig() const final override;
 
 		bool isInReplayMode() const noexcept final override;
 		bool userCanModifyTimestep() const noexcept final override;
 		const std::string& getSceneName() const final override;
 		const std::string& getSimulationTypeName() const final override;
 		unsigned int getCurrentPID() const final override;
+		const std::string& getSceneConfigFilePath() const final override;
+		const std::string& getScriptFilePath() const final override;
 
 	private:
 		// Members that could be extracted from Command line.
@@ -101,7 +84,7 @@ namespace Storm
 
 		// Configs
 		Storm::MacroConfig _macroConfig;
-		Storm::GeneralConfig _generalConfig;
-		Storm::SceneConfig _sceneConfig;
+		Storm::GeneralConfigHolder _generalConfigHolder;
+		Storm::SceneConfigHolder _sceneConfigHolder;
 	};
 }

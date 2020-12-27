@@ -20,7 +20,7 @@ namespace Storm
 	struct WithUI;
 	struct NoUI;
 
-	class GraphicManager :
+	class GraphicManager final :
 		private Storm::Singleton<GraphicManager>,
 		public Storm::IGraphicsManager
 	{
@@ -45,7 +45,7 @@ namespace Storm
 		void bindParentRbToMesh(unsigned int meshId, const std::shared_ptr<Storm::IRigidBody> &parentRb) const final override;
 
 	public:
-		void loadBlower(const Storm::BlowerData &blowerData, const std::vector<Storm::Vector3> &vertexes, const std::vector<unsigned int> &indexes) final override;
+		void loadBlower(const Storm::SceneBlowerConfig &blowerConfig, const std::vector<Storm::Vector3> &vertexes, const std::vector<unsigned int> &indexes) final override;
 
 	public:
 		void pushParticlesData(const Storm::PushedParticleSystemDataParameter &param) final override;

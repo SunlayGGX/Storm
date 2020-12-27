@@ -3,12 +3,12 @@
 
 namespace Storm
 {
-	struct BlowerData;
+	struct SceneBlowerConfig;
 
 	class BlowerTimeHandlerBase
 	{
 	protected:
-		BlowerTimeHandlerBase(const Storm::BlowerData &blowerDataConfig);
+		BlowerTimeHandlerBase(const Storm::SceneBlowerConfig &blowerConfig);
 
 	public:
 		bool advanceTime(const float deltaTimeInSeconds);
@@ -22,7 +22,7 @@ namespace Storm
 	class BlowerPulseTimeHandler
 	{
 	protected:
-		BlowerPulseTimeHandler(const Storm::BlowerData &blowerDataConfig);
+		BlowerPulseTimeHandler(const Storm::SceneBlowerConfig &blowerConfig);
 
 	public:
 		bool advanceTime(const float deltaTimeInSeconds);
@@ -62,7 +62,7 @@ namespace Storm
 		using UnderlyingFadeInType = Storm::FadeTimeHandler<0>;
 
 	public:
-		FadeInTimeHandler(const Storm::BlowerData &blowerDataConfig);
+		FadeInTimeHandler(const Storm::SceneBlowerConfig &blowerConfig);
 
 	protected:
 		constexpr static bool hasFadeIn() { return true; }
@@ -79,7 +79,7 @@ namespace Storm
 		using UnderlyingFadeOutType = Storm::FadeTimeHandler<0>;
 
 	public:
-		FadeOutTimeHandler(const Storm::BlowerData &blowerDataConfig);
+		FadeOutTimeHandler(const Storm::SceneBlowerConfig &blowerConfig);
 
 	protected:
 		constexpr static bool hasFadeOut() { return true; }
@@ -98,7 +98,7 @@ namespace Storm
 		using UnderlyingFadeOutType = Storm::FadeTimeHandler<1>;
 
 	public:
-		FadeInOutTimeHandler(const Storm::BlowerData &blowerDataConfig);
+		FadeInOutTimeHandler(const Storm::SceneBlowerConfig &blowerConfig);
 
 	protected:
 		constexpr static bool hasFadeIn() { return true; }

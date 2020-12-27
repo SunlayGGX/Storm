@@ -21,7 +21,11 @@ Note that :
 
 
 # Dependencies list
-- **Boost 1.72** compiled for Visual Studio 2019 (link: https://www.boost.org/users/history/version_1_72_0.html ). Follow the instructions on their site.
+- **Boost 1.75** compiled for Visual Studio 2019 (link: https://sourceforge.net/projects/boost/files/boost-binaries/1.75.0/ ). Choose the right and execute the downloaded executable (for me, since I'm using VS 2019 with a x64 architecture, I downloaded "boost_1_75_0-msvc-14.2-64.exe").
+	+ Choose to extract boost into a new folder named boost_1_75_0__2019 inside your dependencies folder (if not, you'll have to change the path to boost dependencies inside UserSettings.bat).
+    + Rename the folder "lib[xx]-msvc-[yy.y]" to "lib" with xx your platform architecture (for me it was 64 because I'm working on a x64 architecture) and yy.y your toolset version (For me, it was 14.2).
+    + Create a new folder inside boost_1_75_0__2019 named "include".
+    + Move the folder "boost" ([YourDependenciesFolder]/boost_1_75_0__2019/boost) into the new include folder ([YourDependenciesFolder]/boost_1_75_0__2019/include). You should have your boost folder at path ([YourDependenciesFolder]/boost_1_75_0__2019/include/boost).
 - **Eigen 3.3.7** (link: https://gitlab.com/libeigen/eigen/-/tree/3.3.7).
 - **OIS v1.5** compiled for Visual Studio 2019 (link: https://github.com/wgois/OIS/tree/v1.5 ). Follow the instructions on their site.
 	+ Generate the Visual studio file inside a folder named "bin" at OIS root folder (i.e if OIS is installed like this : C:/dep/OIS, then generate the vs project file into C:/dep/OIS/bin).
@@ -59,6 +63,7 @@ I'm using catch2 as our main unit test library. But to be able to use it, you sh
 - **Storm-Loader**: This module's purpose is to load external object like meshes.
 - **Storm-Logger**: This module is for logging.
 - **Storm-Misc**: This module is intended to gather module manager helper that shouldn't be made into helpers since they are Storm project implementation related but cannot be put into any other modules. Example are the RandomManager (that should be deterministic), the TimeManager (that should be compliant with Storm simulator), the ThreadManager (that is intended to be executed in the main Simulation loop like Unreal's Async method), ... .
+- **Storm-Network**: This module is intended to be the crossroad with the outside. It contains everything that could be used to manage network and web.
 - **Storm-ModelBase**: This module is the base for each modules. It contains everything that could be used to bind the modules together without the need to reference each other.
 - **Storm-Physics**: This module is responsible for initializing and managing Physics computations.
 - **Storm-Profiler**: This module is to allow getting some profiling data. This does not intend to replace the Visual Studio buit-in tool or any other external library, but just a way to register times, speed, ... and display it inside the Storm application UI or logging it.
@@ -185,7 +190,9 @@ Unless explicited, the following settings doesn't support Macros (see section Ma
 
 Here the architecture of the config file (each section are a tag in xml where the subsection should be put into)
 
-#### Log (facultative)
+#### Debug (facultative)
+
+##### - Log (facultative)
 - **logFolderPath (string, facultative, accept macro)** : The folder where to gather the log files. The default is the temporary path (StormTmp macro). If it is empty, default is considered.
 - **logFileName (string, facultative, accept macro)** : The log file name of the current run. The default is empty. If it is empty, we won't log into a file (but the log will still be outputed to the console). Be aware to give unique name using the $[PID] macro or unexpected logging behavior could occurs because the file could be written by many processes at the same time (if you decides to start multiple Storm processes).
 - **logLevel (string, facultative)** : The threshold level under which we ignore the log. Accepted values are in that inmportance order : Debug, DebugWarning, DebugError, Comment, Warning, Error, Fatal.
@@ -197,11 +204,20 @@ Note that the maximum value you can set is Fatal, it means that no matter what l
 - **logPhysics (boolean, facultative)** : If we should print the physics messages. Warning : there is a lot ! Default is "false" but enable it only if it is necessary.
 
 
-#### Debug (facultative)
+##### - Exception (facultative)
 - **displayVectoredException (string, facultative)**: Specify how we should hook vectored exception happenning (could catch SE exception as well and non std exception catched at the end (the ...) and provide better information like the stack trace where the issue happened). Accepted values (non case sensitive) are "None", "FatalOnly" and "All". Default is FatalOnly. 
   + **"None"**: We won't hook any vectored exception handler. This is better performance wise, but you'll risk not knowing what happenend if you have silent or hard to track crashes.
   + **"FatalOnly"**: Display fatal errors information such as what is the fatal code and the stack trace. Note that fatal doesn't mean unhandled exception or "..." exceptions, but more like hardware or OS related killer exceptions that we cannot/shouldn't/mustn't recover from.
   + **"All"**: This is the verbose setting. Enable it only if you want to troubleshoot "..." issues (along with a lot of other irrelevant ones)
+
+
+##### - Profile (faculative)
+- **profileSimulationSpeed (boolean, faculative)** : Specify that we should enable Simulation speed profile. Default is false.
+
+
+#### Web (facultative)
+- **browser (string, facultative)**: Specify the browser to use when opening an url. This is not case sensitive. Accepted values are "Chrome", "Firefox", "Edge", "InternetExplorer" or you can leave the field empty. Default is no browser. Note that if there is no browser set, then opening an url won't work and an error will be issued instead.
+- **incognito (boolean, facultative)**: Specify we want to open a new browser window in incognito mode when we'll browse through an url. Default is false.
 
 
 #### Graphics (facultative)
@@ -215,12 +231,9 @@ Note that the maximum value you can set is Fatal, it means that no matter what l
 - **selectedParticleForceAlwaysOnTop (boolean, faculative)**: Specify if the selected particle force should be displayed on top of all particles (on the near plane). Default is true.
 
 
-#### Profile (faculative)
-- **profileSimulationSpeed (boolean, faculative)** : Specify that we should enable Simulation speed profile. Default is false.
-
-
 #### Simulation (faculative)
 - **allowNoFluid (boolean, facultative)**: If true, we will allow the scene config file to not have any fluid (useful for testing rigid body features without minding particles while developping). Default is false.
+
 
 
 ### Scene Config
@@ -403,6 +416,9 @@ Note : If the term in the parenthesis is "Numpad", then the keybinding is the va
 - **F7**: Set solid state without back face culling.
 - **F8**: Set rendering to display all particles.
 - **F9**: Set particle state without rendering walls.
+- **Ctrl+S**: Open the script file inside notepad++ (or notepad if notepad++ isn't installed).
+- **Ctrl+X**: Open the current xml config file inside notepad++ (or notepad if notepad++ isn't installed).
+- **Ctrl+L**: Open the Storm log viewer. This application will have its life shared with the Storm application.
 
 
 ## Mouse bindings
@@ -468,3 +484,7 @@ Here the list of available commands :
 - **void cycleColoredSetting()**: Cycle the particle coloring observed quantities. This is the same method bound to the key inputs.
 - **void setColorSettingMinMaxValue(float minValue, float maxValue)**: Set the min and max values for the observed particle colors fields.
 
+
+#### OSManager (osMgr)
+
+- **void clearProcesses()**: Clear all processes (this closes all processes those life will be shared with Storm application).

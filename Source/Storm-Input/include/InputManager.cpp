@@ -10,6 +10,7 @@
 #include "ThreadEnumeration.h"
 
 #include "MemoryHelper.h"
+#include "RAII.h"
 
 #include "Version.h"
 
@@ -319,10 +320,19 @@ void Storm::InputManager::update()
 	{
 		if (g_keyboard != nullptr)
 		{
-			g_keyboard->capture();
-			if (!g_keyboard->buffered())
+			// I don't want to handle modifiers
+			if (!this->isAnyConventionalModifierDown())
 			{
-				this->handleNonBufferedKeys();
+				g_keyboard->capture();
+
+				if (!g_keyboard->buffered())
+				{
+					this->handleNonBufferedKeys();
+				}
+			}
+			else
+			{
+				this->clearKeyStates_Internal(false, true);
 			}
 		}
 		if (g_mouse != nullptr)
@@ -340,6 +350,67 @@ void Storm::InputManager::refreshMouseState()
 {
 	const OIS::MouseState& mouseState = g_mouse->getMouseState();
 	Storm::SingletonHolder::instance().getSingleton<Storm::IWindowsManager>().retrieveWindowsDimension(mouseState.width, mouseState.height);
+}
+
+bool Storm::InputManager::isAnyConventionalModifierDown() const
+{
+	if (g_keyboard->isModifierDown(OIS::Keyboard::Ctrl))
+	{
+		return true;
+	}
+
+	if (g_keyboard->isModifierDown(OIS::Keyboard::Alt))
+	{
+		return true;
+	}
+
+	// I won't consider Shift, Caps lock and num locks
+	return false;
+}
+
+void Storm::InputManager::clearKeyboardState()
+{
+	this->clearKeyStates_Internal(true, true);
+}
+
+void Storm::InputManager::clearKeyStates_Internal(const bool clearModifiers, const bool clearKeyStates)
+{
+	// This is big hack because OIS doesn't expose a lot of useful methods...
+
+	// To hijack protected member and reset it (I found out that modifiers are never reset after pressing them once.
+	// Preventing to use normal binding afterward. So I need to reset this variable, but cannot because no method exists...
+	struct HijackKeyboardInputSystem : public OIS::Keyboard { using OIS::Keyboard::mModifiers; using OIS::Keyboard::mListener; };
+
+	// I found out keys were buffered, but since the real OIS keyboard is opaque.
+	// I cannot hijack its key pressed buffer to reset it, therefore I need to consume the key but don't want them firing the associated event...
+	// Anyway, here a dummy, useless, time consuming, key eater that does nothing.
+	struct FalseKeyboardInputHandler : public OIS::KeyListener
+	{
+	public:
+		bool keyPressed(const OIS::KeyEvent &) final override { return true; }
+		bool keyReleased(const OIS::KeyEvent &) final override { return true; }
+	};
+
+	HijackKeyboardInputSystem* hack = static_cast<HijackKeyboardInputSystem*>(Storm::g_keyboard);
+	
+	if (clearModifiers)
+	{
+		hack->mModifiers = 0;
+	}
+
+	if (clearKeyStates)
+	{
+		FalseKeyboardInputHandler dummyKeyboardEater;
+
+		// Ensure that we don't leave the dummy in place of the real listener when we'll leave the method (we'll use RAII).
+		auto revertListenerLambdaEnsurer = Storm::makeLazyRAIIObject([this, &hack]()
+		{
+			hack->mListener = _inputHandler.get();
+		});
+
+		hack->mListener = &dummyKeyboardEater;
+		hack->capture(); // Process the key in the dummy.
+	}
 }
 
 Storm::CallbackIdType Storm::InputManager::bindKey(Storm::SpecialKey key, Storm::KeyBinding &&binding)

@@ -9,7 +9,7 @@ namespace Storm
 	class RecordReader;
 	class RecordWriter;
 
-	class SerializerManager :
+	class SerializerManager final :
 		private Storm::Singleton<Storm::SerializerManager>,
 		public Storm::ISerializerManager
 	{

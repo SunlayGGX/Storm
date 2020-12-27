@@ -3,6 +3,13 @@
 
 namespace Storm
 {
+	template<class ThreadType, class ... Others>
+	void join(ThreadType &th, Others &... other)
+	{
+		Storm::join(th);
+		Storm::join(other...);
+	}
+
 	template<class ThreadType>
 	void join(ThreadType &th)
 	{
@@ -10,6 +17,13 @@ namespace Storm
 		{
 			th.join();
 		}
+	}
+
+	template<class ThreadType, class ... Others>
+	void detach(ThreadType &th, Others &... other)
+	{
+		Storm::detach(th);
+		Storm::detach(other...);
 	}
 
 	template<class ThreadType>

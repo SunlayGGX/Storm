@@ -19,15 +19,15 @@ namespace Storm
 		using ThisType = Storm::Blower<blowerType, BlowerEffectArea, BlowerTimeHandler, BlowerCallbacks>;
 
 	public:
-		Blower(const Storm::BlowerData &blowerDataConfig) :
-			BlowerEffectArea{ blowerDataConfig },
-			BlowerTimeHandler{ blowerDataConfig },
-			_id{ blowerDataConfig._blowerId },
+		Blower(const Storm::SceneBlowerConfig &blowerConfig) :
+			BlowerEffectArea{ blowerConfig },
+			BlowerTimeHandler{ blowerConfig },
+			_id{ blowerConfig._blowerId },
 			_enabled{ true },
-			_srcForce{ blowerDataConfig._blowerForce },
+			_srcForce{ blowerConfig._blowerForce },
 			_force{ Vector3::Zero() },
 			_forceNorm{ 0.f },
-			_blowerPosition{ blowerDataConfig._blowerPosition },
+			_blowerPosition{ blowerConfig._blowerPosition },
 			_state{ Storm::BlowerState::NotWorking }
 		{}
 

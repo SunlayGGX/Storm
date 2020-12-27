@@ -1,13 +1,13 @@
 #include "GraphicBlower.h"
 
-#include "BlowerData.h"
+#include "SceneBlowerConfig.h"
 #include "BlowerState.h"
 #include "BlowerShader.h"
 
 #include "SingletonHolder.h"
 #include "IConfigManager.h"
 
-#include "GraphicData.h"
+#include "SceneGraphicConfig.h"
 
 #include "XMStormHelpers.h"
 
@@ -59,9 +59,9 @@ namespace
 }
 
 
-Storm::GraphicBlower::GraphicBlower(const ComPtr<ID3D11Device> &device, const Storm::BlowerData &blowerData, const std::vector<Storm::Vector3> &vertexes, const std::vector<unsigned int> &indexes) :
-	_id{ blowerData._blowerId },
-	_type{ blowerData._blowerType },
+Storm::GraphicBlower::GraphicBlower(const ComPtr<ID3D11Device> &device, const Storm::SceneBlowerConfig &blowerConfig, const std::vector<Storm::Vector3> &vertexes, const std::vector<unsigned int> &indexes) :
+	_id{ blowerConfig._blowerId },
+	_type{ blowerConfig._blowerType },
 	_blowerState{ Storm::BlowerState::NotWorking }
 {
 	this->instantiateShader(device, vertexes, indexes);
@@ -115,7 +115,7 @@ void Storm::GraphicBlower::instantiateShader(const ComPtr<ID3D11Device> &device,
 
 void Storm::GraphicBlower::render(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera)
 {
-	const float blowerAlpha = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().getGraphicData()._blowerAlpha;
+	const float blowerAlpha = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().getSceneGraphicConfig()._blowerAlpha;
 	_blowerShader->setup(device, deviceContext, currentCamera, convertStateToColor(_blowerState, blowerAlpha));
 	this->setupBlower(deviceContext);
 	_blowerShader->draw(_indexCount, deviceContext);

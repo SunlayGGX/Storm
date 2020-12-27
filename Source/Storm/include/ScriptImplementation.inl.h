@@ -1,13 +1,14 @@
 #pragma once
 
-#include "SimulatorManager.h"
-#include "TimeManager.h"
-#include "GraphicManager.h"
-
 
 #include "LuaScriptWrapper.h"
 
 #include "NameExtractor.h"
+
+#include "SimulatorManager.h"
+#include "TimeManager.h"
+#include "GraphicManager.h"
+#include "OSManager.h"
 
 
 /////////////////////////////////////////////////
@@ -90,6 +91,23 @@ void Storm::GraphicManager::registerCurrentOnScript(IScriptWrapperInterface &scr
 		STORM_DECLARE_SCRIPTED_METHOD(setColorSettingMinMaxValue)
 
 	).registerCurrentInstance("graphicMgr");
+}
+
+#undef STORM_CURRENT_REGISTERED_TYPE
+
+
+//---------------------------------------------------------------------
+
+#define STORM_CURRENT_REGISTERED_TYPE Storm::OSManager
+
+template<class IScriptWrapperInterface>
+void Storm::OSManager::registerCurrentOnScript(IScriptWrapperInterface &script) const
+{
+	script.registerCurrentType(
+
+		STORM_DECLARE_SCRIPTED_METHOD(clearProcesses)
+
+	).registerCurrentInstance("osMgr");
 }
 
 #undef STORM_CURRENT_REGISTERED_TYPE

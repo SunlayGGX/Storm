@@ -20,6 +20,7 @@
 #include "ProfilerManager.h"
 #include "SerializerManager.h"
 #include "ScriptManager.h"
+#include "WebManager.h"
 
 #include "ScriptImplementation.inl.h"
 
@@ -43,6 +44,7 @@ namespace
 		Storm::OSManager,
 		Storm::TimeManager,
 		Storm::InputManager,
+		Storm::WebManager,
 		Storm::WindowsManager,
 		Storm::AssetLoaderManager,
 		Storm::ShaderManager,
@@ -74,8 +76,6 @@ namespace
 
 		Storm::ConfigManager::instance().initialize(argc, argv);
 
-		Storm::setLogVectoredExceptionsDisplayMode(Storm::ConfigManager::instance().getVectoredExceptionsDisplayMode());
-
 		Storm::LoggerManager::instance().initialize();
 
 		Storm::ThreadManager::instance().initialize();
@@ -88,6 +88,8 @@ namespace
 
 			Storm::RandomManager::instance().initialize();
 			Storm::OSManager::instance().initialize();
+
+			Storm::WebManager::instance().initialize();
 
 			if (hasUI)
 			{
@@ -180,6 +182,7 @@ namespace
 				Storm::WindowsManager::instance().cleanUp(Storm::NoUI{});
 			}
 
+			Storm::WebManager::instance().cleanUp();
 			Storm::OSManager::instance().cleanUp();
 			Storm::RandomManager::instance().cleanUp();
 			Storm::SerializerManager::instance().cleanUp();

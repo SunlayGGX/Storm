@@ -5,7 +5,7 @@
 #include "PhysicsManager.h"
 #include "PhysXHandler.h"
 
-#include "RigidBodySceneData.h"
+#include "SceneRigidBodyConfig.h"
 
 #include "PhysicsConstraint.h"
 
@@ -14,10 +14,10 @@
 
 namespace
 {
-	Storm::UniquePointer<physx::PxRigidDynamic> createDynamicRigidBody(const Storm::RigidBodySceneData &rbSceneData)
+	Storm::UniquePointer<physx::PxRigidDynamic> createDynamicRigidBody(const Storm::SceneRigidBodyConfig &rbSceneConfig)
 	{
 		auto &physicsHandler = Storm::PhysicsManager::instance().getPhysXHandler();
-		return physicsHandler.createDynamicRigidBody(rbSceneData);
+		return physicsHandler.createDynamicRigidBody(rbSceneConfig);
 	}
 
 	template<class RbType>
@@ -28,19 +28,19 @@ namespace
 	}
 }
 
-Storm::PhysicsDynamicRigidBody::PhysicsDynamicRigidBody(const Storm::RigidBodySceneData &rbSceneData, const std::vector<Storm::Vector3> &vertices, const std::vector<uint32_t> &indexes) :
-	Storm::PhysicalShape{ rbSceneData, vertices, indexes },
+Storm::PhysicsDynamicRigidBody::PhysicsDynamicRigidBody(const Storm::SceneRigidBodyConfig &rbSceneConfig, const std::vector<Storm::Vector3> &vertices, const std::vector<uint32_t> &indexes) :
+	Storm::PhysicalShape{ rbSceneConfig, vertices, indexes },
 	_currentIterationVelocity{ 0.f, 0.f, 0.f },
-	_internalRb{ createDynamicRigidBody(rbSceneData) }
+	_internalRb{ createDynamicRigidBody(rbSceneConfig) }
 {
 	if (!_internalRb)
 	{
-		Storm::throwException<Storm::StormException>("PhysX failed to create the internal rigid body for object " + std::to_string(rbSceneData._rigidBodyID));
+		Storm::throwException<Storm::StormException>("PhysX failed to create the internal rigid body for object " + std::to_string(rbSceneConfig._rigidBodyID));
 	}
 
 	if (_internalRbShape && !_internalRb->attachShape(*_internalRbShape))
 	{
-		Storm::throwException<Storm::StormException>("We failed to attach the created shape to the rigid body " + std::to_string(rbSceneData._rigidBodyID));
+		Storm::throwException<Storm::StormException>("We failed to attach the created shape to the rigid body " + std::to_string(rbSceneConfig._rigidBodyID));
 	}
 }
 

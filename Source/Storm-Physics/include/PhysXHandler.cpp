@@ -8,11 +8,11 @@
 #include "SingletonHolder.h"
 #include "IConfigManager.h"
 
-#include "GeneralSimulationData.h"
-#include "RigidBodySceneData.h"
+#include "SceneSimulationConfig.h"
+#include "SceneRigidBodyConfig.h"
 #include "CollisionType.h"
 
-#include "ConstraintData.h"
+#include "SceneConstraintConfig.h"
 
 #define STORM_USE_FAST_SPHERE_SHAPE_ALGO true
 
@@ -26,7 +26,7 @@ namespace
 	physx::PxDefaultAllocator g_defaultAllocator;
 	Storm::CustomPhysXLogger g_physXLogger;
 
-	Storm::UniquePointer<physx::PxShape> createSphereShape(physx::PxPhysics &physics, const Storm::RigidBodySceneData &rbSceneData, const std::vector<Storm::Vector3> &vertices, physx::PxMaterial* rbMaterial)
+	Storm::UniquePointer<physx::PxShape> createSphereShape(physx::PxPhysics &physics, const Storm::SceneRigidBodyConfig &rbSceneConfig, const std::vector<Storm::Vector3> &vertices, physx::PxMaterial* rbMaterial)
 	{
 #if STORM_USE_FAST_SPHERE_SHAPE_ALGO
 		// This algo supposes the sphere is uniform.
@@ -76,7 +76,7 @@ namespace
 #endif
 	}
 
-	Storm::UniquePointer<physx::PxShape> createBoxShape(physx::PxPhysics &physics, const Storm::RigidBodySceneData &rbSceneData, const std::vector<Storm::Vector3> &vertices, physx::PxMaterial* rbMaterial)
+	Storm::UniquePointer<physx::PxShape> createBoxShape(physx::PxPhysics &physics, const Storm::SceneRigidBodyConfig &rbSceneConfig, const std::vector<Storm::Vector3> &vertices, physx::PxMaterial* rbMaterial)
 	{
 		float maxX = 0.f;
 		float maxY = 0.f;
@@ -111,7 +111,7 @@ namespace
 		return physics.createShape(physx::PxBoxGeometry{ maxX / 2.f, maxY / 2.f, maxZ / 2.f }, &rbMaterial, 1, true);
 	}
 
-	Storm::UniquePointer<physx::PxShape> createCustomShape(physx::PxPhysics &physics, const physx::PxCooking &cooking, const Storm::RigidBodySceneData &rbSceneData, const std::vector<Storm::Vector3> &vertices, const std::vector<uint32_t> &indexes, physx::PxMaterial* rbMaterial, std::vector<Storm::UniquePointer<physx::PxTriangleMesh>> &inOutRegisteredRef)
+	Storm::UniquePointer<physx::PxShape> createCustomShape(physx::PxPhysics &physics, const physx::PxCooking &cooking, const Storm::SceneRigidBodyConfig &rbSceneConfig, const std::vector<Storm::Vector3> &vertices, const std::vector<uint32_t> &indexes, physx::PxMaterial* rbMaterial, std::vector<Storm::UniquePointer<physx::PxTriangleMesh>> &inOutRegisteredRef)
 	{
 		physx::PxTriangleMeshDesc meshDesc;
 		meshDesc.points.count = static_cast<physx::PxU32>(vertices.size());
@@ -120,7 +120,7 @@ namespace
 
 		// We need to invert the clock wise rotation of triangles if the rigid body collision is pointing inside (like in the case of a wall).
 		std::vector<uint32_t> indexSwapped;
-		if (rbSceneData._isWall)
+		if (rbSceneConfig._isWall)
 		{
 			indexSwapped.resize(indexes.size());
 			for (std::size_t index = 0; index < indexes.size(); index += 3)
@@ -228,10 +228,10 @@ Storm::PhysXHandler::PhysXHandler() :
 	Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
 
-	const Storm::GeneralSimulationData &simulData = configMgr.getGeneralSimulationData();
+	const Storm::SceneSimulationConfig &sceneSimulationConfig = configMgr.getSceneSimulationConfig();
 
 	physx::PxSceneDesc sceneDesc{ _physics->getTolerancesScale() };
-	sceneDesc.gravity = Storm::convertToPx(simulData._gravity);
+	sceneDesc.gravity = Storm::convertToPx(sceneSimulationConfig._gravity);
 
 	sceneDesc.flags |= physx::PxSceneFlag::eENABLE_PCM;
 	sceneDesc.gpuMaxNumPartitions = 8;
@@ -313,9 +313,9 @@ void Storm::PhysXHandler::update(std::mutex &fetchingMutex, float deltaTime)
 	}
 }
 
-Storm::UniquePointer<physx::PxRigidStatic> Storm::PhysXHandler::createStaticRigidBody(const Storm::RigidBodySceneData &rbSceneData)
+Storm::UniquePointer<physx::PxRigidStatic> Storm::PhysXHandler::createStaticRigidBody(const Storm::SceneRigidBodyConfig &rbSceneConfig)
 {
-	const physx::PxTransform initialPose = Storm::convertToPx(rbSceneData._translation, rbSceneData._rotation);
+	const physx::PxTransform initialPose = Storm::convertToPx(rbSceneConfig._translation, rbSceneConfig._rotation);
 	
 	Storm::UniquePointer<physx::PxRigidStatic> result{ _physics->createRigidStatic(initialPose) };
 	_scene->addActor(*result);
@@ -323,12 +323,12 @@ Storm::UniquePointer<physx::PxRigidStatic> Storm::PhysXHandler::createStaticRigi
 	return result;
 }
 
-Storm::UniquePointer<physx::PxRigidDynamic> Storm::PhysXHandler::createDynamicRigidBody(const Storm::RigidBodySceneData &rbSceneData)
+Storm::UniquePointer<physx::PxRigidDynamic> Storm::PhysXHandler::createDynamicRigidBody(const Storm::SceneRigidBodyConfig &rbSceneConfig)
 {
-	const physx::PxTransform initialPose = Storm::convertToPx(rbSceneData._translation, rbSceneData._rotation);
+	const physx::PxTransform initialPose = Storm::convertToPx(rbSceneConfig._translation, rbSceneConfig._rotation);
 
 	Storm::UniquePointer<physx::PxRigidDynamic> result{ _physics->createRigidDynamic(initialPose) };
-	result->setMass(rbSceneData._mass);
+	result->setMass(rbSceneConfig._mass);
 
 #if false
 	result->setLinearDamping(0.5f);
@@ -342,27 +342,27 @@ Storm::UniquePointer<physx::PxRigidDynamic> Storm::PhysXHandler::createDynamicRi
 	return result;
 }
 
-Storm::UniquePointer<physx::PxMaterial> Storm::PhysXHandler::createRigidBodyMaterial(const Storm::RigidBodySceneData &rbSceneData)
+Storm::UniquePointer<physx::PxMaterial> Storm::PhysXHandler::createRigidBodyMaterial(const Storm::SceneRigidBodyConfig &rbSceneConfig)
 {
-	return Storm::UniquePointer<physx::PxMaterial>{ _physics->createMaterial(rbSceneData._staticFrictionCoefficient, rbSceneData._dynamicFrictionCoefficient, rbSceneData._restitutionCoefficient) };
+	return Storm::UniquePointer<physx::PxMaterial>{ _physics->createMaterial(rbSceneConfig._staticFrictionCoefficient, rbSceneConfig._dynamicFrictionCoefficient, rbSceneConfig._restitutionCoefficient) };
 }
 
-Storm::UniquePointer<physx::PxShape> Storm::PhysXHandler::createRigidBodyShape(const Storm::RigidBodySceneData &rbSceneData, const std::vector<Storm::Vector3> &vertices, const std::vector<uint32_t> &indexes, physx::PxMaterial* rbMaterial)
+Storm::UniquePointer<physx::PxShape> Storm::PhysXHandler::createRigidBodyShape(const Storm::SceneRigidBodyConfig &rbSceneConfig, const std::vector<Storm::Vector3> &vertices, const std::vector<uint32_t> &indexes, physx::PxMaterial* rbMaterial)
 {
-	switch (rbSceneData._collisionShape)
+	switch (rbSceneConfig._collisionShape)
 	{
 	case Storm::CollisionType::Sphere:
-		return createSphereShape(*_physics, rbSceneData, vertices, rbMaterial);
+		return createSphereShape(*_physics, rbSceneConfig, vertices, rbMaterial);
 
 	case Storm::CollisionType::Cube:
-		return createBoxShape(*_physics, rbSceneData, vertices, rbMaterial);
+		return createBoxShape(*_physics, rbSceneConfig, vertices, rbMaterial);
 
 	case Storm::CollisionType::Custom:
 		if (indexes.empty())
 		{
 			Storm::throwException<Storm::StormException>("To create a custom shape, we need indexes set (like creating a custom mesh)!");
 		}
-		return createCustomShape(*_physics, *_cooking, rbSceneData, vertices, indexes, rbMaterial, _triangleMeshReferences);
+		return createCustomShape(*_physics, *_cooking, rbSceneConfig, vertices, indexes, rbMaterial, _triangleMeshReferences);
 
 	case Storm::CollisionType::None:
 	default:
@@ -370,13 +370,13 @@ Storm::UniquePointer<physx::PxShape> Storm::PhysXHandler::createRigidBodyShape(c
 	}
 }
 
-Storm::UniquePointer<physx::PxJoint> Storm::PhysXHandler::createDistanceJoint(const Storm::ConstraintData &constraintData, physx::PxRigidActor* actor1, physx::PxRigidActor* actor2)
+Storm::UniquePointer<physx::PxJoint> Storm::PhysXHandler::createDistanceJoint(const Storm::SceneConstraintConfig &constraintConfig, physx::PxRigidActor* actor1, physx::PxRigidActor* actor2)
 {
 	physx::PxTransform actor1LinkTransformFrame = physx::PxTransform{ physx::PxIDENTITY::PxIdentity };
-	actor1LinkTransformFrame.p += Storm::convertToPx(constraintData._rigidBody1LinkTranslationOffset);
+	actor1LinkTransformFrame.p += Storm::convertToPx(constraintConfig._rigidBody1LinkTranslationOffset);
 
 	physx::PxTransform actor2LinkTransformFrame = physx::PxTransform{ physx::PxIDENTITY::PxIdentity };
-	actor2LinkTransformFrame.p += Storm::convertToPx(constraintData._rigidBody2LinkTranslationOffset);
+	actor2LinkTransformFrame.p += Storm::convertToPx(constraintConfig._rigidBody2LinkTranslationOffset);
 
 	physx::PxDistanceJoint* tmp = physx::PxDistanceJointCreate(*_physics,
 		actor1, actor1LinkTransformFrame,
@@ -388,7 +388,7 @@ Storm::UniquePointer<physx::PxJoint> Storm::PhysXHandler::createDistanceJoint(co
 	tmp->setConstraintFlag(physx::PxConstraintFlag::Enum::eCOLLISION_ENABLED, true);
 	tmp->setConstraintFlag(physx::PxConstraintFlag::Enum::eENABLE_EXTENDED_LIMITS, false);
 
-	const float maxDistance = constraintData._constraintsLength;
+	const float maxDistance = constraintConfig._constraintsLength;
 
 	tmp->setDistanceJointFlag(physx::PxDistanceJointFlag::eSPRING_ENABLED, false);
 
@@ -402,7 +402,7 @@ Storm::UniquePointer<physx::PxJoint> Storm::PhysXHandler::createDistanceJoint(co
 	return result;
 }
 
-std::pair<Storm::UniquePointer<physx::PxJoint>, Storm::UniquePointer<physx::PxJoint>> Storm::PhysXHandler::createSpinnableJoint(const Storm::ConstraintData &constraintData, physx::PxRigidActor* actor1, physx::PxRigidActor* actor2)
+std::pair<Storm::UniquePointer<physx::PxJoint>, Storm::UniquePointer<physx::PxJoint>> Storm::PhysXHandler::createSpinnableJoint(const Storm::SceneConstraintConfig &constraintConfig, physx::PxRigidActor* actor1, physx::PxRigidActor* actor2)
 {
 	std::pair<Storm::UniquePointer<physx::PxJoint>, Storm::UniquePointer<physx::PxJoint>> result;
 

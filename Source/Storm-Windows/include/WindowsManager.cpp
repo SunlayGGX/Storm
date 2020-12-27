@@ -1,8 +1,6 @@
 #include "WindowsManager.h"
 
 #include "resource.h"
-#include "ThreadHelper.h"
-#include "ThreadEnumeration.h"
 
 #include "SingletonHolder.h"
 #include "ITimeManager.h"
@@ -10,7 +8,14 @@
 #include "IThreadManager.h"
 #include "IConfigManager.h"
 
+#include "GeneralGraphicConfig.h"
+
+#include "ThreadHelper.h"
+#include "ThreadEnumeration.h"
+
 #include "UIModality.h"
+
+#include "StormProcessOpener.h"
 
 
 namespace
@@ -33,6 +38,8 @@ namespace
 
 		case WM_COMMAND:
 		{
+			std::size_t outProcessUID;
+
 			const int wmId = LOWORD(wParam);
 			// Analyze menu selection
 			switch (wmId)
@@ -41,6 +48,35 @@ namespace
 			case ID_FILE_QUIT:
 				Storm::WindowsManager::instance().callQuitCallback();
 				break;
+
+			case ID_TOOLS_STORM: // In fact it is the logviewer.
+			case ID_STORM_LOG_VIEWER:
+				Storm::StormProcessOpener::openStormLogViewer(Storm::StormProcessOpener::OpenParameter{
+					._failureQuit = false
+				}, outProcessUID);
+				break;
+
+			case ID_TOOLS_SCRIPT:
+			case ID_STORM_SCRIPT:
+			case ID_NOTEPAD_SCRIPT:
+				Storm::StormProcessOpener::openRuntimeScript(Storm::StormProcessOpener::OpenParameter{
+					._failureQuit = false
+				}, outProcessUID);
+				break;
+
+			case ID_STORM_CONFIG:
+			case ID_NOTEPAD_SCENECONFIGXML:
+				Storm::StormProcessOpener::openCurrentConfigFile(Storm::StormProcessOpener::OpenParameter{
+					._failureQuit = false
+				}, outProcessUID);
+				break;
+				
+			case ID_HELP_GITHUB:
+				Storm::StormProcessOpener::openStormGithubLink(Storm::StormProcessOpener::OpenParameter{
+					._failureQuit = false
+				}, outProcessUID);
+				break;
+
 			default:
 				return DefWindowProc(hWnd, message, wParam, lParam);
 			}
@@ -76,11 +112,6 @@ namespace
 		}
 	}
 
-	std::wstring toStdWString(const std::string &str)
-	{
-		return std::filesystem::path{ str }.wstring();
-	}
-
 	template<std::size_t maxTitleCount, class AddedStrType>
 	void appendToTitle(TCHAR(&inOutTitle)[maxTitleCount], std::size_t &titlePositionIter, const AddedStrType &addedStr, const std::string_view &operation)
 	{
@@ -88,7 +119,7 @@ namespace
 		{
 			if (!addedStr.empty())
 			{
-				const std::wstring convertedAddedWStr = toStdWString(addedStr);
+				const std::wstring convertedAddedWStr = Storm::toStdWString(addedStr);
 
 				const std::size_t currentAddedStrLength = convertedAddedWStr.size();
 				const std::size_t toCopy = std::max(titlePositionIter - (currentAddedStrLength + 4), static_cast<std::size_t>(0));
@@ -145,6 +176,12 @@ void Storm::WindowsManager::initialize_Implementation(const Storm::WithUI &)
 		Storm::ITimeManager &timeMgr = singletonHolder.getSingleton<Storm::ITimeManager>();
 		Storm::IInputManager &inputMgr = singletonHolder.getSingleton<Storm::IInputManager>();
 		Storm::IThreadManager &threadMgr = singletonHolder.getSingleton<Storm::IThreadManager>();
+
+		inputMgr.bindMouseLeftClick([this, &inputMgr](int, int, int, int)
+		{
+			this->focus();
+			inputMgr.clearKeyboardState();
+		});
 
 		constexpr const std::chrono::milliseconds k_windowsThreadRefreshRate{ 100 };
 		while (timeMgr.waitForTimeOrExit(k_windowsThreadRefreshRate))
@@ -280,8 +317,10 @@ void Storm::WindowsManager::initializeInternal()
 		RegisterClassEx(&wcex);
 	}
 
-	int xPos = configMgr.getWantedScreenXPosition();
-	int yPos = configMgr.getWantedScreenYPosition();
+	const Storm::GeneralGraphicConfig &generalGraphicConfig = configMgr.getGeneralGraphicConfig();
+
+	int xPos = generalGraphicConfig._wantedApplicationXPos;
+	int yPos = generalGraphicConfig._wantedApplicationYPos;
 
 	if (xPos == std::numeric_limits<int>::max())
 	{
@@ -308,11 +347,11 @@ void Storm::WindowsManager::initializeInternal()
 
 	if (windowVisuHandle != nullptr)
 	{
-		_accelerationTable = LoadAccelerators(dllInstance, MAKEINTRESOURCE(IDR_ACCELERATOR1));
+		_accelerationTable = ::LoadAccelerators(dllInstance, MAKEINTRESOURCE(IDR_ACCELERATOR1));
 
-		ShowCursor(true);
-		ShowWindow(windowVisuHandle, SW_SHOWNORMAL);
-		UpdateWindow(windowVisuHandle);
+		::ShowCursor(true);
+		::ShowWindow(windowVisuHandle, SW_SHOWNORMAL);
+		::UpdateWindow(windowVisuHandle);
 
 		_windowVisuHandle = windowVisuHandle;
 		_windowClass = validator;
@@ -461,4 +500,13 @@ void Storm::WindowsManager::unbindCallbacks()
 	_quitCallback.clear();
 	_finishedInitCallback.clear();
 	_windowsResizedCallback.clear();
+}
+
+void Storm::WindowsManager::focus()
+{
+	if (_windowVisuHandle != nullptr)
+	{
+		//::PostMessage(static_cast<HWND>(_windowVisuHandle), WM_SETFOCUS, 0, 0);
+		::SetFocus(static_cast<HWND>(_windowVisuHandle));
+	}
 }

@@ -18,9 +18,10 @@
 #include "FluidParticleSystem.h"
 #include "RigidBodyParticleSystem.h"
 
-#include "GeneralSimulationData.h"
-#include "FluidData.h"
-#include "RecordConfigData.h"
+#include "GeneralDebugConfig.h"
+#include "SceneSimulationConfig.h"
+#include "SceneFluidConfig.h"
+#include "SceneRecordConfig.h"
 
 #include "KernelMode.h"
 #include "RecordMode.h"
@@ -41,7 +42,7 @@
 
 #include "BlowerDef.h"
 #include "BlowerType.h"
-#include "BlowerData.h"
+#include "SceneBlowerConfig.h"
 #include "BlowerTimeHandler.h"
 #include "BlowerEffectArea.h"
 #include "Blower.h"
@@ -188,43 +189,43 @@ namespace
 	};
 
 	template<Storm::BlowerType type, class BlowerEffectArea>
-	void appendNewBlower(std::vector<std::unique_ptr<Storm::IBlower>> &inOutBlowerContainer, const Storm::BlowerData &blowerDataConfig)
+	void appendNewBlower(std::vector<std::unique_ptr<Storm::IBlower>> &inOutBlowerContainer, const Storm::SceneBlowerConfig &blowerConfig)
 	{
 		std::string_view blowerIntroMsg;
 		if constexpr (type != Storm::BlowerType::PulseExplosionSphere)
 		{
-			if (blowerDataConfig._fadeInTimeInSeconds > 0.f && blowerDataConfig._fadeOutTimeInSeconds > 0.f)
+			if (blowerConfig._fadeInTimeInSeconds > 0.f && blowerConfig._fadeOutTimeInSeconds > 0.f)
 			{
-				inOutBlowerContainer.emplace_back(std::make_unique<Storm::Blower<type, BlowerEffectArea, Storm::FadeInOutTimeHandler, BlowerCallbacks>>(blowerDataConfig));
+				inOutBlowerContainer.emplace_back(std::make_unique<Storm::Blower<type, BlowerEffectArea, Storm::FadeInOutTimeHandler, BlowerCallbacks>>(blowerConfig));
 				blowerIntroMsg = "Blower with fadeIn and fadeOut feature created.\n";
 			}
-			else if (blowerDataConfig._fadeInTimeInSeconds > 0.f)
+			else if (blowerConfig._fadeInTimeInSeconds > 0.f)
 			{
-				inOutBlowerContainer.emplace_back(std::make_unique<Storm::Blower<type, BlowerEffectArea, Storm::FadeInTimeHandler, BlowerCallbacks>>(blowerDataConfig));
+				inOutBlowerContainer.emplace_back(std::make_unique<Storm::Blower<type, BlowerEffectArea, Storm::FadeInTimeHandler, BlowerCallbacks>>(blowerConfig));
 				blowerIntroMsg = "Blower with fadeIn only feature created.\n";
 			}
-			else if (blowerDataConfig._fadeOutTimeInSeconds > 0.f)
+			else if (blowerConfig._fadeOutTimeInSeconds > 0.f)
 			{
-				inOutBlowerContainer.emplace_back(std::make_unique<Storm::Blower<type, BlowerEffectArea, Storm::FadeOutTimeHandler, BlowerCallbacks>>(blowerDataConfig));
+				inOutBlowerContainer.emplace_back(std::make_unique<Storm::Blower<type, BlowerEffectArea, Storm::FadeOutTimeHandler, BlowerCallbacks>>(blowerConfig));
 				blowerIntroMsg = "Blower with fadeOut only feature created.\n";
 			}
 			else
 			{
-				inOutBlowerContainer.emplace_back(std::make_unique<Storm::Blower<type, BlowerEffectArea, Storm::BlowerTimeHandlerBase, BlowerCallbacks>>(blowerDataConfig));
+				inOutBlowerContainer.emplace_back(std::make_unique<Storm::Blower<type, BlowerEffectArea, Storm::BlowerTimeHandlerBase, BlowerCallbacks>>(blowerConfig));
 				blowerIntroMsg = "Blower without fadeIn or fadeOut only feature created.\n";
 			}
 		}
 		else
 		{
-			inOutBlowerContainer.emplace_back(std::make_unique<Storm::Blower<Storm::BlowerType::PulseExplosionSphere, BlowerEffectArea, Storm::BlowerPulseTimeHandler, BlowerCallbacks>>(blowerDataConfig));
+			inOutBlowerContainer.emplace_back(std::make_unique<Storm::Blower<Storm::BlowerType::PulseExplosionSphere, BlowerEffectArea, Storm::BlowerPulseTimeHandler, BlowerCallbacks>>(blowerConfig));
 			blowerIntroMsg = "Explosion Blower Effect created.\n";
 		}
 
 		LOG_DEBUG << blowerIntroMsg <<
-			"The blower is placed at " << blowerDataConfig._blowerPosition <<
-			", has a dimension of " << blowerDataConfig._blowerDimension <<
-			" and a force of " << blowerDataConfig._blowerForce <<
-			" will start at " << blowerDataConfig._startTimeInSeconds << "s.";
+			"The blower is placed at " << blowerConfig._blowerPosition <<
+			", has a dimension of " << blowerConfig._blowerDimension <<
+			" and a force of " << blowerConfig._blowerForce <<
+			" will start at " << blowerConfig._startTimeInSeconds << "s.";
 	}
 
 	inline Storm::Vector3 computeInternalBoundingBoxCorner(const Storm::Vector3 &externalBoundingBoxCorner, const Storm::Vector3 &externalBoundingBoxTranslation, const float coeff)
@@ -348,10 +349,10 @@ namespace
 		}
 	}
 
-	float computeCFLDistance(const Storm::GeneralSimulationData &generalConfig)
+	float computeCFLDistance(const Storm::SceneSimulationConfig &sceneSimulationConfig)
 	{
-		const float maxDistanceAllowed = generalConfig._particleRadius * 2.f;
-		return generalConfig._cflCoeff * maxDistanceAllowed;
+		const float maxDistanceAllowed = sceneSimulationConfig._particleRadius * 2.f;
+		return sceneSimulationConfig._cflCoeff * maxDistanceAllowed;
 	}
 
 	constexpr float getMinCLFTime()
@@ -453,8 +454,8 @@ void Storm::SimulatorManager::initialize_Implementation()
 			LOG_ERROR << "There is no frame to simulate inside the current record. The application will stop.";
 		}
 
-		const Storm::RecordConfigData &recordConfig = configMgr.getRecordConfigData();
-		this->applyReplayFrame(frameBefore, recordConfig._recordFps);
+		const Storm::SceneRecordConfig &sceneRecordConfig = configMgr.getSceneRecordConfig();
+		this->applyReplayFrame(frameBefore, sceneRecordConfig._recordFps);
 	}
 	else
 	{
@@ -598,7 +599,7 @@ void Storm::SimulatorManager::initialize_Implementation()
 	Storm::IProfilerManager &profilerMgr = singletonHolder.getSingleton<Storm::IProfilerManager>();
 	profilerMgr.registerCurrentThreadAsSimulationThread(k_simulationSpeedBalistName);
 
-	const bool autoEndSimulation = configMgr.getGeneralSimulationData()._endSimulationPhysicsTimeInSeconds != -1.f;
+	const bool autoEndSimulation = configMgr.getSceneSimulationConfig()._endSimulationPhysicsTimeInSeconds != -1.f;
 	if (autoEndSimulation)
 	{
 		(*_uiFields)
@@ -609,7 +610,7 @@ void Storm::SimulatorManager::initialize_Implementation()
 
 Storm::ExitCode Storm::SimulatorManager::run()
 {
-	switch (Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().getRecordConfigData()._recordMode)
+	switch (Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().getSceneRecordConfig()._recordMode)
 	{
 	case Storm::RecordMode::None:
 	case Storm::RecordMode::Record:
@@ -631,16 +632,16 @@ Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
-	const Storm::GeneralSimulationData &generalSimulationConfigData = configMgr.getGeneralSimulationData();
+	const Storm::SceneSimulationConfig &sceneSimulationConfig = configMgr.getSceneSimulationConfig();
 
 	Storm::ITimeManager &timeMgr = singletonHolder.getSingleton<Storm::ITimeManager>();
 	Storm::IThreadManager &threadMgr = singletonHolder.getSingleton<Storm::IThreadManager>();
-	Storm::IProfilerManager* profilerMgrNullablePtr = configMgr.getShouldProfileSimulationSpeed() ? singletonHolder.getFacet<Storm::IProfilerManager>() : nullptr;
+	Storm::IProfilerManager* profilerMgrNullablePtr = configMgr.getGeneralDebugConfig()._profileSimulationSpeed ? singletonHolder.getFacet<Storm::IProfilerManager>() : nullptr;
 
-	const Storm::RecordConfigData &recordConfig = configMgr.getRecordConfigData();
+	const Storm::SceneRecordConfig &sceneRecordConfig = configMgr.getSceneRecordConfig();
 	Storm::ISerializerManager &serializerMgr = singletonHolder.getSingleton<Storm::ISerializerManager>();
 
-	const bool autoEndSimulation = generalSimulationConfigData._endSimulationPhysicsTimeInSeconds != -1.f;
+	const bool autoEndSimulation = sceneSimulationConfig._endSimulationPhysicsTimeInSeconds != -1.f;
 	bool hasAutoEndSimulation = false;
 
 	unsigned int forcedPushFrameIterator = 0;
@@ -651,7 +652,7 @@ Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 	this->refreshParticlePartition(false);
 
 	float expectedReplayFps;
-	if (recordConfig._replayRealTime)
+	if (sceneRecordConfig._replayRealTime)
 	{
 		expectedReplayFps = serializerMgr.getRecordHeader()._recordFrameRate;
 		if (timeMgr.getExpectedFrameFPS() != expectedReplayFps)
@@ -677,7 +678,7 @@ Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 		SpeedProfileBalist simulationSpeedProfile{ profilerMgrNullablePtr };
 
 		Storm::TimeWaitResult simulationState;
-		if (recordConfig._replayRealTime)
+		if (sceneRecordConfig._replayRealTime)
 		{
 			const auto waitTimeCompensation = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - startFrame);
 			if (fullFrameWaitTime < waitTimeCompensation)
@@ -693,7 +694,7 @@ Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 		}
 		else
 		{
-			simulationState = generalSimulationConfigData._simulationNoWait ? timeMgr.getStateNoSyncWait() : timeMgr.waitNextFrame();
+			simulationState = sceneSimulationConfig._simulationNoWait ? timeMgr.getStateNoSyncWait() : timeMgr.waitNextFrame();
 		}
 
 		switch (simulationState)
@@ -714,7 +715,7 @@ Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 			// Takes time to process messages that came from other threads.
 			threadMgr.processCurrentThreadActions();
 			
-			if (generalSimulationConfigData._simulationNoWait)
+			if (sceneSimulationConfig._simulationNoWait)
 			{
 				// Eh... this is paused so free a little Cpu will you ;)... No need to spin lock even though we said "run as fast as possible" when we're paused...
 				std::this_thread::sleep_for(std::chrono::milliseconds{ 1 });
@@ -755,7 +756,7 @@ Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 			if (autoEndSimulation)
 			{
 				const float currentPhysicsTime = timeMgr.getCurrentPhysicsElapsedTime();
-				hasAutoEndSimulation = currentPhysicsTime > generalSimulationConfigData._endSimulationPhysicsTimeInSeconds;
+				hasAutoEndSimulation = currentPhysicsTime > sceneSimulationConfig._endSimulationPhysicsTimeInSeconds;
 			}
 		}
 		else if (autoEndSimulation)
@@ -783,7 +784,7 @@ Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 				computeProgression(
 					_progressRemainingTime,
 					simulationSpeedProfile.getCurrentSpeed(),
-					generalSimulationConfigData._endSimulationPhysicsTimeInSeconds,
+					sceneSimulationConfig._endSimulationPhysicsTimeInSeconds,
 					timeMgr.getCurrentPhysicsElapsedTime()
 				);
 
@@ -808,11 +809,11 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 	Storm::ISpacePartitionerManager &spacePartitionerMgr = singletonHolder.getSingleton<Storm::ISpacePartitionerManager>();
 
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
-	const Storm::GeneralSimulationData &generalSimulationConfigData = configMgr.getGeneralSimulationData();
+	const Storm::SceneSimulationConfig &sceneSimulationConfig = configMgr.getSceneSimulationConfig();
 
 	assert(!configMgr.isInReplayMode() && "runSimulation_Internal shouldn't be used in replay mode!");
 
-	Storm::IProfilerManager* profilerMgrNullablePtr = configMgr.getShouldProfileSimulationSpeed() ? singletonHolder.getFacet<Storm::IProfilerManager>() : nullptr;
+	Storm::IProfilerManager* profilerMgrNullablePtr = configMgr.getGeneralDebugConfig()._profileSimulationSpeed ? singletonHolder.getFacet<Storm::IProfilerManager>() : nullptr;
 	const bool hasUI = configMgr.withUI();
 
 	std::vector<Storm::SimulationCallback> tmpSimulationCallback;
@@ -827,8 +828,8 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 
 	this->initializePreSimulation();
 
-	const Storm::RecordConfigData &recordConfig = configMgr.getRecordConfigData();
-	const bool shouldBeRecording = recordConfig._recordMode == Storm::RecordMode::Record;
+	const Storm::SceneRecordConfig &sceneRecordConfig = configMgr.getSceneRecordConfig();
+	const bool shouldBeRecording = sceneRecordConfig._recordMode == Storm::RecordMode::Record;
 	float nextRecordTime = -1.f;
 	if (shouldBeRecording)
 	{
@@ -837,17 +838,17 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 		// Record the first frame which is the time 0 (the start).
 		const float currentPhysicsTime = timeMgr.getCurrentPhysicsElapsedTime();
 		this->pushRecord(currentPhysicsTime, true);
-		Storm::ReplaySolver::computeNextRecordTime(nextRecordTime, currentPhysicsTime, recordConfig._recordFps);
+		Storm::ReplaySolver::computeNextRecordTime(nextRecordTime, currentPhysicsTime, sceneRecordConfig._recordFps);
 	}
 
-	const bool autoEndSimulation = generalSimulationConfigData._endSimulationPhysicsTimeInSeconds != -1.f;
+	const bool autoEndSimulation = sceneSimulationConfig._endSimulationPhysicsTimeInSeconds != -1.f;
 	bool hasAutoEndSimulation = false;
 
 	unsigned int forcedPushFrameIterator = 0;
 
 	bool firstFrame = true;
 
-	const bool noWait = generalSimulationConfigData._simulationNoWait || !hasUI;
+	const bool noWait = sceneSimulationConfig._simulationNoWait || !hasUI;
 
 	do
 	{
@@ -870,7 +871,7 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 
 			// Takes time to process messages that came from other threads.
 			threadMgr.processCurrentThreadActions();
-			if (generalSimulationConfigData._simulationNoWait)
+			if (sceneSimulationConfig._simulationNoWait)
 			{
 				// Eh... this is paused so free a little Cpu will you ;)... No need to spin lock even though we said "run as fast as possible" when we're paused...
 				std::this_thread::sleep_for(std::chrono::milliseconds{ 1 });
@@ -916,11 +917,11 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 			if (currentPhysicsTime >= nextRecordTime)
 			{
 				this->pushRecord(currentPhysicsTime, false);
-				Storm::ReplaySolver::computeNextRecordTime(nextRecordTime, currentPhysicsTime, recordConfig._recordFps);
+				Storm::ReplaySolver::computeNextRecordTime(nextRecordTime, currentPhysicsTime, sceneRecordConfig._recordFps);
 			}
 		}
 
-		hasAutoEndSimulation = autoEndSimulation && currentPhysicsTime > generalSimulationConfigData._endSimulationPhysicsTimeInSeconds;
+		hasAutoEndSimulation = autoEndSimulation && currentPhysicsTime > sceneSimulationConfig._endSimulationPhysicsTimeInSeconds;
 		if (hasAutoEndSimulation)
 		{
 			timeMgr.quit();
@@ -930,7 +931,7 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 			computeProgression(
 				_progressRemainingTime,
 				simulationSpeedProfile.getCurrentSpeed(),
-				generalSimulationConfigData._endSimulationPhysicsTimeInSeconds,
+				sceneSimulationConfig._endSimulationPhysicsTimeInSeconds,
 				timeMgr.getCurrentPhysicsElapsedTime()
 			);
 
@@ -951,9 +952,9 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 	} while (true);
 }
 
-bool Storm::SimulatorManager::applyCFLIfNeeded(const Storm::GeneralSimulationData &generalSimulationDataConfig)
+bool Storm::SimulatorManager::applyCFLIfNeeded(const Storm::SceneSimulationConfig &sceneSimulationConfig)
 {
-	if (generalSimulationDataConfig._computeCFL)
+	if (sceneSimulationConfig._computeCFL)
 	{
 		// 500ms by default seems fine (this time will be the one set if no particle moves)...
 		float newDeltaTimeStep = 0.500f;
@@ -984,8 +985,8 @@ bool Storm::SimulatorManager::applyCFLIfNeeded(const Storm::GeneralSimulationDat
 			currentStepMaxVelocityNorm = std::sqrtf(currentStepMaxVelocityNorm);
 
 			/* Compute the CFL Coefficient */
-			const float maxDistanceAllowed = generalSimulationDataConfig._particleRadius * 2.f;
-			newDeltaTimeStep = computeCFLDistance(generalSimulationDataConfig) / currentStepMaxVelocityNorm;
+			const float maxDistanceAllowed = sceneSimulationConfig._particleRadius * 2.f;
+			newDeltaTimeStep = computeCFLDistance(sceneSimulationConfig) / currentStepMaxVelocityNorm;
 		}
 		else if (std::isinf(currentStepMaxVelocityNorm) || std::isnan(currentStepMaxVelocityNorm))
 		{
@@ -999,9 +1000,9 @@ bool Storm::SimulatorManager::applyCFLIfNeeded(const Storm::GeneralSimulationDat
 			newDeltaTimeStep = minDeltaTime;
 		}
 
-		if (newDeltaTimeStep > generalSimulationDataConfig._maxCFLTime)
+		if (newDeltaTimeStep > sceneSimulationConfig._maxCFLTime)
 		{
-			newDeltaTimeStep = generalSimulationDataConfig._maxCFLTime;
+			newDeltaTimeStep = sceneSimulationConfig._maxCFLTime;
 		}
 
 		Storm::ITimeManager &timeMgr = Storm::SingletonHolder::instance().getSingleton<Storm::ITimeManager>();
@@ -1024,10 +1025,10 @@ void Storm::SimulatorManager::initializePreSimulation()
 
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
-	const Storm::GeneralSimulationData &generalSimulationConfigData = configMgr.getGeneralSimulationData();
+	const Storm::SceneSimulationConfig &sceneSimulationConfig = configMgr.getSceneSimulationConfig();
 
 	_sphSolver = Storm::instantiateSPHSolver(Storm::SolverCreationParameter{
-		._simulationMode = generalSimulationConfigData._simulationMode,
+		._simulationMode = sceneSimulationConfig._simulationMode,
 		._kernelLength = k_kernelLength,
 		._particleSystems = &_particleSystem
 	});
@@ -1171,12 +1172,12 @@ void Storm::SimulatorManager::addFluidParticleSystem(unsigned int id, std::vecto
 	const std::size_t initialParticleCount = particlePositions.size();
 	LOG_COMMENT << "Creating fluid particle system with " << initialParticleCount << " particles.";
 
-	const Storm::GeneralSimulationData &generalConfigData = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().getGeneralSimulationData();
-	if (generalConfigData._removeFluidParticleCollidingWithRb)
+	const Storm::SceneSimulationConfig &sceneSimulationConfig = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().getSceneSimulationConfig();
+	if (sceneSimulationConfig._removeFluidParticleCollidingWithRb)
 	{
 		LOG_COMMENT << "Removing fluid particles that collide with rigid bodies particles.";
 
-		removeParticleInsideRbPosition(particlePositions, _particleSystem, generalConfigData._particleRadius);
+		removeParticleInsideRbPosition(particlePositions, _particleSystem, sceneSimulationConfig._particleRadius);
 
 		LOG_DEBUG << "We removed " << initialParticleCount - particlePositions.size() << " particle(s) after checking which collide with existing rigid bodies.";
 	}
@@ -1206,12 +1207,12 @@ void Storm::SimulatorManager::addFluidParticleSystem(Storm::SystemSimulationStat
 #if false 
 
 	// FIXME : The algorithm to remove insider particle wasn't made with state reloading in mind (This feature was made long before I did the state reloading feature, I did YAGNI, and now I'm paying the price).
-	const Storm::GeneralSimulationData &generalConfigData = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().getGeneralSimulationData();
-	if (generalConfigData._removeFluidParticleCollidingWithRb)
+	const Storm::SceneSimulationConfig &sceneSimulationConfig = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().getSceneSimulationConfig();
+	if (sceneSimulationConfig._removeFluidParticleCollidingWithRb)
 	{
 		LOG_COMMENT << "Removing fluid particles that collide with rigid bodies particles.";
 
-		removeParticleInsideRbPosition(state._positions, _particleSystem, generalConfigData._particleRadius);
+		removeParticleInsideRbPosition(state._positions, _particleSystem, sceneSimulationConfig._particleRadius);
 
 		LOG_DEBUG << "We removed " << initialParticleCount - state._positions.size() << " particle(s) after checking which collide with existing rigid bodies.";
 	}
@@ -1274,17 +1275,17 @@ const std::vector<Storm::Vector3>& Storm::SimulatorManager::getParticleSystemPos
 	return this->getParticleSystem(id).getPositions();
 }
 
-void Storm::SimulatorManager::loadBlower(const Storm::BlowerData &blowerData)
+void Storm::SimulatorManager::loadBlower(const Storm::SceneBlowerConfig &blowerConfig)
 {
 #define STORM_XMACRO_GENERATE_ELEMENTARY_BLOWER(BlowerTypeName, BlowerTypeXmlName, EffectAreaType, MeshMakerType) \
-case Storm::BlowerType::BlowerTypeName: appendNewBlower<Storm::BlowerType::BlowerTypeName, Storm::EffectAreaType>(_blowers, blowerData); break;
+case Storm::BlowerType::BlowerTypeName: appendNewBlower<Storm::BlowerType::BlowerTypeName, Storm::EffectAreaType>(_blowers, blowerConfig); break;
 
-		switch (blowerData._blowerType)
+		switch (blowerConfig._blowerType)
 		{
 			STORM_XMACRO_GENERATE_BLOWERS_CODE;
 
 		default:
-			Storm::throwException<Storm::StormException>("Unhandled Blower Type creation requested! Value was " + std::to_string(static_cast<int>(blowerData._blowerType)));
+			Storm::throwException<Storm::StormException>("Unhandled Blower Type creation requested! Value was " + std::to_string(static_cast<int>(blowerConfig._blowerType)));
 		}
 
 #undef STORM_XMACRO_GENERATE_ELEMENTARY_BLOWER
@@ -1436,10 +1437,10 @@ void Storm::SimulatorManager::beginRecord() const
 {
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 
-	const Storm::RecordConfigData &recordConfig = singletonHolder.getSingleton<Storm::IConfigManager>().getRecordConfigData();
+	const Storm::SceneRecordConfig &sceneRecordConfig = singletonHolder.getSingleton<Storm::IConfigManager>().getSceneRecordConfig();
 
 	Storm::SerializeRecordHeader recordHeader;
-	recordHeader._recordFrameRate = recordConfig._recordFps;
+	recordHeader._recordFrameRate = sceneRecordConfig._recordFps;
 
 	recordHeader._particleSystemLayouts.reserve(_particleSystem.size());
 	for (const auto &particleSystemPair : _particleSystem)
@@ -1464,7 +1465,7 @@ void Storm::SimulatorManager::beginRecord() const
 void Storm::SimulatorManager::pushRecord(float currentPhysicsTime, bool pushStatics) const
 {
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
-	const Storm::RecordConfigData &recordConfig = singletonHolder.getSingleton<Storm::IConfigManager>().getRecordConfigData();
+	const Storm::SceneRecordConfig &sceneRecordConfig = singletonHolder.getSingleton<Storm::IConfigManager>().getSceneRecordConfig();
 
 	Storm::SerializeRecordPendingData currentFrameData;
 	currentFrameData._physicsTime = currentPhysicsTime;
@@ -1554,8 +1555,8 @@ void Storm::SimulatorManager::resetReplay_SimulationThread()
 			Storm::SerializeRecordPendingData &frameBefore = *_frameBefore;
 			if (serializerMgr.obtainNextFrame(frameBefore))
 			{
-				const Storm::RecordConfigData &recordConfig = configMgr.getRecordConfigData();
-				this->applyReplayFrame(frameBefore, recordConfig._recordFps, false);
+				const Storm::SceneRecordConfig &sceneRecordConfig = configMgr.getSceneRecordConfig();
+				this->applyReplayFrame(frameBefore, sceneRecordConfig._recordFps, false);
 				
 				_reinitFrameAfter = true;
 
@@ -1710,8 +1711,8 @@ void Storm::SimulatorManager::executeAllForcesCheck()
 	Storm::IPhysicsManager &physicsMgr = singletonHolder.getSingleton<Storm::IPhysicsManager>();
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
 
-	const Storm::GeneralSimulationData &generalConfig = configMgr.getGeneralSimulationData();
-	const Storm::Vector3 &gravityAccel = generalConfig._gravity;
+	const Storm::SceneSimulationConfig &sceneSimulationConfig = configMgr.getSceneSimulationConfig();
+	const Storm::Vector3 &gravityAccel = sceneSimulationConfig._gravity;
 
 	// Ensure that, from the momentum conservation law, all forces present in the domain (which is an isolated system) comes to zero
 	// (note that it shouldn't be true if the system is not in an equilibrium state because forces do work to convert potential energy into kinetic energy then.

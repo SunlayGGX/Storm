@@ -11,10 +11,10 @@
 #include "ISerializerManager.h"
 #include "ITimeManager.h"
 
-#include "GeneralSimulationData.h"
-#include "FluidData.h"
-#include "BlowerData.h"
-#include "RigidBodySceneData.h"
+#include "SceneSimulationConfig.h"
+#include "SceneFluidConfig.h"
+#include "SceneBlowerConfig.h"
+#include "SceneRigidBodyConfig.h"
 
 #include "RigidBody.h"
 
@@ -30,7 +30,7 @@
 #include "AssetCacheData.h"
 #include "AssetCacheDataOrder.h"
 
-#include "RecordConfigData.h"
+#include "SceneRecordConfig.h"
 #include "RecordMode.h"
 
 #include "SerializeParticleSystemLayout.h"
@@ -73,14 +73,14 @@ namespace
 	}
 
 	template<Storm::FluidParticleLoadDenseMode>
-	void computeParticleCountBoxExtents(const Storm::FluidBlockData &fluidBlock, const float particleDiameter, std::size_t &outParticleXCount, std::size_t &outParticleYCount, std::size_t &outParticleZCount);
+	void computeParticleCountBoxExtents(const Storm::SceneFluidBlockConfig &fluidBlock, const float particleDiameter, std::size_t &outParticleXCount, std::size_t &outParticleYCount, std::size_t &outParticleZCount);
 
 	template<Storm::FluidParticleLoadDenseMode>
-	void generateFluidParticles(std::vector<Storm::Vector3> &inOutFluidParticlePos, const Storm::FluidBlockData &fluidBlockGenerated, const float particleDiameter);
+	void generateFluidParticles(std::vector<Storm::Vector3> &inOutFluidParticlePos, const Storm::SceneFluidBlockConfig &fluidBlockGenerated, const float particleDiameter);
 
 
 	template<>
-	void computeParticleCountBoxExtents<Storm::FluidParticleLoadDenseMode::Normal>(const Storm::FluidBlockData &fluidBlock, const float particleDiameter, std::size_t &outParticleXCount, std::size_t &outParticleYCount, std::size_t &outParticleZCount)
+	void computeParticleCountBoxExtents<Storm::FluidParticleLoadDenseMode::Normal>(const Storm::SceneFluidBlockConfig &fluidBlock, const float particleDiameter, std::size_t &outParticleXCount, std::size_t &outParticleYCount, std::size_t &outParticleZCount)
 	{
 		outParticleXCount = static_cast<std::size_t>(fabs(fluidBlock._firstPoint.x() - fluidBlock._secondPoint.x()) / particleDiameter);
 		outParticleYCount = static_cast<std::size_t>(fabs(fluidBlock._firstPoint.y() - fluidBlock._secondPoint.y()) / particleDiameter);
@@ -88,7 +88,7 @@ namespace
 	}
 
 	template<>
-	void computeParticleCountBoxExtents<Storm::FluidParticleLoadDenseMode::AsSplishSplash>(const Storm::FluidBlockData &fluidBlock, const float particleDiameter, std::size_t &outParticleXCount, std::size_t &outParticleYCount, std::size_t &outParticleZCount)
+	void computeParticleCountBoxExtents<Storm::FluidParticleLoadDenseMode::AsSplishSplash>(const Storm::SceneFluidBlockConfig &fluidBlock, const float particleDiameter, std::size_t &outParticleXCount, std::size_t &outParticleYCount, std::size_t &outParticleZCount)
 	{
 		const Storm::Vector3 diff = fluidBlock._secondPoint - fluidBlock._firstPoint;
 
@@ -98,7 +98,7 @@ namespace
 	}
 
 	template<>
-	void generateFluidParticles<Storm::FluidParticleLoadDenseMode::Normal>(std::vector<Storm::Vector3> &inOutFluidParticlePos, const Storm::FluidBlockData &fluidBlockGenerated, const float particleDiameter)
+	void generateFluidParticles<Storm::FluidParticleLoadDenseMode::Normal>(std::vector<Storm::Vector3> &inOutFluidParticlePos, const Storm::SceneFluidBlockConfig &fluidBlockGenerated, const float particleDiameter)
 	{
 		std::size_t particleXCount;
 		std::size_t particleYCount;
@@ -127,7 +127,7 @@ namespace
 	}
 
 	template<>
-	void generateFluidParticles<Storm::FluidParticleLoadDenseMode::AsSplishSplash>(std::vector<Storm::Vector3> &inOutFluidParticlePos, const Storm::FluidBlockData &fluidBlockGenerated, const float particleDiameter)
+	void generateFluidParticles<Storm::FluidParticleLoadDenseMode::AsSplishSplash>(std::vector<Storm::Vector3> &inOutFluidParticlePos, const Storm::SceneFluidBlockConfig &fluidBlockGenerated, const float particleDiameter)
 	{
 		std::size_t particleXCount;
 		std::size_t particleYCount;
@@ -267,7 +267,7 @@ void Storm::AssetLoaderManager::initialize_Implementation()
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
 
-	switch (configMgr.getRecordConfigData()._recordMode)
+	switch (configMgr.getSceneRecordConfig()._recordMode)
 	{
 	case Storm::RecordMode::Replay:
 		this->initializeForReplay();
@@ -317,22 +317,22 @@ void Storm::AssetLoaderManager::initializeForReplay()
 		else
 		{
 			// It is also a way to find out that the recording to be replayed match a minima the scene we use to load it (we should have at least the right rigid bodies).
-			const Storm::RigidBodySceneData &associatedRbData = configMgr.getRigidBodyData(systemLayout._particleSystemId);
-			auto &emplacedRb = _rigidBodies.emplace_back(std::static_pointer_cast<Storm::IRigidBody>(std::make_shared<Storm::RigidBody>(associatedRbData, Storm::RigidBody::ReplayMode{})));
+			const Storm::SceneRigidBodyConfig &associatedRbConfig = configMgr.getSceneRigidBodyConfig(systemLayout._particleSystemId);
+			auto &emplacedRb = _rigidBodies.emplace_back(std::static_pointer_cast<Storm::IRigidBody>(std::make_shared<Storm::RigidBody>(associatedRbConfig, Storm::RigidBody::ReplayMode{})));
 
 			graphicsMgr.bindParentRbToMesh(systemLayout._particleSystemId, emplacedRb);
-			//physicsMgr.bindParentRbToPhysicalBody(associatedRbData, emplacedRb);
+			//physicsMgr.bindParentRbToPhysicalBody(associatedRbConfig, emplacedRb);
 
 			simulMgr.addRigidBodyParticleSystem(systemLayout._particleSystemId, systemLayout._particlesCount);
 		}
 	}
 
 	/* Loading Blowers */
-	const auto &blowersDataToLoad = configMgr.getBlowersData();
+	const auto &blowersConfigToLoad = configMgr.getSceneBlowersConfig();
 
 	std::vector<Storm::Vector3> areaVertexesTmp;
 	std::vector<uint32_t> areaIndexesTmp;
-	for (const Storm::BlowerData &blowerToLoad : blowersDataToLoad)
+	for (const Storm::SceneBlowerConfig &blowerToLoad : blowersConfigToLoad)
 	{
 		// Generate the mesh area data to pass to the graphical resources.
 #define STORM_XMACRO_GENERATE_ELEMENTARY_BLOWER(BlowerTypeName, BlowerTypeXmlName, EffectAreaType, MeshMakerType) \
@@ -396,8 +396,8 @@ void Storm::AssetLoaderManager::initializeForSimulation()
 
 	std::vector<std::future<void>> asyncLoadingArray;
 
-	const auto &rigidBodiesDataToLoad = configMgr.getRigidBodiesData();
-	const std::size_t rigidBodyCount = rigidBodiesDataToLoad.size();
+	const auto &rigidBodiesConfigToLoad = configMgr.getSceneRigidBodiesConfig();
+	const std::size_t rigidBodyCount = rigidBodiesConfigToLoad.size();
 
 	if (rigidBodyCount > 0)
 	{
@@ -408,14 +408,14 @@ void Storm::AssetLoaderManager::initializeForSimulation()
 
 		if (shouldLoadState)
 		{
-			const auto endRigidBodiesDataToLoadConfigIter = std::end(rigidBodiesDataToLoad);
+			const auto endRigidBodiesDataToLoadConfigIter = std::end(rigidBodiesConfigToLoad);
 			for (const Storm::SystemSimulationStateObject &pSystem : state._pSystemStates)
 			{
 				if (!pSystem._isFluid)
 				{
-					if (auto found = std::find_if(std::begin(rigidBodiesDataToLoad), endRigidBodiesDataToLoadConfigIter, [id = pSystem._id](const Storm::RigidBodySceneData &rbData)
+					if (auto found = std::find_if(std::begin(rigidBodiesConfigToLoad), endRigidBodiesDataToLoadConfigIter, [id = pSystem._id](const Storm::SceneRigidBodyConfig &rbConfig)
 					{
-						return rbData._rigidBodyID == id;
+						return rbConfig._rigidBodyID == id;
 					}); found == endRigidBodiesDataToLoadConfigIter)
 					{
 						Storm::throwException<Storm::StormException>("Cannot link loaded particle system to one we set from the configuration !");
@@ -424,7 +424,7 @@ void Storm::AssetLoaderManager::initializeForSimulation()
 			}
 		}
 
-		for (const auto &rbToLoad : rigidBodiesDataToLoad)
+		for (const auto &rbToLoad : rigidBodiesConfigToLoad)
 		{
 			asyncLoadingArray.emplace_back(std::async(std::launch::async, [this, &graphicsMgr, &physicsMgr, &rbToLoad, &state, shouldLoadState]()
 			{
@@ -448,10 +448,10 @@ void Storm::AssetLoaderManager::initializeForSimulation()
 				std::shared_ptr<Storm::IRigidBody> loadedRigidBody;
 				if (rbStateFound != nullptr)
 				{
-					Storm::RigidBodySceneData overridenRbDataConfig = rbToLoad;
-					overridenRbDataConfig._translation = rbStateFound->_globalPosition;
+					Storm::SceneRigidBodyConfig overridenRbConfig = rbToLoad;
+					overridenRbConfig._translation = rbStateFound->_globalPosition;
 
-					loadedRigidBody = std::static_pointer_cast<Storm::IRigidBody>(std::make_shared<Storm::RigidBody>(overridenRbDataConfig, std::move(*rbStateFound)));
+					loadedRigidBody = std::static_pointer_cast<Storm::IRigidBody>(std::make_shared<Storm::RigidBody>(overridenRbConfig, std::move(*rbStateFound)));
 				}
 				else
 				{
@@ -474,11 +474,11 @@ void Storm::AssetLoaderManager::initializeForSimulation()
 	}
 
 	/* Loading Blowers */
-	const auto &blowersDataToLoad = configMgr.getBlowersData();
+	const auto &blowersConfigToLoad = configMgr.getSceneBlowersConfig();
 
 	std::vector<Storm::Vector3> areaVertexesTmp;
 	std::vector<uint32_t> areaIndexesTmp;
-	for (const Storm::BlowerData &blowerToLoad : blowersDataToLoad)
+	for (const Storm::SceneBlowerConfig &blowerToLoad : blowersConfigToLoad)
 	{
 		// Generate the mesh area data to pass to the graphical resources.
 #define STORM_XMACRO_GENERATE_ELEMENTARY_BLOWER(BlowerTypeName, BlowerTypeXmlName, EffectAreaType, MeshMakerType) \
@@ -514,18 +514,18 @@ case Storm::BlowerType::BlowerTypeName: \
 	}
 
 	/* Load fluid particles */
-	const Storm::GeneralSimulationData &generalConfigData = configMgr.getGeneralSimulationData();
-	if (generalConfigData._hasFluid)
+	const Storm::SceneSimulationConfig &sceneSimulationConfig = configMgr.getSceneSimulationConfig();
+	if (sceneSimulationConfig._hasFluid)
 	{
 		LOG_COMMENT << "Loading fluid particles";
 
-		const auto &fluidsDataToLoad = configMgr.getFluidData();
+		const auto &fluidsConfigToLoad = configMgr.getSceneFluidConfig();
 		if (shouldLoadState)
 		{
 			Storm::SimulationState &state = *loadedState._simulationState;
 
 			const auto endStatesIter = std::end(state._pSystemStates);
-			if (auto fluidStateFound = std::find_if(std::begin(state._pSystemStates), endStatesIter, [id = fluidsDataToLoad._fluidId](const Storm::SystemSimulationStateObject &fluidState)
+			if (auto fluidStateFound = std::find_if(std::begin(state._pSystemStates), endStatesIter, [id = fluidsConfigToLoad._fluidId](const Storm::SystemSimulationStateObject &fluidState)
 			{
 				return fluidState._id == id;
 			}); fluidStateFound != endStatesIter)
@@ -547,18 +547,18 @@ case Storm::BlowerType::BlowerTypeName: \
 			}
 			else
 			{
-				Storm::throwException<Storm::StormException>("We cannot find the fluid state with id matching the one in the configuration (" + std::to_string(fluidsDataToLoad._fluidId) + ')');
+				Storm::throwException<Storm::StormException>("We cannot find the fluid state with id matching the one in the configuration (" + std::to_string(fluidsConfigToLoad._fluidId) + ')');
 			}
 		}
 		else
 		{
-			const float particleRadius = generalConfigData._particleRadius;
+			const float particleRadius = sceneSimulationConfig._particleRadius;
 			const float particleDiameter = particleRadius * 2.f;
 			std::vector<Storm::Vector3> fluidParticlePos;
 
 			// First, evaluate the particle total count we need to have (to avoid unneeded reallocations along the way)...
-			fluidParticlePos.reserve(std::accumulate(std::begin(fluidsDataToLoad._fluidGenData), std::end(fluidsDataToLoad._fluidGenData), static_cast<std::size_t>(0),
-				[particleDiameter](const std::size_t accumulatedVal, const Storm::FluidBlockData &fluidBlockGenerated)
+			fluidParticlePos.reserve(std::accumulate(std::begin(fluidsConfigToLoad._fluidGenConfig), std::end(fluidsConfigToLoad._fluidGenConfig), static_cast<std::size_t>(0),
+				[particleDiameter](const std::size_t accumulatedVal, const Storm::SceneFluidBlockConfig &fluidBlockGenerated)
 			{
 				std::size_t particleXCount;
 				std::size_t particleYCount;
@@ -580,7 +580,7 @@ case Storm::BlowerType::BlowerTypeName: \
 				return accumulatedVal + particleXCount * particleYCount * particleZCount;
 			}));
 
-			for (const Storm::FluidBlockData &fluidBlockGenerated : fluidsDataToLoad._fluidGenData)
+			for (const Storm::SceneFluidBlockConfig &fluidBlockGenerated : fluidsConfigToLoad._fluidGenConfig)
 			{
 				switch (fluidBlockGenerated._loadDenseMode)
 				{
@@ -604,7 +604,7 @@ case Storm::BlowerType::BlowerTypeName: \
 			// This needs to be done only for rigid bodies. Fluids don't need it. 
 			simulMgr.refreshParticlesPosition();
 
-			simulMgr.addFluidParticleSystem(fluidsDataToLoad._fluidId, std::move(fluidParticlePos));
+			simulMgr.addFluidParticleSystem(fluidsConfigToLoad._fluidId, std::move(fluidParticlePos));
 		}
 	}
 	else
@@ -619,11 +619,11 @@ case Storm::BlowerType::BlowerTypeName: \
 	}
 
 	/* Load constraints */
-	const auto &constraintsData = configMgr.getConstraintsData();
-	if (!constraintsData.empty())
+	const auto &constraintsConfig = configMgr.getSceneConstraintsConfig();
+	if (!constraintsConfig.empty())
 	{
 		LOG_COMMENT << "Loading Constraints";
-		physicsMgr.loadConstraints(constraintsData);
+		physicsMgr.loadConstraints(constraintsConfig);
 	}
 	else
 	{

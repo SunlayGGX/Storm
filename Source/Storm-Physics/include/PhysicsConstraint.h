@@ -3,7 +3,7 @@
 
 namespace Storm
 {
-	struct ConstraintData;
+	struct SceneConstraintConfig;
 	class CordJoint;
 	class UIFieldContainer;
 
@@ -12,10 +12,10 @@ namespace Storm
 	{
 	public:
 		// For simulation
-		PhysicsConstraint(const Storm::ConstraintData &data, physx::PxRigidActor* actor1, physx::PxRigidActor* actor2);
+		PhysicsConstraint(const Storm::SceneConstraintConfig &data, physx::PxRigidActor* actor1, physx::PxRigidActor* actor2);
 
 		// Only for replay
-		PhysicsConstraint(const Storm::ConstraintData &data);
+		PhysicsConstraint(const Storm::SceneConstraintConfig &data);
 		
 		~PhysicsConstraint();
 

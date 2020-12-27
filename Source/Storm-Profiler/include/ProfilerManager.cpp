@@ -5,6 +5,8 @@
 #include "SingletonHolder.h"
 #include "IConfigManager.h"
 
+#include "GeneralDebugConfig.h"
+
 
 Storm::ProfilerManager::ProfilerManager() :
 	_speedProfile{ false }
@@ -17,7 +19,7 @@ void Storm::ProfilerManager::initialize_Implementation()
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
 
-	_speedProfile = configMgr.getShouldProfileSimulationSpeed();
+	_speedProfile = configMgr.getGeneralDebugConfig()._profileSimulationSpeed;
 }
 
 void Storm::ProfilerManager::registerCurrentThreadAsSimulationThread(const std::wstring_view &profileName)
@@ -27,7 +29,7 @@ void Storm::ProfilerManager::registerCurrentThreadAsSimulationThread(const std::
 		const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 		const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
 
-		_speedProfile = configMgr.getShouldProfileSimulationSpeed();
+		_speedProfile = configMgr.getGeneralDebugConfig()._profileSimulationSpeed;
 	}
 
 	if (_speedProfile)

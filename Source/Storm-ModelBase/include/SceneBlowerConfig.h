@@ -5,10 +5,10 @@ namespace Storm
 {
 	enum class BlowerType;
 
-	struct BlowerData
+	struct SceneBlowerConfig
 	{
 	public:
-		BlowerData();
+		SceneBlowerConfig();
 
 	public:
 		unsigned int _blowerId;

@@ -3,12 +3,12 @@
 
 namespace Storm
 {
-	struct BlowerData;
+	struct SceneBlowerConfig;
 
 	class BlowerCubeArea
 	{
 	public:
-		BlowerCubeArea(const Storm::BlowerData &blowerDataConfig);
+		BlowerCubeArea(const Storm::SceneBlowerConfig &blowerConfig);
 
 	public:
 		__forceinline bool isInside(const Storm::Vector3 &relativePosDiff) const
@@ -26,10 +26,10 @@ namespace Storm
 	class BlowerSphereArea
 	{
 	public:
-		BlowerSphereArea(const Storm::BlowerData &blowerDataConfig);
+		BlowerSphereArea(const Storm::SceneBlowerConfig &blowerConfig);
 
 	protected:
-		BlowerSphereArea(const Storm::BlowerData &blowerDataConfig, int);
+		BlowerSphereArea(const Storm::SceneBlowerConfig &blowerConfig, int);
 
 	public:
 		__forceinline bool isInside(const Storm::Vector3 &relativePosDiff) const
@@ -56,7 +56,7 @@ namespace Storm
 	class BlowerRepulsionSphereArea : private Storm::BlowerSphereArea
 	{
 	public:
-		BlowerRepulsionSphereArea(const Storm::BlowerData &blowerDataConfig);
+		BlowerRepulsionSphereArea(const Storm::SceneBlowerConfig &blowerConfig);
 
 	public:
 		using Storm::BlowerSphereArea::isInside;
@@ -71,7 +71,7 @@ namespace Storm
 	class BlowerExplosionSphereArea : private Storm::BlowerSphereArea
 	{
 	public:
-		BlowerExplosionSphereArea(const Storm::BlowerData &blowerDataConfig);
+		BlowerExplosionSphereArea(const Storm::SceneBlowerConfig &blowerConfig);
 
 	public:
 		using Storm::BlowerSphereArea::isInside;
@@ -90,7 +90,7 @@ namespace Storm
 	class BlowerCylinderArea
 	{
 	public:
-		BlowerCylinderArea(const Storm::BlowerData &blowerDataConfig);
+		BlowerCylinderArea(const Storm::SceneBlowerConfig &blowerConfig);
 
 	public:
 		__forceinline bool isInside(const Storm::Vector3 &relativePosDiff) const
@@ -112,7 +112,7 @@ namespace Storm
 	class BlowerConeArea
 	{
 	public:
-		BlowerConeArea(const Storm::BlowerData &blowerDataConfig);
+		BlowerConeArea(const Storm::SceneBlowerConfig &blowerConfig);
 
 	public:
 		__forceinline bool isInside(const Storm::Vector3 &relativePosDiff) const

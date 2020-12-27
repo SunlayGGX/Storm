@@ -121,6 +121,8 @@ namespace Storm_LogViewer.Source.Log
 
             _parserWatcherThread = new Thread(() => this.Run());
             _parserWatcherThread.Start();
+
+            Console.WriteLine("Log parsing thread started!");
         }
 
         public void Shutdown()

@@ -5,36 +5,36 @@
 #include "PhysicsManager.h"
 #include "PhysXHandler.h"
 
-#include "RigidBodySceneData.h"
+#include "SceneRigidBodyConfig.h"
 
 #include <PxRigidStatic.h>
 
 namespace
 {
-	Storm::UniquePointer<physx::PxRigidStatic> createStaticRigidBody(const Storm::RigidBodySceneData &rbSceneData)
+	Storm::UniquePointer<physx::PxRigidStatic> createStaticRigidBody(const Storm::SceneRigidBodyConfig &rbSceneConfig)
 	{
 		auto &physicsHandler = Storm::PhysicsManager::instance().getPhysXHandler();
-		return physicsHandler.createStaticRigidBody(rbSceneData);
+		return physicsHandler.createStaticRigidBody(rbSceneConfig);
 	}
 }
 
-Storm::PhysicsStaticsRigidBody::PhysicsStaticsRigidBody(const Storm::RigidBodySceneData &rbSceneData, const std::vector<Storm::Vector3> &vertices, const std::vector<uint32_t> &indexes) :
-	Storm::PhysicalShape{ rbSceneData, vertices, indexes },
-	_internalRb{ createStaticRigidBody(rbSceneData) },
-	_trans{ rbSceneData._translation },
-	_eulerRotation{ rbSceneData._rotation }
+Storm::PhysicsStaticsRigidBody::PhysicsStaticsRigidBody(const Storm::SceneRigidBodyConfig &rbSceneConfig, const std::vector<Storm::Vector3> &vertices, const std::vector<uint32_t> &indexes) :
+	Storm::PhysicalShape{ rbSceneConfig, vertices, indexes },
+	_internalRb{ createStaticRigidBody(rbSceneConfig) },
+	_trans{ rbSceneConfig._translation },
+	_eulerRotation{ rbSceneConfig._rotation }
 {
 	if (!_internalRb)
 	{
-		Storm::throwException<Storm::StormException>("PhysX failed to create the internal rigid body for object " + std::to_string(rbSceneData._rigidBodyID));
+		Storm::throwException<Storm::StormException>("PhysX failed to create the internal rigid body for object " + std::to_string(rbSceneConfig._rigidBodyID));
 	}
 
 	if (_internalRbShape && !_internalRb->attachShape(*_internalRbShape))
 	{
-		Storm::throwException<Storm::StormException>("We failed to attach the created shape to the rigid body " + std::to_string(rbSceneData._rigidBodyID));
+		Storm::throwException<Storm::StormException>("We failed to attach the created shape to the rigid body " + std::to_string(rbSceneConfig._rigidBodyID));
 	}
 
-	const physx::PxQuat physXQuatRot = Storm::convertToPxRotation(rbSceneData._rotation);
+	const physx::PxQuat physXQuatRot = Storm::convertToPxRotation(rbSceneConfig._rotation);
 	_quatRotation = Storm::convertToStorm<Storm::Quaternion>(physXQuatRot);
 }
 

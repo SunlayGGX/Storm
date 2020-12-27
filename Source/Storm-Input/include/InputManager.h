@@ -12,7 +12,7 @@ namespace Storm
 	struct WithUI;
 	struct NoUI;
 
-	class InputManager :
+	class InputManager final :
 		private Storm::Singleton<InputManager>,
 		public Storm::IInputManager
 	{
@@ -30,6 +30,14 @@ namespace Storm
 
 	private:
 		void refreshMouseState();
+
+		bool isAnyConventionalModifierDown() const;
+
+	public:
+		void clearKeyboardState() final override;
+
+	public:
+		void clearKeyStates_Internal(const bool clearModifiers, const bool clearKeyStates);
 
 	public:
 		Storm::CallbackIdType bindKey(Storm::SpecialKey key, Storm::KeyBinding &&binding) final override;

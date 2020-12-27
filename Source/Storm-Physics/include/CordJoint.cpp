@@ -1,11 +1,11 @@
 #include "CordJoint.h"
 
-#include "ConstraintData.h"
+#include "SceneConstraintConfig.h"
 
 #include "PhysXCoordHelpers.h"
 
 
-Storm::CordJoint::CordJoint(const Storm::ConstraintData &data, physx::PxRigidActor* actor1, physx::PxRigidActor* actor2) :
+Storm::CordJoint::CordJoint(const Storm::SceneConstraintConfig &data, physx::PxRigidActor* actor1, physx::PxRigidActor* actor2) :
 	_internalDistanceJointPtr{ Storm::JointBase::makeDistanceJoint(data, actor1, actor2) }
 {
 	if (data._preventRotations)

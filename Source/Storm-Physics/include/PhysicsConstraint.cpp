@@ -2,7 +2,7 @@
 
 #include "CordJoint.h"
 
-#include "ConstraintData.h"
+#include "SceneConstraintConfig.h"
 
 #include "UIField.h"
 #include "UIFieldContainer.h"
@@ -33,7 +33,7 @@ namespace
 }
 
 
-Storm::PhysicsConstraint::PhysicsConstraint(const Storm::ConstraintData &data, physx::PxRigidActor* actor1, physx::PxRigidActor* actor2) :
+Storm::PhysicsConstraint::PhysicsConstraint(const Storm::SceneConstraintConfig &data, physx::PxRigidActor* actor1, physx::PxRigidActor* actor2) :
 	_id{ data._constraintId },
 	_cordJointPtr{ std::make_unique<Storm::CordJoint>(data, actor1, actor2) },
 	_shouldVisualize{ data._shouldVisualize },
@@ -50,7 +50,7 @@ Storm::PhysicsConstraint::PhysicsConstraint(const Storm::ConstraintData &data, p
 	_fields->bindFieldW(_distanceFieldNameWStr, _distanceWStr);
 }
 
-Storm::PhysicsConstraint::PhysicsConstraint(const Storm::ConstraintData &data) :
+Storm::PhysicsConstraint::PhysicsConstraint(const Storm::SceneConstraintConfig &data) :
 	_id{ data._constraintId },
 	_maxDistance{ data._constraintsLength },
 	_fields{ std::make_unique<Storm::UIFieldContainer>() },

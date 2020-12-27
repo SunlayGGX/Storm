@@ -19,9 +19,9 @@
 
 
 #if defined(DEBUG) || defined(_DEBUG)
-#	define STORM_PLUGIN_NAME(plugin) STORM_STRINGIFY(plugin) "_d"
+#	define STORM_PLUGIN_NAME(plugin) plugin "_d"
 #else
-#	define STORM_PLUGIN_NAME(plugin) STORM_STRINGIFY(plugin)
+#	define STORM_PLUGIN_NAME(plugin) plugin
 #endif
 
 
@@ -34,7 +34,7 @@
 // Not implemented throwing macros.
 
 // This throws but can be recovered with a try catch block.
-#define STORM_NOT_IMPLEMENTED Storm::throwException<std::logic_error>(__FUNCSIG__ " is not implemented!")
+#define STORM_NOT_IMPLEMENTED Storm::throwException<Storm::StormException>(__FUNCSIG__ " is not implemented!")
 
 // The difference with STORM_NOT_IMPLEMENTED is that this provide an unrecoverable error.
 #define STORM_STRONG_NOT_IMPLEMENTED struct STORM_GEN_STRUCT_NAME(_)										\
@@ -51,7 +51,14 @@
 
 
 #if UNICODE
-#	define STORM_TEXT(val) L##val
+#	define STORM_TEXT(val) STORM_CONCAT(L, val)
 #else
 #	define STORM_TEXT(val) val
+#endif
+
+
+#ifdef __has_include
+#	define STORM_HAS_INCLUDE(includeName) __has_include(includeName)
+#else
+#	define STORM_HAS_INCLUDE(includeName) true
 #endif

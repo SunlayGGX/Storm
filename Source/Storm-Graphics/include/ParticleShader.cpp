@@ -4,7 +4,8 @@
 #include "SingletonHolder.h"
 #include "IConfigManager.h"
 
-#include "GeneralSimulationData.h"
+#include "GeneralGraphicConfig.h"
+#include "SceneSimulationConfig.h"
 
 #include "ShaderMacroItem.h"
 
@@ -65,7 +66,7 @@ namespace
 		const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
 
 		return Storm::ShaderMacroContainer{}
-			.addMacro("STORM_SELECTED_PARTICLE_ON_TOP", configMgr.getSelectedParticleShouldBeTopMost())
+			.addMacro("STORM_SELECTED_PARTICLE_ON_TOP", configMgr.getGeneralGraphicConfig()._selectedParticleShouldBeTopMost)
 			;
 	}
 }
@@ -91,7 +92,7 @@ void Storm::ParticleShader::setup(const ComPtr<ID3D11Device> &device, const ComP
 
 		ressourceDataPtr->_viewMatrix = currentCamera.getTransposedViewMatrix();
 		ressourceDataPtr->_projMatrix = currentCamera.getTransposedProjectionMatrix();
-		ressourceDataPtr->_pointSize = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().getGeneralSimulationData()._particleRadius;
+		ressourceDataPtr->_pointSize = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().getSceneSimulationConfig()._particleRadius;
 		ressourceDataPtr->_nearPlaneDist = currentCamera.getNearPlane();
 	}
 

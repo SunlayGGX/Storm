@@ -684,12 +684,31 @@ namespace Storm
 
 			return BestFitParser::parse(std::forward<ValueType>(val));
 		}
-	}
 
+		template<class Policy = Storm::DefaultPolicy, class StringType>
+		auto toStdWString(StringType &&str)
+			-> decltype(std::enable_if_t<std::is_same_v<std::remove_cvref_t<StringType>, std::string>, std::true_type>::value, std::wstring{})
+		{
+			return std::filesystem::path{ std::forward<StringType>(str) }.wstring();
+		}
+
+		template<class Policy = Storm::DefaultPolicy, class ValueType>
+		auto toStdWString(ValueType &&str)
+			-> decltype(std::enable_if_t<!std::is_same_v<std::remove_cvref_t<ValueType>, std::string>, std::true_type>::value, std::wstring{})
+		{
+			return std::filesystem::path{ Storm::details::toStdString<Policy>(std::forward<ValueType>(val)) }.wstring();
+		}
+	}
 
 	template<class Policy = Storm::DefaultPolicy, class ValueType>
 	std::string toStdString(ValueType &&val)
 	{
 		return Storm::details::toStdString<Policy>(std::forward<ValueType>(val));
+	}
+
+	template<class Policy = Storm::DefaultPolicy, class ValueType>
+	std::wstring toStdWString(ValueType &&val)
+	{
+		return Storm::details::toStdWString<Policy>(std::forward<ValueType>(val));
 	}
 }

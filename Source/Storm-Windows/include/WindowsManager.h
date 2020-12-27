@@ -11,7 +11,7 @@ namespace Storm
 	struct WithUI;
 	struct NoUI;
 
-	class WindowsManager :
+	class WindowsManager final :
 		private Storm::Singleton<Storm::WindowsManager>,
 		public Storm::IWindowsManager
 	{
@@ -59,6 +59,9 @@ namespace Storm
 
 	public:
 		void callWindowsResizedCallback(unsigned int newWidth, unsigned int newHeight);
+
+	public:
+		void focus() final override;
 
 	private:
 		void* /*HWND*/ _windowVisuHandle;

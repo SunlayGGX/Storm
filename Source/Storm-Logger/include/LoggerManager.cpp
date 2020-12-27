@@ -7,6 +7,8 @@
 #include "IConfigManager.h"
 #include "IThreadManager.h"
 
+#include "GeneralDebugConfig.h"
+
 #include "ThreadHelper.h"
 #include "ThreadEnumeration.h"
 
@@ -23,9 +25,9 @@ namespace
 		OutputDebugStringA(static_cast<LPCSTR>(msg.c_str()));
 	}
 
-	std::filesystem::path computeXmlLogFilePath(const Storm::IConfigManager* configMgr, const std::string &logFileName, const std::filesystem::path &xmlLogExtension, std::filesystem::path &outFolderPath)
+	std::filesystem::path computeXmlLogFilePath(const Storm::IConfigManager* configMgr, const Storm::GeneralDebugConfig &generalDebugConfig, const std::string &logFileName, const std::filesystem::path &xmlLogExtension, std::filesystem::path &outFolderPath)
 	{
-		const std::string &logFolderPathStr = configMgr->getLogFolderPath();
+		const std::string &logFolderPathStr = generalDebugConfig._logFolderPath;
 		outFolderPath = std::filesystem::path{ logFolderPathStr.empty() ? configMgr->getTemporaryPath() : logFolderPathStr };
 		std::filesystem::create_directories(outFolderPath);
 
@@ -61,13 +63,15 @@ Storm::LoggerManager::~LoggerManager()
 					_currentPID = configMgr->getCurrentPID();
 				}
 
-				const std::string &logFileName = configMgr->getLogFileName();
+				const Storm::GeneralDebugConfig &generalDebugConfig = configMgr->getGeneralDebugConfig();
+
+				const std::string &logFileName = generalDebugConfig._logFileName;
 				if (!logFileName.empty())
 				{
 					const std::filesystem::path xmlLogExtension{ ".xml" };
 
 					std::filesystem::path logFolderPath;
-					const std::filesystem::path xmlLogFilePath = computeXmlLogFilePath(configMgr, logFileName, xmlLogExtension, logFolderPath);
+					const std::filesystem::path xmlLogFilePath = computeXmlLogFilePath(configMgr, generalDebugConfig, logFileName, xmlLogExtension, logFolderPath);
 
 					_xmlLogFilePath = xmlLogFilePath.string();
 				}
@@ -89,20 +93,22 @@ void Storm::LoggerManager::initialize_Implementation()
 	const Storm::IConfigManager* configMgr = Storm::SingletonHolder::instance().getFacet<Storm::IConfigManager>();
 	assert(configMgr != nullptr && "Config Manager should be alive when we initialize the logger!");
 
-	_level = configMgr->getLogLevel();
-	int removeLogOlderThanDay = configMgr->getRemoveLogOlderThanDaysCount();
+	const Storm::GeneralDebugConfig &generalDebugConfig = configMgr->getGeneralDebugConfig();
 
-	const std::string &logFileName = configMgr->getLogFileName();
+	_level = generalDebugConfig._logLevel;
+	int removeLogOlderThanDay = generalDebugConfig._removeLogsOlderThanDays;
+
+	const std::string &logFileName = generalDebugConfig._logFileName;
 	if (!logFileName.empty())
 	{
 		const std::filesystem::path xmlLogExtension{ ".xml" };
 		
 		std::filesystem::path logFolderPath;
-		const std::filesystem::path xmlLogFilePath = computeXmlLogFilePath(configMgr, logFileName, xmlLogExtension, logFolderPath);
+		const std::filesystem::path xmlLogFilePath = computeXmlLogFilePath(configMgr, generalDebugConfig, logFileName, xmlLogExtension, logFolderPath);
 
 		_xmlLogFilePath = xmlLogFilePath.string();
 
-		if (configMgr->getShouldOverrideOldLog())
+		if (generalDebugConfig._overrideLogs)
 		{
 			std::filesystem::remove(xmlLogFilePath);
 		}

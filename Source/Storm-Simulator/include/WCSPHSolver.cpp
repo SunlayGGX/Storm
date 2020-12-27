@@ -4,8 +4,8 @@
 #include "IConfigManager.h"
 #include "SimulatorManager.h"
 
-#include "GeneralSimulationData.h"
-#include "FluidData.h"
+#include "SceneSimulationConfig.h"
+#include "SceneFluidConfig.h"
 
 #include "FluidParticleSystem.h"
 #include "RigidBodyParticleSystem.h"
@@ -22,12 +22,12 @@
 void Storm::WCSPHSolver::execute(const Storm::IterationParameter &iterationParameter)
 {
 	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
-	const Storm::GeneralSimulationData &generalSimulData = configMgr.getGeneralSimulationData();
-	const Storm::FluidData &fluidConfigData = configMgr.getFluidData();
+	const Storm::SceneSimulationConfig &sceneSimulationConfig = configMgr.getSceneSimulationConfig();
+	const Storm::SceneFluidConfig &fluidConfig = configMgr.getSceneFluidConfig();
 
 	Storm::SimulatorManager &simulMgr = Storm::SimulatorManager::instance();
 
-	const float k_kernelZero = Storm::retrieveKernelZeroValue(generalSimulData._kernelMode);
+	const float k_kernelZero = Storm::retrieveKernelZeroValue(sceneSimulationConfig._kernelMode);
 
 	Storm::ParticleSystemContainer &particleSystems = *iterationParameter._particleSystems;
 
@@ -81,7 +81,7 @@ void Storm::WCSPHSolver::execute(const Storm::IterationParameter &iterationParam
 				}
 				else
 				{
-					currentPPressure = fluidConfigData._kPressureStiffnessCoeff * (std::powf(currentPDensity / density0, fluidConfigData._kPressureExponentCoeff) - 1.f);
+					currentPPressure = fluidConfig._kPressureStiffnessCoeff * (std::powf(currentPDensity / density0, fluidConfig._kPressureExponentCoeff) - 1.f);
 				}
 			});
 		}
@@ -153,7 +153,7 @@ void Storm::WCSPHSolver::execute(const Storm::IterationParameter &iterationParam
 						pressureComponent = -(restMassDensity * neighborVolume * (currentPFluidPressureCoeff + neighborPressureCoeff)) * neighbor._gradWij;
 
 						// Viscosity
-						viscosityComponent = (viscoGlobalCoeff * fluidConfigData._cinematicViscosity * neighborMass / neighborRawDensity) * neighbor._gradWij;
+						viscosityComponent = (viscoGlobalCoeff * fluidConfig._cinematicViscosity * neighborMass / neighborRawDensity) * neighbor._gradWij;
 					}
 					else
 					{

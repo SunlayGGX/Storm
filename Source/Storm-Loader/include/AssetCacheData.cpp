@@ -1,6 +1,6 @@
 #include "AssetCacheData.h"
 
-#include "RigidBodySceneData.h"
+#include "SceneRigidBodyConfig.h"
 
 #include "InsideParticleRemovalTechnique.h"
 #include "LayeringGenerationTechnique.h"
@@ -38,7 +38,7 @@ namespace
 	};
 
 	template<bool hasAdditionalLayer, bool isWall>
-	void fillVerticesData(const std::vector<Storm::Vector3> &srcVertices, std::vector<Storm::Vector3> &scaledCurrentVertices, const Storm::RigidBodySceneData &rbConfig, std::vector<std::vector<Storm::Vector3>> &scaledAdditionalLayerPosBuffer, const float layerDistance, const aiQuaterniont<Storm::Vector3::Scalar> &rotationQuat, const aiQuaterniont<Storm::Vector3::Scalar> &rotationQuatConjugate, std::vector<Storm::Vector3> &finalCurrentVertices, std::vector<std::vector<Storm::Vector3>> &finalAdditionalLayerPosBuffer, Storm::Vector3 &finalBoundingBoxMin, Storm::Vector3 &finalBoundingBoxMax, const unsigned int additionalLayerCount)
+	void fillVerticesData(const std::vector<Storm::Vector3> &srcVertices, std::vector<Storm::Vector3> &scaledCurrentVertices, const Storm::SceneRigidBodyConfig &rbConfig, std::vector<std::vector<Storm::Vector3>> &scaledAdditionalLayerPosBuffer, const float layerDistance, const aiQuaterniont<Storm::Vector3::Scalar> &rotationQuat, const aiQuaterniont<Storm::Vector3::Scalar> &rotationQuatConjugate, std::vector<Storm::Vector3> &finalCurrentVertices, std::vector<std::vector<Storm::Vector3>> &finalAdditionalLayerPosBuffer, Storm::Vector3 &finalBoundingBoxMin, Storm::Vector3 &finalBoundingBoxMax, const unsigned int additionalLayerCount)
 	{
 		for (const Storm::Vector3 &vertex : srcVertices)
 		{
@@ -121,7 +121,7 @@ namespace
 	}
 
 	template<bool shouldHaveNormals, bool isWall>
-	void generateDissociatedTriangleLayersImpl(const Storm::RigidBodySceneData &rbConfig, Storm::AssetCacheData::MeshData &scaledCurrent, Storm::AssetCacheData::MeshData &finalCurrent, const std::vector<uint32_t> &indicesRef, std::vector<uint32_t> &outOverridenIndices, Storm::Vector3 &finalBoundingBoxMin, Storm::Vector3 &finalBoundingBoxMax, const float layerDistance)
+	void generateDissociatedTriangleLayersImpl(const Storm::SceneRigidBodyConfig &rbConfig, Storm::AssetCacheData::MeshData &scaledCurrent, Storm::AssetCacheData::MeshData &finalCurrent, const std::vector<uint32_t> &indicesRef, std::vector<uint32_t> &outOverridenIndices, Storm::Vector3 &finalBoundingBoxMin, Storm::Vector3 &finalBoundingBoxMax, const float layerDistance)
 	{
 		const unsigned int additionalLayersCount = additionalLayer(rbConfig._layerCount);
 		const std::size_t verticesCount = finalCurrent._vertices.size();
@@ -219,7 +219,7 @@ namespace
 }
 
 
-Storm::AssetCacheData::AssetCacheData(const Storm::RigidBodySceneData &rbConfig, const aiScene* meshScene, const float layerDistance) :
+Storm::AssetCacheData::AssetCacheData(const Storm::SceneRigidBodyConfig &rbConfig, const aiScene* meshScene, const float layerDistance) :
 	_rbConfig{ rbConfig },
 	_src{ std::make_shared<Storm::AssetCacheData::MeshData>() },
 	_indices{ std::make_shared<std::vector<uint32_t>>() },
@@ -230,7 +230,7 @@ Storm::AssetCacheData::AssetCacheData(const Storm::RigidBodySceneData &rbConfig,
 	this->generateCurrentData(layerDistance);
 }
 
-Storm::AssetCacheData::AssetCacheData(const Storm::RigidBodySceneData &rbConfig, const Storm::AssetCacheData &srcCachedData, const float layerDistance) :
+Storm::AssetCacheData::AssetCacheData(const Storm::SceneRigidBodyConfig &rbConfig, const Storm::AssetCacheData &srcCachedData, const float layerDistance) :
 	_rbConfig{ rbConfig },
 	_src{ srcCachedData._src },
 	_indices{ srcCachedData._indices },
@@ -240,7 +240,7 @@ Storm::AssetCacheData::AssetCacheData(const Storm::RigidBodySceneData &rbConfig,
 	this->generateCurrentData(layerDistance);
 }
 
-bool Storm::AssetCacheData::isEquivalentWith(const Storm::RigidBodySceneData &rbConfig, bool considerFinal) const
+bool Storm::AssetCacheData::isEquivalentWith(const Storm::SceneRigidBodyConfig &rbConfig, bool considerFinal) const
 {
 	return
 		_rbConfig._meshFilePath == rbConfig._meshFilePath &&
@@ -372,7 +372,7 @@ const std::vector<uint32_t>& Storm::AssetCacheData::getIndices() const noexcept
 	return _overrideIndices.empty() ? *_indices : _overrideIndices;
 }
 
-const Storm::RigidBodySceneData& Storm::AssetCacheData::getAssociatedRbConfig() const noexcept
+const Storm::SceneRigidBodyConfig& Storm::AssetCacheData::getAssociatedRbConfig() const noexcept
 {
 	return _rbConfig;
 }

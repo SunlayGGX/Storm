@@ -7,7 +7,7 @@
 
 namespace Storm
 {
-	class ShaderManager :
+	class ShaderManager final :
 		private Storm::Singleton<ShaderManager>,
 		public Storm::IShaderManager
 	{

@@ -7,7 +7,7 @@ namespace Storm
 {
 	class VoxelGrid;
 
-	class SpacePartitionerManager :
+	class SpacePartitionerManager final :
 		private Storm::Singleton<SpacePartitionerManager>,
 		public Storm::ISpacePartitionerManager
 	{

@@ -28,6 +28,8 @@ namespace Storm
 		virtual unsigned short bindWindowsResizedCallback(Storm::WindowsResizedDelegate &&callback) = 0;
 		virtual void unbindWindowsResizedCallback(unsigned short callbackId) = 0;
 
+		virtual void focus() = 0;
+
 	public:
 		virtual void update() = 0;
 	};

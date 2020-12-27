@@ -15,11 +15,13 @@
 
 #include "SpecialKey.h"
 
-#include "GeneralSimulationData.h"
+#include "SceneSimulationConfig.h"
+#include "GeneralDebugConfig.h"
 
 #include "UIField.h"
 
 #include "LeanWindowsInclude.h"
+
 #include <timeapi.h>
 
 #define STORM_ELAPSED_TIME_FIELD_NAME "elapsed time"
@@ -76,21 +78,21 @@ void Storm::TimeManager::initialize_Implementation()
 	std::lock_guard<std::mutex> lock{ _mutex };
 	_isRunning = true;
 
-	const Storm::GeneralSimulationData &generalSimulationData = configMgr.getGeneralSimulationData();
-	if (generalSimulationData._physicsTimeInSec > 0.f)
+	const Storm::SceneSimulationConfig &sceneSimulationConfig = configMgr.getSceneSimulationConfig();
+	if (sceneSimulationConfig._physicsTimeInSec > 0.f)
 	{
-		this->_physicsTimeInSeconds = generalSimulationData._physicsTimeInSec;
+		this->_physicsTimeInSeconds = sceneSimulationConfig._physicsTimeInSec;
 	}
 
-	_isPaused = generalSimulationData._startPaused;
+	_isPaused = sceneSimulationConfig._startPaused;
 
-	const float requestedFps = generalSimulationData._expectedFps;
+	const float requestedFps = sceneSimulationConfig._expectedFps;
 	if (requestedFps > 0.f)
 	{
 		this->setExpectedFrameFPS(requestedFps);
 	}
 
-	_shouldLogFPSWatching = configMgr.getShouldLogFpsWatching();
+	_shouldLogFPSWatching = configMgr.getGeneralDebugConfig()._shouldLogFPSWatching;
 
 	_fields
 		.bindField(STORM_ELAPSED_TIME_FIELD_NAME, _physicsElapsedTimeInSeconds)

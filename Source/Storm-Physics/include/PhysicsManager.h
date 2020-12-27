@@ -14,7 +14,7 @@ namespace Storm
 	
 	class PhysicsConstraint;
 
-	class PhysicsManager :
+	class PhysicsManager final :
 		private Storm::Singleton<PhysicsManager>,
 		public Storm::IPhysicsManager
 	{
@@ -29,15 +29,15 @@ namespace Storm
 		void update(float deltaTime) final override;
 
 	public:
-		void addPhysicalBody(const Storm::RigidBodySceneData &rbSceneData, const std::vector<Storm::Vector3> &vertexes, const std::vector<uint32_t> &indexes) final override;
+		void addPhysicalBody(const Storm::SceneRigidBodyConfig &rbSceneConfig, const std::vector<Storm::Vector3> &vertexes, const std::vector<uint32_t> &indexes) final override;
 		void bindParentRbToPhysicalBody(const bool isStatic, const unsigned int rbId, const std::shared_ptr<Storm::IRigidBody> &parentRb) const final override;
-		void bindParentRbToPhysicalBody(const Storm::RigidBodySceneData &rbSceneData, const std::shared_ptr<Storm::IRigidBody> &parentRb) const final override;
+		void bindParentRbToPhysicalBody(const Storm::SceneRigidBodyConfig &rbSceneConfig, const std::shared_ptr<Storm::IRigidBody> &parentRb) const final override;
 		void getMeshTransform(unsigned int meshId, Storm::Vector3 &outTrans, Storm::Vector3 &outRot) const final override;
 		void getMeshTransform(unsigned int meshId, Storm::Vector3 &outTrans, Storm::Quaternion &outQuatRot) const final override;
 		void applyLocalForces(unsigned int particleSystemId, const std::vector<Storm::Vector3> &position, const std::vector<Storm::Vector3> &force) final override;
 
-		void addConstraint(const Storm::ConstraintData &constraintData) final override;
-		void loadConstraints(const std::vector<Storm::ConstraintData> &constraintsToLoad) final override;
+		void addConstraint(const Storm::SceneConstraintConfig &constraintConfig) final override;
+		void loadConstraints(const std::vector<Storm::SceneConstraintConfig> &constraintsToLoad) final override;
 
 		void loadRecordedConstraint(const Storm::SerializeConstraintLayout &constraintsRecordLayout) final override;
 
