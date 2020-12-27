@@ -209,7 +209,8 @@ Note that the maximum value you can set is Fatal, it means that no matter what l
   + **"All"**: This is the verbose setting. Enable it only if you want to troubleshoot "..." issues (along with a lot of other irrelevant ones)
 
 
-#### Misc (facultative)
+#### Web (facultative)
+- **browser (string, facultative)**: Specify the browser to use when opening an url. Default is no browser. Note that if there is no browser set, then opening an url won't work and an error will be issued instead.
 - **urlIncognito (boolean, facultative)**: Specify we want to open a new browser window in incognito mode when we'll browse through an url. Default is false.
 
 

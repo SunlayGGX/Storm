@@ -5,6 +5,7 @@
 #include "XmlReader.h"
 
 #include "VectoredExceptionDisplayMode.h"
+#include "PreferredBrowser.h"
 
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
@@ -53,6 +54,36 @@ namespace
 			Storm::throwException<Storm::StormException>("Unknown vectored exception display mode requested : " + valueStr);
 		}
 	}
+
+	Storm::PreferredBrowser parsePreferredBrowser(std::string valueStr)
+	{
+		if (valueStr.empty())
+		{
+			return Storm::PreferredBrowser::None;
+		}
+
+		boost::to_lower(valueStr);
+		if (valueStr == "chrome")
+		{
+			return Storm::PreferredBrowser::Firefox;
+		}
+		else if (valueStr == "firefox")
+		{
+			return Storm::PreferredBrowser::Chrome;
+		}
+		else if (valueStr == "edge")
+		{
+			return Storm::PreferredBrowser::Edge;
+		}
+		else if (valueStr == "internetexplorer")
+		{
+			return Storm::PreferredBrowser::InternetExplorer;
+		}
+		else
+		{
+			Storm::throwException<Storm::StormException>("Unknown or unhandled internet browser : " + valueStr);
+		}
+	}
 }
 
 
@@ -74,7 +105,8 @@ Storm::GeneralConfig::GeneralConfig() :
 	_selectedParticleShouldBeTopMost{ false },
 	_selectedParticleForceShouldBeTopMost{ true },
 	_displayVectoredExceptions{ Storm::VectoredExceptionDisplayMode::DisplayFatal },
-	_urlOpenIncognito{ false }
+	_urlOpenIncognito{ false },
+	_preferredBrowser{ Storm::PreferredBrowser::None }
 {
 
 }
@@ -158,18 +190,19 @@ bool Storm::GeneralConfig::read(const std::string &generalConfigFilePathStr)
 				}
 			}
 
-			/* Misc */
-			const auto &miscTreeOpt = generalTree.get_child_optional("Misc");
-			if (miscTreeOpt.has_value())
+			/* Web */
+			const auto &webTreeOpt = generalTree.get_child_optional("Web");
+			if (webTreeOpt.has_value())
 			{
-				const auto &miscTree = miscTreeOpt.value();
-				for (const auto &miscXmlElement : miscTree)
+				const auto &webTree = webTreeOpt.value();
+				for (const auto &webXmlElement : webTree)
 				{
 					if (
-						!Storm::XmlReader::handleXml(miscXmlElement, "urlIncognito", _urlOpenIncognito)
+						!Storm::XmlReader::handleXml(webXmlElement, "urlIncognito", _urlOpenIncognito) &&
+						!Storm::XmlReader::handleXml(webXmlElement, "browser", _preferredBrowser, parsePreferredBrowser)
 						)
 					{
-						LOG_ERROR << miscXmlElement.first << " (inside General.Misc) is unknown, therefore it cannot be handled";
+						LOG_ERROR << webXmlElement.first << " (inside General.Web) is unknown, therefore it cannot be handled";
 					}
 				}
 			}

@@ -5,6 +5,7 @@ namespace Storm
 {
 	class MacroConfig;
 	enum class VectoredExceptionDisplayMode;
+	enum class PreferredBrowser;
 
 	class GeneralConfig
 	{
@@ -40,8 +41,9 @@ namespace Storm
 		bool _selectedParticleShouldBeTopMost;
 		bool _selectedParticleForceShouldBeTopMost;
 
-		// Misc
+		// Web
 		bool _urlOpenIncognito;
+		Storm::PreferredBrowser _preferredBrowser;
 
 		// Profile
 		bool _profileSimulationSpeed;

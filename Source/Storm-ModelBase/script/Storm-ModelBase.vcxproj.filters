@@ -410,5 +410,8 @@
     <ClInclude Include="..\include\IWebManager.h">
       <Filter>Header Files\Singleton</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\PreferredBrowser.h">
+      <Filter>Header Files\Modules\Network\Web</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
