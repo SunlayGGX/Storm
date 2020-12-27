@@ -221,7 +221,7 @@ bool Storm::GeneralConfigHolder::read(const std::string &generalConfigFilePathSt
 				for (const auto &webXmlElement : webTree)
 				{
 					if (
-						!Storm::XmlReader::handleXml(webXmlElement, "urlIncognito", generalWebConfig._urlOpenIncognito) &&
+						!Storm::XmlReader::handleXml(webXmlElement, "incognito", generalWebConfig._urlOpenIncognito) &&
 						!Storm::XmlReader::handleXml(webXmlElement, "browser", generalWebConfig._preferredBrowser, parsePreferredBrowser)
 						)
 					{

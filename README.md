@@ -216,8 +216,8 @@ Note that the maximum value you can set is Fatal, it means that no matter what l
 
 
 #### Web (facultative)
-- **browser (string, facultative)**: Specify the browser to use when opening an url. Default is no browser. Note that if there is no browser set, then opening an url won't work and an error will be issued instead.
-- **urlIncognito (boolean, facultative)**: Specify we want to open a new browser window in incognito mode when we'll browse through an url. Default is false.
+- **browser (string, facultative)**: Specify the browser to use when opening an url. This is not case sensitive. Accepted values are "Chrome", "Firefox", "Edge", "InternetExplorer" or you can leave the field empty. Default is no browser. Note that if there is no browser set, then opening an url won't work and an error will be issued instead.
+- **incognito (boolean, facultative)**: Specify we want to open a new browser window in incognito mode when we'll browse through an url. Default is false.
 
 
 #### Graphics (facultative)
@@ -233,6 +233,7 @@ Note that the maximum value you can set is Fatal, it means that no matter what l
 
 #### Simulation (faculative)
 - **allowNoFluid (boolean, facultative)**: If true, we will allow the scene config file to not have any fluid (useful for testing rigid body features without minding particles while developping). Default is false.
+
 
 
 ### Scene Config
