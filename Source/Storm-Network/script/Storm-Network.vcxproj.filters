@@ -19,6 +19,12 @@
     <Filter Include="Source Files\Web">
       <UniqueIdentifier>{df7f14a7-61a9-4b2b-9c85-cec475bee3f0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Network">
+      <UniqueIdentifier>{0840e71d-9b97-4957-9cef-bae688955fd2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Network">
+      <UniqueIdentifier>{90e2e401-36cc-443b-98e3-2e6d2ab5466e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-NetworkPCH.cpp">
@@ -27,6 +33,9 @@
     <ClCompile Include="..\include\WebManager.cpp">
       <Filter>Source Files\Web</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\NetworkManager.cpp">
+      <Filter>Source Files\Network</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-NetworkPCH.h">
@@ -34,6 +43,9 @@
     </ClInclude>
     <ClInclude Include="..\include\WebManager.h">
       <Filter>Header Files\Web</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\NetworkManager.h">
+      <Filter>Header Files\Network</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
