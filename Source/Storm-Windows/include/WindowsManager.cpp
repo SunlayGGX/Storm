@@ -6,6 +6,7 @@
 #include "ITimeManager.h"
 #include "IInputManager.h"
 #include "IThreadManager.h"
+#include "ISimulatorManager.h"
 #include "IConfigManager.h"
 
 #include "GeneralGraphicConfig.h"
@@ -47,6 +48,10 @@ namespace
 			case IDCLOSE:
 			case ID_FILE_QUIT:
 				Storm::WindowsManager::instance().callQuitCallback();
+				break;
+
+			case ID_FILE_SAVE:
+				Storm::SingletonHolder::instance().getSingleton<Storm::ISimulatorManager>().saveSimulationState();
 				break;
 
 			case ID_TOOLS_STORM: // In fact it is the logviewer.

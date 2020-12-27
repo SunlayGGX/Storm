@@ -1581,32 +1581,35 @@ void Storm::SimulatorManager::resetReplay_SimulationThread()
 void Storm::SimulatorManager::saveSimulationState() const
 {
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
-	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
-	const Storm::ITimeManager &timeMgr = singletonHolder.getSingleton<Storm::ITimeManager>();
-
-	Storm::StateSavingOrders order;
-
-	// Settings
-	order._settings._filePath = configMgr.getTemporaryPath();
-	order._settings._filePath /= "States";
-	order._settings._filePath /= configMgr.getSceneName();
-	order._settings._filePath /= "state_" + std::to_string(timeMgr.getCurrentPhysicsElapsedTime()) + ".stState";
-
-	order._settings._overwrite = false;
-	order._settings._autoPathIfNoOwerwrite = true;
-
-	// Pre-saving step
-	bool isReplayMode = configMgr.isInReplayMode();
-	for (auto &pSystemPair : _particleSystem)
+	singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::MainThread, [this, &singletonHolder]()
 	{
-		pSystemPair.second->prepareSaving(isReplayMode);
-	}
+		const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
+		const Storm::ITimeManager &timeMgr = singletonHolder.getSingleton<Storm::ITimeManager>();
 
-	// State update
-	Storm::StateSaverHelper::saveIntoState(*order._simulationState, _particleSystem);
+		Storm::StateSavingOrders order;
 
-	Storm::ISerializerManager &serializerMgr = singletonHolder.getSingleton<Storm::ISerializerManager>();
-	serializerMgr.saveState(std::move(order));
+		// Settings
+		order._settings._filePath = configMgr.getTemporaryPath();
+		order._settings._filePath /= "States";
+		order._settings._filePath /= configMgr.getSceneName();
+		order._settings._filePath /= "state_" + std::to_string(timeMgr.getCurrentPhysicsElapsedTime()) + ".stState";
+
+		order._settings._overwrite = false;
+		order._settings._autoPathIfNoOwerwrite = true;
+
+		// Pre-saving step
+		bool isReplayMode = configMgr.isInReplayMode();
+		for (auto &pSystemPair : _particleSystem)
+		{
+			pSystemPair.second->prepareSaving(isReplayMode);
+		}
+
+		// State update
+		Storm::StateSaverHelper::saveIntoState(*order._simulationState, _particleSystem);
+
+		Storm::ISerializerManager &serializerMgr = singletonHolder.getSingleton<Storm::ISerializerManager>();
+		serializerMgr.saveState(std::move(order));
+	});
 }
 
 void Storm::SimulatorManager::refreshParticlePartition(bool ignoreStatics /*= true*/) const
