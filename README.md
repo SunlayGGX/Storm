@@ -190,7 +190,9 @@ Unless explicited, the following settings doesn't support Macros (see section Ma
 
 Here the architecture of the config file (each section are a tag in xml where the subsection should be put into)
 
-#### Log (facultative)
+#### Debug (facultative)
+
+##### - Log (facultative)
 - **logFolderPath (string, facultative, accept macro)** : The folder where to gather the log files. The default is the temporary path (StormTmp macro). If it is empty, default is considered.
 - **logFileName (string, facultative, accept macro)** : The log file name of the current run. The default is empty. If it is empty, we won't log into a file (but the log will still be outputed to the console). Be aware to give unique name using the $[PID] macro or unexpected logging behavior could occurs because the file could be written by many processes at the same time (if you decides to start multiple Storm processes).
 - **logLevel (string, facultative)** : The threshold level under which we ignore the log. Accepted values are in that inmportance order : Debug, DebugWarning, DebugError, Comment, Warning, Error, Fatal.
@@ -202,11 +204,15 @@ Note that the maximum value you can set is Fatal, it means that no matter what l
 - **logPhysics (boolean, facultative)** : If we should print the physics messages. Warning : there is a lot ! Default is "false" but enable it only if it is necessary.
 
 
-#### Debug (facultative)
+##### - Exception (facultative)
 - **displayVectoredException (string, facultative)**: Specify how we should hook vectored exception happenning (could catch SE exception as well and non std exception catched at the end (the ...) and provide better information like the stack trace where the issue happened). Accepted values (non case sensitive) are "None", "FatalOnly" and "All". Default is FatalOnly. 
   + **"None"**: We won't hook any vectored exception handler. This is better performance wise, but you'll risk not knowing what happenend if you have silent or hard to track crashes.
   + **"FatalOnly"**: Display fatal errors information such as what is the fatal code and the stack trace. Note that fatal doesn't mean unhandled exception or "..." exceptions, but more like hardware or OS related killer exceptions that we cannot/shouldn't/mustn't recover from.
   + **"All"**: This is the verbose setting. Enable it only if you want to troubleshoot "..." issues (along with a lot of other irrelevant ones)
+
+
+##### - Profile (faculative)
+- **profileSimulationSpeed (boolean, faculative)** : Specify that we should enable Simulation speed profile. Default is false.
 
 
 #### Web (facultative)
@@ -223,10 +229,6 @@ Note that the maximum value you can set is Fatal, it means that no matter what l
 - **nearFarPlaneFixed (boolean, faculative)**: Specify if the normal behavior of the near and far plane should be to NOT translate along the camera moves. Default is true.
 - **selectedParticleAlwaysOnTop (boolean, faculative)**: Specify if the selected particle should be displayed on top of all particles (on the near plane). Default is false.
 - **selectedParticleForceAlwaysOnTop (boolean, faculative)**: Specify if the selected particle force should be displayed on top of all particles (on the near plane). Default is true.
-
-
-#### Profile (faculative)
-- **profileSimulationSpeed (boolean, faculative)** : Specify that we should enable Simulation speed profile. Default is false.
 
 
 #### Simulation (faculative)
