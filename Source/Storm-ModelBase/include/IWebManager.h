@@ -11,5 +11,6 @@ namespace Storm
 		virtual ~IWebManager() = default;
 
 	public:
+		virtual std::size_t openURL(const std::string_view &url) = 0;
 	};
 }

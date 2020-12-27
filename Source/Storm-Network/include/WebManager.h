@@ -15,6 +15,6 @@ namespace Storm
 		STORM_DECLARE_SINGLETON(WebManager);
 
 	public:
-
+		std::size_t openURL(const std::string_view &url) final override;
 	};
 }
