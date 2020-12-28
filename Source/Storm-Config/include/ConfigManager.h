@@ -57,6 +57,7 @@ namespace Storm
 		unsigned int getCurrentPID() const final override;
 		const std::string& getSceneConfigFilePath() const final override;
 		const std::string& getScriptFilePath() const final override;
+		const std::string& getRestartCommandline() const final override;
 
 	private:
 		// Members that could be extracted from Command line.
@@ -81,6 +82,8 @@ namespace Storm
 		// Computed
 		std::string _sceneFileName;
 		unsigned int _currentPID;
+
+		std::string _commandLineForRestart;
 
 		// Configs
 		Storm::MacroConfig _macroConfig;

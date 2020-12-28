@@ -14,7 +14,10 @@
 
 #include "RecordMode.h"
 
+#include "OSHelper.h"
+
 #include <boost/algorithm/string.hpp>
+
 
 
 Storm::ConfigManager::ConfigManager() :
@@ -38,6 +41,9 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 	{
 		_exePath = argv[0];
 		const std::filesystem::path exePath{ _exePath };
+
+		_commandLineForRestart = "--stormPath=";
+		_commandLineForRestart += Storm::OSHelper::getRawQuotedCommandline();
 
 		Storm::IOSManager &iosMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IOSManager>();
 		_currentPID = iosMgr.obtainCurrentPID();
@@ -147,6 +153,11 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 			};
 
 			_sceneConfigFilePath = Storm::toStdString(iosMgr.openFileExplorerDialog(_defaultSceneConfigFolderPath, fileFilters));
+
+			_commandLineForRestart += parser.getSceneFilePathTag();
+			_commandLineForRestart += "=\"";
+			_commandLineForRestart += _sceneConfigFilePath;
+			_commandLineForRestart += '"';
 		}
 
 		std::string errorMsg;
@@ -486,4 +497,9 @@ const std::string& Storm::ConfigManager::getSceneConfigFilePath() const
 const std::string& Storm::ConfigManager::getScriptFilePath() const
 {
 	return this->getSceneScriptConfig()._scriptFilePipe._filePath;
+}
+
+const std::string& Storm::ConfigManager::getRestartCommandline() const
+{
+	return _commandLineForRestart;
 }
