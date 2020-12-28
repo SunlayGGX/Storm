@@ -59,6 +59,9 @@ namespace Storm
 		const std::string& getScriptFilePath() const final override;
 		const std::string& getRestartCommandline() const final override;
 
+		void getUnsafeMacroizedConvertedValue(std::string &inOutValue) const final override;
+		void getMacroizedConvertedValue(std::string &inOutValue) const final override;
+
 	private:
 		// Members that could be extracted from Command line.
 		std::string _sceneConfigFilePath;

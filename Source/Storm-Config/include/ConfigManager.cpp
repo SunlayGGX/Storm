@@ -503,3 +503,21 @@ const std::string& Storm::ConfigManager::getRestartCommandline() const
 {
 	return _commandLineForRestart;
 }
+
+void Storm::ConfigManager::getUnsafeMacroizedConvertedValue(std::string &inOutValue) const
+{
+	_macroConfig(inOutValue);
+}
+
+void Storm::ConfigManager::getMacroizedConvertedValue(std::string &inOutValue) const
+{
+	std::size_t firstTagPosHint;
+	if (_macroConfig.hasKnownMacro(inOutValue, firstTagPosHint))
+	{
+		_macroConfig(inOutValue, firstTagPosHint);
+	}
+	else
+	{
+		Storm::throwException<Storm::StormException>("'" + inOutValue + "' has no known macros embedded into it!");
+	}
+}

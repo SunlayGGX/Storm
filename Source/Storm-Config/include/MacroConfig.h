@@ -32,8 +32,13 @@ namespace Storm
 		std::string produceAllMacroLog() const;
 
 	public:
+		bool hasKnownMacro(const std::string &inOutStr, std::size_t &outPosFound) const;
+
+	public:
 		void operator()(std::string &inOutStr) const;
 		std::string operator()(const std::string &inStr) const;
+
+		void operator()(std::string &inOutStr, const std::size_t beginSearchPos) const;
 
 	private:
 		std::map<MacroKey, MacroValue> _macros;

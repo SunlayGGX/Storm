@@ -235,23 +235,50 @@ std::string Storm::MacroConfig::produceAllMacroLog() const
 	return Storm::toStdString<MacroLogParserPolicy>(_macros);
 }
 
+bool Storm::MacroConfig::hasKnownMacro(const std::string &inOutStr, std::size_t &outPosFound) const
+{
+	auto macroTagFound = inOutStr.find(static_cast<char>(k_macroTag));
+	if (macroTagFound == std::string::npos)
+	{
+		return false;
+	}
+
+	for (const auto &macro : _macros)
+	{
+		if (outPosFound = inOutStr.find(macro.first, macroTagFound); outPosFound != std::string::npos)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
 void Storm::MacroConfig::operator()(std::string &inOutStr) const
 {
 	_lastHasResolved = false;
 
 	// If we suspect inOutStr to have a macro embedded in the string, then we would not enter the if and compute everything, otherwise we can just skip everything...
-	if (inOutStr.find(static_cast<char>(k_macroTag)) == std::string::npos)
+	std::string::size_type firstMacroTagFound = inOutStr.find(static_cast<char>(k_macroTag));
+	if (firstMacroTagFound == std::string::npos)
 	{
 		return;
 	}
 
+	this->operator ()(inOutStr, firstMacroTagFound);
+}
+
+void Storm::MacroConfig::operator()(std::string &inOutStr, const std::size_t beginSearchPos) const
+{
+	// In fact, this allows recursion because macro recursiveness was solved when they were registered.
+	// Therefore no macro contains any other macros when we come here (outside of the macro registration). So we don't need to recurse here.
 	for (const auto &macro : _macros)
 	{
 		std::size_t found;
 
-		do 
+		do
 		{
-			if (found = inOutStr.find(macro.first); found != std::string::npos)
+			if (found = inOutStr.find(macro.first, beginSearchPos); found != std::string::npos)
 			{
 				_lastHasResolved = true;
 

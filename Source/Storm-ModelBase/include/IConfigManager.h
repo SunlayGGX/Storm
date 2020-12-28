@@ -66,5 +66,8 @@ namespace Storm
 		virtual const std::string& getSceneConfigFilePath() const = 0;
 		virtual const std::string& getScriptFilePath() const = 0;
 		virtual const std::string& getRestartCommandline() const = 0;
+
+		virtual void getUnsafeMacroizedConvertedValue(std::string &inOutValue) const = 0;
+		virtual void getMacroizedConvertedValue(std::string &inOutValue) const = 0;
 	};
 }
