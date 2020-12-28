@@ -1,5 +1,6 @@
 <Package>
 	<copy>bin/Release/Storm.exe</copy>
+	<copy>bin/Release/Storm-Restarter.exe</copy>
 	<copy>bin/Release/Storm-LogViewer.exe</copy>
 	<copy>bin/Release/Storm-LogViewer.exe.config</copy>
 	<copy>bin/Release/OIS.dll</copy>

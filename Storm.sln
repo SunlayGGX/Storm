@@ -102,6 +102,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Packaging", "Packaging", "{
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Storm-Network", "Source\Storm-Network\script\Storm-Network.vcxproj", "{4BBDF672-34C4-4F52-9985-4140CFEC9BE8}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Storm-Restarter", "Source\Storm-Restarter\script\Storm-Restarter.vcxproj", "{ABD75873-B8E9-4F0D-A2B7-275BEDB9E1BD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -196,6 +198,10 @@ Global
 		{4BBDF672-34C4-4F52-9985-4140CFEC9BE8}.Debug|x64.Build.0 = Debug|x64
 		{4BBDF672-34C4-4F52-9985-4140CFEC9BE8}.Release|x64.ActiveCfg = Release|x64
 		{4BBDF672-34C4-4F52-9985-4140CFEC9BE8}.Release|x64.Build.0 = Release|x64
+		{ABD75873-B8E9-4F0D-A2B7-275BEDB9E1BD}.Debug|x64.ActiveCfg = Debug|x64
+		{ABD75873-B8E9-4F0D-A2B7-275BEDB9E1BD}.Debug|x64.Build.0 = Debug|x64
+		{ABD75873-B8E9-4F0D-A2B7-275BEDB9E1BD}.Release|x64.ActiveCfg = Release|x64
+		{ABD75873-B8E9-4F0D-A2B7-275BEDB9E1BD}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -233,6 +239,7 @@ Global
 		{1C2891EB-43B4-4E2C-8517-59E80A43C3B7} = {016E636E-C35D-49AD-8501-5C52B310B0E8}
 		{C7CAFCCE-4275-4471-AD07-90DCE12EE6BC} = {6F826875-D03B-4CA8-90B4-C83DECE63800}
 		{4BBDF672-34C4-4F52-9985-4140CFEC9BE8} = {71FDD4FA-5CB7-4461-A3FD-A8818CF6C865}
+		{ABD75873-B8E9-4F0D-A2B7-275BEDB9E1BD} = {F79A0D9C-2055-4FD3-89F6-A901CD582DBD}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {AC48B795-9776-4952-84E0-CE8AB938B72B}
