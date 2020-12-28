@@ -167,3 +167,18 @@ bool Storm::StormProcessOpener::openStormRestarter(const OpenParameter &param, s
 		._isCmd = true
 	});
 }
+
+bool Storm::StormProcessOpener::openStormRootExplorer(const OpenParameter &param, std::size_t &outProcessUID)
+{
+	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
+
+	std::string openCommand = "Explorer.exe \"$[StormRoot]\"";
+	configMgr.getMacroizedConvertedValue(openCommand);
+
+	return tryOpenProcess(param, outProcessUID, defaultOpenProcess, Storm::StormProcessStartup{
+		._commandLine = std::move(openCommand),
+		._bindIO = false,
+		._shareLife = false,
+		._isCmd = true
+	});
+}

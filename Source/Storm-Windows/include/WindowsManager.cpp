@@ -76,8 +76,14 @@ namespace
 				}, outProcessUID);
 				break;
 				
-			case ID_HELP_GITHUB:
+			case ID_LINK_GITHUB:
 				Storm::StormProcessOpener::openStormGithubLink(Storm::StormProcessOpener::OpenParameter{
+					._failureQuit = false
+				}, outProcessUID);
+				break;
+
+			case ID_LINK_APPLICATIONROOT:
+				Storm::StormProcessOpener::openStormRootExplorer(Storm::StormProcessOpener::OpenParameter{
 					._failureQuit = false
 				}, outProcessUID);
 				break;
@@ -85,7 +91,7 @@ namespace
 			case ID_FILE_RESTART:
 				if (Storm::StormProcessOpener::openStormRestarter(Storm::StormProcessOpener::OpenParameter{
 					._failureQuit = false
-					}, outProcessUID))
+				}, outProcessUID))
 				{
 					Storm::WindowsManager::instance().callQuitCallback();
 				}
