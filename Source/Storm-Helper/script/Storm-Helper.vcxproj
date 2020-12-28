@@ -15,6 +15,7 @@
     <ClCompile Include="..\include\DebuggerHelper.cpp" />
     <ClCompile Include="..\include\Logging.cpp" />
     <ClCompile Include="..\include\LogHelper.cpp" />
+    <ClCompile Include="..\include\OSHelper.cpp" />
     <ClCompile Include="..\include\SerializePackage.cpp" />
     <ClCompile Include="..\include\SingletonHolder.cpp" />
     <ClCompile Include="..\include\Storm-HelperPCH.cpp">
@@ -47,6 +48,7 @@
     <ClInclude Include="..\include\MemoryHelper.h" />
     <ClInclude Include="..\include\MultiCallback.h" />
     <ClInclude Include="..\include\NonInstanciable.h" />
+    <ClInclude Include="..\include\OSHelper.h" />
     <ClInclude Include="..\include\RAII.h" />
     <ClInclude Include="..\include\RunnerHelper.h" />
     <ClInclude Include="..\include\SearchAlgo.h" />

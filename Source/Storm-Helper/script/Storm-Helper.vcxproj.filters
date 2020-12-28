@@ -129,6 +129,9 @@
     <ClCompile Include="..\include\StormPathHelper.cpp">
       <Filter>Source Files\Application</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\OSHelper.cpp">
+      <Filter>Source Files\OS</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-HelperPCH.h">
@@ -295,6 +298,9 @@
     </ClInclude>
     <ClInclude Include="..\include\RAII.h">
       <Filter>Header Files\General\Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\OSHelper.h">
+      <Filter>Header Files\OS</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
