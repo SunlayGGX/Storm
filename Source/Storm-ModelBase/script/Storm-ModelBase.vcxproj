@@ -32,6 +32,7 @@
     <ClInclude Include="..\include\GeneralDebugConfig.h" />
     <ClInclude Include="..\include\GeneralGraphicConfig.h" />
     <ClInclude Include="..\include\GeneralSimulationConfig.h" />
+    <ClInclude Include="..\include\GeneralApplicationConfig.h" />
     <ClInclude Include="..\include\INetworkManager.h" />
     <ClInclude Include="..\include\SceneBlowerConfig.h" />
     <ClInclude Include="..\include\BlowerDef.h" />

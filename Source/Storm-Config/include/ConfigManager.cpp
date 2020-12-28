@@ -408,6 +408,11 @@ const Storm::GeneralDebugConfig& Storm::ConfigManager::getGeneralDebugConfig() c
 	return _generalConfigHolder.getConfig()._generalDebugConfig;
 }
 
+const Storm::GeneralApplicationConfig& Storm::ConfigManager::getGeneralApplicationConfig() const
+{
+	return _generalConfigHolder.getConfig()._generalApplicationConfig;
+}
+
 const Storm::SceneGraphicConfig& Storm::ConfigManager::getSceneGraphicConfig() const
 {
 	return _sceneConfigHolder.getConfig()._graphicConfig;

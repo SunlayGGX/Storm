@@ -4,6 +4,7 @@
 #include "GeneralSimulationConfig.h"
 #include "GeneralWebConfig.h"
 #include "GeneralDebugConfig.h"
+#include "GeneralApplicationConfig.h"
 
 #include "PreferredBrowser.h"
 #include "VectoredExceptionDisplayMode.h"
@@ -40,3 +41,8 @@ Storm::GeneralDebugConfig::GeneralDebugConfig() :
 	_displayVectoredExceptions{ Storm::VectoredExceptionDisplayMode::DisplayFatal }
 {}
 
+Storm::GeneralApplicationConfig::GeneralApplicationConfig() :
+	_showBranchInTitle{ false }
+{
+
+}

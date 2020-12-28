@@ -39,6 +39,7 @@ namespace Storm
 		const Storm::GeneralSimulationConfig& getGeneralSimulationConfig() const final override;
 		const Storm::GeneralWebConfig& getGeneralWebConfig() const final override;
 		const Storm::GeneralDebugConfig& getGeneralDebugConfig() const final override;
+		const Storm::GeneralApplicationConfig& getGeneralApplicationConfig() const final override;
 
 		const Storm::SceneGraphicConfig& getSceneGraphicConfig() const final override;
 		const Storm::SceneSimulationConfig& getSceneSimulationConfig() const final override;

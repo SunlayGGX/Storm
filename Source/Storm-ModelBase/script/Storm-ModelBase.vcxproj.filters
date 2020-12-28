@@ -440,5 +440,8 @@
     <ClInclude Include="..\include\INetworkManager.h">
       <Filter>Header Files\Singleton</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\GeneralApplicationConfig.h">
+      <Filter>Header Files\Modules\Config\General</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

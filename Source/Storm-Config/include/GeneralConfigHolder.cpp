@@ -109,6 +109,24 @@ bool Storm::GeneralConfigHolder::read(const std::string &generalConfigFilePathSt
 
 			const auto &generalTree = xmlTree.get_child("General");
 
+			/* Application */
+			Storm::GeneralApplicationConfig &generalApplicationConfig = _generalConfig->_generalApplicationConfig;
+			const auto &applicationTreeOpt = generalTree.get_child_optional("Application");
+			if (applicationTreeOpt.has_value())
+			{
+				const auto &applicationTree = applicationTreeOpt.value();
+				for (const auto &applicationXmlElement : applicationTree)
+				{
+					if (
+						!Storm::XmlReader::handleXml(applicationXmlElement, "displayBranch", generalApplicationConfig._showBranchInTitle)
+						)
+					{
+						LOG_ERROR << applicationXmlElement.first << " (inside General.Application) is unknown, therefore it cannot be handled";
+					}
+				}
+			}
+
+
 			/* Graphic */
 			Storm::GeneralGraphicConfig &generalGraphicConfig = _generalConfig->_generalGraphicConfig;
 

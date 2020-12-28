@@ -191,6 +191,12 @@ Unless explicited, the following settings doesn't support Macros (see section Ma
 
 Here the architecture of the config file (each section are a tag in xml where the subsection should be put into)
 
+
+#### Application
+
+- **displayBranch (boolean, facultative)**: If true, the branch the application was built upon will be displayed as part as its title when starting the application. It is useful for when we want to compare runs built from many branch and we want to know which is which. Default is false (because it is not really graceful if I want the application to be a proper application in the future).
+
+
 #### Debug (facultative)
 
 ##### - Log (facultative)
