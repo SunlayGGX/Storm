@@ -120,6 +120,7 @@ void Storm::DirectXController::initialize(HWND hwnd)
 	this->internalCreateDirectWrite();
 
 	_logDeviceMessage = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().getGeneralDebugConfig()._shouldLogGraphicDeviceMessage;
+	_uiFieldWriteInfoEnabled = true;
 }
 
 void Storm::DirectXController::cleanUp()
@@ -346,33 +347,36 @@ void Storm::DirectXController::setEnableBlendAlpha(bool enable)
 
 void Storm::DirectXController::drawUI(const std::map<std::wstring_view, std::wstring> &texts)
 {
-	D2D1_RECT_F writeRectPosition{
+	if (_uiFieldWriteInfoEnabled)
+	{
+		D2D1_RECT_F writeRectPosition{
 		_writeRectLeft,
-		0.f, 
+		0.f,
 		_writeRectRight,
 		_writeRectHeight
-	};
+		};
 
-	WriterAutoDrawer autoDrawerRAII{ _direct2DRenderTarget.Get() };
+		WriterAutoDrawer autoDrawerRAII{ _direct2DRenderTarget.Get() };
 
-	this->drawTextBackground(writeRectPosition);
+		this->drawTextBackground(writeRectPosition);
 
-	unsigned int iter = 0;
-	for (const auto &fieldText : texts)
-	{
-		writeRectPosition.top = _textHeightCoeff * static_cast<float>(iter);
-		writeRectPosition.bottom = _textHeightCoeff * static_cast<float>(iter + 1);
+		unsigned int iter = 0;
+		for (const auto &fieldText : texts)
+		{
+			writeRectPosition.top = _textHeightCoeff * static_cast<float>(iter);
+			writeRectPosition.bottom = _textHeightCoeff * static_cast<float>(iter + 1);
 
-		_writeTextTemp.clear();
-		_writeTextTemp.reserve(fieldText.first.size() + fieldText.second.size() + 2);
+			_writeTextTemp.clear();
+			_writeTextTemp.reserve(fieldText.first.size() + fieldText.second.size() + 2);
 
-		_writeTextTemp += fieldText.first;
-		_writeTextTemp += STORM_TEXT(": ");
-		_writeTextTemp += fieldText.second;
+			_writeTextTemp += fieldText.first;
+			_writeTextTemp += STORM_TEXT(": ");
+			_writeTextTemp += fieldText.second;
 
-		this->drawText(writeRectPosition);
+			this->drawText(writeRectPosition);
 
-		++iter;
+			++iter;
+		}
 	}
 }
 
@@ -391,6 +395,16 @@ void Storm::DirectXController::setTextHeightCoeff(float textHeightCoeff)
 {
 	_textHeightCoeff = textHeightCoeff;
 	this->notifyFieldCount(Storm::GraphicManager::instance().getFieldCount());
+}
+
+void Storm::DirectXController::setUIFieldDrawEnabled(const bool enable)
+{
+	_uiFieldWriteInfoEnabled = enable;
+}
+
+bool Storm::DirectXController::getUIFieldDrawEnabled() const noexcept
+{
+	return _uiFieldWriteInfoEnabled;
 }
 
 void Storm::DirectXController::drawTextBackground(const D2D1_RECT_F &rectPosition)

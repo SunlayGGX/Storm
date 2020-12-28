@@ -416,6 +416,7 @@ Note : If the term in the parenthesis is "Numpad", then the keybinding is the va
 - **F7**: Set solid state without back face culling.
 - **F8**: Set rendering to display all particles.
 - **F9**: Set particle state without rendering walls.
+- **F12**: Toggle the UI fields display (displays it if hidden, or hide it if displayed).
 - **Ctrl+S**: Open the script file inside notepad++ (or notepad if notepad++ isn't installed).
 - **Ctrl+X**: Open the current xml config file inside notepad++ (or notepad if notepad++ isn't installed).
 - **Ctrl+L**: Open the Storm log viewer. This application will have its life shared with the Storm application.
@@ -484,6 +485,7 @@ Here the list of available commands :
 
 - **void cycleColoredSetting()**: Cycle the particle coloring observed quantities. This is the same method bound to the key inputs.
 - **void setColorSettingMinMaxValue(float minValue, float maxValue)**: Set the min and max values for the observed particle colors fields.
+- **void setUIFieldEnabled(bool enable)**: Set if we should display the UI fields (enabled to true) or hide it (enabled to false).
 
 
 #### OSManager (osMgr)

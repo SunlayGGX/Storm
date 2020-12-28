@@ -57,6 +57,9 @@ namespace Storm
 		void notifyFieldCount(std::size_t fieldCount);
 		void setTextHeightCoeff(float textHeightCoeff);
 
+		void setUIFieldDrawEnabled(const bool enable);
+		bool getUIFieldDrawEnabled() const noexcept;
+
 	private:
 		void drawTextBackground(const D2D1_RECT_F &rectPosition);
 		void drawText(const D2D1_RECT_F &rectPosition);
@@ -122,6 +125,8 @@ namespace Storm
 		float _viewportHeight;
 
 		bool _logDeviceMessage;
+
+		bool _uiFieldWriteInfoEnabled;
 
 		float _textHeightCoeff;
 
