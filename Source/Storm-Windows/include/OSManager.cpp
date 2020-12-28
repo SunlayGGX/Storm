@@ -136,6 +136,20 @@ namespace Storm
 				}
 			}
 
+			int waitForProcessExitCode(const std::size_t processUID, bool &outFailure)
+			{
+				std::lock_guard<std::mutex> lock{ _processMutex };
+				if (const auto found = _processes.find(processUID); found != std::end(_processes))
+				{
+					Storm::StormProcess &proc = found->second;
+					return proc.waitForCompletion(outFailure);
+				}
+				else
+				{
+					Storm::throwException<Storm::StormException>("Cannot find the process " + Storm::toStdString(processUID) + " managed by this module");
+				}
+			}
+
 		private:
 			std::map<std::size_t, Storm::StormProcess> _processes;
 			std::size_t _referralId;
@@ -353,4 +367,9 @@ std::size_t Storm::OSManager::startProcess(Storm::StormProcessStartup &&startup)
 int Storm::OSManager::queryProcessExitCode(const std::size_t processUID, bool &outReturned, bool &outFailure) const
 {
 	return _processHolder->queryProcessExitCode(processUID, outReturned, outFailure);
+}
+
+int Storm::OSManager::waitForProcessExitCode(const std::size_t processUID, bool &outFailure)
+{
+	return _processHolder->waitForProcessExitCode(processUID, outFailure);
 }

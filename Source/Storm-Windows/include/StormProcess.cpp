@@ -52,7 +52,7 @@ namespace Storm
 		public:
 			virtual void release() = 0;
 			virtual void close() = 0;
-			virtual int waitForCompletion() = 0;
+			virtual int waitForCompletion(bool &outFailure) = 0;
 			virtual void prepareDestroy() = 0;
 			virtual bool isFailure() const = 0;
 
@@ -490,21 +490,29 @@ namespace
 			_exitCode = static_cast<int64_t>(_process.exit_code());
 		}
 
-		int waitForCompletion() final override
+		int waitForCompletion(bool &outFailure) final override
 		{
-			constexpr std::chrono::milliseconds waitTime{ 200 };
-			const Storm::ITimeManager &timeMgr = Storm::SingletonHolder::instance().getSingleton<Storm::ITimeManager>();
-			while (timeMgr.isRunning())
+			if (_started)
 			{
-				if (_process.wait_for(waitTime))
+				outFailure = false;
+				constexpr std::chrono::milliseconds waitTime{ 200 };
+				const Storm::ITimeManager &timeMgr = Storm::SingletonHolder::instance().getSingleton<Storm::ITimeManager>();
+				while (timeMgr.isRunning())
 				{
-					int exitCode = _process.exit_code();
-					_exitCode = static_cast<int64_t>(exitCode);
-					return exitCode;
+					if (_process.wait_for(waitTime))
+					{
+						int exitCode = _process.exit_code();
+						_exitCode = static_cast<int64_t>(exitCode);
+						return exitCode;
+					}
 				}
-			}
 
-			LOG_DEBUG_WARNING << "Wait aborted because we stopped it.";
+				LOG_DEBUG_WARNING << "Wait aborted because we stopped it.";
+			}
+			else
+			{
+				outFailure = true;
+			}
 			return 0;
 		}
 
@@ -632,10 +640,11 @@ namespace
 			// And even if we do, closing the cmd won't have an impact on processes it launched before being stopped.
 		}
 
-		int waitForCompletion() final override
+		int waitForCompletion(bool &outFailure) final override
 		{
 			{
 				std::lock_guard<std::mutex> lock{ _mutex };
+				outFailure = _failure;
 				if (!_running)
 				{
 					return static_cast<int>(_exitCode);
@@ -747,9 +756,9 @@ void Storm::StormProcess::close()
 	_processImpl->close();
 }
 
-int Storm::StormProcess::waitForCompletion()
+int Storm::StormProcess::waitForCompletion(bool &outFailure)
 {
-	return _processImpl->waitForCompletion();
+	return _processImpl->waitForCompletion(outFailure);
 }
 
 int32_t Storm::StormProcess::getExitCode(bool &outHasExited, bool &outFailure) const

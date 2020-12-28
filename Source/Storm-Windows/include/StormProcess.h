@@ -22,7 +22,7 @@ namespace Storm
 		void prepareDestroy();
 		void release();
 		void close();
-		int waitForCompletion();
+		int waitForCompletion(bool &outFailure);
 
 		int32_t getExitCode(bool &outHasExited, bool &outFailure) const;
 

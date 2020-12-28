@@ -18,5 +18,6 @@ namespace Storm
 
 		virtual std::size_t startProcess(Storm::StormProcessStartup &&startup) = 0;
 		virtual int queryProcessExitCode(const std::size_t processUID, bool &outReturned, bool &outFailure) const = 0;
+		virtual int waitForProcessExitCode(const std::size_t processUID, bool &outFailure) = 0;
 	};
 }
