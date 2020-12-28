@@ -10,6 +10,7 @@
 #include "IConfigManager.h"
 
 #include "GeneralGraphicConfig.h"
+#include "GeneralApplicationConfig.h"
 
 #include "ThreadHelper.h"
 #include "ThreadEnumeration.h"
@@ -17,6 +18,8 @@
 #include "UIModality.h"
 
 #include "StormProcessOpener.h"
+
+#include "GitBranch.generated.h"
 
 
 namespace
@@ -313,6 +316,12 @@ void Storm::WindowsManager::initializeInternal()
 
 		appendToTitle(szTitle, titleLength, configMgr.getSceneName(), "current scene name");
 		appendToTitle(szTitle, titleLength, configMgr.getSimulationTypeName(), "current simulation type");
+
+		const Storm::GeneralApplicationConfig &generalAppConfig = configMgr.getGeneralApplicationConfig();
+		if (generalAppConfig._showBranchInTitle)
+		{
+			appendToTitle(szTitle, titleLength, STORM_TEXT(STORM_CURRENT_GIT_BRANCH), "The git branch exe was built unto");
+		}
 
 		szTitle[titleLength] = L'\0';
 	}
