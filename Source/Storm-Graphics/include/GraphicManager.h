@@ -57,6 +57,10 @@ namespace Storm
 		void updateGraphicsField(std::vector<std::pair<std::wstring_view, std::wstring>> &&rawFields) final override;
 		void updateGraphicsField(const std::wstring_view &fieldName, std::wstring &&fieldValue) final override;
 
+		std::size_t getFieldCount() const;
+
+		void setUIFieldEnabled(bool enable);
+
 	public:
 		void convertScreenPositionToRay(const Storm::Vector2 &screenPos, Storm::Vector3 &outRayOrigin, Storm::Vector3 &outRayDirection) const final override;
 		void getClippingPlaneValues(float &outZNear, float &outZFar) const final override;
@@ -70,8 +74,6 @@ namespace Storm
 	public:
 		const Storm::Camera& getCamera() const;
 		const Storm::DirectXController& getController() const;
-
-		std::size_t getFieldCount() const;
 
 	public:
 		void setTargetPositionTo(const Storm::Vector3 &newTargetPosition) final override;

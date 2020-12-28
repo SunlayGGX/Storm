@@ -175,6 +175,7 @@ void Storm::GraphicManager::initialize_Implementation(void* hwnd)
 			inputMgr.bindKey(Storm::SpecialKey::KC_F7, [this]() { _directXController->setSolidCullNoneState(); });
 			inputMgr.bindKey(Storm::SpecialKey::KC_F8, [this]() { _directXController->setAllParticleState(); });
 			inputMgr.bindKey(Storm::SpecialKey::KC_F9, [this]() { _directXController->setRenderNoWallParticle(); });
+			inputMgr.bindKey(Storm::SpecialKey::KC_F12, [this]() { _directXController->setUIFieldDrawEnabled(!_directXController->getUIFieldDrawEnabled()); });
 
 			inputMgr.bindMouseWheel([this](int axisRelativeIncrement)
 			{
@@ -420,6 +421,19 @@ void Storm::GraphicManager::updateGraphicsField(const std::wstring_view &fieldNa
 	}
 }
 
+std::size_t Storm::GraphicManager::getFieldCount() const
+{
+	return _fieldsMap.size();
+}
+
+void Storm::GraphicManager::setUIFieldEnabled(bool enable)
+{
+	Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::GraphicsThread, [this, enable]()
+	{
+		_directXController->setUIFieldDrawEnabled(enable);
+	});
+}
+
 const Storm::Camera& Storm::GraphicManager::getCamera() const
 {
 	return *_camera;
@@ -428,11 +442,6 @@ const Storm::Camera& Storm::GraphicManager::getCamera() const
 const Storm::DirectXController& Storm::GraphicManager::getController() const
 {
 	return *_directXController;
-}
-
-std::size_t Storm::GraphicManager::getFieldCount() const
-{
-	return _fieldsMap.size();
 }
 
 void Storm::GraphicManager::setTargetPositionTo(const Storm::Vector3 &newTargetPosition)
