@@ -14,6 +14,10 @@ namespace Storm
 		const std::string& getHelp() const;
 		bool shouldDisplayHelp() const;
 
+		const std::string& getRawCommandline() const noexcept;
+
+		// Getters
+
 		std::string getSceneFilePath() const;
 		std::string getTempPath() const;
 		std::string getMacroConfigFilePath() const;
@@ -33,6 +37,28 @@ namespace Storm
 		bool noForceLoad() const;
 
 		Storm::ThreadPriority getThreadPriority() const;
+
+		// Tag getters
+
+		std::string_view getSceneFilePathTag() const;
+		std::string_view getTempPathTag() const;
+		std::string_view getMacroConfigFilePathTag() const;
+		std::string_view getGeneralConfigFilePathTag() const;
+
+		std::string_view getRecordModeStrTag() const;
+		std::string_view getRecordFilePathTag() const;
+
+		std::string_view getStateFilePathTag() const;
+
+		std::string_view getShouldRegenerateParticleCacheTag() const;
+
+		std::string_view getNoUITag() const;
+
+		std::string_view noPhysicsTimeLoadTag() const;
+		std::string_view noVelocityLoadTag() const;
+		std::string_view noForceLoadTag() const;
+
+		std::string_view getThreadPriorityTag() const;
 
 	private:
 		template<class Type>
@@ -68,5 +94,7 @@ namespace Storm
 		std::string _help;
 		bool _shouldDisplayHelp;
 		std::string _rawCommandLine;
+
+		std::string _restartCommandline;
 	};
 }

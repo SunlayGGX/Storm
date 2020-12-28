@@ -121,6 +121,11 @@ bool Storm::CommandLineParser::shouldDisplayHelp() const
 	return _shouldDisplayHelp;
 }
 
+const std::string& Storm::CommandLineParser::getRawCommandline() const noexcept
+{
+	return _rawCommandLine;
+}
+
 bool Storm::CommandLineParser::findIfExist(const std::string &val, bool noValue) const
 {
 	return _commandlineMap.count(val) ? !noValue : noValue;
@@ -138,6 +143,13 @@ bool Storm::CommandLineParser::funcName() const												\
 {																							\
 	return this->findIfExist(tag, defaultValue);											\
 }
+STORM_XMACRO_COMMANDLINE
+#undef STORM_XMACRO_COMMANDLINE_ELEM
+#undef STORM_XMACRO_COMMANDLINE_ELEM_NO_VALUE
+
+
+#define STORM_XMACRO_COMMANDLINE_ELEM(tag, type, defaultValue, helpMsg, funcName, ...) std::string_view Storm::CommandLineParser::funcName##Tag() const { return "--" tag; }
+#define STORM_XMACRO_COMMANDLINE_ELEM_NO_VALUE(tag, defaultValue, helpMsg, funcName, ...) std::string_view Storm::CommandLineParser::funcName##Tag() const { return "--" tag; }
 STORM_XMACRO_COMMANDLINE
 #undef STORM_XMACRO_COMMANDLINE_ELEM
 #undef STORM_XMACRO_COMMANDLINE_ELEM_NO_VALUE
