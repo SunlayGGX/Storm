@@ -77,6 +77,7 @@ I'm using catch2 as our main unit test library. But to be able to use it, you sh
 # Tools
 Some Tools were developped to ease our life. Those tools are :
 - **Storm-LogViewer**: This is a little UI tool made with C# and WPF in an afternoon (sorry for the dirty code inside) those purpose is to make the log prettier to see, to read and to sort (to find the log we want easily and efficiently from the hundreds of logs hard to see on a command line windows).
+- **Storm-Restarter**: This tool isn't made to be manipulated directly and is used to restart Storm application. You need to build it if you want to restart Storm from the menu.
 
 
 # Launcher
