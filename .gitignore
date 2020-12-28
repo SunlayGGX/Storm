@@ -49,3 +49,4 @@ Config/Custom/**
 **/Logs/**
 Intermediate/**
 **/[Gg]enerated/**
+*.generated.h
