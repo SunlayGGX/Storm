@@ -132,12 +132,25 @@ namespace
 		}
 	}
 
+	template<class StrType>
+	auto strIsEmpty(const StrType &val, int) -> decltype(val.empty())
+	{
+		return val.empty();
+	}
+
+	template<class CharType, std::size_t count>
+	constexpr bool strIsEmpty(const CharType(&val)[count], void*)
+	{
+		// On a literals string, there is always the terminal '\0'.
+		return count < 2;
+	}
+
 	template<std::size_t maxTitleCount, class AddedStrType>
 	void appendToTitle(TCHAR(&inOutTitle)[maxTitleCount], std::size_t &titlePositionIter, const AddedStrType &addedStr, const std::string_view &operation)
 	{
 		try
 		{
-			if (!addedStr.empty())
+			if (!strIsEmpty(addedStr, 0))
 			{
 				const std::wstring convertedAddedWStr = Storm::toStdWString(addedStr);
 
