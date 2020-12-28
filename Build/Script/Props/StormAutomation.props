@@ -8,7 +8,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)..\..\..\Source\Storm-Helper\include;$(MSBuildThisFileDirectory)..\..\..\Source\Automation\StormAutomation-Base\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)..\..\..\Source\Storm-Helper\include;$(MSBuildThisFileDirectory)..\..\..\Source\Generated;$(MSBuildThisFileDirectory)..\..\..\Source\Automation\StormAutomation-Base\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <AdditionalOptions>/permissive %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
