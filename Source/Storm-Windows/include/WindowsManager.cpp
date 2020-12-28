@@ -82,6 +82,15 @@ namespace
 				}, outProcessUID);
 				break;
 
+			case ID_FILE_RESTART:
+				if (Storm::StormProcessOpener::openStormRestarter(Storm::StormProcessOpener::OpenParameter{
+					._failureQuit = false
+					}, outProcessUID))
+				{
+					Storm::WindowsManager::instance().callQuitCallback();
+				}
+				break;
+
 			default:
 				return DefWindowProc(hWnd, message, wParam, lParam);
 			}

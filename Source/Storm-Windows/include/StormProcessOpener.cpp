@@ -139,3 +139,31 @@ bool Storm::StormProcessOpener::openStormGithubLink(const OpenParameter &param, 
 {
 	return tryOpenProcess(param, outProcessUID, defaultOpenURL, "https://github.com/SunlayGGX/Storm");
 }
+
+bool Storm::StormProcessOpener::openStormRestarter(const OpenParameter &param, std::size_t &outProcessUID)
+{
+	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
+
+	const std::filesystem::path exeFolderPath = std::filesystem::path{ configMgr.getExePath() }.parent_path();
+
+	const std::string stormRestarterPath = STORM_EXECUTABLE_NAME("Storm-Restarter");
+	const std::string &restartCommandline = configMgr.getRestartCommandline();
+
+	std::string restartCommandBuild;
+	restartCommandBuild.reserve(stormRestarterPath.size() + restartCommandline.size() + 12);
+
+	restartCommandBuild += "start ";
+	restartCommandBuild += stormRestarterPath;
+	restartCommandBuild += " ";
+	restartCommandBuild += restartCommandline;
+
+	Storm::StringAlgo::replaceAll(restartCommandBuild, "\\\"", Storm::StringAlgo::makeReplacePredicate('"'));
+
+	return tryOpenProcess(param, outProcessUID, defaultOpenProcess, Storm::StormProcessStartup{
+		._workingDirectoryPath = exeFolderPath.string(),
+		._commandLine = restartCommandBuild,
+		._bindIO = false,
+		._shareLife = false,
+		._isCmd = true
+	});
+}

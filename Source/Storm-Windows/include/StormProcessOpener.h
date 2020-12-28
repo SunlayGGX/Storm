@@ -19,5 +19,6 @@ namespace Storm
 		static bool openRuntimeScript(const Storm::StormProcessOpener::OpenParameter &param, std::size_t &outProcessUID);
 		static bool openCurrentConfigFile(const Storm::StormProcessOpener::OpenParameter &param, std::size_t &outProcessUID);
 		static bool openStormGithubLink(const Storm::StormProcessOpener::OpenParameter &param, std::size_t &outProcessUID);
+		static bool openStormRestarter(const Storm::StormProcessOpener::OpenParameter &param, std::size_t &outProcessUID);
 	};
 }
