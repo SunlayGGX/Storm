@@ -4,13 +4,12 @@
 #include "SingletonHolder.h"
 #include "IOSManager.h"
 
+#include "InternalConfig.h"
+
 #include "GeneralConfig.h"
 
 #include "SceneConfig.h"
 #include "SceneRigidBodyConfig.h"
-#include "SceneRecordConfig.h"
-#include "SceneSimulationConfig.h"
-#include "SceneScriptConfig.h"
 
 #include "RecordMode.h"
 
@@ -33,7 +32,11 @@ Storm::ConfigManager::~ConfigManager() = default;
 
 void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[])
 {
-	LOG_DEBUG << "Reading Config file started";
+	LOG_DEBUG << "Initializing Configuration";
+
+	// Since internal configurations are for the most part, hard coded auto generated settings.
+	// If there is some settings that impact the following initialization, then it is good to have them initialized first before everything else.
+	_internalConfigHolder.init();
 
 	Storm::CommandLineParser parser{ argc, argv };
 	_shouldDisplayHelp = parser.shouldDisplayHelp();
@@ -386,6 +389,11 @@ void Storm::ConfigManager::stateShouldLoad(bool &outLoadPhysicsTime, bool &outLo
 bool Storm::ConfigManager::shouldDisplayHelp() const
 {
 	return _shouldDisplayHelp;
+}
+
+const Storm::GeneratedGitConfig& Storm::ConfigManager::getInternalGeneratedGitConfig() const
+{
+	return *_internalConfigHolder.getInternalConfig()._generatedGitConfig;
 }
 
 const Storm::GeneralGraphicConfig& Storm::ConfigManager::getGeneralGraphicConfig() const

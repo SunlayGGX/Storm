@@ -148,6 +148,9 @@
     <Filter Include="Header Files\Modules\Config\Scene">
       <UniqueIdentifier>{f76a588c-1ed7-4b84-abb1-8cb2ea741874}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Modules\Config\Internal">
+      <UniqueIdentifier>{d8aeb073-23ef-4ca4-804e-33e51edd074c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-ModelBasePCH.cpp">
@@ -181,6 +184,9 @@
       <Filter>Source Files\Modules\Config</Filter>
     </ClCompile>
     <ClCompile Include="..\include\GeneralConfig.cpp">
+      <Filter>Source Files\Modules\Config</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\InternalConfig.cpp">
       <Filter>Source Files\Modules\Config</Filter>
     </ClCompile>
   </ItemGroup>
@@ -442,6 +448,12 @@
     </ClInclude>
     <ClInclude Include="..\include\GeneralApplicationConfig.h">
       <Filter>Header Files\Modules\Config\General</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\GeneratedGitConfig.h">
+      <Filter>Header Files\Modules\Config\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\InternalConfig.h">
+      <Filter>Header Files\Modules\Config</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -5,6 +5,8 @@
 
 namespace Storm
 {
+	struct GeneratedGitConfig;
+
 	struct GeneralGraphicConfig;
 	struct GeneralSimulationConfig;
 	struct GeneralWebConfig;
@@ -40,6 +42,9 @@ namespace Storm
 		virtual Storm::ThreadPriority getUserSetThreadPriority() const = 0;
 		virtual const std::string& getStateFilePath() const = 0;
 		virtual void stateShouldLoad(bool &outLoadPhysicsTime, bool &outLoadForces, bool &outLoadVelocities) const = 0;
+
+		// Internal config (a mix of generated/computed and/or hard coded and/or non user config (non documented on purpose))
+		virtual const Storm::GeneratedGitConfig& getInternalGeneratedGitConfig() const = 0;
 
 		// General config
 		virtual const Storm::GeneralGraphicConfig& getGeneralGraphicConfig() const = 0;

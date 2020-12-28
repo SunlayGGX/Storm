@@ -11,6 +11,7 @@
 
 #include "GeneralGraphicConfig.h"
 #include "GeneralApplicationConfig.h"
+#include "GeneratedGitConfig.h"
 
 #include "ThreadHelper.h"
 #include "ThreadEnumeration.h"
@@ -18,8 +19,6 @@
 #include "UIModality.h"
 
 #include "StormProcessOpener.h"
-
-#include "GitBranch.generated.h"
 
 
 namespace
@@ -320,7 +319,8 @@ void Storm::WindowsManager::initializeInternal()
 		const Storm::GeneralApplicationConfig &generalAppConfig = configMgr.getGeneralApplicationConfig();
 		if (generalAppConfig._showBranchInTitle)
 		{
-			appendToTitle(szTitle, titleLength, STORM_TEXT(STORM_CURRENT_GIT_BRANCH), "The git branch exe was built unto");
+			const Storm::GeneratedGitConfig &generatedGitCfg = configMgr.getInternalGeneratedGitConfig();
+			appendToTitle(szTitle, titleLength, generatedGitCfg._gitBranchWStr, "The git branch exe was built unto");
 		}
 
 		szTitle[titleLength] = L'\0';

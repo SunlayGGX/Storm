@@ -104,6 +104,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Storm-Network", "Source\Sto
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Storm-Restarter", "Source\Storm-Restarter\script\Storm-Restarter.vcxproj", "{ABD75873-B8E9-4F0D-A2B7-275BEDB9E1BD}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Generated", "Generated", "{5DD13C94-1505-449D-910F-ADCEA00A349D}"
+	ProjectSection(SolutionItems) = preProject
+		Source\Generated\GitBranch.generated.h = Source\Generated\GitBranch.generated.h
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64

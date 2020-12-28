@@ -13,6 +13,7 @@
   <ItemGroup>
     <ClCompile Include="..\include\ColorChecker.cpp" />
     <ClCompile Include="..\include\GeneralConfig.cpp" />
+    <ClCompile Include="..\include\InternalConfig.cpp" />
     <ClCompile Include="..\include\RaycastRequestObject.cpp" />
     <ClCompile Include="..\include\RigidBodyHolder.cpp" />
     <ClCompile Include="..\include\SceneConfig.cpp" />
@@ -30,6 +31,8 @@
     <ClInclude Include="..\include\AsyncAction.h" />
     <ClInclude Include="..\include\GeneralConfig.h" />
     <ClInclude Include="..\include\GeneralDebugConfig.h" />
+    <ClInclude Include="..\include\InternalConfig.h" />
+    <ClInclude Include="..\include\GeneratedGitConfig.h" />
     <ClInclude Include="..\include\GeneralGraphicConfig.h" />
     <ClInclude Include="..\include\GeneralSimulationConfig.h" />
     <ClInclude Include="..\include\GeneralApplicationConfig.h" />

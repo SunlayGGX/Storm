@@ -19,6 +19,12 @@
     <Filter Include="Source Files\ConfigHolder">
       <UniqueIdentifier>{9a685102-662c-46b9-ac0c-3645e9698384}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\GeneratedWrapper">
+      <UniqueIdentifier>{7daae5a7-6064-4167-af21-de6d1e5fd28f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\GeneratedWrapper">
+      <UniqueIdentifier>{1e929fa5-302f-4e43-9b5b-46c59aed614c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-ConfigPCH.cpp">
@@ -39,6 +45,12 @@
     <ClCompile Include="..\include\GeneralConfigHolder.cpp">
       <Filter>Source Files\ConfigHolder</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\InternalConfigHolder.cpp">
+      <Filter>Source Files\ConfigHolder</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\GitGeneratedWrapper.cpp">
+      <Filter>Source Files\GeneratedWrapper</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-ConfigPCH.h">
@@ -58,6 +70,12 @@
     </ClInclude>
     <ClInclude Include="..\include\GeneralConfigHolder.h">
       <Filter>Header Files\ConfigHolder</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\InternalConfigHolder.h">
+      <Filter>Header Files\ConfigHolder</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\GeneratedWrapper.h">
+      <Filter>Header Files\GeneratedWrapper</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

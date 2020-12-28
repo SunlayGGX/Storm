@@ -14,6 +14,8 @@
     <ClCompile Include="..\include\CommandLineParser.cpp" />
     <ClCompile Include="..\include\ConfigManager.cpp" />
     <ClCompile Include="..\include\GeneralConfigHolder.cpp" />
+    <ClCompile Include="..\include\GitGeneratedWrapper.cpp" />
+    <ClCompile Include="..\include\InternalConfigHolder.cpp" />
     <ClCompile Include="..\include\MacroConfig.cpp" />
     <ClCompile Include="..\include\SceneConfigHolder.cpp" />
     <ClCompile Include="..\include\Storm-ConfigPCH.cpp">
@@ -25,6 +27,8 @@
     <ClInclude Include="..\include\CommandLineParser.h" />
     <ClInclude Include="..\include\ConfigManager.h" />
     <ClInclude Include="..\include\GeneralConfigHolder.h" />
+    <ClInclude Include="..\include\GeneratedWrapper.h" />
+    <ClInclude Include="..\include\InternalConfigHolder.h" />
     <ClInclude Include="..\include\MacroConfig.h" />
     <ClInclude Include="..\include\SceneConfigHolder.h" />
     <ClInclude Include="..\include\Storm-ConfigPCH.h" />

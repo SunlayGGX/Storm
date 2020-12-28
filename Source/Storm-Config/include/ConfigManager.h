@@ -7,6 +7,7 @@
 #include "MacroConfig.h"
 #include "GeneralConfigHolder.h"
 #include "SceneConfigHolder.h"
+#include "InternalConfigHolder.h"
 
 
 namespace Storm
@@ -34,6 +35,8 @@ namespace Storm
 		void stateShouldLoad(bool &outLoadPhysicsTime, bool &outLoadForces, bool &outLoadVelocities) const final override;
 
 		bool shouldDisplayHelp() const;
+
+		const Storm::GeneratedGitConfig& getInternalGeneratedGitConfig() const final override;
 
 		const Storm::GeneralGraphicConfig& getGeneralGraphicConfig() const final override;
 		const Storm::GeneralSimulationConfig& getGeneralSimulationConfig() const final override;
@@ -93,5 +96,6 @@ namespace Storm
 		Storm::MacroConfig _macroConfig;
 		Storm::GeneralConfigHolder _generalConfigHolder;
 		Storm::SceneConfigHolder _sceneConfigHolder;
+		Storm::InternalConfigHolder _internalConfigHolder;
 	};
 }
