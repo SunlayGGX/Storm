@@ -50,20 +50,29 @@ namespace Storm
 		};
 
 	private:
-		template<class OverridenAutoType, class ConverterFunc, class TreeItem>
-		static auto callConversion(const ConverterFunc &converter, const TreeItem &item, int) -> decltype(converter(item))
+		template<class OverridenAutoType, class ConverterFunc, class TreeItem, class ValueType>
+		static auto callConversion(const ConverterFunc &converter, const TreeItem &item, ValueType &val, int, int)
+			-> decltype(converter(item, val), void())
 		{
-			return converter(item);
+			converter(item, val);
 		}
 
-		template<class OverridenAutoType, class ConverterFunc, class TreeItem>
-		static auto callConversion(const ConverterFunc &converter, const TreeItem &item, void*) -> decltype(converter(item.template get_value<OverridenAutoType>()))
+		template<class OverridenAutoType, class ConverterFunc, class TreeItem, class ValueType>
+		static auto callConversion(const ConverterFunc &converter, const TreeItem &item, ValueType &val, int, void*)
+			-> decltype(val = converter(item), void())
 		{
-			return converter(item.get_value<OverridenAutoType>());
+			val = converter(item);
 		}
 
-		template<class OverridenAutoType, class ConverterFunc, class TreeItem>
-		constexpr static void callConversion(const ConverterFunc &, const TreeItem &, ...)
+		template<class OverridenAutoType, class ConverterFunc, class TreeItem, class ValueType>
+		static auto callConversion(const ConverterFunc &converter, const TreeItem &item, ValueType &val, void*, int)
+			-> decltype(val = converter(item.template get_value<OverridenAutoType>()), void())
+		{
+			val = converter(item.get_value<OverridenAutoType>());
+		}
+
+		template<class OverridenAutoType, class ConverterFunc, class TreeItem, class ValueType>
+		constexpr static void callConversion(const ConverterFunc &, const TreeItem &, ValueType &, ...)
 		{
 			STORM_COMPILE_ERROR("Converter not handled!");
 		}
@@ -85,11 +94,28 @@ namespace Storm
 			if (treePair.first == tag)
 			{
 				LOG_DEBUG << "Parsing xml tag " << tag;
-				val = callConversion<OverridenAutoType>(converter, treePair.second, 0);
+				callConversion<OverridenAutoType>(converter, treePair.second, val, 0, 0);
 				return true;
 			}
 
 			return false;
+		}
+
+		template<class ResultType, class TreeItem>
+		static void readXmlAttribute(const TreeItem &treeItem, ResultType &value, const std::string_view &tag)
+		{
+			constexpr std::string_view xmlAttrIdentificator{ "<xmlattr>." };
+
+			std::string finalTag;
+			finalTag.reserve(xmlAttrIdentificator.size() + tag.size());
+
+			finalTag += xmlAttrIdentificator;
+			finalTag += tag;
+
+			if (auto maybeAttr = treeItem.get_optional<ResultType>(finalTag); maybeAttr.has_value())
+			{
+				value = maybeAttr.value();
+			}
 		}
 
 		template<class ResultType, class TreeItem>
