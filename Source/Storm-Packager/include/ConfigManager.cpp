@@ -12,13 +12,8 @@
 #include <boost\property_tree\xml_parser.hpp>
 
 
-#define STORM_XMACRO_COMMANDLINE
-//STORM_XMACRO_COMMANDLINE_ELEM("scene", std::string, std::string{}, "The scene config file to use (path).", getSceneFilePath)															\
-//STORM_XMACRO_COMMANDLINE_ELEM("macroConfig", std::string, std::string{}, "The general config file to use (path).", getMacroConfigFilePath)											\
-//STORM_XMACRO_COMMANDLINE_ELEM("generalConfig", std::string, std::string{}, "The general config file to use (path).", getGeneralConfigFilePath)										\
-//STORM_XMACRO_COMMANDLINE_ELEM("tempPath", std::string, std::string{}, "The temporary path to use (path).", getTempPath)																\
-//STORM_XMACRO_COMMANDLINE_ELEM("regenPCache", bool, false, "Force invalidating the particle cache data. Therefore regenerating all of them anew.", getShouldRegenerateParticleCache)	\
-
+#define STORM_XMACRO_COMMANDLINE \
+STORM_XMACRO_COMMANDLINE_ELEM("build", std::string, std::string{}, "The branch to build before packaging. If there is none, no build will be made.", getBuildBranch)
 
 namespace
 {

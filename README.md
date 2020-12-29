@@ -121,6 +121,12 @@ This is the application to see logs in a more friendly manner. Command lines are
 - **NoInitialRead (no value, facultative)**: When a Simulator application is already running, then we'll just read and display the log after the moment since the log viewer started... Otherwise, we would display all logs.
 - **ReadLast (no value, facultative)**: Read the last log file found. This flag is ignored if we specified a log file to read with LogFilePath...
 
+### Storm-Packager.exe
+This application is to package easily a running version of Storm application and Co. into a zip. It can also change and build a branch easily.
+This is not a professional application though, so it does not intend to replace huge integration tool we could find on the market. But it has the advantage to be custom made for Storm application (it is like a build script, but made with c++ that I'm so much more familiar with)...
+When you start it, wait for it to finish. Thanks... The allowed commands are :
+- **build (string, facultative)**: When specifying it with the branch name to build (i.e --build=develop), the packager will build the specified branch before packaging it (in the example, it will build checkout develo, then build Storm.sln, package, and finally it will revert to the branch we were before checking out develop).
+
 
 ## Config file
 

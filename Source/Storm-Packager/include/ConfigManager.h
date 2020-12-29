@@ -24,6 +24,8 @@ namespace StormPackager
 		const std::string& getDestinationPackageName() const noexcept;
 		const std::vector<std::string>& getToCopyPath() const noexcept;
 
+		std::string getBuildBranch() const;
+
 	private:
 		bool _helpRequested;
 		std::string _help;
