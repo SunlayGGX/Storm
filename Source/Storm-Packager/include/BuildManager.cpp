@@ -106,15 +106,21 @@ bool StormPackager::BuildManager::run()
 	if (_branchToBuild != _oldBranch)
 	{
 		auto gitCommandExecResult = StormPackager::ExecHelper::checkout(_branchToBuild);
-		if (!gitCommandExecResult._error.empty())
+		if (!gitCommandExecResult._success && !gitCommandExecResult._error.empty())
 		{
-			LOG_ERROR << "Cannot change branch. Error was: " << gitCommandExecResult._error;
-			return false;
+			LOG_ERROR <<
+				"Something went wrong with checking out to branch " << _branchToBuild << ".\n"
+				"Error was " << gitCommandExecResult._error << ".\n\n"
+				"Output was " << gitCommandExecResult._output << "."
+				;
 		}
-		else if (!gitCommandExecResult._success)
+		else
 		{
-			LOG_ERROR << "Cannot change branch. Output was: '" << gitCommandExecResult._output << "'";
-			return false;
+			LOG_DEBUG <<
+				"Successfully checkout to branch " << _branchToBuild << ".\n" <<
+				gitCommandExecResult._error << "\n\n" <<
+				gitCommandExecResult._output << "\n\n"
+				;
 		}
 	}
 	else
