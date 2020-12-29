@@ -12,8 +12,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Application.cpp" />
+    <ClCompile Include="..\include\BuildProcess.cpp" />
     <ClCompile Include="..\include\ConfigManager.cpp" />
     <ClCompile Include="..\include\CopierTask.cpp" />
+    <ClCompile Include="..\include\BuildManager.cpp" />
+    <ClCompile Include="..\include\ExecHelper.cpp" />
     <ClCompile Include="..\include\LoggerManager.cpp" />
     <ClCompile Include="..\include\PackagerHelper.cpp" />
     <ClCompile Include="..\include\PackagerManager.cpp" />
@@ -27,8 +30,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Application.h" />
+    <ClInclude Include="..\include\BuildProcess.h" />
     <ClInclude Include="..\include\ConfigManager.h" />
     <ClInclude Include="..\include\CopierTask.h" />
+    <ClInclude Include="..\include\BuildManager.h" />
+    <ClInclude Include="..\include\ExecHelper.h" />
     <ClInclude Include="..\include\ITaskLogic.h" />
     <ClInclude Include="..\include\LoggerManager.h" />
     <ClInclude Include="..\include\PackagerHelper.h" />

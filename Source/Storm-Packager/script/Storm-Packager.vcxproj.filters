@@ -43,6 +43,12 @@
     <Filter Include="Header Files\Helper">
       <UniqueIdentifier>{b75be6fa-10bb-4c22-96ff-2ee3f724d675}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\General">
+      <UniqueIdentifier>{39f74335-f6a5-4468-ae06-4b650f04e6d6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\General">
+      <UniqueIdentifier>{aa460a81-f7df-4e32-9dd1-7cd7d17d0162}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-Packager.cpp">
@@ -75,6 +81,15 @@
     <ClCompile Include="..\include\ZipperTask.cpp">
       <Filter>Source Files\Packager\Logic</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\BuildManager.cpp">
+      <Filter>Source Files\General</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\BuildProcess.cpp">
+      <Filter>Source Files\General</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\ExecHelper.cpp">
+      <Filter>Source Files\Helper</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-PackagerPCH.h">
@@ -106,6 +121,15 @@
     </ClInclude>
     <ClInclude Include="..\include\ITaskLogic.h">
       <Filter>Header Files\Packager\Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\BuildManager.h">
+      <Filter>Header Files\General</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\BuildProcess.h">
+      <Filter>Header Files\General</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ExecHelper.h">
+      <Filter>Header Files\Helper</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

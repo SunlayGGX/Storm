@@ -4,9 +4,11 @@
 #include "PackagerManager.h"
 #include "ConfigManager.h"
 #include "LoggerManager.h"
+#include "BuildManager.h"
 #include "SingletonHolder.h"
 
 #include "ExitCode.h"
+
 
 namespace
 {
@@ -14,6 +16,7 @@ namespace
 		Storm::SingletonHolder,
 		StormPackager::LoggerManager,
 		StormPackager::ConfigManager,
+		StormPackager::BuildManager,
 		StormPackager::PackagerManager
 	>;
 
@@ -24,6 +27,7 @@ namespace
 		g_singletonMaker = std::make_unique<SingletonAllocatorAlias>();
 
 		StormPackager::ConfigManager::instance().initialize(argc, argv);
+		StormPackager::BuildManager::instance().initialize();
 		StormPackager::PackagerManager::instance().initialize();
 	}
 
@@ -32,6 +36,7 @@ namespace
 		if (g_singletonMaker != nullptr)
 		{
 			StormPackager::PackagerManager::instance().cleanUp();
+			StormPackager::BuildManager::instance().cleanUp();
 			StormPackager::ConfigManager::instance().cleanUp();
 
 			g_singletonMaker.reset();
@@ -61,7 +66,9 @@ Storm::ExitCode StormPackager::Application::run()
 	}
 	else
 	{
-		success = PackagerManager::instance().run();
+		success =
+			BuildManager::instance().run() &&
+			PackagerManager::instance().run();
 	}
 
 	return success ? Storm::ExitCode::k_success : Storm::ExitCode::k_failure;
