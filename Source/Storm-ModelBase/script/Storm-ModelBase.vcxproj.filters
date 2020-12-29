@@ -455,5 +455,8 @@
     <ClInclude Include="..\include\InternalConfig.h">
       <Filter>Header Files\Modules\Config</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\InternalReferenceConfig.h">
+      <Filter>Header Files\Modules\Config\Internal</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

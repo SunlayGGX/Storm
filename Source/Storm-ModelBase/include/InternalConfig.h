@@ -4,6 +4,7 @@
 namespace Storm
 {
 	struct GeneratedGitConfig;
+	struct InternalReferenceConfig;
 
 	struct InternalConfig
 	{
@@ -12,6 +13,10 @@ namespace Storm
 		~InternalConfig();
 
 	public:
+		// Generated
 		std::unique_ptr<Storm::GeneratedGitConfig> _generatedGitConfig;
+
+		// Internal
+		std::vector<Storm::InternalReferenceConfig> _internalReferencesConfig;
 	};
 }
