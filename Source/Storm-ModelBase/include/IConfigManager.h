@@ -6,6 +6,7 @@
 namespace Storm
 {
 	struct GeneratedGitConfig;
+	struct InternalReferenceConfig;
 
 	struct GeneralGraphicConfig;
 	struct GeneralSimulationConfig;
@@ -45,6 +46,7 @@ namespace Storm
 
 		// Internal config (a mix of generated/computed and/or hard coded and/or non user config (non documented on purpose))
 		virtual const Storm::GeneratedGitConfig& getInternalGeneratedGitConfig() const = 0;
+		virtual const std::vector<Storm::InternalReferenceConfig>& getInternalReferencesConfig() const = 0;
 
 		// General config
 		virtual const Storm::GeneralGraphicConfig& getGeneralGraphicConfig() const = 0;

@@ -37,6 +37,7 @@ namespace Storm
 		bool shouldDisplayHelp() const;
 
 		const Storm::GeneratedGitConfig& getInternalGeneratedGitConfig() const final override;
+		const std::vector<Storm::InternalReferenceConfig>& getInternalReferencesConfig() const final override;
 
 		const Storm::GeneralGraphicConfig& getGeneralGraphicConfig() const final override;
 		const Storm::GeneralSimulationConfig& getGeneralSimulationConfig() const final override;

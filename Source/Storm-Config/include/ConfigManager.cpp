@@ -398,6 +398,11 @@ const Storm::GeneratedGitConfig& Storm::ConfigManager::getInternalGeneratedGitCo
 	return *_internalConfigHolder.getInternalConfig()._generatedGitConfig;
 }
 
+const std::vector<Storm::InternalReferenceConfig>& Storm::ConfigManager::getInternalReferencesConfig() const
+{
+	return _internalConfigHolder.getInternalConfig()._internalReferencesConfig;
+}
+
 const Storm::GeneralGraphicConfig& Storm::ConfigManager::getGeneralGraphicConfig() const
 {
 	return _generalConfigHolder.getConfig()._generalGraphicConfig;
