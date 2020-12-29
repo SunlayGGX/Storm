@@ -495,7 +495,7 @@ void Storm::AssetCacheData::generateCurrentData(const float layerDistance)
 			break;
 
 		default:
-			Storm::throwException<Storm::StormException>("Unknown layering generation technique : " + Storm::toStdString(_rbConfig._layerGenerationMode));
+			Storm::throwException<Storm::Exception>("Unknown layering generation technique : " + Storm::toStdString(_rbConfig._layerGenerationMode));
 		}
 	}
 
@@ -523,15 +523,15 @@ void Storm::AssetCacheData::buildSrc(const aiScene* meshScene)
 		const aiMesh* currentMesh = meshScene->mMeshes[iter];
 		if (!currentMesh->HasPositions())
 		{
-			Storm::throwException<Storm::StormException>("The mesh '" + _rbConfig._meshFilePath + "' doesn't have vertices. This isn't allowed!");
+			Storm::throwException<Storm::Exception>("The mesh '" + _rbConfig._meshFilePath + "' doesn't have vertices. This isn't allowed!");
 		}
 		else if (!currentMesh->HasFaces())
 		{
-			Storm::throwException<Storm::StormException>("The mesh '" + _rbConfig._meshFilePath + "' doesn't have any faces. This isn't allowed!");
+			Storm::throwException<Storm::Exception>("The mesh '" + _rbConfig._meshFilePath + "' doesn't have any faces. This isn't allowed!");
 		}
 		else if (currentMesh->mPrimitiveTypes != aiPrimitiveType::aiPrimitiveType_TRIANGLE)
 		{
-			Storm::throwException<Storm::StormException>("The mesh '" + _rbConfig._meshFilePath + "' isn't constituted of triangles. We doesn't support non triangle meshes! Primitive type was '" + Storm::toStdString<PrimitiveTypeParser>(static_cast<aiPrimitiveType>(currentMesh->mPrimitiveTypes)) + "'");
+			Storm::throwException<Storm::Exception>("The mesh '" + _rbConfig._meshFilePath + "' isn't constituted of triangles. We doesn't support non triangle meshes! Primitive type was '" + Storm::toStdString<PrimitiveTypeParser>(static_cast<aiPrimitiveType>(currentMesh->mPrimitiveTypes)) + "'");
 		}
 
 		totalVertexCount += currentMesh->mNumVertices;

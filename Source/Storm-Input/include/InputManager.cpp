@@ -178,7 +178,7 @@ namespace
 			STORM_SWITCH_CASE_TRADUCE(KC_SLEEP);
 			STORM_SWITCH_CASE_TRADUCE(KC_WAKE);
 
-			default: Storm::throwException<Storm::StormException>("Unknown special key!");
+			default: Storm::throwException<Storm::Exception>("Unknown special key!");
 		}
 #undef STORM_SWITCH_CASE_TRADUCE
 	}

@@ -159,7 +159,7 @@ namespace
 
 				if (!frameBeforeElementsPtr)
 				{
-					Storm::throwException<Storm::StormException>("Cannot find the constraints with id " + std::to_string(frameAfterElements._id) + " inside recorded constraints frame data");
+					Storm::throwException<Storm::Exception>("Cannot find the constraints with id " + std::to_string(frameAfterElements._id) + " inside recorded constraints frame data");
 				}
 			}
 

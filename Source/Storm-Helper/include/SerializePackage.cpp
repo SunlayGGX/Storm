@@ -36,7 +36,7 @@ namespace
 			return false;
 
 		default:
-			Storm::throwException<Storm::StormException>("Unknown serialize package creation modality");
+			Storm::throwException<Storm::Exception>("Unknown serialize package creation modality");
 		}
 	}
 }
@@ -73,14 +73,14 @@ Storm::SerializePackage::SerializePackage(Storm::SerializePackageCreationModalit
 		{
 			std::string errorMsg = "Unexpected error happened when trying to open " + packageFilePath + "!";
 			LOG_ERROR << errorMsg;
-			Storm::throwException<Storm::StormException>(errorMsg);
+			Storm::throwException<Storm::Exception>(errorMsg);
 		}
 	}
 	else
 	{
 		std::string errorMsg = packageFilePath + " doesn't exists! We cannot serialize/deserialize it!";
 		LOG_ERROR << errorMsg;
-		Storm::throwException<Storm::StormException>(errorMsg);
+		Storm::throwException<Storm::Exception>(errorMsg);
 	}
 
 	if (modality != SerializePackageCreationModality::SavingAppendPreheaderProvidedAfter &&
@@ -104,7 +104,7 @@ Storm::SerializePackage::SerializePackage(Storm::SerializePackageCreationModalit
 					"Therefore it isn't compatible with current version (" + static_cast<std::string>(currentVersion) + ")!";
 
 				LOG_ERROR << errorMsg;
-				Storm::throwException<Storm::StormException>(errorMsg);
+				Storm::throwException<Storm::Exception>(errorMsg);
 			}
 		}
 	}

@@ -34,7 +34,7 @@
 // Not implemented throwing macros.
 
 // This throws but can be recovered with a try catch block.
-#define STORM_NOT_IMPLEMENTED Storm::throwException<Storm::StormException>(__FUNCSIG__ " is not implemented!")
+#define STORM_NOT_IMPLEMENTED Storm::throwException<Storm::Exception>(__FUNCSIG__ " is not implemented!")
 
 // The difference with STORM_NOT_IMPLEMENTED is that this provide an unrecoverable error.
 #define STORM_STRONG_NOT_IMPLEMENTED struct STORM_GEN_STRUCT_NAME(_)										\

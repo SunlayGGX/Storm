@@ -35,7 +35,7 @@ namespace
 
 #undef STORM_RETURN_IF_LEVEL_IS
 
-		Storm::throwException<Storm::StormException>("Unknown Log level : " + levelStr);
+		Storm::throwException<Storm::Exception>("Unknown Log level : " + levelStr);
 	}
 
 	Storm::VectoredExceptionDisplayMode parseVectoredExceptionDisplayMode(std::string valueStr)
@@ -55,7 +55,7 @@ namespace
 		}
 		else
 		{
-			Storm::throwException<Storm::StormException>("Unknown vectored exception display mode requested : " + valueStr);
+			Storm::throwException<Storm::Exception>("Unknown vectored exception display mode requested : " + valueStr);
 		}
 	}
 
@@ -85,7 +85,7 @@ namespace
 		}
 		else
 		{
-			Storm::throwException<Storm::StormException>("Unknown or unhandled internet browser : " + valueStr);
+			Storm::throwException<Storm::Exception>("Unknown or unhandled internet browser : " + valueStr);
 		}
 	}
 }
@@ -154,15 +154,15 @@ bool Storm::GeneralConfigHolder::read(const std::string &generalConfigFilePathSt
 
 			if (generalGraphicConfig._wantedApplicationWidth == 0)
 			{
-				Storm::throwException<Storm::StormException>("screenWidth cannot be null!");
+				Storm::throwException<Storm::Exception>("screenWidth cannot be null!");
 			}
 			else if (generalGraphicConfig._wantedApplicationHeight == 0)
 			{
-				Storm::throwException<Storm::StormException>("screenHeight cannot be null!");
+				Storm::throwException<Storm::Exception>("screenHeight cannot be null!");
 			}
 			else if (generalGraphicConfig._fontSize <= 0)
 			{
-				Storm::throwException<Storm::StormException>("Font size must be a strictly positive value! Current value was " + std::to_string(generalGraphicConfig._fontSize));
+				Storm::throwException<Storm::Exception>("Font size must be a strictly positive value! Current value was " + std::to_string(generalGraphicConfig._fontSize));
 			}
 
 			/* Debug */

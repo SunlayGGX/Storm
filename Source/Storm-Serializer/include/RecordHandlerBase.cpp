@@ -73,7 +73,7 @@ void Storm::RecordHandlerBase::serializeHeader()
 		if (vect3ScalarTypeStr.empty())
 		{
 			// We shouldn't come here.
-			Storm::throwException<Storm::StormException>("Unknown vector 3 scalar type!");
+			Storm::throwException<Storm::Exception>("Unknown vector 3 scalar type!");
 		}
 
 		_package << vect3ScalarTypeStr;
@@ -87,7 +87,7 @@ void Storm::RecordHandlerBase::serializeHeader()
 		{																														   \
 			if (vect3ScalarTypeStr != #Type)																					   \
 			{																													   \
-				Storm::throwException<Storm::StormException>(																			   \
+				Storm::throwException<Storm::Exception>(																			   \
 					"Current recording to be read was written for a Vector3 with the internal layout type of " #Type ".\n"		   \
 					"But we're trying to read the record with another layout (" + vect3ScalarTypeStr + "). This isn't allowed!"	   \
 				);																												   \

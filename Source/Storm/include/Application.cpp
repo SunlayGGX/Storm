@@ -228,7 +228,7 @@ Storm::ExitCode Storm::Application::run()
 			LOG_COMMENT << "Help requested, therefore the simulator wasn't initialized! We will exit now.";
 		}
 	}
-	catch (const Storm::StormException &ex)
+	catch (const Storm::Exception &ex)
 	{
 		LOG_FATAL <<
 			"Catched an unhandled Storm exception in the Application main loop (run). Process will exit.\n"
@@ -264,7 +264,7 @@ Storm::EarlyExitAnswer Storm::Application::ensureCleanStateAfterException(const 
 		{
 			cleanUpStormApplication();
 		}
-		catch (const Storm::StormException &cleanUpEx)
+		catch (const Storm::Exception &cleanUpEx)
 		{
 			std::string errorMsg2{ 
 				"Another exception happened during cleanup : " + Storm::toStdString(cleanUpEx) + ".\n"

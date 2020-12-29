@@ -134,7 +134,7 @@ void Storm::ScriptManager::executeScript_ScriptThread(std::string &&script)
 					}
 				}
 			}
-			catch (const Storm::StormException &ex)
+			catch (const Storm::Exception &ex)
 			{
 				LOG_ERROR <<
 					"Script execution failed!\n"
@@ -152,7 +152,7 @@ void Storm::ScriptManager::executeScript_ScriptThread(std::string &&script)
 			}
 		}
 	}
-	catch (const Storm::StormException &ex)
+	catch (const Storm::Exception &ex)
 	{
 		LOG_ERROR <<
 			"Script command parsing failed at :\n" << ex.stackTrace() <<

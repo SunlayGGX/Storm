@@ -3,7 +3,7 @@
 
 #include "StormStdPrerequisite.h"
 
-#include "StormException.h"
+#include "Exception.h"
 #include "ThrowException.h"
 
 #include <catch2/catch.hpp>

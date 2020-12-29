@@ -13,7 +13,7 @@ Storm::DistanceSpacePartitionProxy::DistanceSpacePartitionProxy(const Storm::Vec
 	if (voxelEdgeLength < 0.00000001f || isnan(voxelEdgeLength) || isinf(voxelEdgeLength))
 	{
 		assert(false && "Invalid voxel length! This is forbidden!");
-		Storm::throwException<Storm::StormException>("Invalid voxel length (" + std::to_string(voxelEdgeLength) + ")! This is forbidden!");
+		Storm::throwException<Storm::Exception>("Invalid voxel length (" + std::to_string(voxelEdgeLength) + ")! This is forbidden!");
 	}
 
 	const Storm::Vector3 diff = upCorner - downCorner;

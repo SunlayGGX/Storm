@@ -34,7 +34,7 @@ Storm::CommandPID::CommandPID(std::string &&commandStr) :
 {
 	if (commandStr.empty())
 	{
-		Storm::throwException<Storm::StormException>("PID command cannot be empty!");
+		Storm::throwException<Storm::Exception>("PID command cannot be empty!");
 	}
 
 	std::string error;

@@ -191,7 +191,7 @@ Storm::PhysXHandler::PhysXHandler() :
 
 	if (!_foundationInstance)
 	{
-		Storm::throwException<Storm::StormException>("PhysX foundation couldn't be created!");
+		Storm::throwException<Storm::Exception>("PhysX foundation couldn't be created!");
 	}
 
 
@@ -207,7 +207,7 @@ Storm::PhysXHandler::PhysXHandler() :
 	_physics = PxCreatePhysics(PX_PHYSICS_VERSION, *_foundationInstance, toleranceScale, recordMemoryAlloc);
 	if (!_physics)
 	{
-		Storm::throwException<Storm::StormException>("PxCreatePhysics failed! We cannot use PhysX features, aborting!");
+		Storm::throwException<Storm::Exception>("PxCreatePhysics failed! We cannot use PhysX features, aborting!");
 	}
 
 	_physics->registerDeletionListener(*this, physx::PxDeletionEventFlag::Enum::eUSER_RELEASE);
@@ -220,7 +220,7 @@ Storm::PhysXHandler::PhysXHandler() :
 	_cooking = PxCreateCooking(PX_PHYSICS_VERSION, *_foundationInstance, cookingParams);
 	if (!_cooking)
 	{
-		Storm::throwException<Storm::StormException>("PxCreateCooking failed! We cannot use PhysX cooking, aborting!");
+		Storm::throwException<Storm::Exception>("PxCreateCooking failed! We cannot use PhysX cooking, aborting!");
 	}
 
 	// Create the PhysX Scene
@@ -243,7 +243,7 @@ Storm::PhysXHandler::PhysXHandler() :
 		_cpuDispatcher = physx::PxDefaultCpuDispatcherCreate(1);
 		if (!_cpuDispatcher) 
 		{
-			Storm::throwException<Storm::StormException>("PhysX Cpu dispatcher creation failed!");
+			Storm::throwException<Storm::Exception>("PhysX Cpu dispatcher creation failed!");
 		}
 		sceneDesc.cpuDispatcher = _cpuDispatcher.get();
 	}
@@ -251,7 +251,7 @@ Storm::PhysXHandler::PhysXHandler() :
 	_scene = _physics->createScene(sceneDesc);
 	if (!_scene)
 	{
-		Storm::throwException<Storm::StormException>("PhysX main scene creation failed!");
+		Storm::throwException<Storm::Exception>("PhysX main scene creation failed!");
 	}
 
 	_scene->setFlag(physx::PxSceneFlag::Enum::eENABLE_KINEMATIC_PAIRS, true);
@@ -360,7 +360,7 @@ Storm::UniquePointer<physx::PxShape> Storm::PhysXHandler::createRigidBodyShape(c
 	case Storm::CollisionType::Custom:
 		if (indexes.empty())
 		{
-			Storm::throwException<Storm::StormException>("To create a custom shape, we need indexes set (like creating a custom mesh)!");
+			Storm::throwException<Storm::Exception>("To create a custom shape, we need indexes set (like creating a custom mesh)!");
 		}
 		return createCustomShape(*_physics, *_cooking, rbSceneConfig, vertices, indexes, rbMaterial, _triangleMeshReferences);
 

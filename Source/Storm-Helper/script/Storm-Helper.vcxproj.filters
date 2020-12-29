@@ -94,6 +94,9 @@
     <Filter Include="Header Files\General\Exception">
       <UniqueIdentifier>{5ef0fe7f-65c3-49a0-821c-74e8b5dd6af3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\General\Exception">
+      <UniqueIdentifier>{ba054aa0-55d1-45ce-aeb8-ba9cfbfa8d35}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-HelperPCH.cpp">
@@ -123,14 +126,14 @@
     <ClCompile Include="..\include\LogHelper.cpp">
       <Filter>Source Files\LoggerBase</Filter>
     </ClCompile>
-    <ClCompile Include="..\include\StormException.cpp">
-      <Filter>Source Files\General</Filter>
-    </ClCompile>
     <ClCompile Include="..\include\StormPathHelper.cpp">
       <Filter>Source Files\Application</Filter>
     </ClCompile>
     <ClCompile Include="..\include\OSHelper.cpp">
       <Filter>Source Files\OS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\Exception.cpp">
+      <Filter>Source Files\General\Exception</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -287,9 +290,6 @@
     <ClInclude Include="..\include\ThrowException.h">
       <Filter>Header Files\General\Exception</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\StormException.h">
-      <Filter>Header Files\General\Exception</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\StormPathHelper.h">
       <Filter>Header Files\Application</Filter>
     </ClInclude>
@@ -301,6 +301,9 @@
     </ClInclude>
     <ClInclude Include="..\include\OSHelper.h">
       <Filter>Header Files\OS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Exception.h">
+      <Filter>Header Files\General\Exception</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

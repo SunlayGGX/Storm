@@ -22,7 +22,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\include\StormException.cpp" />
+    <ClCompile Include="..\include\Exception.cpp" />
     <ClCompile Include="..\include\StormPathHelper.cpp" />
     <ClCompile Include="..\include\TimeHelper.cpp" />
     <ClCompile Include="..\include\Version.cpp" />
@@ -62,7 +62,7 @@
     <ClInclude Include="..\include\SizeCounter.h" />
     <ClInclude Include="..\include\StaticAssertionsMacros.h" />
     <ClInclude Include="..\include\Storm-HelperPCH.h" />
-    <ClInclude Include="..\include\StormException.h" />
+    <ClInclude Include="..\include\Exception.h" />
     <ClInclude Include="..\include\StormHelperPrerequisite.h" />
     <ClInclude Include="..\include\StormMacro.h" />
     <ClInclude Include="..\include\StormPathHelper.h" />

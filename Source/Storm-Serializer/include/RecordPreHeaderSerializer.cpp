@@ -38,7 +38,7 @@ void Storm::RecordPreHeaderSerializer::serialize(Storm::SerializePackage &packag
 		const std::size_t realPacketSize = std::filesystem::file_size(package.getFilePath());
 		if (realPacketSize < preHeaderExpectedSize)
 		{
-			Storm::throwException<Storm::StormException>(
+			Storm::throwException<Storm::Exception>(
 				"The record serialized package file isn't even the size of the preheader. This is unexpected!"
 			);
 		}
@@ -46,7 +46,7 @@ void Storm::RecordPreHeaderSerializer::serialize(Storm::SerializePackage &packag
 		package << _preHeader._magicWordChecksum;
 		if (_preHeader._magicWordChecksum != static_cast<MagicWordChecksumType>(RecordMagicWord::k_goodMagicWord))
 		{
-			Storm::throwException<Storm::StormException>(
+			Storm::throwException<Storm::Exception>(
 				"Magic word checksum when reading the record package is wrong :\n"
 				"Expected : " + Storm::toStdString(RecordMagicWord::k_goodMagicWord) + "\n"
 				"Current : " + Storm::toStdString(_preHeader._magicWordChecksum) + "\n"
@@ -61,7 +61,7 @@ void Storm::RecordPreHeaderSerializer::serialize(Storm::SerializePackage &packag
 	{
 		if (_preHeader._recordFileSize < preHeaderExpectedSize)
 		{
-			Storm::throwException<Storm::StormException>(
+			Storm::throwException<Storm::Exception>(
 				"File size shouldn't be inferior to the preHeader size. Something went wrong..."
 				"Size value was " + Storm::toStdString(_preHeader._recordFileSize)
 			);
@@ -70,7 +70,7 @@ void Storm::RecordPreHeaderSerializer::serialize(Storm::SerializePackage &packag
 		const std::uintmax_t currentFileSizeInBytes = std::filesystem::file_size(package.getFilePath());
 		if (_preHeader._recordFileSize != currentFileSizeInBytes)
 		{
-			Storm::throwException<Storm::StormException>(
+			Storm::throwException<Storm::Exception>(
 				"Wrong record file size mismatch. The file is corrupted.\n"
 				"Expected : " + std::to_string(_preHeader._recordFileSize) + " bytes.\n"
 				"Current : " + std::to_string(currentFileSizeInBytes) + " bytes."

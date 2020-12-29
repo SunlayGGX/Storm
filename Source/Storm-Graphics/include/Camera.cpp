@@ -90,7 +90,7 @@ namespace
 			}
 			else
 			{
-				Storm::throwException<Storm::StormException>("Unknown translation axis!");
+				Storm::throwException<Storm::Exception>("Unknown translation axis!");
 			}
 
 			position = target - distToTarget * trigonometricDisplacmentVector;
@@ -156,7 +156,7 @@ namespace
 				}
 				else
 				{
-					Storm::throwException<Storm::StormException>("Unknown translation axis!");
+					Storm::throwException<Storm::Exception>("Unknown translation axis!");
 				}
 			}
 		}

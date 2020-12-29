@@ -20,11 +20,11 @@ int main(int argc, const char* argv[]) try
 {
 	return static_cast<int>(Storm::Application{ argc, argv }.run());
 }
-catch (const Storm::StormException &ex)
+catch (const Storm::Exception &ex)
 {
 	return processEarlyExitAnswer(
 		Storm::Application::ensureCleanStateAfterException(
-			"Fatal error (Storm::StormException received) : " + std::string{ ex.what() } + ".\n"
+			"Fatal error (Storm::Exception received) : " + std::string{ ex.what() } + ".\n"
 			"Stack trace :\n" + ex.stackTrace(), true
 		)
 	);

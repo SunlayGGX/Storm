@@ -17,7 +17,7 @@ namespace Storm
 			}
 			else
 			{
-				Storm::throwException<Storm::StormException>("Trying to extract a null value! It is forbidden!");
+				Storm::throwException<Storm::Exception>("Trying to extract a null value! It is forbidden!");
 			}
 		}
 
@@ -79,7 +79,7 @@ namespace Storm
 		{
 			if (Storm::SearchAlgo::searchIfExistImpl(cont, valueOrPredicate, 0))
 			{
-				Storm::throwException<Storm::StormException>(errorMsg);
+				Storm::throwException<Storm::Exception>(errorMsg);
 			}
 		}
 
@@ -110,7 +110,7 @@ namespace Storm
 		{
 			if (!Storm::SearchAlgo::executeOnObjectInContainerImpl(key, func, allContainers...))
 			{
-				Storm::throwException<Storm::StormException>("Cannot find object with id " + Storm::toStdString(key) + " inside given maps. (" __FUNCSIG__ ")");
+				Storm::throwException<Storm::Exception>("Cannot find object with id " + Storm::toStdString(key) + " inside given maps. (" __FUNCSIG__ ")");
 			}
 		}
 

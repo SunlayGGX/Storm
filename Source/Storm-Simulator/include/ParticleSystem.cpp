@@ -28,7 +28,7 @@ Storm::ParticleSystem::ParticleSystem(unsigned int particleSystemIndex, const st
 	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
 	if (!configMgr.isInReplayMode())
 	{
-		Storm::throwException<Storm::StormException>(__FUNCSIG__ " is to be used only in replay mode!");
+		Storm::throwException<Storm::Exception>(__FUNCSIG__ " is to be used only in replay mode!");
 	}
 
 	this->resizeParticlesCount(particleCount);

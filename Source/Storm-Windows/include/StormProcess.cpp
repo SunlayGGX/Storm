@@ -616,7 +616,7 @@ namespace
 				lock.unlock();
 				Storm::join(_thread);
 
-				Storm::throwException<Storm::StormException>("The cmd command returned with an error and so it has not started!");
+				Storm::throwException<Storm::Exception>("The cmd command returned with an error and so it has not started!");
 			}
 		}
 
@@ -705,12 +705,12 @@ namespace
 	{
 		if (startupParam._exePath.empty() && !startupParam._isCmd)
 		{
-			Storm::throwException<Storm::StormException>("Exe path of the process to start shouldn't be empty!");
+			Storm::throwException<Storm::Exception>("Exe path of the process to start shouldn't be empty!");
 		}
 
 		if ((startupParam._pipeCallback != nullptr || startupParam._bindIO) && startupParam._isCmd)
 		{
-			Storm::throwException<Storm::StormException>("Bind IO with command prompt start is not supported (maybe later).");
+			Storm::throwException<Storm::Exception>("Bind IO with command prompt start is not supported (maybe later).");
 		}
 
 		if (startupParam._pipeCallback == nullptr)

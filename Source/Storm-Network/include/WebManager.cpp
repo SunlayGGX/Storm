@@ -14,7 +14,7 @@ namespace
 {
 	[[noreturn]] void noBrowserExceptionStop()
 	{
-		Storm::throwException<Storm::StormException>("Cannot open any URL when user hasn't specified its Browser (You must specify it through your general config).");
+		Storm::throwException<Storm::Exception>("Cannot open any URL when user hasn't specified its Browser (You must specify it through your general config).");
 	}
 
 	const std::string_view obtainBrowserNameOnCmd(const Storm::PreferredBrowser browser)

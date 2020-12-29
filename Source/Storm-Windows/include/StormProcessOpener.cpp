@@ -50,7 +50,7 @@ namespace
 			outProcessUID = execFunc(nameOfWhatToOpen, std::forward<Args>(args)...);
 			return outProcessUID != k_failureIndex;
 		}
-		catch (const Storm::StormException &ex)
+		catch (const Storm::Exception &ex)
 		{
 			LOG_ERROR <<
 				"Failed to open " << nameOfWhatToOpen << ".\n"

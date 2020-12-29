@@ -77,7 +77,7 @@ namespace
 		}
 		else
 		{
-			Storm::throwException<Storm::StormException>("Unknown thread priority");
+			Storm::throwException<Storm::Exception>("Unknown thread priority");
 		}
 	}
 }

@@ -52,7 +52,7 @@ void Storm::StateFileHeader::endSerialize(Storm::SerializePackage &package)
 	}
 	else
 	{
-		Storm::throwException<Storm::StormException>(__FUNCTION__ " shouldn't be used when loading the state file!");
+		Storm::throwException<Storm::Exception>(__FUNCTION__ " shouldn't be used when loading the state file!");
 	}
 }
 
@@ -86,14 +86,14 @@ void Storm::StateFileHeader::serializePreheader(Storm::SerializePackage &package
 		package << _checksumMagicWord;
 		if (_checksumMagicWord != Checksum::k_goodChecksum)
 		{
-			Storm::throwException<Storm::StormException>("Preheader serializer checksum is invalid. Something went wrong when the state file was created and it was never completed!");
+			Storm::throwException<Storm::Exception>("Preheader serializer checksum is invalid. Something went wrong when the state file was created and it was never completed!");
 		}
 
 		package << _stateFileSize;
 		const uint64_t currentFileSize = static_cast<uint64_t>(std::filesystem::file_size(package.getFilePath()));
 		if (_stateFileSize != currentFileSize)
 		{
-			Storm::throwException<Storm::StormException>(
+			Storm::throwException<Storm::Exception>(
 				"File size is not what we expected (expected : " + std::to_string(_stateFileSize) + ", current : " + std::to_string(currentFileSize) + ").\n"
 				"The state file is corrupted!"
 			);
@@ -102,7 +102,7 @@ void Storm::StateFileHeader::serializePreheader(Storm::SerializePackage &package
 		package << _stateFileVersion;
 		if (_stateFileVersion > retrieveLatestStateVersion())
 		{
-			Storm::throwException<Storm::StormException>(
+			Storm::throwException<Storm::Exception>(
 				"An issue happened with the state file and the version was changed to " + Storm::toStdString(_stateFileVersion) + ".\n"
 				"The state file is corrupted!"
 			);

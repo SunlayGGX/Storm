@@ -122,10 +122,10 @@ void Storm::SerializerManager::run()
 
 		normalExit = true;
 	}
-	catch (const Storm::StormException &e)
+	catch (const Storm::Exception &e)
 	{
 		LOG_FATAL <<
-			"Serializer thread unexpected exit (with Storm::StormException) : " << e.what() << ".\n"
+			"Serializer thread unexpected exit (with Storm::Exception) : " << e.what() << ".\n"
 			"Stack trace :\n" << e.stackTrace();
 			;
 		normalExit = false;
@@ -158,7 +158,7 @@ void Storm::SerializerManager::execute()
 		}
 		else
 		{
-			Storm::throwException<Storm::StormException>("Cannot process recording if header isn't set (we haven't called beginRecord before)! Aborting!");
+			Storm::throwException<Storm::Exception>("Cannot process recording if header isn't set (we haven't called beginRecord before)! Aborting!");
 		}
 	}
 
@@ -208,12 +208,12 @@ void Storm::SerializerManager::beginRecord(Storm::SerializeRecordHeader &&record
 			}
 			else
 			{
-				Storm::throwException<Storm::StormException>("We are already recording. Stop the current recording before starting another one!");
+				Storm::throwException<Storm::Exception>("We are already recording. Stop the current recording before starting another one!");
 			}
 		}
 		else
 		{
-			Storm::throwException<Storm::StormException>("Cannot record and replay at the same time!");
+			Storm::throwException<Storm::Exception>("Cannot record and replay at the same time!");
 		}
 	});
 }
@@ -241,12 +241,12 @@ const Storm::SerializeRecordHeader& Storm::SerializerManager::beginReplay()
 		}
 		else
 		{
-			Storm::throwException<Storm::StormException>("We are already reading!");
+			Storm::throwException<Storm::Exception>("We are already reading!");
 		}
 	}
 	else
 	{
-		Storm::throwException<Storm::StormException>("Cannot record and replay at the same time!");
+		Storm::throwException<Storm::Exception>("Cannot record and replay at the same time!");
 	}
 }
 
@@ -269,7 +269,7 @@ const Storm::SerializeRecordHeader& Storm::SerializerManager::getRecordHeader() 
 	}
 	else
 	{
-		Storm::throwException<Storm::StormException>("We cannot query a record header except in a recording mode (either record or replay)!");
+		Storm::throwException<Storm::Exception>("We cannot query a record header except in a recording mode (either record or replay)!");
 	}
 }
 
@@ -282,7 +282,7 @@ bool Storm::SerializerManager::resetReplay()
 	}
 	else
 	{
-		Storm::throwException<Storm::StormException>("We aren't replaying, therefore we cannot reset it!");
+		Storm::throwException<Storm::Exception>("We aren't replaying, therefore we cannot reset it!");
 	}
 }
 

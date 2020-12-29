@@ -148,7 +148,7 @@ namespace Storm
 					{
 						this->call(_callbacks[iter], currentReturnElement, 0, args...);
 					}
-					catch (const Storm::StormException &ex)
+					catch (const Storm::Exception &ex)
 					{
 						const std::string_view exceptionMsg = ex.what();
 						const std::string_view exceptionStackTrace = ex.stackTrace();

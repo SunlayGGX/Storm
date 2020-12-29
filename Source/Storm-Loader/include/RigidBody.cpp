@@ -192,7 +192,7 @@ std::shared_ptr<Storm::AssetCacheData> Storm::RigidBody::baseLoadAssimp(const St
 		}
 		else
 		{
-			Storm::throwException<Storm::StormException>("The mesh '" + _meshPath + "' doesn't have a mesh inside (an empty mesh). This isn't allowed!");
+			Storm::throwException<Storm::Exception>("The mesh '" + _meshPath + "' doesn't have a mesh inside (an empty mesh). This isn't allowed!");
 		}
 	}
 	else
@@ -363,7 +363,7 @@ void Storm::RigidBody::loadForReplay(const Storm::SceneRigidBodyConfig &rbSceneC
 	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
 	if (!configMgr.isInReplayMode())
 	{
-		Storm::throwException<Storm::StormException>(__FUNCSIG__ " should only be used in replay mode!");
+		Storm::throwException<Storm::Exception>(__FUNCSIG__ " should only be used in replay mode!");
 	}
 
 	this->baseLoadAssimp(rbSceneConfig, computeLayerDistance(configMgr.getSceneSimulationConfig()._particleRadius));

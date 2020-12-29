@@ -116,7 +116,7 @@ namespace
 
 			if (velocitiesCount != forcesCount)
 			{
-				Storm::throwException<Storm::StormException>("Loaded system " + std::to_string(pSystemState._id) + " velocities count mismatches forces count!");
+				Storm::throwException<Storm::Exception>("Loaded system " + std::to_string(pSystemState._id) + " velocities count mismatches forces count!");
 			}
 		}
 	}
@@ -125,7 +125,7 @@ namespace
 	{
 		if (loadingOrder._simulationState == nullptr)
 		{
-			Storm::throwException<Storm::StormException>("Simulation state object is null!");
+			Storm::throwException<Storm::Exception>("Simulation state object is null!");
 		}
 	}
 
@@ -134,7 +134,7 @@ namespace
 		const Storm::StateLoadingOrders::LoadingSettings &loadSetting = inLoadingOrder._settings;
 		if (!std::filesystem::is_regular_file(loadSetting._filePath))
 		{
-			Storm::throwException<Storm::StormException>("'" + Storm::toStdString(loadSetting._filePath) + "' is not a file or doesn't exist");
+			Storm::throwException<Storm::Exception>("'" + Storm::toStdString(loadSetting._filePath) + "' is not a file or doesn't exist");
 		}
 	}
 
@@ -156,7 +156,7 @@ namespace
 			}
 			else
 			{
-				Storm::throwException<Storm::StormException>("Cannot read the current state because the version " + Storm::toStdString(_stateFileVersion) + " isn't handled ");
+				Storm::throwException<Storm::Exception>("Cannot read the current state because the version " + Storm::toStdString(_stateFileVersion) + " isn't handled ");
 			}
 
 			this->applyHeaderSettings();

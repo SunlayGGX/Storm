@@ -78,7 +78,7 @@ namespace
 		}
 		else
 		{
-			Storm::throwException<Storm::StormException>("CollisionType value in rigidbody is unknown : '" + collisionTypeStr + "'");
+			Storm::throwException<Storm::Exception>("CollisionType value in rigidbody is unknown : '" + collisionTypeStr + "'");
 		}
 	}
 
@@ -103,7 +103,7 @@ namespace
 		}
 		else
 		{
-			Storm::throwException<Storm::StormException>("Simulation mode value is unknown : '" + inOutSimulModeStr + "'");
+			Storm::throwException<Storm::Exception>("Simulation mode value is unknown : '" + inOutSimulModeStr + "'");
 		}
 	}
 
@@ -120,7 +120,7 @@ namespace
 		}
 		else
 		{
-			Storm::throwException<Storm::StormException>("Kernel mode value is unknown : '" + kernelModeStr + "'");
+			Storm::throwException<Storm::Exception>("Kernel mode value is unknown : '" + kernelModeStr + "'");
 		}
 	}
 
@@ -137,7 +137,7 @@ namespace
 		}
 		else
 		{
-			Storm::throwException<Storm::StormException>("Fluid particle dense load mode value is unknown : '" + loadModeStr + "'");
+			Storm::throwException<Storm::Exception>("Fluid particle dense load mode value is unknown : '" + loadModeStr + "'");
 		}
 	}
 
@@ -151,7 +151,7 @@ if (blowerTypeStr == BlowerTypeXmlName) return Storm::BlowerType::BlowerTypeName
 
 #undef STORM_XMACRO_GENERATE_ELEMENTARY_BLOWER
 
-		Storm::throwException<Storm::StormException>("BlowerType value is unknown : '" + blowerTypeStr + "'");
+		Storm::throwException<Storm::Exception>("BlowerType value is unknown : '" + blowerTypeStr + "'");
 	}
 
 	Storm::InsideParticleRemovalTechnique parseInsideRemovalTech(std::string techTypeStr)
@@ -167,7 +167,7 @@ if (blowerTypeStr == BlowerTypeXmlName) return Storm::BlowerType::BlowerTypeName
 		}
 		else
 		{
-			Storm::throwException<Storm::StormException>("Fluid particle removal technique value is unknown : '" + techTypeStr + "'");
+			Storm::throwException<Storm::Exception>("Fluid particle removal technique value is unknown : '" + techTypeStr + "'");
 		}
 	}
 
@@ -184,7 +184,7 @@ if (blowerTypeStr == BlowerTypeXmlName) return Storm::BlowerType::BlowerTypeName
 		}
 		else
 		{
-			Storm::throwException<Storm::StormException>("Layering generation technique value is unknown : '" + layeringTechTypeStr + "'");
+			Storm::throwException<Storm::Exception>("Layering generation technique value is unknown : '" + layeringTechTypeStr + "'");
 		}
 	}
 }
@@ -240,52 +240,52 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 
 	if (sceneSimulationConfig._simulationMode == Storm::SimulationMode::None)
 	{
-		Storm::throwException<Storm::StormException>("We expect to set a simulation mode, this is mandatory!");
+		Storm::throwException<Storm::Exception>("We expect to set a simulation mode, this is mandatory!");
 	}
 	else if (sceneSimulationConfig._maxDensityError <= 0.f)
 	{
-		Storm::throwException<Storm::StormException>("Max density error cannot be negative or equal to 0.f!");
+		Storm::throwException<Storm::Exception>("Max density error cannot be negative or equal to 0.f!");
 	}
 	else if (sceneSimulationConfig._minPredictIteration > sceneSimulationConfig._maxPredictIteration)
 	{
-		Storm::throwException<Storm::StormException>("Max prediction iteration (" + std::to_string(sceneSimulationConfig._maxPredictIteration) + ") should be greater or equal than min prediction iter (" + std::to_string(sceneSimulationConfig._minPredictIteration) + ")!");
+		Storm::throwException<Storm::Exception>("Max prediction iteration (" + std::to_string(sceneSimulationConfig._maxPredictIteration) + ") should be greater or equal than min prediction iter (" + std::to_string(sceneSimulationConfig._minPredictIteration) + ")!");
 	}
 	else if (sceneSimulationConfig._maxPredictIteration == 0)
 	{
-		Storm::throwException<Storm::StormException>("Max prediction iteration shouldn't be equal to 0 (we should at least compute the iteration one time!");
+		Storm::throwException<Storm::Exception>("Max prediction iteration shouldn't be equal to 0 (we should at least compute the iteration one time!");
 	}
 	else if (sceneSimulationConfig._physicsTimeInSec <= 0.f)
 	{
 		if (sceneSimulationConfig._cflCoeff <= 0.f)
 		{
-			Storm::throwException<Storm::StormException>("CFL was enabled but CFL coefficient is less or equal than 0 (value is " + std::to_string(sceneSimulationConfig._cflCoeff) + "). It isn't allowed!");
+			Storm::throwException<Storm::Exception>("CFL was enabled but CFL coefficient is less or equal than 0 (value is " + std::to_string(sceneSimulationConfig._cflCoeff) + "). It isn't allowed!");
 		}
 		else if (sceneSimulationConfig._maxCFLIteration <= 0)
 		{
-			Storm::throwException<Storm::StormException>("CFL iteration should be greater or equal than 1 (value is " + std::to_string(sceneSimulationConfig._maxCFLIteration) + ").");
+			Storm::throwException<Storm::Exception>("CFL iteration should be greater or equal than 1 (value is " + std::to_string(sceneSimulationConfig._maxCFLIteration) + ").");
 		}
 	}
 	if (sceneSimulationConfig._recomputeNeighborhoodStep == 0)
 	{
-		Storm::throwException<Storm::StormException>("neighborCheckStep is equal to 0 which isn't allowed (we must recompute neighborhood at least one time)!");
+		Storm::throwException<Storm::Exception>("neighborCheckStep is equal to 0 which isn't allowed (we must recompute neighborhood at least one time)!");
 	}
 	else if (sceneSimulationConfig._endSimulationPhysicsTimeInSeconds != -1.f && sceneSimulationConfig._endSimulationPhysicsTimeInSeconds <= 0.f)
 	{
-		Storm::throwException<Storm::StormException>("end simulation time was set to a negative or zero time (" + std::to_string(sceneSimulationConfig._endSimulationPhysicsTimeInSeconds) + "). It isn't allowed!");
+		Storm::throwException<Storm::Exception>("end simulation time was set to a negative or zero time (" + std::to_string(sceneSimulationConfig._endSimulationPhysicsTimeInSeconds) + "). It isn't allowed!");
 	}
 	else if (sceneSimulationConfig._kernelCoefficient < 0.f)
 	{
-		Storm::throwException<Storm::StormException>("Kernel coefficient value shouldn't be below 0 (" + std::to_string(sceneSimulationConfig._kernelCoefficient) + ")");
+		Storm::throwException<Storm::Exception>("Kernel coefficient value shouldn't be below 0 (" + std::to_string(sceneSimulationConfig._kernelCoefficient) + ")");
 	}
 	else if (sceneSimulationConfig._maxKernelIncrementCoeff <= -sceneSimulationConfig._kernelCoefficient)
 	{
-		Storm::throwException<Storm::StormException>("We cannot decrease the kernel coefficient to a value below or equal to 0:\n"
+		Storm::throwException<Storm::Exception>("We cannot decrease the kernel coefficient to a value below or equal to 0:\n"
 			"kernel coeff : " + std::to_string(sceneSimulationConfig._kernelCoefficient) + "\n"
 			"Requested decrease : " + std::to_string(sceneSimulationConfig._maxKernelIncrementCoeff));
 	}
 	else if (sceneSimulationConfig._kernelIncrementSpeedInSeconds != -1.f && sceneSimulationConfig._kernelIncrementSpeedInSeconds < 0.f)
 	{
-		Storm::throwException<Storm::StormException>("Time to finish increasing the kernel coefficient in seconds should be positive or -1 (disabled). Value was " + std::to_string(sceneSimulationConfig._kernelIncrementSpeedInSeconds));
+		Storm::throwException<Storm::Exception>("Time to finish increasing the kernel coefficient in seconds should be positive or -1 (disabled). Value was " + std::to_string(sceneSimulationConfig._kernelIncrementSpeedInSeconds));
 	}
 
 	if (sceneSimulationConfig._kernelIncrementSpeedInSeconds != -1.f && sceneSimulationConfig._maxKernelIncrementCoeff == 0.f)
@@ -335,35 +335,35 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 
 	if (graphicConfig._velocityNormMinColor > graphicConfig._velocityNormMaxColor)
 	{
-		Storm::throwException<Storm::StormException>("Min velocity color value (" + std::to_string(graphicConfig._velocityNormMinColor) + ") is greater than Max color value (" + std::to_string(graphicConfig._velocityNormMaxColor) + "). It isn't allowed!");
+		Storm::throwException<Storm::Exception>("Min velocity color value (" + std::to_string(graphicConfig._velocityNormMinColor) + ") is greater than Max color value (" + std::to_string(graphicConfig._velocityNormMaxColor) + "). It isn't allowed!");
 	}
 	if (graphicConfig._pressureMinColor > graphicConfig._pressureMaxColor)
 	{
-		Storm::throwException<Storm::StormException>("Min pressure color value (" + std::to_string(graphicConfig._pressureMinColor) + ") is greater than Max color value (" + std::to_string(graphicConfig._pressureMaxColor) + "). It isn't allowed!");
+		Storm::throwException<Storm::Exception>("Min pressure color value (" + std::to_string(graphicConfig._pressureMinColor) + ") is greater than Max color value (" + std::to_string(graphicConfig._pressureMaxColor) + "). It isn't allowed!");
 	}
 	if (graphicConfig._densityMinColor > graphicConfig._densityMaxColor)
 	{
-		Storm::throwException<Storm::StormException>("Min velocity color value (" + std::to_string(graphicConfig._densityMinColor) + ") is greater than Max color value (" + std::to_string(graphicConfig._densityMaxColor) + "). It isn't allowed!");
+		Storm::throwException<Storm::Exception>("Min velocity color value (" + std::to_string(graphicConfig._densityMinColor) + ") is greater than Max color value (" + std::to_string(graphicConfig._densityMaxColor) + "). It isn't allowed!");
 	}
 	else if (Storm::ColorCheckerHelper::channelIsInvalid(graphicConfig._blowerAlpha))
 	{
-		Storm::throwException<Storm::StormException>("blower alpha channel value is invalid (" + std::to_string(graphicConfig._blowerAlpha) + "). It should be in the range 0.0 and 1.0 included!");
+		Storm::throwException<Storm::Exception>("blower alpha channel value is invalid (" + std::to_string(graphicConfig._blowerAlpha) + "). It should be in the range 0.0 and 1.0 included!");
 	}
 	else if (Storm::ColorCheckerHelper::isInvalid(graphicConfig._constraintColor))
 	{
-		Storm::throwException<Storm::StormException>("Constraint color is invalid (" + Storm::toStdString(graphicConfig._constraintColor) + ")! Each channel must be between 0.0 and 1.0 included!");
+		Storm::throwException<Storm::Exception>("Constraint color is invalid (" + Storm::toStdString(graphicConfig._constraintColor) + ")! Each channel must be between 0.0 and 1.0 included!");
 	}
 	else if (graphicConfig._constraintThickness <= 0.f)
 	{
-		Storm::throwException<Storm::StormException>("Constraint thickness is invalid (" + Storm::toStdString(graphicConfig._constraintThickness) + ")! It must be a positive non zero value.");
+		Storm::throwException<Storm::Exception>("Constraint thickness is invalid (" + Storm::toStdString(graphicConfig._constraintThickness) + ")! It must be a positive non zero value.");
 	}
 	else if (Storm::ColorCheckerHelper::isInvalid(graphicConfig._forceColor))
 	{
-		Storm::throwException<Storm::StormException>("Selected particle force color is invalid (" + Storm::toStdString(graphicConfig._forceColor) + ")! Each channel must be between 0.0 and 1.0 included!");
+		Storm::throwException<Storm::Exception>("Selected particle force color is invalid (" + Storm::toStdString(graphicConfig._forceColor) + ")! Each channel must be between 0.0 and 1.0 included!");
 	}
 	else if (graphicConfig._forceThickness <= 0.f)
 	{
-		Storm::throwException<Storm::StormException>("Selected particle force thickness is invalid (" + Storm::toStdString(graphicConfig._forceThickness) + ")! It must be a positive non zero value.");
+		Storm::throwException<Storm::Exception>("Selected particle force thickness is invalid (" + Storm::toStdString(graphicConfig._forceThickness) + ")! It must be a positive non zero value.");
 	}
 
 	/* Record */
@@ -387,7 +387,7 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 
 		if (recordConfig._recordFps <= 0.f && recordConfig._recordFps != -1.f)
 		{
-			Storm::throwException<Storm::StormException>("Record fps should remain unset or should be a positive value (currently " + std::to_string(recordConfig._recordFps) + ")");
+			Storm::throwException<Storm::Exception>("Record fps should remain unset or should be a positive value (currently " + std::to_string(recordConfig._recordFps) + ")");
 		}
 
 		// The other validations will be done later.
@@ -431,7 +431,7 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 
 				if (scriptRuntimeConfigData._refreshRateInMillisec == 0)
 				{
-					Storm::throwException<Storm::StormException>("Watched script file refresh rate cannot be equal to 0! Specify a non null positive value.");
+					Storm::throwException<Storm::Exception>("Watched script file refresh rate cannot be equal to 0! Specify a non null positive value.");
 				}
 			}
 			else if (
@@ -472,7 +472,7 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 
 				if (fluidBlockGenerator._firstPoint == fluidBlockGenerator._secondPoint)
 				{
-					Storm::throwException<Storm::StormException>("Generator min block value cannot be equal to the max value!");
+					Storm::throwException<Storm::Exception>("Generator min block value cannot be equal to the max value!");
 				}
 			}
 			else if (
@@ -493,39 +493,39 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 
 		if (fluidConfig._fluidId == std::numeric_limits<decltype(fluidConfig._fluidId)>::max())
 		{
-			Storm::throwException<Storm::StormException>("Fluid id should be set using 'id' tag!");
+			Storm::throwException<Storm::Exception>("Fluid id should be set using 'id' tag!");
 		}
 		else if (fluidConfig._fluidGenConfig.empty())
 		{
-			Storm::throwException<Storm::StormException>("Fluid " + std::to_string(fluidConfig._fluidId) + " should have at least one block (an empty fluid is forbidden)!");
+			Storm::throwException<Storm::Exception>("Fluid " + std::to_string(fluidConfig._fluidId) + " should have at least one block (an empty fluid is forbidden)!");
 		}
 		else if (fluidConfig._density <= 0.f)
 		{
-			Storm::throwException<Storm::StormException>("Fluid " + std::to_string(fluidConfig._fluidId) + " density of " + std::to_string(fluidConfig._density) + "kg.m^-3 is invalid!");
+			Storm::throwException<Storm::Exception>("Fluid " + std::to_string(fluidConfig._fluidId) + " density of " + std::to_string(fluidConfig._density) + "kg.m^-3 is invalid!");
 		}
 		else if (fluidConfig._kPressureStiffnessCoeff < 0.f)
 		{
-			Storm::throwException<Storm::StormException>("Fluid " + std::to_string(fluidConfig._fluidId) + " pressure stiffness of " + std::to_string(fluidConfig._kPressureStiffnessCoeff) + " is invalid!");
+			Storm::throwException<Storm::Exception>("Fluid " + std::to_string(fluidConfig._fluidId) + " pressure stiffness of " + std::to_string(fluidConfig._kPressureStiffnessCoeff) + " is invalid!");
 		}
 		else if (fluidConfig._kPressureExponentCoeff < 0.f)
 		{
-			Storm::throwException<Storm::StormException>("Fluid " + std::to_string(fluidConfig._fluidId) + " pressure exponent of " + std::to_string(fluidConfig._kPressureExponentCoeff) + " is invalid!");
+			Storm::throwException<Storm::Exception>("Fluid " + std::to_string(fluidConfig._fluidId) + " pressure exponent of " + std::to_string(fluidConfig._kPressureExponentCoeff) + " is invalid!");
 		}
 		else if (fluidConfig._relaxationCoefficient < 0.f || fluidConfig._relaxationCoefficient > 1.f)
 		{
-			Storm::throwException<Storm::StormException>("Fluid " + std::to_string(fluidConfig._fluidId) + " relaxation coefficient " + std::to_string(fluidConfig._relaxationCoefficient) + " is invalid (it should be between 0.0 and 1.0 included)!");
+			Storm::throwException<Storm::Exception>("Fluid " + std::to_string(fluidConfig._fluidId) + " relaxation coefficient " + std::to_string(fluidConfig._relaxationCoefficient) + " is invalid (it should be between 0.0 and 1.0 included)!");
 		}
 		else if (fluidConfig._pressureInitRelaxationCoefficient < 0.f)
 		{
-			Storm::throwException<Storm::StormException>("Fluid " + std::to_string(fluidConfig._fluidId) + " init relaxation coefficient " + std::to_string(fluidConfig._pressureInitRelaxationCoefficient) + " is invalid (it should be greater or equal to 0.0)!");
+			Storm::throwException<Storm::Exception>("Fluid " + std::to_string(fluidConfig._fluidId) + " init relaxation coefficient " + std::to_string(fluidConfig._pressureInitRelaxationCoefficient) + " is invalid (it should be greater or equal to 0.0)!");
 		}
 		else if (fluidConfig._dynamicViscosity <= 0.f)
 		{
-			Storm::throwException<Storm::StormException>("Fluid " + std::to_string(fluidConfig._fluidId) + " dynamic viscosity of " + std::to_string(fluidConfig._dynamicViscosity) + "N.s/m² is invalid!");
+			Storm::throwException<Storm::Exception>("Fluid " + std::to_string(fluidConfig._fluidId) + " dynamic viscosity of " + std::to_string(fluidConfig._dynamicViscosity) + "N.s/m² is invalid!");
 		}
 		else if (fluidConfig._soundSpeed <= 0.f)
 		{
-			Storm::throwException<Storm::StormException>("Fluid " + std::to_string(fluidConfig._fluidId) + " sound of speed (" + std::to_string(fluidConfig._dynamicViscosity) + "m/s) is invalid!");
+			Storm::throwException<Storm::Exception>("Fluid " + std::to_string(fluidConfig._fluidId) + " sound of speed (" + std::to_string(fluidConfig._dynamicViscosity) + "m/s) is invalid!");
 		}
 
 		fluidConfig._cinematicViscosity = fluidConfig._dynamicViscosity / fluidConfig._density;
@@ -536,7 +536,7 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 	}
 	else
 	{
-		Storm::throwException<Storm::StormException>("You should have at least one Fluid inside the scene, unless you've specified the tag 'General.allowNoFluid' to true!");
+		Storm::throwException<Storm::Exception>("You should have at least one Fluid inside the scene, unless you've specified the tag 'General.allowNoFluid' to true!");
 	}
 
 	/* RigidBodies */
@@ -571,7 +571,7 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 
 		if (rbConfig._rigidBodyID == std::numeric_limits<decltype(rbConfig._rigidBodyID)>::max())
 		{
-			Storm::throwException<Storm::StormException>("Rigid body id should be set using 'id' tag!");
+			Storm::throwException<Storm::Exception>("Rigid body id should be set using 'id' tag!");
 		}
 
 		// Minus 1 because of course, the rbConfig that we are currently filling has the same id than itself... 
@@ -581,31 +581,31 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 			return registeredRb._rigidBodyID == rbConfig._rigidBodyID;
 		}); found != lastToCheck)
 		{
-			Storm::throwException<Storm::StormException>("RigidBody id " + std::to_string(rbConfig._rigidBodyID) + " is already used!");
+			Storm::throwException<Storm::Exception>("RigidBody id " + std::to_string(rbConfig._rigidBodyID) + " is already used!");
 		}
 		else if (rbConfig._rigidBodyID == fluidConfig._fluidId)
 		{
-			Storm::throwException<Storm::StormException>("RigidBody id " + std::to_string(rbConfig._rigidBodyID) + " is already being used by fluid data!");
+			Storm::throwException<Storm::Exception>("RigidBody id " + std::to_string(rbConfig._rigidBodyID) + " is already being used by fluid data!");
 		}
 		else if (!std::filesystem::is_regular_file(rbConfig._meshFilePath))
 		{
-			Storm::throwException<Storm::StormException>("'" + rbConfig._meshFilePath + "' is not a valid mesh file!");
+			Storm::throwException<Storm::Exception>("'" + rbConfig._meshFilePath + "' is not a valid mesh file!");
 		}
 		else if (rbConfig._mass <= 0.f)
 		{
-			Storm::throwException<Storm::StormException>("mass " + std::to_string(rbConfig._mass) + "kg is invalid (rigid body " + std::to_string(rbConfig._rigidBodyID) + ")!");
+			Storm::throwException<Storm::Exception>("mass " + std::to_string(rbConfig._mass) + "kg is invalid (rigid body " + std::to_string(rbConfig._rigidBodyID) + ")!");
 		}
 		else if (rbConfig._viscosity < 0.f)
 		{
-			Storm::throwException<Storm::StormException>("viscosity " + std::to_string(rbConfig._viscosity) + "Pa.s is invalid (rigid body " + std::to_string(rbConfig._rigidBodyID) + ")!");
+			Storm::throwException<Storm::Exception>("viscosity " + std::to_string(rbConfig._viscosity) + "Pa.s is invalid (rigid body " + std::to_string(rbConfig._rigidBodyID) + ")!");
 		}
 		else if (rbConfig._isWall && rbConfig._insideRbFluidDetectionMethodEnum != Storm::InsideParticleRemovalTechnique::None)
 		{
-			Storm::throwException<Storm::StormException>("Setting a insider particles removal technique for a wall rigidbody is forbidden (rigid body " + std::to_string(rbConfig._rigidBodyID) + ")!");
+			Storm::throwException<Storm::Exception>("Setting a insider particles removal technique for a wall rigidbody is forbidden (rigid body " + std::to_string(rbConfig._rigidBodyID) + ")!");
 		}
 		else if (rbConfig._layerCount == 0)
 		{
-			Storm::throwException<Storm::StormException>("The rigid body layer count is invalid (rigid body " + std::to_string(rbConfig._rigidBodyID) + ")! Value was " + std::to_string(rbConfig._layerCount));
+			Storm::throwException<Storm::Exception>("The rigid body layer count is invalid (rigid body " + std::to_string(rbConfig._rigidBodyID) + ")! Value was " + std::to_string(rbConfig._layerCount));
 		}
 	});
 
@@ -631,33 +631,33 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 
 		if (contraintConfig._constraintsLength == -1.f)
 		{
-			Storm::throwException<Storm::StormException>("Constraints " + std::to_string(contraintsIndex) + " length isn't set but is a mandatory setting, please specify it with 'length' tag.");
+			Storm::throwException<Storm::Exception>("Constraints " + std::to_string(contraintsIndex) + " length isn't set but is a mandatory setting, please specify it with 'length' tag.");
 		}
 		else if (contraintConfig._constraintsLength <= 0.f)
 		{
-			Storm::throwException<Storm::StormException>("Constraints " + std::to_string(contraintsIndex) + " length should be a positive non zero value (was " + std::to_string(contraintConfig._constraintsLength) + ")!");
+			Storm::throwException<Storm::Exception>("Constraints " + std::to_string(contraintsIndex) + " length should be a positive non zero value (was " + std::to_string(contraintConfig._constraintsLength) + ")!");
 		}
 		else if (contraintConfig._rigidBodyId1 == std::numeric_limits<decltype(contraintConfig._rigidBodyId1)>::max())
 		{
-			Storm::throwException<Storm::StormException>("Constraints " + std::to_string(contraintsIndex) + " rigid body 1 id wasn't set! It is a mandatory field.");
+			Storm::throwException<Storm::Exception>("Constraints " + std::to_string(contraintsIndex) + " rigid body 1 id wasn't set! It is a mandatory field.");
 		}
 		else if (contraintConfig._rigidBodyId2 == std::numeric_limits<decltype(contraintConfig._rigidBodyId2)>::max())
 		{
-			Storm::throwException<Storm::StormException>("Constraints " + std::to_string(contraintsIndex) + " rigid body 2 id wasn't set! It is a mandatory field.");
+			Storm::throwException<Storm::Exception>("Constraints " + std::to_string(contraintsIndex) + " rigid body 2 id wasn't set! It is a mandatory field.");
 		}
 		else if (std::find_if(std::begin(rigidBodiesConfigArray), lastToCheck, [&contraintConfig](const Storm::SceneRigidBodyConfig &registeredRb)
 		{
 			return registeredRb._rigidBodyID == contraintConfig._rigidBodyId1;
 		}) == lastToCheck)
 		{
-			Storm::throwException<Storm::StormException>("Constraints " + std::to_string(contraintsIndex) + " rigid body 1 id wasn't found (" + std::to_string(contraintConfig._rigidBodyId1) + ")!");
+			Storm::throwException<Storm::Exception>("Constraints " + std::to_string(contraintsIndex) + " rigid body 1 id wasn't found (" + std::to_string(contraintConfig._rigidBodyId1) + ")!");
 		}
 		else if (std::find_if(std::begin(rigidBodiesConfigArray), lastToCheck, [&contraintConfig](const Storm::SceneRigidBodyConfig &registeredRb)
 		{
 			return registeredRb._rigidBodyID == contraintConfig._rigidBodyId2;
 		}) == lastToCheck)
 		{
-			Storm::throwException<Storm::StormException>("Constraints " + std::to_string(contraintsIndex) + " rigid body 2 id wasn't found (" + std::to_string(contraintConfig._rigidBodyId2) + ")!");
+			Storm::throwException<Storm::Exception>("Constraints " + std::to_string(contraintsIndex) + " rigid body 2 id wasn't found (" + std::to_string(contraintConfig._rigidBodyId2) + ")!");
 		}
 	});
 
@@ -687,33 +687,33 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 	{
 		if (blowerConfig._blowerId == std::numeric_limits<decltype(blowerConfig._blowerId)>::max())
 		{
-			Storm::throwException<Storm::StormException>("Blower id should be set using 'id' tag!");
+			Storm::throwException<Storm::Exception>("Blower id should be set using 'id' tag!");
 		}
 		else if (blowerConfig._blowerId == fluidConfig._fluidId)
 		{
-			Storm::throwException<Storm::StormException>("Blower with id " + std::to_string(blowerConfig._blowerId) + " shares the same id than an already registered fluid. It is forbidden!");
+			Storm::throwException<Storm::Exception>("Blower with id " + std::to_string(blowerConfig._blowerId) + " shares the same id than an already registered fluid. It is forbidden!");
 		}
 		else if (blowerConfig._startTimeInSeconds < 0.f)
 		{
-			Storm::throwException<Storm::StormException>("Blower " + std::to_string(blowerConfig._blowerId) + " start time is invalid (it cannot be lesser or equal to 0, value was " + std::to_string(blowerConfig._startTimeInSeconds) + ")!");
+			Storm::throwException<Storm::Exception>("Blower " + std::to_string(blowerConfig._blowerId) + " start time is invalid (it cannot be lesser or equal to 0, value was " + std::to_string(blowerConfig._startTimeInSeconds) + ")!");
 		}
 		else if (blowerConfig._stopTimeInSeconds == -1.f && blowerConfig._fadeOutTimeInSeconds > 0.f)
 		{
-			Storm::throwException<Storm::StormException>("Blower " + std::to_string(blowerConfig._blowerId) + " doesn't have a stop time but has a fade out time. It is illogical!");
+			Storm::throwException<Storm::Exception>("Blower " + std::to_string(blowerConfig._blowerId) + " doesn't have a stop time but has a fade out time. It is illogical!");
 		}
 		else if (blowerConfig._fadeInTimeInSeconds < 0.f)
 		{
-			Storm::throwException<Storm::StormException>("Blower " + std::to_string(blowerConfig._blowerId) + " fade in time cannot be negative!");
+			Storm::throwException<Storm::Exception>("Blower " + std::to_string(blowerConfig._blowerId) + " fade in time cannot be negative!");
 		}
 		else if (blowerConfig._fadeOutTimeInSeconds < 0.f)
 		{
-			Storm::throwException<Storm::StormException>("Blower " + std::to_string(blowerConfig._blowerId) + " fade out time cannot be negative!");
+			Storm::throwException<Storm::Exception>("Blower " + std::to_string(blowerConfig._blowerId) + " fade out time cannot be negative!");
 		}
 		else if (blowerConfig._stopTimeInSeconds != -1.f)
 		{
 			if (blowerConfig._startTimeInSeconds >= blowerConfig._stopTimeInSeconds)
 			{
-				Storm::throwException<Storm::StormException>(
+				Storm::throwException<Storm::Exception>(
 					"Blower " + std::to_string(blowerConfig._blowerId) + " end time cannot be before its start time.\n"
 					"Either set it to -1 to specify that there is no stop time, or set it strictly greater than the start time!\n"
 					"startTime was " + std::to_string(blowerConfig._startTimeInSeconds) + "s\n"
@@ -721,11 +721,11 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 			}
 			else if (blowerConfig._stopTimeInSeconds < blowerConfig._fadeOutTimeInSeconds)
 			{
-				Storm::throwException<Storm::StormException>("Blower " + std::to_string(blowerConfig._blowerId) + " fade out time is greater than the stop time (this means that it has faded out even before the time 0, which does not make much sense)!");
+				Storm::throwException<Storm::Exception>("Blower " + std::to_string(blowerConfig._blowerId) + " fade out time is greater than the stop time (this means that it has faded out even before the time 0, which does not make much sense)!");
 			}
 			else if ((blowerConfig._startTimeInSeconds + blowerConfig._fadeInTimeInSeconds) > (blowerConfig._stopTimeInSeconds - blowerConfig._fadeOutTimeInSeconds))
 			{
-				Storm::throwException<Storm::StormException>(
+				Storm::throwException<Storm::Exception>(
 					"Blower " + std::to_string(blowerConfig._blowerId) + " fade in and fade out overlaps... Too complex and error prone, please, change it to a way those do not overlaps!\n"
 					"Fade in time start=" + std::to_string(blowerConfig._startTimeInSeconds) + "s; end=" + std::to_string(blowerConfig._startTimeInSeconds + blowerConfig._fadeInTimeInSeconds) + "s.\n"
 					"Fade out time start=" + std::to_string(blowerConfig._stopTimeInSeconds - blowerConfig._fadeOutTimeInSeconds) + "s; end=" + std::to_string(blowerConfig._stopTimeInSeconds) + "s.");
@@ -738,7 +738,7 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 			return registeredRb._rigidBodyID == id;
 		}); found != lastRbToCheck)
 		{
-			Storm::throwException<Storm::StormException>("Blower with id " + std::to_string(blowerConfig._blowerId) + " shares the same id than an already registered rigid body. It is forbidden!");
+			Storm::throwException<Storm::Exception>("Blower with id " + std::to_string(blowerConfig._blowerId) + " shares the same id than an already registered rigid body. It is forbidden!");
 		}
 
 		switch (blowerConfig._blowerType)
@@ -746,27 +746,27 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 		case Storm::BlowerType::Cube:
 			if (blowerConfig._blowerDimension == Storm::Vector3::Zero())
 			{
-				Storm::throwException<Storm::StormException>("Blower " + std::to_string(blowerConfig._blowerId) + " (a cube) should have defined a dimension!");
+				Storm::throwException<Storm::Exception>("Blower " + std::to_string(blowerConfig._blowerId) + " (a cube) should have defined a dimension!");
 			}
 			else if (blowerConfig._blowerDimension.x() <= 0.f || blowerConfig._blowerDimension.y() <= 0.f || blowerConfig._blowerDimension.z() <= 0.f)
 			{
-				Storm::throwException<Storm::StormException>("Blower " + std::to_string(blowerConfig._blowerId) + " (a cube) cannot have one of its dimension value lesser or equal to 0! Specified dimension was " + Storm::toStdString(blowerConfig._blowerDimension));
+				Storm::throwException<Storm::Exception>("Blower " + std::to_string(blowerConfig._blowerId) + " (a cube) cannot have one of its dimension value lesser or equal to 0! Specified dimension was " + Storm::toStdString(blowerConfig._blowerDimension));
 			}
 			else if (blowerConfig._radius != 0.f)
 			{
-				Storm::throwException<Storm::StormException>("Blower " + std::to_string(blowerConfig._blowerId) + " (a cube) cannot have a radius (" + Storm::toStdString(blowerConfig._radius) + ")!");
+				Storm::throwException<Storm::Exception>("Blower " + std::to_string(blowerConfig._blowerId) + " (a cube) cannot have a radius (" + Storm::toStdString(blowerConfig._radius) + ")!");
 			}
 			else if (blowerConfig._height != 0.f && blowerConfig._height != blowerConfig._blowerDimension.y())
 			{
-				Storm::throwException<Storm::StormException>("Blower " + std::to_string(blowerConfig._blowerId) + " (a cube) cannot have a specific height (use the dimension for a cube, not the height tag (" + Storm::toStdString(blowerConfig._height) + "))!");
+				Storm::throwException<Storm::Exception>("Blower " + std::to_string(blowerConfig._blowerId) + " (a cube) cannot have a specific height (use the dimension for a cube, not the height tag (" + Storm::toStdString(blowerConfig._height) + "))!");
 			}
 			else if (blowerConfig._upRadius != -1.f)
 			{
-				Storm::throwException<Storm::StormException>("Blower " + std::to_string(blowerConfig._blowerId) + " (a cube) cannot have an up radius (" + Storm::toStdString(blowerConfig._upRadius) + ")!");
+				Storm::throwException<Storm::Exception>("Blower " + std::to_string(blowerConfig._blowerId) + " (a cube) cannot have an up radius (" + Storm::toStdString(blowerConfig._upRadius) + ")!");
 			}
 			else if (blowerConfig._downRadius != -1.f)
 			{
-				Storm::throwException<Storm::StormException>("Blower " + std::to_string(blowerConfig._blowerId) + " (a cube) cannot have a down radius (" + Storm::toStdString(blowerConfig._downRadius) + ")!");
+				Storm::throwException<Storm::Exception>("Blower " + std::to_string(blowerConfig._blowerId) + " (a cube) cannot have a down radius (" + Storm::toStdString(blowerConfig._downRadius) + ")!");
 			}
 			break;
 
@@ -775,19 +775,19 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 		case Storm::BlowerType::ExplosionSphere:
 			if (blowerConfig._radius <= 0.f)
 			{
-				Storm::throwException<Storm::StormException>("Blower " + std::to_string(blowerConfig._blowerId) + " (a sphere) should have defined a positive non-zero radius!");
+				Storm::throwException<Storm::Exception>("Blower " + std::to_string(blowerConfig._blowerId) + " (a sphere) should have defined a positive non-zero radius!");
 			}
 			else if (blowerConfig._height != 0.f)
 			{
-				Storm::throwException<Storm::StormException>("Blower " + std::to_string(blowerConfig._blowerId) + " (a sphere) cannot have a specific height (this tag is reserved for cylinder derived blowers (" + Storm::toStdString(blowerConfig._height) + "))!");
+				Storm::throwException<Storm::Exception>("Blower " + std::to_string(blowerConfig._blowerId) + " (a sphere) cannot have a specific height (this tag is reserved for cylinder derived blowers (" + Storm::toStdString(blowerConfig._height) + "))!");
 			}
 			else if (blowerConfig._upRadius != -1.f)
 			{
-				Storm::throwException<Storm::StormException>("Blower " + std::to_string(blowerConfig._blowerId) + " (a sphere) cannot have an up radius (" + Storm::toStdString(blowerConfig._upRadius) + ")!");
+				Storm::throwException<Storm::Exception>("Blower " + std::to_string(blowerConfig._blowerId) + " (a sphere) cannot have an up radius (" + Storm::toStdString(blowerConfig._upRadius) + ")!");
 			}
 			else if (blowerConfig._downRadius != -1.f)
 			{
-				Storm::throwException<Storm::StormException>("Blower " + std::to_string(blowerConfig._blowerId) + " (a sphere) cannot have a down radius (" + Storm::toStdString(blowerConfig._downRadius) + ")!");
+				Storm::throwException<Storm::Exception>("Blower " + std::to_string(blowerConfig._blowerId) + " (a sphere) cannot have a down radius (" + Storm::toStdString(blowerConfig._downRadius) + ")!");
 			}
 			blowerConfig._blowerDimension = Storm::Vector3{ blowerConfig._radius, blowerConfig._radius, blowerConfig._radius };
 			break;
@@ -795,31 +795,31 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 		case Storm::BlowerType::PulseExplosionSphere:
 			if (blowerConfig._radius <= 0.f)
 			{
-				Storm::throwException<Storm::StormException>("Blower " + std::to_string(blowerConfig._blowerId) + " (a pulse explosion) should have defined a positive non-zero radius!");
+				Storm::throwException<Storm::Exception>("Blower " + std::to_string(blowerConfig._blowerId) + " (a pulse explosion) should have defined a positive non-zero radius!");
 			}
 			else if (blowerConfig._height != 0.f)
 			{
-				Storm::throwException<Storm::StormException>("Blower " + std::to_string(blowerConfig._blowerId) + " (a pulse explosion) cannot have a specific height (this tag is reserved for cylinder derived blowers (" + Storm::toStdString(blowerConfig._height) + "))!");
+				Storm::throwException<Storm::Exception>("Blower " + std::to_string(blowerConfig._blowerId) + " (a pulse explosion) cannot have a specific height (this tag is reserved for cylinder derived blowers (" + Storm::toStdString(blowerConfig._height) + "))!");
 			}
 			else if (blowerConfig._stopTimeInSeconds != -1.f)
 			{
-				Storm::throwException<Storm::StormException>("Blower " + std::to_string(blowerConfig._blowerId) + " (a pulse explosion) have its stop time set in stone! You cannot override it (you've set " + std::to_string(blowerConfig._stopTimeInSeconds) + "s).");
+				Storm::throwException<Storm::Exception>("Blower " + std::to_string(blowerConfig._blowerId) + " (a pulse explosion) have its stop time set in stone! You cannot override it (you've set " + std::to_string(blowerConfig._stopTimeInSeconds) + "s).");
 			}
 			else if (blowerConfig._fadeInTimeInSeconds != 0.f)
 			{
-				Storm::throwException<Storm::StormException>("Blower " + std::to_string(blowerConfig._blowerId) + " (a pulse explosion) have its fadeInTime set in stone! You cannot override it (you've set " + std::to_string(blowerConfig._fadeInTimeInSeconds) + "s).");
+				Storm::throwException<Storm::Exception>("Blower " + std::to_string(blowerConfig._blowerId) + " (a pulse explosion) have its fadeInTime set in stone! You cannot override it (you've set " + std::to_string(blowerConfig._fadeInTimeInSeconds) + "s).");
 			}
 			else if (blowerConfig._fadeOutTimeInSeconds != 0.f)
 			{
-				Storm::throwException<Storm::StormException>("Blower " + std::to_string(blowerConfig._blowerId) + " (a pulse explosion) have its fadeInTime set in stone! You cannot override it (you've set " + std::to_string(blowerConfig._fadeOutTimeInSeconds) + "s).");
+				Storm::throwException<Storm::Exception>("Blower " + std::to_string(blowerConfig._blowerId) + " (a pulse explosion) have its fadeInTime set in stone! You cannot override it (you've set " + std::to_string(blowerConfig._fadeOutTimeInSeconds) + "s).");
 			}
 			else if (blowerConfig._upRadius != -1.f)
 			{
-				Storm::throwException<Storm::StormException>("Blower " + std::to_string(blowerConfig._blowerId) + " (a pulse explosion) cannot have an up radius (" + Storm::toStdString(blowerConfig._upRadius) + ")!");
+				Storm::throwException<Storm::Exception>("Blower " + std::to_string(blowerConfig._blowerId) + " (a pulse explosion) cannot have an up radius (" + Storm::toStdString(blowerConfig._upRadius) + ")!");
 			}
 			else if (blowerConfig._downRadius != -1.f)
 			{
-				Storm::throwException<Storm::StormException>("Blower " + std::to_string(blowerConfig._blowerId) + " (a pulse explosion) cannot have a down radius (" + Storm::toStdString(blowerConfig._downRadius) + ")!");
+				Storm::throwException<Storm::Exception>("Blower " + std::to_string(blowerConfig._blowerId) + " (a pulse explosion) cannot have a down radius (" + Storm::toStdString(blowerConfig._downRadius) + ")!");
 			}
 
 			blowerConfig._blowerDimension = Storm::Vector3{ blowerConfig._radius, blowerConfig._radius, blowerConfig._radius };
@@ -828,27 +828,27 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 		case Storm::BlowerType::Cylinder:
 			if (blowerConfig._radius <= 0.f)
 			{
-				Storm::throwException<Storm::StormException>("Blower " + std::to_string(blowerConfig._blowerId) + " (a cylinder) should have defined a positive non-zero radius!");
+				Storm::throwException<Storm::Exception>("Blower " + std::to_string(blowerConfig._blowerId) + " (a cylinder) should have defined a positive non-zero radius!");
 			}
 			else if (blowerConfig._height <= 0.f)
 			{
-				Storm::throwException<Storm::StormException>("Blower " + std::to_string(blowerConfig._blowerId) + " (a cylinder) should have defined a positive non zero height!");
+				Storm::throwException<Storm::Exception>("Blower " + std::to_string(blowerConfig._blowerId) + " (a cylinder) should have defined a positive non zero height!");
 			}
 			else if (blowerConfig._blowerDimension.x() != 0.f || blowerConfig._blowerDimension.z() != 0.f)
 			{
-				Storm::throwException<Storm::StormException>("Blower " + std::to_string(blowerConfig._blowerId) + " (a cylinder) shouldn't use dimension tag to specify x and z width and depth but radius instead!");
+				Storm::throwException<Storm::Exception>("Blower " + std::to_string(blowerConfig._blowerId) + " (a cylinder) shouldn't use dimension tag to specify x and z width and depth but radius instead!");
 			}
 			else if (blowerConfig._blowerDimension.y() != 0.f && blowerConfig._blowerDimension.y() != blowerConfig._height)
 			{
-				Storm::throwException<Storm::StormException>("Blower " + std::to_string(blowerConfig._blowerId) + " (a cylinder) shouldn't use dimension tag for the height but use height tag instead!");
+				Storm::throwException<Storm::Exception>("Blower " + std::to_string(blowerConfig._blowerId) + " (a cylinder) shouldn't use dimension tag for the height but use height tag instead!");
 			}
 			else if (blowerConfig._upRadius != -1.f)
 			{
-				Storm::throwException<Storm::StormException>("Blower " + std::to_string(blowerConfig._blowerId) + " (a cylinder) cannot have an up radius (" + Storm::toStdString(blowerConfig._upRadius) + ")!");
+				Storm::throwException<Storm::Exception>("Blower " + std::to_string(blowerConfig._blowerId) + " (a cylinder) cannot have an up radius (" + Storm::toStdString(blowerConfig._upRadius) + ")!");
 			}
 			else if (blowerConfig._downRadius != -1.f)
 			{
-				Storm::throwException<Storm::StormException>("Blower " + std::to_string(blowerConfig._blowerId) + " (a cylinder) cannot have a down radius (" + Storm::toStdString(blowerConfig._downRadius) + ")!");
+				Storm::throwException<Storm::Exception>("Blower " + std::to_string(blowerConfig._blowerId) + " (a cylinder) cannot have a down radius (" + Storm::toStdString(blowerConfig._downRadius) + ")!");
 			}
 
 			blowerConfig._blowerDimension = Storm::Vector3{ 0.f, blowerConfig._height, 0.f };
@@ -857,39 +857,39 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 		case Storm::BlowerType::Cone:
 			if (blowerConfig._radius != 0.f)
 			{
-				Storm::throwException<Storm::StormException>("Blower " + std::to_string(blowerConfig._blowerId) + " (a Cone) cannot have a radius (" + Storm::toStdString(blowerConfig._radius) + ")!");
+				Storm::throwException<Storm::Exception>("Blower " + std::to_string(blowerConfig._blowerId) + " (a Cone) cannot have a radius (" + Storm::toStdString(blowerConfig._radius) + ")!");
 			}
 			else if (blowerConfig._height <= 0.f)
 			{
-				Storm::throwException<Storm::StormException>("Blower " + std::to_string(blowerConfig._blowerId) + " (a Cone) should have defined a positive non zero height!");
+				Storm::throwException<Storm::Exception>("Blower " + std::to_string(blowerConfig._blowerId) + " (a Cone) should have defined a positive non zero height!");
 			}
 			else if (blowerConfig._blowerDimension.x() != 0.f || blowerConfig._blowerDimension.z() != 0.f)
 			{
-				Storm::throwException<Storm::StormException>("Blower " + std::to_string(blowerConfig._blowerId) + " (a Cone) shouldn't use dimension tag to specify x and z width and depth but radius instead!");
+				Storm::throwException<Storm::Exception>("Blower " + std::to_string(blowerConfig._blowerId) + " (a Cone) shouldn't use dimension tag to specify x and z width and depth but radius instead!");
 			}
 			else if (blowerConfig._blowerDimension.y() != 0.f && blowerConfig._blowerDimension.y() != blowerConfig._height)
 			{
-				Storm::throwException<Storm::StormException>("Blower " + std::to_string(blowerConfig._blowerId) + " (a Cone) shouldn't use dimension tag for the height but use height tag instead!");
+				Storm::throwException<Storm::Exception>("Blower " + std::to_string(blowerConfig._blowerId) + " (a Cone) shouldn't use dimension tag for the height but use height tag instead!");
 			}
 			else if (blowerConfig._upRadius == -1.f)
 			{
-				Storm::throwException<Storm::StormException>("Blower " + std::to_string(blowerConfig._blowerId) + " (a Cone) should have defined an up radius!");
+				Storm::throwException<Storm::Exception>("Blower " + std::to_string(blowerConfig._blowerId) + " (a Cone) should have defined an up radius!");
 			}
 			else if (blowerConfig._downRadius == -1.f)
 			{
-				Storm::throwException<Storm::StormException>("Blower " + std::to_string(blowerConfig._blowerId) + " (a Cone) should have defined a down radius!");
+				Storm::throwException<Storm::Exception>("Blower " + std::to_string(blowerConfig._blowerId) + " (a Cone) should have defined a down radius!");
 			}
 			else if (blowerConfig._upRadius < 0.f)
 			{
-				Storm::throwException<Storm::StormException>("Blower " + std::to_string(blowerConfig._blowerId) + "(a Cone) up radius is invalid. It should be a non negative value (" + Storm::toStdString(blowerConfig._upRadius) + ")!");
+				Storm::throwException<Storm::Exception>("Blower " + std::to_string(blowerConfig._blowerId) + "(a Cone) up radius is invalid. It should be a non negative value (" + Storm::toStdString(blowerConfig._upRadius) + ")!");
 			}
 			else if (blowerConfig._downRadius < 0.f)
 			{
-				Storm::throwException<Storm::StormException>("Blower " + std::to_string(blowerConfig._blowerId) + "(a Cone) down radius is invalid. It should be a non negative value (" + Storm::toStdString(blowerConfig._downRadius) + ")!");
+				Storm::throwException<Storm::Exception>("Blower " + std::to_string(blowerConfig._blowerId) + "(a Cone) down radius is invalid. It should be a non negative value (" + Storm::toStdString(blowerConfig._downRadius) + ")!");
 			}
 			else if (blowerConfig._downRadius == 0.f && blowerConfig._upRadius == 0.f)
 			{
-				Storm::throwException<Storm::StormException>("Blower " + std::to_string(blowerConfig._blowerId) + "(a Cone) down and up radius are both zero. It is forbidden!");
+				Storm::throwException<Storm::Exception>("Blower " + std::to_string(blowerConfig._blowerId) + "(a Cone) down and up radius are both zero. It is forbidden!");
 			}
 
 			blowerConfig._blowerDimension = Storm::Vector3{ 0.f, blowerConfig._height, 0.f };
@@ -904,7 +904,7 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 
 		case Storm::BlowerType::None:
 		default:
-			Storm::throwException<Storm::StormException>("Blower " + std::to_string(blowerConfig._blowerId) + " should have defined a blower type, this is mandatory!");
+			Storm::throwException<Storm::Exception>("Blower " + std::to_string(blowerConfig._blowerId) + " should have defined a blower type, this is mandatory!");
 		}
 	});
 }

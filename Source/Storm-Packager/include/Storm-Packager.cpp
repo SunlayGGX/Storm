@@ -11,7 +11,7 @@ int main(int argc, const char*const argv[]) try
 {
 	return static_cast<int>(StormPackager::Application{ argc, argv }.run());
 }
-catch (const Storm::StormException &ex)
+catch (const Storm::Exception &ex)
 {
 	std::cerr <<
 		"Unhandled storm exception happened!\n"

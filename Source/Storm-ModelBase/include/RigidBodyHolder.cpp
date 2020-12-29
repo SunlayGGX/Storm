@@ -9,7 +9,7 @@ void Storm::RigidBodyHolder::setRbParent(const std::shared_ptr<Storm::IRigidBody
 	}
 	else
 	{
-		Storm::throwException<Storm::StormException>("You're trying to overwrite an existing link. Once it has been done, you're not allowed to set another parent!");
+		Storm::throwException<Storm::Exception>("You're trying to overwrite an existing link. Once it has been done, you're not allowed to set another parent!");
 	}
 }
 

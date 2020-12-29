@@ -38,7 +38,7 @@ std::filesystem::path Storm::StormPathHelper::findStormRootPath(const std::files
 {
 	if (exeFolderPath.empty())
 	{
-		Storm::throwException<Storm::StormException>("Exe folder shouldn't be empty!");
+		Storm::throwException<Storm::Exception>("Exe folder shouldn't be empty!");
 	}
 
 	std::filesystem::path rootPath = exeFolderPath;

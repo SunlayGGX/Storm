@@ -392,7 +392,7 @@ void Storm::WindowsManager::initializeInternal()
 	}
 	else
 	{
-		Storm::throwException<Storm::StormException>("Windows not created correctly!");
+		Storm::throwException<Storm::Exception>("Windows not created correctly!");
 	}
 }
 

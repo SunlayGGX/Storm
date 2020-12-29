@@ -20,6 +20,6 @@ std::unique_ptr<Storm::ISPHBaseSolver> Storm::instantiateSPHSolver(const Storm::
 	case Storm::SimulationMode::DFSPH: return std::make_unique<Storm::DFSPHSolver>(creationParameter._kernelLength, *creationParameter._particleSystems);
 
 	default:
-		Storm::throwException<Storm::StormException>("Unknown simulation mode!");
+		Storm::throwException<Storm::Exception>("Unknown simulation mode!");
 	}
 }

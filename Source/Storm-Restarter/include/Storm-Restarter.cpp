@@ -14,7 +14,7 @@ int main(int argc, const char*const argv[]) try
 {
 	if (argc < 3)
 	{
-		Storm::throwException<Storm::StormException>("We must have at least the scene file and the current storm path to start as argument!");
+		Storm::throwException<Storm::Exception>("We must have at least the scene file and the current storm path to start as argument!");
 	}
 
 	std::string cmdRebuild = "";
@@ -33,11 +33,11 @@ int main(int argc, const char*const argv[]) try
 
 			if (stormPathArg.empty())
 			{
-				Storm::throwException<Storm::StormException>("Storm exe path shouldn't be empty!");
+				Storm::throwException<Storm::Exception>("Storm exe path shouldn't be empty!");
 			}
 			else if (hasStormPath)
 			{
-				Storm::throwException<Storm::StormException>("Cannot set storm exe path twice!");
+				Storm::throwException<Storm::Exception>("Cannot set storm exe path twice!");
 			}
 			else
 			{
@@ -67,7 +67,7 @@ int main(int argc, const char*const argv[]) try
 	/*boost::process::child restartStormProc{ cmdRebuild };
 	if (!restartStormProc.running())
 	{
-		Storm::throwException<Storm::StormException>("We couldn't restart storm process with those arguments : " + cmdRebuild);
+		Storm::throwException<Storm::Exception>("We couldn't restart storm process with those arguments : " + cmdRebuild);
 	}
 
 	restartStormProc.detach();
@@ -78,7 +78,7 @@ int main(int argc, const char*const argv[]) try
 
 	return 0;
 }
-catch (const Storm::StormException &ex)
+catch (const Storm::Exception &ex)
 {
 	std::cerr <<
 		"Unhandled storm exception happened!\n"

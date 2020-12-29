@@ -132,7 +132,7 @@ namespace Storm
 				}
 				else
 				{
-					Storm::throwException<Storm::StormException>("Cannot find the process " + Storm::toStdString(processUID) + " managed by this module");
+					Storm::throwException<Storm::Exception>("Cannot find the process " + Storm::toStdString(processUID) + " managed by this module");
 				}
 			}
 
@@ -146,7 +146,7 @@ namespace Storm
 				}
 				else
 				{
-					Storm::throwException<Storm::StormException>("Cannot find the process " + Storm::toStdString(processUID) + " managed by this module");
+					Storm::throwException<Storm::Exception>("Cannot find the process " + Storm::toStdString(processUID) + " managed by this module");
 				}
 			}
 

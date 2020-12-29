@@ -30,7 +30,7 @@ namespace
 		}
 		else
 		{
-			Storm::throwException<Storm::StormException>("Unknown keyword '" + token + "'");
+			Storm::throwException<Storm::Exception>("Unknown keyword '" + token + "'");
 		}
 	}
 
@@ -120,10 +120,10 @@ std::vector<Storm::ScriptObject> Storm::CommandParser::parse(std::string &&total
 						}
 						else
 						{
-							Storm::throwException<Storm::StormException>("Too many tokens detected in command '" + command + "' !");
+							Storm::throwException<Storm::Exception>("Too many tokens detected in command '" + command + "' !");
 						}
 					}
-					catch (const Storm::StormException &ex)
+					catch (const Storm::Exception &ex)
 					{
 						const std::string_view errorMsg = ex.what();
 						const std::string_view errorStackTrace = ex.stackTrace();
@@ -177,7 +177,7 @@ std::vector<Storm::ScriptObject> Storm::CommandParser::parse(std::string &&total
 				--toRemove;
 			}
 
-			Storm::throwException<Storm::StormException>(errors);
+			Storm::throwException<Storm::Exception>(errors);
 		}
 	}
 

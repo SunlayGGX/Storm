@@ -10,18 +10,18 @@ Storm::VPShaderBase::VPShaderBase(const ComPtr<ID3D11Device> &device, const std:
 	const std::filesystem::path vertexShaderFilePath{ vertexShaderFilePathStr };
 	if (!std::filesystem::is_regular_file(vertexShaderFilePath))
 	{
-		Storm::throwException<Storm::StormException>(vertexShaderFilePathStr + " doesn't exist or cannot be a vertex shader!");
+		Storm::throwException<Storm::Exception>(vertexShaderFilePathStr + " doesn't exist or cannot be a vertex shader!");
 	}
 
 	const std::filesystem::path pixelShaderFilePath{ pixelShaderFilePathStr };
 	if (!std::filesystem::is_regular_file(pixelShaderFilePath))
 	{
-		Storm::throwException<Storm::StormException>(pixelShaderFilePathStr + " doesn't exist or cannot be a pixel shader!");
+		Storm::throwException<Storm::Exception>(pixelShaderFilePathStr + " doesn't exist or cannot be a pixel shader!");
 	}
 
 	if (vertexShaderFunctionName.empty() || pixelShaderFunctionName.empty())
 	{
-		Storm::throwException<Storm::StormException>("Shaders function name shouldn't be empty!");
+		Storm::throwException<Storm::Exception>("Shaders function name shouldn't be empty!");
 	}
 
 	Storm::ShaderManager &shaderMgr = Storm::ShaderManager::instance();
@@ -46,24 +46,24 @@ Storm::VPShaderBase::VPShaderBase(const ComPtr<ID3D11Device> &device, const std:
 	const std::filesystem::path vertexShaderFilePath{ vertexShaderFilePathStr };
 	if (!std::filesystem::is_regular_file(vertexShaderFilePath))
 	{
-		Storm::throwException<Storm::StormException>(vertexShaderFilePathStr + " doesn't exist or cannot be a vertex shader!");
+		Storm::throwException<Storm::Exception>(vertexShaderFilePathStr + " doesn't exist or cannot be a vertex shader!");
 	}
 
 	const std::filesystem::path geometryShaderFilePath{ geometryShaderFilePathStr };
 	if (!std::filesystem::is_regular_file(geometryShaderFilePath))
 	{
-		Storm::throwException<Storm::StormException>(geometryShaderFilePathStr + " doesn't exist or cannot be a geometry shader!");
+		Storm::throwException<Storm::Exception>(geometryShaderFilePathStr + " doesn't exist or cannot be a geometry shader!");
 	}
 
 	const std::filesystem::path pixelShaderFilePath{ pixelShaderFilePathStr };
 	if (!std::filesystem::is_regular_file(pixelShaderFilePath))
 	{
-		Storm::throwException<Storm::StormException>(pixelShaderFilePathStr + " doesn't exist or cannot be a pixel shader!");
+		Storm::throwException<Storm::Exception>(pixelShaderFilePathStr + " doesn't exist or cannot be a pixel shader!");
 	}
 
 	if (vertexShaderFunctionName.empty() || pixelShaderFunctionName.empty() || geometryShaderFunctionName.empty())
 	{
-		Storm::throwException<Storm::StormException>("Shaders function name shouldn't be empty!");
+		Storm::throwException<Storm::Exception>("Shaders function name shouldn't be empty!");
 	}
 
 	Storm::ShaderManager &shaderMgr = Storm::ShaderManager::instance();
@@ -92,18 +92,18 @@ Storm::VPShaderBase::VPShaderBase(const ComPtr<ID3D11Device> &device, const std:
 	const std::filesystem::path vertexShaderFilePath{ vertexShaderFilePathStr };
 	if (!std::filesystem::is_regular_file(vertexShaderFilePath))
 	{
-		Storm::throwException<Storm::StormException>(vertexShaderFilePathStr + " doesn't exist or cannot be a vertex shader!");
+		Storm::throwException<Storm::Exception>(vertexShaderFilePathStr + " doesn't exist or cannot be a vertex shader!");
 	}
 
 	const std::filesystem::path pixelShaderFilePath{ pixelShaderFilePathStr };
 	if (!std::filesystem::is_regular_file(pixelShaderFilePath))
 	{
-		Storm::throwException<Storm::StormException>(pixelShaderFilePathStr + " doesn't exist or cannot be a pixel shader!");
+		Storm::throwException<Storm::Exception>(pixelShaderFilePathStr + " doesn't exist or cannot be a pixel shader!");
 	}
 
 	if (vertexShaderFunctionName.empty() || pixelShaderFunctionName.empty())
 	{
-		Storm::throwException<Storm::StormException>("Shaders function name shouldn't be empty!");
+		Storm::throwException<Storm::Exception>("Shaders function name shouldn't be empty!");
 	}
 
 	Storm::ShaderManager &shaderMgr = Storm::ShaderManager::instance();
@@ -128,24 +128,24 @@ Storm::VPShaderBase::VPShaderBase(const ComPtr<ID3D11Device> &device, const std:
 	const std::filesystem::path vertexShaderFilePath{ vertexShaderFilePathStr };
 	if (!std::filesystem::is_regular_file(vertexShaderFilePath))
 	{
-		Storm::throwException<Storm::StormException>(vertexShaderFilePathStr + " doesn't exist or cannot be a vertex shader!");
+		Storm::throwException<Storm::Exception>(vertexShaderFilePathStr + " doesn't exist or cannot be a vertex shader!");
 	}
 
 	const std::filesystem::path geometryShaderFilePath{ geometryShaderFilePathStr };
 	if (!std::filesystem::is_regular_file(geometryShaderFilePath))
 	{
-		Storm::throwException<Storm::StormException>(geometryShaderFilePathStr + " doesn't exist or cannot be a geometry shader!");
+		Storm::throwException<Storm::Exception>(geometryShaderFilePathStr + " doesn't exist or cannot be a geometry shader!");
 	}
 
 	const std::filesystem::path pixelShaderFilePath{ pixelShaderFilePathStr };
 	if (!std::filesystem::is_regular_file(pixelShaderFilePath))
 	{
-		Storm::throwException<Storm::StormException>(pixelShaderFilePathStr + " doesn't exist or cannot be a pixel shader!");
+		Storm::throwException<Storm::Exception>(pixelShaderFilePathStr + " doesn't exist or cannot be a pixel shader!");
 	}
 
 	if (vertexShaderFunctionName.empty() || pixelShaderFunctionName.empty() || geometryShaderFunctionName.empty())
 	{
-		Storm::throwException<Storm::StormException>("Shaders function name shouldn't be empty!");
+		Storm::throwException<Storm::Exception>("Shaders function name shouldn't be empty!");
 	}
 
 	Storm::ShaderManager &shaderMgr = Storm::ShaderManager::instance();
