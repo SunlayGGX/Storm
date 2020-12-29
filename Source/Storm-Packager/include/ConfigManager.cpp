@@ -106,10 +106,11 @@ void StormPackager::ConfigManager::initialize_Implementation(int argc, const cha
 	extractIfExist("help", _helpRequested);
 
 	_currentExePath = argv[0];
-	const std::filesystem::path exePath{ _currentExePath };
+	std::filesystem::path exePath{ _currentExePath };
 	if (!exePath.is_absolute())
 	{
 		_currentExePath = (std::filesystem::current_path() / exePath.filename()).string();
+		exePath = _currentExePath;
 	}
 
 	const std::filesystem::path rootPath = Storm::StormPathHelper::findStormRootPath(exePath.parent_path());
