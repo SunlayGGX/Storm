@@ -36,6 +36,11 @@ namespace
 
 std::filesystem::path Storm::StormPathHelper::findStormRootPath(const std::filesystem::path &exeFolderPath)
 {
+	if (exeFolderPath.empty())
+	{
+		Storm::throwException<Storm::StormException>("Exe folder shouldn't be empty!");
+	}
+
 	std::filesystem::path rootPath = exeFolderPath;
 
 	const std::filesystem::path expectedStormRootFolderName = "Storm";
