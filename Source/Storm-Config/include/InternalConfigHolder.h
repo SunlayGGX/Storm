@@ -3,6 +3,7 @@
 
 namespace Storm
 {
+	class MacroConfig;
 	struct InternalConfig;
 
 	class InternalConfigHolder
@@ -12,7 +13,11 @@ namespace Storm
 		~InternalConfigHolder();
 
 	public:
+		// Produce the generated configs
 		void init();
+
+		// Read from internal configs
+		void read(const std::filesystem::path &internalConfigPath, const Storm::MacroConfig &macroConfig);
 
 	public:
 		const Storm::InternalConfig& getInternalConfig() const;

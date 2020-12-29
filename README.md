@@ -149,6 +149,7 @@ Except some exceptions described below, you should define the xml value for tagN
 <ins>Exceptions</ins>
 - if the type is "vector3", then the xml should be defined like this : \<tagName x="xValue" y="yValue" z="zValue" \\>
 - if the type is "RGBAcolor", then the xml should be defined like this : \<tagName r="rValue" g="gValue" b="bValue" a="aValue" \\>. Besides, all r, g, b, a values are to be float values between 0.0 and 1.0 included.
+- if the type is "article", "misc", then see the section "Internal".
 
 
 ### Macro Configs
@@ -385,6 +386,31 @@ Inside this element should be put all rigidbodies. Each rigidbody should be spec
 - **dimension (vector3, semi-mandatory)**: This defines the dimension of the blower. This setting is mandatory for Cube type blowers and all coordinates should be positive non-zero values. This is the scaling of a 1m x 1m x 1m cube... Any uses for another blower type than cubes derived blowers aren't allowed.
 - **position (vector3, facultative)**: This defines the position (all coordinates are meters) of the origin center of the blower. Default is { x=0.0, y=0.0, z=0.0 }...
 - **force (vector3, facultative)**: This defines the force applied by the blower to each particle in range (inside its effect area defined by the blower's dimension). Default is { x=0.0, y=0.0, z=0.0 }...
+
+
+### Internal
+
+Internal Config is a versioned config that mustn't change much. It contains data that I didn't want to hard code.<br><br>
+Since this configuration file shouldn't be exposed a lot (but I'll document it nevertheless), we wouldn't be permissive in case an error happens and immediately exit the application.<br>
+The location of the Internal config named "InternalConfig.xml" is inside under the folder "$[StormConfig]/Internal".
+So now, you are warned to not modify this config file unless it is truly necessary.
+
+#### References
+References contains a list of all references to articles, papers, books, websites, ... I used :
+- **article (tag, facultative)**: Specify the reference is an article/papers/book. The exposed attributes are :
+	+ **authors (string, mandatory)**: Specify the authors of the reference. If there is more than one authors, they should all be separated by a comma ','.
+	+ **name (string, mandatory)**: Specify the name of the reference. Note that the '\n' will be interpreted as a line break.
+	+ **date (string, mandatory)**
+	+ **serialNumber (string, mandatory)**: ISBN, SN, DOI, ... It can be anything that allows to reference this article uniquely.
+	+ **url (string, facultative)**: An URL to where we can retrieve the article easily. (Though we don't specify if it will be free of charge)
+	+ **bibTex (string, facultative)**: The relative path from BibTex folder (folder besides the InternalConfig.xml) to a text file containing the BibTex reference of the article. Note that we don't validate the BibTex string is valid.
+- **misc (tag, facultative)**: Specify a miscellaneous reference. It can be anything like a tutorial, a website, another engine source code, ...
+	+ **authors (string, mandatory)** Specify the authors of the reference. If there is more than one authors, they should all be separated by a comma ','.
+	+ **name (string, mandatory)**: Specify the name of the reference. Note that the '\n' will be interpreted as a line break.
+	+ **date (string, facultative)**
+	+ **serialNumber (string, facultative)**: Anything that allows to reference this reference uniquely.
+	+ **url (string, facultative)**: An URL to where we can retrieve the reference easily. (Though we don't specify if it will be free of charge)
+	+ **bibTex (string, facultative)**: The relative path from BibTex folder (folder besides the InternalConfig.xml) to a text file containing the BibTex reference of the article. Note that we don't validate the BibTex string is valid.
 
 
 # Input bindings

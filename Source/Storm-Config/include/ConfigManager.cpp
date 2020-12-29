@@ -124,6 +124,8 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 			LOG_WARNING << "Storm file tree order isn't standard. Cannot grab the default config folder path... Therefore it will remain empty.";
 		}
 
+		_internalConfigHolder.read(configFolderPath / "Internal" / "InternalConfig.xml", _macroConfig);
+
 		const std::filesystem::path k_macroConfigFileName{ "Macro.xml" };
 		std::filesystem::path defaultMacroConfigFilePath = defaultGeneralConfigFolderPath / k_macroConfigFileName;
 		if (!std::filesystem::exists(defaultMacroConfigFilePath))

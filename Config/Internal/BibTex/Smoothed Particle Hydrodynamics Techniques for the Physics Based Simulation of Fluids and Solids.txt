@@ -1,0 +1,10 @@
+@inproceedings {t.20191035,
+	booktitle = {Eurographics 2019 - Tutorials},
+	editor = {Jakob, Wenzel and Puppo, Enrico},
+	title = {{Smoothed Particle Hydrodynamics Techniques for the Physics Based Simulation of Fluids and Solids}},
+	author = {Koschier, Dan and Bender, Jan and Solenthaler, Barbara and Teschner, Matthias},
+	year = {2019},
+	publisher = {The Eurographics Association},
+	ISSN = {1017-4656},
+	DOI = {10.2312/egt.20191035}
+}

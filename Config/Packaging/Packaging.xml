@@ -13,6 +13,7 @@
 	<copy>Config/Template</copy>
 	<copy>Config/Custom/General/Original</copy>
 	<copy>Config/Custom/Scenes/Original</copy>
+	<copy>Config/Internal</copy>
 	<copy>Launcher</copy>
 	<copy>Resource</copy>
 </Package>
