@@ -13,7 +13,7 @@ bool StormPackager::BuildProcess::execute(const std::string &devenvPath, const s
 	fullCommand += "\" \"";
 
 	fullCommand += sln; 
-	fullCommand += "\" /Build Release|x64";
+	fullCommand += "\" /Build ReleaseNoPackager|x64";
 
 	LOG_DEBUG << "Building '" << sln << "'. This will take some time but please, do not stop the application.";
 
