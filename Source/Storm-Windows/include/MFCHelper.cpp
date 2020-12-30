@@ -12,7 +12,7 @@ namespace
 }
 
 
-HMENU Storm::MFCHelper::findMenuById(HMENU mainMenu, const UINT menuID)
+HMENU Storm::MFCHelper::findMenuById(const HMENU mainMenu, const UINT menuID)
 {
 	MENUITEMINFO childinfo;
 	childinfo.cbSize = sizeof(childinfo);
@@ -26,7 +26,7 @@ HMENU Storm::MFCHelper::findMenuById(HMENU mainMenu, const UINT menuID)
 	return childinfo.hSubMenu;
 }
 
-HMENU Storm::MFCHelper::findMenuByName(HMENU current, const std::wstring_view &menuName)
+HMENU Storm::MFCHelper::findMenuByName(const HMENU current, const std::wstring_view &menuName)
 {
 	int subItemCount = ::GetMenuItemCount(current);
 	if (subItemCount == -1)
@@ -73,7 +73,7 @@ HMENU Storm::MFCHelper::findMenuByName(HMENU current, const std::wstring_view &m
 	return nullptr;
 }
 
-void Storm::MFCHelper::setMenuEnabled(HMENU mainMenu, const UINT menuID, bool enabled)
+void Storm::MFCHelper::setMenuEnabled(const HMENU mainMenu, const UINT menuID, bool enabled)
 {
 	if (::EnableMenuItem(mainMenu, menuID, MF_BYCOMMAND | (enabled ? MF_ENABLED : (MF_DISABLED | MF_GRAYED))) == -1)
 	{
@@ -81,23 +81,7 @@ void Storm::MFCHelper::setMenuEnabled(HMENU mainMenu, const UINT menuID, bool en
 	}
 }
 
-bool Storm::MFCHelper::setMenuAsPopupMenu(HMENU mainMenu, const UINT menuID, HMENU newPopup)
-{
-	MENUITEMINFO childinfo;
-	childinfo.cbSize = sizeof(childinfo);
-
-	childinfo.fMask = MIIM_SUBMENU;
-	childinfo.hSubMenu = newPopup;
-
-	if (::SetMenuItemInfo(mainMenu, menuID, FALSE, &childinfo))
-	{
-
-	}
-
-	return true;
-}
-
-bool Storm::MFCHelper::appendNewStringMenu(HMENU parent, const std::wstring &menuName, UINT &outNewMenuCommandID)
+bool Storm::MFCHelper::appendNewStringMenu(const HMENU parent, const std::wstring &menuName, UINT &outNewMenuCommandID)
 {
 	outNewMenuCommandID = g_cmdIdIncreased++;
 
@@ -108,4 +92,36 @@ bool Storm::MFCHelper::appendNewStringMenu(HMENU parent, const std::wstring &men
 
 	LOG_DEBUG_ERROR << "We weren't able to create a new submenu! Error code was " << GetLastError();
 	return false;
+}
+
+HMENU Storm::MFCHelper::getChild(const HMENU parent, const int childIter)
+{
+	int subItemCount = ::GetMenuItemCount(parent);
+	if (subItemCount == -1)
+	{
+		LOG_DEBUG_ERROR << "Something went wrong when getting the subchild count of a menu. Ensure that the parent isn't null.";
+		return nullptr;
+	}
+
+	if (subItemCount < childIter)
+	{
+		return nullptr;
+	}
+
+	MENUITEMINFO childinfo;
+	childinfo.cbSize = sizeof(childinfo);
+	childinfo.fMask = MIIM_SUBMENU;
+	childinfo.hSubMenu = nullptr;
+
+	if (!::GetMenuItemInfo(parent, childIter, TRUE, &childinfo))
+	{
+		LOG_DEBUG_ERROR << "Something went wrong when getting the subchild of a menu. Ensure that the parent is a popup menu. Error code was " << GetLastError();
+	}
+
+	return childinfo.hSubMenu;
+}
+
+HMENU Storm::MFCHelper::getFirstChild(const HMENU parent)
+{
+	return Storm::MFCHelper::getChild(parent, 0);
 }

@@ -20,6 +20,7 @@
 #include "ThreadEnumeration.h"
 #include "StringAlgo.h"
 #include "MFCHelper.h"
+#include "RAII.h"
 
 #include "UIModality.h"
 
@@ -396,12 +397,15 @@ void Storm::WindowsManager::initializeInternal()
 			const std::vector<Storm::InternalReferenceConfig> &referencesConfig = configMgr.getInternalReferencesConfig();
 			if (!referencesConfig.empty())
 			{
-				HMENU linkReferenceSubmenu = Storm::MFCHelper::findMenuByName(mainMenu, STORM_TEXT("References"));
+				HMENU linkReference = Storm::MFCHelper::findMenuByName(mainMenu, STORM_TEXT("References"));
+				HMENU linkReferenceSubmenu = Storm::MFCHelper::getChild(linkReference, 1);
+
 				for (const Storm::InternalReferenceConfig &referenceConfig : referencesConfig)
 				{
 					if (!referenceConfig._url.empty())
 					{
-						_menuBuilderHandler->appendMenu(linkReferenceSubmenu, Storm::toStdWString(referenceConfig._name), [&referenceConfig]()
+						std::wstring menuName = Storm::toStdWString(referenceConfig._name);
+						_menuBuilderHandler->appendMenu(linkReferenceSubmenu, menuName, [&referenceConfig]()
 						{
 							std::size_t outProcessUID;
 							Storm::StormProcessOpener::openStormUrlLink(Storm::StormProcessOpener::OpenParameter{
@@ -410,6 +414,8 @@ void Storm::WindowsManager::initializeInternal()
 						});
 					}
 				}
+
+				::DrawMenuBar(windowVisuHandle);
 			}
 			else
 			{

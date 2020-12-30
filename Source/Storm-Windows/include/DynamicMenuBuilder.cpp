@@ -5,7 +5,7 @@
 
 Storm::DynamicMenuBuilder::~DynamicMenuBuilder() = default;
 
-void Storm::DynamicMenuBuilder::appendMenu(HMENU parent, const std::wstring &menuContentName, Storm::DynamicMenuBuilder::MenuFunctionCallback &&callback)
+void Storm::DynamicMenuBuilder::appendMenu(const HMENU parent, const std::wstring &menuContentName, Storm::DynamicMenuBuilder::MenuFunctionCallback &&callback)
 {
 	UINT newMenuID;
 	if (Storm::MFCHelper::appendNewStringMenu(parent, menuContentName, newMenuID))
@@ -41,7 +41,7 @@ void Storm::DynamicMenuBuilder::appendMenu(HMENU parent, const std::wstring &men
 	}
 }
 
-bool Storm::DynamicMenuBuilder::operator()(UINT commandID)
+bool Storm::DynamicMenuBuilder::operator()(const UINT commandID)
 {
 	const auto endCallbackRangesIter = std::end(_menuCallbacks);
 	if (auto found = std::find_if(std::begin(_menuCallbacks), endCallbackRangesIter, [commandID](const auto &rangesCallbackPair)
