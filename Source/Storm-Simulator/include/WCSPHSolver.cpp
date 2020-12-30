@@ -153,7 +153,7 @@ void Storm::WCSPHSolver::execute(const Storm::IterationParameter &iterationParam
 						pressureComponent = -(restMassDensity * neighborVolume * (currentPFluidPressureCoeff + neighborPressureCoeff)) * neighbor._gradWij;
 
 						// Viscosity
-						viscosityComponent = (viscoGlobalCoeff * fluidConfig._cinematicViscosity * neighborMass / neighborRawDensity) * neighbor._gradWij;
+						viscosityComponent = (viscoGlobalCoeff * fluidConfig._dynamicViscosity * neighborMass / neighborRawDensity) * neighbor._gradWij;
 					}
 					else
 					{
