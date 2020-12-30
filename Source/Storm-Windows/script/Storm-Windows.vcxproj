@@ -12,6 +12,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\CDialogEventHandler.cpp" />
+    <ClCompile Include="..\include\DynamicMenuBuilder.cpp" />
+    <ClCompile Include="..\include\MFCHelper.cpp" />
     <ClCompile Include="..\include\OSManager.cpp" />
     <ClCompile Include="..\include\Storm-WindowsPCH.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -23,6 +25,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\CDialogEventHandler.h" />
+    <ClInclude Include="..\include\DynamicMenuBuilder.h" />
+    <ClInclude Include="..\include\MFCHelper.h" />
     <ClInclude Include="..\include\OSManager.h" />
     <ClInclude Include="..\include\Storm-WindowsPCH.h" />
     <ClInclude Include="..\include\StormProcess.h" />

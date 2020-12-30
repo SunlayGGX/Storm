@@ -19,6 +19,12 @@
     <Filter Include="Source Files\Process">
       <UniqueIdentifier>{5813ea2b-8030-46d8-97d3-b4b8357148aa}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\MFC">
+      <UniqueIdentifier>{84a8c128-8493-44a5-be4c-cccb539573e9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\MFC">
+      <UniqueIdentifier>{8963a5c4-b98a-4685-ae96-aefc215ad653}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-WindowsPCH.cpp">
@@ -30,14 +36,20 @@
     <ClCompile Include="..\include\OSManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\include\CDialogEventHandler.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\include\StormProcess.cpp">
       <Filter>Source Files\Process</Filter>
     </ClCompile>
     <ClCompile Include="..\include\StormProcessOpener.cpp">
       <Filter>Source Files\Process</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\CDialogEventHandler.cpp">
+      <Filter>Source Files\MFC</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\MFCHelper.cpp">
+      <Filter>Source Files\MFC</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\DynamicMenuBuilder.cpp">
+      <Filter>Source Files\MFC</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -53,14 +65,20 @@
     <ClInclude Include="..\include\OSManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\CDialogEventHandler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\StormProcess.h">
       <Filter>Header Files\Process</Filter>
     </ClInclude>
     <ClInclude Include="..\include\StormProcessOpener.h">
       <Filter>Header Files\Process</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\MFCHelper.h">
+      <Filter>Header Files\MFC</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\CDialogEventHandler.h">
+      <Filter>Header Files\MFC</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\DynamicMenuBuilder.h">
+      <Filter>Header Files\MFC</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

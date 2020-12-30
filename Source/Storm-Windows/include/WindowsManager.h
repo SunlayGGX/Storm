@@ -11,6 +11,8 @@ namespace Storm
 	struct WithUI;
 	struct NoUI;
 
+	class DynamicMenuBuilder;
+
 	class WindowsManager final :
 		private Storm::Singleton<Storm::WindowsManager>,
 		public Storm::IWindowsManager
@@ -63,10 +65,15 @@ namespace Storm
 	public:
 		void focus() final override;
 
+	public:
+		Storm::DynamicMenuBuilder& getMenuBuilderHandler() noexcept;
+
 	private:
 		void* /*HWND*/ _windowVisuHandle;
 		std::wstring _windowClass;
 		void* /*HACCEL*/ _accelerationTable;
+
+		std::unique_ptr<Storm::DynamicMenuBuilder> _menuBuilderHandler;
 
 		mutable std::recursive_mutex _callbackMutex;
 		Storm::MultiCallback<Storm::QuitDelegate> _quitCallback;

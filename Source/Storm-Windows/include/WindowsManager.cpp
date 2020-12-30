@@ -12,10 +12,14 @@
 #include "GeneralGraphicConfig.h"
 #include "GeneralApplicationConfig.h"
 #include "GeneratedGitConfig.h"
+#include "InternalReferenceConfig.h"
+
+#include "DynamicMenuBuilder.h"
 
 #include "ThreadHelper.h"
 #include "ThreadEnumeration.h"
 #include "StringAlgo.h"
+#include "MFCHelper.h"
 
 #include "UIModality.h"
 
@@ -44,16 +48,18 @@ namespace
 		{
 			std::size_t outProcessUID;
 
+			Storm::WindowsManager &windowsMgr = Storm::WindowsManager::instance();
+
 			const int wmId = LOWORD(wParam);
 			// Analyze menu selection
 			switch (wmId)
 			{
 			case IDCLOSE:
 			case ID_FILE_QUIT:
-				Storm::WindowsManager::instance().callQuitCallback();
+				windowsMgr.callQuitCallback();
 				break;
 
-			case ID_FILE_SAVE:
+			case ID_STORM_FILE_SAVE:
 				Storm::SingletonHolder::instance().getSingleton<Storm::ISimulatorManager>().saveSimulationState();
 				break;
 
@@ -96,12 +102,15 @@ namespace
 					._failureQuit = false
 				}, outProcessUID))
 				{
-					Storm::WindowsManager::instance().callQuitCallback();
+					windowsMgr.callQuitCallback();
 				}
 				break;
 
 			default:
-				return DefWindowProc(hWnd, message, wParam, lParam);
+				if (!windowsMgr.getMenuBuilderHandler()(wmId))
+				{
+					return DefWindowProc(hWnd, message, wParam, lParam);
+				}
 			}
 		}
 		break;
@@ -166,7 +175,8 @@ namespace
 
 Storm::WindowsManager::WindowsManager() :
 	_accelerationTable{ nullptr },
-	_windowVisuHandle{ nullptr }
+	_windowVisuHandle{ nullptr },
+	_menuBuilderHandler{ std::make_unique<Storm::DynamicMenuBuilder>() }
 {
 
 }
@@ -379,6 +389,38 @@ void Storm::WindowsManager::initializeInternal()
 
 	if (windowVisuHandle != nullptr)
 	{
+		LOG_DEBUG << "Building the dynamic part of the menu toolbar.";
+		HMENU mainMenu = ::GetMenu(windowVisuHandle);
+		if (mainMenu != nullptr)
+		{
+			const std::vector<Storm::InternalReferenceConfig> &referencesConfig = configMgr.getInternalReferencesConfig();
+			if (!referencesConfig.empty())
+			{
+				HMENU linkReferenceSubmenu = Storm::MFCHelper::findMenuByName(mainMenu, STORM_TEXT("References"));
+				for (const Storm::InternalReferenceConfig &referenceConfig : referencesConfig)
+				{
+					if (!referenceConfig._url.empty())
+					{
+						_menuBuilderHandler->appendMenu(linkReferenceSubmenu, Storm::toStdWString(referenceConfig._name), [&referenceConfig]()
+						{
+							std::size_t outProcessUID;
+							Storm::StormProcessOpener::openStormUrlLink(Storm::StormProcessOpener::OpenParameter{
+								._failureQuit = false
+							}, outProcessUID, referenceConfig._url);
+						});
+					}
+				}
+			}
+			else
+			{
+				Storm::MFCHelper::setMenuEnabled(mainMenu, ID_LINK_REFERENCES, false);
+			}
+		}
+		else
+		{
+			LOG_DEBUG_ERROR << "Menu couldn't be grabbed from Main windows. Something went wrong.";
+		}
+
 		LOG_DEBUG << "Loading the input accelerator.";
 		_accelerationTable = ::LoadAccelerators(dllInstance, MAKEINTRESOURCE(IDR_ACCELERATOR1));
 
@@ -543,4 +585,9 @@ void Storm::WindowsManager::focus()
 		//::PostMessage(static_cast<HWND>(_windowVisuHandle), WM_SETFOCUS, 0, 0);
 		::SetFocus(static_cast<HWND>(_windowVisuHandle));
 	}
+}
+
+Storm::DynamicMenuBuilder& Storm::WindowsManager::getMenuBuilderHandler() noexcept
+{
+	return *_menuBuilderHandler;
 }

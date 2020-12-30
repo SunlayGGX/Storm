@@ -20,16 +20,17 @@
 #define ID_STORM_SCRIPT                 40015
 #define ID_STORM_CONFIG                 40016
 #define ID_LINK_GITHUB                  40017
-#define ID_FILE_SAVE                    40018
+#define ID_STORM_FILE_SAVE              40018
 #define ID_FILE_RESTART                 40020
 #define ID_LINK_APPLICATIONROOT         40021
+#define ID_LINK_REFERENCES              40022
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        106
-#define _APS_NEXT_COMMAND_VALUE         40022
+#define _APS_NEXT_COMMAND_VALUE         40023
 #define _APS_NEXT_CONTROL_VALUE         1001
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
