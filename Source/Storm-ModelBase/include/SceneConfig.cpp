@@ -59,6 +59,7 @@ Storm::SceneRigidBodyConfig::SceneRigidBodyConfig() :
 	_staticFrictionCoefficient{ 0.1f },
 	_dynamicFrictionCoefficient{ 0.f },
 	_restitutionCoefficient{ 0.1f },
+	_angularVelocityDamping{ 0.05f },
 	_mass{ -1.f },
 	_viscosity{ 0.f },
 	_layerCount{ 1 },

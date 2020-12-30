@@ -541,9 +541,10 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 
 	/* RigidBodies */
 	auto &rigidBodiesConfigArray = _sceneConfig->_rigidBodiesConfig;
+	float rbConfigAngularVelocityDampingTmp = -1.f;
 
 	Storm::XmlReader::readDataInList(srcTree, "RigidBodies", "RigidBody", rigidBodiesConfigArray,
-		[](const auto &rigidBodyConfigXml, Storm::SceneRigidBodyConfig &rbConfig)
+		[&rbConfigAngularVelocityDampingTmp](const auto &rigidBodyConfigXml, Storm::SceneRigidBodyConfig &rbConfig)
 	{
 		return
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "id", rbConfig._rigidBodyID) ||
@@ -552,6 +553,7 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "staticFrictionCoeff", rbConfig._staticFrictionCoefficient) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "dynamicFrictionCoeff", rbConfig._dynamicFrictionCoefficient) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "restitutionCoeff", rbConfig._restitutionCoefficient) ||
+			Storm::XmlReader::handleXml(rigidBodyConfigXml, "angularDamping", rbConfigAngularVelocityDampingTmp) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "isStatic", rbConfig._static) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "wall", rbConfig._isWall) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "mass", rbConfig._mass) ||
@@ -565,7 +567,7 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "scale", rbConfig._scale, parseVector3Element)
 			;
 	},
-		[&macroConfig, &rigidBodiesConfigArray, &fluidConfig](Storm::SceneRigidBodyConfig &rbConfig)
+		[&macroConfig, &rigidBodiesConfigArray, &fluidConfig, &rbConfigAngularVelocityDampingTmp](Storm::SceneRigidBodyConfig &rbConfig)
 	{
 		macroConfig(rbConfig._meshFilePath);
 
@@ -606,6 +608,20 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 		else if (rbConfig._layerCount == 0)
 		{
 			Storm::throwException<Storm::Exception>("The rigid body layer count is invalid (rigid body " + std::to_string(rbConfig._rigidBodyID) + ")! Value was " + std::to_string(rbConfig._layerCount));
+		}
+
+		if (rbConfigAngularVelocityDampingTmp != -1.f)
+		{
+			if (rbConfig._isWall || rbConfig._static)
+			{
+				Storm::throwException<Storm::Exception>("RigidBody id " + std::to_string(rbConfig._rigidBodyID) + " is static. It cannot have a velocity damping coefficient!");
+			}
+			else if (rbConfigAngularVelocityDampingTmp > 1.f)
+			{
+				Storm::throwException<Storm::Exception>("The angular velocity damping value couldn't exceed 1.0 (rigid body " + std::to_string(rbConfig._rigidBodyID) + ")! Value was " + std::to_string(rbConfigAngularVelocityDampingTmp));
+			}
+
+			rbConfig._angularVelocityDamping = rbConfigAngularVelocityDampingTmp;
 		}
 	});
 

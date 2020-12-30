@@ -34,6 +34,8 @@ namespace Storm
 		float _staticFrictionCoefficient;
 		float _dynamicFrictionCoefficient;
 		float _restitutionCoefficient;
+		float _angularVelocityDamping;
+
 
 		Storm::InsideParticleRemovalTechnique _insideRbFluidDetectionMethodEnum;
 
