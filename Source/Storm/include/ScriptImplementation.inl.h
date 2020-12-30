@@ -45,7 +45,7 @@
 #define STORM_CURRENT_REGISTERED_TYPE Storm::SimulatorManager
 
 template<class IScriptWrapperInterface>
-void Storm::SimulatorManager::registerCurrentOnScript(IScriptWrapperInterface &script) const
+void STORM_CURRENT_REGISTERED_TYPE::registerCurrentOnScript(IScriptWrapperInterface &script) const
 {
 	script.registerCurrentType(
 		
@@ -68,7 +68,7 @@ void Storm::SimulatorManager::registerCurrentOnScript(IScriptWrapperInterface &s
 #define STORM_CURRENT_REGISTERED_TYPE Storm::TimeManager
 
 template<class IScriptWrapperInterface>
-void Storm::TimeManager::registerCurrentOnScript(IScriptWrapperInterface &script) const
+void STORM_CURRENT_REGISTERED_TYPE::registerCurrentOnScript(IScriptWrapperInterface &script) const
 {
 	script.registerCurrentType(
 
@@ -85,7 +85,7 @@ void Storm::TimeManager::registerCurrentOnScript(IScriptWrapperInterface &script
 #define STORM_CURRENT_REGISTERED_TYPE Storm::GraphicManager
 
 template<class IScriptWrapperInterface>
-void Storm::GraphicManager::registerCurrentOnScript(IScriptWrapperInterface &script) const
+void STORM_CURRENT_REGISTERED_TYPE::registerCurrentOnScript(IScriptWrapperInterface &script) const
 {
 	script.registerCurrentType(
 
@@ -105,7 +105,7 @@ void Storm::GraphicManager::registerCurrentOnScript(IScriptWrapperInterface &scr
 #define STORM_CURRENT_REGISTERED_TYPE Storm::OSManager
 
 template<class IScriptWrapperInterface>
-void Storm::OSManager::registerCurrentOnScript(IScriptWrapperInterface &script) const
+void STORM_CURRENT_REGISTERED_TYPE::registerCurrentOnScript(IScriptWrapperInterface &script) const
 {
 	script.registerCurrentType(
 
