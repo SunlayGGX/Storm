@@ -283,17 +283,18 @@ namespace Storm
 
 						lastPos = param._currentPos;
 					}
-					else
+					else if (param._remainingSize > minPredicateSize)
 					{
 						++param._currentPos;
 						--param._remainingSize;
-
-						if (param._remainingSize < minPredicateSize)
-						{
-							break;
-						}
+					}
+					else
+					{
+						param._currentPos += param._remainingSize;
+						break;
 					}
 				} while (param._remainingSize);
+
 
 				if (lastPos != param._currentPos)
 				{

@@ -42,6 +42,13 @@ TEST_CASE("StringAlgo.split.string", "[classic]")
 		Storm::StringAlgo::split(result, std::string{ literalWithTerminalString, Storm::StringAlgo::extractSize(literalWithTerminalString) }, Storm::StringAlgo::makeSplitPredicate<std::string>('\0')) ==
 		std::vector<std::string>{ "superman", "is not ", " ", "toto" }
 	);
+
+	result.clear();
+
+	CHECK(
+		Storm::StringAlgo::split(result, "#####\n Enab:superman\n#####\ntoto\ntiti()\n#####\n#####\n\nsuperman:toto(5)\n", Storm::StringAlgo::makeSplitPredicate<std::string>("#####")) ==
+		std::vector<std::string>{ "\n Enab:superman\n", "\ntoto\ntiti()\n", "\n", "\n\nsuperman:toto(5)\n" }
+	);
 }
 
 #define STORM_TEXT(Text) Text
@@ -87,6 +94,13 @@ TEST_CASE("StringAlgo.split.string_view", "[classic]")
 	CHECK(
 		Storm::StringAlgo::split<StringType>(result, StringType{ literalWithTerminalString, Storm::StringAlgo::extractSize(literalWithTerminalString) }, Storm::StringAlgo::makeSplitPredicate<StringType>(STORM_TEXT('\0'))) ==
 		std::vector<StringType>{ STORM_TEXT("superman"), STORM_TEXT("is not "), STORM_TEXT(" "), STORM_TEXT("toto") }
+	);
+
+	result.clear();
+
+	CHECK(
+		Storm::StringAlgo::split<StringType>(result, STORM_TEXT("#####\n Enab:superman\n#####\ntoto\ntiti()\n#####\n#####\n\nsuperman:toto(5)\n"), Storm::StringAlgo::makeSplitPredicate<StringType>(STORM_TEXT("#####"))) ==
+		std::vector<StringType>{ STORM_TEXT("\n Enab:superman\n"), STORM_TEXT("\ntoto\ntiti()\n"), STORM_TEXT("\n"), STORM_TEXT("\n\nsuperman:toto(5)\n") }
 	);
 }
 
@@ -135,6 +149,13 @@ TEST_CASE("StringAlgo.split.wstring", "[classic]")
 		Storm::StringAlgo::split<StringType>(result, StringType{ literalWithTerminalString, Storm::StringAlgo::extractSize(literalWithTerminalString) }, Storm::StringAlgo::makeSplitPredicate<StringType>(STORM_TEXT('\0'))) ==
 		std::vector<StringType>{ STORM_TEXT("superman"), STORM_TEXT("is not "), STORM_TEXT(" "), STORM_TEXT("toto") }
 	);
+
+	result.clear();
+
+	CHECK(
+		Storm::StringAlgo::split<StringType>(result, STORM_TEXT("#####\n Enab:superman\n#####\ntoto\ntiti()\n#####\n#####\n\nsuperman:toto(5)\n"), Storm::StringAlgo::makeSplitPredicate<StringType>(STORM_TEXT("#####"))) ==
+		std::vector<StringType>{ STORM_TEXT("\n Enab:superman\n"), STORM_TEXT("\ntoto\ntiti()\n"), STORM_TEXT("\n"), STORM_TEXT("\n\nsuperman:toto(5)\n") }
+	);
 }
 
 #undef STORM_TEXT
@@ -181,6 +202,13 @@ TEST_CASE("StringAlgo.split.wstring_view", "[classic]")
 	CHECK(
 		Storm::StringAlgo::split<StringType>(result, StringType{ literalWithTerminalString, Storm::StringAlgo::extractSize(literalWithTerminalString) }, Storm::StringAlgo::makeSplitPredicate<StringType>(STORM_TEXT('\0'))) ==
 		std::vector<StringType>{ STORM_TEXT("superman"), STORM_TEXT("is not "), STORM_TEXT(" "), STORM_TEXT("toto") }
+	);
+
+	result.clear();
+
+	CHECK(
+		Storm::StringAlgo::split<StringType>(result, STORM_TEXT("#####\n Enab:superman\n#####\ntoto\ntiti()\n#####\n#####\n\nsuperman:toto(5)\n"), Storm::StringAlgo::makeSplitPredicate<StringType>(STORM_TEXT("#####"))) ==
+		std::vector<StringType>{ STORM_TEXT("\n Enab:superman\n"), STORM_TEXT("\ntoto\ntiti()\n"), STORM_TEXT("\n"), STORM_TEXT("\n\nsuperman:toto(5)\n") }
 	);
 }
 
@@ -230,6 +258,13 @@ TEST_CASE("StringAlgo.split.u8string", "[classic]")
 		Storm::StringAlgo::split<StringType>(result, StringType{ literalWithTerminalString, Storm::StringAlgo::extractSize(literalWithTerminalString) }, Storm::StringAlgo::makeSplitPredicate<StringType>(STORM_TEXT('\0'))) ==
 		std::vector<StringType>{ STORM_TEXT("superman"), STORM_TEXT("is not "), STORM_TEXT(" "), STORM_TEXT("toto") }
 	);
+
+	result.clear();
+
+	CHECK(
+		Storm::StringAlgo::split<StringType>(result, STORM_TEXT("#####\n Enab:superman\n#####\ntoto\ntiti()\n#####\n#####\n\nsuperman:toto(5)\n"), Storm::StringAlgo::makeSplitPredicate<StringType>(STORM_TEXT("#####"))) ==
+		std::vector<StringType>{ STORM_TEXT("\n Enab:superman\n"), STORM_TEXT("\ntoto\ntiti()\n"), STORM_TEXT("\n"), STORM_TEXT("\n\nsuperman:toto(5)\n") }
+	);
 }
 
 #undef STORM_TEXT
@@ -276,6 +311,13 @@ TEST_CASE("StringAlgo.split.u32string", "[classic]")
 	CHECK(
 		Storm::StringAlgo::split<StringType>(result, StringType{ literalWithTerminalString, Storm::StringAlgo::extractSize(literalWithTerminalString) }, Storm::StringAlgo::makeSplitPredicate<StringType>(STORM_TEXT('\0'))) ==
 		std::vector<StringType>{ STORM_TEXT("superman"), STORM_TEXT("is not "), STORM_TEXT(" "), STORM_TEXT("toto") }
+	);
+
+	result.clear();
+
+	CHECK(
+		Storm::StringAlgo::split<StringType>(result, STORM_TEXT("#####\n Enab:superman\n#####\ntoto\ntiti()\n#####\n#####\n\nsuperman:toto(5)\n"), Storm::StringAlgo::makeSplitPredicate<StringType>(STORM_TEXT("#####"))) ==
+		std::vector<StringType>{ STORM_TEXT("\n Enab:superman\n"), STORM_TEXT("\ntoto\ntiti()\n"), STORM_TEXT("\n"), STORM_TEXT("\n\nsuperman:toto(5)\n") }
 	);
 }
 
