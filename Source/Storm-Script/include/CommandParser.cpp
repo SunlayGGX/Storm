@@ -149,10 +149,12 @@ std::vector<Storm::ScriptObject> Storm::CommandParser::parse(std::string &&total
 				if (errors.empty())
 				{
 					Storm::CommandLogicSupport param;
+					param._executedKeys.reserve(_currentStackedCommand.size());
 					
 					for (const auto &command : _currentStackedCommand)
 					{
 						command->handleLogic(param);
+						command->baseDirectHandlePostLogic(param);
 					}
 
 					if (param._canExecute)

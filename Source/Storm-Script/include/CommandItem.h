@@ -18,6 +18,8 @@ namespace Storm
 		virtual void handleLogic(Storm::CommandLogicSupport &inOutParam) = 0;
 		Storm::CommandKeyword getKeyword() const noexcept;
 
+		void baseDirectHandlePostLogic(Storm::CommandLogicSupport &inOutParam) const;
+
 	private:
 		const Storm::CommandKeyword _keyword;
 	};

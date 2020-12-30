@@ -504,7 +504,7 @@ A command inside the header is declared on the same line : In another word, 2 di
 A command must start with a keyword defining what it is, folowwed by some parameters if needed. Both are separated by the character "**:**" .<br><br>
 Here the list of available commands :
 - **pid** : Parameters are the list of PIDs separated by a ' ' or a ','. It specifies that the following script must be executed only by the processes referred by the listed PIDs.
-- **enabled** : It specifies the following script is enabled if the parameter is either "true", "on" or "1", "false". Disabled if parameter is either "false", "off" or "0".
+- **enabled** : It specifies the following script is enabled if the parameter is either "true", "on" or "1", "false". Disabled if parameter is either "false", "off" or "0". There could only be 1 of this key specified in the same command.
 
 
 ## Exposed methods

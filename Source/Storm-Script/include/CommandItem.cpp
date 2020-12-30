@@ -13,6 +13,59 @@
 
 #include <boost\algorithm\string\case_conv.hpp>
 
+namespace
+{
+	namespace details
+	{
+
+		template<Storm::CommandKeyword forbiddenKey, Storm::CommandKeyword ... remainingForbiddenKeys>
+		struct ForbiddenKeyEnsurer
+		{
+		public:
+			static constexpr void doEnsure(const std::string_view &allForbiddenKeys, const Storm::CommandKeyword key)
+			{
+				details::ForbiddenKeyEnsurer<forbiddenKey>::doEnsure(key);
+				details::ForbiddenKeyEnsurer<remainingForbiddenKeys...>::doEnsure(key);
+			}
+		};
+
+		template<Storm::CommandKeyword forbiddenKey>
+		struct ForbiddenKeyEnsurer<forbiddenKey>
+		{
+		public:
+			static constexpr void doEnsure(const std::string_view &allForbiddenKeys, const Storm::CommandKeyword key)
+			{
+				if (key == forbiddenKey)
+				{
+					Storm::throwException<Storm::Exception>(std::string_view{
+						"We detected a forbidden key!\n"
+						"We shouldn't use the key you see in the template parameter inside the logic of the current command (see details in the callstack).\n"
+						"All forbidden keys are : " } + allForbiddenKeys
+					);
+				}
+			}
+		};
+	}
+
+	template<Storm::CommandKeyword ... forbiddenKeys>
+	constexpr void ensureNoConflictingKey_Exec(const std::string_view &allForbiddenKeys, const Storm::CommandLogicSupport &param)
+	{
+		if constexpr (sizeof...(forbiddenKeys) == 0)
+		{
+			return;
+		}
+		else
+		{
+			for (const Storm::CommandKeyword alreadyExecutedKey : param._executedKeys)
+			{
+				details::ForbiddenKeyEnsurer<forbiddenKeys...>::doEnsure(allForbiddenKeys, alreadyExecutedKey);
+			}
+		}
+	}
+
+#define ensureNoConflictingKey(param, ...) ensureNoConflictingKey_Exec<__VA_ARGS__>(STORM_STRINGIFY(__VA_ARGS__) "", param)
+}
+
 
 Storm::CommandItem::CommandItem(const Storm::CommandKeyword keyword) :
 	_keyword{ keyword }
@@ -25,6 +78,11 @@ Storm::CommandItem::~CommandItem() = default;
 Storm::CommandKeyword Storm::CommandItem::getKeyword() const noexcept
 {
 	return _keyword;
+}
+
+void Storm::CommandItem::baseDirectHandlePostLogic(Storm::CommandLogicSupport &inOutParam) const
+{
+	inOutParam._executedKeys.emplace_back(_keyword);
 }
 
 
@@ -67,6 +125,8 @@ Storm::CommandPID::CommandPID(std::string &&commandStr) :
 
 void Storm::CommandPID::handleLogic(Storm::CommandLogicSupport &inOutParam)
 {
+	ensureNoConflictingKey(inOutParam);
+
 	if (inOutParam._canExecute)
 	{
 		const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
@@ -112,6 +172,8 @@ Storm::CommandEnable::CommandEnable(std::string &&commandStr) :
 
 void Storm::CommandEnable::handleLogic(Storm::CommandLogicSupport &inOutParam)
 {
+	ensureNoConflictingKey(inOutParam, Storm::CommandKeyword::Enabled);
+
 	if (inOutParam._canExecute)
 	{
 		inOutParam._canExecute &= _enabledValue;
