@@ -37,7 +37,7 @@ namespace
 		LOG_DEBUG << "We'll try to open url " << outURL;
 
 		Storm::IWebManager &webMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IWebManager>();
-		return webMgr.openURL("https://github.com/SunlayGGX/Storm");
+		return webMgr.openURL(url);
 	}
 
 	template<class ExecutorFunc, class ... Args>
