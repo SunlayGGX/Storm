@@ -5,6 +5,7 @@
 #include "CommandLogicSupport.h"
 #include "CommandItem.h"
 #include "CommandPID.h"
+#include "CommandEnable.h"
 
 #include "StringAlgo.h"
 
@@ -27,6 +28,10 @@ namespace
 		if (token == "pid")
 		{
 			return Storm::CommandKeyword::PID;
+		}
+		else if (token == "enabled")
+		{
+			return Storm::CommandKeyword::Enabled;
 		}
 		else
 		{
@@ -81,7 +86,7 @@ std::vector<Storm::ScriptObject> Storm::CommandParser::parse(std::string &&total
 		}
 
 		std::vector<std::string_view> scriptChunks;
-		Storm::StringAlgo::split(scriptChunks, std::string_view{ &totalScriptCommand[firstDelimitorFound], totalScriptCommand.size() - firstDelimitorFound + 1 }, Storm::StringAlgo::makeSplitPredicate<std::string_view>(getCommandDelimitor()));
+		Storm::StringAlgo::split(scriptChunks, std::string_view{ &totalScriptCommand[firstDelimitorFound], totalScriptCommand.size() - firstDelimitorFound }, Storm::StringAlgo::makeSplitPredicate<std::string_view>(getCommandDelimitor()));
 
 		bool isEnteringCommands = true;
 		std::string errors;
@@ -107,11 +112,17 @@ std::vector<Storm::ScriptObject> Storm::CommandParser::parse(std::string &&total
 					{
 						if (commandElements.size() < 3)
 						{
+							boost::trim(commandElements[1]);
+
 							Storm::CommandKeyword keyword = parseKeyword(commandElements[0]);
 							switch (keyword)
 							{
 							case Storm::CommandKeyword::PID:
 								_currentStackedCommand.emplace_back(std::make_unique<Storm::CommandPID>(std::move(commandElements[1])));
+								break;
+
+							case Storm::CommandKeyword::Enabled:
+								_currentStackedCommand.emplace_back(std::make_unique<Storm::CommandEnable>(std::move(commandElements[1])));
 								break;
 
 							default:

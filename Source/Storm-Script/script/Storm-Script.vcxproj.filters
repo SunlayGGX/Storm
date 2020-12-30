@@ -92,5 +92,8 @@
     <ClInclude Include="..\include\CommandPID.h">
       <Filter>Header Files\Command\CommandOverride</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\CommandEnable.h">
+      <Filter>Header Files\Command\CommandOverride</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

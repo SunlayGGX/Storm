@@ -1,6 +1,7 @@
 #include "CommandItem.h"
 
 #include "CommandPID.h"
+#include "CommandEnable.h"
 
 #include "CommandLogicSupport.h"
 #include "CommandKeyword.h"
@@ -9,6 +10,8 @@
 #include "IConfigManager.h"
 
 #include "StringAlgo.h"
+
+#include <boost\algorithm\string\case_conv.hpp>
 
 
 Storm::CommandItem::CommandItem(const Storm::CommandKeyword keyword) :
@@ -68,5 +71,49 @@ void Storm::CommandPID::handleLogic(Storm::CommandLogicSupport &inOutParam)
 	{
 		const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
 		inOutParam._canExecute &= std::find(std::begin(_pids), std::end(_pids), configMgr.getCurrentPID()) != std::end(_pids);
+	}
+}
+
+
+//**************************************************//
+//*************** Command Enable *******************//
+//**************************************************//
+
+Storm::CommandEnable::CommandEnable(std::string &&commandStr) :
+	Storm::CommandItem{ Storm::CommandKeyword::Enabled }
+{
+	if (commandStr.empty())
+	{
+		Storm::throwException<Storm::Exception>("Enable command cannot be empty!");
+	}
+
+	boost::to_lower(commandStr);
+	if (
+		commandStr == "true" ||
+		commandStr == "1" ||
+		commandStr == "on"
+		)
+	{
+		_enabledValue = true;
+	}
+	else if (
+		commandStr == "false" ||
+		commandStr == "0" ||
+		commandStr == "off"
+		)
+	{
+		_enabledValue = false;
+	}
+	else
+	{
+		Storm::throwException<Storm::Exception>("Unknown command value '" + commandStr + "'. How are we supposed to parse it in the current context ?");
+	}
+}
+
+void Storm::CommandEnable::handleLogic(Storm::CommandLogicSupport &inOutParam)
+{
+	if (inOutParam._canExecute)
+	{
+		inOutParam._canExecute &= _enabledValue;
 	}
 }

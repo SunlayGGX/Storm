@@ -23,6 +23,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\include\CommandEnable.h" />
     <ClInclude Include="..\include\CommandItem.h" />
     <ClInclude Include="..\include\CommandLogicSupport.h" />
     <ClInclude Include="..\include\CommandParser.h" />
