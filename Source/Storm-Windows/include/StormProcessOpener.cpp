@@ -135,9 +135,14 @@ bool Storm::StormProcessOpener::openCurrentConfigFile(const Storm::StormProcessO
 	return openNotepadOnFile(param, outProcessUID, sceneConfigFilePath);
 }
 
+bool Storm::StormProcessOpener::openStormUrlLink(const OpenParameter &param, std::size_t &outProcessUID, const std::string_view &url)
+{
+	return tryOpenProcess(param, outProcessUID, defaultOpenURL, url);
+}
+
 bool Storm::StormProcessOpener::openStormGithubLink(const OpenParameter &param, std::size_t &outProcessUID)
 {
-	return tryOpenProcess(param, outProcessUID, defaultOpenURL, "https://github.com/SunlayGGX/Storm");
+	return Storm::StormProcessOpener::openStormUrlLink(param, outProcessUID, "https://github.com/SunlayGGX/Storm");
 }
 
 bool Storm::StormProcessOpener::openStormRestarter(const OpenParameter &param, std::size_t &outProcessUID)
