@@ -97,8 +97,8 @@
     </Lib>
     <ProjectReference />
     <PostBuildEvent>
-      <Command>copy "$(ProjectDir)../../../Dependencies\OIS\bin\$(Configuration)\OIS_d.dll" "$(OutputPath)OIS_d.dll"
-copy "$(ProjectDir)../../../Dependencies\OIS\bin\$(Configuration)\OIS_d.pdb" "$(OutputPath)OIS_d.pdb"</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -126,7 +126,8 @@ copy "$(ProjectDir)../../../Dependencies\OIS\bin\$(Configuration)\OIS_d.pdb" "$(
     </Lib>
     <ProjectReference />
     <PostBuildEvent>
-      <Command>copy "$(ProjectDir)../../../Dependencies\OIS\bin\$(Configuration)\OIS.dll" "$(OutputPath)OIS.dll"</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
