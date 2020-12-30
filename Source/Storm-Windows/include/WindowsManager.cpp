@@ -259,6 +259,8 @@ void Storm::WindowsManager::initializeInternal()
 {
 	STORM_STATIC_ASSERT(Storm::WindowsManager::MAX_TITLE_COUNT > 20, "Minimal title character size must be 20.");
 
+	LOG_COMMENT << "Building Application form UI (main Window)";
+
 	const Storm::SingletonHolder &singletonMgr = Storm::SingletonHolder::instance();
 
 	const Storm::IConfigManager &configMgr = singletonMgr.getSingleton<Storm::IConfigManager>();
@@ -377,8 +379,10 @@ void Storm::WindowsManager::initializeInternal()
 
 	if (windowVisuHandle != nullptr)
 	{
+		LOG_DEBUG << "Loading the input accelerator.";
 		_accelerationTable = ::LoadAccelerators(dllInstance, MAKEINTRESOURCE(IDR_ACCELERATOR1));
 
+		LOG_DEBUG << "Finishing the main window UI creation.";
 		::ShowCursor(true);
 		::ShowWindow(windowVisuHandle, SW_SHOWNORMAL);
 		::UpdateWindow(windowVisuHandle);
