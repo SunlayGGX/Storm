@@ -24,8 +24,8 @@ namespace
 		public:
 			static constexpr void doEnsure(const std::string_view &allForbiddenKeys, const Storm::CommandKeyword key)
 			{
-				details::ForbiddenKeyEnsurer<forbiddenKey>::doEnsure(key);
-				details::ForbiddenKeyEnsurer<remainingForbiddenKeys...>::doEnsure(key);
+				details::ForbiddenKeyEnsurer<forbiddenKey>::doEnsure(allForbiddenKeys, key);
+				details::ForbiddenKeyEnsurer<remainingForbiddenKeys...>::doEnsure(allForbiddenKeys, key);
 			}
 		};
 
@@ -63,7 +63,9 @@ namespace
 		}
 	}
 
-#define ensureNoConflictingKey(param, ...) ensureNoConflictingKey_Exec<__VA_ARGS__>(STORM_STRINGIFY(__VA_ARGS__) "", param)
+#pragma warning(push)
+#pragma warning(disable: 4003) // If __VA_ARGS__ is empty (no keys considered as conflicting), then STORM_STRINGIFY will complain it doesn't have enough arg and will be ignored (which is what we want)...
+#	define ensureNoConflictingKey(param, ...) ensureNoConflictingKey_Exec<__VA_ARGS__>(STORM_STRINGIFY(__VA_ARGS__) "", param)
 }
 
 
@@ -179,3 +181,5 @@ void Storm::CommandEnable::handleLogic(Storm::CommandLogicSupport &inOutParam)
 		inOutParam._canExecute &= _enabledValue;
 	}
 }
+
+#pragma warning(pop)
