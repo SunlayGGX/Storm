@@ -528,6 +528,11 @@ Here the list of available commands :
 - **void setUIFieldEnabled(bool enable)**: Set if we should display the UI fields (enabled to true) or hide it (enabled to false).
 
 
+#### PhysicsManager (physicsMgr)
+
+- **void setRigidBodyAngularDamping(const unsigned int rbId, const float angularVelocityDamping)**: Set the angular velodity damping value of the rigid body specified by its id. This method is only defined for dynamic rigid bodies.
+
+
 #### OSManager (osMgr)
 
 - **void clearProcesses()**: Clear all processes (this closes all processes those life will be shared with Storm application).

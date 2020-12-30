@@ -9,6 +9,7 @@
 #include "TimeManager.h"
 #include "GraphicManager.h"
 #include "OSManager.h"
+#include "PhysicsManager.h"
 
 
 /////////////////////////////////////////////////
@@ -95,6 +96,23 @@ void STORM_CURRENT_REGISTERED_TYPE::registerCurrentOnScript(IScriptWrapperInterf
 		STORM_DECLARE_SCRIPTED_METHOD(setUIFieldEnabled)
 
 	).registerCurrentInstance("graphicMgr");
+}
+
+#undef STORM_CURRENT_REGISTERED_TYPE
+
+
+//---------------------------------------------------------------------
+
+#define STORM_CURRENT_REGISTERED_TYPE Storm::PhysicsManager
+
+template<class IScriptWrapperInterface>
+void STORM_CURRENT_REGISTERED_TYPE::registerCurrentOnScript(IScriptWrapperInterface &script) const
+{
+	script.registerCurrentType(
+
+		STORM_DECLARE_SCRIPTED_METHOD(setRigidBodyAngularDamping)
+
+	).registerCurrentInstance("physicsMgr");
 }
 
 #undef STORM_CURRENT_REGISTERED_TYPE

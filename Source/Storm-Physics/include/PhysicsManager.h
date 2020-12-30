@@ -3,6 +3,7 @@
 
 #include "Singleton.h"
 #include "IPhysicsManager.h"
+#include "DeclareScriptableItem.h"
 
 
 namespace Storm
@@ -19,6 +20,7 @@ namespace Storm
 		public Storm::IPhysicsManager
 	{
 		STORM_DECLARE_SINGLETON(PhysicsManager);
+		STORM_IS_SCRIPTABLE_ITEM;
 
 	private:
 		void initialize_Implementation();
