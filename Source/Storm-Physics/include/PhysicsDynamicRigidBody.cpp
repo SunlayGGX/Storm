@@ -26,12 +26,18 @@ namespace
 		std::lock_guard<std::mutex> lock{ Storm::PhysicsManager::instance()._simulationMutex };
 		return rb->getGlobalPose();
 	}
+
+	float computeAngularVelocityDampingCoeff(const float angularVelocityDampingValue)
+	{
+		return 1.f - angularVelocityDampingValue;
+	}
 }
 
 Storm::PhysicsDynamicRigidBody::PhysicsDynamicRigidBody(const Storm::SceneRigidBodyConfig &rbSceneConfig, const std::vector<Storm::Vector3> &vertices, const std::vector<uint32_t> &indexes) :
 	Storm::PhysicalShape{ rbSceneConfig, vertices, indexes },
 	_currentIterationVelocity{ 0.f, 0.f, 0.f },
-	_internalRb{ createDynamicRigidBody(rbSceneConfig) }
+	_internalRb{ createDynamicRigidBody(rbSceneConfig) },
+	_currentAngularVelocityDampingCoefficient{ computeAngularVelocityDampingCoeff(rbSceneConfig._angularVelocityDamping) }
 {
 	if (!_internalRb)
 	{
@@ -50,7 +56,7 @@ void Storm::PhysicsDynamicRigidBody::onIterationStart() noexcept
 
 	// PhysX angular damping coeff default value of 0.05 is a lie, therefore I'm doing the damping myself.
 	physx::PxVec3 currentAngularVelocity = _internalRb->getAngularVelocity();
-	currentAngularVelocity *= 0.95f;
+	currentAngularVelocity *= _currentAngularVelocityDampingCoefficient;
 	_internalRb->setAngularVelocity(currentAngularVelocity);
 }
 
@@ -118,4 +124,14 @@ void Storm::PhysicsDynamicRigidBody::getMeshTransform(Storm::Vector3 &outTrans, 
 void Storm::PhysicsDynamicRigidBody::registerConstraint(const std::shared_ptr<Storm::PhysicsConstraint> &constraint)
 {
 	_constraints.emplace_back(constraint);
+}
+
+void Storm::PhysicsDynamicRigidBody::setAngularVelocityDamping(const float angularVelocityDamping)
+{
+	if (angularVelocityDamping > 1.f)
+	{
+		Storm::throwException<Storm::Exception>("Angular velocity damping coeff cannot exceed 1.0. Value was " + std::to_string(angularVelocityDamping));
+	}
+
+	_currentAngularVelocityDampingCoefficient = computeAngularVelocityDampingCoeff(angularVelocityDamping);
 }

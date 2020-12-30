@@ -48,6 +48,9 @@ namespace Storm
 		Storm::Vector3 getPhysicalForceOnPhysicalBody(const unsigned int id) const final override;
 		Storm::Vector3 getForceOnPhysicalBody(const unsigned int id, const float deltaTimeInSecond) const final override;
 
+	public:
+		void setRigidBodyAngularDamping(const unsigned int rbId, const float angularVelocityDamping);
+
 	private:
 		void pushPhysicsVisualizationData() const;
 		void pushConstraintsVisualizationData() const;

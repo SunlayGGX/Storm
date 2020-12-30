@@ -35,10 +35,13 @@ namespace Storm
 
 		void registerConstraint(const std::shared_ptr<Storm::PhysicsConstraint> &constraint);
 
+		void setAngularVelocityDamping(const float angularVelocityDamping);
+
 	private:
 		Storm::UniquePointer<physx::PxRigidDynamic> _internalRb;
 		std::vector<std::shared_ptr<Storm::PhysicsConstraint>> _constraints;
 
 		physx::PxVec3 _currentIterationVelocity;
+		float _currentAngularVelocityDampingCoefficient;
 	};
 }

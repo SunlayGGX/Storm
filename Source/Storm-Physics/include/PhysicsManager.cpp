@@ -300,6 +300,24 @@ Storm::Vector3 Storm::PhysicsManager::getForceOnPhysicalBody(const unsigned int 
 	return force;
 }
 
+void Storm::PhysicsManager::setRigidBodyAngularDamping(const unsigned int rbId, const float angularVelocityDamping)
+{
+	if (angularVelocityDamping > 1.f)
+	{
+		Storm::throwException<Storm::Exception>("Angular velocity damping coeff cannot exceed 1.0. Value was " + std::to_string(angularVelocityDamping));
+	}
+
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	Storm::IThreadManager &threadMgr = singletonHolder.getSingleton<Storm::IThreadManager>();
+	threadMgr.executeOnThread(Storm::ThreadEnumeration::MainThread, [this, rbId, angularVelocityDamping]()
+	{
+		Storm::SearchAlgo::executeOnObjectInContainer(rbId, [angularVelocityDamping](auto &rbFound)
+		{
+			rbFound.setAngularVelocityDamping(angularVelocityDamping);
+		}, _dynamicsRbMap);
+	});
+}
+
 void Storm::PhysicsManager::pushPhysicsVisualizationData() const
 {
 	this->pushConstraintsVisualizationData();
