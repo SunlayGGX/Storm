@@ -414,8 +414,6 @@ void Storm::WindowsManager::initializeInternal()
 						});
 					}
 				}
-
-				::DrawMenuBar(windowVisuHandle);
 			}
 			else
 			{
