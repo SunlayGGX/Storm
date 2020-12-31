@@ -51,7 +51,7 @@ namespace Storm
 		const std::string_view _function;
 		const int _line;
 		const bool _enabled;
-		std::stringstream _stream;
+		std::stringstream &_stream;
 	};
 }
 
