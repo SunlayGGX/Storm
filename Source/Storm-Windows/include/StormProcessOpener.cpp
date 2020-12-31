@@ -135,7 +135,7 @@ bool Storm::StormProcessOpener::openCurrentConfigFile(const Storm::StormProcessO
 	return openNotepadOnFile(param, outProcessUID, sceneConfigFilePath);
 }
 
-bool Storm::StormProcessOpener::openStormUrlLink(const OpenParameter &param, std::size_t &outProcessUID, const std::string_view &url)
+bool Storm::StormProcessOpener::openStormUrlLink(const Storm::StormProcessOpener::OpenParameter &param, std::size_t &outProcessUID)
 {
 	return tryOpenProcess(param, outProcessUID, defaultOpenURL, url);
 }
@@ -145,7 +145,7 @@ bool Storm::StormProcessOpener::openStormGithubLink(const OpenParameter &param, 
 	return Storm::StormProcessOpener::openStormUrlLink(param, outProcessUID, "https://github.com/SunlayGGX/Storm");
 }
 
-bool Storm::StormProcessOpener::openStormRestarter(const OpenParameter &param, std::size_t &outProcessUID)
+bool Storm::StormProcessOpener::openStormRestarter(const Storm::StormProcessOpener::OpenParameter &param, std::size_t &outProcessUID)
 {
 	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
 
@@ -173,7 +173,7 @@ bool Storm::StormProcessOpener::openStormRestarter(const OpenParameter &param, s
 	});
 }
 
-bool Storm::StormProcessOpener::openStormRootExplorer(const OpenParameter &param, std::size_t &outProcessUID)
+bool Storm::StormProcessOpener::openStormRootExplorer(const Storm::StormProcessOpener::OpenParameter &param, std::size_t &outProcessUID)
 {
 	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
 
