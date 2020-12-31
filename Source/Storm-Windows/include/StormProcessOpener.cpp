@@ -137,12 +137,7 @@ bool Storm::StormProcessOpener::openCurrentConfigFile(const Storm::StormProcessO
 
 bool Storm::StormProcessOpener::openStormUrlLink(const Storm::StormProcessOpener::OpenParameter &param, std::size_t &outProcessUID)
 {
-	return tryOpenProcess(param, outProcessUID, defaultOpenURL, url);
-}
-
-bool Storm::StormProcessOpener::openStormGithubLink(const OpenParameter &param, std::size_t &outProcessUID)
-{
-	return Storm::StormProcessOpener::openStormUrlLink(param, outProcessUID, "https://github.com/SunlayGGX/Storm");
+	return tryOpenProcess(param, outProcessUID, defaultOpenURL, param._additionalParameterStr);
 }
 
 bool Storm::StormProcessOpener::openStormRestarter(const Storm::StormProcessOpener::OpenParameter &param, std::size_t &outProcessUID)
@@ -159,14 +154,14 @@ bool Storm::StormProcessOpener::openStormRestarter(const Storm::StormProcessOpen
 
 	restartCommandBuild += "start ";
 	restartCommandBuild += stormRestarterPath;
-	restartCommandBuild += " ";
+	restartCommandBuild += ' ';
 	restartCommandBuild += restartCommandline;
 
 	Storm::StringAlgo::replaceAll(restartCommandBuild, "\\\"", Storm::StringAlgo::makeReplacePredicate('"'));
 
 	return tryOpenProcess(param, outProcessUID, defaultOpenProcess, Storm::StormProcessStartup{
 		._workingDirectoryPath = exeFolderPath.string(),
-		._commandLine = restartCommandBuild,
+		._commandLine = std::move(restartCommandBuild),
 		._bindIO = false,
 		._shareLife = false,
 		._isCmd = true

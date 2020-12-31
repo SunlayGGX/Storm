@@ -87,8 +87,9 @@ namespace
 				break;
 				
 			case ID_LINK_GITHUB:
-				Storm::StormProcessOpener::openStormGithubLink(Storm::StormProcessOpener::OpenParameter{
-					._failureQuit = false
+				Storm::StormProcessOpener::openStormUrlLink(Storm::StormProcessOpener::OpenParameter{
+					._failureQuit = false,
+					._additionalParameterStr = "https://github.com/SunlayGGX/Storm"
 				}, outProcessUID);
 				break;
 
@@ -409,8 +410,9 @@ void Storm::WindowsManager::initializeInternal()
 						{
 							std::size_t outProcessUID;
 							Storm::StormProcessOpener::openStormUrlLink(Storm::StormProcessOpener::OpenParameter{
-								._failureQuit = false
-							}, outProcessUID, referenceConfig._url);
+								._failureQuit = false,
+								._additionalParameterStr = referenceConfig._url
+							}, outProcessUID);
 						});
 					}
 				}
