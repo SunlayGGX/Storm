@@ -4,6 +4,7 @@
 #include "IWindowsManager.h"
 #include "WindowsCallbacks.h"
 #include "MultiCallback.h"
+#include "DeclareScriptableItem.h"
 
 
 namespace Storm
@@ -18,6 +19,7 @@ namespace Storm
 		public Storm::IWindowsManager
 	{
 		STORM_DECLARE_SINGLETON(WindowsManager);
+		STORM_IS_SCRIPTABLE_ITEM;
 
 	private:
 		enum
