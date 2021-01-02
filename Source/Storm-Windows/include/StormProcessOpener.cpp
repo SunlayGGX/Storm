@@ -149,13 +149,20 @@ bool Storm::StormProcessOpener::openStormRestarter(const Storm::StormProcessOpen
 	const std::string stormRestarterPath = STORM_EXECUTABLE_NAME("Storm-Restarter");
 	const std::string &restartCommandline = configMgr.getRestartCommandline();
 
+	const std::size_t additionalArgsSize = param._additionalParameterStr.size();
+
 	std::string restartCommandBuild;
-	restartCommandBuild.reserve(stormRestarterPath.size() + restartCommandline.size() + 12);
+	restartCommandBuild.reserve(stormRestarterPath.size() + restartCommandline.size() + additionalArgsSize + 12);
 
 	restartCommandBuild += "start ";
 	restartCommandBuild += stormRestarterPath;
 	restartCommandBuild += ' ';
 	restartCommandBuild += restartCommandline;
+	if (additionalArgsSize > 0)
+	{
+		restartCommandBuild += ' ';
+		restartCommandBuild += param._additionalParameterStr;
+	}
 
 	Storm::StringAlgo::replaceAll(restartCommandBuild, "\\\"", Storm::StringAlgo::makeReplacePredicate('"'));
 

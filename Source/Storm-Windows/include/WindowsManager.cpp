@@ -100,12 +100,7 @@ namespace
 				break;
 
 			case ID_FILE_RESTART:
-				if (Storm::StormProcessOpener::openStormRestarter(Storm::StormProcessOpener::OpenParameter{
-					._failureQuit = false
-				}, outProcessUID))
-				{
-					windowsMgr.callQuitCallback();
-				}
+				windowsMgr.restartApplication("");
 				break;
 
 			default:
@@ -596,4 +591,16 @@ void Storm::WindowsManager::focus()
 Storm::DynamicMenuBuilder& Storm::WindowsManager::getMenuBuilderHandler() noexcept
 {
 	return *_menuBuilderHandler;
+}
+
+void Storm::WindowsManager::restartApplication(const std::string_view &additionalArgs)
+{
+	std::size_t outProcessUID;
+	if (Storm::StormProcessOpener::openStormRestarter(Storm::StormProcessOpener::OpenParameter{
+			._failureQuit = false,
+			._additionalParameterStr = additionalArgs
+		}, outProcessUID))
+	{
+		this->callQuitCallback();
+	}
 }

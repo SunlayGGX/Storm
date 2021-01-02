@@ -68,6 +68,9 @@ namespace Storm
 	public:
 		Storm::DynamicMenuBuilder& getMenuBuilderHandler() noexcept;
 
+	public:
+		void restartApplication(const std::string_view &additionalArgs);
+
 	private:
 		void* /*HWND*/ _windowVisuHandle;
 		std::wstring _windowClass;
