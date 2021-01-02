@@ -13,6 +13,9 @@
 #include <boost\lexical_cast.hpp>
 
 
+#define STORM_DEBUG_SHADERS false
+
+
 namespace
 {
 	std::string compileShader(const std::filesystem::path &shaderFilePath, const std::string_view &shaderFuncName, const std::string_view &target, const Storm::ShaderMacroContainer &shaderMacros, ComPtr<ID3DBlob> &blobRes)
@@ -21,7 +24,7 @@ namespace
 
 		UINT flag1 = D3D10_SHADER_ENABLE_STRICTNESS;
 
-#if defined(DEBUG) || defined(_DEBUG)
+#if STORM_DEBUG_SHADERS
 		flag1 |= D3DCOMPILE_DEBUG;
 		flag1 |= D3DCOMPILE_SKIP_OPTIMIZATION;
 #else
@@ -100,12 +103,18 @@ namespace
 		constexpr std::string_view shaderCacheExtension = ".stormShader";
 		const std::string macroCacheName = shaderMacros.toCachedName();
 		const std::string shaderCacheBaseFileName = std::filesystem::path{ shaderFilePath }.replace_extension("").string();
+#if STORM_DEBUG_SHADERS
+		constexpr std::string_view shaderConfigPrefix = "_d";
+#else
+		constexpr std::string_view shaderConfigPrefix = "_r";
+#endif
 
 		std::string shaderCacheFileName;
 		shaderCacheFileName.reserve(
 			shaderCacheBaseFileName.size() +
 			shaderFuncName.size() +
 			macroCacheName.size() +
+			shaderConfigPrefix.size() +
 			shaderCacheExtension.size() +
 			2
 		);
@@ -114,6 +123,7 @@ namespace
 		shaderCacheFileName += '_';
 		shaderCacheFileName += shaderFuncName;
 		shaderCacheFileName += macroCacheName;
+		shaderCacheFileName += shaderConfigPrefix;
 		shaderCacheFileName += shaderCacheExtension;
 
 		return tmpPath / shaderCacheFileName;
