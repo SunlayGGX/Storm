@@ -95,33 +95,36 @@ namespace
 		return compileErrorMsg;
 	}
 
-	std::string getShaderIdentifier(const std::string &shaderFilePath, const std::string_view &shaderFuncName)
-	{
-		return shaderFilePath + "<?>" + shaderFuncName;
-	}
-
 	std::filesystem::path getShaderBlobCacheFilePath(const std::filesystem::path &tmpPath, const std::string &shaderFilePath, const std::string_view &shaderFuncName, const Storm::ShaderMacroContainer &shaderMacros)
 	{
-		return tmpPath / (std::filesystem::path{ shaderFilePath }.replace_extension("").string() + '_' + shaderFuncName + shaderMacros.toCachedName() + ".stormShader");
+		constexpr std::string_view shaderCacheExtension = ".stormShader";
+		const std::string macroCacheName = shaderMacros.toCachedName();
+		const std::string shaderCacheBaseFileName = std::filesystem::path{ shaderFilePath }.replace_extension("").string();
+
+		std::string shaderCacheFileName;
+		shaderCacheFileName.reserve(
+			shaderCacheBaseFileName.size() +
+			shaderFuncName.size() +
+			macroCacheName.size() +
+			shaderCacheExtension.size() +
+			2
+		);
+
+		shaderCacheFileName += shaderCacheBaseFileName;
+		shaderCacheFileName += '_';
+		shaderCacheFileName += shaderFuncName;
+		shaderCacheFileName += macroCacheName;
+		shaderCacheFileName += shaderCacheExtension;
+
+		return tmpPath / shaderCacheFileName;
 	}
 
 	constexpr static std::string_view k_shaderCacheFileName = "shader.cache";
 	constexpr static std::string_view k_shaderCacheRelativeFilePathToTmp = "Shaders";
-	constexpr static std::string_view k_shaderCacheSeparator = ">>>>>>>";
 
 	std::filesystem::path getShadersTemporaryPath(const std::filesystem::path &tmpPath)
 	{
 		return tmpPath / k_shaderCacheRelativeFilePathToTmp;
-	}
-
-	std::filesystem::path getTemporaryFinalShaderCacheToRemovePath(const std::filesystem::path &finalShaderCache)
-	{
-		return finalShaderCache.string() + ".last.remov";
-	}
-
-	std::filesystem::path getTemporaryFinalShaderCacheToFlush(const std::filesystem::path &tmpPath)
-	{
-		return getShadersTemporaryPath(tmpPath) / (k_shaderCacheFileName + ".tmp");
 	}
 }
 
@@ -136,80 +139,6 @@ void Storm::ShaderManager::initialize_Implementation()
 
 	const std::filesystem::path shaderTmpPath = getShadersTemporaryPath(tmpPath);
 	std::filesystem::create_directories(shaderTmpPath);
-
-	const std::filesystem::path finalShaderCache = shaderTmpPath / k_shaderCacheFileName;
-	const std::filesystem::path finalShaderCacheToRemove = getTemporaryFinalShaderCacheToRemovePath(finalShaderCache);
-	const std::filesystem::path toFlushFilePath = getTemporaryFinalShaderCacheToFlush(tmpPath);
-
-	if (std::filesystem::exists(toFlushFilePath))
-	{
-		LOG_WARNING << "Cache of written shaders was not flushed correctly last time. We will try to recover it!";
-
-		if (std::filesystem::exists(finalShaderCacheToRemove))
-		{
-			LOG_COMMENT <<
-				finalShaderCacheToRemove << 
-				" was found, which means that the last state is still here so we could recover from it but it also means that it is possible we might recompile some shaders again!";
-			std::filesystem::rename(finalShaderCacheToRemove, finalShaderCache);
-		}
-		else
-		{
-			LOG_WARNING << "We cannot recover the shader state file. It means that we would consider that no shader was compiled before. We will rebuild them all.";
-		}
-
-		std::filesystem::remove_all(toFlushFilePath);
-	}
-	else if (!std::filesystem::exists(finalShaderCache) && std::filesystem::exists(finalShaderCacheToRemove))
-	{
-		LOG_WARNING << "Something went wrong last time we flushed the shaders cache file. We will recover it from last state!";
-		std::filesystem::rename(finalShaderCacheToRemove, finalShaderCache);
-	}
-
-	// This file should never exist at the end (it is the last state of our cache to not lose the cache state while writing the new cached state...
-	// So it is a byproduct of an operation that was forcefully stopped in the middle for whatever reasons).
-	std::filesystem::remove_all(finalShaderCacheToRemove);
-
-	if (std::filesystem::exists(finalShaderCache))
-	{
-		std::ifstream shaderCacheFile{ finalShaderCache.string() };
-		std::string line;
-		while (std::getline(shaderCacheFile, line))
-		{
-			if (!line.empty())
-			{
-				bool added = false;
-
-				const std::size_t shaderCacheSeparatorPos = line.find(k_shaderCacheSeparator);
-				if (shaderCacheSeparatorPos != std::string::npos)
-				{
-					std::string shaderCacheId = line.substr(0, shaderCacheSeparatorPos);
-					std::string shaderCacheTimestamp = line.substr(shaderCacheSeparatorPos + k_shaderCacheSeparator.size());
-
-					if (!shaderCacheTimestamp.empty())
-					{
-						std::filesystem::file_time_type::rep readRawTimestampValue = boost::lexical_cast<std::filesystem::file_time_type::rep>(shaderCacheTimestamp);
-						
-						const std::filesystem::file_time_type reconvertedTimestamp{ std::filesystem::file_time_type::duration{ readRawTimestampValue } };
-						_compiledShaderMapCache.emplace(shaderCacheId, reconvertedTimestamp);
-						added = true;
-					}
-				}
-
-				if (!added)
-				{
-					LOG_ERROR <<
-						"'" << line << "' in shader cache was not parsed successfully. This may be due to a corruption in shader cache file.\n"
-						"We will ignore this entry but it means that we may be forced to recompile a shader.";
-				}
-			}
-		}
-	}
-}
-
-void Storm::ShaderManager::cleanUp_Implementation()
-{
-	std::lock_guard<std::mutex> lock{ _mutex };
-	this->flushCache();
 }
 
 void* Storm::ShaderManager::requestCompiledShaderBlobs(const std::string &shaderFilePath, const std::string_view &shaderFuncName, const std::string_view &target, const Storm::ShaderMacroContainer &shaderMacros)
@@ -226,14 +155,10 @@ void* Storm::ShaderManager::requestCompiledShaderBlobs(const std::string &shader
 	const std::filesystem::path expectedShaderBlobFilePath = getShaderBlobCacheFilePath(tmpPath, shaderFilePath, shaderFuncName, shaderMacros);
 	if (std::filesystem::exists(expectedShaderBlobFilePath))
 	{
-		std::lock_guard<std::mutex> lock{ _mutex };
-		if (const auto cachedShaderIt = _compiledShaderMapCache.find(getShaderIdentifier(shaderFilePath, shaderFuncName)); cachedShaderIt != std::end(_compiledShaderMapCache))
+		hasCachedBlobs = std::filesystem::last_write_time(expectedShaderBlobFilePath) == shaderFoundTimestamp;
+		if (!hasCachedBlobs)
 		{
-			hasCachedBlobs = cachedShaderIt->second == shaderFoundTimestamp;
-			if (!hasCachedBlobs)
-			{
-				LOG_DEBUG << "Shader " << shaderFilePath << " (for function : " << shaderFuncName << ") cache mismatches, therefore should be invalidated.";
-			}
+			LOG_DEBUG << "Shader " << shaderFilePath << " (for function : " << shaderFuncName << ") cache mismatches, therefore should be invalidated.";
 		}
 	}
 	
@@ -273,11 +198,6 @@ void* Storm::ShaderManager::requestCompiledShaderBlobs(const std::string &shader
 		);
 
 		std::filesystem::last_write_time(expectedShaderBlobFilePath, shaderFoundTimestamp);
-
-		std::lock_guard<std::mutex> lock{ _mutex };
-		_compiledShaderMapCache[getShaderIdentifier(shaderFilePath, shaderFuncName)] = std::filesystem::last_write_time(expectedShaderBlobFilePath);
-
-		this->flushCache();
 	}
 
 	// Detach because we want transfer the ownership to the client code.
@@ -288,32 +208,4 @@ void* Storm::ShaderManager::requestCompiledShaderBlobs(const std::string &shader
 void* Storm::ShaderManager::requestCompiledShaderBlobs(const std::string &shaderFilePath, const std::string_view &shaderFuncName, const std::string_view &target)
 {
 	return this->requestCompiledShaderBlobs(shaderFilePath, shaderFuncName, target, Storm::ShaderMacroContainer{});
-}
-
-void Storm::ShaderManager::flushCache() const
-{
-	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
-	const std::filesystem::path tmpPath = configMgr.getTemporaryPath();
-
-	const std::filesystem::path finalShaderCache = getShadersTemporaryPath(tmpPath) / k_shaderCacheFileName;
-	const std::filesystem::path finalShaderCacheToRemove = getTemporaryFinalShaderCacheToRemovePath(finalShaderCache);
-	const std::filesystem::path toFlushFilePath = getTemporaryFinalShaderCacheToFlush(tmpPath);
-	
-	{
-		std::ofstream fileStream{ toFlushFilePath.string() };
-		for (const auto &shaderCache : _compiledShaderMapCache)
-		{
-			std::string shaderLastCompiledFileTimeStamp = std::to_string(shaderCache.second.time_since_epoch().count());
-			fileStream << shaderCache.first << k_shaderCacheSeparator << shaderLastCompiledFileTimeStamp << '\n';
-		}
-	}
-
-	// The 1st time we run Storm, this file was not created yet.
-	if (std::filesystem::exists(finalShaderCache))
-	{
-		std::filesystem::rename(finalShaderCache, finalShaderCacheToRemove);
-	}
-
-	std::filesystem::rename(toFlushFilePath, finalShaderCache);
-	std::filesystem::remove_all(finalShaderCacheToRemove);
 }
