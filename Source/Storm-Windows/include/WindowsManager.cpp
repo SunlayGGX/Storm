@@ -8,6 +8,7 @@
 #include "IThreadManager.h"
 #include "ISimulatorManager.h"
 #include "IConfigManager.h"
+#include "IBibliographyManager.h"
 
 #include "GeneralGraphicConfig.h"
 #include "GeneralApplicationConfig.h"
@@ -78,6 +79,10 @@ namespace
 				Storm::StormProcessOpener::openRuntimeScript(Storm::StormProcessOpener::OpenParameter{
 					._failureQuit = false
 				}, outProcessUID);
+				break;
+
+			case ID_TOOLS_GENERATEBIBLIOGRAPHY:
+				Storm::SingletonHolder::instance().getSingleton<Storm::IBibliographyManager>().generateBibTexLibrary();
 				break;
 
 			case ID_STORM_CONFIG:
