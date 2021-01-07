@@ -56,7 +56,8 @@ void STORM_CURRENT_REGISTERED_TYPE::registerCurrentOnScript(IScriptWrapperInterf
 
 		// Frame advance manip
 		STORM_DECLARE_SCRIPTED_METHOD(advanceOneFrame),
-		STORM_DECLARE_SCRIPTED_METHOD(advanceByFrame)
+		STORM_DECLARE_SCRIPTED_METHOD(advanceByFrame),
+		STORM_DECLARE_SCRIPTED_METHOD(advanceToFrame)
 
 	).registerCurrentInstance("simulMgr");
 }

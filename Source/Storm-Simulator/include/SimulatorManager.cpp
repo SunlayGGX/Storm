@@ -1102,7 +1102,35 @@ void Storm::SimulatorManager::advanceByFrame(int64_t frameCount)
 	});
 }
 
-void Storm::SimulatorManager::notifyFrameAdvanced(unsigned int &frameIterator)
+void Storm::SimulatorManager::advanceToFrame(int64_t frameNumber)
+{
+	if (frameNumber < 0)
+	{
+		Storm::throwException<Storm::Exception>("We must advance to a positive frame number (value " + std::to_string(frameNumber) + " is invalid)!");
+	}
+
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::MainThread, [this, frameNumber]()
+	{
+		if (frameNumber < _currentFrameNumber)
+		{
+			Storm::throwException<Storm::Exception>(
+				"The requested frame number (" + std::to_string(frameNumber) + ") to move was already played.\n"
+				"We're currently at frame " + std::to_string(_currentFrameNumber) + ".\n"
+				"We cannot go back in time!"
+			);
+		}
+		else if (_currentFrameNumber == frameNumber)
+		{
+			LOG_DEBUG_WARNING << "Requested frame to move to is the same as the current frame we are (" << frameNumber << "). Therefore the operation will be skipped.";
+			_frameAdvanceCount = -1;
+			return;
+		}
+
+		this->advanceByFrame(frameNumber - _currentFrameNumber);
+	});
+}
+
 void Storm::SimulatorManager::notifyFrameAdvanced()
 {
 	if (_frameAdvanceCount != -1)

@@ -514,7 +514,8 @@ Here the list of available commands :
 - **void resetReplay()**: Reset the replay. This is the same method bound to the key inputs.
 - **void saveSimulationState()**: Save the simulation state into a state file. This is the same method bound to the key inputs.
 - **void advanceOneFrame()**: Advance the simulation to the next frame. Available only if the simulation is paused. This is the same method bound to the key inputs.
-- **void advanceByFrame(int frameCount)**: Advance the paused simulation by frameCount frames. The frameCount value must be positive !
+- **void advanceByFrame(int64_t frameCount)**: Advance the paused simulation by frameCount frames. The frameCount value must be positive !
+- **void advanceToFrame(int64_t frameNumber)**: Advance the paused simulation to a specific frame. The frameNumber value must be positive !
 
 
 #### TimeManager (timeMgr)
