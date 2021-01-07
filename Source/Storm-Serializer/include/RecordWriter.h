@@ -31,6 +31,8 @@ namespace Storm
 		uint64_t _headerPosition;
 		uint64_t _recordBodyPosition;
 
+		// This frame number is not the real frame number of the simulation, but more like the recorded frame number
+		// those purpose is to track how much frame we recorded so far and to know how much more frame is remaining when we'll read the record.
 		uint64_t _frameNumber;
 	};
 }

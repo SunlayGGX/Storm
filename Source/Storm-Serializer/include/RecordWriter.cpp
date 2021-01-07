@@ -115,6 +115,7 @@ void Storm::RecordWriter::write(/*const*/ Storm::SerializeRecordPendingData &dat
 	constexpr double coeffByteToMb = 1.0 / (1024.0 * 1024.0);
 	LOG_DEBUG << "Frame " << _frameNumber << " recorded. Physics time : " << data._physicsTime << ". Record file size : " << static_cast<double>(_package.getPacketSize()) * coeffByteToMb << " Mb";
 
+	// This frame number is not the real frame number of the simulation, but more like the recorded frame number. See comment inside the header file.
 	++_frameNumber;
 }
 
