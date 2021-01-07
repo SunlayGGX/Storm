@@ -51,10 +51,11 @@ namespace Storm
 		void revertIteration();
 
 		void advanceOneFrame();
-		void advanceByFrame(int frameCount);
+		void advanceByFrame(int64_t frameCount);
+		void advanceToFrame(int64_t frameNumber);
 
 	private:
-		void notifyFrameAdvanced(unsigned int &frameIterator);
+		void notifyFrameAdvanced();
 
 	public:
 		void flushPhysics(const float deltaTime);
@@ -142,7 +143,8 @@ namespace Storm
 
 		Storm::ExitCode _runExitCode;
 
-		int _frameAdvanceCount;
+		int64_t _currentFrameNumber;
+		int64_t _frameAdvanceCount;
 
 		// For replay
 		std::unique_ptr<Storm::SerializeRecordPendingData> _frameBefore;

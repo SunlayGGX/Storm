@@ -78,6 +78,7 @@
 #include <fstream>
 
 #define STORM_PROGRESS_REMAINING_TIME_NAME "Remaining time"
+#define STORM_FRAME_NUMBER_FIELD_NAME "Frame No"
 
 
 namespace
@@ -415,9 +416,11 @@ Storm::SimulatorManager::SimulatorManager() :
 	_reinitFrameAfter{ false },
 	_progressRemainingTime{ STORM_TEXT("N/A") },
 	_uiFields{ std::make_unique<Storm::UIFieldContainer>() },
-	_frameAdvanceCount{ -1 }
+	_frameAdvanceCount{ -1 },
+	_currentFrameNumber{ 0 }
 {
-
+	(*_uiFields)
+		.bindField(STORM_FRAME_NUMBER_FIELD_NAME, _currentFrameNumber);
 }
 
 Storm::SimulatorManager::~SimulatorManager() = default;
@@ -644,8 +647,6 @@ Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 	const bool autoEndSimulation = sceneSimulationConfig._endSimulationPhysicsTimeInSeconds != -1.f;
 	bool hasAutoEndSimulation = false;
 
-	unsigned int forcedPushFrameIterator = 0;
-
 	Storm::SerializeRecordPendingData &frameBefore = *_frameBefore;
 	Storm::SerializeRecordPendingData frameAfter;
 
@@ -704,7 +705,7 @@ Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 			{
 				LOG_COMMENT <<
 					"Simulation average speed was " <<
-					profilerMgrNullablePtr->getSpeedProfileAccumulatedTime() / static_cast<float>(forcedPushFrameIterator);
+					profilerMgrNullablePtr->getSpeedProfileAccumulatedTime() / static_cast<float>(_currentFrameNumber);
 			}
 
 			return _runExitCode;
@@ -792,7 +793,7 @@ Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 			}
 		}
 
-		this->notifyFrameAdvanced(forcedPushFrameIterator);
+		this->notifyFrameAdvanced();
 
 	} while (true);
 }
@@ -844,8 +845,6 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 	const bool autoEndSimulation = sceneSimulationConfig._endSimulationPhysicsTimeInSeconds != -1.f;
 	bool hasAutoEndSimulation = false;
 
-	unsigned int forcedPushFrameIterator = 0;
-
 	bool firstFrame = true;
 
 	const bool noWait = sceneSimulationConfig._simulationNoWait || !hasUI;
@@ -862,7 +861,7 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 			{
 				LOG_COMMENT <<
 					"Simulation average speed was " <<
-					profilerMgrNullablePtr->getSpeedProfileAccumulatedTime() / static_cast<float>(forcedPushFrameIterator);
+					profilerMgrNullablePtr->getSpeedProfileAccumulatedTime() / static_cast<float>(_currentFrameNumber);
 			}
 			return _runExitCode;
 
@@ -904,7 +903,7 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 		// Push all particle data to the graphic module to be rendered...
 		if (hasUI)
 		{
-			this->pushParticlesToGraphicModule(forcedPushFrameIterator % 256);
+			this->pushParticlesToGraphicModule(_currentFrameNumber % 256);
 		}
 
 		// Takes time to process messages that came from other threads.
@@ -939,13 +938,13 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 			{
 				_uiFields->pushField(STORM_PROGRESS_REMAINING_TIME_NAME);
 			}
-			else if ((forcedPushFrameIterator % 32) == 0)
+			else if ((_currentFrameNumber % 32) == 0)
 			{
 				LOG_DEBUG << STORM_PROGRESS_REMAINING_TIME_NAME << " : " << Storm::toStdString(_progressRemainingTime);
 			}
 		}
 
-		this->notifyFrameAdvanced(forcedPushFrameIterator);
+		this->notifyFrameAdvanced();
 
 		firstFrame = false;
 
@@ -1070,7 +1069,7 @@ void Storm::SimulatorManager::advanceOneFrame()
 	}
 }
 
-void Storm::SimulatorManager::advanceByFrame(int frameCount)
+void Storm::SimulatorManager::advanceByFrame(int64_t frameCount)
 {
 	if (frameCount < 0)
 	{
@@ -1097,13 +1096,14 @@ void Storm::SimulatorManager::advanceByFrame(int frameCount)
 		timeMgr.changeSimulationPauseState();
 	}
 
-	singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::MainThread, [this, toAdvanceFrame = frameCount - 1, &timeMgr]()
+	singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::MainThread, [this, toAdvanceFrame = frameCount - 1]()
 	{
 		_frameAdvanceCount = toAdvanceFrame;
 	});
 }
 
 void Storm::SimulatorManager::notifyFrameAdvanced(unsigned int &frameIterator)
+void Storm::SimulatorManager::notifyFrameAdvanced()
 {
 	if (_frameAdvanceCount != -1)
 	{
@@ -1118,7 +1118,8 @@ void Storm::SimulatorManager::notifyFrameAdvanced(unsigned int &frameIterator)
 		}
 	}
 
-	++frameIterator;
+	++_currentFrameNumber;
+	_uiFields->pushField(STORM_FRAME_NUMBER_FIELD_NAME);
 }
 
 void Storm::SimulatorManager::flushPhysics(const float deltaTime)
