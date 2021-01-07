@@ -23,6 +23,7 @@
 #include "RAII.h"
 
 #include "UIModality.h"
+#include "ExitCode.h"
 
 #include "StormProcessOpener.h"
 
@@ -167,6 +168,18 @@ namespace
 			LOG_ERROR << "Couldn't embed the " << operation << " into the application title. Reason : " << e.what();
 		}
 	}
+
+	void handleWindowsInputThreadExceptionFailure(const std::string_view &errorMsg, const std::string_view &stackTrace)
+	{
+		LOG_FATAL <<
+			"Failure happened in input/Windows thread.\n"
+			"Error was : " << errorMsg << ".\n"
+			"Stack trace : " << stackTrace
+			;
+
+		Storm::ISimulatorManager &simulMgr = Storm::SingletonHolder::instance().getSingleton<Storm::ISimulatorManager>();
+		simulMgr.exitWithCode(Storm::ExitCode::k_otherThreadTermination);
+	}
 }
 
 
@@ -214,11 +227,27 @@ void Storm::WindowsManager::initialize_Implementation(const Storm::WithUI &)
 		});
 
 		constexpr const std::chrono::milliseconds k_windowsThreadRefreshRate{ 100 };
-		while (timeMgr.waitForTimeOrExit(k_windowsThreadRefreshRate))
+
+		try
 		{
-			this->update();
-			inputMgr.update();
-			threadMgr.processCurrentThreadActions();
+			while (timeMgr.waitForTimeOrExit(k_windowsThreadRefreshRate))
+			{
+				this->update();
+				inputMgr.update();
+				threadMgr.processCurrentThreadActions();
+			}
+		}
+		catch (const Storm::Exception &e)
+		{
+			handleWindowsInputThreadExceptionFailure(e.what(), e.stackTrace());
+		}
+		catch (const std::exception &e)
+		{
+			handleWindowsInputThreadExceptionFailure(e.what(), "N\\A");
+		}
+		catch (...)
+		{
+			handleWindowsInputThreadExceptionFailure("Unknown exception", "N\\A");
 		}
 	} };
 
