@@ -12,6 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\AsyncActionExecutor.cpp" />
+    <ClCompile Include="..\include\BibliographyManager.cpp" />
     <ClCompile Include="..\include\FPSWatcher.cpp" />
     <ClCompile Include="..\include\RandomManager.cpp" />
     <ClCompile Include="..\include\Storm-MiscPCH.cpp">
@@ -23,6 +24,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\AsyncActionExecutor.h" />
+    <ClInclude Include="..\include\BibliographyManager.h" />
     <ClInclude Include="..\include\ThreadManager.h" />
     <ClInclude Include="..\include\FPSWatcher.h" />
     <ClInclude Include="..\include\RandomManager.h" />

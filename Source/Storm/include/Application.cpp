@@ -22,6 +22,7 @@
 #include "ScriptManager.h"
 #include "WebManager.h"
 #include "NetworkManager.h"
+#include "BibliographyManager.h"
 
 #include "ScriptImplementation.inl.h"
 
@@ -42,6 +43,7 @@ namespace
 		Storm::ProfilerManager,
 		Storm::ThreadManager,
 		Storm::RandomManager,
+		Storm::BibliographyManager,
 		Storm::NetworkManager,
 		Storm::OSManager,
 		Storm::TimeManager,
@@ -88,6 +90,7 @@ namespace
 
 			Storm::TimeManager::instance().initialize();
 
+			Storm::BibliographyManager::instance().initialize();
 			Storm::RandomManager::instance().initialize();
 			Storm::OSManager::instance().initialize();
 
@@ -188,6 +191,7 @@ namespace
 			Storm::WebManager::instance().cleanUp();
 			Storm::OSManager::instance().cleanUp();
 			Storm::NetworkManager::instance().cleanUp();
+			Storm::BibliographyManager::instance().cleanUp();
 			Storm::RandomManager::instance().cleanUp();
 			Storm::SerializerManager::instance().cleanUp();
 			Storm::ConfigManager::instance().cleanUp();

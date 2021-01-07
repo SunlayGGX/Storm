@@ -31,6 +31,12 @@
     <Filter Include="Source Files\Threading">
       <UniqueIdentifier>{227f47b5-1b86-4d55-9329-a91e23c22cdd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Bibliography">
+      <UniqueIdentifier>{c409df6a-b5b9-41c0-9a5c-3bd2b80d3625}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Bibliography">
+      <UniqueIdentifier>{da65bce8-cf5f-44a2-828c-9b69a134fac2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-MiscPCH.cpp">
@@ -51,6 +57,9 @@
     <ClCompile Include="..\include\AsyncActionExecutor.cpp">
       <Filter>Source Files\Threading</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\BibliographyManager.cpp">
+      <Filter>Source Files\Bibliography</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-MiscPCH.h">
@@ -70,6 +79,9 @@
     </ClInclude>
     <ClInclude Include="..\include\AsyncActionExecutor.h">
       <Filter>Header Files\Threading</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\BibliographyManager.h">
+      <Filter>Header Files\Bibliography</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
