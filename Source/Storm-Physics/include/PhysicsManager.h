@@ -16,7 +16,7 @@ namespace Storm
 	class PhysicsConstraint;
 
 	class PhysicsManager final :
-		private Storm::Singleton<PhysicsManager>,
+		private Storm::Singleton<Storm::PhysicsManager>,
 		public Storm::IPhysicsManager
 	{
 		STORM_DECLARE_SINGLETON(PhysicsManager);
