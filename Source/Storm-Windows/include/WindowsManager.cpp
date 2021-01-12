@@ -174,16 +174,37 @@ namespace
 		}
 	}
 
-	void handleWindowsInputThreadExceptionFailure(const std::string_view &errorMsg, const std::string_view &stackTrace)
+	void handleWindowsInputThreadExceptionFailure(const std::string_view &actionDescription, const std::string_view &errorMsg, const std::string_view &stackTrace)
 	{
 		LOG_FATAL <<
-			"Failure happened in input/Windows thread.\n"
+			"Aborting failure happened when running " << actionDescription << " inside input/Windows thread.\n"
 			"Error was : " << errorMsg << ".\n"
 			"Stack trace : " << stackTrace
 			;
 
 		Storm::ISimulatorManager &simulMgr = Storm::SingletonHolder::instance().getSingleton<Storm::ISimulatorManager>();
 		simulMgr.exitWithCode(Storm::ExitCode::k_otherThreadTermination);
+	}
+
+	template<class Func>
+	void runSafeWindowsThread(const std::string_view &actionDescription, Func &func)
+	{
+		try
+		{
+			func();
+		}
+		catch (const Storm::Exception &e)
+		{
+			handleWindowsInputThreadExceptionFailure(actionDescription, e.what(), e.stackTrace());
+		}
+		catch (const std::exception &e)
+		{
+			handleWindowsInputThreadExceptionFailure(actionDescription, e.what(), "N\\A");
+		}
+		catch (...)
+		{
+			handleWindowsInputThreadExceptionFailure(actionDescription, "Unknown exception", "N\\A");
+		}
 	}
 }
 
@@ -212,7 +233,10 @@ void Storm::WindowsManager::initialize_Implementation(const Storm::WithUI &)
 	{
 		STORM_REGISTER_THREAD(WindowsAndInputThread);
 
-		this->initializeInternal();
+		runSafeWindowsThread("Windows thread initialization", [this]()
+		{
+			this->initializeInternal();
+		});
 
 		{
 			std::unique_lock<std::mutex> lock{ syncMutex };
@@ -231,29 +255,17 @@ void Storm::WindowsManager::initialize_Implementation(const Storm::WithUI &)
 			inputMgr.clearKeyboardState();
 		});
 
-		constexpr const std::chrono::milliseconds k_windowsThreadRefreshRate{ 100 };
-
-		try
+		runSafeWindowsThread("windows thread update", [this, &timeMgr, &inputMgr, &threadMgr]() 
 		{
+			constexpr const std::chrono::milliseconds k_windowsThreadRefreshRate{ 100 };
+
 			while (timeMgr.waitForTimeOrExit(k_windowsThreadRefreshRate))
 			{
 				this->update();
 				inputMgr.update();
 				threadMgr.processCurrentThreadActions();
 			}
-		}
-		catch (const Storm::Exception &e)
-		{
-			handleWindowsInputThreadExceptionFailure(e.what(), e.stackTrace());
-		}
-		catch (const std::exception &e)
-		{
-			handleWindowsInputThreadExceptionFailure(e.what(), "N\\A");
-		}
-		catch (...)
-		{
-			handleWindowsInputThreadExceptionFailure("Unknown exception", "N\\A");
-		}
+		});
 	} };
 
 	std::unique_lock<std::mutex> lock{ syncMutex };
@@ -579,8 +591,19 @@ void Storm::WindowsManager::callQuitCallback()
 void Storm::WindowsManager::callFinishInitializeCallback()
 {
 	std::lock_guard<std::recursive_mutex> autoLocker{ _callbackMutex };
-	Storm::prettyCallMultiCallback(_finishedInitCallback, _windowVisuHandle, false);
+	auto callbackResults = Storm::prettyCallMultiCallback(_finishedInitCallback, _windowVisuHandle, false);
 	_finishedInitCallback.clear();
+
+	if (auto failureFound = std::find_if(std::begin(callbackResults._bunkedResults), std::end(callbackResults._bunkedResults), [](const auto &result)
+	{
+		return !result._error.empty();
+	}); failureFound != std::end(callbackResults._bunkedResults))
+	{
+		Storm::throwException<Storm::Exception>(
+			"At least one of window initialization callbacks has failed! This is not safe to continue so we'll abort execution.\n"
+			"Reported failure was " + failureFound->_error
+		);
+	}
 }
 
 void Storm::WindowsManager::callWindowsResizedCallback()
