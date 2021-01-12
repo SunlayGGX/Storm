@@ -38,6 +38,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shaders", "Shaders", "{1C8B
 	ProjectSection(SolutionItems) = preProject
 		Source\Shaders\BlowerDraw.hlsl = Source\Shaders\BlowerDraw.hlsl
 		Source\Shaders\ConstraintsDraw.hlsl = Source\Shaders\ConstraintsDraw.hlsl
+		Source\Shaders\CoordinateSystem.hlsl = Source\Shaders\CoordinateSystem.hlsl
 		Source\Shaders\Grid.hlsl = Source\Shaders\Grid.hlsl
 		Source\Shaders\MeshDraw.hlsl = Source\Shaders\MeshDraw.hlsl
 		Source\Shaders\ParticleDraw.hlsl = Source\Shaders\ParticleDraw.hlsl

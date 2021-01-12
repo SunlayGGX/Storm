@@ -126,6 +126,12 @@
     <ClCompile Include="..\include\GraphicPipe.cpp">
       <Filter>Source Files\GraphicComponent</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\GraphicCoordinateSystem.cpp">
+      <Filter>Source Files\Rendered</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\CoordinateSystemShader.cpp">
+      <Filter>Source Files\Shaders\Component</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-GraphicsPCH.h">
@@ -211,6 +217,12 @@
     </ClInclude>
     <ClInclude Include="..\include\GraphicPipe.h">
       <Filter>Header Files\GraphicComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\GraphicCoordinateSystem.h">
+      <Filter>Header Files\Rendered</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\CoordinateSystemShader.h">
+      <Filter>Header Files\Shaders\Component</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

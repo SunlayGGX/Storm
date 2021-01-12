@@ -4,6 +4,7 @@
 #include "Camera.h"
 
 #include "Grid.h"
+#include "GraphicCoordinateSystem.h"
 #include "GraphicRigidBody.h"
 #include "GraphicParticleSystem.h"
 #include "GraphicParticleData.h"
@@ -127,6 +128,7 @@ void Storm::GraphicManager::initialize_Implementation(void* hwnd)
 	const auto &device = _directXController->getDirectXDevice();
 	const Storm::SceneGraphicConfig &sceneGraphicConfig = configMgr.getSceneGraphicConfig();
 	_renderedElements.emplace_back(std::make_unique<Storm::Grid>(device, sceneGraphicConfig._grid));
+	_renderedElements.emplace_back(std::make_unique<Storm::GraphicCoordinateSystem>(device));
 
 	_graphicParticlesSystem = std::make_unique<Storm::GraphicParticleSystem>(device);
 
