@@ -534,6 +534,7 @@ Here the list of available commands :
 #### PhysicsManager (physicsMgr)
 
 - **void setRigidBodyAngularDamping(const unsigned int rbId, const float angularVelocityDamping)**: Set the angular velodity damping value of the rigid body specified by its id. This method is only defined for dynamic rigid bodies.
+- **void fixDynamicRigidBodyTranslation(const unsigned int rbId, const bool fixed)**: Set the specified rigid body's translation fixed flag. This method is only defined for dynamic rigid bodies.
 
 
 #### OSManager (osMgr)

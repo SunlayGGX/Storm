@@ -37,7 +37,8 @@ Storm::PhysicsDynamicRigidBody::PhysicsDynamicRigidBody(const Storm::SceneRigidB
 	Storm::PhysicalShape{ rbSceneConfig, vertices, indexes },
 	_currentIterationVelocity{ 0.f, 0.f, 0.f },
 	_internalRb{ createDynamicRigidBody(rbSceneConfig) },
-	_currentAngularVelocityDampingCoefficient{ computeAngularVelocityDampingCoeff(rbSceneConfig._angularVelocityDamping) }
+	_currentAngularVelocityDampingCoefficient{ computeAngularVelocityDampingCoeff(rbSceneConfig._angularVelocityDamping) },
+	_translationFixed{ rbSceneConfig._isTranslationFixed }
 {
 	if (!_internalRb)
 	{
@@ -47,6 +48,11 @@ Storm::PhysicsDynamicRigidBody::PhysicsDynamicRigidBody(const Storm::SceneRigidB
 	if (_internalRbShape && !_internalRb->attachShape(*_internalRbShape))
 	{
 		Storm::throwException<Storm::Exception>("We failed to attach the created shape to the rigid body " + std::to_string(rbSceneConfig._rigidBodyID));
+	}
+
+	if (_translationFixed)
+	{
+		_fixedPos = _internalRb->getGlobalPose().p;
 	}
 }
 
@@ -62,7 +68,13 @@ void Storm::PhysicsDynamicRigidBody::onIterationStart() noexcept
 
 void Storm::PhysicsDynamicRigidBody::onPostUpdate() noexcept
 {
+	if (_translationFixed)
+	{
+		physx::PxTransform currentTransform = _internalRb->getGlobalPose();
+		currentTransform.p = _fixedPos;
 
+		_internalRb->setGlobalPose(currentTransform);
+	}
 }
 
 void Storm::PhysicsDynamicRigidBody::resetForce()
@@ -139,4 +151,13 @@ void Storm::PhysicsDynamicRigidBody::setAngularVelocityDamping(const float angul
 	}
 
 	_currentAngularVelocityDampingCoefficient = computeAngularVelocityDampingCoeff(angularVelocityDamping);
+}
+
+void Storm::PhysicsDynamicRigidBody::setTranslationFixed(bool fixTranslation)
+{
+	_translationFixed = fixTranslation;
+	if (_translationFixed)
+	{
+		_fixedPos = _internalRb->getGlobalPose().p;
+	}
 }

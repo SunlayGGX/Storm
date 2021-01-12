@@ -323,6 +323,19 @@ void Storm::PhysicsManager::setRigidBodyAngularDamping(const unsigned int rbId, 
 	});
 }
 
+void Storm::PhysicsManager::fixDynamicRigidBodyTranslation(const unsigned int rbId, const bool fixed)
+{
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	Storm::IThreadManager &threadMgr = singletonHolder.getSingleton<Storm::IThreadManager>();
+	threadMgr.executeOnThread(Storm::ThreadEnumeration::MainThread, [this, rbId, fixed]()
+	{
+		Storm::SearchAlgo::executeOnObjectInContainer(rbId, [fixed](auto &rbFound)
+		{
+			rbFound.setTranslationFixed(fixed);
+		}, _dynamicsRbMap);
+	});
+}
+
 void Storm::PhysicsManager::pushPhysicsVisualizationData() const
 {
 	this->pushConstraintsVisualizationData();

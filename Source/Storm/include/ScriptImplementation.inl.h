@@ -111,7 +111,8 @@ void STORM_CURRENT_REGISTERED_TYPE::registerCurrentOnScript(IScriptWrapperInterf
 {
 	script.registerCurrentType(
 
-		STORM_DECLARE_SCRIPTED_METHOD(setRigidBodyAngularDamping)
+		STORM_DECLARE_SCRIPTED_METHOD(setRigidBodyAngularDamping),
+		STORM_DECLARE_SCRIPTED_METHOD(fixDynamicRigidBodyTranslation)
 
 	).registerCurrentInstance("physicsMgr");
 }
