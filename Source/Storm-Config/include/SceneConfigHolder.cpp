@@ -555,6 +555,7 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "restitutionCoeff", rbConfig._restitutionCoefficient) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "angularDamping", rbConfigAngularVelocityDampingTmp) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "isStatic", rbConfig._static) ||
+			Storm::XmlReader::handleXml(rigidBodyConfigXml, "fixTranslation", rbConfig._isTranslationFixed) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "wall", rbConfig._isWall) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "mass", rbConfig._mass) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "viscosity", rbConfig._viscosity) ||
@@ -609,6 +610,11 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 		{
 			Storm::throwException<Storm::Exception>("The rigid body layer count is invalid (rigid body " + std::to_string(rbConfig._rigidBodyID) + ")! Value was " + std::to_string(rbConfig._layerCount));
 		}
+		
+		if (rbConfig._isTranslationFixed && (rbConfig._isWall || rbConfig._static))
+		{
+			LOG_WARNING << "The rigid body " << rbConfig._rigidBodyID + " is not dynamic! Therefore the translation fixed flag set to true will be ignored.";
+		}
 
 		if (rbConfigAngularVelocityDampingTmp != -1.f)
 		{
@@ -623,6 +629,7 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 
 			rbConfig._angularVelocityDamping = rbConfigAngularVelocityDampingTmp;
 		}
+
 	});
 
 	/* Contraints */
