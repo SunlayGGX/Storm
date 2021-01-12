@@ -20,6 +20,7 @@ namespace Storm
 
 	public:
 		void onIterationStart() noexcept;
+		void onPostUpdate() noexcept;
 
 	public:
 		void resetForce();

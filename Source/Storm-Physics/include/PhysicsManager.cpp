@@ -97,6 +97,11 @@ void Storm::PhysicsManager::update(float deltaTime)
 	{
 		_physXHandler->update(_simulationMutex, deltaTime);
 
+		Storm::SearchAlgo::executeOnContainer([](auto &rb)
+		{
+			rb.onPostUpdate();
+		}, _dynamicsRbMap, _staticsRbMap);
+
 		this->pushPhysicsVisualizationData();
 	}
 }

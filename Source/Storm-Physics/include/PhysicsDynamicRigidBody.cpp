@@ -60,6 +60,11 @@ void Storm::PhysicsDynamicRigidBody::onIterationStart() noexcept
 	_internalRb->setAngularVelocity(currentAngularVelocity);
 }
 
+void Storm::PhysicsDynamicRigidBody::onPostUpdate() noexcept
+{
+
+}
+
 void Storm::PhysicsDynamicRigidBody::resetForce()
 {
 	const physx::PxVec3 zeroVec{ 0.f, 0.f, 0.f };
