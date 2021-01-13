@@ -245,13 +245,8 @@ void Storm::Camera::reset()
 	_nearPlane = sceneGraphicConfig._zNear;
 	_farPlane = sceneGraphicConfig._zFar;
 
-	_position.x = sceneGraphicConfig._cameraPosition.x();
-	_position.y = sceneGraphicConfig._cameraPosition.y();
-	_position.z = sceneGraphicConfig._cameraPosition.z();
-
-	_target.x = sceneGraphicConfig._cameraLookAt.x();
-	_target.y = sceneGraphicConfig._cameraLookAt.y();
-	_target.z = sceneGraphicConfig._cameraLookAt.z();
+	this->setPositionInternal(sceneGraphicConfig._cameraPosition.x(), sceneGraphicConfig._cameraPosition.y(), sceneGraphicConfig._cameraPosition.z());
+	this->setTargetInternal(sceneGraphicConfig._cameraLookAt.x(), sceneGraphicConfig._cameraLookAt.y(), sceneGraphicConfig._cameraLookAt.z());
 
 	DirectX::XMFLOAT3 upFloat3{ 0.f, 1.f, 0.f };
 	_up = DirectX::XMLoadFloat3(&upFloat3);
