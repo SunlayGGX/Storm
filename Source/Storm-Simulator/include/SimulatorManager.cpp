@@ -1791,3 +1791,49 @@ void Storm::SimulatorManager::executeAllForcesCheck()
 		LOG_ERROR << "All force sum are not equal to 0! Resulting force is " << allForceSum;
 	}
 }
+
+void Storm::SimulatorManager::printRigidBodyMoment(const unsigned int id) const
+{
+	if (const auto found = std::find_if(std::begin(_particleSystem), std::end(_particleSystem), [id](const auto &currentPSystemPair)
+	{
+		return currentPSystemPair.second->getId() == id;
+	}); found != std::end(_particleSystem))
+	{
+		const Storm::ParticleSystem &currentPSystem = *found->second;
+		if (currentPSystem.isFluids() || currentPSystem.isStatic())
+		{
+			Storm::throwException<Storm::Exception>("Particle system with id " + std::to_string(id) + " exists but is not a dynamic rigid body!");
+		}
+
+		const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+
+		const Storm::IPhysicsManager &physicsMgr = singletonHolder.getSingleton<Storm::IPhysicsManager>();
+		Storm::IThreadManager &threadMgr = singletonHolder.getSingleton<Storm::IThreadManager>();
+
+		threadMgr.executeOnThread(Storm::ThreadEnumeration::MainThread, [this, &currentPSystem, &physicsMgr, id]()
+		{
+			Storm::Vector3 rbPos;
+			Storm::Quaternion rbRot;
+			physicsMgr.getMeshTransform(id, rbPos, rbRot);
+
+			const std::vector<Storm::Vector3> &rbParticlePositions = currentPSystem.getPositions();
+			const std::vector<Storm::Vector3> &rbParticleForces = currentPSystem.getForces();
+
+			Storm::Vector3 moment = Storm::Vector3::Zero();
+			const std::size_t particleCount = rbParticlePositions.size();
+
+			assert(particleCount == rbParticleForces.size() && "Mismatch detected between particle and forces count!");
+
+			for (std::size_t iter = 0; iter < particleCount; ++iter)
+			{
+				moment += (rbParticlePositions[iter] - rbPos).cross(rbParticleForces[iter]);
+			}
+
+			LOG_ALWAYS << "Moment of rigid body " << id << " is " << moment << " (Note that we have considered only the pressure and viscosity forces).";
+		});
+	}
+	else
+	{
+		Storm::throwException<Storm::Exception>("Cannot find the rigid body with id " + std::to_string(id) + "!");
+	}
+}

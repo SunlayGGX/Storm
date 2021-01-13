@@ -130,6 +130,7 @@ namespace Storm
 
 	private:
 		void executeAllForcesCheck();
+		void printRigidBodyMoment(const unsigned int id) const;
 
 	private:
 		Storm::ParticleSystemContainer _particleSystem;
