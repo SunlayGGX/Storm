@@ -74,6 +74,8 @@ void Storm::PhysicsDynamicRigidBody::onPostUpdate() noexcept
 		currentTransform.p = _fixedPos;
 
 		_internalRb->setGlobalPose(currentTransform);
+
+		_internalRb->setLinearVelocity(physx::PxVec3{ physx::PxZERO::PxZero });
 	}
 }
 
