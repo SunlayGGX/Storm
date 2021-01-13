@@ -15,10 +15,12 @@ namespace
 		DirectX::XMMATRIX _viewMatrix;
 		DirectX::XMMATRIX _projMatrix;
 
-		DirectX::XMFLOAT3 _originPosition;
+		float _screenSpaceXOffset;
+		float _screenSpaceYOffset;
+
+		float _maxAxisLengthScreenUnit;
 
 		float _midThickness;
-		float _nearPlanePos;
 	};
 
 	static const std::string k_coordinateSysShaderFilePath = "Shaders/CoordinateSystem.hlsl";
@@ -79,21 +81,24 @@ void Storm::CoordinateSystemShader::setup(const ComPtr<ID3D11Device> &device, co
 	// Setup the device context
 	this->setupDeviceContext(deviceContext);
 
-	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
-	const Storm::SceneGraphicConfig &graphicConfig = configMgr.getSceneGraphicConfig();
-
 	// Write shaders parameters
 	{
-		D3D11_MAPPED_SUBRESOURCE particleForcesConstantBufferRessource;
-		Storm::ResourceMapperGuard mapGuard{ deviceContext, _constantBuffer.Get(), 0, D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, particleForcesConstantBufferRessource };
+		D3D11_MAPPED_SUBRESOURCE coordinateSystemConstantBufferRessource;
+		Storm::ResourceMapperGuard mapGuard{ deviceContext, _constantBuffer.Get(), 0, D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, coordinateSystemConstantBufferRessource };
 
-		ConstantBuffer*const ressourceDataPtr = static_cast<ConstantBuffer*>(particleForcesConstantBufferRessource.pData);
+		ConstantBuffer*const ressourceDataPtr = static_cast<ConstantBuffer*>(coordinateSystemConstantBufferRessource.pData);
 
 		ressourceDataPtr->_viewMatrix = currentCamera.getTransposedViewMatrix();
 		ressourceDataPtr->_projMatrix = currentCamera.getTransposedProjectionMatrix();
-		ressourceDataPtr->_originPosition = DirectX::XMFLOAT3{ 0.f, 0.f, 0.f };
-		ressourceDataPtr->_midThickness = 0.1f;
-		ressourceDataPtr->_nearPlanePos = currentCamera.getNearPlane();
+
+		// Since screen space coordinate are between -1,-1 (bottom-left) and 1,1 (top-right).
+		// We'll set the axis coordinate system to the bottom right of the screen.
+		// Then, the axis will be displayed in a R² domain between { x C [0.75, 0.95], y C [-0.75, -0.95] } 
+		ressourceDataPtr->_screenSpaceXOffset = 0.85f;
+		ressourceDataPtr->_screenSpaceYOffset = -0.85f;
+		ressourceDataPtr->_maxAxisLengthScreenUnit = 0.1f;
+
+		ressourceDataPtr->_midThickness = 0.0075f;
 	}
 
 	ID3D11Buffer*const constantBufferTmp = _constantBuffer.Get();
