@@ -3,20 +3,20 @@
 
 namespace Storm
 {
-	_forceinline physx::PxVec3 convertToPx(const Storm::Vector3 &vec)
+	__forceinline physx::PxVec3 convertToPx(const Storm::Vector3 &vec)
 	{
 		return physx::PxVec3{ vec.x(), vec.y(), vec.z() };
 	}
 
-	_forceinline Storm::Vector3 convertToStorm(const physx::PxVec3 &vec)
+	__forceinline Storm::Vector3 convertToStorm(const physx::PxVec3 &vec)
 	{
 		return Storm::Vector3{ vec.x, vec.y, vec.z };
 	}
 
 	template<class Ret>
-	_forceinline Ret convertToStorm(const physx::PxQuat &q);
+	__forceinline Ret convertToStorm(const physx::PxQuat &q);
 
-	_forceinline physx::PxQuat convertToPxRotation(const Storm::Vector3 &rot)
+	__forceinline physx::PxQuat convertToPxRotation(const Storm::Vector3 &rot)
 	{
 		physx::PxQuat result;
 
@@ -43,7 +43,7 @@ namespace Storm
 	}
 
 	template<>
-	_forceinline Storm::Vector3 convertToStorm<Storm::Vector3>(const physx::PxQuat &q)
+	__forceinline Storm::Vector3 convertToStorm<Storm::Vector3>(const physx::PxQuat &q)
 	{
 		Storm::Vector3 result;
 
@@ -76,12 +76,12 @@ namespace Storm
 	}
 
 	template<>
-	_forceinline Storm::Quaternion convertToStorm<Storm::Quaternion>(const physx::PxQuat &q)
+	__forceinline Storm::Quaternion convertToStorm<Storm::Quaternion>(const physx::PxQuat &q)
 	{
 		return Storm::Quaternion{ q.w, q.x, q.y, q.z };
 	}
 
-	_forceinline physx::PxTransform convertToPx(const Storm::Vector3 &translation, const Storm::Vector3 &eulerRot)
+	__forceinline physx::PxTransform convertToPx(const Storm::Vector3 &translation, const Storm::Vector3 &eulerRot)
 	{
 		physx::PxTransform result;
 
