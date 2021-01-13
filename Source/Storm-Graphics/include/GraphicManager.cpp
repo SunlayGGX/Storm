@@ -128,7 +128,7 @@ void Storm::GraphicManager::initialize_Implementation(void* hwnd)
 	const auto &device = _directXController->getDirectXDevice();
 	const Storm::SceneGraphicConfig &sceneGraphicConfig = configMgr.getSceneGraphicConfig();
 	_renderedElements.emplace_back(std::make_unique<Storm::Grid>(device, sceneGraphicConfig._grid));
-	_renderedElements.emplace_back(std::make_unique<Storm::GraphicCoordinateSystem>(device));
+	_coordSystemNonOwningPtr = static_cast<Storm::GraphicCoordinateSystem*>(_renderedElements.emplace_back(std::make_unique<Storm::GraphicCoordinateSystem>(device)).get());
 
 	_graphicParticlesSystem = std::make_unique<Storm::GraphicParticleSystem>(device);
 
@@ -171,6 +171,7 @@ void Storm::GraphicManager::initialize_Implementation(void* hwnd)
 			inputMgr.bindKey(Storm::SpecialKey::KC_SUBTRACT, [this]() { _camera->decreaseNearPlane(); });
 			inputMgr.bindKey(Storm::SpecialKey::KC_MULTIPLY, [this]() { _camera->increaseFarPlane(); });
 			inputMgr.bindKey(Storm::SpecialKey::KC_DIVIDE, [this]() { _camera->decreaseFarPlane(); });
+			inputMgr.bindKey(Storm::SpecialKey::KC_F2, [this]() { _coordSystemNonOwningPtr->switchShow(); });
 			inputMgr.bindKey(Storm::SpecialKey::KC_F4, [this]() { _forceRenderer->tweekAlwaysOnTop(); });
 			inputMgr.bindKey(Storm::SpecialKey::KC_F5, [this]() { _directXController->setWireFrameState(); });
 			inputMgr.bindKey(Storm::SpecialKey::KC_F6, [this]() { _directXController->setSolidCullBackState(); });
@@ -498,4 +499,12 @@ void Storm::GraphicManager::setColorSettingMinMaxValue(float minValue, float max
 			_pipe->setMinMaxColorationValue(minValue, maxValue);
 		});
 	}
+}
+
+void Storm::GraphicManager::showCoordinateSystemAxis(const bool shouldShow)
+{
+	Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::GraphicsThread, [this, shouldShow]()
+	{
+		_coordSystemNonOwningPtr->show(shouldShow);
+	});
 }

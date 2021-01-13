@@ -450,6 +450,7 @@ Note : If the term in the parenthesis is "Numpad", then the keybinding is the va
 - **1 (Key)**: Decrease the physics delta time. Valid only if we are not in replay mode, or if CFL is disabled.
 - **2 (Key)**: Increase the physics delta time. Valid only if we are not in replay mode, or if CFL is disabled.
 - **F1**: Debug command to print to a human readable text giving all position, velocity and force values of all fluid particles. The data is printed inside the output (temp) directory inside "Debug" folder.
+- **F2**: Show/Hide the axis coordinate system displayed on the UI.
 - **F3**: Cycle the color setting of the fluid particle data displayed from ... -> Velocity -> Pressure -> Density -> ... .
 - **F4**: Set selected particle forces always on top flag to true if false, false otherwise. But note that if it is true, you'll always see the particle force if it is in front of the view point, but you'll lose the depth information of the vector.
 - **F5**: Set wireframe.
@@ -528,6 +529,7 @@ Here the list of available commands :
 
 - **void cycleColoredSetting()**: Cycle the particle coloring observed quantities. This is the same method bound to the key inputs.
 - **void setColorSettingMinMaxValue(float minValue, float maxValue)**: Set the min and max values for the observed particle colors fields.
+- **void showCoordinateSystemAxis(const bool shouldShow)**: Display the axis coordinate system if true, hide it otherwise.
 - **void setUIFieldEnabled(bool enable)**: Set if we should display the UI fields (enabled to true) or hide it (enabled to false).
 
 

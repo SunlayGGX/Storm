@@ -16,6 +16,7 @@ namespace Storm
 	class GraphicConstraintSystem;
 	class ParticleForceRenderer;
 	class GraphicPipe;
+	class GraphicCoordinateSystem;
 
 	struct WithUI;
 	struct NoUI;
@@ -91,6 +92,9 @@ namespace Storm
 		void cycleColoredSetting() final override;
 		void setColorSettingMinMaxValue(float minValue, float maxValue) final override;
 
+	public:
+		void showCoordinateSystemAxis(const bool shouldShow);
+
 	private:
 		unsigned char _renderCounter;
 
@@ -114,5 +118,7 @@ namespace Storm
 		std::thread _renderThread;
 
 		unsigned short _windowsResizedCallbackId;
+
+		Storm::GraphicCoordinateSystem* _coordSystemNonOwningPtr;
 	};
 }

@@ -40,7 +40,8 @@ namespace
 }
 
 
-Storm::GraphicCoordinateSystem::GraphicCoordinateSystem(const ComPtr<ID3D11Device> &device)
+Storm::GraphicCoordinateSystem::GraphicCoordinateSystem(const ComPtr<ID3D11Device> &device) :
+	_shouldShow{ true }
 {
 	enum : std::size_t
 	{
@@ -100,9 +101,12 @@ Storm::GraphicCoordinateSystem::GraphicCoordinateSystem(const ComPtr<ID3D11Devic
 
 void Storm::GraphicCoordinateSystem::render(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera)
 {
-	_coordinateSysShader->setup(device, deviceContext, currentCamera);
-	this->setup(deviceContext);
-	_coordinateSysShader->draw(deviceContext);
+	if (_shouldShow)
+	{
+		_coordinateSysShader->setup(device, deviceContext, currentCamera);
+		this->setup(deviceContext);
+		_coordinateSysShader->draw(deviceContext);
+	}
 }
 
 void Storm::GraphicCoordinateSystem::setup(const ComPtr<ID3D11DeviceContext> &deviceContext)
@@ -116,4 +120,14 @@ void Storm::GraphicCoordinateSystem::setup(const ComPtr<ID3D11DeviceContext> &de
 
 	ID3D11Buffer*const tmpVertexBuffer = _vertexBuffer.Get();
 	deviceContext->IASetVertexBuffers(0, 1, &tmpVertexBuffer, &stride, &offset);
+}
+
+void Storm::GraphicCoordinateSystem::show(bool shouldShow)
+{
+	_shouldShow = shouldShow;
+}
+
+void Storm::GraphicCoordinateSystem::switchShow()
+{
+	this->show(!_shouldShow);
 }
