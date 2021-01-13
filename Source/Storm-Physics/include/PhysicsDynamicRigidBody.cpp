@@ -83,14 +83,6 @@ void Storm::PhysicsDynamicRigidBody::resetForce()
 	_internalRb->setForceAndTorque(zeroVec, zeroVec);
 }
 
-void Storm::PhysicsDynamicRigidBody::getMeshTransform(Storm::Vector3 &outTrans, Storm::Vector3 &outRot) const
-{
-	const physx::PxTransform currentTransform = retrieveCurrentTransform(_internalRb);
-
-	outTrans = Storm::convertToStorm(currentTransform.p);
-	outRot = Storm::convertToStorm<Storm::Vector3>(currentTransform.q);
-}
-
 void Storm::PhysicsDynamicRigidBody::applyForce(const Storm::Vector3 &location, const Storm::Vector3 &force)
 {
 	physx::PxRigidBodyExt::addForceAtLocalPos(*_internalRb, Storm::convertToPx(force), Storm::convertToPx(location));
@@ -123,6 +115,19 @@ Storm::Vector3 Storm::PhysicsDynamicRigidBody::getTotalForce(const float deltaTi
 physx::PxRigidDynamic* Storm::PhysicsDynamicRigidBody::getInternalPhysicsPointer() const
 {
 	return _internalRb.get();
+}
+
+void Storm::PhysicsDynamicRigidBody::getMeshTransform(Storm::Vector3 &outTrans, Storm::Vector3 &outRot) const
+{
+	physx::PxTransform currentTransform;
+
+	{
+		std::lock_guard<std::mutex> lock{ Storm::PhysicsManager::instance()._simulationMutex };
+		currentTransform = _internalRb->getGlobalPose();
+	}
+
+	outTrans = Storm::convertToStorm(currentTransform.p);
+	outRot = Storm::convertToStorm<Storm::Vector3>(currentTransform.q);
 }
 
 void Storm::PhysicsDynamicRigidBody::getMeshTransform(Storm::Vector3 &outTrans, Storm::Quaternion &outQuatRot) const
