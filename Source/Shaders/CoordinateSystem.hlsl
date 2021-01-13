@@ -1,8 +1,7 @@
 cbuffer ConstantBuffer
 {
 	// ViewMatrix * ProjectionMatrix
-	matrix _viewMatrix;
-	matrix _projMatrix;
+	matrix _viewProjMatrix;
 
 	float _screenSpaceXOffset;
 	float _screenSpaceYOffset;
@@ -38,22 +37,18 @@ GeometryInputType coordinateSystemVertexShader(VertexInputType input)
 	GeometryInputType output;
 
 	// Change the position vector to be 4 units for proper matrix calculations.
-	output._vect = mul(input._vect, _viewMatrix);
+	output._vect = mul(input._vect, _viewProjMatrix);
 	output._color = input._color;
 
 	return output;
 }
 
-[maxvertexcount(6)]
-void coordinateSystemGeometryShader(point GeometryInputType inputRaw[1], inout TriangleStream<PixelInputType> outputStream)
+// Geometry shader
+void produceAxisArrow(in GeometryInputType p1, inout TriangleStream<PixelInputType> outputStream)
 {
-	GeometryInputType p1 = inputRaw[0];
-
-	float4 axisVect = p1._vect;
-
 	const float3 pos0 = float3(_screenSpaceXOffset, _screenSpaceYOffset, 0.0);
 
-	float3 pos1 = mul(axisVect, _projMatrix);
+	float3 pos1 = p1._vect;
 	pos1.x += _screenSpaceXOffset;
 	pos1.y += _screenSpaceYOffset;
 
@@ -107,6 +102,68 @@ void coordinateSystemGeometryShader(point GeometryInputType inputRaw[1], inout T
 	outputStream.Append(corner3);
 	outputStream.Append(corner4);
 	outputStream.RestartStrip();
+}
+
+[maxvertexcount(18)]
+void coordinateSystemGeometryShader(triangle GeometryInputType inputRaw[3], inout TriangleStream<PixelInputType> outputStream)
+{
+	uint handledInOrder[3];
+
+	const float depth0 = inputRaw[0]._vect.z;
+	const float depth1 = inputRaw[1]._vect.z;
+	const float depth2 = inputRaw[2]._vect.z;
+
+	// Here the axis should be drawn in the decrease depth order
+	// (manually make the Painter's algorithm because everything will be flatten on HUD, and GPU pipeline will lose the info on what pixel to display over another pixel)
+	if (depth0 > depth1)
+	{
+		if (depth0 > depth2)
+		{
+			handledInOrder[0] = 0;
+
+			if (depth1 > depth2)
+			{
+				handledInOrder[1] = 1;
+				handledInOrder[2] = 2;
+			}
+			else
+			{
+				handledInOrder[1] = 2;
+				handledInOrder[2] = 1;
+			}
+		}
+		else
+		{
+			handledInOrder[0] = 2;
+			handledInOrder[1] = 0;
+			handledInOrder[2] = 1;
+		}
+	}
+	else if(depth0 > depth2)
+	{
+		handledInOrder[0] = 1;
+		handledInOrder[1] = 0;
+		handledInOrder[2] = 2;
+	}
+	else
+	{
+		if (depth1 > depth2)
+		{
+			handledInOrder[0] = 1;
+			handledInOrder[1] = 2;
+		}
+		else
+		{
+			handledInOrder[0] = 2;
+			handledInOrder[1] = 1;
+		}
+
+		handledInOrder[2] = 0;
+	}
+
+	produceAxisArrow(inputRaw[handledInOrder[2]], outputStream);
+	produceAxisArrow(inputRaw[handledInOrder[1]], outputStream);
+	produceAxisArrow(inputRaw[handledInOrder[0]], outputStream);
 }
 
 // Pixel shader

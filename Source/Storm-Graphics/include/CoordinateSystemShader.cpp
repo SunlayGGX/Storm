@@ -12,8 +12,7 @@ namespace
 {
 	struct ConstantBuffer
 	{
-		DirectX::XMMATRIX _viewMatrix;
-		DirectX::XMMATRIX _projMatrix;
+		DirectX::XMMATRIX _viewProjMatrix;
 
 		float _screenSpaceXOffset;
 		float _screenSpaceYOffset;
@@ -88,8 +87,7 @@ void Storm::CoordinateSystemShader::setup(const ComPtr<ID3D11Device> &device, co
 
 		ConstantBuffer*const ressourceDataPtr = static_cast<ConstantBuffer*>(coordinateSystemConstantBufferRessource.pData);
 
-		ressourceDataPtr->_viewMatrix = currentCamera.getTransposedViewMatrix();
-		ressourceDataPtr->_projMatrix = currentCamera.getTransposedProjectionMatrix();
+		ressourceDataPtr->_viewProjMatrix = currentCamera.getTransposedViewProjMatrix();
 
 		// Since screen space coordinate are between -1,-1 (bottom-left) and 1,1 (top-right).
 		// We'll set the axis coordinate system to the bottom right of the screen.

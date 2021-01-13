@@ -112,7 +112,7 @@ void Storm::GraphicCoordinateSystem::setup(const ComPtr<ID3D11DeviceContext> &de
 	constexpr UINT stride = sizeof(CoordinateVectorType);
 	constexpr UINT offset = 0;
 
-	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
+	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	deviceContext->IASetIndexBuffer(_indexBuffer.Get(), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
 
