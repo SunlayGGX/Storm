@@ -58,7 +58,9 @@ void produceAxisArrow(in GeometryInputType p1, inout TriangleStream<PixelInputTy
 	float3 lineVect = pos1 - pos0;
 
 	lineVect *= _maxAxisLengthScreenUnit;
-	pos1 = pos0 + lineVect;
+
+	// The body of the arrow should be 80% of the line. The remaining 20% will be the arrow head.
+	pos1 = pos0 + lineVect * 0.8f;
 
 	float3 thicknessVect = cross(float3(0.f, 0.f, 1.f), lineVect);
 	float thicknessNorm = length(thicknessVect);
@@ -67,6 +69,10 @@ void produceAxisArrow(in GeometryInputType p1, inout TriangleStream<PixelInputTy
 	PixelInputType corner2;
 	PixelInputType corner3;
 	PixelInputType corner4;
+
+	PixelInputType head1;
+	PixelInputType head2;
+	PixelInputType head3;
 
 	if (thicknessNorm > 0.00001f)
 	{
@@ -79,6 +85,19 @@ void produceAxisArrow(in GeometryInputType p1, inout TriangleStream<PixelInputTy
 		corner2._position = float4(pos0.x - xThickness, pos0.y - yThickness, pos0.z, 1.f);
 		corner3._position = float4(pos1.x + xThickness, pos1.y + yThickness, pos1.z, 1.f);
 		corner4._position = float4(pos1.x - xThickness, pos1.y - yThickness, pos1.z, 1.f);
+
+		float arrowHeadXThickness = xThickness * 1.5f;
+		float arrowHeadYThickness = yThickness * 1.5f;
+
+		head1._position = corner3._position;
+		head1._position.x += arrowHeadXThickness;
+		head1._position.y += arrowHeadYThickness;
+
+		head2._position = corner4._position;
+		head2._position.x -= arrowHeadXThickness;
+		head2._position.y -= arrowHeadYThickness;
+
+		head3._position = float4(pos0 + lineVect, 1.f);
 	}
 	else
 	{
@@ -86,12 +105,20 @@ void produceAxisArrow(in GeometryInputType p1, inout TriangleStream<PixelInputTy
 		corner2._position = float4(pos0, 1.f);
 		corner3._position = float4(pos1, 1.f);
 		corner4._position = float4(pos1, 1.f);
+
+		head1._position = float4(pos1, 1.f);
+		head2._position = float4(pos1, 1.f);
+		head3._position = float4(pos1, 1.f);
 	}
 
 	corner1._color = p1._color;
 	corner2._color = p1._color;
 	corner3._color = p1._color;
 	corner4._color = p1._color;
+
+	head1._color = p1._color;
+	head2._color = p1._color;
+	head3._color = p1._color;
 
 	outputStream.Append(corner2);
 	outputStream.Append(corner1);
@@ -102,9 +129,15 @@ void produceAxisArrow(in GeometryInputType p1, inout TriangleStream<PixelInputTy
 	outputStream.Append(corner3);
 	outputStream.Append(corner4);
 	outputStream.RestartStrip();
+
+	// Now, draw the head
+	outputStream.Append(head2);
+	outputStream.Append(head1);
+	outputStream.Append(head3);
+	outputStream.RestartStrip();
 }
 
-[maxvertexcount(18)]
+[maxvertexcount(27)]
 void coordinateSystemGeometryShader(triangle GeometryInputType inputRaw[3], inout TriangleStream<PixelInputType> outputStream)
 {
 	uint handledInOrder[3];
