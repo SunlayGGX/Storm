@@ -281,6 +281,11 @@ const DirectX::XMMATRIX& Storm::Camera::getViewMatrix() const noexcept
 	return _viewMatrix;
 }
 
+const DirectX::XMMATRIX& Storm::Camera::getViewProjMatrix() const noexcept
+{
+	return _viewProjMatrix;
+}
+
 const DirectX::XMMATRIX& Storm::Camera::getOrthoMatrix() const noexcept
 {
 	return _orthoMatrix;
@@ -294,6 +299,11 @@ const DirectX::XMMATRIX& Storm::Camera::getTransposedProjectionMatrix() const no
 const DirectX::XMMATRIX& Storm::Camera::getTransposedViewMatrix() const noexcept
 {
 	return _transposedViewMatrix;
+}
+
+const DirectX::XMMATRIX& Storm::Camera::getTransposedViewProjMatrix() const noexcept
+{
+	return _transposedViewProjMatrix;
 }
 
 const DirectX::XMMATRIX& Storm::Camera::getTransposedOrthoMatrix() const noexcept
@@ -651,6 +661,8 @@ void Storm::Camera::buildProjectionMatrix()
 	const float screenRatio = _screenWidth / _screenHeight;
 	_projectionMatrix = DirectX::XMMatrixPerspectiveFovLH(_fieldOfView, screenRatio, _nearPlane, _farPlane);
 	_transposedProjectionMatrix = DirectX::XMMatrixTranspose(_projectionMatrix);
+
+	this->buildViewProjectionMatrix();
 }
 
 void Storm::Camera::buildOrthoMatrix()
@@ -663,4 +675,12 @@ void Storm::Camera::buildViewMatrix()
 {
 	_viewMatrix = DirectX::XMMatrixLookAtLH(DirectX::XMLoadFloat3(&_position), DirectX::XMLoadFloat3(&_target), _up);
 	_transposedViewMatrix = DirectX::XMMatrixTranspose(_viewMatrix);
+
+	this->buildViewProjectionMatrix();
+}
+
+void Storm::Camera::buildViewProjectionMatrix()
+{
+	_viewProjMatrix = DirectX::XMMatrixMultiply(_viewMatrix, _projectionMatrix);
+	_transposedViewProjMatrix = DirectX::XMMatrixTranspose(_viewProjMatrix);
 }
