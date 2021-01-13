@@ -49,30 +49,28 @@ Storm::GraphicCoordinateSystem::GraphicCoordinateSystem(const ComPtr<ID3D11Devic
 		k_indexCount = k_vectorCount
 	};
 
-
 	// Index and vertex CPU buffers
-	constexpr CoordinateVectorType coordinateSystemVertexes[k_vectorCount] =
+	constexpr const CoordinateVectorType k_coordinateSystemVertexes[k_vectorCount] =
 	{
 		CoordinateVectorType{ 1.f, 0.f, 0.f, 1.f, 0.f, 0.f },
 		CoordinateVectorType{ 0.f, 1.f, 0.f, 0.f, 1.f, 0.f },
 		CoordinateVectorType{ 0.f, 0.f, 1.f, 0.f, 0.f, 1.f }
 	};
 
-	constexpr CoordinateSystemIndexBuffer<k_indexCount> coordinateSystemIndexes;
-
+	constexpr const CoordinateSystemIndexBuffer<k_indexCount> k_coordinateSystemIndexes;
 
 	// Create Vertex data
 	D3D11_BUFFER_DESC vertexBufferDesc;
 	D3D11_SUBRESOURCE_DATA vertexData;
 
 	vertexBufferDesc.Usage = D3D11_USAGE::D3D11_USAGE_DEFAULT;
-	vertexBufferDesc.ByteWidth = sizeof(coordinateSystemVertexes);
+	vertexBufferDesc.ByteWidth = sizeof(k_coordinateSystemVertexes);
 	vertexBufferDesc.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_VERTEX_BUFFER;
 	vertexBufferDesc.CPUAccessFlags = 0;
 	vertexBufferDesc.MiscFlags = 0;
 	vertexBufferDesc.StructureByteStride = 0;
 
-	vertexData.pSysMem = coordinateSystemVertexes;
+	vertexData.pSysMem = k_coordinateSystemVertexes;
 	vertexData.SysMemPitch = 0;
 	vertexData.SysMemSlicePitch = 0;
 
@@ -84,13 +82,13 @@ Storm::GraphicCoordinateSystem::GraphicCoordinateSystem(const ComPtr<ID3D11Devic
 	D3D11_SUBRESOURCE_DATA indexData;
 
 	indexBufferDesc.Usage = D3D11_USAGE::D3D11_USAGE_DEFAULT;
-	indexBufferDesc.ByteWidth = sizeof(coordinateSystemIndexes);
+	indexBufferDesc.ByteWidth = sizeof(k_coordinateSystemIndexes);
 	indexBufferDesc.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_INDEX_BUFFER;
 	indexBufferDesc.CPUAccessFlags = 0;
 	indexBufferDesc.MiscFlags = 0;
 	indexBufferDesc.StructureByteStride = 0;
 
-	indexData.pSysMem = coordinateSystemIndexes._indexes;
+	indexData.pSysMem = k_coordinateSystemIndexes._indexes;
 	indexData.SysMemPitch = 0;
 	indexData.SysMemSlicePitch = 0;
 
