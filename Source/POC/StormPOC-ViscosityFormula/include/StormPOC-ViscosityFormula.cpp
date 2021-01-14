@@ -12,21 +12,9 @@
 #include <corecrt_math_defines.h>
 
 
-#define STORM_POC_SPLISHSPLASH_GRADIENT_INIT_KERNEL 											\
-{																								\
-	constexpr float k_constexprGradientPrecoeffCoeff = static_cast<float>(48.0 / M_PI);			\
-	_gradientCoeff = k_constexprGradientPrecoeffCoeff / (_hSquared * _hSquared);				\
-}
-
-#define STORM_POC_JJMONAGHAN_GRADIENT_INIT_KERNEL 												\
-{																								\
-	constexpr float k_constexprGradientPrecoeffCoeff = static_cast<float>(-3.0 / 4.0 / M_PI);	\
-	_gradientCoeff = k_constexprGradientPrecoeffCoeff / (_hSquared * _hSquared);				\
-}
-
-#define STORM_POC_XMACRO_KERNELS																											\
-	STORM_POC_XMACRO_KERNEL_ELEM(SplishSplashCubicSpline, gradientSplishSplashCubicSpline, STORM_POC_SPLISHSPLASH_GRADIENT_INIT_KERNEL)		\
-	STORM_POC_XMACRO_KERNEL_ELEM(JJMonaghanCubicSpline, gradientJJMonaghanCubicSpline, STORM_POC_JJMONAGHAN_GRADIENT_INIT_KERNEL)			\
+#define STORM_POC_XMACRO_KERNELS																										\
+	STORM_POC_XMACRO_KERNEL_ELEM(SplishSplashCubicSpline, gradientSplishSplashCubicSpline, computeSplishSplashCubicSplinePrecoeff)		\
+	STORM_POC_XMACRO_KERNEL_ELEM(JJMonaghanCubicSpline, gradientJJMonaghanCubicSpline, computeJJMonaghanCubicSplinePrecoeff)			\
 
 
 namespace
@@ -89,7 +77,7 @@ namespace
 		{
 			switch (_func)
 			{
-#define STORM_POC_XMACRO_KERNEL_ELEM(Mode, Func, PrecoeffInit) case KernelFunc::Mode: PrecoeffInit break;
+#define STORM_POC_XMACRO_KERNEL_ELEM(Mode, Func, PrecoeffInitFunc) case KernelFunc::Mode: _gradientCoeff = this->PrecoeffInitFunc(); break;
 				STORM_POC_XMACRO_KERNELS
 #undef STORM_POC_XMACRO_KERNEL_ELEM
 
@@ -110,6 +98,19 @@ namespace
 			default:
 				__assume(false);
 			}
+		}
+
+	private:
+		float computeSplishSplashCubicSplinePrecoeff() const noexcept
+		{
+			constexpr float k_constexprGradientPrecoeffCoeff = static_cast<float>(48.0 / M_PI);
+			return k_constexprGradientPrecoeffCoeff / (_hSquared * _hSquared);
+		}
+
+		float computeJJMonaghanCubicSplinePrecoeff() const noexcept
+		{
+			constexpr float k_constexprGradientPrecoeffCoeff = static_cast<float>(-3.0 / 4.0 / M_PI);
+			return k_constexprGradientPrecoeffCoeff / (_hSquared * _hSquared);
 		}
 
 	private:
