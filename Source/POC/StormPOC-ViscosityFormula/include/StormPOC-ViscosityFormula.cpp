@@ -11,6 +11,24 @@
 #include <cmath>
 #include <corecrt_math_defines.h>
 
+
+#define STORM_POC_SPLISHSPLASH_GRADIENT_INIT_KERNEL 											\
+{																								\
+	constexpr float k_constexprGradientPrecoeffCoeff = static_cast<float>(48.0 / M_PI);			\
+	_gradientCoeff = k_constexprGradientPrecoeffCoeff / (_hSquared * _hSquared);				\
+}
+
+#define STORM_POC_JJMONAGHAN_GRADIENT_INIT_KERNEL 												\
+{																								\
+	constexpr float k_constexprGradientPrecoeffCoeff = static_cast<float>(-3.0 / 4.0 / M_PI);	\
+	_gradientCoeff = k_constexprGradientPrecoeffCoeff / (_hSquared * _hSquared);				\
+}
+
+#define STORM_POC_XMACRO_KERNELS																											\
+	STORM_POC_XMACRO_KERNEL_ELEM(SplishSplashCubicSpline, gradientSplishSplashCubicSpline, STORM_POC_SPLISHSPLASH_GRADIENT_INIT_KERNEL)		\
+	STORM_POC_XMACRO_KERNEL_ELEM(JJMonaghanCubicSpline, gradientJJMonaghanCubicSpline, STORM_POC_JJMONAGHAN_GRADIENT_INIT_KERNEL)			\
+
+
 namespace
 {
 	struct Vector
@@ -54,20 +72,48 @@ namespace
 		return Vector{ left._x - right._x, left._y - right._y, left._z - right._z };
 	}
 
+	enum class KernelFunc
+	{
+#define STORM_POC_XMACRO_KERNEL_ELEM(Mode, Func, PrecoeffInit) Mode,
+		STORM_POC_XMACRO_KERNELS
+#undef STORM_POC_XMACRO_KERNEL_ELEM
+	};
 
 	class Kernel
 	{
 	public:
-		Kernel(float h) :
+		Kernel(float h, KernelFunc func) :
 			_h{ h },
-			_hSquared{ h * h }
+			_hSquared{ h * h },
+			_func{ func }
 		{
-			constexpr float k_constexprGradientPrecoeffCoeff = static_cast<float>(48.0 / M_PI);
-			_gradientCoeff = k_constexprGradientPrecoeffCoeff / (_hSquared * _hSquared);
+			switch (_func)
+			{
+#define STORM_POC_XMACRO_KERNEL_ELEM(Mode, Func, PrecoeffInit) case KernelFunc::Mode: PrecoeffInit break;
+				STORM_POC_XMACRO_KERNELS
+#undef STORM_POC_XMACRO_KERNEL_ELEM
+
+			default:
+				throw std::exception{ "Unknown kernel function" };
+			}
 		}
 
 	public:
 		Vector gradient(const Vector &xji, const float norm) const
+		{
+			switch (_func)
+			{
+#define STORM_POC_XMACRO_KERNEL_ELEM(Mode, Func, PrecoeffInit) case KernelFunc::Mode: return this->Func(xji, norm);
+				STORM_POC_XMACRO_KERNELS
+#undef STORM_POC_XMACRO_KERNEL_ELEM
+
+			default:
+				__assume(false);
+			}
+		}
+
+	private:
+		Vector gradientSplishSplashCubicSpline(const Vector &xji, const float norm) const
 		{
 			Vector result;
 
@@ -92,11 +138,41 @@ namespace
 			return result;
 		}
 
+		Vector gradientJJMonaghanCubicSpline(const Vector &xji, const float norm) const
+		{
+			Vector result;
+
+			if (norm <= _h)
+			{
+				// The multiplication by 2 is a hack. JJ Monaghan kernel is defined between 0 and 2 * kernel length...
+				// But if we consider our kernel length we provided to be  2 * JJMonaghan's kernel (named JJk), then this is a variable change (or variable substitution) :
+				// => _h = 2 * JJk		=>	JJk = _h / 2
+				// => q = norm / JJk	=>	q = norm / (_h / 2)		=>	q = norm * 2 / _h
+				const float q = norm * 2.f / _h;
+				float factor;
+
+				if (q < 0.5f)
+				{
+					factor = q * (4.f - 3.f * q);
+				}
+				else /*if (q < 1.f)*/ // q would always be under 1.f because it is per construction from the variable change
+				{
+					const float twoMinusQ = 2.f - q;
+					factor = twoMinusQ * twoMinusQ;
+				}
+
+				result = xji * -(factor / norm);
+			}
+
+			return result;
+		}
+
 	public:
 		float _h;
 		float _hSquared;
 
 		float _gradientCoeff;
+		const KernelFunc _func;
 	};
 
 	class Particle
@@ -114,22 +190,20 @@ namespace
 	class Viscosity
 	{
 	public:
-		Viscosity(const std::filesystem::path &csvFileName, float h) :
-			_kernel{ h },
+		Viscosity(const std::filesystem::path &csvFileName, float h, KernelFunc func) :
+			_kernel{ h, func },
 			_csvFile{ csvFileName }
 		{
 			Viscosity::reserveCsvData(_rValues, "r");
 			Viscosity::reserveCsvData(_normValues, "norm");
 			Viscosity::reserveCsvData(_normCoeffValues, "dotCoeff");
 			Viscosity::reserveCsvData(_xjValues, "xj");
-			Viscosity::reserveCsvData(_yjValues, "yj");
 		}
 
 		~Viscosity()
 		{
 			this->writeCsvData(_rValues);
 			this->writeCsvData(_xjValues);
-			this->writeCsvData(_yjValues);
 			this->writeCsvData(_normValues);
 			this->writeCsvData(_normCoeffValues);
 		}
@@ -177,7 +251,6 @@ namespace
 
 			Viscosity::appendCsvData(_rValues, xijNorm);
 			Viscosity::appendCsvData(_xjValues, pj._position._x);
-			Viscosity::appendCsvData(_yjValues, pj._position._y);
 			Viscosity::appendCsvData(_normCoeffValues, dotCoeff);
 			Viscosity::appendCsvData(_normValues, forceApprox.norm());
 		}
@@ -189,7 +262,6 @@ namespace
 		std::string _normValues;
 		std::string _normCoeffValues;
 		std::string _xjValues;
-		std::string _yjValues;
 
 		std::ofstream _csvFile;
 	};
@@ -209,34 +281,42 @@ namespace
 
 		return currentTempPath;
 	}
+
+	template<KernelFunc func>
+	void exec(const std::filesystem::path &tempFolderPathToWriteResult, const std::string_view &csvName)
+	{
+		// Radius of r=5m
+		Viscosity viscosity{ tempFolderPathToWriteResult / csvName, 5.f, KernelFunc::SplishSplashCubicSpline };
+
+		// Origin particle set at { 0.f, 0.f, 0.f }
+		Particle pi{ 0.f, 0.f, 0.f };
+
+		// Moving particle set on the circle of r=5m.
+		// The equation of a circle is x² + y² + z² = r²...
+		// The max x is when y = 0 & z = 0 => x²=r² => x=r => x=5,
+		// therefore, I can initialize the position of pj with x C [-5, 5].
+		// I choose x=3m and z = 0 => x²+y²+z²=r² => 3²+y²+0²=5² => y²=25-9-0 => y=4 or y=-4, I choose y=4
+		Particle pj{ 3.f, 4.f, 0.f };
+
+		// Pj will have a velocity of { -1.f, 0.f, 0.f }, therefore will pass parallel to the x axis.
+		pj._velocity = Vector{ -1.f, 0.f, 0.f };
+
+		const float _xStep = 0.001f;
+		while (pj._position._x > -3.f)
+		{
+			viscosity(pi, pj);
+			pj._position._x -= _xStep;
+		}
+	}
 }
 
 int main(int argc, char* argv[])
 {
 	const std::filesystem::path tempFolderPathToWriteResult = initPOC(argc, argv);
 
-	// Radius of r=5m
-	Viscosity viscosity{ tempFolderPathToWriteResult / "visco.csv", 5.f };
-
-	// Origin particle set at { 0.f, 0.f, 0.f }
-	Particle pi{ 0.f, 0.f, 0.f };
-
-	// Moving particle set on the circle of r=5m.
-	// The equation of a circle is x² + y² + z² = r²...
-	// The max x is when y = 0 & z = 0 => x²=r² => x=r => x=5,
-	// therefore, I can initialize the position of pj with x C [-5, 5].
-	// I choose x=3m and z = 0 => x²+y²+z²=r² => 3²+y²+0²=5² => y²=25-9-0 => y=4 or y=-4, I choose y=4
-	Particle pj{ 3.f, 4.f, 0.f };
-
-	// Pj will have a velocity of { -1.f, 0.f, 0.f }, therefore will pass parallel to the x axis.
-	pj._velocity = Vector{ -1.f, 0.f, 0.f };
-
-	const float _xStep = 0.001f;
-	while (pj._position._x > -3.f)
-	{
-		viscosity(pi, pj);
-		pj._position._x -= _xStep;
-	}
+#define STORM_POC_XMACRO_KERNEL_ELEM(Mode, Func, PrecoeffInit) exec<KernelFunc::Mode>(tempFolderPathToWriteResult, "visco" #Mode ".csv");;
+	STORM_POC_XMACRO_KERNELS
+#undef STORM_POC_XMACRO_KERNEL_ELEM
 
 	return 0;
 }
