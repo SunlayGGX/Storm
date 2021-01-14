@@ -145,18 +145,20 @@ namespace
 
 			if (norm <= _h)
 			{
-				// The multiplication by 2 is a hack. JJ Monaghan kernel is defined between 0 and 2 * kernel length...
-				// But if we consider our kernel length we provided to be  2 * JJMonaghan's kernel (named JJk), then this is a variable change (or variable substitution) :
-				// => _h = 2 * JJk		=>	JJk = _h / 2
-				// => q = norm / JJk	=>	q = norm / (_h / 2)		=>	q = norm * 2 / _h
+				// The multiplication by 2 is because JJ Monaghan kernel (named JJk) is defined between 0 and 2 * a normal neighbor kernel length,
+				// But we consider our kernel length _h to be a normal neighborhood kernel, therefore to represent the total range of JJk.
+				// In another word, JJk considers the kernel length _h to be halved.
+				// Then with a variable change (or variable substitution) :
+				// JJk = _h / 2
+				// q = norm / JJk	=>	q = norm / (_h / 2)		=>	q = norm * 2 / _h
 				const float q = norm * 2.f / _h;
 				float factor;
 
-				if (q < 0.5f)
+				if (q < 1.f)
 				{
 					factor = q * (4.f - 3.f * q);
 				}
-				else /*if (q < 1.f)*/ // q would always be under 1.f because it is per construction from the variable change
+				else /*if (q < 2.f)*/ // q would always be under 2.f because it is per construction from the variable change
 				{
 					const float twoMinusQ = 2.f - q;
 					factor = twoMinusQ * twoMinusQ;
