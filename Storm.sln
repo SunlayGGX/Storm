@@ -117,7 +117,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Internal", "Internal", "{8F
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "POC", "POC", "{7410768D-6BA0-4898-B2E0-0AE483393E88}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ViscosityFormulaTest", "Source\POC\ViscosityFormulaTest\script\ViscosityFormulaTest.vcxproj", "{CF8D7CD2-56CF-4E65-AA42-17B3E6D6D758}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "StormPOC-ViscosityFormula", "Source\POC\StormPOC-ViscosityFormula\script\StormPOC-ViscosityFormula.vcxproj", "{CF8D7CD2-56CF-4E65-AA42-17B3E6D6D758}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

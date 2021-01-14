@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\include\ViscosityFormulaTest.cpp">
+    <ClCompile Include="..\include\StormPOC-ViscosityFormula.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

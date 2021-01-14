@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\include\ViscosityFormulaTest.cpp" />
+    <ClCompile Include="..\include\StormPOC-ViscosityFormula.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Storm-Helper\script\Storm-Helper.vcxproj">
@@ -24,6 +24,7 @@
     <ProjectGuid>{cf8d7cd2-56cf-4e65-aa42-17b3e6d6d758}</ProjectGuid>
     <RootNamespace>ViscosityTest</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>StormPOC-ViscosityFormula</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
