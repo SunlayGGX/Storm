@@ -283,8 +283,7 @@ namespace
 		return currentTempPath;
 	}
 
-	template<KernelFunc func>
-	void exec(const std::filesystem::path &tempFolderPathToWriteResult, const std::string_view &csvName)
+	void exec(const std::filesystem::path &tempFolderPathToWriteResult, const std::string_view &csvName, const KernelFunc func)
 	{
 		// Radius of r=5m
 		Viscosity viscosity{ tempFolderPathToWriteResult / csvName, 5.f, func };
@@ -315,7 +314,7 @@ int main(int argc, char* argv[])
 {
 	const std::filesystem::path tempFolderPathToWriteResult = initPOC(argc, argv);
 
-#define STORM_POC_XMACRO_KERNEL_ELEM(Mode, Func, PrecoeffInit) exec<KernelFunc::Mode>(tempFolderPathToWriteResult, "visco" #Mode ".csv");;
+#define STORM_POC_XMACRO_KERNEL_ELEM(Mode, Func, PrecoeffInit) exec(tempFolderPathToWriteResult, "visco" #Mode ".csv", KernelFunc::Mode);
 	STORM_POC_XMACRO_KERNELS
 #undef STORM_POC_XMACRO_KERNEL_ELEM
 
