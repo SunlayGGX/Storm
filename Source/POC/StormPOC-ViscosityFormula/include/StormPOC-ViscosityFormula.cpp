@@ -297,14 +297,16 @@ namespace
 		// The equation of a circle is x² + y² + z² = r²...
 		// The max x is when y = 0 & z = 0 => x²=r² => x=r => x=5,
 		// therefore, I can initialize the position of pj with x C [-5, 5].
-		// I choose x=3m and z = 0 => x²+y²+z²=r² => 3²+y²+0²=5² => y²=25-9-0 => y=4 or y=-4, I choose y=4
-		Particle pj{ 3.f, 4.f, 0.f };
+		// I choose x=4.75m and z=0m => x²+y²+z²=r² => x²+y²+0²=5² => y²=25-x²-0 => y=sqrt(25-x²) or y=-sqrt(25-x²), I choose the positive one
+		constexpr float chosenXStart = 4.75f;
+		constexpr float chosenXEnd = -chosenXStart;
+		Particle pj{ chosenXStart, std::sqrtf(25.f - (chosenXStart * chosenXStart)), 0.f };
 
 		// Pj will have a velocity of { -1.f, 0.f, 0.f }, therefore will pass parallel to the x axis.
 		pj._velocity = Vector{ -1.f, 0.f, 0.f };
 
 		const float _xStep = 0.001f;
-		while (pj._position._x > -3.f)
+		while (pj._position._x > chosenXEnd)
 		{
 			viscosity(pi, pj);
 			pj._position._x -= _xStep;
