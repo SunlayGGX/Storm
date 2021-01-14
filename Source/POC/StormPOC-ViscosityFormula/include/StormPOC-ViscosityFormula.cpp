@@ -286,7 +286,7 @@ namespace
 	void exec(const std::filesystem::path &tempFolderPathToWriteResult, const std::string_view &csvName)
 	{
 		// Radius of r=5m
-		Viscosity viscosity{ tempFolderPathToWriteResult / csvName, 5.f, KernelFunc::SplishSplashCubicSpline };
+		Viscosity viscosity{ tempFolderPathToWriteResult / csvName, 5.f, func };
 
 		// Origin particle set at { 0.f, 0.f, 0.f }
 		Particle pi{ 0.f, 0.f, 0.f };
