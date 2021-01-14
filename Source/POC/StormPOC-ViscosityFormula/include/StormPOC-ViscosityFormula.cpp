@@ -210,7 +210,7 @@ namespace
 		}
 
 	public:
-		static void appendCsvData(std::string &inOutCsvLine, const float value)
+		__forceinline static void appendCsvData(std::string &inOutCsvLine, const float value)
 		{
 			inOutCsvLine += std::to_string(value);
 			inOutCsvLine += ',';
@@ -218,7 +218,7 @@ namespace
 
 		static void reserveCsvData(std::string &inOutCsvLine, const std::string_view &dataName)
 		{
-			inOutCsvLine.reserve(64);
+			inOutCsvLine.reserve(256 + dataName.size());
 			inOutCsvLine += dataName;
 			inOutCsvLine += ',';
 		}
