@@ -16,4 +16,5 @@
 	<copy>Config/Internal</copy>
 	<copy>Launcher</copy>
 	<copy>Resource</copy>
+	<copy>README.md</copy>
 </Package>
