@@ -492,8 +492,7 @@ void Storm::WindowsManager::initializeInternal()
 void Storm::WindowsManager::update()
 {
 	MSG msg;
-
-	if (::PeekMessage(&msg, static_cast<HWND>(_windowVisuHandle), 0, 0, PM_REMOVE))
+	while (::PeekMessage(&msg, static_cast<HWND>(_windowVisuHandle), 0, 0, PM_REMOVE))
 	{
 		if (msg.message == WM_QUIT)
 		{
