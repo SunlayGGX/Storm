@@ -34,6 +34,8 @@ namespace Storm
 
 	public:
 		virtual void refreshParticlesPosition() = 0;
+		
+		virtual void onGraphicParticleSettingsChanged() = 0;
 
 	public:
 		virtual void loadBlower(const Storm::SceneBlowerConfig &blowerConfig) = 0;

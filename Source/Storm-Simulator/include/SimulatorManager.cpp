@@ -1196,6 +1196,20 @@ void Storm::SimulatorManager::refreshParticleNeighborhood()
 	}
 }
 
+void Storm::SimulatorManager::onGraphicParticleSettingsChanged()
+{
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	const Storm::ITimeManager &timeMgr = singletonHolder.getSingleton<Storm::ITimeManager>();
+
+	singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::MainThread, [this, &timeMgr]()
+	{
+		if (timeMgr.simulationIsPaused())
+		{
+			this->pushParticlesToGraphicModule(true);
+		}
+	});
+}
+
 void Storm::SimulatorManager::addFluidParticleSystem(unsigned int id, std::vector<Storm::Vector3> particlePositions)
 {
 	const std::size_t initialParticleCount = particlePositions.size();
