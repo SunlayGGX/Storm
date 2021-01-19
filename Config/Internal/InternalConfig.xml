@@ -7,15 +7,22 @@
 			serialNumber="1581136595"
 			url="https://matthias-research.github.io/pages/publications/sca03.pdf"
 			bibTex="particle-based fluid simulation for interactive applications.bib"
-		>
-		</article>
+		/>
+    <article
+			authors="Joseph J. Monaghan"
+			name="Smoothed particle hydrodynamics"
+			date="July 2005"
+			serialNumber="10.1088/0034-4885/68/8/r01"
+			url="https://iopscience.iop.org/article/10.1088/0034-4885/68/8/R01/pdf"
+			bibTex="Smoothed particle hydrodynamics JJ Monaghan 2005.bib"
+		/>
 		<article
 			authors="Dan Koschier, Jan Bender, Barbara Solenthaler, Matthias Teschner"
-			name="Smoothed Particle Hydrodynamics\nTechniques for the Physics Based Simulation of Fluids and Solids"
+			name="Smoothed Particle Hydrodynamics\nTechniques for the Physics Based Simulation of Fluids and Solids (Tutorial)"
 			date="2019"
 			serialNumber="10.2312/egt.20191035"
 			url="https://interactivecomputergraphics.github.io/SPH-Tutorial/pdf/SPH_Tutorial.pdf"
 			bibTex="Smoothed Particle Hydrodynamics Techniques for the Physics Based Simulation of Fluids and Solids.txt"
-		></article>
+		/>
 	</References>
 </Internal>
