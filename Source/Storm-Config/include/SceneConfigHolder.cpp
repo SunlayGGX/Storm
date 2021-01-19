@@ -481,6 +481,7 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 				!Storm::XmlReader::handleXml(fluidXmlElement, "soundSpeed", fluidConfig._soundSpeed) &&
 				!Storm::XmlReader::handleXml(fluidXmlElement, "pressureK1", fluidConfig._kPressureStiffnessCoeff) &&
 				!Storm::XmlReader::handleXml(fluidXmlElement, "pressureK2", fluidConfig._kPressureExponentCoeff) &&
+				!Storm::XmlReader::handleXml(fluidXmlElement, "pressurePredictKCoeff", fluidConfig._kPressurePredictedCoeff) &&
 				!Storm::XmlReader::handleXml(fluidXmlElement, "relaxationCoeff", fluidConfig._relaxationCoefficient) &&
 				!Storm::XmlReader::handleXml(fluidXmlElement, "initRelaxationCoeff", fluidConfig._pressureInitRelaxationCoefficient) &&
 				!Storm::XmlReader::handleXml(fluidXmlElement, "enableGravity", fluidConfig._gravityEnabled) &&
@@ -510,6 +511,10 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 		else if (fluidConfig._kPressureExponentCoeff < 0.f)
 		{
 			Storm::throwException<Storm::Exception>("Fluid " + std::to_string(fluidConfig._fluidId) + " pressure exponent of " + std::to_string(fluidConfig._kPressureExponentCoeff) + " is invalid!");
+		}
+		else if (fluidConfig._kPressurePredictedCoeff < 0.f)
+		{
+			Storm::throwException<Storm::Exception>("Fluid " + std::to_string(fluidConfig._fluidId) + " predicted pressure coefficient of " + std::to_string(fluidConfig._kPressurePredictedCoeff) + " is invalid!");
 		}
 		else if (fluidConfig._relaxationCoefficient < 0.f || fluidConfig._relaxationCoefficient > 1.f)
 		{
