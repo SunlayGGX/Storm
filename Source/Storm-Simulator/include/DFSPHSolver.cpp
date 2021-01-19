@@ -156,12 +156,14 @@ void Storm::DFSPHSolver::execute(const Storm::IterationParameter &iterationParam
 	}
 
 	// 4th : Compute k_dfsph coeff
+	const float kPressurePredictFinalCoeff = -fluidConfig._kPressurePredictedCoeff;
 	for (auto &dataFieldPair : _data)
 	{
 		this->computeDFSPHFactor(
 			iterationParameter,
 			static_cast<Storm::FluidParticleSystem &>(*particleSystems.find(dataFieldPair.first)->second), // Since data field was made from fluid particles, no need to check.
-			dataFieldPair.second
+			dataFieldPair.second,
+			kPressurePredictFinalCoeff
 		);
 	}
 
@@ -687,7 +689,7 @@ void Storm::DFSPHSolver::pressureSolve(const Storm::IterationParameter &iteratio
 	} while ((!chk || (outIteration < minIter)) && (outIteration < maxIter));
 }
 
-void Storm::DFSPHSolver::computeDFSPHFactor(const Storm::IterationParameter &iterationParameter, Storm::FluidParticleSystem &fluidPSystem, Storm::DFSPHSolver::DFSPHSolverDataArray &pSystemData)
+void Storm::DFSPHSolver::computeDFSPHFactor(const Storm::IterationParameter &iterationParameter, Storm::FluidParticleSystem &fluidPSystem, Storm::DFSPHSolver::DFSPHSolverDataArray &pSystemData, const float kMultiplicationCoeff)
 {
 	//////////////////////////////////////////////////////////////////////////
 	// Init parameters
@@ -700,7 +702,7 @@ void Storm::DFSPHSolver::computeDFSPHFactor(const Storm::IterationParameter &ite
 	//////////////////////////////////////////////////////////////////////////
 	// Compute pressure stiffness denominator
 	//////////////////////////////////////////////////////////////////////////
-	Storm::runParallel(pSystemData, [&iterationParameter, &neighborhoodArrays](Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex)
+	Storm::runParallel(pSystemData, [&iterationParameter, &neighborhoodArrays, kMultiplicationCoeff](Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex)
 	{
 		const Storm::ParticleNeighborhoodArray &currentPNeighborhood = neighborhoodArrays[currentPIndex];
 
@@ -734,7 +736,7 @@ void Storm::DFSPHSolver::computeDFSPHFactor(const Storm::IterationParameter &ite
 		//////////////////////////////////////////////////////////////////////////
 		if (sum_grad_p_k > k_epsilon)
 		{
-			currentPData._kCoeff = -1.f / sum_grad_p_k;
+			currentPData._kCoeff = kMultiplicationCoeff / sum_grad_p_k;
 		}
 		else
 		{
