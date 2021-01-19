@@ -446,7 +446,9 @@ void Storm::WindowsManager::initializeInternal()
 				{
 					if (!referenceConfig._url.empty())
 					{
-						std::wstring menuName = Storm::toStdWString(referenceConfig._name);
+						std::string normalizedName = Storm::StringAlgo::replaceAllCopy(referenceConfig._name, ' ', Storm::StringAlgo::makeReplacePredicate("\r\n", '\n', '\t'));
+
+						std::wstring menuName = Storm::toStdWString(std::move(normalizedName));
 						_menuBuilderHandler->appendMenu(linkReferenceSubmenu, menuName, [&referenceConfig]()
 						{
 							std::size_t outProcessUID;
