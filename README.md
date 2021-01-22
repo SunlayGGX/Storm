@@ -1,5 +1,5 @@
 # Storm
-SPH reimplementation for fluids simulation
+SPH (Smoothed Particle Hydrodynamics) reimplementation for fluids simulation of air
 
 
 # Setup
@@ -549,3 +549,9 @@ Here the list of available commands :
 #### WindowsManager (winMgr)
 
 - **void restartApplication(const std::string_view &additionalArgs)**: Restart Storm application and applies additional parameters. Note that the application will be restarted with to the current scene and will forward its current command line, therefore additional parameters should only contains parameters that aren't already in those.
+
+
+
+##### References
+
+TODO (Sorry, since the engine is for now a work in progress. This section will be the last updated... I promise to reference all sources I used and cite their respective authors).
