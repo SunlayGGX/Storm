@@ -60,6 +60,9 @@ void Storm::PhysicsDynamicRigidBody::onIterationStart() noexcept
 {
 	_currentIterationVelocity = _internalRb->getLinearVelocity();
 
+	_internalRb->clearForce();
+	_internalRb->clearTorque();
+
 	// PhysX angular damping coeff default value of 0.05 is a lie, therefore I'm doing the damping myself.
 	physx::PxVec3 currentAngularVelocity = _internalRb->getAngularVelocity();
 	currentAngularVelocity *= _currentAngularVelocityDampingCoefficient;
