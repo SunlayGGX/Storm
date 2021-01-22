@@ -12,9 +12,10 @@
 #include <corecrt_math_defines.h>
 
 
-#define STORM_POC_XMACRO_KERNELS																										\
-	STORM_POC_XMACRO_KERNEL_ELEM(SplishSplashCubicSpline, gradientSplishSplashCubicSpline, computeSplishSplashCubicSplinePrecoeff)		\
-	STORM_POC_XMACRO_KERNEL_ELEM(JJMonaghanCubicSpline, gradientJJMonaghanCubicSpline, computeJJMonaghanCubicSplinePrecoeff)			\
+#define STORM_POC_XMACRO_KERNELS																															\
+	STORM_POC_XMACRO_KERNEL_ELEM(SplishSplashCubicSpline, gradientSplishSplashCubicSpline, computeSplishSplashCubicSplinePrecoeff)							\
+	STORM_POC_XMACRO_KERNEL_ELEM(JJMonaghanCubicSpline, gradientJJMonaghanCubicSpline, computeJJMonaghanCubicSplinePrecoeff)								\
+	STORM_POC_XMACRO_KERNEL_ELEM(JJMonaghanCubicSplineClamped, gradientJJMonaghanCubicSplineClamped, computeJJMonaghanCubicSplinePrecoeffClamped)			\
 
 
 namespace
@@ -113,6 +114,14 @@ namespace
 			return k_constexprGradientPrecoeffCoeff / (_hSquared * _hSquared);
 		}
 
+		constexpr float computeJJMonaghanCubicSplinePrecoeffClamped() const noexcept
+		{
+			// 0.02 / 2 * cs² where cs is the maximum speed of a particle. Since we're making and controlling the data ourself, we know the maximum speed is 1.0 (vj speed).
+			// The division by 2 is because I simplified the kernel by removing a 1/2 and passing it to the precoeff instead.
+			constexpr float k_constexprGradientPrecoeffCoeff = static_cast<float>(0.01 * 1.0 * 1.0);
+			return k_constexprGradientPrecoeffCoeff;
+		}
+
 	private:
 		Vector gradientSplishSplashCubicSpline(const Vector &xji, const float norm) const
 		{
@@ -165,6 +174,45 @@ namespace
 				}
 
 				result = xji * -(factor / norm);
+			}
+
+			return result;
+		}
+
+
+		Vector gradientJJMonaghanCubicSplineClamped(const Vector &xji, const float norm) const
+		{
+			Vector result;
+
+			if (norm <= _h)
+			{
+				// The multiplication by 2 is because JJ Monaghan kernel (named JJk) is defined between 0 and 2 * a normal neighbor kernel length,
+				// But we consider our kernel length _h to be a normal neighborhood kernel, therefore to represent the total range of JJk.
+				// In another word, JJk considers the kernel length _h to be halved.
+				// Then with a variable change (or variable substitution) :
+				// JJk = _h / 2
+				// q = norm / JJk	=>	q = norm / (_h / 2)		=>	q = norm * 2 / _h
+				const float q = norm * 2.f / _h;
+				float factor;
+
+				constexpr float twoThird = 2.f / 3.f;
+
+				if (q < twoThird)
+				{
+					// 2.0 was forwarded to the precoeff.
+					factor = 2.f * twoThird;
+				}
+				else if (q < 1.f)
+				{
+					factor = q * (4.f - 3.f * q);
+				}
+				else /*if (q < 2.f)*/ // q would always be under 2.f because it is per construction from the variable change
+				{
+					const float twoMinusQ = 2.f - q;
+					factor = twoMinusQ * twoMinusQ;
+				}
+
+				result = xji * (factor / norm);
 			}
 
 			return result;
@@ -250,11 +298,11 @@ namespace
 
 			const float dotCoeff = vijDotXij / (xijNormSquared + 0.01f * _kernel._hSquared);
 
-			Vector gradValue = _kernel.gradient(-1.f * xij, xijNorm);
+			const Vector gradValue = _kernel.gradient(-1.f * xij, xijNorm);
 
 			// This is not the real viscosity force. I removed the constant parts that are just here to confuse.
 			// The real value I want a graph of is the part of the formula with the kernel and the dot product.
-			Vector forceApprox = gradValue * dotCoeff;
+			const Vector forceApprox = gradValue * dotCoeff;
 
 			Viscosity::appendCsvData(_rValues, xijNorm);
 			Viscosity::appendCsvData(_xjValues, pj._position._x);
