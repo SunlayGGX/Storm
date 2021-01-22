@@ -511,6 +511,9 @@ case Storm::BlowerType::BlowerTypeName: \
 	{
 		Storm::ITimeManager &timeMgr = singletonHolder.getSingleton<Storm::ITimeManager>();
 		timeMgr.setCurrentPhysicsElapsedTime(loadedState._simulationState->_currentPhysicsTime);
+
+		// Needed to set the blowers to the right state time.
+		simulMgr.setBlowersStateTime(loadedState._simulationState->_currentPhysicsTime);
 	}
 
 	/* Load fluid particles */
