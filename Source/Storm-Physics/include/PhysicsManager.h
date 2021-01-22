@@ -52,6 +52,7 @@ namespace Storm
 
 	public:
 		void setRigidBodyAngularDamping(const unsigned int rbId, const float angularVelocityDamping);
+		void fixDynamicRigidBodyTranslation(const unsigned int rbId, const bool fixed);
 
 	private:
 		void pushPhysicsVisualizationData() const;

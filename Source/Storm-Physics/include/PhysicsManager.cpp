@@ -97,6 +97,11 @@ void Storm::PhysicsManager::update(float deltaTime)
 	{
 		_physXHandler->update(_simulationMutex, deltaTime);
 
+		Storm::SearchAlgo::executeOnContainer([](auto &rb)
+		{
+			rb.onPostUpdate();
+		}, _dynamicsRbMap, _staticsRbMap);
+
 		this->pushPhysicsVisualizationData();
 	}
 }
@@ -314,6 +319,19 @@ void Storm::PhysicsManager::setRigidBodyAngularDamping(const unsigned int rbId, 
 		Storm::SearchAlgo::executeOnObjectInContainer(rbId, [angularVelocityDamping](auto &rbFound)
 		{
 			rbFound.setAngularVelocityDamping(angularVelocityDamping);
+		}, _dynamicsRbMap);
+	});
+}
+
+void Storm::PhysicsManager::fixDynamicRigidBodyTranslation(const unsigned int rbId, const bool fixed)
+{
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	Storm::IThreadManager &threadMgr = singletonHolder.getSingleton<Storm::IThreadManager>();
+	threadMgr.executeOnThread(Storm::ThreadEnumeration::MainThread, [this, rbId, fixed]()
+	{
+		Storm::SearchAlgo::executeOnObjectInContainer(rbId, [fixed](auto &rbFound)
+		{
+			rbFound.setTranslationFixed(fixed);
 		}, _dynamicsRbMap);
 	});
 }

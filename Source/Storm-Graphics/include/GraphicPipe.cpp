@@ -9,6 +9,7 @@
 
 #include "SingletonHolder.h"
 #include "IConfigManager.h"
+#include "ISimulatorManager.h"
 
 #include "SceneGraphicConfig.h"
 
@@ -288,6 +289,7 @@ void Storm::GraphicPipe::setMinMaxColorationValue(float newMinValue, float newMa
 	if (setting == _selectedColoredSetting && changed)
 	{
 		_fields->pushField(STORM_COLOR_VALUE_SETTING_FIELD_NAME);
+		this->notifyCurrentGraphicPipeColorationSettingChanged();
 	}
 }
 
@@ -308,6 +310,7 @@ void Storm::GraphicPipe::changeMinColorationValue(float deltaValue, const Storm:
 			if (setting == _selectedColoredSetting)
 			{
 				_fields->pushField(STORM_COLOR_VALUE_SETTING_FIELD_NAME);
+				this->notifyCurrentGraphicPipeColorationSettingChanged();
 			}
 		}
 		else
@@ -329,6 +332,7 @@ void Storm::GraphicPipe::changeMaxColorationValue(float deltaValue, const Storm:
 			if (setting == _selectedColoredSetting)
 			{
 				_fields->pushField(STORM_COLOR_VALUE_SETTING_FIELD_NAME);
+				this->notifyCurrentGraphicPipeColorationSettingChanged();
 			}
 		}
 		else
@@ -346,6 +350,12 @@ void Storm::GraphicPipe::changeMinColorationValue(float deltaValue)
 void Storm::GraphicPipe::changeMaxColorationValue(float deltaValue)
 {
 	this->changeMaxColorationValue(deltaValue, _selectedColoredSetting);
+}
+
+void Storm::GraphicPipe::notifyCurrentGraphicPipeColorationSettingChanged() const
+{
+	Storm::ISimulatorManager &simulMgr = Storm::SingletonHolder::instance().getSingleton<Storm::ISimulatorManager>();
+	simulMgr.onGraphicParticleSettingsChanged();
 }
 
 Storm::GraphicPipe::ColorSetting::operator std::string() const

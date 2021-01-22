@@ -21,10 +21,12 @@ namespace Storm
 
 		const DirectX::XMMATRIX& getProjectionMatrix() const noexcept;
 		const DirectX::XMMATRIX& getViewMatrix() const noexcept;
+		const DirectX::XMMATRIX& getViewProjMatrix() const noexcept;
 		const DirectX::XMMATRIX& getOrthoMatrix() const noexcept;
 
 		const DirectX::XMMATRIX& getTransposedProjectionMatrix() const noexcept;
 		const DirectX::XMMATRIX& getTransposedViewMatrix() const noexcept;
+		const DirectX::XMMATRIX& getTransposedViewProjMatrix() const noexcept;
 		const DirectX::XMMATRIX& getTransposedOrthoMatrix() const noexcept;
 
 		const DirectX::XMFLOAT3& getPosition() const noexcept;
@@ -80,13 +82,17 @@ namespace Storm
 		void buildOrthoMatrix();
 		void buildViewMatrix();
 
+		void buildViewProjectionMatrix();
+
 	private:
 		DirectX::XMMATRIX _projectionMatrix;
 		DirectX::XMMATRIX _viewMatrix;
+		DirectX::XMMATRIX _viewProjMatrix;
 		DirectX::XMMATRIX _orthoMatrix; // For 2D HUD
 
 		DirectX::XMMATRIX _transposedProjectionMatrix;
 		DirectX::XMMATRIX _transposedViewMatrix;
+		DirectX::XMMATRIX _transposedViewProjMatrix; // For 2D HUD
 		DirectX::XMMATRIX _transposedOrthoMatrix; // For 2D HUD
 
 		float _cameraMoveSpeed;

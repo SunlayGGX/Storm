@@ -8,22 +8,25 @@ namespace
 	template<std::size_t folderCount>
 	bool checkRootCandidateHasStormFolders(const std::filesystem::path &rootPathCandidate, const std::filesystem::path(&expectedFolders)[folderCount])
 	{
-		std::size_t iter = 0;
-
-		const auto expectedFoldersBeginIter = std::begin(expectedFolders);
-		const auto expectedFoldersEndIter = std::end(expectedFolders);
-
-		for (const auto &dirIter : std::filesystem::directory_iterator{ rootPathCandidate })
+		if (std::filesystem::is_directory(rootPathCandidate))
 		{
-			if (dirIter.is_directory())
+			std::size_t iter = 0;
+
+			const auto expectedFoldersBeginIter = std::begin(expectedFolders);
+			const auto expectedFoldersEndIter = std::end(expectedFolders);
+
+			for (const auto &dirIter : std::filesystem::directory_iterator{ rootPathCandidate })
 			{
-				const std::filesystem::path dirName = dirIter.path().stem();
-				if (std::find(expectedFoldersBeginIter, expectedFoldersEndIter, dirName) != expectedFoldersEndIter)
+				if (dirIter.is_directory())
 				{
-					++iter;
-					if (iter == folderCount)
+					const std::filesystem::path dirName = dirIter.path().stem();
+					if (std::find(expectedFoldersBeginIter, expectedFoldersEndIter, dirName) != expectedFoldersEndIter)
 					{
-						return true;
+						++iter;
+						if (iter == folderCount)
+						{
+							return true;
+						}
 					}
 				}
 			}

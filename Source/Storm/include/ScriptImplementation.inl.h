@@ -57,7 +57,10 @@ void STORM_CURRENT_REGISTERED_TYPE::registerCurrentOnScript(IScriptWrapperInterf
 		// Frame advance manip
 		STORM_DECLARE_SCRIPTED_METHOD(advanceOneFrame),
 		STORM_DECLARE_SCRIPTED_METHOD(advanceByFrame),
-		STORM_DECLARE_SCRIPTED_METHOD(advanceToFrame)
+		STORM_DECLARE_SCRIPTED_METHOD(advanceToFrame),
+
+		// Debug
+		STORM_DECLARE_SCRIPTED_METHOD(printRigidBodyMoment)
 
 	).registerCurrentInstance("simulMgr");
 }
@@ -94,6 +97,8 @@ void STORM_CURRENT_REGISTERED_TYPE::registerCurrentOnScript(IScriptWrapperInterf
 		STORM_DECLARE_SCRIPTED_METHOD(cycleColoredSetting),
 		STORM_DECLARE_SCRIPTED_METHOD(setColorSettingMinMaxValue),
 
+		STORM_DECLARE_SCRIPTED_METHOD(showCoordinateSystemAxis),
+
 		STORM_DECLARE_SCRIPTED_METHOD(setUIFieldEnabled)
 
 	).registerCurrentInstance("graphicMgr");
@@ -111,7 +116,8 @@ void STORM_CURRENT_REGISTERED_TYPE::registerCurrentOnScript(IScriptWrapperInterf
 {
 	script.registerCurrentType(
 
-		STORM_DECLARE_SCRIPTED_METHOD(setRigidBodyAngularDamping)
+		STORM_DECLARE_SCRIPTED_METHOD(setRigidBodyAngularDamping),
+		STORM_DECLARE_SCRIPTED_METHOD(fixDynamicRigidBodyTranslation)
 
 	).registerCurrentInstance("physicsMgr");
 }

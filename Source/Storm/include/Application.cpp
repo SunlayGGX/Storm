@@ -30,6 +30,7 @@
 #include "TimeHelper.h"
 #include "ThreadEnumeration.h"
 #include "UIModality.h"
+#include "OSHelper.h"
 
 
 namespace
@@ -86,6 +87,8 @@ namespace
 
 		if (shouldRunSimulation())
 		{
+			Storm::OSHelper::logOSEnvironmentInformation();
+
 			const bool hasUI = Storm::ConfigManager::instance().withUI();
 
 			Storm::TimeManager::instance().initialize();

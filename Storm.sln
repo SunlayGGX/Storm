@@ -38,6 +38,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shaders", "Shaders", "{1C8B
 	ProjectSection(SolutionItems) = preProject
 		Source\Shaders\BlowerDraw.hlsl = Source\Shaders\BlowerDraw.hlsl
 		Source\Shaders\ConstraintsDraw.hlsl = Source\Shaders\ConstraintsDraw.hlsl
+		Source\Shaders\CoordinateSystem.hlsl = Source\Shaders\CoordinateSystem.hlsl
 		Source\Shaders\Grid.hlsl = Source\Shaders\Grid.hlsl
 		Source\Shaders\MeshDraw.hlsl = Source\Shaders\MeshDraw.hlsl
 		Source\Shaders\ParticleDraw.hlsl = Source\Shaders\ParticleDraw.hlsl
@@ -113,6 +114,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Internal", "Internal", "{8F
 	ProjectSection(SolutionItems) = preProject
 		Config\Internal\InternalConfig.xml = Config\Internal\InternalConfig.xml
 	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "POC", "POC", "{7410768D-6BA0-4898-B2E0-0AE483393E88}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "StormPOC-ViscosityFormula", "Source\POC\StormPOC-ViscosityFormula\script\StormPOC-ViscosityFormula.vcxproj", "{CF8D7CD2-56CF-4E65-AA42-17B3E6D6D758}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -258,6 +263,12 @@ Global
 		{ABD75873-B8E9-4F0D-A2B7-275BEDB9E1BD}.Release|x64.Build.0 = Release|x64
 		{ABD75873-B8E9-4F0D-A2B7-275BEDB9E1BD}.ReleaseNoPackager|x64.ActiveCfg = Release|x64
 		{ABD75873-B8E9-4F0D-A2B7-275BEDB9E1BD}.ReleaseNoPackager|x64.Build.0 = Release|x64
+		{CF8D7CD2-56CF-4E65-AA42-17B3E6D6D758}.Debug|x64.ActiveCfg = Debug|x64
+		{CF8D7CD2-56CF-4E65-AA42-17B3E6D6D758}.Debug|x64.Build.0 = Debug|x64
+		{CF8D7CD2-56CF-4E65-AA42-17B3E6D6D758}.Release|x64.ActiveCfg = Release|x64
+		{CF8D7CD2-56CF-4E65-AA42-17B3E6D6D758}.Release|x64.Build.0 = Release|x64
+		{CF8D7CD2-56CF-4E65-AA42-17B3E6D6D758}.ReleaseNoPackager|x64.ActiveCfg = Release|x64
+		{CF8D7CD2-56CF-4E65-AA42-17B3E6D6D758}.ReleaseNoPackager|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -297,6 +308,8 @@ Global
 		{4BBDF672-34C4-4F52-9985-4140CFEC9BE8} = {71FDD4FA-5CB7-4461-A3FD-A8818CF6C865}
 		{ABD75873-B8E9-4F0D-A2B7-275BEDB9E1BD} = {F79A0D9C-2055-4FD3-89F6-A901CD582DBD}
 		{8F1E067C-9A98-4744-BB3B-9BD14A550D8B} = {6F826875-D03B-4CA8-90B4-C83DECE63800}
+		{7410768D-6BA0-4898-B2E0-0AE483393E88} = {F79A0D9C-2055-4FD3-89F6-A901CD582DBD}
+		{CF8D7CD2-56CF-4E65-AA42-17B3E6D6D758} = {7410768D-6BA0-4898-B2E0-0AE483393E88}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {AC48B795-9776-4952-84E0-CE8AB938B72B}

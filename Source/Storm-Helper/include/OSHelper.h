@@ -9,5 +9,6 @@ namespace Storm
 	{
 	public:
 		static std::string getRawQuotedCommandline();
+		static void logOSEnvironmentInformation();
 	};
 }

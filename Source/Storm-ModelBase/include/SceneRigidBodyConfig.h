@@ -36,6 +36,7 @@ namespace Storm
 		float _restitutionCoefficient;
 		float _angularVelocityDamping;
 
+		bool _isTranslationFixed;
 
 		Storm::InsideParticleRemovalTechnique _insideRbFluidDetectionMethodEnum;
 

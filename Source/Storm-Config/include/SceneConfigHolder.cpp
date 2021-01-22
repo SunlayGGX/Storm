@@ -481,6 +481,7 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 				!Storm::XmlReader::handleXml(fluidXmlElement, "soundSpeed", fluidConfig._soundSpeed) &&
 				!Storm::XmlReader::handleXml(fluidXmlElement, "pressureK1", fluidConfig._kPressureStiffnessCoeff) &&
 				!Storm::XmlReader::handleXml(fluidXmlElement, "pressureK2", fluidConfig._kPressureExponentCoeff) &&
+				!Storm::XmlReader::handleXml(fluidXmlElement, "pressurePredictKCoeff", fluidConfig._kPressurePredictedCoeff) &&
 				!Storm::XmlReader::handleXml(fluidXmlElement, "relaxationCoeff", fluidConfig._relaxationCoefficient) &&
 				!Storm::XmlReader::handleXml(fluidXmlElement, "initRelaxationCoeff", fluidConfig._pressureInitRelaxationCoefficient) &&
 				!Storm::XmlReader::handleXml(fluidXmlElement, "enableGravity", fluidConfig._gravityEnabled) &&
@@ -510,6 +511,10 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 		else if (fluidConfig._kPressureExponentCoeff < 0.f)
 		{
 			Storm::throwException<Storm::Exception>("Fluid " + std::to_string(fluidConfig._fluidId) + " pressure exponent of " + std::to_string(fluidConfig._kPressureExponentCoeff) + " is invalid!");
+		}
+		else if (fluidConfig._kPressurePredictedCoeff < 0.f)
+		{
+			Storm::throwException<Storm::Exception>("Fluid " + std::to_string(fluidConfig._fluidId) + " predicted pressure coefficient of " + std::to_string(fluidConfig._kPressurePredictedCoeff) + " is invalid!");
 		}
 		else if (fluidConfig._relaxationCoefficient < 0.f || fluidConfig._relaxationCoefficient > 1.f)
 		{
@@ -555,6 +560,7 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "restitutionCoeff", rbConfig._restitutionCoefficient) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "angularDamping", rbConfigAngularVelocityDampingTmp) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "isStatic", rbConfig._static) ||
+			Storm::XmlReader::handleXml(rigidBodyConfigXml, "fixTranslation", rbConfig._isTranslationFixed) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "wall", rbConfig._isWall) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "mass", rbConfig._mass) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "viscosity", rbConfig._viscosity) ||
@@ -609,6 +615,11 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 		{
 			Storm::throwException<Storm::Exception>("The rigid body layer count is invalid (rigid body " + std::to_string(rbConfig._rigidBodyID) + ")! Value was " + std::to_string(rbConfig._layerCount));
 		}
+		
+		if (rbConfig._isTranslationFixed && (rbConfig._isWall || rbConfig._static))
+		{
+			LOG_WARNING << "The rigid body " << rbConfig._rigidBodyID + " is not dynamic! Therefore the translation fixed flag set to true will be ignored.";
+		}
 
 		if (rbConfigAngularVelocityDampingTmp != -1.f)
 		{
@@ -623,6 +634,7 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 
 			rbConfig._angularVelocityDamping = rbConfigAngularVelocityDampingTmp;
 		}
+
 	});
 
 	/* Contraints */

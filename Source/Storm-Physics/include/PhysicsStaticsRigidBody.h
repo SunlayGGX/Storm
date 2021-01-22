@@ -19,6 +19,7 @@ namespace Storm
 
 	public:
 		void onIterationStart() noexcept;
+		void onPostUpdate() noexcept;
 
 	public:
 		void getMeshTransform(Storm::Vector3 &outTrans, Storm::Vector3 &outRot) const;

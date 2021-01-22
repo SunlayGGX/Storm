@@ -37,7 +37,8 @@ Storm::PhysicsDynamicRigidBody::PhysicsDynamicRigidBody(const Storm::SceneRigidB
 	Storm::PhysicalShape{ rbSceneConfig, vertices, indexes },
 	_currentIterationVelocity{ 0.f, 0.f, 0.f },
 	_internalRb{ createDynamicRigidBody(rbSceneConfig) },
-	_currentAngularVelocityDampingCoefficient{ computeAngularVelocityDampingCoeff(rbSceneConfig._angularVelocityDamping) }
+	_currentAngularVelocityDampingCoefficient{ computeAngularVelocityDampingCoeff(rbSceneConfig._angularVelocityDamping) },
+	_translationFixed{ rbSceneConfig._isTranslationFixed }
 {
 	if (!_internalRb)
 	{
@@ -47,6 +48,11 @@ Storm::PhysicsDynamicRigidBody::PhysicsDynamicRigidBody(const Storm::SceneRigidB
 	if (_internalRbShape && !_internalRb->attachShape(*_internalRbShape))
 	{
 		Storm::throwException<Storm::Exception>("We failed to attach the created shape to the rigid body " + std::to_string(rbSceneConfig._rigidBodyID));
+	}
+
+	if (_translationFixed)
+	{
+		_fixedPos = _internalRb->getGlobalPose().p;
 	}
 }
 
@@ -60,18 +66,23 @@ void Storm::PhysicsDynamicRigidBody::onIterationStart() noexcept
 	_internalRb->setAngularVelocity(currentAngularVelocity);
 }
 
+void Storm::PhysicsDynamicRigidBody::onPostUpdate() noexcept
+{
+	if (_translationFixed)
+	{
+		physx::PxTransform currentTransform = _internalRb->getGlobalPose();
+		currentTransform.p = _fixedPos;
+
+		_internalRb->setGlobalPose(currentTransform);
+
+		_internalRb->setLinearVelocity(physx::PxVec3{ physx::PxZERO::PxZero });
+	}
+}
+
 void Storm::PhysicsDynamicRigidBody::resetForce()
 {
 	const physx::PxVec3 zeroVec{ 0.f, 0.f, 0.f };
 	_internalRb->setForceAndTorque(zeroVec, zeroVec);
-}
-
-void Storm::PhysicsDynamicRigidBody::getMeshTransform(Storm::Vector3 &outTrans, Storm::Vector3 &outRot) const
-{
-	const physx::PxTransform currentTransform = retrieveCurrentTransform(_internalRb);
-
-	outTrans = Storm::convertToStorm(currentTransform.p);
-	outRot = Storm::convertToStorm<Storm::Vector3>(currentTransform.q);
 }
 
 void Storm::PhysicsDynamicRigidBody::applyForce(const Storm::Vector3 &location, const Storm::Vector3 &force)
@@ -108,6 +119,19 @@ physx::PxRigidDynamic* Storm::PhysicsDynamicRigidBody::getInternalPhysicsPointer
 	return _internalRb.get();
 }
 
+void Storm::PhysicsDynamicRigidBody::getMeshTransform(Storm::Vector3 &outTrans, Storm::Vector3 &outRot) const
+{
+	physx::PxTransform currentTransform;
+
+	{
+		std::lock_guard<std::mutex> lock{ Storm::PhysicsManager::instance()._simulationMutex };
+		currentTransform = _internalRb->getGlobalPose();
+	}
+
+	outTrans = Storm::convertToStorm(currentTransform.p);
+	outRot = Storm::convertToStorm<Storm::Vector3>(currentTransform.q);
+}
+
 void Storm::PhysicsDynamicRigidBody::getMeshTransform(Storm::Vector3 &outTrans, Storm::Quaternion &outQuatRot) const
 {
 	physx::PxTransform currentTransform;
@@ -134,4 +158,13 @@ void Storm::PhysicsDynamicRigidBody::setAngularVelocityDamping(const float angul
 	}
 
 	_currentAngularVelocityDampingCoefficient = computeAngularVelocityDampingCoeff(angularVelocityDamping);
+}
+
+void Storm::PhysicsDynamicRigidBody::setTranslationFixed(bool fixTranslation)
+{
+	_translationFixed = fixTranslation;
+	if (_translationFixed)
+	{
+		_fixedPos = _internalRb->getGlobalPose().p;
+	}
 }

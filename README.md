@@ -1,5 +1,5 @@
 # Storm
-SPH reimplementation for fluids simulation
+SPH (Smoothed Particle Hydrodynamics) reimplementation for fluids simulation of air
 
 
 # Setup
@@ -325,6 +325,7 @@ This element is all setting appartaining to a fluid. Here the tag you can set in
 - **density (positive float, falcultative)**: This is the rest density of the fluid in kg.m^-3. Default is 1.2754 kg.m^-3 which is the density of Dry air at 0 °C and normal ATM pressure.
 - **pressureK1 (positive zero-able float, falcultative)**: This is the pressure stiffness constant coefficient used when initializing the pressure using State equation. In formulas, it is often found as k1. Default is 50000.
 - **pressureK2 (positive zero-able float, falcultative)**: This is the pressure exponent constant coefficient used when initializing the pressure using State equation. In formulas, it is often found as k2. Default is 7.
+- **pressurePredictKCoeff (positive zero-able float, falcultative)**: This is a multiplication coefficient for the predicted pressure coefficient we compute inside DFSPH. This parameter doesn't exist in the real formula (is 1.0) but was introduced to balance pressure forces against viscosity forces. Default is 1.0.
 - **relaxationCoeff (positive zero-able float, falcultative)**: This is the relaxation coefficient (alias omega) used inside some Simulation methods when computing prediction pressures. It should be between 0.0 and 1.0 included. Default is 0.5.
 - **initRelaxationCoeff (positive zero-able float, falcultative)**: This is the pressure initial relaxation coefficient used inside some Simulation methods (like IISPH) when initializing pressure fields. It should be greater or equal to 0.0. Default is 0.5.
 - **viscosity (positive float, falcultative)**: This is the dynamic viscosity of the fluid in N.s/m² (or Pa.s). Default is 0.00001715 N.s/m² which is the dynamic viscosity of Dry air at 0 °C and normal ATM pressure.
@@ -348,6 +349,7 @@ Inside this element should be put all rigidbodies. Each rigidbody should be spec
 - **dynamicFrictionCoeff (float, facultative)**: The dynamic friction coefficient of the object, it should be positive. PhysX needs it but physically speaking I don't know what to set. This is the the velocity reduction when a rigid body moves with a contact with another. See http://docs.garagegames.com/torque-3d/reference/classPxMaterial.html.
 - **restitutionCoeff (float, facultative)**: The restitution friction coefficient of the object (the bounciness of the object), it should be positive but close or above 1.0 may cause instabilities. PhysX needs it but physically speaking I don't know what to set. Closer it is to 0.0, less the object will bounce and more it will lose energy when being in contact with another rb. See http://docs.garagegames.com/torque-3d/reference/classPxMaterial.html.
 - **angularDamping (float, facultative)**: PhysX angular velocity damping of 0.05 is a lie, therefore we need to expose a tweakable setting to do it ourself. The value shouldn't be greater than 1.0. 0.0 means no damping, 1.0 means full damping (the object won't rotate anymore). If the value is negative (then the velocity will be increased instead, but beware because there is a high chance the simulation could become unstable). Besides, this setting is only for dynamic rigidbodies. Default is 0.05 (as PhysX sets).
+- **fixTranslation (boolean, facultative)**: Specify if the rigid body is allowed to translate. If true, then the rigid body will only be able to rotate in place. Default is false.
 - **mass (positive float, mandatory)**: The mass of the rigid body in kg. This has to be strictly positive (> 0.0). 
 - **viscosity (positive float, facultative)**: The viscosity of the rigid body in Pa.s (???). This has to be strictly positive (> 0.0).
 - **layerCount (positive integer, facultative)**: The boundary particles layer to generate along the rigid body surface. Should be a non zero positive integer. Default is 1.
@@ -449,6 +451,7 @@ Note : If the term in the parenthesis is "Numpad", then the keybinding is the va
 - **1 (Key)**: Decrease the physics delta time. Valid only if we are not in replay mode, or if CFL is disabled.
 - **2 (Key)**: Increase the physics delta time. Valid only if we are not in replay mode, or if CFL is disabled.
 - **F1**: Debug command to print to a human readable text giving all position, velocity and force values of all fluid particles. The data is printed inside the output (temp) directory inside "Debug" folder.
+- **F2**: Show/Hide the axis coordinate system displayed on the UI.
 - **F3**: Cycle the color setting of the fluid particle data displayed from ... -> Velocity -> Pressure -> Density -> ... .
 - **F4**: Set selected particle forces always on top flag to true if false, false otherwise. But note that if it is true, you'll always see the particle force if it is in front of the view point, but you'll lose the depth information of the vector.
 - **F5**: Set wireframe.
@@ -516,6 +519,7 @@ Here the list of available commands :
 - **void advanceOneFrame()**: Advance the simulation to the next frame. Available only if the simulation is paused. This is the same method bound to the key inputs.
 - **void advanceByFrame(int64_t frameCount)**: Advance the paused simulation by frameCount frames. The frameCount value must be positive !
 - **void advanceToFrame(int64_t frameNumber)**: Advance the paused simulation to a specific frame. The frameNumber value must be positive !
+- **void printRigidBodyMoment(const unsigned int id)**: Compute and print the total moment of the rigid body specified by id. It's serves at debugging the rigid body rotation (how it spins). Note that this method is to be used only for dynamic rigid bodies.
 
 
 #### TimeManager (timeMgr)
@@ -527,12 +531,14 @@ Here the list of available commands :
 
 - **void cycleColoredSetting()**: Cycle the particle coloring observed quantities. This is the same method bound to the key inputs.
 - **void setColorSettingMinMaxValue(float minValue, float maxValue)**: Set the min and max values for the observed particle colors fields.
+- **void showCoordinateSystemAxis(const bool shouldShow)**: Display the axis coordinate system if true, hide it otherwise.
 - **void setUIFieldEnabled(bool enable)**: Set if we should display the UI fields (enabled to true) or hide it (enabled to false).
 
 
 #### PhysicsManager (physicsMgr)
 
 - **void setRigidBodyAngularDamping(const unsigned int rbId, const float angularVelocityDamping)**: Set the angular velodity damping value of the rigid body specified by its id. This method is only defined for dynamic rigid bodies.
+- **void fixDynamicRigidBodyTranslation(const unsigned int rbId, const bool fixed)**: Set the specified rigid body's translation fixed flag. This method is only defined for dynamic rigid bodies.
 
 
 #### OSManager (osMgr)
@@ -543,3 +549,9 @@ Here the list of available commands :
 #### WindowsManager (winMgr)
 
 - **void restartApplication(const std::string_view &additionalArgs)**: Restart Storm application and applies additional parameters. Note that the application will be restarted with to the current scene and will forward its current command line, therefore additional parameters should only contains parameters that aren't already in those.
+
+
+
+# References
+
+TODO (Sorry, since the engine is for now a work in progress. This section will be the last updated... I promise to reference all sources I used and cite their respective authors).

@@ -45,6 +45,9 @@ namespace Storm
 		void changeMaxColorationValue(float deltaValue);
 
 	private:
+		void notifyCurrentGraphicPipeColorationSettingChanged() const;
+
+	private:
 		Storm::ColoredSetting _selectedColoredSetting;
 
 		Storm::GraphicPipe::ColorSetting _velocitySetting;

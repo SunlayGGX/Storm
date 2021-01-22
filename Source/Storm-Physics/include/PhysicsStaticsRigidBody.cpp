@@ -43,6 +43,11 @@ void Storm::PhysicsStaticsRigidBody::onIterationStart() noexcept
 
 }
 
+void Storm::PhysicsStaticsRigidBody::onPostUpdate() noexcept
+{
+
+}
+
 void Storm::PhysicsStaticsRigidBody::getMeshTransform(Storm::Vector3 &outTrans, Storm::Vector3 &outRot) const
 {
 	outTrans = _trans;

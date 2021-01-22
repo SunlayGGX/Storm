@@ -20,6 +20,7 @@ namespace Storm
 
 	public:
 		void onIterationStart() noexcept;
+		void onPostUpdate() noexcept;
 
 	public:
 		void resetForce();
@@ -37,11 +38,16 @@ namespace Storm
 
 		void setAngularVelocityDamping(const float angularVelocityDamping);
 
+		void setTranslationFixed(bool fixTranslation);
+
 	private:
 		Storm::UniquePointer<physx::PxRigidDynamic> _internalRb;
 		std::vector<std::shared_ptr<Storm::PhysicsConstraint>> _constraints;
 
 		physx::PxVec3 _currentIterationVelocity;
 		float _currentAngularVelocityDampingCoefficient;
+
+		physx::PxVec3 _fixedPos;
+		bool _translationFixed;
 	};
 }
