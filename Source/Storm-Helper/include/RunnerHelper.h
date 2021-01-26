@@ -1,5 +1,13 @@
 #pragma once
 
+#include "MacroConfig.h"
+
+
+#ifdef _OPENMP
+#	define STORM_USE_OPENMP STORM_ALLOWS_OPENMP
+#else
+#	define STORM_USE_OPENMP false
+#endif
 
 namespace Storm
 {
@@ -14,10 +22,18 @@ namespace Storm
 	auto runParallel(ContainerType &container, Func &func)
 		-> decltype(func(*std::begin(container), Storm::retrieveItemIndex(container, *std::begin(container))), void())
 	{
+#if STORM_USE_OPENMP
+#		pragma omp parallel for
+		for (int iter = 0; iter < container.size(); ++iter)
+		{
+			func(container[iter], iter);
+		}
+#else
 		std::for_each(std::execution::par, std::begin(container), std::end(container), [&container, &func](auto &item)
 		{
 			func(item, Storm::retrieveItemIndex(container, item));
 		});
+#endif
 	}
 
 	template<class ContainerType, class Func>
