@@ -11,3 +11,11 @@
 
 
 #define STORM_ALLOWS_OPENMP true
+
+
+
+#ifdef _OPENMP
+#	define STORM_USE_OPENMP STORM_ALLOWS_OPENMP
+#else
+#	define STORM_USE_OPENMP false
+#endif

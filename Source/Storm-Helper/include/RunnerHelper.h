@@ -3,12 +3,6 @@
 #include "MacroConfig.h"
 
 
-#ifdef _OPENMP
-#	define STORM_USE_OPENMP STORM_ALLOWS_OPENMP
-#else
-#	define STORM_USE_OPENMP false
-#endif
-
 namespace Storm
 {
 	template<class ItemType>
