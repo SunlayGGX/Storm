@@ -21,6 +21,7 @@ namespace Storm
 
 		virtual void addFluidParticleSystem(Storm::SystemSimulationStateObject &&state) = 0;
 		virtual void addRigidBodyParticleSystem(Storm::SystemSimulationStateObject &&state) = 0;
+		virtual void setBlowersStateTime(float blowerStateTime) = 0;
 
 		// For replay.
 		virtual void addFluidParticleSystem(unsigned int id, const std::size_t particleCount) = 0;

@@ -3,7 +3,7 @@
 
 namespace Storm
 {
-	class MacroConfig;
+	class MacroConfigHolder;
 	struct GeneralConfig;
 
 	class GeneralConfigHolder
@@ -14,7 +14,7 @@ namespace Storm
 	public:
 		bool read(const std::string &generalConfigFilePathStr);
 
-		void applyMacros(const Storm::MacroConfig &macroConf);
+		void applyMacros(const Storm::MacroConfigHolder &macroConf);
 
 	public:
 		const Storm::GeneralConfig& getConfig() const;

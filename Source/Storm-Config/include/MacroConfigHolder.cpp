@@ -1,4 +1,4 @@
-#include "MacroConfig.h"
+#include "MacroConfigHolder.h"
 #include "ConfigManager.h"
 
 #include "TimeHelper.h"
@@ -45,13 +45,13 @@ namespace
 }
 
 
-Storm::MacroConfig::MacroConfig() :
+Storm::MacroConfigHolder::MacroConfigHolder() :
 	_lastHasResolved{ false }
 {
 
 }
 
-void Storm::MacroConfig::initialize()
+void Storm::MacroConfigHolder::initialize()
 {
 	const Storm::ConfigManager &configMgr = Storm::ConfigManager::instance();
 	const std::filesystem::path exePath = std::filesystem::path{ configMgr.getExePath() };
@@ -91,7 +91,7 @@ void Storm::MacroConfig::initialize()
 	LOG_COMMENT << "Pre built-in macros registered:\n" << this->produceAllMacroLog();
 }
 
-bool Storm::MacroConfig::read(const std::string &macroConfigFilePathStr)
+bool Storm::MacroConfigHolder::read(const std::string &macroConfigFilePathStr)
 {
 	const std::filesystem::path macroConfigFilePath{ macroConfigFilePathStr };
 	if (std::filesystem::is_regular_file(macroConfigFilePath))
@@ -177,12 +177,12 @@ bool Storm::MacroConfig::read(const std::string &macroConfigFilePathStr)
 	return false;
 }
 
-const std::pair<const Storm::MacroConfig::MacroKey, Storm::MacroConfig::MacroValue>& Storm::MacroConfig::registerMacroInternal(const std::string &key, std::string value)
+const std::pair<const Storm::MacroConfigHolder::MacroKey, Storm::MacroConfigHolder::MacroValue>& Storm::MacroConfigHolder::registerMacroInternal(const std::string &key, std::string value)
 {
 	return *_macros.emplace(makeFinalMacroKey(key), std::move(value)).first;
 }
 
-const std::string*const Storm::MacroConfig::queryMacroValue(const std::string &key) const
+const std::string*const Storm::MacroConfigHolder::queryMacroValue(const std::string &key) const
 {
 	if (const auto found = _macros.find(makeFinalMacroKey(key)); found != std::end(_macros))
 	{
@@ -192,7 +192,7 @@ const std::string*const Storm::MacroConfig::queryMacroValue(const std::string &k
 	return nullptr;
 }
 
-void Storm::MacroConfig::registerMacro(const std::string &key, std::string value, bool shouldLog /*= true*/)
+void Storm::MacroConfigHolder::registerMacro(const std::string &key, std::string value, bool shouldLog /*= true*/)
 {
 	const auto &macroPair = this->registerMacroInternal(key, std::move(value));
 	if (shouldLog)
@@ -201,7 +201,7 @@ void Storm::MacroConfig::registerMacro(const std::string &key, std::string value
 	}
 }
 
-void Storm::MacroConfig::resolveInternalMacro()
+void Storm::MacroConfigHolder::resolveInternalMacro()
 {
 	for (auto &macro : _macros)
 	{
@@ -209,7 +209,7 @@ void Storm::MacroConfig::resolveInternalMacro()
 	}
 }
 
-std::string Storm::MacroConfig::produceMacroLog(const std::vector<MacroKey> &selectedMacros) const
+std::string Storm::MacroConfigHolder::produceMacroLog(const std::vector<MacroKey> &selectedMacros) const
 {
 	std::string result;
 	result.reserve(selectedMacros.size() * MacroLogParserPolicy::k_expectedItemSize);
@@ -230,12 +230,12 @@ std::string Storm::MacroConfig::produceMacroLog(const std::vector<MacroKey> &sel
 	return result;
 }
 
-std::string Storm::MacroConfig::produceAllMacroLog() const
+std::string Storm::MacroConfigHolder::produceAllMacroLog() const
 {
 	return Storm::toStdString<MacroLogParserPolicy>(_macros);
 }
 
-bool Storm::MacroConfig::hasKnownMacro(const std::string &inOutStr, std::size_t &outPosFound) const
+bool Storm::MacroConfigHolder::hasKnownMacro(const std::string &inOutStr, std::size_t &outPosFound) const
 {
 	auto macroTagFound = inOutStr.find(static_cast<char>(k_macroTag));
 	if (macroTagFound == std::string::npos)
@@ -254,7 +254,7 @@ bool Storm::MacroConfig::hasKnownMacro(const std::string &inOutStr, std::size_t 
 	return false;
 }
 
-void Storm::MacroConfig::operator()(std::string &inOutStr) const
+void Storm::MacroConfigHolder::operator()(std::string &inOutStr) const
 {
 	_lastHasResolved = false;
 
@@ -268,7 +268,7 @@ void Storm::MacroConfig::operator()(std::string &inOutStr) const
 	this->operator ()(inOutStr, firstMacroTagFound);
 }
 
-void Storm::MacroConfig::operator()(std::string &inOutStr, const std::size_t beginSearchPos) const
+void Storm::MacroConfigHolder::operator()(std::string &inOutStr, const std::size_t beginSearchPos) const
 {
 	// In fact, this allows recursion because macro recursiveness was solved when they were registered.
 	// Therefore no macro contains any other macros when we come here (outside of the macro registration). So we don't need to recurse here.
@@ -300,7 +300,7 @@ void Storm::MacroConfig::operator()(std::string &inOutStr, const std::size_t beg
 	}
 }
 
-std::string Storm::MacroConfig::operator()(const std::string &inStr) const
+std::string Storm::MacroConfigHolder::operator()(const std::string &inStr) const
 {
 	std::string result = inStr;
 	this->operator ()(result);

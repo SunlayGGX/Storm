@@ -1,6 +1,6 @@
 #include "GeneralConfigHolder.h"
 
-#include "MacroConfig.h"
+#include "MacroConfigHolder.h"
 
 #include "GeneralConfig.h"
 
@@ -273,7 +273,7 @@ bool Storm::GeneralConfigHolder::read(const std::string &generalConfigFilePathSt
 	return false;
 }
 
-void Storm::GeneralConfigHolder::applyMacros(const Storm::MacroConfig &macroConf)
+void Storm::GeneralConfigHolder::applyMacros(const Storm::MacroConfigHolder &macroConf)
 {
 	Storm::GeneralDebugConfig &generalDebugConfig = _generalConfig->_generalDebugConfig;
 

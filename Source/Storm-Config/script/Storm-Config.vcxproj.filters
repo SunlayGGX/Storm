@@ -36,9 +36,6 @@
     <ClCompile Include="..\include\CommandLineParser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\include\MacroConfig.cpp">
-      <Filter>Source Files\ConfigHolder</Filter>
-    </ClCompile>
     <ClCompile Include="..\include\SceneConfigHolder.cpp">
       <Filter>Source Files\ConfigHolder</Filter>
     </ClCompile>
@@ -51,6 +48,9 @@
     <ClCompile Include="..\include\GitGeneratedWrapper.cpp">
       <Filter>Source Files\GeneratedWrapper</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\MacroConfigHolder.cpp">
+      <Filter>Source Files\ConfigHolder</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-ConfigPCH.h">
@@ -61,9 +61,6 @@
     </ClInclude>
     <ClInclude Include="..\include\CommandLineParser.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\MacroConfig.h">
-      <Filter>Header Files\ConfigHolder</Filter>
     </ClInclude>
     <ClInclude Include="..\include\SceneConfigHolder.h">
       <Filter>Header Files\ConfigHolder</Filter>
@@ -76,6 +73,9 @@
     </ClInclude>
     <ClInclude Include="..\include\GeneratedWrapper.h">
       <Filter>Header Files\GeneratedWrapper</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\MacroConfigHolder.h">
+      <Filter>Header Files\ConfigHolder</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
