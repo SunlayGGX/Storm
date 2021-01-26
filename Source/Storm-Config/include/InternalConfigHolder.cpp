@@ -95,7 +95,7 @@ void Storm::InternalConfigHolder::init()
 	Storm::initGitGeneratedConfig(*_internalConfig->_generatedGitConfig);
 }
 
-void Storm::InternalConfigHolder::read(const std::filesystem::path &internalConfigPath, const Storm::MacroConfig &macroConfig)
+void Storm::InternalConfigHolder::read(const std::filesystem::path &internalConfigPath, const Storm::MacroConfigHolder &macroConfig)
 {
 	validateInternalConfig(internalConfigPath);
 

@@ -4,7 +4,7 @@
 #include "IConfigManager.h"
 #include "SingletonDefaultImplementation.h"
 
-#include "MacroConfig.h"
+#include "MacroConfigHolder.h"
 #include "GeneralConfigHolder.h"
 #include "SceneConfigHolder.h"
 #include "InternalConfigHolder.h"
@@ -94,7 +94,7 @@ namespace Storm
 		std::string _commandLineForRestart;
 
 		// Configs
-		Storm::MacroConfig _macroConfig;
+		Storm::MacroConfigHolder _macroConfig;
 		Storm::GeneralConfigHolder _generalConfigHolder;
 		Storm::SceneConfigHolder _sceneConfigHolder;
 		Storm::InternalConfigHolder _internalConfigHolder;

@@ -3,14 +3,14 @@
 
 namespace Storm
 {
-	class MacroConfig
+	class MacroConfigHolder
 	{
 	private:
 		using MacroKey = std::string;
 		using MacroValue = std::string;
 		
 	public:
-		MacroConfig();
+		MacroConfigHolder();
 
 	public:
 		void initialize();

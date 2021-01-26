@@ -1,6 +1,6 @@
 #include "SceneConfigHolder.h"
 
-#include "MacroConfig.h"
+#include "MacroConfigHolder.h"
 #include "GeneralConfigHolder.h"
 
 #include "SceneConfig.h"
@@ -190,7 +190,7 @@ if (blowerTypeStr == BlowerTypeXmlName) return Storm::BlowerType::BlowerTypeName
 }
 
 
-void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, const Storm::MacroConfig &macroConfig, const Storm::GeneralConfigHolder &generalConfigHolder)
+void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, const Storm::MacroConfigHolder &macroConfig, const Storm::GeneralConfigHolder &generalConfigHolder)
 {
 	_sceneConfig = std::make_unique<Storm::SceneConfig>();
 
