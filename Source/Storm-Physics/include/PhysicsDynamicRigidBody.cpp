@@ -90,7 +90,16 @@ void Storm::PhysicsDynamicRigidBody::resetForce()
 
 void Storm::PhysicsDynamicRigidBody::applyForce(const Storm::Vector3 &location, const Storm::Vector3 &force)
 {
+#if true
 	physx::PxRigidBodyExt::addForceAtLocalPos(*_internalRb, Storm::convertToPx(force), Storm::convertToPx(location));
+#elif false
+	physx::PxRigidBodyExt::addLocalForceAtLocalPos(*_internalRb, Storm::convertToPx(force), Storm::convertToPx(location));	
+#else
+	const physx::PxVec3 forcePx = Storm::convertToPx(force);
+	_internalRb->addForce(forcePx);
+	// Normally it is location cross force, but it seems some coordinate systems aren't uniform everywhere.
+	_internalRb->addTorque(Storm::convertToPx(force.cross(location)));
+#endif
 }
 
 Storm::Vector3 Storm::PhysicsDynamicRigidBody::getPhysicAppliedForce() const noexcept
