@@ -99,6 +99,12 @@ Storm::SceneFluidBlockConfig::SceneFluidBlockConfig() :
 
 }
 
+Storm::SceneFluidUnitParticleConfig::SceneFluidUnitParticleConfig() :
+	_position{ Vector3::Zero() }
+{
+
+}
+
 Storm::SceneFluidConfig::SceneFluidConfig() :
 	_fluidId{ std::numeric_limits<decltype(_fluidId)>::max() },
 	_density{ 1.2754f }, // Dry air density at 0 °C degrees and normal ATM pressure. https://en.wikipedia.org/wiki/Density_of_air.

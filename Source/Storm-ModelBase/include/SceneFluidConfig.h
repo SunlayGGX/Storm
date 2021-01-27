@@ -16,6 +16,15 @@ namespace Storm
 		Storm::FluidParticleLoadDenseMode _loadDenseMode;
 	};
 
+	struct SceneFluidUnitParticleConfig
+	{
+	public:
+		SceneFluidUnitParticleConfig();
+
+	public:
+		Storm::Vector3 _position;
+	};
+
 	struct SceneFluidConfig
 	{
 	public:
@@ -24,6 +33,7 @@ namespace Storm
 	public:
 		unsigned int _fluidId;
 		std::vector<Storm::SceneFluidBlockConfig> _fluidGenConfig;
+		std::vector<Storm::SceneFluidUnitParticleConfig> _fluidUnitParticleGenConfig;
 		float _density;
 		float _dynamicViscosity;
 		float _cinematicViscosity;

@@ -475,6 +475,17 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 					Storm::throwException<Storm::Exception>("Generator min block value cannot be equal to the max value!");
 				}
 			}
+			else if (fluidXmlElement.first == "unitParticles")
+			{
+				for (const auto &fluidParticleGenConfigXml : fluidXmlElement.second)
+				{
+					auto &fluidParticleGenerator = fluidConfig._fluidUnitParticleGenConfig.emplace_back();
+					if (!Storm::XmlReader::handleXml(fluidParticleGenConfigXml, "position", fluidParticleGenerator._position, parseVector3Element))
+					{
+						LOG_ERROR << "tag '" << fluidParticleGenConfigXml.first << "' (inside Scene.Fluid.unitParticles) is unknown, therefore it cannot be handled";
+					}
+				}
+			}
 			else if (
 				!Storm::XmlReader::handleXml(fluidXmlElement, "id", fluidConfig._fluidId) &&
 				!Storm::XmlReader::handleXml(fluidXmlElement, "viscosity", fluidConfig._dynamicViscosity) &&
@@ -496,7 +507,7 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 		{
 			Storm::throwException<Storm::Exception>("Fluid id should be set using 'id' tag!");
 		}
-		else if (fluidConfig._fluidGenConfig.empty())
+		else if (fluidConfig._fluidGenConfig.empty() && fluidConfig._fluidUnitParticleGenConfig.empty())
 		{
 			Storm::throwException<Storm::Exception>("Fluid " + std::to_string(fluidConfig._fluidId) + " should have at least one block (an empty fluid is forbidden)!");
 		}

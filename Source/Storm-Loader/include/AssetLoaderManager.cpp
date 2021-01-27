@@ -581,7 +581,7 @@ case Storm::BlowerType::BlowerTypeName: \
 				}
 
 				return accumulatedVal + particleXCount * particleYCount * particleZCount;
-			}));
+			}) + fluidsConfigToLoad._fluidUnitParticleGenConfig.size());
 
 			for (const Storm::SceneFluidBlockConfig &fluidBlockGenerated : fluidsConfigToLoad._fluidGenConfig)
 			{
@@ -597,6 +597,11 @@ case Storm::BlowerType::BlowerTypeName: \
 				default:
 					break;
 				}
+			}
+
+			for (const Storm::SceneFluidUnitParticleConfig &fluidUnitPToGenerate : fluidsConfigToLoad._fluidUnitParticleGenConfig)
+			{
+				fluidParticlePos.push_back(fluidUnitPToGenerate._position);
 			}
 
 			waitForFutures(asyncLoadingArray);

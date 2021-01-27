@@ -318,10 +318,12 @@ Unlike the others config files, it can be named as you want. Here the xml tags y
 #### Fluid
 This element is all setting appartaining to a fluid. Here the tag you can set inside :
 - **id (positive integer, mandatory)**: This is the unique id of the fluid. It should be unique (Note that it should not be equal to any rigid body id and blower id too).
-- **fluidBlock (tag, at least one)**: This is the fluid generator settings. There should be at least one.
+- **fluidBlock (tag, semi-facultative)**: This is the fluid generator settings. There should be at least one if there is not unitParticles declared.
 	+ **firstPoint (vector3, facultative)**: This is one of the corner of the box where fluid particle should be generated. It cannot have the same value than secondPoint, default value is { x=0.0, y=0.0, z=0.0 }.
 	+ **secondPoint (vector3, facultative)**: This is the opposite corner from firstPoint where fluid particle should be generated. It cannot have the same value than firstPoint, default value is { x=0.0, y=0.0, z=0.0 }.
 	+ **denseMode (string, facultative)**: This is the load mode impacting how we will generate and set the particle positions inside the block. It isn't case sensitive. Accepted values are : "Normal" (default) or "SplishSplash" (to use SplishSplash algorithm to generate the particles).
+- **unitParticles (tag, semi-facultative)**: Inside this tag should be listed particles we want to spawn manually at a specified particle. They are spawn one by one.
+	+ **position (vector3, facultative)**: This is the position of one spawned particle. Each position tag will represent one particle.
 - **density (positive float, falcultative)**: This is the rest density of the fluid in kg.m^-3. Default is 1.2754 kg.m^-3 which is the density of Dry air at 0 °C and normal ATM pressure.
 - **pressureK1 (positive zero-able float, falcultative)**: This is the pressure stiffness constant coefficient used when initializing the pressure using State equation. In formulas, it is often found as k1. Default is 50000.
 - **pressureK2 (positive zero-able float, falcultative)**: This is the pressure exponent constant coefficient used when initializing the pressure using State equation. In formulas, it is often found as k2. Default is 7.
