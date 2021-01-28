@@ -475,14 +475,14 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 					Storm::throwException<Storm::Exception>("Generator min block value cannot be equal to the max value!");
 				}
 			}
-			else if (fluidXmlElement.first == "unitParticles")
+			else if (fluidXmlElement.first == "UnitParticles")
 			{
 				for (const auto &fluidParticleGenConfigXml : fluidXmlElement.second)
 				{
 					auto &fluidParticleGenerator = fluidConfig._fluidUnitParticleGenConfig.emplace_back();
 					if (!Storm::XmlReader::handleXml(fluidParticleGenConfigXml, "position", fluidParticleGenerator._position, parseVector3Element))
 					{
-						LOG_ERROR << "tag '" << fluidParticleGenConfigXml.first << "' (inside Scene.Fluid.unitParticles) is unknown, therefore it cannot be handled";
+						LOG_ERROR << "tag '" << fluidParticleGenConfigXml.first << "' (inside Scene.Fluid.UnitParticles) is unknown, therefore it cannot be handled";
 					}
 				}
 			}
