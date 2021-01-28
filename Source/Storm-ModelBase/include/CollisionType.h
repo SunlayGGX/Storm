@@ -8,6 +8,7 @@ namespace Storm
 		None,
 		Sphere,
 		Cube,
+		IndividualParticle,
 		Custom,
 	};
 }

@@ -343,7 +343,7 @@ Inside this element should be put all rigidbodies. Each rigidbody should be spec
 - **meshFile (string, mandatory, accept macro)**: This is mesh file path this rigid body is bound to.
 - **isStatic (boolean, facultative)**: Specify this to tell the simulation that this object is fixed (won't move throughout the simulation). Default value is "true".
 - **wall (boolean, facultative)**: Specify that this object is the wall (considered to be a wall). By defainition, a wall is static so if the value is true, the object will be considered static no matter the value set to isStatic. Default value is "false".
-- **collisionType (string, facultative)**: Specify what is the collision shape should be handled. This is not case sensitive. Possible values are "None" (Default value), "Sphere", "Cube" and "Custom".
+- **collisionType (string, facultative)**: Specify what is the collision shape and how should it be handled. This is not case sensitive. Possible values are "None" (Default value), "Sphere", "Cube", "Particle" and "Custom". Note that if it is a particle, some settings won't be taken into account (like the scale, the rotation or the layer count) and the engine will consider this rigid body as a single particle (only one particle will be made).
 - **translation (vector3, facultative)**: The initial position in meters of the object. Default value is { x=0.0, y=0.0, z=0.0 }.
 - **rotation (vector3, facultative)**: The initial rotation in degrees of the object (this is euler angle : roll, pich, yaw). Default value is { x=0.0, y=0.0, z=0.0 }.
 - **scale (vector3, facultative)**: The initial scale of the object. Default value is { x=1.0, y=1.0, z=1.0 }.

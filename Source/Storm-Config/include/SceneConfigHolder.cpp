@@ -72,6 +72,10 @@ namespace
 		{
 			return Storm::CollisionType::Custom;
 		}
+		else if (collisionTypeStr == "particle")
+		{
+			return Storm::CollisionType::IndividualParticle;
+		}
 		else if (collisionTypeStr == "none")
 		{
 			return Storm::CollisionType::None;
@@ -607,10 +611,6 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 		{
 			Storm::throwException<Storm::Exception>("RigidBody id " + std::to_string(rbConfig._rigidBodyID) + " is already being used by fluid data!");
 		}
-		else if (!std::filesystem::is_regular_file(rbConfig._meshFilePath))
-		{
-			Storm::throwException<Storm::Exception>("'" + rbConfig._meshFilePath + "' is not a valid mesh file!");
-		}
 		else if (rbConfig._mass <= 0.f)
 		{
 			Storm::throwException<Storm::Exception>("mass " + std::to_string(rbConfig._mass) + "kg is invalid (rigid body " + std::to_string(rbConfig._rigidBodyID) + ")!");
@@ -651,6 +651,24 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 			rbConfig._angularVelocityDamping = rbConfigAngularVelocityDampingTmp;
 		}
 
+		if (rbConfig._collisionShape == Storm::CollisionType::IndividualParticle)
+		{
+			if (!rbConfig._meshFilePath.empty())
+			{
+				Storm::throwException<Storm::Exception>("Specified a mesh (" + rbConfig._meshFilePath + ") while we spawn an individual rigid body particle! It is not allowed.");
+			}
+
+			LOG_DEBUG_WARNING <<
+				"We'll spawn an individual rigid body particle (rigid body " + std::to_string(rbConfig._rigidBodyID) + ").\n"
+				"Some config settings won't be applied.";
+		}
+		else
+		{
+			if (!std::filesystem::is_regular_file(rbConfig._meshFilePath))
+			{
+				Storm::throwException<Storm::Exception>("'" + rbConfig._meshFilePath + "' is not a valid mesh file!");
+			}
+		}
 	});
 
 	/* Contraints */

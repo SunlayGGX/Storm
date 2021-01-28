@@ -1,5 +1,7 @@
 #include "AssetCacheData.h"
 
+#include "AssetLoaderManager.h"
+
 #include "SceneRigidBodyConfig.h"
 
 #include "InsideParticleRemovalTechnique.h"
@@ -8,8 +10,17 @@
 #include "Vector3Utils.h"
 #include "BoundingBox.h"
 
+#include "CollisionType.h"
+
+#include "RunnerHelper.h"
+
 #define STORM_HIJACKED_TYPE uint32_t
-#include "VectHijack.h"
+#	include "VectHijack.h"
+#undef STORM_HIJACKED_TYPE
+
+#define STORM_HIJACKED_TYPE Storm::Vector3
+#	include "VectHijack.h"
+#undef STORM_HIJACKED_TYPE
 
 #include <Assimp\scene.h>
 #include <Assimp\mesh.h>
@@ -216,6 +227,13 @@ namespace
 			}
 		}
 	}
+
+	template<class ContainerType>
+	void initHijack(ContainerType &cont, const Storm::VectorHijackerMakeBelieve &hijacker)
+	{
+		cont.reserve(hijacker._newSize);
+		Storm::setNumUninitialized_hijack(cont, hijacker);
+	}
 }
 
 
@@ -226,8 +244,21 @@ Storm::AssetCacheData::AssetCacheData(const Storm::SceneRigidBodyConfig &rbConfi
 	_finalBoundingBoxMin{ Storm::initVector3ForMin() },
 	_finalBoundingBoxMax{ Storm::initVector3ForMax() }
 {
-	this->buildSrc(meshScene);
-	this->generateCurrentData(layerDistance);
+	switch (rbConfig._collisionShape)
+	{
+	case Storm::CollisionType::IndividualParticle:
+		this->generateCurrentDataForOneParticle(layerDistance);
+		break;
+
+	case Storm::CollisionType::Cube:
+	case Storm::CollisionType::Custom:
+	case Storm::CollisionType::Sphere:
+	case Storm::CollisionType::None:
+	default:
+		this->buildSrc(meshScene);
+		this->generateCurrentData(layerDistance);
+		break;
+	}
 }
 
 Storm::AssetCacheData::AssetCacheData(const Storm::SceneRigidBodyConfig &rbConfig, const Storm::AssetCacheData &srcCachedData, const float layerDistance) :
@@ -655,4 +686,62 @@ void Storm::AssetCacheData::generateDissociatedTriangleLayers(const float layerD
 			);
 		}
 	}
+}
+
+void Storm::AssetCacheData::generateCurrentDataForOneParticle(float particleRadius)
+{
+	std::vector<uint32_t> &indicesRef = *_indices;
+	std::vector<Storm::Vector3> &srcVerticesRef = _src->_vertices;
+	Storm::AssetLoaderManager::instance().generateSimpleSphere(Storm::Vector3::Zero(), particleRadius, srcVerticesRef, indicesRef);
+	
+	const std::size_t verticesCount = srcVerticesRef.size();
+	const std::size_t indicesCount = indicesRef.size();
+
+	const Storm::VectorHijackerMakeBelieve verticesCountHijacker{ verticesCount };
+
+	// Fills normals
+	std::vector<Storm::Vector3> &srcNormalsRef = _src->_normals;
+	initHijack(srcNormalsRef, verticesCountHijacker);
+
+	for (std::size_t iter = 0; iter < indicesCount; iter += 3)
+	{
+		const uint32_t p0Index = indicesRef[iter];
+		const uint32_t p1Index = indicesRef[iter + 1];
+		const uint32_t p2Index = indicesRef[iter + 2];
+
+		const Storm::Vector3 &p0 = srcVerticesRef[p0Index];
+		const Storm::Vector3 &p1 = srcVerticesRef[p1Index];
+		const Storm::Vector3 &p2 = srcVerticesRef[p2Index];
+
+		const Storm::Vector3 normal = (p1 - p0).cross(p2 - p0).normalized();
+
+		srcNormalsRef[p0Index] = normal;
+		srcNormalsRef[p1Index] = normal;
+		srcNormalsRef[p2Index] = normal;
+	}
+
+	initHijack(_scaledCurrent._vertices, verticesCountHijacker);
+	initHijack(_scaledCurrent._normals, verticesCountHijacker);
+	initHijack(_finalCurrent._vertices, verticesCountHijacker);
+	initHijack(_finalCurrent._normals, verticesCountHijacker);
+
+	Storm::runParallel(srcVerticesRef, [this, &srcNormalsRef](const Storm::Vector3 &srcVertex, const std::size_t index)
+	{
+		_scaledCurrent._vertices[index] = srcVertex;
+		_finalCurrent._vertices[index] = srcVertex + _rbConfig._translation;
+
+		const Storm::Vector3 &currentSrcNormal = srcNormalsRef[index];
+		_scaledCurrent._normals[index] = currentSrcNormal;
+		_finalCurrent._normals[index] = currentSrcNormal;
+	});
+
+	const float margedRadius = particleRadius + particleRadius / 1000.f;
+
+	_finalBoundingBoxMin.x() = _rbConfig._translation.x() - margedRadius;
+	_finalBoundingBoxMin.y() = _rbConfig._translation.y() - margedRadius;
+	_finalBoundingBoxMin.z() = _rbConfig._translation.z() - margedRadius;
+
+	_finalBoundingBoxMax.x() = _rbConfig._translation.x() + margedRadius;
+	_finalBoundingBoxMax.y() = _rbConfig._translation.y() + margedRadius;
+	_finalBoundingBoxMax.z() = _rbConfig._translation.z() + margedRadius;
 }
