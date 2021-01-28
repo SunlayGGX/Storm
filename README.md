@@ -275,7 +275,6 @@ Unlike the others config files, it can be named as you want. Here the xml tags y
 - **maxPredictIteration (positive integer, facultative)**: This is the max iteration we're allowed to make inside one simulation loop when doing prediction iteration. It is to avoid infinite loop. It should be an integer strictly greater than 0 and should be greater or equal than minimum prediction iteration. Default value is 150.
 - **maxDensityError (positive float, facultative)**: This is the max density error under which we would continue the prediction iteration (or until maxPredictIteration hit). It should be less or equal than 0. Default value is 0.01.
 - **neighborCheckStep (positive integer, facultative)**: This is a char between 1 and 255. This specify that we will recompute the neighborhood every neighborCheckStep step. Default is 1 (we recompute each step of the simulation).
-- **collidingFluidRemoval (boolean, facultative)**: If true, the fluid particle colliding with already existing rigid body particle will be removed at initialization time. This does not reproduce the behavior of SplishSplash. Default is true.
 - **startFixRigidBodies (boolean, facultative)**: If true, dynamic rigidbodies will be fixated in place at simulation start. See input keys to unfix them. Default is false.
 - **endPhysicsTime (float, facultative)**: This is the end time (physics time) in seconds the simulation should stop. After this time, the Simulator will exit... The value should be greater than zero. Default is unset (the simulator will continue indefinitely).
 
@@ -333,6 +332,7 @@ This element is all setting appartaining to a fluid. Here the tag you can set in
 - **viscosity (positive float, falcultative)**: This is the dynamic viscosity of the fluid in N.s/m² (or Pa.s). Default is 0.00001715 N.s/m² which is the dynamic viscosity of Dry air at 0 °C and normal ATM pressure.
 - **soundSpeed (positive float, falcultative)**: This is the speed of sound inside the given fluid in m/s. Default is 331.4 m/s which is the speed of sound of Dry air at 0 °C) and normal ATM pressure (340 is for 15 °C).
 - **enableGravity (boolean, falcultative)**: Enable the gravity for the associated fluid particle system. Default is true.
+- **removeCollidingParticles (boolean, falcultative)**: If true, any fluid particle that collides with any rigid bodies will be forcefully removed when it is spawned. This does not reproduce the behavior of SplishSplash since it does not remove insider particles. If false, fluid particles can spawn inside rigid bodies, possibly leading to some explosion, instabilities and bad physical states. Default is true.
 
 
 #### RigidBodies

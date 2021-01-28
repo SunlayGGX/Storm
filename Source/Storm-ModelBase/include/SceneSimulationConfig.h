@@ -41,8 +41,6 @@ namespace Storm
 		Storm::SimulationMode _simulationMode;
 		std::string _simulationModeStr;
 
-		bool _removeFluidParticleCollidingWithRb;
-
 		bool _hasFluid;
 
 		bool _fixRigidBodyAtStartTime;

@@ -44,5 +44,6 @@ namespace Storm
 		float _pressureInitRelaxationCoefficient;
 		float _relaxationCoefficient;
 		bool _gravityEnabled;
+		bool _removeParticlesCollidingWithRb;
 	};
 }

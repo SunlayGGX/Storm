@@ -38,7 +38,6 @@ Storm::SceneSimulationConfig::SceneSimulationConfig() :
 	_maxCFLTime{ 0.5f },
 	_recomputeNeighborhoodStep{ 1 },
 	_simulationNoWait{ false },
-	_removeFluidParticleCollidingWithRb{ true },
 	_hasFluid{ true },
 	_computeCFL{ false },
 	_fixRigidBodyAtStartTime{ false },
@@ -117,6 +116,7 @@ Storm::SceneFluidConfig::SceneFluidConfig() :
 	_relaxationCoefficient{ 0.5f },
 	_pressureInitRelaxationCoefficient{ 0.5f },
 	_gravityEnabled{ true },
+	_removeParticlesCollidingWithRb{ true },
 	_cinematicViscosity{ 0.f } // Computed automatically once final _dynamicViscosity value will be determined.
 {
 

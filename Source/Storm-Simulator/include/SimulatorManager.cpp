@@ -1215,11 +1215,13 @@ void Storm::SimulatorManager::addFluidParticleSystem(unsigned int id, std::vecto
 	const std::size_t initialParticleCount = particlePositions.size();
 	LOG_COMMENT << "Creating fluid particle system with " << initialParticleCount << " particles.";
 
-	const Storm::SceneSimulationConfig &sceneSimulationConfig = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().getSceneSimulationConfig();
-	if (sceneSimulationConfig._removeFluidParticleCollidingWithRb)
+	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
+	const Storm::SceneFluidConfig &sceneFluidConfig = configMgr.getSceneFluidConfig();
+	if (sceneFluidConfig._removeParticlesCollidingWithRb)
 	{
 		LOG_COMMENT << "Removing fluid particles that collide with rigid bodies particles.";
 
+		const Storm::SceneSimulationConfig &sceneSimulationConfig = configMgr.getSceneSimulationConfig();
 		removeParticleInsideRbPosition(particlePositions, _particleSystem, sceneSimulationConfig._particleRadius);
 
 		LOG_DEBUG << "We removed " << initialParticleCount - particlePositions.size() << " particle(s) after checking which collide with existing rigid bodies.";
@@ -1258,11 +1260,13 @@ void Storm::SimulatorManager::addFluidParticleSystem(Storm::SystemSimulationStat
 #if false 
 
 	// FIXME : The algorithm to remove insider particle wasn't made with state reloading in mind (This feature was made long before I did the state reloading feature, I did YAGNI, and now I'm paying the price).
-	const Storm::SceneSimulationConfig &sceneSimulationConfig = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().getSceneSimulationConfig();
-	if (sceneSimulationConfig._removeFluidParticleCollidingWithRb)
+	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
+	const Storm::SceneFluidConfig &sceneFluidConfig = configMgr.getSceneFluidConfig();
+	if (sceneFluidConfig._removeParticlesCollidingWithRb)
 	{
 		LOG_COMMENT << "Removing fluid particles that collide with rigid bodies particles.";
 
+		const Storm::SceneSimulationConfig &sceneSimulationConfig = configMgr.getSceneSimulationConfig();
 		removeParticleInsideRbPosition(state._positions, _particleSystem, sceneSimulationConfig._particleRadius);
 
 		LOG_DEBUG << "We removed " << initialParticleCount - state._positions.size() << " particle(s) after checking which collide with existing rigid bodies.";
