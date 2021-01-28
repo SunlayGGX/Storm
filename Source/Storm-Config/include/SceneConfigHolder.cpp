@@ -581,7 +581,8 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "collisionType", rbConfig._collisionShape, parseCollisionType) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "translation", rbConfig._translation, parseVector3Element) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "rotation", rbConfig._rotation, parseVector3Element) ||
-			Storm::XmlReader::handleXml(rigidBodyConfigXml, "scale", rbConfig._scale, parseVector3Element)
+			Storm::XmlReader::handleXml(rigidBodyConfigXml, "scale", rbConfig._scale, parseVector3Element) ||
+			Storm::XmlReader::handleXml(rigidBodyConfigXml, "color", rbConfig._color, parseColor4Element)
 			;
 	},
 		[&macroConfig, &rigidBodiesConfigArray, &fluidConfig, &rbConfigAngularVelocityDampingTmp](Storm::SceneRigidBodyConfig &rbConfig)
@@ -625,6 +626,10 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 		else if (rbConfig._layerCount == 0)
 		{
 			Storm::throwException<Storm::Exception>("The rigid body layer count is invalid (rigid body " + std::to_string(rbConfig._rigidBodyID) + ")! Value was " + std::to_string(rbConfig._layerCount));
+		}
+		else if (Storm::ColorCheckerHelper::isInvalid(rbConfig._color))
+		{
+			Storm::throwException<Storm::Exception>("The rigid body " + std::to_string(rbConfig._rigidBodyID) + " color is invalid! Value was " + Storm::toStdString(rbConfig._color));
 		}
 		
 		if (rbConfig._isTranslationFixed && (rbConfig._isWall || rbConfig._static))

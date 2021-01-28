@@ -22,6 +22,8 @@ namespace Storm
 
 		Storm::CollisionType _collisionShape;
 
+		Storm::Vector4 _color;
+
 		float _mass;
 
 		float _viscosity;
