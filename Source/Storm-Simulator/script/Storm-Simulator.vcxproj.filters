@@ -126,6 +126,9 @@
     <ClCompile Include="..\include\StateSaverHelper.cpp">
       <Filter>Source Files\State</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\ParticleCountInfo.cpp">
+      <Filter>Source Files\General</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-SimulatorPCH.h">
@@ -223,6 +226,9 @@
     </ClInclude>
     <ClInclude Include="..\include\StateSaverHelper.h">
       <Filter>Header Files\State</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ParticleCountInfo.h">
+      <Filter>Header Files\General</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

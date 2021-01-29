@@ -12,6 +12,7 @@
 #include "ISimulatorManager.h"
 
 #include "SceneGraphicConfig.h"
+#include "SceneRigidBodyConfig.h"
 
 #include "UIField.h"
 #include "UIFieldContainer.h"
@@ -24,17 +25,19 @@
 
 namespace
 {
-	template<bool isFluids>
-	constexpr DirectX::XMVECTOR getDefaultParticleColor()
+	constexpr DirectX::XMVECTOR getDefaultFluidParticleColor()
 	{
-		if constexpr (isFluids)
-		{
-			return { 0.3f, 0.5f, 0.85f, 1.f };
-		}
-		else
-		{
-			return { 0.3f, 0.5f, 0.5f, 1.f };
-		}
+		return { 0.3f, 0.5f, 0.85f, 1.f };
+	}
+
+	DirectX::XMVECTOR getRbColor(unsigned int rbId)
+	{
+		STORM_STATIC_ASSERT(sizeof(DirectX::XMFLOAT4) == sizeof(Storm::Vector4), "The folowing lines is an optimization that works only if the type have the same layout.");
+
+		const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
+		const Storm::Vector4 &colorRGBA = configMgr.getSceneRigidBodyConfig(rbId)._color;
+
+		return DirectX::XMLoadFloat4(reinterpret_cast<const DirectX::XMFLOAT4*>(&colorRGBA.x()));
 	}
 
 	template<Storm::ColoredSetting coloredSetting>
@@ -58,10 +61,11 @@ namespace
 		return (*param._densityData)[iter];
 	}
 
-	template<bool enableDifferentColoring, Storm::ColoredSetting coloredSetting = Storm::ColoredSetting::Velocity>
+	template<bool isFluid, Storm::ColoredSetting coloredSetting = Storm::ColoredSetting::Velocity>
 	void fastTransCopyImpl(const Storm::PushedParticleSystemDataParameter &param, const Storm::GraphicPipe::ColorSetting &colorSetting, std::vector<Storm::GraphicParticleData> &inOutDxParticlePosDataTmp)
 	{
-		const DirectX::XMVECTOR defaultColor = getDefaultParticleColor<enableDifferentColoring>();
+		DirectX::XMVECTOR defaultColor = isFluid ? getDefaultFluidParticleColor() : getRbColor(param._particleSystemId);
+
 		const float deltaColorRChan = 1.f - defaultColor.m128_f32[0];
 		const float deltaValueForColor = colorSetting._maxValue - colorSetting._minValue;
 
@@ -72,7 +76,7 @@ namespace
 			memcpy(&current._pos, &particlePosData[iter], sizeof(Storm::Vector3));
 			reinterpret_cast<float*>(&current._pos)[3] = 1.f;
 
-			if constexpr (enableDifferentColoring)
+			if constexpr (isFluid)
 			{
 				float coeff = getColoredMonoDimensionUsedData<coloredSetting>(param, iter) - colorSetting._minValue;
 
@@ -92,7 +96,7 @@ namespace
 					}
 				}
 			}
-			else
+			else // Rigidbody
 			{
 				current._color = defaultColor;
 			}

@@ -18,6 +18,8 @@
 #include "AssetCacheData.h"
 #include "AssetCacheDataOrder.h"
 
+#include "CollisionType.h"
+
 #include <Assimp\Importer.hpp>
 #include <Assimp\scene.h>
 
@@ -217,140 +219,171 @@ void Storm::RigidBody::load(const Storm::SceneRigidBodyConfig &rbSceneConfig)
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
 	const float currentParticleRadius = configMgr.getSceneSimulationConfig()._particleRadius;
 
-	std::shared_ptr<Storm::AssetCacheData> cachedDataPtr = this->baseLoadAssimp(rbSceneConfig, computeLayerDistance(currentParticleRadius));
+	std::shared_ptr<Storm::AssetCacheData> cachedDataPtr;
+
+	bool isAloneParticle;
+	switch (rbSceneConfig._collisionShape)
+	{
+	case Storm::CollisionType::IndividualParticle:
+	{
+		Storm::SceneRigidBodyConfig tmpRbConfig = rbSceneConfig;
+		tmpRbConfig._layerCount = 1;
+
+		cachedDataPtr = this->baseLoadAssimp(tmpRbConfig, currentParticleRadius);
+
+		isAloneParticle = true;
+		break;
+	}
+
+	case Storm::CollisionType::Cube:
+	case Storm::CollisionType::Custom:
+	case Storm::CollisionType::Sphere:
+	case Storm::CollisionType::None:
+	default:
+		cachedDataPtr = this->baseLoadAssimp(rbSceneConfig, computeLayerDistance(currentParticleRadius));
+		isAloneParticle = false;
+		break;
+	}
 
 	std::vector<Storm::Vector3> particlePos;
-
-	const std::string meshPathLowerStr = boost::algorithm::to_lower_copy(_meshPath);
-	const std::filesystem::path meshPath = meshPathLowerStr;
-	const std::filesystem::path cachedPath = computeRightCachedFilePath(rbSceneConfig, meshPath, currentParticleRadius);
-	const std::wstring cachedPathStr = cachedPath.wstring();
-	constexpr const Storm::Version currentVersion = Storm::Version::retrieveCurrentStormVersion();
-
-	const auto srcMeshWriteTime = std::filesystem::last_write_time(meshPath);
-	bool hasCache;
-
-	bool mutexExisted;
-
 	Storm::AssetLoaderManager &assetLoaderMgr = Storm::AssetLoaderManager::instance();
-	std::mutex &specificMutex = assetLoaderMgr.getAssetMutex(cachedPath.filename().string(), mutexExisted);
 
-	std::unique_lock<std::mutex> lock{ specificMutex };
-
-	if (!mutexExisted && configMgr.shouldRegenerateParticleCache())
+	if (!isAloneParticle)
 	{
-		hasCache = false;
-		LOG_COMMENT << "Regenerating cache no matter its state as requested by user from command line argument!";
-		std::filesystem::remove_all(cachedPath);
-	}
-	else
-	{
-		hasCache = std::filesystem::exists(cachedPath);
-	}
+		const std::string meshPathLowerStr = boost::algorithm::to_lower_copy(_meshPath);
+		const std::filesystem::path meshPath = meshPathLowerStr;
+		const std::filesystem::path cachedPath = computeRightCachedFilePath(rbSceneConfig, meshPath, currentParticleRadius);
+		const std::wstring cachedPathStr = cachedPath.wstring();
+		constexpr const Storm::Version currentVersion = Storm::Version::retrieveCurrentStormVersion();
 
-	if (hasCache)
-	{
-		std::ifstream cacheReadStream{ cachedPathStr, std::ios_base::in | std::ios_base::binary };
+		const auto srcMeshWriteTime = std::filesystem::last_write_time(meshPath);
+		bool hasCache;
 
-		uint64_t checksum;
-		Storm::binaryRead(cacheReadStream, checksum);
-		if (checksum == k_cacheGoodChecksum)
+		bool mutexExisted;
+
+		std::mutex &specificMutex = assetLoaderMgr.getAssetMutex(cachedPath.filename().string(), mutexExisted);
+
+		std::unique_lock<std::mutex> lock{ specificMutex };
+
+		if (!mutexExisted && configMgr.shouldRegenerateParticleCache())
 		{
-			int64_t timestamp;
-			Storm::binaryRead(cacheReadStream, timestamp);
+			hasCache = false;
+			LOG_COMMENT << "Regenerating cache no matter its state as requested by user from command line argument!";
+			std::filesystem::remove_all(cachedPath);
+		}
+		else
+		{
+			hasCache = std::filesystem::exists(cachedPath);
+		}
 
-			if (std::filesystem::file_time_type{ std::filesystem::file_time_type::duration{ timestamp } } == srcMeshWriteTime)
+		if (hasCache)
+		{
+			std::ifstream cacheReadStream{ cachedPathStr, std::ios_base::in | std::ios_base::binary };
+
+			uint64_t checksum;
+			Storm::binaryRead(cacheReadStream, checksum);
+			if (checksum == k_cacheGoodChecksum)
 			{
-				std::string srcUsedFilePath;
-				Storm::binaryRead(cacheReadStream, srcUsedFilePath);
+				int64_t timestamp;
+				Storm::binaryRead(cacheReadStream, timestamp);
 
-				// I used meshPathLowerStr instead of _meshPath because _meshPath was set by the user on the scene file, therefore comparison depends on the case of each letters.
-				// meshPathLowerStr was constructed by the lowercase of _meshPath and is used to write to the binary file so it is suitable to use as a comparison (we know what we're expecting).
-				if (meshPathLowerStr == srcUsedFilePath)
+				if (std::filesystem::file_time_type{ std::filesystem::file_time_type::duration{ timestamp } } == srcMeshWriteTime)
 				{
-					std::string versionTmp;
-					Storm::binaryRead(cacheReadStream, versionTmp);
+					std::string srcUsedFilePath;
+					Storm::binaryRead(cacheReadStream, srcUsedFilePath);
 
-					Storm::Version cacheFileVersion{ versionTmp };
-					if (cacheFileVersion != currentVersion)
+					// I used meshPathLowerStr instead of _meshPath because _meshPath was set by the user on the scene file, therefore comparison depends on the case of each letters.
+					// meshPathLowerStr was constructed by the lowercase of _meshPath and is used to write to the binary file so it is suitable to use as a comparison (we know what we're expecting).
+					if (meshPathLowerStr == srcUsedFilePath)
 					{
-						LOG_WARNING << "'" << meshPath << "' has a particle cached file but it is was made with a previous version of the application (no retro compatibility), therefore we will regenerate it anew.";
+						std::string versionTmp;
+						Storm::binaryRead(cacheReadStream, versionTmp);
+
+						Storm::Version cacheFileVersion{ versionTmp };
+						if (cacheFileVersion != currentVersion)
+						{
+							LOG_WARNING << "'" << meshPath << "' has a particle cached file but it is was made with a previous version of the application (no retro compatibility), therefore we will regenerate it anew.";
+							hasCache = false;
+						}
+					}
+					else
+					{
+						LOG_WARNING << "'" << meshPath << "' has no particle cached file since the one we found was generated for another file that has the same name, therefore we will regenerate it anew.";
 						hasCache = false;
 					}
 				}
 				else
 				{
-					LOG_WARNING << "'" << meshPath << "' has no particle cached file since the one we found was generated for another file that has the same name, therefore we will regenerate it anew.";
+					LOG_WARNING << "'" << meshPath << "' has a particle cached file but it is outdated, therefore we will regenerate it anew.";
 					hasCache = false;
 				}
 			}
 			else
 			{
-				LOG_WARNING << "'" << meshPath << "' has a particle cached file but it is outdated, therefore we will regenerate it anew.";
+				LOG_WARNING << "'" << meshPath << "' has a particle cached file but it is corrupted (invalid), therefore we will regenerate it anew.";
 				hasCache = false;
 			}
-		}
-		else
-		{
-			LOG_WARNING << "'" << meshPath << "' has a particle cached file but it is corrupted (invalid), therefore we will regenerate it anew.";
-			hasCache = false;
-		}
 
-		if (hasCache)
-		{
-			LOG_COMMENT << "'" << meshPath << "' has a right matching particle cached data file, therefore we will load it instead.";
-			
-			uint64_t particleCount;
-			Storm::binaryRead(cacheReadStream, particleCount);
-			particlePos.reserve(particleCount);
-			for (uint64_t iter = 0; iter < particleCount; ++iter)
+			if (hasCache)
 			{
-				Storm::Vector3 &currentVect = particlePos.emplace_back();
+				LOG_COMMENT << "'" << meshPath << "' has a right matching particle cached data file, therefore we will load it instead.";
 
-				Storm::binaryRead(cacheReadStream, currentVect.x());
-				Storm::binaryRead(cacheReadStream, currentVect.y());
-				Storm::binaryRead(cacheReadStream, currentVect.z());
+				uint64_t particleCount;
+				Storm::binaryRead(cacheReadStream, particleCount);
+				particlePos.reserve(particleCount);
+				for (uint64_t iter = 0; iter < particleCount; ++iter)
+				{
+					Storm::Vector3 &currentVect = particlePos.emplace_back();
+
+					Storm::binaryRead(cacheReadStream, currentVect.x());
+					Storm::binaryRead(cacheReadStream, currentVect.y());
+					Storm::binaryRead(cacheReadStream, currentVect.z());
+				}
+			}
+			else
+			{
+				cacheReadStream.close();
+				std::filesystem::remove_all(cachedPath);
 			}
 		}
-		else
-		{
-			cacheReadStream.close();
-			std::filesystem::remove_all(cachedPath);
-		}
-	}
 
-	if(!hasCache)
+		if (!hasCache)
+		{
+			/* Generate the rb as if no cache data */
+
+			// Poisson Disk sampling
+			particlePos = Storm::PoissonDiskSampler::process_v2(30, currentParticleRadius, cachedDataPtr->getScaledVertices(), cachedDataPtr->getFinalBoundingBoxMax(), cachedDataPtr->getFinalBoundingBoxMin());
+
+			/* Cache writing */
+
+			std::ofstream cacheFileStream{ cachedPathStr, std::ios_base::out | std::ios_base::binary };
+
+			// First write wrong checksum as a placeholder
+			Storm::binaryWrite(cacheFileStream, static_cast<uint64_t>(k_cachePlaceholderChecksum));
+
+			Storm::binaryWrite(cacheFileStream, static_cast<uint64_t>(srcMeshWriteTime.time_since_epoch().count()));
+			Storm::binaryWrite(cacheFileStream, meshPathLowerStr);
+			Storm::binaryWrite(cacheFileStream, static_cast<std::string>(currentVersion));
+
+			Storm::binaryWrite(cacheFileStream, static_cast<uint64_t>(particlePos.size()));
+			for (const Storm::Vector3 &particlePos : particlePos)
+			{
+				Storm::binaryWrite(cacheFileStream, particlePos.x());
+				Storm::binaryWrite(cacheFileStream, particlePos.y());
+				Storm::binaryWrite(cacheFileStream, particlePos.z());
+			}
+
+			// Replace the placeholder checksum by the right one to finalize the writing
+			cacheFileStream.seekp(0);
+			Storm::binaryWrite(cacheFileStream, static_cast<uint64_t>(k_cacheGoodChecksum));
+		}
+
+		lock.unlock();
+	}
+	else
 	{
-		/* Generate the rb as if no cache data */
-
-		// Poisson Disk sampling
-		particlePos = Storm::PoissonDiskSampler::process_v2(30, currentParticleRadius, cachedDataPtr->getScaledVertices(), cachedDataPtr->getFinalBoundingBoxMax(), cachedDataPtr->getFinalBoundingBoxMin());
-		
-		/* Cache writing */
-
-		std::ofstream cacheFileStream{ cachedPathStr, std::ios_base::out | std::ios_base::binary };
-
-		// First write wrong checksum as a placeholder
-		Storm::binaryWrite(cacheFileStream, static_cast<uint64_t>(k_cachePlaceholderChecksum));
-
-		Storm::binaryWrite(cacheFileStream, static_cast<uint64_t>(srcMeshWriteTime.time_since_epoch().count()));
-		Storm::binaryWrite(cacheFileStream, meshPathLowerStr);
-		Storm::binaryWrite(cacheFileStream, static_cast<std::string>(currentVersion));
-
-		Storm::binaryWrite(cacheFileStream, static_cast<uint64_t>(particlePos.size()));
-		for (const Storm::Vector3 &particlePos : particlePos)
-		{
-			Storm::binaryWrite(cacheFileStream, particlePos.x());
-			Storm::binaryWrite(cacheFileStream, particlePos.y());
-			Storm::binaryWrite(cacheFileStream, particlePos.z());
-		}
-
-		// Replace the placeholder checksum by the right one to finalize the writing
-		cacheFileStream.seekp(0);
-		Storm::binaryWrite(cacheFileStream, static_cast<uint64_t>(k_cacheGoodChecksum));
+		particlePos.emplace_back(Storm::Vector3::Zero());
 	}
-
-	lock.unlock();
 
 	Storm::ISimulatorManager &simulMgr = singletonHolder.getSingleton<Storm::ISimulatorManager>();
 	

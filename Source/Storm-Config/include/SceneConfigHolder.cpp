@@ -72,6 +72,10 @@ namespace
 		{
 			return Storm::CollisionType::Custom;
 		}
+		else if (collisionTypeStr == "particle")
+		{
+			return Storm::CollisionType::IndividualParticle;
+		}
 		else if (collisionTypeStr == "none")
 		{
 			return Storm::CollisionType::None;
@@ -475,6 +479,17 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 					Storm::throwException<Storm::Exception>("Generator min block value cannot be equal to the max value!");
 				}
 			}
+			else if (fluidXmlElement.first == "UnitParticles")
+			{
+				for (const auto &fluidParticleGenConfigXml : fluidXmlElement.second)
+				{
+					auto &fluidParticleGenerator = fluidConfig._fluidUnitParticleGenConfig.emplace_back();
+					if (!Storm::XmlReader::handleXml(fluidParticleGenConfigXml, "position", fluidParticleGenerator._position, parseVector3Element))
+					{
+						LOG_ERROR << "tag '" << fluidParticleGenConfigXml.first << "' (inside Scene.Fluid.UnitParticles) is unknown, therefore it cannot be handled";
+					}
+				}
+			}
 			else if (
 				!Storm::XmlReader::handleXml(fluidXmlElement, "id", fluidConfig._fluidId) &&
 				!Storm::XmlReader::handleXml(fluidXmlElement, "viscosity", fluidConfig._dynamicViscosity) &&
@@ -485,6 +500,7 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 				!Storm::XmlReader::handleXml(fluidXmlElement, "relaxationCoeff", fluidConfig._relaxationCoefficient) &&
 				!Storm::XmlReader::handleXml(fluidXmlElement, "initRelaxationCoeff", fluidConfig._pressureInitRelaxationCoefficient) &&
 				!Storm::XmlReader::handleXml(fluidXmlElement, "enableGravity", fluidConfig._gravityEnabled) &&
+				!Storm::XmlReader::handleXml(fluidXmlElement, "removeCollidingParticles", fluidConfig._removeParticlesCollidingWithRb) &&
 				!Storm::XmlReader::handleXml(fluidXmlElement, "density", fluidConfig._density)
 				)
 			{
@@ -496,7 +512,7 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 		{
 			Storm::throwException<Storm::Exception>("Fluid id should be set using 'id' tag!");
 		}
-		else if (fluidConfig._fluidGenConfig.empty())
+		else if (fluidConfig._fluidGenConfig.empty() && fluidConfig._fluidUnitParticleGenConfig.empty())
 		{
 			Storm::throwException<Storm::Exception>("Fluid " + std::to_string(fluidConfig._fluidId) + " should have at least one block (an empty fluid is forbidden)!");
 		}
@@ -570,7 +586,8 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "collisionType", rbConfig._collisionShape, parseCollisionType) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "translation", rbConfig._translation, parseVector3Element) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "rotation", rbConfig._rotation, parseVector3Element) ||
-			Storm::XmlReader::handleXml(rigidBodyConfigXml, "scale", rbConfig._scale, parseVector3Element)
+			Storm::XmlReader::handleXml(rigidBodyConfigXml, "scale", rbConfig._scale, parseVector3Element) ||
+			Storm::XmlReader::handleXml(rigidBodyConfigXml, "color", rbConfig._color, parseColor4Element)
 			;
 	},
 		[&macroConfig, &rigidBodiesConfigArray, &fluidConfig, &rbConfigAngularVelocityDampingTmp](Storm::SceneRigidBodyConfig &rbConfig)
@@ -595,10 +612,6 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 		{
 			Storm::throwException<Storm::Exception>("RigidBody id " + std::to_string(rbConfig._rigidBodyID) + " is already being used by fluid data!");
 		}
-		else if (!std::filesystem::is_regular_file(rbConfig._meshFilePath))
-		{
-			Storm::throwException<Storm::Exception>("'" + rbConfig._meshFilePath + "' is not a valid mesh file!");
-		}
 		else if (rbConfig._mass <= 0.f)
 		{
 			Storm::throwException<Storm::Exception>("mass " + std::to_string(rbConfig._mass) + "kg is invalid (rigid body " + std::to_string(rbConfig._rigidBodyID) + ")!");
@@ -614,6 +627,10 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 		else if (rbConfig._layerCount == 0)
 		{
 			Storm::throwException<Storm::Exception>("The rigid body layer count is invalid (rigid body " + std::to_string(rbConfig._rigidBodyID) + ")! Value was " + std::to_string(rbConfig._layerCount));
+		}
+		else if (Storm::ColorCheckerHelper::isInvalid(rbConfig._color))
+		{
+			Storm::throwException<Storm::Exception>("The rigid body " + std::to_string(rbConfig._rigidBodyID) + " color is invalid! Value was " + Storm::toStdString(rbConfig._color));
 		}
 		
 		if (rbConfig._isTranslationFixed && (rbConfig._isWall || rbConfig._static))
@@ -635,6 +652,24 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 			rbConfig._angularVelocityDamping = rbConfigAngularVelocityDampingTmp;
 		}
 
+		if (rbConfig._collisionShape == Storm::CollisionType::IndividualParticle)
+		{
+			if (!rbConfig._meshFilePath.empty())
+			{
+				Storm::throwException<Storm::Exception>("Specified a mesh (" + rbConfig._meshFilePath + ") while we spawn an individual rigid body particle! It is not allowed.");
+			}
+
+			LOG_DEBUG_WARNING <<
+				"We'll spawn an individual rigid body particle (rigid body " + std::to_string(rbConfig._rigidBodyID) + ").\n"
+				"Some config settings won't be applied.";
+		}
+		else
+		{
+			if (!std::filesystem::is_regular_file(rbConfig._meshFilePath))
+			{
+				Storm::throwException<Storm::Exception>("'" + rbConfig._meshFilePath + "' is not a valid mesh file!");
+			}
+		}
 	});
 
 	/* Contraints */

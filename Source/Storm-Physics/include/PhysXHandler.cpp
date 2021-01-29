@@ -351,6 +351,7 @@ Storm::UniquePointer<physx::PxShape> Storm::PhysXHandler::createRigidBodyShape(c
 {
 	switch (rbSceneConfig._collisionShape)
 	{
+	case Storm::CollisionType::IndividualParticle:
 	case Storm::CollisionType::Sphere:
 		return createSphereShape(*_physics, rbSceneConfig, vertices, rbMaterial);
 

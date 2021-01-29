@@ -41,6 +41,8 @@
 #include "SystemSimulationStateObject.h"
 #include "SimulationState.h"
 
+#include "CollisionType.h"
+
 #include <Assimp\DefaultLogger.hpp>
 
 #include <future>
@@ -581,7 +583,7 @@ case Storm::BlowerType::BlowerTypeName: \
 				}
 
 				return accumulatedVal + particleXCount * particleYCount * particleZCount;
-			}));
+			}) + fluidsConfigToLoad._fluidUnitParticleGenConfig.size());
 
 			for (const Storm::SceneFluidBlockConfig &fluidBlockGenerated : fluidsConfigToLoad._fluidGenConfig)
 			{
@@ -597,6 +599,11 @@ case Storm::BlowerType::BlowerTypeName: \
 				default:
 					break;
 				}
+			}
+
+			for (const Storm::SceneFluidUnitParticleConfig &fluidUnitPToGenerate : fluidsConfigToLoad._fluidUnitParticleGenConfig)
+			{
+				fluidParticlePos.push_back(fluidUnitPToGenerate._position);
 			}
 
 			waitForFutures(asyncLoadingArray);
@@ -681,13 +688,24 @@ std::shared_ptr<Storm::AssetCacheData> Storm::AssetLoaderManager::retrieveAssetD
 		return assetCacheDataArray.emplace_back(std::make_shared<Storm::AssetCacheData>(order._rbConfig, *assetCacheDataArray.front(), order._layerDistance));
 	}
 
-	if (order._assimpScene)
+	switch (order._rbConfig._collisionShape)
 	{
+	case Storm::CollisionType::IndividualParticle:
 		return assetCacheDataArray.emplace_back(std::make_shared<Storm::AssetCacheData>(order._rbConfig, order._assimpScene, order._layerDistance));
-	}
-	else
-	{
-		return nullptr;
+
+	case Storm::CollisionType::Cube:
+	case Storm::CollisionType::Sphere:
+	case Storm::CollisionType::None:
+	case Storm::CollisionType::Custom:
+	default:
+		if (order._assimpScene)
+		{
+			return assetCacheDataArray.emplace_back(std::make_shared<Storm::AssetCacheData>(order._rbConfig, order._assimpScene, order._layerDistance));
+		}
+		else
+		{
+			return nullptr;
+		}
 	}
 }
 

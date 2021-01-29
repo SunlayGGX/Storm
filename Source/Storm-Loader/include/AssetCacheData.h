@@ -1,5 +1,7 @@
 #pragma once
 
+#include "SceneRigidBodyConfig.h"
+
 
 struct aiScene;
 
@@ -48,8 +50,10 @@ namespace Storm
 		void buildSrc(const aiScene* meshScene);
 		void generateDissociatedTriangleLayers(const float layerDistance);
 
+		void generateCurrentDataForOneParticle(const float particleRadius);
+
 	private:
-		const Storm::SceneRigidBodyConfig &_rbConfig;
+		const Storm::SceneRigidBodyConfig _rbConfig;
 		std::shared_ptr<Storm::AssetCacheData::MeshData> _src;
 		Storm::AssetCacheData::MeshData _scaledCurrent;
 		Storm::AssetCacheData::MeshData _finalCurrent;

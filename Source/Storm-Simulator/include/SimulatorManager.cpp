@@ -18,6 +18,7 @@
 #include "FluidParticleSystem.h"
 #include "RigidBodyParticleSystem.h"
 
+#include "GeneralSimulationConfig.h"
 #include "GeneralDebugConfig.h"
 #include "SceneSimulationConfig.h"
 #include "SceneFluidConfig.h"
@@ -28,6 +29,8 @@
 #include "ReplaySolver.h"
 
 #include "PartitionSelection.h"
+
+#include "ParticleCountInfo.h"
 
 #include "SemiImplicitEulerSolver.h"
 #include "Kernel.h"
@@ -431,13 +434,32 @@ void Storm::SimulatorManager::initialize_Implementation()
 
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 
+	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
+
+	/* Check simulation validity */
+	const Storm::ParticleCountInfo particleInfo{ _particleSystem };
+	if (!configMgr.getGeneralSimulationConfig()._allowNoFluid)
+	{
+		if (particleInfo._fluidParticleCount == 0)
+		{
+			Storm::throwException<Storm::Exception>("There is no fluid particles when we initialized the simulation and we didn't allow simulation without fluids");
+		}
+	}
+
+	LOG_COMMENT <<
+		"We'll run a simulation with :\n"
+		"- Total particles count involved in the simulation : " << particleInfo._totalParticleCount << "\n"
+		"- Fluid particles count : " << particleInfo._fluidParticleCount << "\n"
+		"- Total rigid bodies particles count : " << particleInfo._rigidbodiesParticleCount << "\n"
+		"- Static rigid bodies particles count : " << particleInfo._staticRigidbodiesParticleCount << "\n"
+		"- Dynamic rigid bodies particles count : " << particleInfo._dynamicRigidbodiesParticleCount
+		;
+
 	/* initialize the Selector */
 
 	_particleSelector.initialize();
 
 	_kernelHandler.initialize();
-
-	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
 
 	Storm::IThreadManager &threadMgr = singletonHolder.getSingleton<Storm::IThreadManager>();
 	threadMgr.setCurrentThreadPriority(configMgr.getUserSetThreadPriority());
@@ -1215,14 +1237,22 @@ void Storm::SimulatorManager::addFluidParticleSystem(unsigned int id, std::vecto
 	const std::size_t initialParticleCount = particlePositions.size();
 	LOG_COMMENT << "Creating fluid particle system with " << initialParticleCount << " particles.";
 
-	const Storm::SceneSimulationConfig &sceneSimulationConfig = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().getSceneSimulationConfig();
-	if (sceneSimulationConfig._removeFluidParticleCollidingWithRb)
+	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
+	const Storm::SceneFluidConfig &sceneFluidConfig = configMgr.getSceneFluidConfig();
+	if (sceneFluidConfig._removeParticlesCollidingWithRb)
 	{
 		LOG_COMMENT << "Removing fluid particles that collide with rigid bodies particles.";
 
+		const Storm::SceneSimulationConfig &sceneSimulationConfig = configMgr.getSceneSimulationConfig();
 		removeParticleInsideRbPosition(particlePositions, _particleSystem, sceneSimulationConfig._particleRadius);
 
-		LOG_DEBUG << "We removed " << initialParticleCount - particlePositions.size() << " particle(s) after checking which collide with existing rigid bodies.";
+		const std::size_t currentParticleCount = particlePositions.size();
+		LOG_DEBUG << "We removed " << initialParticleCount - currentParticleCount << " particle(s) after checking which collide with existing rigid bodies.";
+
+		if (currentParticleCount == 0)
+		{
+			LOG_DEBUG_WARNING << "Fluid " << id << " has no particle!";
+		}
 	}
 
 	addParticleSystemToMap<Storm::FluidParticleSystem>(_particleSystem, id, std::move(particlePositions));
@@ -1258,11 +1288,13 @@ void Storm::SimulatorManager::addFluidParticleSystem(Storm::SystemSimulationStat
 #if false 
 
 	// FIXME : The algorithm to remove insider particle wasn't made with state reloading in mind (This feature was made long before I did the state reloading feature, I did YAGNI, and now I'm paying the price).
-	const Storm::SceneSimulationConfig &sceneSimulationConfig = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().getSceneSimulationConfig();
-	if (sceneSimulationConfig._removeFluidParticleCollidingWithRb)
+	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
+	const Storm::SceneFluidConfig &sceneFluidConfig = configMgr.getSceneFluidConfig();
+	if (sceneFluidConfig._removeParticlesCollidingWithRb)
 	{
 		LOG_COMMENT << "Removing fluid particles that collide with rigid bodies particles.";
 
+		const Storm::SceneSimulationConfig &sceneSimulationConfig = configMgr.getSceneSimulationConfig();
 		removeParticleInsideRbPosition(state._positions, _particleSystem, sceneSimulationConfig._particleRadius);
 
 		LOG_DEBUG << "We removed " << initialParticleCount - state._positions.size() << " particle(s) after checking which collide with existing rigid bodies.";

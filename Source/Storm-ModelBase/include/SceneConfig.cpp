@@ -38,7 +38,6 @@ Storm::SceneSimulationConfig::SceneSimulationConfig() :
 	_maxCFLTime{ 0.5f },
 	_recomputeNeighborhoodStep{ 1 },
 	_simulationNoWait{ false },
-	_removeFluidParticleCollidingWithRb{ true },
 	_hasFluid{ true },
 	_computeCFL{ false },
 	_fixRigidBodyAtStartTime{ false },
@@ -54,6 +53,7 @@ Storm::SceneRigidBodyConfig::SceneRigidBodyConfig() :
 	_translation{ 0.f, 0.f, 0.f },
 	_rotation{ 0.f, 0.f, 0.f },
 	_scale{ 1.f, 1.f, 1.f },
+	_color{ 0.3f, 0.5f, 0.5f, 1.f },
 	_collisionShape{ Storm::CollisionType::None },
 	_insideRbFluidDetectionMethodEnum{ Storm::InsideParticleRemovalTechnique::None },
 	_staticFrictionCoefficient{ 0.1f },
@@ -99,6 +99,12 @@ Storm::SceneFluidBlockConfig::SceneFluidBlockConfig() :
 
 }
 
+Storm::SceneFluidUnitParticleConfig::SceneFluidUnitParticleConfig() :
+	_position{ Vector3::Zero() }
+{
+
+}
+
 Storm::SceneFluidConfig::SceneFluidConfig() :
 	_fluidId{ std::numeric_limits<decltype(_fluidId)>::max() },
 	_density{ 1.2754f }, // Dry air density at 0 °C degrees and normal ATM pressure. https://en.wikipedia.org/wiki/Density_of_air.
@@ -110,6 +116,7 @@ Storm::SceneFluidConfig::SceneFluidConfig() :
 	_relaxationCoefficient{ 0.5f },
 	_pressureInitRelaxationCoefficient{ 0.5f },
 	_gravityEnabled{ true },
+	_removeParticlesCollidingWithRb{ true },
 	_cinematicViscosity{ 0.f } // Computed automatically once final _dynamicViscosity value will be determined.
 {
 
