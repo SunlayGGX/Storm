@@ -431,6 +431,18 @@ void Storm::SimulatorManager::initialize_Implementation()
 
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 
+	/* Check simulation validity */
+	const Storm::ParticleCountInfo particleInfo{ _particleSystem };
+
+	LOG_COMMENT <<
+		"We'll run a simulation with :\n"
+		"- Total particles count involved in the simulation : " << particleInfo._totalParticleCount << "\n"
+		"- Fluid particles count : " << particleInfo._fluidParticleCount << "\n"
+		"- Total rigid bodies particles count : " << particleInfo._rigidbodiesParticleCount << "\n"
+		"- Static rigid bodies particles count : " << particleInfo._staticRigidbodiesParticleCount << "\n"
+		"- Dynamic rigid bodies particles count : " << particleInfo._dynamicRigidbodiesParticleCount
+		;
+
 	/* initialize the Selector */
 
 	_particleSelector.initialize();
