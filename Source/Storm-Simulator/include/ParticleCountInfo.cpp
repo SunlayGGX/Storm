@@ -3,6 +3,8 @@
 #include "ParticleSystem.h"
 #include "RigidBodyParticleSystem.h"
 
+#include "ThreadingSafety.h"
+
 #include "MemoryHelper.h"
 
 
