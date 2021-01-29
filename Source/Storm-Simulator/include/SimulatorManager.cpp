@@ -18,6 +18,7 @@
 #include "FluidParticleSystem.h"
 #include "RigidBodyParticleSystem.h"
 
+#include "GeneralSimulationConfig.h"
 #include "GeneralDebugConfig.h"
 #include "SceneSimulationConfig.h"
 #include "SceneFluidConfig.h"
@@ -28,6 +29,8 @@
 #include "ReplaySolver.h"
 
 #include "PartitionSelection.h"
+
+#include "ParticleCountInfo.h"
 
 #include "SemiImplicitEulerSolver.h"
 #include "Kernel.h"
@@ -431,8 +434,17 @@ void Storm::SimulatorManager::initialize_Implementation()
 
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 
+	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
+
 	/* Check simulation validity */
 	const Storm::ParticleCountInfo particleInfo{ _particleSystem };
+	if (!configMgr.getGeneralSimulationConfig()._allowNoFluid)
+	{
+		if (particleInfo._fluidParticleCount == 0)
+		{
+			Storm::throwException<Storm::Exception>("There is no fluid particles when we initialized the simulation and we didn't allow simulation without fluids");
+		}
+	}
 
 	LOG_COMMENT <<
 		"We'll run a simulation with :\n"
@@ -448,8 +460,6 @@ void Storm::SimulatorManager::initialize_Implementation()
 	_particleSelector.initialize();
 
 	_kernelHandler.initialize();
-
-	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
 
 	Storm::IThreadManager &threadMgr = singletonHolder.getSingleton<Storm::IThreadManager>();
 	threadMgr.setCurrentThreadPriority(configMgr.getUserSetThreadPriority());
@@ -1236,7 +1246,13 @@ void Storm::SimulatorManager::addFluidParticleSystem(unsigned int id, std::vecto
 		const Storm::SceneSimulationConfig &sceneSimulationConfig = configMgr.getSceneSimulationConfig();
 		removeParticleInsideRbPosition(particlePositions, _particleSystem, sceneSimulationConfig._particleRadius);
 
-		LOG_DEBUG << "We removed " << initialParticleCount - particlePositions.size() << " particle(s) after checking which collide with existing rigid bodies.";
+		const std::size_t currentParticleCount = particlePositions.size();
+		LOG_DEBUG << "We removed " << initialParticleCount - currentParticleCount << " particle(s) after checking which collide with existing rigid bodies.";
+
+		if (currentParticleCount == 0)
+		{
+			LOG_DEBUG_WARNING << "Fluid " << id << " has no particle!";
+		}
 	}
 
 	addParticleSystemToMap<Storm::FluidParticleSystem>(_particleSystem, id, std::move(particlePositions));
