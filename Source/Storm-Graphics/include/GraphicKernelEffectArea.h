@@ -22,7 +22,8 @@ namespace Storm
 		void setAreaRadius(const float radius);
 		void setAreaPosition(const Storm::GraphicParticleData &selectedParticleData);
 
-		void setEnabled(bool enabled) noexcept;
+		void setHasParticleHook(bool hasHook) noexcept;
+
 		void tweakEnabled() noexcept;
 
 	private:
@@ -30,5 +31,6 @@ namespace Storm
 		DirectX::XMVECTOR _currentAreaPosition;
 
 		bool _enabled;
+		bool _hasParticleHook;
 	};
 }

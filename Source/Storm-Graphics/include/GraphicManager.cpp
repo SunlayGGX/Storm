@@ -182,6 +182,13 @@ void Storm::GraphicManager::initialize_Implementation(void* hwnd)
 			inputMgr.bindKey(Storm::SpecialKey::KC_F8, [this]() { _directXController->setAllParticleState(); });
 			inputMgr.bindKey(Storm::SpecialKey::KC_F9, [this]() { _directXController->setRenderNoWallParticle(); });
 			inputMgr.bindKey(Storm::SpecialKey::KC_F12, [this]() { _directXController->setUIFieldDrawEnabled(!_directXController->getUIFieldDrawEnabled()); });
+			inputMgr.bindKey(Storm::SpecialKey::KC_F1, [this]()
+			{
+				if (this->hasSelectedParticle())
+				{
+					_kernelEffectArea->tweakEnabled();
+				}
+			});
 
 			inputMgr.bindMouseWheel([this](int axisRelativeIncrement)
 			{
@@ -304,6 +311,11 @@ void Storm::GraphicManager::pushParticlesData(const Storm::PushedParticleSystemD
 			if (_forceRenderer->prepareData(particleSystemId, particlePosDataCopy, _selectedParticle))
 			{
 				_graphicParticlesSystem->refreshParticleSystemData(_directXController->getDirectXDevice(), particleSystemId, std::move(particlePosDataCopy), isFluids, isWall);
+
+				if (this->hasSelectedParticle() && particleSystemId == _selectedParticle.first)
+				{
+					_kernelEffectArea->setAreaPosition(particlePosDataCopy[_selectedParticle.second]);
+				}
 			}
 		});
 	}
@@ -404,6 +416,7 @@ void Storm::GraphicManager::safeSetSelectedParticle(unsigned int particleSystemI
 		{
 			_selectedParticle.first = particleSystemId;
 			_selectedParticle.second = particleIndex;
+			_kernelEffectArea->setHasParticleHook(true);
 		});
 	}
 }
@@ -415,6 +428,7 @@ void Storm::GraphicManager::safeClearSelectedParticle()
 		Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(ThreadEnumeration::GraphicsThread, [this]()
 		{
 			_selectedParticle.first = std::numeric_limits<decltype(_selectedParticle.first)>::max();
+			_kernelEffectArea->setHasParticleHook(false);
 		});
 	}
 }

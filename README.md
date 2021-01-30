@@ -453,6 +453,7 @@ Note : If the term in the parenthesis is "Numpad", then the keybinding is the va
 - **X**: Save the current simulation state.
 - **1 (Key)**: Decrease the physics delta time. Valid only if we are not in replay mode, or if CFL is disabled.
 - **2 (Key)**: Increase the physics delta time. Valid only if we are not in replay mode, or if CFL is disabled.
+- **F1**: Show/Hide the kernel effect area of the selected particle. Does nothing if no particle has been selected.
 - **F2**: Show/Hide the axis coordinate system displayed on the UI.
 - **F3**: Cycle the color setting of the fluid particle data displayed from ... -> Velocity -> Pressure -> Density -> ... .
 - **F4**: Set selected particle forces always on top flag to true if false, false otherwise. But note that if it is true, you'll always see the particle force if it is in front of the view point, but you'll lose the depth information of the vector.

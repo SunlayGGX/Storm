@@ -18,7 +18,8 @@ namespace
 
 
 Storm::GraphicKernelEffectArea::GraphicKernelEffectArea(const ComPtr<ID3D11Device> &device) :
-	_enabled{ false }
+	_enabled{ false },
+	_hasParticleHook{ false }
 {
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 	const Storm::IAssetLoaderManager &assetMgr = singletonHolder.getSingleton<Storm::IAssetLoaderManager>();
@@ -34,7 +35,7 @@ Storm::GraphicKernelEffectArea::GraphicKernelEffectArea(const ComPtr<ID3D11Devic
 
 void Storm::GraphicKernelEffectArea::render(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera)
 {
-	if (_enabled)
+	if (_hasParticleHook && _enabled)
 	{
 		_areaShader->setup(device, deviceContext, currentCamera, getKernelEffectAreaColor());
 		Storm::GraphicAreaBaseHolder::setup(deviceContext);
@@ -60,9 +61,9 @@ void Storm::GraphicKernelEffectArea::setAreaPosition(const Storm::GraphicParticl
 	}
 }
 
-void Storm::GraphicKernelEffectArea::setEnabled(bool enabled) noexcept
+void Storm::GraphicKernelEffectArea::setHasParticleHook(bool hasHook) noexcept
 {
-	_enabled = enabled;
+	_hasParticleHook = hasHook;
 }
 
 void Storm::GraphicKernelEffectArea::tweakEnabled() noexcept

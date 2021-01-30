@@ -2,6 +2,7 @@
 
 #include "SingletonHolder.h"
 #include "IConfigManager.h"
+#include "IGraphicsManager.h"
 
 #include "SceneSimulationConfig.h"
 
@@ -30,7 +31,9 @@ Storm::KernelHandler::~KernelHandler() = default;
 
 void Storm::KernelHandler::initialize()
 {
-	const Storm::SceneSimulationConfig &sceneSimulationConfig = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().getSceneSimulationConfig();
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+
+	const Storm::SceneSimulationConfig &sceneSimulationConfig = singletonHolder.getSingleton<Storm::IConfigManager>().getSceneSimulationConfig();
 
 	_currentKernelValue = computeNewKernelValue(sceneSimulationConfig, 0.f);
 	_shouldIncrementKernel = sceneSimulationConfig._kernelIncrementSpeedInSeconds != -1.f && sceneSimulationConfig._maxKernelIncrementCoeff != 0.f;
@@ -38,6 +41,8 @@ void Storm::KernelHandler::initialize()
 	(*_uiFields)
 		.bindField(STORM_KERNEL_VALUE_FIELD_NAME, _currentKernelValue)
 		;
+
+	singletonHolder.getSingleton<Storm::IGraphicsManager>().setKernelAreaRadius(_currentKernelValue);
 }
 
 void Storm::KernelHandler::update(const float currentPhysicsTimeInSeconds)
@@ -67,4 +72,5 @@ void Storm::KernelHandler::update(const float currentPhysicsTimeInSeconds)
 void Storm::KernelHandler::setKernelValue(const float newValue)
 {
 	updateField(*_uiFields, STORM_KERNEL_VALUE_FIELD_NAME, _currentKernelValue, newValue);
+	Storm::SingletonHolder::instance().getSingleton<Storm::IGraphicsManager>().setKernelAreaRadius(_currentKernelValue);
 }
