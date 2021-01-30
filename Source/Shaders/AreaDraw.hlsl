@@ -16,6 +16,7 @@ struct VertexInputType
 struct PixelInputType
 {
 	float4 _position : SV_POSITION;
+	float _scalar : Output;
 };
 
 PixelInputType areaVertexShader(VertexInputType input)
@@ -28,6 +29,13 @@ PixelInputType areaVertexShader(VertexInputType input)
 	// Calculate the position of the vertex against the world, view, and projection matrices.
 	output._position = mul(input._position, _worldMatrix);
 
+#if STORM_HIGHLIGHT_BORDER == true
+	float4 dir = normalize(output._position - _eyePosition);
+	dir.w = 0.f;
+
+	output._scalar = abs(dot(input._normal, dir));
+#endif
+
 	output._position = mul(output._position, _viewProjMatrix);
 
 	return output;
@@ -35,5 +43,10 @@ PixelInputType areaVertexShader(VertexInputType input)
 
 float4 areaPixelShader(PixelInputType input) : SV_TARGET
 {
+#if STORM_HIGHLIGHT_BORDER == true
+	float mask = input._scalar > 0.3f;
+	return float4(_areaColor.xyz * mask, _areaColor.w);
+#else
 	return _areaColor;
+#endif
 }
