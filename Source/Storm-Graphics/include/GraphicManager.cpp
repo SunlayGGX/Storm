@@ -11,6 +11,7 @@
 #include "GraphicConstraintSystem.h"
 #include "GraphicBlower.h"
 #include "ParticleForceRenderer.h"
+#include "GraphicKernelEffectArea.h"
 
 #include "PushedParticleSystemData.h"
 #include "GraphicPipe.h"
@@ -135,6 +136,8 @@ void Storm::GraphicManager::initialize_Implementation(void* hwnd)
 	_graphicConstraintsSystem = std::make_unique<Storm::GraphicConstraintSystem>(device);
 
 	_forceRenderer = std::make_unique<Storm::ParticleForceRenderer>(device);
+
+	_kernelEffectArea = std::make_unique<Storm::GraphicKernelEffectArea>(device);
 
 	for (auto &meshesPair : _meshesMap)
 	{
@@ -506,5 +509,13 @@ void Storm::GraphicManager::showCoordinateSystemAxis(const bool shouldShow)
 	Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::GraphicsThread, [this, shouldShow]()
 	{
 		_coordSystemNonOwningPtr->show(shouldShow);
+	});
+}
+
+void Storm::GraphicManager::setKernelAreaRadius(const float radius)
+{
+	Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::GraphicsThread, [this, radius]()
+	{
+		_kernelEffectArea->setAreaRadius(radius);
 	});
 }

@@ -132,6 +132,9 @@
     <ClCompile Include="..\include\AreaShader.cpp">
       <Filter>Source Files\Shaders\Component</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\GraphicKernelEffectArea.cpp">
+      <Filter>Source Files\Rendered</Filter>
+    </ClCompile>
     <ClCompile Include="..\include\GraphicAreaBaseHolder.cpp">
       <Filter>Source Files\GraphicComponent</Filter>
     </ClCompile>
@@ -226,6 +229,9 @@
     </ClInclude>
     <ClInclude Include="..\include\AreaShader.h">
       <Filter>Header Files\Shaders\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\GraphicKernelEffectArea.h">
+      <Filter>Header Files\Rendered</Filter>
     </ClInclude>
     <ClInclude Include="..\include\GraphicAreaBaseHolder.h">
       <Filter>Header Files\GraphicComponent</Filter>
