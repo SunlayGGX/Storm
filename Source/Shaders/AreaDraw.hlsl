@@ -3,7 +3,7 @@ cbuffer ConstantBuffer
 	matrix _viewMatrix;
 	matrix _projectionMatrix;
 
-	float4 _blowerColor;
+	float4 _areaColor;
 };
 
 struct VertexInputType
@@ -16,7 +16,7 @@ struct PixelInputType
 	float4 _position : SV_POSITION;
 };
 
-PixelInputType blowerVertexShader(VertexInputType input)
+PixelInputType areaVertexShader(VertexInputType input)
 {
 	PixelInputType output;
 
@@ -30,7 +30,7 @@ PixelInputType blowerVertexShader(VertexInputType input)
 	return output;
 }
 
-float4 blowerPixelShader(PixelInputType input) : SV_TARGET
+float4 areaPixelShader(PixelInputType input) : SV_TARGET
 {
-	return _blowerColor;
+	return _areaColor;
 }

@@ -15,9 +15,9 @@ namespace
 		DirectX::XMVECTOR _color;
 	};
 
-	static const std::string k_blowerShaderFilePath = "Shaders/BlowerDraw.hlsl";
-	static constexpr std::string_view k_blowerVertexShaderFuncName = "blowerVertexShader";
-	static constexpr std::string_view k_blowerPixelShaderFuncName = "blowerPixelShader";
+	static const std::string k_blowerShaderFilePath = "Shaders/AreaDraw.hlsl";
+	static constexpr std::string_view k_blowerVertexShaderFuncName = "areaVertexShader";
+	static constexpr std::string_view k_blowerPixelShaderFuncName = "areaPixelShader";
 
 	enum : unsigned int
 	{
