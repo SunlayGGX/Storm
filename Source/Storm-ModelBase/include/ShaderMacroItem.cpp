@@ -75,3 +75,8 @@ std::string Storm::ShaderMacroContainer::toCachedName() const
 
 	return Storm::toStdString<CustomShaderMacroCacheParserPolicy>(this->getMacros());
 }
+
+void Storm::ShaderMacroContainer::reserve(const std::size_t count)
+{
+	_shaderMacros.reserve(count);
+}

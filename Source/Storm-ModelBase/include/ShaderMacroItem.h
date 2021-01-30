@@ -45,6 +45,7 @@ namespace Storm
 	public:
 		const std::vector<Storm::ShaderMacroItem>& getMacros() const noexcept;
 		std::string toCachedName() const;
+		void reserve(const std::size_t count);
 
 	private:
 		std::vector<Storm::ShaderMacroItem> _shaderMacros;
