@@ -453,7 +453,6 @@ Note : If the term in the parenthesis is "Numpad", then the keybinding is the va
 - **X**: Save the current simulation state.
 - **1 (Key)**: Decrease the physics delta time. Valid only if we are not in replay mode, or if CFL is disabled.
 - **2 (Key)**: Increase the physics delta time. Valid only if we are not in replay mode, or if CFL is disabled.
-- **F1**: Debug command to print to a human readable text giving all position, velocity and force values of all fluid particles. The data is printed inside the output (temp) directory inside "Debug" folder.
 - **F2**: Show/Hide the axis coordinate system displayed on the UI.
 - **F3**: Cycle the color setting of the fluid particle data displayed from ... -> Velocity -> Pressure -> Density -> ... .
 - **F4**: Set selected particle forces always on top flag to true if false, false otherwise. But note that if it is true, you'll always see the particle force if it is in front of the view point, but you'll lose the depth information of the vector.
@@ -523,6 +522,7 @@ Here the list of available commands :
 - **void advanceByFrame(int64_t frameCount)**: Advance the paused simulation by frameCount frames. The frameCount value must be positive !
 - **void advanceToFrame(int64_t frameNumber)**: Advance the paused simulation to a specific frame. The frameNumber value must be positive !
 - **void printRigidBodyMoment(const unsigned int id)**: Compute and print the total moment of the rigid body specified by id. It's serves at debugging the rigid body rotation (how it spins). Note that this method is to be used only for dynamic rigid bodies.
+- **void printFluidParticleData()**: Debug command to print to a human readable text giving all position, velocity and force values of all fluid particles. The data is printed inside the output (temp) directory inside "Debug" folder.
 
 
 #### TimeManager (timeMgr)
