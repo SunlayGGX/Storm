@@ -20,6 +20,7 @@
 // Container
 #include <vector>
 #include <map>
+#include <span>
 
 // Threading
 #include <atomic>
