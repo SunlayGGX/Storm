@@ -8,7 +8,7 @@ namespace Storm
 	enum class BlowerType;
 	enum class BlowerState;
 	struct SceneBlowerConfig;
-	class BlowerShader;
+	class AreaShader;
 
 	class GraphicBlower : public Storm::IRenderedElement
 	{
@@ -42,6 +42,6 @@ namespace Storm
 		ComPtr<ID3D11Buffer> _vertexBuffer;
 		ComPtr<ID3D11Buffer> _indexBuffer;
 
-		std::unique_ptr<Storm::BlowerShader> _blowerShader;
+		std::unique_ptr<Storm::AreaShader> _blowerShader;
 	};
 }

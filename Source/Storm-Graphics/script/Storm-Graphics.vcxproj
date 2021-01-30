@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\include\BlowerShader.cpp" />
+    <ClCompile Include="..\include\AreaShader.cpp" />
     <ClCompile Include="..\include\Camera.cpp" />
     <ClCompile Include="..\include\ConstraintShader.cpp" />
     <ClCompile Include="..\include\CoordinateSystemShader.cpp" />
@@ -41,7 +41,7 @@
     <ClCompile Include="..\include\XMStormHelpers.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\include\BlowerShader.h" />
+    <ClInclude Include="..\include\AreaShader.h" />
     <ClInclude Include="..\include\Camera.h" />
     <ClInclude Include="..\include\ConstantBufferHolder.h" />
     <ClInclude Include="..\include\ConstraintShader.h" />

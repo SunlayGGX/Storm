@@ -2,7 +2,8 @@
 
 #include "SceneBlowerConfig.h"
 #include "BlowerState.h"
-#include "BlowerShader.h"
+
+#include "AreaShader.h"
 
 #include "SingletonHolder.h"
 #include "IConfigManager.h"
@@ -110,7 +111,7 @@ void Storm::GraphicBlower::instantiateShader(const ComPtr<ID3D11Device> &device,
 
 	Storm::throwIfFailed(device->CreateBuffer(&indexBufferDesc, &indexData, &_indexBuffer));
 
-	_blowerShader = std::make_unique<Storm::BlowerShader>(device, _indexCount);
+	_blowerShader = std::make_unique<Storm::AreaShader>(device, _indexCount);
 }
 
 void Storm::GraphicBlower::render(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera)

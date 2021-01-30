@@ -1,4 +1,4 @@
-#include "BlowerShader.h"
+#include "AreaShader.h"
 
 #include "Camera.h"
 
@@ -15,18 +15,18 @@ namespace
 		DirectX::XMVECTOR _color;
 	};
 
-	static const std::string k_blowerShaderFilePath = "Shaders/AreaDraw.hlsl";
-	static constexpr std::string_view k_blowerVertexShaderFuncName = "areaVertexShader";
-	static constexpr std::string_view k_blowerPixelShaderFuncName = "areaPixelShader";
+	static const std::string k_areaShaderFilePath = "Shaders/AreaDraw.hlsl";
+	static constexpr std::string_view k_areaVertexShaderFuncName = "areaVertexShader";
+	static constexpr std::string_view k_areaPixelShaderFuncName = "areaPixelShader";
 
 	enum : unsigned int
 	{
-		k_blowerVertexDataLayoutDescCount = 1
+		k_areaVertexDataLayoutDescCount = 1
 	};
 
 	inline D3D11_INPUT_ELEMENT_DESC* retrieveBlowerInputLayoutElementDesc()
 	{
-		static D3D11_INPUT_ELEMENT_DESC bowerVertexDataLayoutDesc[k_blowerVertexDataLayoutDescCount];
+		static D3D11_INPUT_ELEMENT_DESC bowerVertexDataLayoutDesc[k_areaVertexDataLayoutDescCount];
 
 		D3D11_INPUT_ELEMENT_DESC &currentVertexDataLayoutDesc = bowerVertexDataLayoutDesc[0];
 		currentVertexDataLayoutDesc.SemanticName = "POSITION";
@@ -41,22 +41,22 @@ namespace
 	}
 }
 
-Storm::BlowerShader::BlowerShader(const ComPtr<ID3D11Device> &device, const uint32_t indexCount) :
-	Storm::VPShaderBase{ device, k_blowerShaderFilePath, k_blowerVertexShaderFuncName, k_blowerShaderFilePath, k_blowerPixelShaderFuncName, retrieveBlowerInputLayoutElementDesc(), k_blowerVertexDataLayoutDescCount }
+Storm::AreaShader::AreaShader(const ComPtr<ID3D11Device> &device, const uint32_t indexCount) :
+	Storm::VPShaderBase{ device, k_areaShaderFilePath, k_areaVertexShaderFuncName, k_areaShaderFilePath, k_areaPixelShaderFuncName, retrieveBlowerInputLayoutElementDesc(), k_areaVertexDataLayoutDescCount }
 {
 	Storm::ConstantBufferHolder::initialize<ConstantBuffer>(device);
 }
 
-void Storm::BlowerShader::setup(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera, const DirectX::XMVECTOR &color)
+void Storm::AreaShader::setup(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera, const DirectX::XMVECTOR &color)
 {
 	this->setupDeviceContext(deviceContext);
 
 	// Write shaders parameters
 	{
-		D3D11_MAPPED_SUBRESOURCE blowerConstantBufferRessource;
-		Storm::ResourceMapperGuard mapGuard{ deviceContext, _constantBuffer.Get(), 0, D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, blowerConstantBufferRessource };
+		D3D11_MAPPED_SUBRESOURCE areaConstantBufferRessource;
+		Storm::ResourceMapperGuard mapGuard{ deviceContext, _constantBuffer.Get(), 0, D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, areaConstantBufferRessource };
 
-		ConstantBuffer*const ressourceDataPtr = static_cast<ConstantBuffer*>(blowerConstantBufferRessource.pData);
+		ConstantBuffer*const ressourceDataPtr = static_cast<ConstantBuffer*>(areaConstantBufferRessource.pData);
 
 		ressourceDataPtr->_viewMatrix = currentCamera.getTransposedViewMatrix();
 		ressourceDataPtr->_projectionMatrix = currentCamera.getTransposedProjectionMatrix();
