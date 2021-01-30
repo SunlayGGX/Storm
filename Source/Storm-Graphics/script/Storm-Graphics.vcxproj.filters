@@ -132,6 +132,9 @@
     <ClCompile Include="..\include\AreaShader.cpp">
       <Filter>Source Files\Shaders\Component</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\GraphicAreaBaseHolder.cpp">
+      <Filter>Source Files\GraphicComponent</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-GraphicsPCH.h">
@@ -223,6 +226,9 @@
     </ClInclude>
     <ClInclude Include="..\include\AreaShader.h">
       <Filter>Header Files\Shaders\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\GraphicAreaBaseHolder.h">
+      <Filter>Header Files\GraphicComponent</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
