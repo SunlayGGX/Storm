@@ -13,7 +13,7 @@ namespace Storm
 		virtual ~GraphicAreaBaseHolder();
 
 	protected:
-		void initializeShader(const ComPtr<ID3D11Device> &device, const std::vector<Storm::Vector3> &vertexes, const std::vector<unsigned int> &indexes);
+		void initializeShader(const ComPtr<ID3D11Device> &device, const std::vector<Storm::Vector3> &vertexes, const std::vector<Storm::Vector3>*const normals, const std::vector<uint32_t> &indexes, const std::span<const std::string_view> macros);
 
 	protected:
 		void setup(const ComPtr<ID3D11DeviceContext> &deviceContext);

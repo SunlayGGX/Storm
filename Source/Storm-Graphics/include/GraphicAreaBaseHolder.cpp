@@ -11,23 +11,42 @@ namespace
 		using VertexType = DirectX::XMVECTOR;
 
 	public:
-		AreaVertex(const Storm::Vector3 &other) :
-			_vertex{ other.x(), other.y(), other.z(), 1.f }
+		AreaVertex(const Storm::Vector3 &vertex) :
+			_vertex{ vertex.x(), vertex.y(), vertex.z(), 1.f },
+			_normals{ 0.f, 0.f, 0.f, 0.f }
+		{}
+
+		AreaVertex(const Storm::Vector3 &vertex, const Storm::Vector3 &normal) :
+			_vertex{ vertex.x(), vertex.y(), vertex.z(), 1.f },
+			_normals{ normal.x(), normal.y(), normal.z(), 1.f }
 		{}
 
 	public:
 		VertexType _vertex;
+		VertexType _normals;
 	};
 
-	void convertVertexesToAreaVertexes(const std::vector<Storm::Vector3> &inTransitionBuffer, std::vector<AreaVertex> &outFinalVertexes)
+	void convertVertexesToAreaVertexes(const std::vector<Storm::Vector3> &inTransitionVertexBuffer, const std::vector<Storm::Vector3>*const inTransitionNormalBuffer, std::vector<AreaVertex> &outFinalVertexes)
 	{
-		const std::size_t vertexCountToConvert = inTransitionBuffer.size();
+		const std::size_t vertexCountToConvert = inTransitionVertexBuffer.size();
 		if (vertexCountToConvert > 0)
 		{
 			outFinalVertexes.reserve(vertexCountToConvert);
-			for (const Storm::Vector3 &toConvert : inTransitionBuffer)
+
+			if (inTransitionNormalBuffer == nullptr)
 			{
-				outFinalVertexes.emplace_back(toConvert);
+				for (const Storm::Vector3 &toConvert : inTransitionVertexBuffer)
+				{
+					outFinalVertexes.emplace_back(toConvert);
+				}
+			}
+			else
+			{
+				const std::vector<Storm::Vector3> &normalBuffer = *inTransitionNormalBuffer;
+				for (std::size_t iter = 0; iter < vertexCountToConvert; ++iter)
+				{
+					outFinalVertexes.emplace_back(inTransitionVertexBuffer[iter], normalBuffer[iter]);
+				}
 			}
 		}
 		else
@@ -40,13 +59,13 @@ namespace
 
 Storm::GraphicAreaBaseHolder::~GraphicAreaBaseHolder() = default;
 
-void Storm::GraphicAreaBaseHolder::initializeShader(const ComPtr<ID3D11Device> &device, const std::vector<Storm::Vector3> &vertexes, const std::vector<unsigned int> &indexes)
+void Storm::GraphicAreaBaseHolder::initializeShader(const ComPtr<ID3D11Device> &device, const std::vector<Storm::Vector3> &vertexes, const std::vector<Storm::Vector3>*const normals, const std::vector<uint32_t> &indexes, const std::span<const std::string_view> macros)
 {
 	_indexCount = static_cast<uint32_t>(indexes.size());
 
 	// Create Vertex data
 	std::vector<AreaVertex> finalVertexes;
-	convertVertexesToAreaVertexes(vertexes, finalVertexes);
+	convertVertexesToAreaVertexes(vertexes, normals, finalVertexes);
 
 	D3D11_BUFFER_DESC vertexBufferDesc;
 	D3D11_SUBRESOURCE_DATA vertexData;
@@ -81,7 +100,7 @@ void Storm::GraphicAreaBaseHolder::initializeShader(const ComPtr<ID3D11Device> &
 
 	Storm::throwIfFailed(device->CreateBuffer(&indexBufferDesc, &indexData, &_indexBuffer));
 
-	_areaShader = std::make_unique<Storm::AreaShader>(device, _indexCount);
+	_areaShader = std::make_unique<Storm::AreaShader>(device, _indexCount, macros);
 }
 
 void Storm::GraphicAreaBaseHolder::setup(const ComPtr<ID3D11DeviceContext> &deviceContext)

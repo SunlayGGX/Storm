@@ -1,7 +1,8 @@
 cbuffer ConstantBuffer
 {
-	matrix _viewMatrix;
-	matrix _projectionMatrix;
+	matrix _worldMatrix;
+	matrix _viewProjMatrix;
+	float4 _eyePosition;
 
 	float4 _areaColor;
 };
@@ -9,6 +10,7 @@ cbuffer ConstantBuffer
 struct VertexInputType
 {
 	float4 _position : POSITION;
+	float4 _normal : NORMAL;
 };
 
 struct PixelInputType
@@ -20,12 +22,13 @@ PixelInputType areaVertexShader(VertexInputType input)
 {
 	PixelInputType output;
 
-	// Change the position vector to be 4 units for proper matrix calculations.
-	input._position.w = 1.0f;
+	// We suppose we receive a vertex, not a vector. Therefore input._position.w should be 1.f.
+	// input._position.w = 1.0f;
 
 	// Calculate the position of the vertex against the world, view, and projection matrices.
-	output._position = mul(input._position, _viewMatrix);
-	output._position = mul(output._position, _projectionMatrix);
+	output._position = mul(input._position, _worldMatrix);
+
+	output._position = mul(output._position, _viewProjMatrix);
 
 	return output;
 }

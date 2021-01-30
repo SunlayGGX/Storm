@@ -31,7 +31,7 @@ Storm::GraphicBlower::GraphicBlower(const ComPtr<ID3D11Device> &device, const St
 	_id{ blowerConfig._blowerId },
 	_blowerState{ Storm::BlowerState::NotWorking }
 {
-	Storm::GraphicAreaBaseHolder::initializeShader(device, vertexes, indexes);
+	Storm::GraphicAreaBaseHolder::initializeShader(device, vertexes, nullptr, indexes, {});
 }
 
 void Storm::GraphicBlower::render(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera)
