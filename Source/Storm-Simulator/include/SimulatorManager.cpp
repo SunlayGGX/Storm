@@ -70,6 +70,8 @@
 
 #include "ExitCode.h"
 
+#include "RaycastEnablingFlag.h"
+
 #include "UIField.h"
 #include "UIFieldContainer.h"
 
@@ -414,7 +416,7 @@ namespace
 }
 
 Storm::SimulatorManager::SimulatorManager() :
-	_raycastEnabled{ false },
+	_raycastFlag{ Storm::RaycastEnablingFlag::Disabled },
 	_runExitCode{ Storm::ExitCode::k_success },
 	_reinitFrameAfter{ false },
 	_progressRemainingTime{ STORM_TEXT("N/A") },
@@ -526,7 +528,7 @@ void Storm::SimulatorManager::initialize_Implementation()
 	Storm::IRaycastManager &raycastMgr = singletonHolder.getSingleton<Storm::IRaycastManager>();
 	inputMgr.bindMouseLeftClick([this, &raycastMgr, &singletonHolder, isReplayMode](int xPos, int yPos, int width, int height)
 	{
-		if (_raycastEnabled)
+		if (_raycastFlag != Storm::RaycastEnablingFlag::Disabled)
 		{
 			if (isReplayMode)
 			{
@@ -558,6 +560,7 @@ void Storm::SimulatorManager::initialize_Implementation()
 						const Storm::ParticleSystem &selectedPSystem = *_particleSystem[firstHit._systemId];
 
 						_particleSelector.setSelectedParticleSumForce(selectedPSystem.getForces()[firstHit._particleId]);
+						_particleSelector.setSelectedParticleVelocity(selectedPSystem.getVelocity()[firstHit._particleId]);
 						_particleSelector.setSelectedParticlePressureForce(selectedPSystem.getTemporaryPressureForces()[firstHit._particleId]);
 						_particleSelector.setSelectedParticleViscosityForce(selectedPSystem.getTemporaryViscosityForces()[firstHit._particleId]);
 
@@ -581,7 +584,7 @@ void Storm::SimulatorManager::initialize_Implementation()
 					this->pushParticlesToGraphicModule(true);
 				}
 			} }.addPartitionFlag(Storm::PartitionSelection::DynamicRigidBody)
-			   .addPartitionFlag(Storm::PartitionSelection::Fluid)
+			   .addPartitionFlag(STORM_IS_BIT_ENABLED(_raycastFlag, Storm::RaycastEnablingFlag::Fluids), Storm::PartitionSelection::Fluid)
 			   .firstHitOnly())
 			);
 		}
@@ -589,7 +592,7 @@ void Storm::SimulatorManager::initialize_Implementation()
 
 	inputMgr.bindMouseMiddleClick([this, &raycastMgr, &singletonHolder, isReplayMode](int xPos, int yPos, int width, int height)
 	{
-		if (_raycastEnabled)
+		if (_raycastFlag != Storm::RaycastEnablingFlag::Disabled)
 		{
 			if (isReplayMode)
 			{
@@ -1392,15 +1395,20 @@ void Storm::SimulatorManager::advanceBlowersTime(const float deltaTime)
 
 void Storm::SimulatorManager::tweekRaycastEnabling()
 {
-	if (_raycastEnabled)
+	if (_raycastFlag == Storm::RaycastEnablingFlag::Disabled)
 	{
-		LOG_DEBUG << "Disabling Raycast";
-		_raycastEnabled = false;
+		STORM_ADD_BIT_ENABLED(_raycastFlag, Storm::RaycastEnablingFlag::DynamicRigidBodies);
+		LOG_DEBUG << "Enabling raycast on dynamic rigid body";
+	}
+	else if(STORM_IS_BIT_ENABLED(_raycastFlag, Storm::RaycastEnablingFlag::Fluids))
+	{
+		_raycastFlag = Storm::RaycastEnablingFlag::Disabled;
+		LOG_DEBUG << "Disabling raycast";
 	}
 	else
 	{
-		LOG_DEBUG << "Enabling Raycast";
-		_raycastEnabled = true;
+		STORM_ADD_BIT_ENABLED(_raycastFlag, Storm::RaycastEnablingFlag::Fluids);
+		LOG_DEBUG << "Enabling raycast on fluids";
 	}
 }
 
@@ -1422,7 +1430,7 @@ void Storm::SimulatorManager::pushParticlesToGraphicModule(bool ignoreDirty) con
 			const std::size_t selectedParticleIndex = _particleSelector.getSelectedParticleIndex();
 
 			const Storm::Vector3 &selectedParticlePosition = selectedParticleSystem.getPositions()[selectedParticleIndex];
-			graphicMgr.pushParticleSelectionForceData(_particleSelector.getSelectedForcePosition(selectedParticlePosition), _particleSelector.getSelectedForceToDisplay());
+			graphicMgr.pushParticleSelectionForceData(_particleSelector.getSelectedVectorPosition(selectedParticlePosition), _particleSelector.getSelectedVectorToDisplay());
 		}
 	}
 	
@@ -1481,6 +1489,7 @@ void Storm::SimulatorManager::refreshParticleSelection()
 			const Storm::ParticleSystem &pSystem = *found->second;
 
 			const std::size_t selectedParticleIndex = _particleSelector.getSelectedParticleIndex();
+			_particleSelector.setSelectedParticleVelocity(pSystem.getVelocity()[selectedParticleIndex]);
 			_particleSelector.setSelectedParticlePressureForce(pSystem.getTemporaryPressureForces()[selectedParticleIndex]);
 			_particleSelector.setSelectedParticleViscosityForce(pSystem.getTemporaryViscosityForces()[selectedParticleIndex]);
 			_particleSelector.setSelectedParticleSumForce(pSystem.getForces()[selectedParticleIndex]);

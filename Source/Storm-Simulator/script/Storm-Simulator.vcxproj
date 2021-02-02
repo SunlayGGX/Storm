@@ -58,6 +58,7 @@
     <ClInclude Include="..\include\PCISPHSolver.h" />
     <ClInclude Include="..\include\PCISPHSolverData.h" />
     <ClInclude Include="..\include\PredictiveSolverHandler.h" />
+    <ClInclude Include="..\include\RaycastEnablingFlag.h" />
     <ClInclude Include="..\include\ReplaySolver.h" />
     <ClInclude Include="..\include\RigidBodyParticleSystem.h" />
     <ClInclude Include="..\include\SemiImplicitEulerSolver.h" />

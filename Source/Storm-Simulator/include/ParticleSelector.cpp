@@ -17,6 +17,7 @@ namespace
 	{
 		switch (mode)
 		{
+		case Storm::ParticleSelectionMode::Velocity: return STORM_TEXT("Velocity");
 		case Storm::ParticleSelectionMode::Pressure: return STORM_TEXT("Pressure");
 		case Storm::ParticleSelectionMode::Viscosity: return STORM_TEXT("Viscosity");
 		case Storm::ParticleSelectionMode::ViscosityAndPressure: return STORM_TEXT("All");
@@ -38,11 +39,13 @@ namespace
 #define STORM_XMACRO_ELEM_BASE_SELECTION_MODE(SelectionMode, BindingsXMacro) STORM_XMACRO_ELEM_SELECTION_MODE(SelectionMode, BindingsXMacro(SelectionMode))
 
 #define STORM_XMACRO_SELECTION_FLUIDS_MODE_BINDINGS(SelectionMode)				\
+	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Velocity)				\
 	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Pressure)				\
 	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Viscosity)				\
 	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, ViscosityAndPressure)	\
 
 #define STORM_XMACRO_SELECTION_RB_MODE_BINDINGS(SelectionMode)					\
+	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Velocity)				\
 	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Pressure)				\
 	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Viscosity)				\
 	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, ViscosityAndPressure)	\
@@ -163,6 +166,11 @@ void Storm::ParticleSelector::cycleParticleSelectionDisplayMode()
 	this->setParticleSelectionDisplayMode(newMode);
 }
 
+void Storm::ParticleSelector::setSelectedParticleVelocity(const Storm::Vector3 &velocity)
+{
+	_selectedParticleData._velocity = velocity;
+}
+
 void Storm::ParticleSelector::setSelectedParticlePressureForce(const Storm::Vector3 &pressureForce)
 {
 	_selectedParticleData._pressureForce = pressureForce;
@@ -195,10 +203,11 @@ void Storm::ParticleSelector::clearRbTotalForce()
 	_selectedParticleData._hasRbTotalForce = false;
 }
 
-const Storm::Vector3& Storm::ParticleSelector::getSelectedForceToDisplay() const
+const Storm::Vector3& Storm::ParticleSelector::getSelectedVectorToDisplay() const
 {
 	switch (_currentParticleSelectionMode)
 	{
+	case Storm::ParticleSelectionMode::Velocity:				return _selectedParticleData._velocity;
 	case Storm::ParticleSelectionMode::Pressure:				return _selectedParticleData._pressureForce;
 	case Storm::ParticleSelectionMode::Viscosity:				return _selectedParticleData._viscosityForce;
 	case Storm::ParticleSelectionMode::ViscosityAndPressure:	return _selectedParticleData._externalSumForces;
@@ -211,7 +220,7 @@ const Storm::Vector3& Storm::ParticleSelector::getSelectedForceToDisplay() const
 	}
 }
 
-const Storm::Vector3& Storm::ParticleSelector::getSelectedForcePosition(const Storm::Vector3 &particlePosition) const
+const Storm::Vector3& Storm::ParticleSelector::getSelectedVectorPosition(const Storm::Vector3 &particlePosition) const
 {
 	switch (_currentParticleSelectionMode)
 	{
@@ -248,10 +257,11 @@ void Storm::ParticleSelector::logForceComponents() const
 	}
 
 	LOG_ALWAYS <<
-		"Particle Forces components are :\n"
-		"Pressure: " << _selectedParticleData._pressureForce << ". Norm: " << _selectedParticleData._pressureForce.norm() << " m.\n"
-		"Viscosity: " << _selectedParticleData._viscosityForce << ". Norm: " << _selectedParticleData._viscosityForce.norm() << " m.\n"
-		"Sum : " << _selectedParticleData._externalSumForces << ". Norm: " << _selectedParticleData._externalSumForces.norm() << " m." <<
+		"Particle vectors components are :\n"
+		"Velocity: " << _selectedParticleData._velocity << ". Norm: " << _selectedParticleData._velocity.norm() << " m/s.\n"
+		"Pressure: " << _selectedParticleData._pressureForce << ". Norm: " << _selectedParticleData._pressureForce.norm() << " N.\n"
+		"Viscosity: " << _selectedParticleData._viscosityForce << ". Norm: " << _selectedParticleData._viscosityForce.norm() << " N.\n"
+		"Sum : " << _selectedParticleData._externalSumForces << ". Norm: " << _selectedParticleData._externalSumForces.norm() << " N." <<
 		rbSpecificInfosStr
 		;
 }

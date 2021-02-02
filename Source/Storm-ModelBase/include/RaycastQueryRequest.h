@@ -13,7 +13,9 @@ namespace Storm
 	public:
 		RaycastQueryRequest(Storm::HitResponseCallback &&callback);
 
+	public:
 		RaycastQueryRequest& addPartitionFlag(Storm::PartitionSelection flag);
+		RaycastQueryRequest& addPartitionFlag(const bool shouldAdd, Storm::PartitionSelection flag);
 		RaycastQueryRequest& setMinDistance(float value);
 		RaycastQueryRequest& setMaxDistance(float value);
 		RaycastQueryRequest& considerOnlyVisible(bool value);

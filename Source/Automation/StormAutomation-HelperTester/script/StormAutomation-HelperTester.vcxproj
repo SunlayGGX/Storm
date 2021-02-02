@@ -95,6 +95,7 @@
     <ClInclude Include="..\include\StormAutomation-HelperTesterPCH.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\include\BitFieldTester.cpp" />
     <ClCompile Include="..\include\ChronoTester.cpp" />
     <ClCompile Include="..\include\MetaprogTester.cpp" />
     <ClCompile Include="..\include\MiscTester.cpp" />

@@ -47,5 +47,8 @@
     <ClCompile Include="..\include\StringAlgoTester.cpp">
       <Filter>Source Files\Tests</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\BitFieldTester.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
