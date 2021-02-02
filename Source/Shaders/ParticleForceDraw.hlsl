@@ -49,13 +49,15 @@ void particleForceGeometryShader(line GeometryInputType inputRaw[2], inout Trian
 	GeometryInputType p0 = inputRaw[0];
 	GeometryInputType p1 = inputRaw[1];
 
-	const float4 pos0 = mul(p0._position, _projMatrix);
-	const float4 pos1 = mul(p1._position, _projMatrix);
+	float4 pos0 = mul(p0._position, _projMatrix);
+	float4 pos1 = mul(p1._position, _projMatrix);
 
-	float4 lineVect = pos1 - pos0;
-	float3 thicknessVect = cross(float3(0.f, 0.f, 1.f), lineVect.xyz);
+	const float4 lineVect = pos1 - pos0;
 
-	float thicknessNorm = length(thicknessVect);
+	// 90 degrees rotation of the force line
+	float2 thicknessVect = float2(-lineVect.y, lineVect.x);
+
+	const float thicknessNorm = length(thicknessVect);
 
 	PixelInputType corner1;
 	PixelInputType corner2;
@@ -64,15 +66,12 @@ void particleForceGeometryShader(line GeometryInputType inputRaw[2], inout Trian
 
 	if (thicknessNorm > 0.00001f)
 	{
-		thicknessVect /= thicknessNorm;
+		thicknessVect *= (_midThickness / thicknessNorm);
 
-		float xThickness = thicknessVect.x * _midThickness;
-		float yThickness = thicknessVect.y * _midThickness;
-
-		corner1._position = float4(pos0.x + xThickness, pos0.y + yThickness, pos0.zw);
-		corner2._position = float4(pos0.x - xThickness, pos0.y - yThickness, pos0.zw);
-		corner3._position = float4(pos1.x + xThickness, pos1.y + yThickness, pos1.zw);
-		corner4._position = float4(pos1.x - xThickness, pos1.y - yThickness, pos1.zw);
+		corner1._position = float4(pos0.xy + thicknessVect, pos0.zw);
+		corner2._position = float4(pos0.xy - thicknessVect, pos0.zw);
+		corner3._position = float4(pos1.xy + thicknessVect, pos1.zw);
+		corner4._position = float4(pos1.xy - thicknessVect, pos1.zw);
 	}
 	else
 	{
