@@ -560,6 +560,7 @@ void Storm::SimulatorManager::initialize_Implementation()
 						const Storm::ParticleSystem &selectedPSystem = *_particleSystem[firstHit._systemId];
 
 						_particleSelector.setSelectedParticleSumForce(selectedPSystem.getForces()[firstHit._particleId]);
+						_particleSelector.setSelectedParticleVelocity(selectedPSystem.getVelocity()[firstHit._particleId]);
 						_particleSelector.setSelectedParticlePressureForce(selectedPSystem.getTemporaryPressureForces()[firstHit._particleId]);
 						_particleSelector.setSelectedParticleViscosityForce(selectedPSystem.getTemporaryViscosityForces()[firstHit._particleId]);
 
@@ -1429,7 +1430,7 @@ void Storm::SimulatorManager::pushParticlesToGraphicModule(bool ignoreDirty) con
 			const std::size_t selectedParticleIndex = _particleSelector.getSelectedParticleIndex();
 
 			const Storm::Vector3 &selectedParticlePosition = selectedParticleSystem.getPositions()[selectedParticleIndex];
-			graphicMgr.pushParticleSelectionForceData(_particleSelector.getSelectedForcePosition(selectedParticlePosition), _particleSelector.getSelectedForceToDisplay());
+			graphicMgr.pushParticleSelectionForceData(_particleSelector.getSelectedVectorPosition(selectedParticlePosition), _particleSelector.getSelectedVectorToDisplay());
 		}
 	}
 	
@@ -1488,6 +1489,7 @@ void Storm::SimulatorManager::refreshParticleSelection()
 			const Storm::ParticleSystem &pSystem = *found->second;
 
 			const std::size_t selectedParticleIndex = _particleSelector.getSelectedParticleIndex();
+			_particleSelector.setSelectedParticleVelocity(pSystem.getVelocity()[selectedParticleIndex]);
 			_particleSelector.setSelectedParticlePressureForce(pSystem.getTemporaryPressureForces()[selectedParticleIndex]);
 			_particleSelector.setSelectedParticleViscosityForce(pSystem.getTemporaryViscosityForces()[selectedParticleIndex]);
 			_particleSelector.setSelectedParticleSumForce(pSystem.getForces()[selectedParticleIndex]);

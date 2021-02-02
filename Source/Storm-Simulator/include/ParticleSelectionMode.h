@@ -7,6 +7,8 @@ namespace Storm
 	// Do not set the value manually, let the compiler do its job.
 	enum class ParticleSelectionMode : uint8_t
 	{
+		Velocity,
+
 		Pressure,
 		Viscosity,
 		ViscosityAndPressure,
