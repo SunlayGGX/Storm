@@ -7,7 +7,7 @@ cbuffer ConstantBuffer
 	float4 _color;
 	float _midThickness;
 
-	float _nearPlanePos;
+	bool _displayOnTop;
 };
 
 struct VertexInputType
@@ -35,11 +35,6 @@ GeometryInputType particleForceVertexShader(VertexInputType input)
 	//output._position = input._position;
 	output._position = mul(float4(input._position, 1.f), _viewMatrix);
 
-	if (_nearPlanePos != -1.f)
-	{
-		output._position.z = _nearPlanePos;
-	}
-
 	return output;
 }
 
@@ -56,6 +51,12 @@ void particleForceGeometryShader(line GeometryInputType inputRaw[2], inout Trian
 
 	// 90 degrees rotation of the force line
 	float2 thicknessVect = float2(-lineVect.y, lineVect.x);
+
+	if (_displayOnTop)
+	{
+		pos0.z = 0.f;
+		pos1.z = 0.f;
+	}
 
 	const float thicknessNorm = length(thicknessVect);
 
