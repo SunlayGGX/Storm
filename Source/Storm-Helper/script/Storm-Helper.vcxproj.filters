@@ -305,5 +305,8 @@
     <ClInclude Include="..\include\Exception.h">
       <Filter>Header Files\General\Exception</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\BitField.h">
+      <Filter>Header Files\General\Misc</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

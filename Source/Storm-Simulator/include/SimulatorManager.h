@@ -21,6 +21,7 @@ namespace Storm
 	class UIFieldContainer;
 	struct SceneSimulationConfig;
 	struct SerializeRecordPendingData;
+	enum class RaycastEnablingFlag : uint8_t;
 
 	class SimulatorManager final :
 		private Storm::Singleton<Storm::SimulatorManager, Storm::DefineDefaultCleanupImplementationOnly>,
@@ -143,7 +144,7 @@ namespace Storm
 		Storm::KernelHandler _kernelHandler;
 
 		Storm::ParticleSelector _particleSelector;
-		bool _raycastEnabled;
+		Storm::RaycastEnablingFlag _raycastFlag;
 
 		Storm::ExitCode _runExitCode;
 

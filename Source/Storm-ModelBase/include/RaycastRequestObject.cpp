@@ -30,6 +30,15 @@ Storm::RaycastQueryRequest& Storm::RaycastQueryRequest::addPartitionFlag(Storm::
 	return *this;
 }
 
+Storm::RaycastQueryRequest& Storm::RaycastQueryRequest::addPartitionFlag(const bool shouldAdd, Storm::PartitionSelection flag)
+{
+	if (shouldAdd)
+	{
+		return this->addPartitionFlag(flag);
+	}
+
+	return *this;
+}
 
 Storm::RaycastQueryRequest& Storm::RaycastQueryRequest::setMinDistance(float value)
 {

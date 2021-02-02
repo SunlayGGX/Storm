@@ -230,5 +230,8 @@
     <ClInclude Include="..\include\ParticleCountInfo.h">
       <Filter>Header Files\General</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\RaycastEnablingFlag.h">
+      <Filter>Header Files\General</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
