@@ -581,6 +581,7 @@ void Storm::SimulatorManager::initialize_Implementation()
 					this->pushParticlesToGraphicModule(true);
 				}
 			} }.addPartitionFlag(Storm::PartitionSelection::DynamicRigidBody)
+			   .addPartitionFlag(Storm::PartitionSelection::Fluid)
 			   .firstHitOnly())
 			);
 		}
