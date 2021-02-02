@@ -22,7 +22,8 @@
 Storm::ConfigManager::ConfigManager() :
 	_shouldDisplayHelp{ false },
 	_shouldRegenerateParticleCache{ false },
-	_withUI{ true }
+	_withUI{ true },
+	_clearLogs{ false }
 {
 
 }
@@ -39,6 +40,7 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 	_internalConfigHolder.init();
 
 	Storm::CommandLineParser parser{ argc, argv };
+	_clearLogs = parser.clearLogFolder();
 	_shouldDisplayHelp = parser.shouldDisplayHelp();
 	if (!_shouldDisplayHelp)
 	{
@@ -386,6 +388,11 @@ void Storm::ConfigManager::stateShouldLoad(bool &outLoadPhysicsTime, bool &outLo
 	outLoadPhysicsTime = _loadPhysicsTime;
 	outLoadForces = _loadForces;
 	outLoadVelocities = _loadVelocities;
+}
+
+bool Storm::ConfigManager::clearAllLogs() const
+{
+	return _clearLogs;
 }
 
 bool Storm::ConfigManager::shouldDisplayHelp() const

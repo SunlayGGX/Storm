@@ -22,7 +22,7 @@ namespace
 {
 	void logToVisualStudioOutput(const std::string &msg)
 	{
-		OutputDebugStringA(static_cast<LPCSTR>(msg.c_str()));
+		::OutputDebugStringA(static_cast<LPCSTR>(msg.c_str()));
 	}
 
 	std::filesystem::path computeXmlLogFilePath(const Storm::IConfigManager* configMgr, const Storm::GeneralDebugConfig &generalDebugConfig, const std::string &logFileName, const std::filesystem::path &xmlLogExtension, std::filesystem::path &outFolderPath)
@@ -108,31 +108,43 @@ void Storm::LoggerManager::initialize_Implementation()
 
 		_xmlLogFilePath = xmlLogFilePath.string();
 
-		if (generalDebugConfig._overrideLogs)
+		if (!configMgr->clearAllLogs())
 		{
-			std::filesystem::remove(xmlLogFilePath);
-		}
-		else
-		{
-			std::ofstream{ _xmlLogFilePath, std::ios_base::out | std::ios_base::app } << "<separator/>";
-		}
-
-		if (removeLogOlderThanDay > 0)
-		{
-			const auto threadhold = std::filesystem::file_time_type::clock::now() - std::chrono::hours{ 24 * removeLogOlderThanDay };
-
-			for (const std::filesystem::directory_entry &logsFile : std::filesystem::recursive_directory_iterator{ logFolderPath })
+			if (generalDebugConfig._overrideLogs)
 			{
-				const std::filesystem::path currentExtension = logsFile.path().extension();
-				if (currentExtension == xmlLogExtension && (logsFile.is_character_file() || logsFile.is_regular_file()))
+				std::filesystem::remove(xmlLogFilePath);
+			}
+			else
+			{
+				std::ofstream{ _xmlLogFilePath, std::ios_base::out | std::ios_base::app } << "<separator/>";
+			}
+
+			if (removeLogOlderThanDay > 0)
+			{
+				const auto threadhold = std::filesystem::file_time_type::clock::now() - std::chrono::hours{ 24 * removeLogOlderThanDay };
+
+				for (const std::filesystem::directory_entry &logsFile : std::filesystem::recursive_directory_iterator{ logFolderPath })
 				{
-					auto writeTime = logsFile.last_write_time();
-					if (writeTime <= threadhold)
+					const std::filesystem::path currentExtension = logsFile.path().extension();
+					if (currentExtension == xmlLogExtension && (logsFile.is_character_file() || logsFile.is_regular_file()))
 					{
-						logsToBeRemoved.emplace_back(logsFile.path());
+						auto writeTime = logsFile.last_write_time();
+						if (writeTime <= threadhold)
+						{
+							logsToBeRemoved.emplace_back(logsFile.path());
+						}
 					}
 				}
 			}
+		}
+		else
+		{
+			lock.unlock();
+			LOG_DEBUG << "Clear all logs flag was triggered, therefore we'll empty the log folder before proceeding.";
+			lock.lock();
+
+			std::filesystem::remove_all(logFolderPath);
+			std::filesystem::create_directories(logFolderPath);
 		}
 	}
 
