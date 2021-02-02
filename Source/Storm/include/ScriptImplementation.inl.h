@@ -60,7 +60,8 @@ void STORM_CURRENT_REGISTERED_TYPE::registerCurrentOnScript(IScriptWrapperInterf
 		STORM_DECLARE_SCRIPTED_METHOD(advanceToFrame),
 
 		// Debug
-		STORM_DECLARE_SCRIPTED_METHOD(printRigidBodyMoment)
+		STORM_DECLARE_SCRIPTED_METHOD(printRigidBodyMoment),
+		STORM_DECLARE_SCRIPTED_METHOD(printFluidParticleData)
 
 	).registerCurrentInstance("simulMgr");
 }

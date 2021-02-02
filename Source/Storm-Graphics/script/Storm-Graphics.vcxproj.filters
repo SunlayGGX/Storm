@@ -99,9 +99,6 @@
     <ClCompile Include="..\include\GraphicParticleData.cpp">
       <Filter>Source Files\GraphicComponent</Filter>
     </ClCompile>
-    <ClCompile Include="..\include\BlowerShader.cpp">
-      <Filter>Source Files\Shaders\Component</Filter>
-    </ClCompile>
     <ClCompile Include="..\include\XMStormHelpers.cpp">
       <Filter>Source Files\DirectX\Helper</Filter>
     </ClCompile>
@@ -131,6 +128,15 @@
     </ClCompile>
     <ClCompile Include="..\include\CoordinateSystemShader.cpp">
       <Filter>Source Files\Shaders\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\AreaShader.cpp">
+      <Filter>Source Files\Shaders\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\GraphicKernelEffectArea.cpp">
+      <Filter>Source Files\Rendered</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\GraphicAreaBaseHolder.cpp">
+      <Filter>Source Files\GraphicComponent</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -194,9 +200,6 @@
     <ClInclude Include="..\include\GraphicParticleSystemModality.h">
       <Filter>Header Files\GraphicComponent</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\BlowerShader.h">
-      <Filter>Header Files\Shaders\Component</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\GraphicBlower.h">
       <Filter>Header Files\Rendered</Filter>
     </ClInclude>
@@ -223,6 +226,15 @@
     </ClInclude>
     <ClInclude Include="..\include\CoordinateSystemShader.h">
       <Filter>Header Files\Shaders\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\AreaShader.h">
+      <Filter>Header Files\Shaders\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\GraphicKernelEffectArea.h">
+      <Filter>Header Files\Rendered</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\GraphicAreaBaseHolder.h">
+      <Filter>Header Files\GraphicComponent</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

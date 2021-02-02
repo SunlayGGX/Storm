@@ -34,6 +34,8 @@ namespace Storm
 		const std::string& getStateFilePath() const final override;
 		void stateShouldLoad(bool &outLoadPhysicsTime, bool &outLoadForces, bool &outLoadVelocities) const final override;
 
+		bool clearAllLogs() const final override;
+
 		bool shouldDisplayHelp() const;
 
 		const Storm::GeneratedGitConfig& getInternalGeneratedGitConfig() const final override;
@@ -86,6 +88,8 @@ namespace Storm
 		bool _loadPhysicsTime;
 		bool _loadVelocities;
 		bool _loadForces;
+
+		bool _clearLogs;
 
 		// Computed
 		std::string _sceneFileName;

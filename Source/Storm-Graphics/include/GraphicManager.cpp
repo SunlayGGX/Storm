@@ -11,6 +11,7 @@
 #include "GraphicConstraintSystem.h"
 #include "GraphicBlower.h"
 #include "ParticleForceRenderer.h"
+#include "GraphicKernelEffectArea.h"
 
 #include "PushedParticleSystemData.h"
 #include "GraphicPipe.h"
@@ -136,6 +137,8 @@ void Storm::GraphicManager::initialize_Implementation(void* hwnd)
 
 	_forceRenderer = std::make_unique<Storm::ParticleForceRenderer>(device);
 
+	_kernelEffectArea = std::make_unique<Storm::GraphicKernelEffectArea>(device);
+
 	for (auto &meshesPair : _meshesMap)
 	{
 		meshesPair.second->initializeRendering(device);
@@ -179,6 +182,13 @@ void Storm::GraphicManager::initialize_Implementation(void* hwnd)
 			inputMgr.bindKey(Storm::SpecialKey::KC_F8, [this]() { _directXController->setAllParticleState(); });
 			inputMgr.bindKey(Storm::SpecialKey::KC_F9, [this]() { _directXController->setRenderNoWallParticle(); });
 			inputMgr.bindKey(Storm::SpecialKey::KC_F12, [this]() { _directXController->setUIFieldDrawEnabled(!_directXController->getUIFieldDrawEnabled()); });
+			inputMgr.bindKey(Storm::SpecialKey::KC_F1, [this]()
+			{
+				if (this->hasSelectedParticle())
+				{
+					_kernelEffectArea->tweakEnabled();
+				}
+			});
 
 			inputMgr.bindMouseWheel([this](int axisRelativeIncrement)
 			{
@@ -235,7 +245,7 @@ void Storm::GraphicManager::update()
 		_directXController->clearView(g_defaultColor);
 		_directXController->initView();
 
-		_directXController->renderElements(this->getCamera(), _renderedElements, _meshesMap, *_graphicParticlesSystem, _blowersMap, *_graphicConstraintsSystem, *_forceRenderer);
+		_directXController->renderElements(this->getCamera(), _renderedElements, _meshesMap, *_graphicParticlesSystem, _blowersMap, *_graphicConstraintsSystem, *_forceRenderer, *_kernelEffectArea);
 
 		_directXController->drawUI(_fieldsMap);
 
@@ -301,6 +311,11 @@ void Storm::GraphicManager::pushParticlesData(const Storm::PushedParticleSystemD
 			if (_forceRenderer->prepareData(particleSystemId, particlePosDataCopy, _selectedParticle))
 			{
 				_graphicParticlesSystem->refreshParticleSystemData(_directXController->getDirectXDevice(), particleSystemId, std::move(particlePosDataCopy), isFluids, isWall);
+
+				if (this->hasSelectedParticle() && particleSystemId == _selectedParticle.first)
+				{
+					_kernelEffectArea->setAreaPosition(particlePosDataCopy[_selectedParticle.second]);
+				}
 			}
 		});
 	}
@@ -401,6 +416,7 @@ void Storm::GraphicManager::safeSetSelectedParticle(unsigned int particleSystemI
 		{
 			_selectedParticle.first = particleSystemId;
 			_selectedParticle.second = particleIndex;
+			_kernelEffectArea->setHasParticleHook(true);
 		});
 	}
 }
@@ -412,6 +428,7 @@ void Storm::GraphicManager::safeClearSelectedParticle()
 		Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(ThreadEnumeration::GraphicsThread, [this]()
 		{
 			_selectedParticle.first = std::numeric_limits<decltype(_selectedParticle.first)>::max();
+			_kernelEffectArea->setHasParticleHook(false);
 		});
 	}
 }
@@ -506,5 +523,13 @@ void Storm::GraphicManager::showCoordinateSystemAxis(const bool shouldShow)
 	Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::GraphicsThread, [this, shouldShow]()
 	{
 		_coordSystemNonOwningPtr->show(shouldShow);
+	});
+}
+
+void Storm::GraphicManager::setKernelAreaRadius(const float radius)
+{
+	Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::GraphicsThread, [this, radius]()
+	{
+		_kernelEffectArea->setAreaRadius(radius);
 	});
 }

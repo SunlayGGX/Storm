@@ -49,9 +49,95 @@ namespace
 		float _cosLUT[division];
 		float _sinLUT[division];
 	};
+
+	void generateSmoothedNormalsIfNeeded(const std::vector<Storm::Vector3> &inVertexes, const std::vector<uint32_t> &inIndexes, std::vector<Storm::Vector3>*const inOutNormals, const std::size_t addedVertexCount, const std::size_t startIndexArray)
+	{
+		class TriangleForNormals
+		{
+		public:
+			TriangleForNormals(const Storm::Vector3 &p0, const Storm::Vector3 &p1, const Storm::Vector3 &p2) :
+				_p0{ p0 },
+				_p1{ p1 },
+				_p2{ p2 }
+			{}
+
+			Storm::Vector3 getNormal() const
+			{
+				return (_p1 - _p0).cross(_p2 - _p0).normalized();
+			}
+
+			bool useVertex(const Storm::Vector3 &vertex) const
+			{
+				return _p0 == vertex || _p1 == vertex || _p2 == vertex;
+			}
+
+		private:
+			const Storm::Vector3 &_p0;
+			const Storm::Vector3 &_p1;
+			const Storm::Vector3 &_p2;
+		};
+
+		if (inOutNormals != nullptr)
+		{
+			const std::size_t vertexCount = inVertexes.size();
+			const std::size_t indexCount = inIndexes.size();
+
+			assert(indexCount % 3 == 0 && "Indexes count should be a multiple of 3!");
+
+			std::vector<Storm::Vector3> &normalToFill = *inOutNormals;
+			normalToFill.reserve(normalToFill.size() + addedVertexCount);
+
+			std::vector<TriangleForNormals> triangleComput;
+			triangleComput.reserve(indexCount % 3);
+
+			for (std::size_t iter = startIndexArray; iter < indexCount; iter += 3)
+			{
+				triangleComput.emplace_back(inVertexes[inIndexes[iter]], inVertexes[inIndexes[iter + 1]], inVertexes[inIndexes[iter + 2]]);
+			}
+
+			const auto endTriangleIter = std::end(triangleComput);
+			for (const Storm::Vector3 &vertex : inVertexes)
+			{
+				Storm::Vector3 &normal = normalToFill.emplace_back(Storm::Vector3::Zero());
+				auto currentSearchIter = std::begin(triangleComput);
+
+				bool atLeastOneNormal = false;
+
+				// The normals will have a smoothed effect...
+
+				do
+				{
+					if (currentSearchIter = std::find_if(currentSearchIter, endTriangleIter, [&vertex](const TriangleForNormals &tri)
+					{
+						return tri.useVertex(vertex);
+					}); currentSearchIter != endTriangleIter)
+					{
+						normal += currentSearchIter->getNormal();
+						atLeastOneNormal = true;
+						++currentSearchIter;
+					}
+					else
+					{
+						break;
+					}
+
+				} while (true);
+
+				if (atLeastOneNormal)
+				{
+					normal.normalize();
+				}
+			}
+
+			assert(normalToFill.size() == vertexCount &&
+				"Detected mismatch between the count of vertexes and normals. "
+				"It means that somewhere we did not provide a valid pointer to normals while filling vertexes."
+			);
+		}
+	}
 }
 
-void Storm::BasicMeshGenerator::generateCube(const Storm::Vector3 &position, const Storm::Vector3 &dimension, std::vector<Storm::Vector3> &inOutVertexes, std::vector<uint32_t> &inOutIndexes)
+void Storm::BasicMeshGenerator::generateSmoothedCube(const Storm::Vector3 &position, const Storm::Vector3 &dimension, std::vector<Storm::Vector3> &inOutVertexes, std::vector<uint32_t> &inOutIndexes, std::vector<Storm::Vector3>*const inOutNormals /*= nullptr*/)
 {
 	enum : std::size_t
 	{
@@ -69,6 +155,9 @@ void Storm::BasicMeshGenerator::generateCube(const Storm::Vector3 &position, con
 
 	// Increase the vertex count to avoid reallocation. The increase is from the former size of those buffers since maybe, they contains a scene we want to render in one batch... 
 	const uint32_t indexOffset = static_cast<uint32_t>(inOutVertexes.size());
+	const std::size_t vertexStart = inOutVertexes.size();
+	const std::size_t indexStart = inOutIndexes.size();
+
 	inOutVertexes.reserve(inOutVertexes.size() + k_summitCount);
 	inOutIndexes.reserve(inOutIndexes.size() + k_indexCount);
 
@@ -99,9 +188,12 @@ void Storm::BasicMeshGenerator::generateCube(const Storm::Vector3 &position, con
 	STORM_REGISTER_TRIANGLE_INDEX(2, 6, 7);
 	STORM_REGISTER_TRIANGLE_INDEX(4, 5, 7);
 	STORM_REGISTER_TRIANGLE_INDEX(4, 7, 6);
+
+	// normals (if needed)
+	generateSmoothedNormalsIfNeeded(inOutVertexes, inOutIndexes, inOutNormals, inOutVertexes.size() - vertexStart, indexStart);
 }
 
-void Storm::BasicMeshGenerator::generateSphere(const Storm::Vector3 &position, const float radius, std::vector<Storm::Vector3> &inOutVertexes, std::vector<uint32_t> &inOutIndexes)
+void Storm::BasicMeshGenerator::generateSphere(const Storm::Vector3 &position, const float radius, std::vector<Storm::Vector3> &inOutVertexes, std::vector<uint32_t> &inOutIndexes, std::vector<Storm::Vector3>*const inOutNormals /*= nullptr*/)
 {
 	enum : std::size_t
 	{
@@ -124,6 +216,9 @@ void Storm::BasicMeshGenerator::generateSphere(const Storm::Vector3 &position, c
 
 	// Increase the vertex count to avoid reallocation. The increase is from the former size of those buffers since maybe, they contains a scene we want to render in one batch... 
 	const uint32_t indexOffset = static_cast<uint32_t>(inOutVertexes.size());
+	const std::size_t vertexStart = inOutVertexes.size();
+	const std::size_t indexStart = inOutIndexes.size();
+
 	inOutVertexes.reserve(inOutVertexes.size() + k_vertexCount);
 	inOutIndexes.reserve(inOutIndexes.size() + k_indexCount);
 
@@ -192,9 +287,12 @@ void Storm::BasicMeshGenerator::generateSphere(const Storm::Vector3 &position, c
 
 	STORM_REGISTER_TRIANGLE_INDEX(downVertexIndex, static_cast<uint32_t>(k_ringsXIteration), 0);
 	STORM_REGISTER_TRIANGLE_INDEX(upVertexIndex, static_cast<uint32_t>(lastRingStartOffset), static_cast<uint32_t>(lastRingStartOffset + k_ringsXIteration));
+
+	// normals (if needed)
+	generateSmoothedNormalsIfNeeded(inOutVertexes, inOutIndexes, inOutNormals, inOutVertexes.size() - vertexStart, indexStart);
 }
 
-void Storm::BasicMeshGenerator::generateCone(const Storm::Vector3 &position, const float upRadius, const float downRadius, const float height, std::vector<Storm::Vector3> &inOutVertexes, std::vector<uint32_t> &inOutIndexes)
+void Storm::BasicMeshGenerator::generateCone(const Storm::Vector3 &position, const float upRadius, const float downRadius, const float height, std::vector<Storm::Vector3> &inOutVertexes, std::vector<uint32_t> &inOutIndexes, std::vector<Storm::Vector3>*const inOutNormals /*= nullptr*/)
 {
 	enum : std::size_t
 	{
@@ -214,6 +312,9 @@ void Storm::BasicMeshGenerator::generateCone(const Storm::Vector3 &position, con
 
 	// Increase the vertex count to avoid reallocation. The increase is from the former size of those buffers since maybe, they contains a scene we want to render in one batch... 
 	const uint32_t indexOffset = static_cast<uint32_t>(inOutVertexes.size());
+	const std::size_t vertexStart = inOutVertexes.size();
+	const std::size_t indexStart = inOutIndexes.size();
+
 	inOutVertexes.reserve(inOutVertexes.size() + k_vertexCount);
 	inOutIndexes.reserve(inOutIndexes.size() + k_indexCount);
 
@@ -274,9 +375,12 @@ void Storm::BasicMeshGenerator::generateCone(const Storm::Vector3 &position, con
 	// At last, the 2 last triangle that loops back
 	STORM_REGISTER_TRIANGLE_INDEX(upVertexIndex, static_cast<uint32_t>(k_divisionMinusOne), 0);
 	STORM_REGISTER_TRIANGLE_INDEX(downVertexIndex, static_cast<uint32_t>(k_division), static_cast<uint32_t>(k_division + k_divisionMinusOne));
+
+	// normals (if needed)
+	generateSmoothedNormalsIfNeeded(inOutVertexes, inOutIndexes, inOutNormals, inOutVertexes.size() - vertexStart, indexStart);
 }
 
-void Storm::BasicMeshGenerator::generateCylinder(const Storm::Vector3 &position, const float radius, const float height, std::vector<Storm::Vector3> &inOutVertexes, std::vector<uint32_t> &inOutIndexes)
+void Storm::BasicMeshGenerator::generateCylinder(const Storm::Vector3 &position, const float radius, const float height, std::vector<Storm::Vector3> &inOutVertexes, std::vector<uint32_t> &inOutIndexes, std::vector<Storm::Vector3>*const inOutNormals /*= nullptr*/)
 {
-	Storm::BasicMeshGenerator::generateCone(position, radius, radius, height, inOutVertexes, inOutIndexes);
+	Storm::BasicMeshGenerator::generateCone(position, radius, radius, height, inOutVertexes, inOutIndexes, inOutNormals);
 }

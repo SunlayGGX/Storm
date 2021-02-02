@@ -6,6 +6,7 @@
 #include "GraphicBlower.h"
 #include "GraphicConstraintSystem.h"
 #include "ParticleForceRenderer.h"
+#include "GraphicKernelEffectArea.h"
 
 #include "SingletonHolder.h"
 #include "IConfigManager.h"
@@ -253,7 +254,7 @@ const ComPtr<ID3D11DeviceContext>& Storm::DirectXController::getImmediateContext
 	return _immediateContext;
 }
 
-void Storm::DirectXController::renderElements(const Storm::Camera &currentCamera, const std::vector<std::unique_ptr<Storm::IRenderedElement>> &renderedElementArrays, const std::map<unsigned int, std::unique_ptr<Storm::GraphicRigidBody>> &rbElementArrays, Storm::GraphicParticleSystem &particleSystem, const std::map<std::size_t, std::unique_ptr<Storm::GraphicBlower>> &blowersMap, Storm::GraphicConstraintSystem &constraintSystem, Storm::ParticleForceRenderer &selectedParticleForce) const
+void Storm::DirectXController::renderElements(const Storm::Camera &currentCamera, const std::vector<std::unique_ptr<Storm::IRenderedElement>> &renderedElementArrays, const std::map<unsigned int, std::unique_ptr<Storm::GraphicRigidBody>> &rbElementArrays, Storm::GraphicParticleSystem &particleSystem, const std::map<std::size_t, std::unique_ptr<Storm::GraphicBlower>> &blowersMap, Storm::GraphicConstraintSystem &constraintSystem, Storm::ParticleForceRenderer &selectedParticleForce, Storm::GraphicKernelEffectArea &kernelEffectArea) const
 {
 	for (const auto &renderedElement : renderedElementArrays)
 	{
@@ -288,6 +289,8 @@ void Storm::DirectXController::renderElements(const Storm::Camera &currentCamera
 	constraintSystem.render(_device, _immediateContext, currentCamera);
 
 	selectedParticleForce.render(_device, _immediateContext, currentCamera);
+
+	kernelEffectArea.render(_device, _immediateContext, currentCamera);
 }
 
 float Storm::DirectXController::getViewportWidth() const noexcept

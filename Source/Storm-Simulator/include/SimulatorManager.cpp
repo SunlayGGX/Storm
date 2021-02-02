@@ -492,7 +492,6 @@ void Storm::SimulatorManager::initialize_Implementation()
 	/* Initialize inputs */
 
 	Storm::IInputManager &inputMgr = singletonHolder.getSingleton<Storm::IInputManager>();
-	inputMgr.bindKey(Storm::SpecialKey::KC_F1, [this]() { this->printFluidParticleData(); });
 	inputMgr.bindKey(Storm::SpecialKey::KC_E, [this]() { this->tweekBlowerEnabling(); });
 	inputMgr.bindKey(Storm::SpecialKey::KC_R, [this]() { this->tweekRaycastEnabling(); });
 	inputMgr.bindKey(Storm::SpecialKey::KC_Y, [this]() { this->cycleSelectedParticleDisplayMode(); });
@@ -582,6 +581,7 @@ void Storm::SimulatorManager::initialize_Implementation()
 					this->pushParticlesToGraphicModule(true);
 				}
 			} }.addPartitionFlag(Storm::PartitionSelection::DynamicRigidBody)
+			   .addPartitionFlag(Storm::PartitionSelection::Fluid)
 			   .firstHitOnly())
 			);
 		}
@@ -1757,26 +1757,30 @@ Storm::ParticleSystem& Storm::SimulatorManager::getParticleSystem(unsigned int i
 
 void Storm::SimulatorManager::printFluidParticleData() const
 {
-	static int s_id = 0;
-	std::filesystem::path filePath = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().getTemporaryPath();
-	filePath /= "Debug";
-	filePath /= "fluidData_" + std::to_string(s_id++) + ".txt";
-
-	std::filesystem::create_directories(filePath.parent_path());
-
-	std::ofstream file{ filePath.string() };
-
-	for (const auto &particleSystemPair : _particleSystem)
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::MainThread, [this, &singletonHolder]()
 	{
-		const Storm::ParticleSystem &currentPSystem = *particleSystemPair.second;
-		if (currentPSystem.isFluids())
+		static int s_id = 0;
+		std::filesystem::path filePath = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().getTemporaryPath();
+		filePath /= "Debug";
+		filePath /= "fluidData_" + std::to_string(s_id++) + ".txt";
+
+		std::filesystem::create_directories(filePath.parent_path());
+
+		std::ofstream file{ filePath.string() };
+
+		for (const auto &particleSystemPair : _particleSystem)
 		{
-			printToStream<false>(file, currentPSystem.getPositions(), "Position");
-			printToStream<true>(file, currentPSystem.getVelocity(), "Velocity");
-			printToStream<true>(file, currentPSystem.getForces(), "Force");
-			printToStream<true>(file, currentPSystem.getNeighborhoodArrays(), "Neighborhood");
+			const Storm::ParticleSystem &currentPSystem = *particleSystemPair.second;
+			if (currentPSystem.isFluids())
+			{
+				printToStream<false>(file, currentPSystem.getPositions(), "Position");
+				printToStream<true>(file, currentPSystem.getVelocity(), "Velocity");
+				printToStream<true>(file, currentPSystem.getForces(), "Force");
+				printToStream<true>(file, currentPSystem.getNeighborhoodArrays(), "Neighborhood");
+			}
 		}
-	}
+	});
 }
 
 const Storm::ParticleSystem& Storm::SimulatorManager::getParticleSystem(unsigned int id) const

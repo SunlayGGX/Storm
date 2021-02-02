@@ -13,6 +13,7 @@ namespace Storm
 	class GraphicBlower;
 	class GraphicConstraintSystem;
 	class ParticleForceRenderer;
+	class GraphicKernelEffectArea;
 	enum class RenderModeState;
 
 	class DirectXController
@@ -35,7 +36,7 @@ namespace Storm
 		const ComPtr<ID3D11DeviceContext>& getImmediateContext() const noexcept;
 
 	public:
-		void renderElements(const Storm::Camera &currentCamera, const std::vector<std::unique_ptr<Storm::IRenderedElement>> &renderedElementArrays, const std::map<unsigned int, std::unique_ptr<Storm::GraphicRigidBody>> &rbElementArrays, Storm::GraphicParticleSystem &particleSystem, const std::map<std::size_t, std::unique_ptr<Storm::GraphicBlower>> &blowersMap, Storm::GraphicConstraintSystem &constraintSystem, Storm::ParticleForceRenderer &selectedParticleForce) const;
+		void renderElements(const Storm::Camera &currentCamera, const std::vector<std::unique_ptr<Storm::IRenderedElement>> &renderedElementArrays, const std::map<unsigned int, std::unique_ptr<Storm::GraphicRigidBody>> &rbElementArrays, Storm::GraphicParticleSystem &particleSystem, const std::map<std::size_t, std::unique_ptr<Storm::GraphicBlower>> &blowersMap, Storm::GraphicConstraintSystem &constraintSystem, Storm::ParticleForceRenderer &selectedParticleForce, Storm::GraphicKernelEffectArea &kernelEffectArea) const;
 
 	public:
 		float getViewportWidth() const noexcept;

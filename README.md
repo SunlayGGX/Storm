@@ -107,6 +107,7 @@ This is the simulation application. Command lines are exposed like this : --key=
 - **recordFile (string, facultative)**: Specify the path the recording will be. Record file path should remain unset if record mode is left unset, otherwise it should reference a valid record file in case we're in Replay mode (Note that this setting can be left Unset if there is a path inside the scene config loaded).
 - **regenPCache (no value, facultative)**: Specify this flag and we will regenerate the rigid body particle cache data.
 - **noUI (no value, facultative)**: Specify we don't want to visualize the simulation (save and speed up CPU ressource to focus only on what is important). This should be used with Record mode. Default is unset (which displays the simulation inside a UI).
+- **clearLogs (no value, facultative)**: Specify that we should empty the log folder before proceeding. Warning: we mustn't use this flag if you intend to run multiple Storm processes at the same time. Default is unset (we won't clear the log folder).
 - **threadPriority (string, facultative)**: Specify the priority of the simulation thread was should be taken. If it is unset, default OS priority will be applied. Accepted values (case unsensitive) are 'Below', 'Normal' or 'High'.
 - **stateFile (string, facultative, accept macro)**: Specify the simulation state file to load from. If unset, we won't load a state file. Default is unset. Note that it doesn't make sense to start with a state file when we're replaying, therefore this setting isn't available if the mode is set to "Replay".
 - **noPhysicsTimeLoad (no value, facultative)**: Specify we don't want to load the physics time recorded in the state file. Default is false (we want to load it). Note that the setting should only be used if we specified a state file to load.
@@ -453,7 +454,7 @@ Note : If the term in the parenthesis is "Numpad", then the keybinding is the va
 - **X**: Save the current simulation state.
 - **1 (Key)**: Decrease the physics delta time. Valid only if we are not in replay mode, or if CFL is disabled.
 - **2 (Key)**: Increase the physics delta time. Valid only if we are not in replay mode, or if CFL is disabled.
-- **F1**: Debug command to print to a human readable text giving all position, velocity and force values of all fluid particles. The data is printed inside the output (temp) directory inside "Debug" folder.
+- **F1**: Show/Hide the kernel effect area of the selected particle. Does nothing if no particle has been selected.
 - **F2**: Show/Hide the axis coordinate system displayed on the UI.
 - **F3**: Cycle the color setting of the fluid particle data displayed from ... -> Velocity -> Pressure -> Density -> ... .
 - **F4**: Set selected particle forces always on top flag to true if false, false otherwise. But note that if it is true, you'll always see the particle force if it is in front of the view point, but you'll lose the depth information of the vector.
@@ -523,6 +524,7 @@ Here the list of available commands :
 - **void advanceByFrame(int64_t frameCount)**: Advance the paused simulation by frameCount frames. The frameCount value must be positive !
 - **void advanceToFrame(int64_t frameNumber)**: Advance the paused simulation to a specific frame. The frameNumber value must be positive !
 - **void printRigidBodyMoment(const unsigned int id)**: Compute and print the total moment of the rigid body specified by id. It's serves at debugging the rigid body rotation (how it spins). Note that this method is to be used only for dynamic rigid bodies.
+- **void printFluidParticleData()**: Debug command to print to a human readable text giving all position, velocity and force values of all fluid particles. The data is printed inside the output (temp) directory inside "Debug" folder.
 
 
 #### TimeManager (timeMgr)

@@ -17,6 +17,7 @@ namespace Storm
 	class ParticleForceRenderer;
 	class GraphicPipe;
 	class GraphicCoordinateSystem;
+	class GraphicKernelEffectArea;
 
 	struct WithUI;
 	struct NoUI;
@@ -95,6 +96,9 @@ namespace Storm
 	public:
 		void showCoordinateSystemAxis(const bool shouldShow);
 
+	public:
+		void setKernelAreaRadius(const float radius) final override;
+
 	private:
 		unsigned char _renderCounter;
 
@@ -109,6 +113,7 @@ namespace Storm
 		std::map<std::size_t, std::unique_ptr<Storm::GraphicBlower>> _blowersMap;
 		std::unique_ptr<Storm::GraphicConstraintSystem> _graphicConstraintsSystem;
 		std::unique_ptr<Storm::ParticleForceRenderer> _forceRenderer;
+		std::unique_ptr<Storm::GraphicKernelEffectArea> _kernelEffectArea;
 
 		std::map<std::wstring_view, std::wstring> _fieldsMap;
 

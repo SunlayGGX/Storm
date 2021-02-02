@@ -19,6 +19,12 @@ namespace Storm
 	{
 		hijackedVector.emplace_back<Storm::VectorHijackerMakeBelieve>(hijacker);
 	}
+
+	inline void setNumUninitialized_safeHijack(std::vector<STORM_HIJACKED_TYPE> &hijackedVector, Storm::VectorHijackerMakeBelieve hijacker)
+	{
+		hijackedVector.reserve(hijacker._newSize);
+		Storm::setNumUninitialized_hijack(hijackedVector, hijacker);
+	}
 }
 #	endif
 

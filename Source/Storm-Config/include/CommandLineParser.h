@@ -36,6 +36,8 @@ namespace Storm
 		bool noVelocityLoad() const;
 		bool noForceLoad() const;
 
+		bool clearLogFolder() const;
+
 		Storm::ThreadPriority getThreadPriority() const;
 
 		// Tag getters
@@ -57,6 +59,8 @@ namespace Storm
 		std::string_view noPhysicsTimeLoadTag() const;
 		std::string_view noVelocityLoadTag() const;
 		std::string_view noForceLoadTag() const;
+
+		std::string_view clearLogFolderTag() const;
 
 		std::string_view getThreadPriorityTag() const;
 

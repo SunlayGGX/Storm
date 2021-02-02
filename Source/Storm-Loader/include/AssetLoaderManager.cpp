@@ -646,24 +646,24 @@ const std::vector<std::shared_ptr<Storm::IRigidBody>>& Storm::AssetLoaderManager
 	return _rigidBodies;
 }
 
-void Storm::AssetLoaderManager::generateSimpleCube(const Storm::Vector3 &position, const Storm::Vector3 &dimension, std::vector<Storm::Vector3> &inOutVertexes, std::vector<uint32_t> &inOutIndexes) const
+void Storm::AssetLoaderManager::generateSimpleSmoothedCube(const Storm::Vector3 &position, const Storm::Vector3 &dimension, std::vector<Storm::Vector3> &inOutVertexes, std::vector<uint32_t> &inOutIndexes, std::vector<Storm::Vector3>*const inOutNormals /*= nullptr*/) const
 {
-	Storm::BasicMeshGenerator::generateCube(position, dimension, inOutVertexes, inOutIndexes);
+	Storm::BasicMeshGenerator::generateSmoothedCube(position, dimension, inOutVertexes, inOutIndexes, inOutNormals);
 }
 
-void Storm::AssetLoaderManager::generateSimpleSphere(const Storm::Vector3 &position, const float radius, std::vector<Storm::Vector3> &inOutVertexes, std::vector<uint32_t> &inOutIndexes) const
+void Storm::AssetLoaderManager::generateSimpleSphere(const Storm::Vector3 &position, const float radius, std::vector<Storm::Vector3> &inOutVertexes, std::vector<uint32_t> &inOutIndexes, std::vector<Storm::Vector3>*const inOutNormals /*= nullptr*/) const
 {
-	Storm::BasicMeshGenerator::generateSphere(position, radius, inOutVertexes, inOutIndexes);
+	Storm::BasicMeshGenerator::generateSphere(position, radius, inOutVertexes, inOutIndexes, inOutNormals);
 }
 
-void Storm::AssetLoaderManager::generateSimpleCylinder(const Storm::Vector3 &position, const float radius, const float height, std::vector<Storm::Vector3> &inOutVertexes, std::vector<uint32_t> &inOutIndexes) const
+void Storm::AssetLoaderManager::generateSimpleCylinder(const Storm::Vector3 &position, const float radius, const float height, std::vector<Storm::Vector3> &inOutVertexes, std::vector<uint32_t> &inOutIndexes, std::vector<Storm::Vector3>*const inOutNormals /*= nullptr*/) const
 {
-	Storm::BasicMeshGenerator::generateCylinder(position, radius, height, inOutVertexes, inOutIndexes);
+	Storm::BasicMeshGenerator::generateCylinder(position, radius, height, inOutVertexes, inOutIndexes, inOutNormals);
 }
 
-void Storm::AssetLoaderManager::generateSimpleCone(const Storm::Vector3 &position, const float upRadius, const float downRadius, const float height, std::vector<Storm::Vector3> &inOutVertexes, std::vector<uint32_t> &inOutIndexes) const
+void Storm::AssetLoaderManager::generateSimpleCone(const Storm::Vector3 &position, const float upRadius, const float downRadius, const float height, std::vector<Storm::Vector3> &inOutVertexes, std::vector<uint32_t> &inOutIndexes, std::vector<Storm::Vector3>*const inOutNormals /*= nullptr*/) const
 {
-	Storm::BasicMeshGenerator::generateCone(position, upRadius, downRadius, height, inOutVertexes, inOutIndexes);
+	Storm::BasicMeshGenerator::generateCone(position, upRadius, downRadius, height, inOutVertexes, inOutIndexes, inOutNormals);
 }
 
 std::shared_ptr<Storm::AssetCacheData> Storm::AssetLoaderManager::retrieveAssetData(const Storm::AssetCacheDataOrder &order)
