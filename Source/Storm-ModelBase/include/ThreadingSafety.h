@@ -3,12 +3,17 @@
 
 namespace Storm
 {
+	bool isMainThread();
 	bool isSimulationThread();
 	bool isLoadingThread();
-	bool isTimeThread();
 	bool isGraphicThread();
-	bool isSpaceThread();
+	bool isRaycastThread();
 	bool isInputThread();
 	bool isLoggerThread();
+	bool isSpaceThread();
+	bool isSerializerThread();
+	bool isWindowsThread();
+	bool isTimeThread();
 	bool isScriptThread();
+	bool isPhysicsThread();
 }

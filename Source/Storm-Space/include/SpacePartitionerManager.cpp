@@ -11,12 +11,18 @@
 
 #include "Vector3Utils.h"
 
+#include "ThreadingSafety.h"
+#include "ThreadFlagEnum.h"
+#include "ThreadingFlagger.h"
+
 
 Storm::SpacePartitionerManager::SpacePartitionerManager() = default;
 Storm::SpacePartitionerManager::~SpacePartitionerManager() = default;
 
 void Storm::SpacePartitionerManager::initialize_Implementation(float partitionLength)
 {
+	Storm::ThreadingFlagger::addThreadFlag(Storm::ThreadFlagEnum::SpaceThread);
+
 	LOG_COMMENT << "Starting to initialize the Space partitioner manager";
 
 	_downSpaceCorner = Storm::Vector3{
@@ -58,6 +64,8 @@ void Storm::SpacePartitionerManager::initialize_Implementation(float partitionLe
 
 void Storm::SpacePartitionerManager::cleanUp_Implementation()
 {
+	assert(Storm::isSpaceThread() && "This method should only be executed inside the space thread!");
+
 	LOG_COMMENT << "Space partitioner manager cleanUp starting";
 
 	_fluidSpacePartition.reset();
@@ -69,6 +77,8 @@ void Storm::SpacePartitionerManager::cleanUp_Implementation()
 
 void Storm::SpacePartitionerManager::partitionSpace()
 {
+	assert(Storm::isSpaceThread() && "This method should only be executed inside the space thread!");
+
 	LOG_DEBUG << "Space partitioning requested from " << _upSpaceCorner << " to " << _downSpaceCorner << " with a partition length of " << _partitionLength;
 
 	auto fluidSpacePartitionSrc = std::make_unique<Storm::VoxelGrid>(_upSpaceCorner, _downSpaceCorner, _partitionLength);
@@ -91,12 +101,16 @@ void Storm::SpacePartitionerManager::clearSpaceReorderingNoStatic()
 
 void Storm::SpacePartitionerManager::computeSpaceReordering(const std::vector<Storm::Vector3> &particlePositions, Storm::PartitionSelection modality, const unsigned int systemId)
 {
+	assert(Storm::isSpaceThread() && "This method should only be executed inside the space thread!");
+
 	const std::unique_ptr<Storm::VoxelGrid> &spacePartition = this->getSpacePartition(modality);
 	spacePartition->fill(this->getPartitionLength(), _gridShiftOffset, particlePositions, systemId);
 }
 
 void Storm::SpacePartitionerManager::clearSpaceReorderingForPartition(Storm::PartitionSelection modality)
 {
+	assert(Storm::isSpaceThread() && "This method should only be executed inside the space thread!");
+
 	const std::unique_ptr<Storm::VoxelGrid> &spacePartition = this->getSpacePartition(modality);
 	spacePartition->clear();
 }
@@ -120,6 +134,8 @@ float Storm::SpacePartitionerManager::getPartitionLength() const
 
 void Storm::SpacePartitionerManager::setPartitionLength(float length)
 {
+	assert(Storm::isSpaceThread() && "This method should only be executed inside the space thread!");
+
 	if (_partitionLength != length)
 	{
 		_partitionLength = length;

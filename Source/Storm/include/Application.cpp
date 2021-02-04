@@ -28,9 +28,12 @@
 
 #include "Version.h"
 #include "TimeHelper.h"
-#include "ThreadEnumeration.h"
 #include "UIModality.h"
 #include "OSHelper.h"
+
+#include "ThreadEnumeration.h"
+#include "ThreadingFlagger.h"
+#include "ThreadFlagEnum.h"
 
 
 namespace
@@ -78,6 +81,7 @@ namespace
 		LOG_COMMENT << "Application Creation started";
 
 		STORM_REGISTER_THREAD(MainThread);
+		Storm::ThreadingFlagger::addThreadFlag(Storm::ThreadFlagEnum::MainThread);
 
 		Storm::ConfigManager::instance().initialize(argc, argv);
 
@@ -87,6 +91,11 @@ namespace
 
 		if (shouldRunSimulation())
 		{
+			Storm::ThreadingFlagger::addThreadFlag(Storm::ThreadFlagEnum::SimulationThread);
+			Storm::ThreadingFlagger::addThreadFlag(Storm::ThreadFlagEnum::RaycastThread);
+			Storm::ThreadingFlagger::addThreadFlag(Storm::ThreadFlagEnum::SpaceThread);
+			Storm::ThreadingFlagger::addThreadFlag(Storm::ThreadFlagEnum::PhysicsThread);
+
 			Storm::OSHelper::logOSEnvironmentInformation();
 
 			const bool hasUI = Storm::ConfigManager::instance().withUI();

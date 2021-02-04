@@ -11,6 +11,8 @@
 
 #include "ThreadHelper.h"
 #include "ThreadEnumeration.h"
+#include "ThreadingFlagger.h"
+#include "ThreadFlagEnum.h"
 
 #include "LeanWindowsInclude.h"
 
@@ -156,6 +158,7 @@ void Storm::LoggerManager::initialize_Implementation()
 	_loggerThread = std::thread{ [this, sync = &syncTmp, canLeave = &canLeaveTmp]()
 	{
 		STORM_REGISTER_THREAD(LoggerThread);
+		Storm::ThreadingFlagger::addThreadFlag(Storm::ThreadFlagEnum::LoggingThread);
 
 		Storm::LoggerManager::LogArray tmpBuffer;
 
@@ -226,6 +229,7 @@ void Storm::LoggerManager::cleanUp_Implementation()
 	}
 
 	Storm::join(_loggerThread);
+	Storm::ThreadingFlagger::addThreadFlag(Storm::ThreadFlagEnum::LoggingThread);
 }
 
 void Storm::LoggerManager::log(const std::string_view &moduleName, Storm::LogLevel level, const std::string_view &function, const int line, std::string &&msg)

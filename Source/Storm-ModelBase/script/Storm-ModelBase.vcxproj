@@ -75,6 +75,8 @@
     <ClInclude Include="..\include\StormProcessStartup.h" />
     <ClInclude Include="..\include\SystemSimulationStateObject.h" />
     <ClInclude Include="..\include\StateSavingOrders.h" />
+    <ClInclude Include="..\include\ThreadFlagEnum.h" />
+    <ClInclude Include="..\include\ThreadingFlagger.h" />
     <ClInclude Include="..\include\ThreadingSafety.h" />
     <ClInclude Include="..\include\IAssetLoaderManager.h" />
     <ClInclude Include="..\include\IConfigManager.h" />

@@ -30,6 +30,8 @@
 #include "ThreadHelper.h"
 #include "ThreadEnumeration.h"
 #include "ThreadingSafety.h"
+#include "ThreadFlagEnum.h"
+#include "ThreadingFlagger.h"
 
 #include "SpecialKey.h"
 
@@ -152,6 +154,8 @@ void Storm::GraphicManager::initialize_Implementation(void* hwnd)
 	_renderThread = std::thread([this]()
 	{
 		const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+
+		Storm::ThreadingFlagger::addThreadFlag(Storm::ThreadFlagEnum::GraphicThread);
 
 		STORM_REGISTER_THREAD(GraphicsThread);
 

@@ -18,6 +18,9 @@
 #include "ThreadHelper.h"
 
 #include "ThreadEnumeration.h"
+#include "ThreadingFlagger.h"
+#include "ThreadFlagEnum.h"
+
 #include "SpecialKey.h"
 
 #include "FuncMovePass.h"
@@ -108,6 +111,8 @@ void Storm::ScriptManager::cleanUp_Implementation()
 
 void Storm::ScriptManager::executeScript_ScriptThread(std::string &&script)
 {
+	Storm::ThreadingFlagger::addThreadFlag(Storm::ThreadFlagEnum::ScriptingThread);
+
 	try
 	{
 		std::vector<Storm::ScriptObject> scriptObjects = Storm::CommandParser::parse(std::move(script));
