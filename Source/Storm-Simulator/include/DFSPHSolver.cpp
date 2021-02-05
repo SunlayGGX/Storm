@@ -468,13 +468,12 @@ void Storm::DFSPHSolver::divergenceSolve(const Storm::IterationParameter &iterat
 						const float kSum = ki + lastNeighborFluidSystem->getRestDensity() / density0 * kj;
 						if (std::fabs(kSum) > k_epsilon)
 						{
-							///// WEIRD FIXME ??? //////// => minus doesn't cancel each other unlike with rigid bodies.
 #if false // Original
 
 							const Storm::Vector3 grad_p_j = -lastNeighborFluidSystem->getParticleVolume() * neighbor._gradWij;
 							v_i -= iterationParameter._deltaTime * kSum * grad_p_j;			// ki, kj already contain inverse density
 #else // Optimized but not fixed
-							v_i -= (iterationParameter._deltaTime * kSum * -lastNeighborFluidSystem->getParticleVolume()) * neighbor._gradWij;
+							v_i += (iterationParameter._deltaTime * kSum * lastNeighborFluidSystem->getParticleVolume()) * neighbor._gradWij;
 #endif
 						}
 					}
@@ -482,7 +481,6 @@ void Storm::DFSPHSolver::divergenceSolve(const Storm::IterationParameter &iterat
 					{
 						Storm::RigidBodyParticleSystem* neighborPSystemAsBoundary = static_cast<Storm::RigidBodyParticleSystem*>(neighbor._containingParticleSystem);
 
-						///// WEIRD FIXME ??? //////// => minus cancels each other unlike with fluids.
 #if false // Original
 
 						const Storm::Vector3 grad_p_j = -neighborPSystemAsBoundary->getVolumes()[neighbor._particleIndex] * neighbor._gradWij;
@@ -643,7 +641,6 @@ void Storm::DFSPHSolver::pressureSolve(const Storm::IterationParameter &iteratio
 						const float kSum = ki + lastNeighborFluidSystem->getRestDensity() / density0 * kj;
 						if (std::fabs(kSum) > k_epsilon)
 						{
-							///// WEIRD FIXME ??? //////// => minus doesn't cancel each other unlike with rigid bodies.
 #if false // Original
 							const Storm::Vector3 grad_p_j = -lastNeighborFluidSystem->getParticleVolume() * neighbor._gradWij;
 
@@ -652,15 +649,13 @@ void Storm::DFSPHSolver::pressureSolve(const Storm::IterationParameter &iteratio
 #else // Optimized but not fixed
 
 							// Directly update velocities instead of storing pressure accelerations
-							v_i -= (iterationParameter._deltaTime * kSum * -lastNeighborFluidSystem->getParticleVolume()) * neighbor._gradWij;	// ki, kj already contain inverse density
+							v_i += (iterationParameter._deltaTime * kSum * lastNeighborFluidSystem->getParticleVolume()) * neighbor._gradWij;	// ki, kj already contain inverse density
 #endif
 						}
 					}
 					else if (std::fabs(ki) > k_epsilon)
 					{
 						Storm::RigidBodyParticleSystem* neighborPSystemAsBoundary = static_cast<Storm::RigidBodyParticleSystem*>(neighbor._containingParticleSystem);
-
-						///// WEIRD FIXME ??? //////// => minus cancels each other unlike with fluids.
 
 #if false // Original
 						const Storm::Vector3 grad_p_j = -neighborPSystemAsBoundary->getVolumes()[neighbor._particleIndex] * neighbor._gradWij;
