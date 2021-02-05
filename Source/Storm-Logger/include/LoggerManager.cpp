@@ -153,8 +153,17 @@ lock.lock()														\
 				LOG_DEBUG << "Clear all logs flag was triggered, therefore we'll empty the log folder before proceeding.";
 			);
 
-			std::filesystem::remove_all(logFolderPath);
-			std::filesystem::create_directories(logFolderPath);
+			try
+			{
+				std::filesystem::remove_all(logFolderPath);
+				std::filesystem::create_directories(logFolderPath);
+			}
+			catch (const std::exception &ex)
+			{
+				STORM_PRODUCE_INIT_LOGGING_UNDER_LOCK(
+					LOG_ERROR << "Cannot clean '" << logFolderPath << "' as requested by command line flag. Reason was " << ex.what();
+				);
+			}
 		}
 	}
 
