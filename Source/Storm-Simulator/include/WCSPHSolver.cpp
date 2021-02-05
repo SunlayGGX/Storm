@@ -184,11 +184,20 @@ void Storm::WCSPHSolver::execute(const Storm::IterationParameter &iterationParam
 							Storm::Vector3 &boundaryNeighborTmpPressureForce = neighbor._containingParticleSystem->getTemporaryPressureForces()[neighbor._particleIndex];
 							Storm::Vector3 &boundaryNeighborTmpViscosityForce = neighbor._containingParticleSystem->getTemporaryViscosityForces()[neighbor._particleIndex];
 
-							const Storm::Vector3 sumForces = pressureComponent + viscosityComponent;
+#define STORM_ENABLE_PRESSURE_FORCE_ON_RB true
+
+							const Storm::Vector3 sumForces =
+#if STORM_ENABLE_PRESSURE_FORCE_ON_RB
+								pressureComponent +
+#endif
+								viscosityComponent
+								;
 
 							std::lock_guard<std::mutex> lock{ neighbor._containingParticleSystem->_mutex };
 							boundaryNeighborForce -= sumForces;
+#if STORM_ENABLE_PRESSURE_FORCE_ON_RB
 							boundaryNeighborTmpPressureForce -= pressureComponent;
+#endif
 							boundaryNeighborTmpViscosityForce -= viscosityComponent;
 						}
 					}
