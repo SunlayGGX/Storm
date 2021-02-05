@@ -396,14 +396,20 @@ void Storm::RigidBodyParticleSystem::updatePosition(float deltaTimeInSec, bool f
 	{
 		const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 
-		Storm::Vector3 currentPosition;
+		Storm::Vector3 currentRbPosition;
 		Storm::Quaternion currentQuatRotation;
 
 		const Storm::IPhysicsManager &physicsMgr = singletonHolder.getSingleton<Storm::IPhysicsManager>();
 
-		physicsMgr.getMeshTransform(_particleSystemIndex, currentPosition, currentQuatRotation);
+		physicsMgr.getMeshTransform(_particleSystemIndex, currentRbPosition, currentQuatRotation);
 
-		if (currentPosition != _cachedTrackedRbPosition || currentQuatRotation.x() != _cachedTrackedRbRotationQuat.x() || currentQuatRotation.y() != _cachedTrackedRbRotationQuat.y() || currentQuatRotation.z() != _cachedTrackedRbRotationQuat.z() || currentQuatRotation.w() != _cachedTrackedRbRotationQuat.w())
+		if (
+			currentRbPosition != _cachedTrackedRbPosition ||
+			currentQuatRotation.x() != _cachedTrackedRbRotationQuat.x() ||
+			currentQuatRotation.y() != _cachedTrackedRbRotationQuat.y() ||
+			currentQuatRotation.z() != _cachedTrackedRbRotationQuat.z() ||
+			currentQuatRotation.w() != _cachedTrackedRbRotationQuat.w()
+			)
 		{
 			_isDirty = true;
 			_velocityDirtyInternal = true;
@@ -430,7 +436,7 @@ void Storm::RigidBodyParticleSystem::updatePosition(float deltaTimeInSec, bool f
 				currentPosAsPureQuat = currentQuatRotation * currentPosAsPureQuat * currentConjugateQuatRotation;
 
 				// 2- Apply the translation
-				const Storm::Vector3 newPPosition = currentPosAsPureQuat.vec() + currentPosition;
+				const Storm::Vector3 newPPosition = currentPosAsPureQuat.vec() + currentRbPosition;
 
 				currentPVelocity = newPPosition - currentPPosition;
 				currentPVelocity /= deltaTimeInSec;
@@ -438,7 +444,7 @@ void Storm::RigidBodyParticleSystem::updatePosition(float deltaTimeInSec, bool f
 				currentPPosition = newPPosition;
 			});
 
-			this->setParticleSystemPosition(currentPosition);
+			this->setParticleSystemPosition(currentRbPosition);
 			_cachedTrackedRbRotationQuat = currentQuatRotation;
 
 			// The force is for the first frame, where we set the position to the position in scene.
