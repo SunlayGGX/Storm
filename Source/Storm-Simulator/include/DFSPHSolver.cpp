@@ -182,6 +182,23 @@ void Storm::DFSPHSolver::execute(const Storm::IterationParameter &iterationParam
 
 	this->updateCurrentPredictionIter(iterationV, sceneSimulationConfig._maxPredictIteration, averageErrorV, sceneSimulationConfig._maxDensityError, 0);
 
+	for (auto &particleSystemPair : particleSystems)
+	{
+		Storm::ParticleSystem &currentParticleSystem = *particleSystemPair.second;
+		if (currentParticleSystem.isFluids())
+		{
+			Storm::FluidParticleSystem &fluidParticleSystem = static_cast<Storm::FluidParticleSystem &>(currentParticleSystem);
+			std::vector<float> &densities = fluidParticleSystem.getDensities();
+			const float particleVolume = fluidParticleSystem.getParticleVolume();
+
+			Storm::runParallel(fluidParticleSystem.getMasses(), [&](float &currentPMass, const std::size_t currentPIndex)
+			{
+				float &currentPDensity = densities[currentPIndex];
+				currentPMass = currentPDensity * particleVolume;
+			});
+		}
+	}
+
 	// 7th : Compute the non pressure forces (viscosity)
 	// Compute accelerations: a(t)
 	for (auto &particleSystemPair : particleSystems)
@@ -207,11 +224,9 @@ void Storm::DFSPHSolver::execute(const Storm::IterationParameter &iterationParam
 
 			Storm::runParallel(fluidParticleSystem.getForces(), [&](Storm::Vector3 &currentPForce, const std::size_t currentPIndex)
 			{
-				float &currentPMass = masses[currentPIndex];
+				const float currentPMass = masses[currentPIndex];
 				const float currentPDensity = densities[currentPIndex];
 				const Storm::Vector3 &vi = velocities[currentPIndex];
-
-				currentPMass = particleVolume * currentPDensity;
 
 				const float restMassDensity = currentPMass * density0;
 
