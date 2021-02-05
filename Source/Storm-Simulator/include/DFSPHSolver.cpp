@@ -156,7 +156,7 @@ void Storm::DFSPHSolver::execute(const Storm::IterationParameter &iterationParam
 	}
 
 	// 4th : Compute k_dfsph coeff
-	const float kPressurePredictFinalCoeff = -fluidConfig._kPressurePredictedCoeff;
+	const double kPressurePredictFinalCoeff = static_cast<double>(-fluidConfig._kPressurePredictedCoeff);
 	for (auto &dataFieldPair : _data)
 	{
 		this->computeDFSPHFactor(
@@ -706,7 +706,7 @@ void Storm::DFSPHSolver::pressureSolve(const Storm::IterationParameter &iteratio
 	} while ((!chk || (outIteration < minIter)) && (outIteration < maxIter));
 }
 
-void Storm::DFSPHSolver::computeDFSPHFactor(const Storm::IterationParameter &iterationParameter, Storm::FluidParticleSystem &fluidPSystem, Storm::DFSPHSolver::DFSPHSolverDataArray &pSystemData, const float kMultiplicationCoeff)
+void Storm::DFSPHSolver::computeDFSPHFactor(const Storm::IterationParameter &iterationParameter, Storm::FluidParticleSystem &fluidPSystem, Storm::DFSPHSolver::DFSPHSolverDataArray &pSystemData, const double kMultiplicationCoeff)
 {
 	//////////////////////////////////////////////////////////////////////////
 	// Init parameters
@@ -726,22 +726,22 @@ void Storm::DFSPHSolver::computeDFSPHFactor(const Storm::IterationParameter &ite
 		//////////////////////////////////////////////////////////////////////////
 		// Compute gradient dp_i/dx_j * (1/k)  and dp_j/dx_j * (1/k)
 		//////////////////////////////////////////////////////////////////////////
-		float sum_grad_p_k = 0.f;
-		Storm::Vector3 grad_p_i = Storm::Vector3::Zero();
+		double sum_grad_p_k = 0.f;
+		Storm::Vector3d grad_p_i = Storm::Vector3d::Zero();
 
 		for (const Storm::NeighborParticleInfo &neighbor : currentPNeighborhood)
 		{
 			if (neighbor._isFluidParticle)
 			{
 				const Storm::FluidParticleSystem* neighborPSystemAsFluid = static_cast<const Storm::FluidParticleSystem*>(neighbor._containingParticleSystem);
-				const Storm::Vector3 grad_p_j = -neighborPSystemAsFluid->getParticleVolume() * neighbor._gradWij;
+				const Storm::Vector3d grad_p_j = (-neighborPSystemAsFluid->getParticleVolume() * neighbor._gradWij).cast<double>();
 				sum_grad_p_k += grad_p_j.squaredNorm();
 				grad_p_i -= grad_p_j;
 			}
 			else
 			{
 				const Storm::RigidBodyParticleSystem* neighborPSystemAsBoundary = static_cast<const Storm::RigidBodyParticleSystem*>(neighbor._containingParticleSystem);
-				const Storm::Vector3 grad_p_j = -neighborPSystemAsBoundary->getVolumes()[neighbor._particleIndex] * neighbor._gradWij;
+				const Storm::Vector3d grad_p_j = (-neighborPSystemAsBoundary->getVolumes()[neighbor._particleIndex] * neighbor._gradWij).cast<double>();
 				grad_p_i -= grad_p_j;
 			}
 		}
@@ -753,7 +753,7 @@ void Storm::DFSPHSolver::computeDFSPHFactor(const Storm::IterationParameter &ite
 		//////////////////////////////////////////////////////////////////////////
 		if (sum_grad_p_k > k_epsilon)
 		{
-			currentPData._kCoeff = kMultiplicationCoeff / sum_grad_p_k;
+			currentPData._kCoeff = static_cast<float>(kMultiplicationCoeff / sum_grad_p_k);
 		}
 		else
 		{
