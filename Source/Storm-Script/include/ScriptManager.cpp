@@ -18,6 +18,9 @@
 #include "ThreadHelper.h"
 
 #include "ThreadEnumeration.h"
+#include "ThreadFlaggerObject.h"
+#include "ThreadingSafety.h"
+
 #include "SpecialKey.h"
 
 #include "FuncMovePass.h"
@@ -80,6 +83,7 @@ void Storm::ScriptManager::initialize_Implementation()
 	_scriptThread = std::thread{ [this, &singletonHolder]()
 	{
 		STORM_REGISTER_THREAD(ScriptThread);
+		STORM_DECLARE_THIS_THREAD_IS << Storm::ThreadFlagEnum::ScriptingThread;
 
 		{
 			Storm::IInputManager &inputMgr = singletonHolder.getSingleton<Storm::IInputManager>();
@@ -108,6 +112,8 @@ void Storm::ScriptManager::cleanUp_Implementation()
 
 void Storm::ScriptManager::executeScript_ScriptThread(std::string &&script)
 {
+	assert(Storm::isScriptThread() && "This method should only be called inside the script thread!");
+
 	try
 	{
 		std::vector<Storm::ScriptObject> scriptObjects = Storm::CommandParser::parse(std::move(script));

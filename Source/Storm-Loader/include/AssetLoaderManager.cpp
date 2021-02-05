@@ -26,6 +26,7 @@
 #include "BlowerType.h"
 
 #include "ThreadEnumeration.h"
+#include "ThreadFlagEnum.h"
 
 #include "AssetCacheData.h"
 #include "AssetCacheDataOrder.h"

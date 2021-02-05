@@ -11,6 +11,8 @@
 
 #include "ThreadHelper.h"
 #include "ThreadEnumeration.h"
+#include "ThreadFlaggerObject.h"
+#include "ThreadingSafety.h"
 
 #include "LeanWindowsInclude.h"
 
@@ -79,6 +81,8 @@ Storm::LoggerManager::~LoggerManager()
 		}
 	}
 
+	STORM_DECLARE_THIS_THREAD_IS << Storm::ThreadFlagEnum::LoggingThread;
+
 	this->writeLogs(_buffer, _currentPID);
 	_buffer.clear();
 }
@@ -88,6 +92,12 @@ void Storm::LoggerManager::initialize_Implementation()
 	std::vector<std::filesystem::path> logsToBeRemoved;
 
 	std::unique_lock<std::mutex> lock{ _loggerMutex };
+
+#define STORM_PRODUCE_INIT_LOGGING_UNDER_LOCK(LogDeclaration)	\
+lock.unlock();													\
+LogDeclaration													\
+lock.lock()														\
+
 	_isRunning = true;
 
 	const Storm::IConfigManager* configMgr = Storm::SingletonHolder::instance().getFacet<Storm::IConfigManager>();
@@ -139,12 +149,21 @@ void Storm::LoggerManager::initialize_Implementation()
 		}
 		else
 		{
-			lock.unlock();
-			LOG_DEBUG << "Clear all logs flag was triggered, therefore we'll empty the log folder before proceeding.";
-			lock.lock();
+			STORM_PRODUCE_INIT_LOGGING_UNDER_LOCK(
+				LOG_DEBUG << "Clear all logs flag was triggered, therefore we'll empty the log folder before proceeding.";
+			);
 
-			std::filesystem::remove_all(logFolderPath);
-			std::filesystem::create_directories(logFolderPath);
+			try
+			{
+				std::filesystem::remove_all(logFolderPath);
+				std::filesystem::create_directories(logFolderPath);
+			}
+			catch (const std::exception &ex)
+			{
+				STORM_PRODUCE_INIT_LOGGING_UNDER_LOCK(
+					LOG_ERROR << "Cannot clean '" << logFolderPath << "' as requested by command line flag. Reason was " << ex.what();
+				);
+			}
 		}
 	}
 
@@ -156,6 +175,7 @@ void Storm::LoggerManager::initialize_Implementation()
 	_loggerThread = std::thread{ [this, sync = &syncTmp, canLeave = &canLeaveTmp]()
 	{
 		STORM_REGISTER_THREAD(LoggerThread);
+		STORM_DECLARE_THIS_THREAD_IS << Storm::ThreadFlagEnum::LoggingThread;
 
 		Storm::LoggerManager::LogArray tmpBuffer;
 
@@ -212,6 +232,8 @@ void Storm::LoggerManager::initialize_Implementation()
 	{
 		return canLeaveTmp;
 	});
+
+#undef STORM_PRODUCE_INIT_LOGGING_UNDER_LOCK
 }
 
 void Storm::LoggerManager::cleanUp_Implementation()
@@ -226,6 +248,8 @@ void Storm::LoggerManager::cleanUp_Implementation()
 	}
 
 	Storm::join(_loggerThread);
+
+	STORM_DECLARE_THIS_THREAD_IS << Storm::ThreadFlagEnum::LoggingThread;
 }
 
 void Storm::LoggerManager::log(const std::string_view &moduleName, Storm::LogLevel level, const std::string_view &function, const int line, std::string &&msg)
@@ -244,6 +268,8 @@ Storm::LogLevel Storm::LoggerManager::getLogLevel() const
 
 void Storm::LoggerManager::writeLogs(LogArray &logArray, const unsigned int currentPID) const
 {
+	assert(Storm::isLoggerThread() && "This method can only be called from logging thread.");
+
 	const bool debuggerAttached = ::IsDebuggerPresent();
 
 	if (!_xmlLogFilePath.empty())

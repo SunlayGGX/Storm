@@ -1040,6 +1040,8 @@ bool Storm::SimulatorManager::applyCFLIfNeeded(const Storm::SceneSimulationConfi
 
 void Storm::SimulatorManager::initializePreSimulation()
 {
+	assert(Storm::isSimulationThread() && "This method should only be executed inside the simulation thread!");
+
 	const float k_kernelLength = this->getKernelLength();
 	for (auto &particleSystem : _particleSystem)
 	{
@@ -1060,6 +1062,8 @@ void Storm::SimulatorManager::initializePreSimulation()
 
 void Storm::SimulatorManager::subIterationStart()
 {
+	assert(Storm::isSimulationThread() && "This method should only be executed inside the simulation thread!");
+
 	for (auto &particleSystem : _particleSystem)
 	{
 		particleSystem.second->onSubIterationStart(_particleSystem, _blowers);
@@ -1068,6 +1072,8 @@ void Storm::SimulatorManager::subIterationStart()
 
 void Storm::SimulatorManager::revertIteration()
 {
+	assert(Storm::isSimulationThread() && "This method should only be executed inside the simulation thread!");
+
 	for (auto &particleSystem : _particleSystem)
 	{
 		particleSystem.second->revertToCurrentTimestep(_blowers);
@@ -1158,6 +1164,8 @@ void Storm::SimulatorManager::advanceToFrame(int64_t frameNumber)
 
 void Storm::SimulatorManager::notifyFrameAdvanced()
 {
+	assert(Storm::isSimulationThread() && "This method should only be executed inside the simulation thread!");
+
 	if (_frameAdvanceCount != -1)
 	{
 		--_frameAdvanceCount;
@@ -1203,6 +1211,8 @@ void Storm::SimulatorManager::flushPhysics(const float deltaTime)
 
 void Storm::SimulatorManager::refreshParticlesPosition()
 {
+	assert(Storm::isSimulationThread() && "This method should only be executed inside the simulation thread!");
+
 	for (auto &particleSystem : _particleSystem)
 	{
 		Storm::ParticleSystem &pSystem = *particleSystem.second;
@@ -1212,6 +1222,8 @@ void Storm::SimulatorManager::refreshParticlesPosition()
 
 void Storm::SimulatorManager::refreshParticleNeighborhood()
 {
+	assert(Storm::isSimulationThread() && "This method should only be executed inside the simulation thread!");
+
 	this->refreshParticlePartition();
 
 	for (auto &particleSystem : _particleSystem)
@@ -1419,6 +1431,8 @@ float Storm::SimulatorManager::getKernelLength() const
 
 void Storm::SimulatorManager::pushParticlesToGraphicModule(bool ignoreDirty) const
 {
+	assert(Storm::isSimulationThread() && "This method should only be executed inside the simulation thread!");
+
 	Storm::IGraphicsManager &graphicMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IGraphicsManager>();
 
 	if (_particleSelector.hasSelectedParticle())
@@ -1468,6 +1482,8 @@ void Storm::SimulatorManager::pushParticlesToGraphicModule(bool ignoreDirty) con
 
 void Storm::SimulatorManager::cycleSelectedParticleDisplayMode()
 {
+	assert(Storm::isSimulationThread() && "This method should only be executed inside the simulation thread!");
+
 	_particleSelector.cycleParticleSelectionDisplayMode();
 
 	if (_particleSelector.hasSelectedParticle())
@@ -1482,6 +1498,8 @@ void Storm::SimulatorManager::cycleSelectedParticleDisplayMode()
 
 void Storm::SimulatorManager::refreshParticleSelection()
 {
+	assert(Storm::isSimulationThread() && "This method should only be executed inside the simulation thread!");
+
 	if (_particleSelector.hasSelectedParticle())
 	{
 		if (auto found = _particleSystem.find(_particleSelector.getSelectedParticleSystemId()); found != std::end(_particleSystem))
@@ -1506,6 +1524,8 @@ void Storm::SimulatorManager::refreshParticleSelection()
 
 void Storm::SimulatorManager::requestCycleColoredSetting()
 {
+	assert(Storm::isSimulationThread() && "This method should only be executed inside the simulation thread!");
+
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 	singletonHolder.getSingleton<Storm::IGraphicsManager>().cycleColoredSetting();
 	
@@ -1527,6 +1547,8 @@ void Storm::SimulatorManager::exitWithCode(Storm::ExitCode code)
 
 void Storm::SimulatorManager::beginRecord() const
 {
+	assert(Storm::isSimulationThread() && "This method should only be executed inside the simulation thread!");
+
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 
 	const Storm::SceneRecordConfig &sceneRecordConfig = singletonHolder.getSingleton<Storm::IConfigManager>().getSceneRecordConfig();
@@ -1556,6 +1578,8 @@ void Storm::SimulatorManager::beginRecord() const
 
 void Storm::SimulatorManager::pushRecord(float currentPhysicsTime, bool pushStatics) const
 {
+	assert(Storm::isSimulationThread() && "This method should only be executed inside the simulation thread!");
+
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 	const Storm::SceneRecordConfig &sceneRecordConfig = singletonHolder.getSingleton<Storm::IConfigManager>().getSceneRecordConfig();
 
@@ -1603,6 +1627,8 @@ void Storm::SimulatorManager::pushRecord(float currentPhysicsTime, bool pushStat
 
 void Storm::SimulatorManager::applyReplayFrame(Storm::SerializeRecordPendingData &frame, const float replayFps, bool pushParallel /*= true*/)
 {
+	assert(Storm::isSimulationThread() && "This method should only be executed inside the simulation thread!");
+
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 
 	Storm::ITimeManager &timeMgr = singletonHolder.getSingleton<Storm::ITimeManager>();
@@ -1637,6 +1663,8 @@ void Storm::SimulatorManager::resetReplay()
 
 void Storm::SimulatorManager::resetReplay_SimulationThread()
 {
+	assert(Storm::isSimulationThread() && "This method should only be executed inside the simulation thread!");
+
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
 	if (configMgr.isInReplayMode())
@@ -1675,6 +1703,8 @@ void Storm::SimulatorManager::saveSimulationState() const
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 	singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::MainThread, [this, &singletonHolder]()
 	{
+		assert(Storm::isSimulationThread() && "This piece of code should only be executed inside the simulation thread!");
+
 		const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
 		const Storm::ITimeManager &timeMgr = singletonHolder.getSingleton<Storm::ITimeManager>();
 

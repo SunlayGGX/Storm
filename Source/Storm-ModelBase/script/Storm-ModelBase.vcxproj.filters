@@ -151,6 +151,9 @@
     <Filter Include="Header Files\Modules\Config\Internal">
       <UniqueIdentifier>{d8aeb073-23ef-4ca4-804e-33e51edd074c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Modules\Threading\Flagger">
+      <UniqueIdentifier>{732ab86b-02e3-43ea-8c0f-db1d56f3b876}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-ModelBasePCH.cpp">
@@ -188,6 +191,9 @@
     </ClCompile>
     <ClCompile Include="..\include\InternalConfig.cpp">
       <Filter>Source Files\Modules\Config</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\ThreadFlaggerObject.cpp">
+      <Filter>Source Files\Modules\Threading</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -460,6 +466,15 @@
     </ClInclude>
     <ClInclude Include="..\include\IBibliographyManager.h">
       <Filter>Header Files\Singleton</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ThreadingFlagger.h">
+      <Filter>Header Files\Modules\Threading\Flagger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ThreadFlagEnum.h">
+      <Filter>Header Files\Modules\Threading\Flagger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ThreadFlaggerObject.h">
+      <Filter>Header Files\Modules\Threading\Flagger</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

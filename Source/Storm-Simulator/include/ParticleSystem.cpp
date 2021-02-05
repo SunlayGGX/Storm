@@ -11,6 +11,8 @@
 
 #include "MacroConfig.h"
 
+#include "ThreadingSafety.h"
+
 
 
 Storm::ParticleSystem::ParticleSystem(unsigned int particleSystemIndex, std::vector<Storm::Vector3> &&worldPositions) :
@@ -146,6 +148,8 @@ void Storm::ParticleSystem::prepareSaving(const bool replayMode)
 
 void Storm::ParticleSystem::buildNeighborhood(const Storm::ParticleSystemContainer &allParticleSystems)
 {
+	assert(Storm::isSimulationThread() && "This method should only be executed inside the simulation thread!");
+
 	// First, clear all neighborhood
 	Storm::runParallel(_neighborhood, [](Storm::ParticleNeighborhoodArray &neighbors)
 	{
@@ -159,7 +163,7 @@ void Storm::ParticleSystem::buildNeighborhood(const Storm::ParticleSystemContain
 
 void Storm::ParticleSystem::initializePreSimulation(const Storm::ParticleSystemContainer &allParticleSystems, const float kernelLengthSquared)
 {
-
+	assert(Storm::isSimulationThread() && "This method should only be executed inside the simulation thread!");
 }
 
 void Storm::ParticleSystem::onIterationStart()
@@ -177,11 +181,14 @@ void Storm::ParticleSystem::onIterationStart()
 		(replayMode || particleCount == _neighborhood.size()) &&
 		"Particle count mismatch detected! An array of particle property has not the same particle count than the other!"
 	);
+
+	assert(Storm::isSimulationThread() && "This method should only be executed inside the simulation thread!");
 #endif
 }
 
 void Storm::ParticleSystem::onSubIterationStart(const Storm::ParticleSystemContainer &, const std::vector<std::unique_ptr<Storm::IBlower>> &)
 {
+	assert(Storm::isSimulationThread() && "This method should only be executed inside the simulation thread!");
 	_isDirty = false;
 }
 

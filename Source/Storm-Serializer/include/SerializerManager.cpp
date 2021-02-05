@@ -8,8 +8,6 @@
 
 #include "SceneSimulationConfig.h"
 
-#include "ThreadEnumeration.h"
-
 #include "ExitCode.h"
 
 #include "SerializeRecordContraintsData.h"
@@ -25,6 +23,8 @@
 
 #include "ThreadingSafety.h"
 #include "ThreadHelper.h"
+#include "ThreadFlaggerObject.h"
+#include "ThreadEnumeration.h"
 
 #include "FuncMovePass.h"
 
@@ -75,6 +75,7 @@ void Storm::SerializerManager::initialize_Implementation()
 	_serializeThread = std::thread{ [this]()
 	{
 		STORM_REGISTER_THREAD(SerializerThread);
+		STORM_DECLARE_THIS_THREAD_IS << Storm::ThreadFlagEnum::SerializingThread;
 		this->run();
 	} };
 
@@ -86,6 +87,7 @@ void Storm::SerializerManager::cleanUp_Implementation()
 	LOG_COMMENT << "Serializer module Cleanup";
 	Storm::join(_serializeThread);
 
+	STORM_DECLARE_THIS_THREAD_IS << Storm::ThreadFlagEnum::SerializingThread;
 	Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().processActionsOfThread(Storm::ThreadEnumeration::SerializerThread);
 	this->execute();
 
@@ -150,6 +152,8 @@ void Storm::SerializerManager::run()
 
 void Storm::SerializerManager::execute()
 {
+	assert(Storm::isSerializerThread() && "This method should only be executed inside the serializer thread!");
+
 	if (!_pendingRecord.empty())
 	{
 		if (_recordWriter)
@@ -171,11 +175,13 @@ void Storm::SerializerManager::execute()
 
 void Storm::SerializerManager::clearRecordQueue()
 {
+	assert(Storm::isSerializerThread() && "This method should only be executed inside the serializer thread!");
 	_pendingRecord = decltype(_pendingRecord){};
 }
 
 void Storm::SerializerManager::processRecordQueue_Unchecked()
 {
+	assert(Storm::isSerializerThread() && "This method should only be executed inside the serializer thread!");
 	do
 	{
 		_recordWriter->write(*_pendingRecord.front());
@@ -189,6 +195,8 @@ void Storm::SerializerManager::recordFrame(Storm::SerializeRecordPendingData &&f
 {
 	executeOnSerializerThread([this, rec = Storm::FuncMovePass<Storm::SerializeRecordPendingData>{ std::move(frameRecord) }]() mutable
 	{
+		assert(Storm::isSerializerThread() && "This method should only be executed inside the serializer thread!");
+
 		_pendingRecord.emplace(std::make_unique<Storm::SerializeRecordPendingData>(std::move(rec._object)));
 	});
 }
@@ -197,6 +205,8 @@ void Storm::SerializerManager::beginRecord(Storm::SerializeRecordHeader &&record
 {
 	executeOnSerializerThread([this, rec = Storm::FuncMovePass<Storm::SerializeRecordHeader>{ std::move(recordHeader) }]() mutable
 	{
+		assert(Storm::isSerializerThread() && "This method should only be executed inside the serializer thread!");
+
 		std::lock_guard<std::mutex> lock{ _mutex };
 
 		if (!_recordReader)
@@ -220,6 +230,8 @@ void Storm::SerializerManager::beginRecord(Storm::SerializeRecordHeader &&record
 
 void Storm::SerializerManager::endRecordInternal()
 {
+	assert(Storm::isSerializerThread() && "This method should only be executed inside the serializer thread!");
+
 	if (_recordWriter)
 	{
 		_recordWriter->endWrite();
@@ -229,7 +241,7 @@ void Storm::SerializerManager::endRecordInternal()
 
 const Storm::SerializeRecordHeader& Storm::SerializerManager::beginReplay()
 {
-	assert(isSimulationThread() && "this method should only be called from simulation thread.");
+	assert(Storm::isSimulationThread() && "this method should only be called from simulation thread.");
 
 	std::lock_guard<std::mutex> lock{ _mutex };
 	if (!_recordWriter)
@@ -252,7 +264,7 @@ const Storm::SerializeRecordHeader& Storm::SerializerManager::beginReplay()
 
 bool Storm::SerializerManager::obtainNextFrame(Storm::SerializeRecordPendingData &outPendingData) const
 {
-	assert(isSimulationThread() && "this method should only be called from simulation thread.");
+	assert(Storm::isSimulationThread() && "this method should only be called from simulation thread.");
 	return _recordReader->readNextFrame(outPendingData);
 }
 
@@ -275,7 +287,7 @@ const Storm::SerializeRecordHeader& Storm::SerializerManager::getRecordHeader() 
 
 bool Storm::SerializerManager::resetReplay()
 {
-	assert(isSimulationThread() && "this method should only be called from simulation thread.");
+	assert(Storm::isSimulationThread() && "this method should only be called from simulation thread.");
 	if (_recordReader)
 	{
 		return _recordReader->resetToBeginning();
@@ -297,7 +309,7 @@ void Storm::SerializerManager::saveState(Storm::StateSavingOrders &&savingOrder)
 
 void Storm::SerializerManager::loadState(Storm::StateLoadingOrders &inOutLoadingOrder)
 {
-	assert(isSimulationThread() && "this method should only be called from simulation thread.");
+	assert(Storm::isSimulationThread() && "this method should only be called from simulation thread.");
 
 	Storm::StateReader::execute(inOutLoadingOrder);
 }

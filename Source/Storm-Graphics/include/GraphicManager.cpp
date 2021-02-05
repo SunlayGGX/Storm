@@ -30,6 +30,7 @@
 #include "ThreadHelper.h"
 #include "ThreadEnumeration.h"
 #include "ThreadingSafety.h"
+#include "ThreadFlaggerObject.h"
 
 #include "SpecialKey.h"
 
@@ -154,6 +155,7 @@ void Storm::GraphicManager::initialize_Implementation(void* hwnd)
 		const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 
 		STORM_REGISTER_THREAD(GraphicsThread);
+		STORM_DECLARE_THIS_THREAD_IS << Storm::ThreadFlagEnum::GraphicThread;
 
 		{
 			// I have an Azerty keyboard, so if you have a Qwerty keyboard, you'll surely need to change those.

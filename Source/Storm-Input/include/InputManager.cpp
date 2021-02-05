@@ -8,6 +8,7 @@
 #include "IThreadManager.h"
 
 #include "ThreadEnumeration.h"
+#include "ThreadingSafety.h"
 
 #include "MemoryHelper.h"
 #include "RAII.h"
@@ -316,6 +317,8 @@ void Storm::InputManager::cleanUp_Implementation(const Storm::NoUI &)
 
 void Storm::InputManager::update()
 {
+	assert(Storm::isInputThread() && "This method should only be executed inside the windows thread!");
+
 	this->callSequentialToInitCleanup([this]()
 	{
 		if (g_keyboard != nullptr)

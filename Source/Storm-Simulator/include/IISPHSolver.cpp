@@ -120,6 +120,7 @@ void Storm::IISPHSolver::execute(const Storm::IterationParameter &iterationParam
 			const float particleVolume = fluidParticleSystem.getParticleVolume();
 			const float density0 = fluidParticleSystem.getRestDensity();
 			const std::vector<Storm::ParticleNeighborhoodArray> &neighborhoodArrays = fluidParticleSystem.getNeighborhoodArrays();
+			std::vector<float> &masses = fluidParticleSystem.getMasses();
 
 			Storm::runParallel(fluidParticleSystem.getDensities(), [&](float &currentPDensity, const std::size_t currentPIndex)
 			{
@@ -143,6 +144,9 @@ void Storm::IISPHSolver::execute(const Storm::IterationParameter &iterationParam
 
 				// Volume * density is mass...
 				currentPDensity *= density0;
+
+				float &currentPMass = masses[currentPIndex];
+				currentPMass = currentPDensity * particleVolume;
 			});
 		}
 	}
@@ -171,11 +175,9 @@ void Storm::IISPHSolver::execute(const Storm::IterationParameter &iterationParam
 
 			Storm::runParallel(fluidParticleSystem.getForces(), [&](Storm::Vector3 &currentPForce, const std::size_t currentPIndex)
 			{
-				float &currentPMass = masses[currentPIndex];
+				const float currentPMass = masses[currentPIndex];
 				const float currentPDensity = densities[currentPIndex];
 				const Storm::Vector3 &vi = velocities[currentPIndex];
-
-				currentPMass = particleVolume * currentPDensity;
 
 				const float restMassDensity = currentPMass * density0;
 

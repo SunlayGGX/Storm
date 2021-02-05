@@ -19,6 +19,9 @@
 
 #include "ThreadHelper.h"
 #include "ThreadEnumeration.h"
+#include "ThreadingSafety.h"
+#include "ThreadFlaggerObject.h"
+
 #include "StringAlgo.h"
 #include "MFCHelper.h"
 #include "RAII.h"
@@ -232,6 +235,10 @@ void Storm::WindowsManager::initialize_Implementation(const Storm::WithUI &)
 	_windowsThread = std::thread{ [this, &syncronizer, &canLeave, &syncMutex]()
 	{
 		STORM_REGISTER_THREAD(WindowsAndInputThread);
+		
+		STORM_DECLARE_THIS_THREAD_IS <<
+			Storm::ThreadFlagEnum::WindowsThread <<
+			Storm::ThreadFlagEnum::InputThread;
 
 		runSafeWindowsThread("Windows thread initialization", [this]()
 		{
@@ -313,6 +320,8 @@ void Storm::WindowsManager::initializeInternal()
 	STORM_STATIC_ASSERT(Storm::WindowsManager::MAX_TITLE_COUNT > 20, "Minimal title character size must be 20.");
 
 	LOG_COMMENT << "Building Application form UI (main Window)";
+
+	assert(Storm::isWindowsThread() && "This method should only be executed inside the windows thread!");
 
 	const Storm::SingletonHolder &singletonMgr = Storm::SingletonHolder::instance();
 
