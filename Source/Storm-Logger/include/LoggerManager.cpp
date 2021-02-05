@@ -92,6 +92,12 @@ void Storm::LoggerManager::initialize_Implementation()
 	std::vector<std::filesystem::path> logsToBeRemoved;
 
 	std::unique_lock<std::mutex> lock{ _loggerMutex };
+
+#define STORM_PRODUCE_INIT_LOGGING_UNDER_LOCK(LogDeclaration)	\
+lock.unlock();													\
+LogDeclaration													\
+lock.lock()														\
+
 	_isRunning = true;
 
 	const Storm::IConfigManager* configMgr = Storm::SingletonHolder::instance().getFacet<Storm::IConfigManager>();
@@ -143,9 +149,9 @@ void Storm::LoggerManager::initialize_Implementation()
 		}
 		else
 		{
-			lock.unlock();
-			LOG_DEBUG << "Clear all logs flag was triggered, therefore we'll empty the log folder before proceeding.";
-			lock.lock();
+			STORM_PRODUCE_INIT_LOGGING_UNDER_LOCK(
+				LOG_DEBUG << "Clear all logs flag was triggered, therefore we'll empty the log folder before proceeding.";
+			);
 
 			std::filesystem::remove_all(logFolderPath);
 			std::filesystem::create_directories(logFolderPath);
@@ -217,6 +223,8 @@ void Storm::LoggerManager::initialize_Implementation()
 	{
 		return canLeaveTmp;
 	});
+
+#undef STORM_PRODUCE_INIT_LOGGING_UNDER_LOCK
 }
 
 void Storm::LoggerManager::cleanUp_Implementation()
