@@ -45,5 +45,6 @@ namespace Storm
 		float _relaxationCoefficient;
 		bool _gravityEnabled;
 		bool _removeParticlesCollidingWithRb;
+		std::size_t _neighborThresholdDensity;
 	};
 }

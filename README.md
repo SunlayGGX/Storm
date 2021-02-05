@@ -334,6 +334,7 @@ This element is all setting appartaining to a fluid. Here the tag you can set in
 - **soundSpeed (positive float, falcultative)**: This is the speed of sound inside the given fluid in m/s. Default is 331.4 m/s which is the speed of sound of Dry air at 0 °C) and normal ATM pressure (340 is for 15 °C).
 - **enableGravity (boolean, falcultative)**: Enable the gravity for the associated fluid particle system. Default is true.
 - **removeCollidingParticles (boolean, falcultative)**: If true, any fluid particle that collides with any rigid bodies will be forcefully removed when it is spawned. This does not reproduce the behavior of SplishSplash since it does not remove insider particles. If false, fluid particles can spawn inside rigid bodies, possibly leading to some explosion, instabilities and bad physical states. Default is true.
+- **neighborThreshold (positive integer, falcultative)**: Neighbor count threshold used for DFSPH below what we don't advect density. Default is 20.
 
 
 #### RigidBodies

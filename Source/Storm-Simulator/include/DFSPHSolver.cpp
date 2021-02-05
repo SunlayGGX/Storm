@@ -370,6 +370,7 @@ void Storm::DFSPHSolver::divergenceSolve(const Storm::IterationParameter &iterat
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
 
 	const Storm::SceneSimulationConfig &sceneSimulationConfig = configMgr.getSceneSimulationConfig();
+	const Storm::SceneFluidConfig &sceneFluidConfig = configMgr.getSceneFluidConfig();
 
 	Storm::SimulatorManager &simulMgr = Storm::SimulatorManager::instance();
 
@@ -384,6 +385,7 @@ void Storm::DFSPHSolver::divergenceSolve(const Storm::IterationParameter &iterat
 	const unsigned int minIter = sceneSimulationConfig._minPredictIteration;
 	const unsigned int maxIter = sceneSimulationConfig._maxPredictIteration;
 	const float maxError = sceneSimulationConfig._maxDensityError;
+	const std::size_t neighborThreshold = sceneFluidConfig._neighborThresholdDensity;
 
 	//////////////////////////////////////////////////////////////////////////
 	// Compute velocity of density change
@@ -392,9 +394,9 @@ void Storm::DFSPHSolver::divergenceSolve(const Storm::IterationParameter &iterat
 	{
 		// Since data field was made from fluid particles, no need to check.
 		Storm::FluidParticleSystem &fluidPSystem = static_cast<Storm::FluidParticleSystem &>(*particleSystems.find(dataFieldPair.first)->second);
-		Storm::runParallel(dataFieldPair.second, [this, &iterationParameter, &fluidPSystem, &dataFieldPair, invertDeltaTime](Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex)
+		Storm::runParallel(dataFieldPair.second, [this, &iterationParameter, &fluidPSystem, &dataFieldPair, invertDeltaTime, neighborThreshold](Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex)
 		{
-			this->computeDensityChange(iterationParameter, fluidPSystem, &dataFieldPair.second, currentPData, currentPIndex);
+			this->computeDensityChange(iterationParameter, fluidPSystem, &dataFieldPair.second, currentPData, currentPIndex, neighborThreshold);
 			currentPData._kCoeff *= invertDeltaTime;
 		});
 	}
@@ -508,7 +510,7 @@ void Storm::DFSPHSolver::divergenceSolve(const Storm::IterationParameter &iterat
 			//////////////////////////////////////////////////////////////////////////
 			Storm::runParallel(dataFieldPair.second, [&](Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex)
 			{
-				this->computeDensityChange(iterationParameter, fluidPSystem, &dataFieldPair.second, currentPData, currentPIndex);
+				this->computeDensityChange(iterationParameter, fluidPSystem, &dataFieldPair.second, currentPData, currentPIndex, neighborThreshold);
 				avgDensityErrAtom += density0 * currentPData._predictedDensity;
 			});
 
@@ -802,16 +804,16 @@ void Storm::DFSPHSolver::computeDensityAdv(const Storm::IterationParameter &iter
 	densityAdv = std::max(densityAdv, 1.f);
 }
 
-void Storm::DFSPHSolver::computeDensityChange(const Storm::IterationParameter &iterationParameter, Storm::FluidParticleSystem &fluidPSystem, const Storm::DFSPHSolver::DFSPHSolverDataArray* currentSystemData, Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex)
+void Storm::DFSPHSolver::computeDensityChange(const Storm::IterationParameter &iterationParameter, Storm::FluidParticleSystem &fluidPSystem, const Storm::DFSPHSolver::DFSPHSolverDataArray* currentSystemData, Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex, const std::size_t neighborThreshold)
 {
 	const Storm::ParticleNeighborhoodArray &currentPNeighborhood = fluidPSystem.getNeighborhoodArrays()[currentPIndex];
 
-	// in case of particle deficiency do not perform a divergence solve
-	if (currentPNeighborhood.size() >= 20)
-	{
-		float &densityAdv = currentPData._predictedDensity;
-		densityAdv = 0.f;
+	float &densityAdv = currentPData._predictedDensity;
+	densityAdv = 0.f;
 
+	// in case of particle deficiency do not perform a divergence solve
+	if (currentPNeighborhood.size() >= neighborThreshold)
+	{
 		const Storm::DFSPHSolver::DFSPHSolverDataArray* neighborDataArray = currentSystemData;
 		const Storm::FluidParticleSystem* lastNeighborFluidSystem = &fluidPSystem;
 

@@ -117,6 +117,7 @@ Storm::SceneFluidConfig::SceneFluidConfig() :
 	_pressureInitRelaxationCoefficient{ 0.5f },
 	_gravityEnabled{ true },
 	_removeParticlesCollidingWithRb{ true },
+	_neighborThresholdDensity{ 20 },
 	_cinematicViscosity{ 0.f } // Computed automatically once final _dynamicViscosity value will be determined.
 {
 
