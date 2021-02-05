@@ -32,8 +32,7 @@
 #include "OSHelper.h"
 
 #include "ThreadEnumeration.h"
-#include "ThreadingFlagger.h"
-#include "ThreadFlagEnum.h"
+#include "ThreadFlaggerObject.h"
 
 
 namespace
@@ -81,7 +80,7 @@ namespace
 		LOG_COMMENT << "Application Creation started";
 
 		STORM_REGISTER_THREAD(MainThread);
-		Storm::ThreadingFlagger::addThreadFlag(Storm::ThreadFlagEnum::MainThread);
+		STORM_DECLARE_THIS_THREAD_IS << Storm::ThreadFlagEnum::MainThread;
 
 		Storm::ConfigManager::instance().initialize(argc, argv);
 
@@ -91,10 +90,12 @@ namespace
 
 		if (shouldRunSimulation())
 		{
-			Storm::ThreadingFlagger::addThreadFlag(Storm::ThreadFlagEnum::SimulationThread);
-			Storm::ThreadingFlagger::addThreadFlag(Storm::ThreadFlagEnum::RaycastThread);
-			Storm::ThreadingFlagger::addThreadFlag(Storm::ThreadFlagEnum::SpaceThread);
-			Storm::ThreadingFlagger::addThreadFlag(Storm::ThreadFlagEnum::PhysicsThread);
+			STORM_DECLARE_THIS_THREAD_IS <<
+				Storm::ThreadFlagEnum::SimulationThread <<
+				Storm::ThreadFlagEnum::RaycastThread <<
+				Storm::ThreadFlagEnum::SpaceThread <<
+				Storm::ThreadFlagEnum::LoadingThread <<
+				Storm::ThreadFlagEnum::PhysicsThread;
 
 			Storm::OSHelper::logOSEnvironmentInformation();
 

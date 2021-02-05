@@ -24,6 +24,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\include\ThreadFlaggerObject.cpp" />
     <ClCompile Include="..\include\ThreadingSafety.cpp" />
     <ClCompile Include="..\include\UIField.cpp" />
   </ItemGroup>
@@ -76,6 +77,7 @@
     <ClInclude Include="..\include\SystemSimulationStateObject.h" />
     <ClInclude Include="..\include\StateSavingOrders.h" />
     <ClInclude Include="..\include\ThreadFlagEnum.h" />
+    <ClInclude Include="..\include\ThreadFlaggerObject.h" />
     <ClInclude Include="..\include\ThreadingFlagger.h" />
     <ClInclude Include="..\include\ThreadingSafety.h" />
     <ClInclude Include="..\include\IAssetLoaderManager.h" />

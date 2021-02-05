@@ -12,8 +12,6 @@
 #include "Vector3Utils.h"
 
 #include "ThreadingSafety.h"
-#include "ThreadFlagEnum.h"
-#include "ThreadingFlagger.h"
 
 
 Storm::SpacePartitionerManager::SpacePartitionerManager() = default;
@@ -21,8 +19,6 @@ Storm::SpacePartitionerManager::~SpacePartitionerManager() = default;
 
 void Storm::SpacePartitionerManager::initialize_Implementation(float partitionLength)
 {
-	Storm::ThreadingFlagger::addThreadFlag(Storm::ThreadFlagEnum::SpaceThread);
-
 	LOG_COMMENT << "Starting to initialize the Space partitioner manager";
 
 	_downSpaceCorner = Storm::Vector3{

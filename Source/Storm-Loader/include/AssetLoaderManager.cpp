@@ -26,7 +26,6 @@
 #include "BlowerType.h"
 
 #include "ThreadEnumeration.h"
-#include "ThreadingFlagger.h"
 #include "ThreadFlagEnum.h"
 
 #include "AssetCacheData.h"
@@ -264,8 +263,6 @@ Storm::AssetLoaderManager::~AssetLoaderManager() = default;
 
 void Storm::AssetLoaderManager::initialize_Implementation()
 {
-	Storm::ThreadingFlagger::addThreadFlag(Storm::ThreadFlagEnum::LoadingThread);
-
 	LOG_COMMENT << "Asset loading started! Depending on the caching state of each assets, it could take some time...";
 
 	initializeAssimpLogger();

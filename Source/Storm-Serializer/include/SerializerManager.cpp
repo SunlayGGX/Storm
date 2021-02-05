@@ -8,10 +8,6 @@
 
 #include "SceneSimulationConfig.h"
 
-#include "ThreadEnumeration.h"
-#include "ThreadingFlagger.h"
-#include "ThreadFlagEnum.h"
-
 #include "ExitCode.h"
 
 #include "SerializeRecordContraintsData.h"
@@ -27,6 +23,8 @@
 
 #include "ThreadingSafety.h"
 #include "ThreadHelper.h"
+#include "ThreadFlaggerObject.h"
+#include "ThreadEnumeration.h"
 
 #include "FuncMovePass.h"
 
@@ -77,7 +75,7 @@ void Storm::SerializerManager::initialize_Implementation()
 	_serializeThread = std::thread{ [this]()
 	{
 		STORM_REGISTER_THREAD(SerializerThread);
-		Storm::ThreadingFlagger::addThreadFlag(Storm::ThreadFlagEnum::SerializingThread);
+		STORM_DECLARE_THIS_THREAD_IS << Storm::ThreadFlagEnum::SerializingThread;
 		this->run();
 	} };
 
@@ -89,7 +87,7 @@ void Storm::SerializerManager::cleanUp_Implementation()
 	LOG_COMMENT << "Serializer module Cleanup";
 	Storm::join(_serializeThread);
 
-	Storm::ThreadingFlagger::addThreadFlag(Storm::ThreadFlagEnum::SerializingThread);
+	STORM_DECLARE_THIS_THREAD_IS << Storm::ThreadFlagEnum::SerializingThread;
 	Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().processActionsOfThread(Storm::ThreadEnumeration::SerializerThread);
 	this->execute();
 

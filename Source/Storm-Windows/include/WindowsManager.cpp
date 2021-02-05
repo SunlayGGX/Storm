@@ -19,9 +19,8 @@
 
 #include "ThreadHelper.h"
 #include "ThreadEnumeration.h"
-#include "ThreadingFlagger.h"
-#include "ThreadFlagEnum.h"
 #include "ThreadingSafety.h"
+#include "ThreadFlaggerObject.h"
 
 #include "StringAlgo.h"
 #include "MFCHelper.h"
@@ -236,7 +235,10 @@ void Storm::WindowsManager::initialize_Implementation(const Storm::WithUI &)
 	_windowsThread = std::thread{ [this, &syncronizer, &canLeave, &syncMutex]()
 	{
 		STORM_REGISTER_THREAD(WindowsAndInputThread);
-		Storm::ThreadingFlagger::addThreadFlag(Storm::ThreadFlagEnum::WindowsThread);
+		
+		STORM_DECLARE_THIS_THREAD_IS <<
+			Storm::ThreadFlagEnum::WindowsThread <<
+			Storm::ThreadFlagEnum::InputThread;
 
 		runSafeWindowsThread("Windows thread initialization", [this]()
 		{

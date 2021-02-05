@@ -12,8 +12,7 @@
 
 #include "ThreadHelper.h"
 #include "ThreadEnumeration.h"
-#include "ThreadingFlagger.h"
-#include "ThreadFlagEnum.h"
+#include "ThreadFlaggerObject.h"
 
 #include "SpecialKey.h"
 
@@ -110,7 +109,7 @@ void Storm::TimeManager::initialize_Implementation()
 	_timeThread = std::thread{ [this]() 
 	{
 		STORM_REGISTER_THREAD(TimeThread);
-		Storm::ThreadingFlagger::addThreadFlag(Storm::ThreadFlagEnum::TimeThread);
+		STORM_DECLARE_THIS_THREAD_IS << Storm::ThreadFlagEnum::TimeThread;
 
 		TimerThreadSchedulerModifier<1> autoSchedulerModifier;
 

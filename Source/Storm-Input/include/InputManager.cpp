@@ -8,8 +8,6 @@
 #include "IThreadManager.h"
 
 #include "ThreadEnumeration.h"
-#include "ThreadingFlagger.h"
-#include "ThreadFlagEnum.h"
 #include "ThreadingSafety.h"
 
 #include "MemoryHelper.h"
@@ -235,8 +233,6 @@ void Storm::InputManager::initialize_Implementation(const Storm::NoUI &)
 
 void Storm::InputManager::initialize_Implementation(void* vptrHwnd)
 {
-	Storm::ThreadingFlagger::addThreadFlag(Storm::ThreadFlagEnum::InputThread);
-
 	HWND hwnd = static_cast<HWND>(vptrHwnd);
 
 	OIS::ParamList oisParamsList;

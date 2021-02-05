@@ -192,6 +192,9 @@
     <ClCompile Include="..\include\InternalConfig.cpp">
       <Filter>Source Files\Modules\Config</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\ThreadFlaggerObject.cpp">
+      <Filter>Source Files\Modules\Threading</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-ModelBasePCH.h">
@@ -468,6 +471,9 @@
       <Filter>Header Files\Modules\Threading\Flagger</Filter>
     </ClInclude>
     <ClInclude Include="..\include\ThreadFlagEnum.h">
+      <Filter>Header Files\Modules\Threading\Flagger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ThreadFlaggerObject.h">
       <Filter>Header Files\Modules\Threading\Flagger</Filter>
     </ClInclude>
   </ItemGroup>

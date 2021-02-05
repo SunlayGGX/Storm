@@ -11,8 +11,8 @@
 
 #include "ThreadHelper.h"
 #include "ThreadEnumeration.h"
-#include "ThreadingFlagger.h"
-#include "ThreadFlagEnum.h"
+#include "ThreadFlaggerObject.h"
+#include "ThreadingSafety.h"
 
 #include "LeanWindowsInclude.h"
 
@@ -80,6 +80,8 @@ Storm::LoggerManager::~LoggerManager()
 			}
 		}
 	}
+
+	STORM_DECLARE_THIS_THREAD_IS << Storm::ThreadFlagEnum::LoggingThread;
 
 	this->writeLogs(_buffer, _currentPID);
 	_buffer.clear();
@@ -158,7 +160,7 @@ void Storm::LoggerManager::initialize_Implementation()
 	_loggerThread = std::thread{ [this, sync = &syncTmp, canLeave = &canLeaveTmp]()
 	{
 		STORM_REGISTER_THREAD(LoggerThread);
-		Storm::ThreadingFlagger::addThreadFlag(Storm::ThreadFlagEnum::LoggingThread);
+		STORM_DECLARE_THIS_THREAD_IS << Storm::ThreadFlagEnum::LoggingThread;
 
 		Storm::LoggerManager::LogArray tmpBuffer;
 
@@ -229,7 +231,8 @@ void Storm::LoggerManager::cleanUp_Implementation()
 	}
 
 	Storm::join(_loggerThread);
-	Storm::ThreadingFlagger::addThreadFlag(Storm::ThreadFlagEnum::LoggingThread);
+
+	STORM_DECLARE_THIS_THREAD_IS << Storm::ThreadFlagEnum::LoggingThread;
 }
 
 void Storm::LoggerManager::log(const std::string_view &moduleName, Storm::LogLevel level, const std::string_view &function, const int line, std::string &&msg)
@@ -248,6 +251,8 @@ Storm::LogLevel Storm::LoggerManager::getLogLevel() const
 
 void Storm::LoggerManager::writeLogs(LogArray &logArray, const unsigned int currentPID) const
 {
+	assert(Storm::isLoggerThread() && "This method can only be called from logging thread.");
+
 	const bool debuggerAttached = ::IsDebuggerPresent();
 
 	if (!_xmlLogFilePath.empty())
