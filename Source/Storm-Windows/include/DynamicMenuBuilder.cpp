@@ -13,7 +13,7 @@ void Storm::DynamicMenuBuilder::appendMenu(const HMENU parent, const std::wstrin
 		const auto endCallbackRangesIter = std::end(_menuCallbacks);
 		if (auto found = std::find_if(std::begin(_menuCallbacks), endCallbackRangesIter, [newMenuID](const auto &rangesCallbackPair)
 		{
-			return newMenuID == rangesCallbackPair.first + static_cast<UINT>(rangesCallbackPair.second.size()) + 1;
+			return newMenuID == rangesCallbackPair.first + static_cast<UINT>(rangesCallbackPair.second.size());
 		}); found != endCallbackRangesIter)
 		{
 			auto &rangesCallbackPair = *found;
