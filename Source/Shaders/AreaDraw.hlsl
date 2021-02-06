@@ -29,7 +29,7 @@ PixelInputType areaVertexShader(VertexInputType input)
 	// Calculate the position of the vertex against the world, view, and projection matrices.
 	output._position = mul(input._position, _worldMatrix);
 
-#if STORM_HIGHLIGHT_BORDER == true
+#if defined(STORM_HIGHLIGHT_BORDER) && STORM_HIGHLIGHT_BORDER == true
 	float4 dir = normalize(output._position - _eyePosition);
 	dir.w = 0.f;
 
@@ -43,7 +43,7 @@ PixelInputType areaVertexShader(VertexInputType input)
 
 float4 areaPixelShader(PixelInputType input) : SV_TARGET
 {
-#if STORM_HIGHLIGHT_BORDER == true
+#if defined(STORM_HIGHLIGHT_BORDER) && STORM_HIGHLIGHT_BORDER == true
 	float mask = input._scalar > 0.3f;
 	return float4(_areaColor.xyz * mask, _areaColor.w);
 #else
