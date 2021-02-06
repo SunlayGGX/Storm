@@ -503,6 +503,7 @@ void Storm::DFSPHSolver::divergenceSolve(const Storm::IterationParameter &iterat
 #endif
 						v_i += velChange;
 
+#if false
 						if (!neighborPSystemAsBoundary->isStatic())
 						{
 							Storm::Vector3 addedPressureForce = (-currentPMass * invertDeltaTime) * velChange;
@@ -512,6 +513,7 @@ void Storm::DFSPHSolver::divergenceSolve(const Storm::IterationParameter &iterat
 							std::lock_guard<std::mutex> lock{ neighbor._containingParticleSystem->_mutex };
 							tmpPressureForce += addedPressureForce;
 						}
+#endif
 					}
 				}
 			});
@@ -681,6 +683,7 @@ void Storm::DFSPHSolver::pressureSolve(const Storm::IterationParameter &iteratio
 #endif
 						v_i += velChange;
 
+#if true
 						if (!neighborPSystemAsBoundary->isStatic())
 						{
 							Storm::Vector3 addedPressureForce = (-currentPMass * invDeltaTime) * velChange;
@@ -690,6 +693,7 @@ void Storm::DFSPHSolver::pressureSolve(const Storm::IterationParameter &iteratio
 							std::lock_guard<std::mutex> lock{ neighbor._containingParticleSystem->_mutex };
 							tmpPressureForce += addedPressureForce;
 						}
+#endif
 					}
 				}
 			});
