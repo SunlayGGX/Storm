@@ -127,7 +127,6 @@ namespace
 				// Mirror the force on the boundary solid following the 3rd newton law
 				if (!neighborPSystemAsBoundary->isStatic())
 				{
-					Storm::Vector3 &boundaryNeighborForce = neighbor._containingParticleSystem->getForces()[neighbor._particleIndex];
 					Storm::Vector3 &boundaryNeighborTmpViscosityForce = neighbor._containingParticleSystem->getTemporaryViscosityForces()[neighbor._particleIndex];
 
 					std::lock_guard<std::mutex> lock{ neighbor._containingParticleSystem->_mutex };
