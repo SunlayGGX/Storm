@@ -12,6 +12,7 @@
 #include "SceneRigidBodyConfig.h"
 
 #include "RecordMode.h"
+#include "ViscosityMethod.h"
 
 #include "OSHelper.h"
 
@@ -509,6 +510,43 @@ const std::string& Storm::ConfigManager::getSceneName() const
 const std::string& Storm::ConfigManager::getSimulationTypeName() const
 {
 	return this->getSceneSimulationConfig()._simulationModeStr;
+}
+
+std::string Storm::ConfigManager::getViscosityMethods() const
+{
+	struct ViscosityMethodParserPolicy
+	{
+		static std::string parsePolicyAgnostic(const Storm::ViscosityMethod viscoMethod)
+		{
+#define STORM_PARSE(viscoMethValue) case Storm::ViscosityMethod::viscoMethValue: return STORM_STRINGIFY(viscoMethValue)
+			switch (viscoMethod)
+			{
+				STORM_PARSE(XSPH);
+				STORM_PARSE(Standard);
+
+			default:
+				__assume(false);
+				Storm::throwException<Storm::Exception>("Viscosity method value is unknown : '" + Storm::toStdString(viscoMethod) + "'");
+			}
+#undef STORM_PARSE
+		}
+	};
+
+	std::string result;
+	
+	const Storm::SceneSimulationConfig &simulConfig = this->getSceneSimulationConfig();
+
+	const std::string fluidViscoStr = Storm::toStdString<ViscosityMethodParserPolicy>(simulConfig._fluidViscoMethod);
+	const std::string rbViscoStr = Storm::toStdString<ViscosityMethodParserPolicy>(simulConfig._rbViscoMethod);
+
+	result.reserve(24 + fluidViscoStr.size() + rbViscoStr.size());
+
+	result += "FluidVisco:";
+	result += fluidViscoStr;
+	result += " - RbVisco:";
+	result += rbViscoStr;
+
+	return result;
 }
 
 unsigned int Storm::ConfigManager::getCurrentPID() const

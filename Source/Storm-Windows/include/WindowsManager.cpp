@@ -367,6 +367,7 @@ void Storm::WindowsManager::initializeInternal()
 
 		appendToTitle(szTitle, titleLength, configMgr.getSceneName(), "current scene name");
 		appendToTitle(szTitle, titleLength, configMgr.getSimulationTypeName(), "current simulation type");
+		appendToTitle(szTitle, titleLength, configMgr.getViscosityMethods(), "current viscosity methods");
 
 		const Storm::GeneralApplicationConfig &generalAppConfig = configMgr.getGeneralApplicationConfig();
 		if (generalAppConfig._showBranchInTitle)

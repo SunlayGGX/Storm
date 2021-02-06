@@ -24,7 +24,7 @@ namespace Storm
 	private:
 		enum
 		{
-			MAX_TITLE_COUNT = 128,
+			MAX_TITLE_COUNT = 256,
 		};
 
 	private:

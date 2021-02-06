@@ -61,6 +61,7 @@ namespace Storm
 		bool userCanModifyTimestep() const noexcept final override;
 		const std::string& getSceneName() const final override;
 		const std::string& getSimulationTypeName() const final override;
+		std::string getViscosityMethods() const final override;
 		unsigned int getCurrentPID() const final override;
 		const std::string& getSceneConfigFilePath() const final override;
 		const std::string& getScriptFilePath() const final override;
