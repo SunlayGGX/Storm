@@ -123,6 +123,7 @@
     <ClInclude Include="..\include\UIModality.h" />
     <ClInclude Include="..\include\Vector3.h" />
     <ClInclude Include="..\include\Vector3Utils.h" />
+    <ClInclude Include="..\include\ViscosityMethod.h" />
     <ClInclude Include="..\include\WindowsCallbacks.h" />
   </ItemGroup>
   <ItemGroup>

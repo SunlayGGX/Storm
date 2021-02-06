@@ -24,6 +24,7 @@
 #include "BlowerDef.h"
 #include "InsideParticleRemovalTechnique.h"
 #include "LayeringGenerationTechnique.h"
+#include "ViscosityMethod.h"
 
 #include "ColorChecker.h"
 #include "XmlReader.h"
@@ -192,6 +193,23 @@ if (blowerTypeStr == BlowerTypeXmlName) return Storm::BlowerType::BlowerTypeName
 			Storm::throwException<Storm::Exception>("Layering generation technique value is unknown : '" + layeringTechTypeStr + "'");
 		}
 	}
+
+	Storm::ViscosityMethod parseViscosityMethod(std::string viscosityMethodStr)
+	{
+		boost::algorithm::to_lower(viscosityMethodStr);
+		if (viscosityMethodStr == "xsph")
+		{
+			return Storm::ViscosityMethod::XSPH;
+		}
+		else if (viscosityMethodStr == "standard")
+		{
+			return Storm::ViscosityMethod::Standard;
+		}
+		else
+		{
+			Storm::throwException<Storm::Exception>("Viscosity method value is unknown : '" + viscosityMethodStr + "'");
+		}
+	}
 }
 
 
@@ -219,6 +237,8 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 			!Storm::XmlReader::handleXml(generalXmlElement, "kernelCoeff", sceneSimulationConfig._kernelCoefficient) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "maxKernelIncrementCoeff", sceneSimulationConfig._maxKernelIncrementCoeff) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "kernelIncrementCoeffEndTime", sceneSimulationConfig._kernelIncrementSpeedInSeconds) &&
+			!Storm::XmlReader::handleXml(generalXmlElement, "fluidViscosityMethod", sceneSimulationConfig._fluidViscoMethod, parseViscosityMethod) &&
+			!Storm::XmlReader::handleXml(generalXmlElement, "rbViscosityMethod", sceneSimulationConfig._rbViscoMethod, parseViscosityMethod) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "CFLCoeff", sceneSimulationConfig._cflCoeff) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "MaxCFLTime", sceneSimulationConfig._maxCFLTime) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "CFLIteration", sceneSimulationConfig._maxCFLIteration) &&

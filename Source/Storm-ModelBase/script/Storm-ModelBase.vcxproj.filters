@@ -485,5 +485,8 @@
     <ClInclude Include="..\include\SceneFluidDefaultCustomConfig.h">
       <Filter>Header Files\Modules\Config\Scene\SimulationElement</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\ViscosityMethod.h">
+      <Filter>Header Files\Modules\Simulation</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

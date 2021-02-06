@@ -18,6 +18,7 @@
 #include "InsideParticleRemovalTechnique.h"
 #include "RecordMode.h"
 #include "LayeringGenerationTechnique.h"
+#include "ViscosityMethod.h"
 
 
 
@@ -43,7 +44,9 @@ Storm::SceneSimulationConfig::SceneSimulationConfig() :
 	_hasFluid{ true },
 	_computeCFL{ false },
 	_fixRigidBodyAtStartTime{ false },
-	_endSimulationPhysicsTimeInSeconds{ -1.f }
+	_endSimulationPhysicsTimeInSeconds{ -1.f },
+	_fluidViscoMethod{ Storm::ViscosityMethod::Standard },
+	_rbViscoMethod{ Storm::ViscosityMethod::Standard }
 {
 
 }

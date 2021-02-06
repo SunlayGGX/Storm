@@ -5,6 +5,7 @@ namespace Storm
 {
 	enum class SimulationMode;
 	enum class KernelMode;
+	enum class ViscosityMethod;
 
 	struct SceneSimulationConfig
 	{
@@ -40,6 +41,9 @@ namespace Storm
 
 		Storm::SimulationMode _simulationMode;
 		std::string _simulationModeStr;
+
+		Storm::ViscosityMethod _fluidViscoMethod;
+		Storm::ViscosityMethod _rbViscoMethod;
 
 		bool _hasFluid;
 
