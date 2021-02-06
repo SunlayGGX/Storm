@@ -553,15 +553,15 @@ Here the list of available commands :
 
 #### OSManager (osMgr)
 
-- **void clearProcesses()**: Clear all processes (this closes all processes those life will be shared with Storm application).
+- **void clearProcesses()**: Clear all processes (this closes all processes those life are bound to Storm application).
 
 
 #### WindowsManager (winMgr)
 
-- **void restartApplication(const std::string_view &additionalArgs)**: Restart Storm application and applies additional parameters. Note that the application will be restarted with to the current scene and will forward its current command line, therefore additional parameters should only contains parameters that aren't already in those.
+- **void restartApplication(const std::string_view &additionalArgs)**: Restart Storm application and applies additional parameters. Note that the application will be restarted to the current scene and will forward its current command line, therefore additional parameters should only contains parameters that aren't already in those.
 
 
 
 # References
 
-TODO (Sorry, since the engine is for now a work in progress. This section will be the last updated... I promise to reference all sources I used and cite their respective authors).
+TODO (Sorry, since the engine is a work in progress. This section will be the last one I'll update... But I promise to reference all sources I used and cite their respective authors).
