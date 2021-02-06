@@ -294,9 +294,9 @@ Unlike the others config files, it can be named as you want. Here the xml tags y
 - **blowerAlpha (float, facultative)**: Set the blower visualization alpha channel. Must be between 0 and 1 included. Default value is 0.25.
 - **grid (vector3, facultative)**: Set the grid dimension. X coord will be the grid width, Z its depth and Y will be the height where the grid will be drawn. Note that X and Z will be ceiled. Default value is { x=10.0, y=0.0, z=10.0 }
 - **particleDisplay (boolean, facultative)**: Specify if Solids should be displayed as particle on start. If not, they will be displayed as meshes. "false" by default.
-- **constraintThickness (float, facultative)**: Specify the thickness of the line when visualizing the constraint. It should be a positive non-zero value. Default is "General.particleRadius / 3.0".
+- **constraintThickness (positive float, facultative)**: Specify the thickness of the line when visualizing the constraint. It should be a positive non-zero value. Default is "General.particleRadius / 3.0".
 - **constraintColor (RGBAcolor, facultative)**: Specify the color of the line when visualizing the constraint. Default is { r=1.0, g=0.1, b=0.1, a=0.8 }.
-- **forceThickness (float, facultative)**: Specify the thickness of the line when visualizing the selected particle force. It should be a positive non-zero value. Default is "General.particleRadius / 3.0".
+- **forceThickness (positive float, facultative)**: Specify the thickness of the line when visualizing the selected particle force. It should be a positive non-zero value. Default is "General.particleRadius / 3.0".
 - **forceColor (RGBAcolor, facultative)**: Specify the color of the line when visualizing the selected particle force. Default is { r=0.0, g=1.0, b=1.0, a=0.8 }.
 
 
@@ -327,14 +327,16 @@ This element is all setting appartaining to a fluid. Here the tag you can set in
 - **density (positive float, falcultative)**: This is the rest density of the fluid in kg.m^-3. Default is 1.2754 kg.m^-3 which is the density of Dry air at 0 °C and normal ATM pressure.
 - **pressureK1 (positive zero-able float, falcultative)**: This is the pressure stiffness constant coefficient used when initializing the pressure using State equation. In formulas, it is often found as k1. Default is 50000.
 - **pressureK2 (positive zero-able float, falcultative)**: This is the pressure exponent constant coefficient used when initializing the pressure using State equation. In formulas, it is often found as k2. Default is 7.
-- **pressurePredictKCoeff (positive zero-able float, falcultative)**: This is a multiplication coefficient for the predicted pressure coefficient we compute inside DFSPH. This parameter doesn't exist in the real formula (is 1.0) but was introduced to balance pressure forces against viscosity forces. Default is 1.0.
 - **relaxationCoeff (positive zero-able float, falcultative)**: This is the relaxation coefficient (alias omega) used inside some Simulation methods when computing prediction pressures. It should be between 0.0 and 1.0 included. Default is 0.5.
 - **initRelaxationCoeff (positive zero-able float, falcultative)**: This is the pressure initial relaxation coefficient used inside some Simulation methods (like IISPH) when initializing pressure fields. It should be greater or equal to 0.0. Default is 0.5.
 - **viscosity (positive float, falcultative)**: This is the dynamic viscosity of the fluid in N.s/m² (or Pa.s). Default is 0.00001715 N.s/m² which is the dynamic viscosity of Dry air at 0 °C and normal ATM pressure.
 - **soundSpeed (positive float, falcultative)**: This is the speed of sound inside the given fluid in m/s. Default is 331.4 m/s which is the speed of sound of Dry air at 0 °C) and normal ATM pressure (340 is for 15 °C).
 - **enableGravity (boolean, falcultative)**: Enable the gravity for the associated fluid particle system. Default is true.
 - **removeCollidingParticles (boolean, falcultative)**: If true, any fluid particle that collides with any rigid bodies will be forcefully removed when it is spawned. This does not reproduce the behavior of SplishSplash since it does not remove insider particles. If false, fluid particles can spawn inside rigid bodies, possibly leading to some explosion, instabilities and bad physical states. Default is true.
-- **neighborThreshold (positive integer, falcultative)**: Neighbor count threshold used for DFSPH below what we don't advect density. Default is 20.
+- **DFSPH (tag, facultative)**: This tag is for gathering all settings that are relevant to DFSPH. Those will be ignored if the simulation method is not DFSPH. If DFSPH was selected, but the tag isn't present, then default value will be used.
+	+ **pressurePredictKCoeff (positive zero-able float, falcultative)**: This is a multiplication coefficient for the predicted pressure coefficient we compute inside DFSPH. This parameter doesn't exist in the real formula (is 1.0) but was introduced to balance pressure forces against viscosity forces. Default is 1.0.
+	+ **neighborThresholdDensity (positive integer, falcultative)**: Neighbor count threshold used for DFSPH. If the neighbor count is below this value, then we won't advect density for the current particle. It should be an non zero positive integer. Default is 20.
+	+ **enableThresholdDensity (boolean, falcultative)**: Enable the neighbor threshold density. Maybe for simulation that are with a filled domain (no void). Default is true.
 
 
 #### RigidBodies

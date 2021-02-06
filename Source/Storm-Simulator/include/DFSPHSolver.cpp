@@ -17,6 +17,7 @@
 
 #include "SceneSimulationConfig.h"
 #include "SceneFluidConfig.h"
+#include "SceneFluidCustomDFSPHConfig.h"
 
 #include "Kernel.h"
 
@@ -100,6 +101,7 @@ void Storm::DFSPHSolver::execute(const Storm::IterationParameter &iterationParam
 
 	const Storm::SceneSimulationConfig &sceneSimulationConfig = configMgr.getSceneSimulationConfig();
 	const Storm::SceneFluidConfig &fluidConfig = configMgr.getSceneFluidConfig();
+	const Storm::SceneFluidCustomDFSPHConfig &dfsphFluidConfig = static_cast<const Storm::SceneFluidCustomDFSPHConfig &>(*fluidConfig._customSimulationSettings);
 
 	Storm::SimulatorManager &simulMgr = Storm::SimulatorManager::instance();
 
@@ -156,7 +158,7 @@ void Storm::DFSPHSolver::execute(const Storm::IterationParameter &iterationParam
 	}
 
 	// 4th : Compute k_dfsph coeff
-	const double kPressurePredictFinalCoeff = static_cast<double>(-fluidConfig._kPressurePredictedCoeff);
+	const double kPressurePredictFinalCoeff = static_cast<double>(-dfsphFluidConfig._kPressurePredictedCoeff);
 	for (auto &dataFieldPair : _data)
 	{
 		this->computeDFSPHFactor(
@@ -384,6 +386,7 @@ void Storm::DFSPHSolver::divergenceSolve(const Storm::IterationParameter &iterat
 
 	const Storm::SceneSimulationConfig &sceneSimulationConfig = configMgr.getSceneSimulationConfig();
 	const Storm::SceneFluidConfig &sceneFluidConfig = configMgr.getSceneFluidConfig();
+	const Storm::SceneFluidCustomDFSPHConfig &dfsphFluidConfig = static_cast<const Storm::SceneFluidCustomDFSPHConfig &>(*sceneFluidConfig._customSimulationSettings);
 
 	Storm::SimulatorManager &simulMgr = Storm::SimulatorManager::instance();
 
@@ -398,7 +401,6 @@ void Storm::DFSPHSolver::divergenceSolve(const Storm::IterationParameter &iterat
 	const unsigned int minIter = sceneSimulationConfig._minPredictIteration;
 	const unsigned int maxIter = sceneSimulationConfig._maxPredictIteration;
 	const float maxError = sceneSimulationConfig._maxDensityError;
-	const std::size_t neighborThreshold = sceneFluidConfig._neighborThresholdDensity;
 
 	//////////////////////////////////////////////////////////////////////////
 	// Compute velocity of density change
@@ -407,9 +409,9 @@ void Storm::DFSPHSolver::divergenceSolve(const Storm::IterationParameter &iterat
 	{
 		// Since data field was made from fluid particles, no need to check.
 		Storm::FluidParticleSystem &fluidPSystem = static_cast<Storm::FluidParticleSystem &>(*particleSystems.find(dataFieldPair.first)->second);
-		Storm::runParallel(dataFieldPair.second, [this, &iterationParameter, &fluidPSystem, &dataFieldPair, invertDeltaTime, neighborThreshold](Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex)
+		Storm::runParallel(dataFieldPair.second, [this, &iterationParameter, &fluidPSystem, &dataFieldPair, invertDeltaTime, &dfsphFluidConfig](Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex)
 		{
-			this->computeDensityChange(iterationParameter, fluidPSystem, &dataFieldPair.second, currentPData, currentPIndex, neighborThreshold);
+			this->computeDensityChange(iterationParameter, fluidPSystem, &dataFieldPair.second, currentPData, currentPIndex, dfsphFluidConfig);
 			currentPData._kCoeff *= invertDeltaTime;
 		});
 	}
@@ -523,8 +525,8 @@ void Storm::DFSPHSolver::divergenceSolve(const Storm::IterationParameter &iterat
 			//////////////////////////////////////////////////////////////////////////
 			Storm::runParallel(dataFieldPair.second, [&](Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex)
 			{
-				this->computeDensityChange(iterationParameter, fluidPSystem, &dataFieldPair.second, currentPData, currentPIndex, neighborThreshold);
-				avgDensityErrAtom += density0 * currentPData._predictedDensity;
+				this->computeDensityChange(iterationParameter, fluidPSystem, &dataFieldPair.second, currentPData, currentPIndex, dfsphFluidConfig);
+				avgDensityErrAtom += density0 * (currentPData._predictedDensity);
 			});
 
 			avgDensityErrAtom = avgDensityErrAtom / _totalParticleCountFl;
@@ -816,7 +818,7 @@ void Storm::DFSPHSolver::computeDensityAdv(const Storm::IterationParameter &iter
 	densityAdv = std::max(densityAdv, 1.f);
 }
 
-void Storm::DFSPHSolver::computeDensityChange(const Storm::IterationParameter &iterationParameter, Storm::FluidParticleSystem &fluidPSystem, const Storm::DFSPHSolver::DFSPHSolverDataArray* currentSystemData, Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex, const std::size_t neighborThreshold)
+void Storm::DFSPHSolver::computeDensityChange(const Storm::IterationParameter &iterationParameter, Storm::FluidParticleSystem &fluidPSystem, const Storm::DFSPHSolver::DFSPHSolverDataArray* currentSystemData, Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex, const Storm::SceneFluidCustomDFSPHConfig &dfsphFluidConfig)
 {
 	const Storm::ParticleNeighborhoodArray &currentPNeighborhood = fluidPSystem.getNeighborhoodArrays()[currentPIndex];
 
@@ -824,7 +826,7 @@ void Storm::DFSPHSolver::computeDensityChange(const Storm::IterationParameter &i
 	densityAdv = 0.f;
 
 	// in case of particle deficiency do not perform a divergence solve
-	if (currentPNeighborhood.size() >= neighborThreshold)
+	if (!dfsphFluidConfig._enableThresholdDensity || currentPNeighborhood.size() >= dfsphFluidConfig._neighborThresholdDensity)
 	{
 		const Storm::DFSPHSolver::DFSPHSolverDataArray* neighborDataArray = currentSystemData;
 		const Storm::FluidParticleSystem* lastNeighborFluidSystem = &fluidPSystem;

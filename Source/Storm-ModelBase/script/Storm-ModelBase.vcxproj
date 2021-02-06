@@ -50,6 +50,7 @@
     <ClInclude Include="..\include\ColorChecker.h" />
     <ClInclude Include="..\include\SceneConstraintConfig.h" />
     <ClInclude Include="..\include\FluidParticleLoadDenseMode.h" />
+    <ClInclude Include="..\include\SceneFluidCustomDFSPHConfig.h" />
     <ClInclude Include="..\include\SceneSimulationConfig.h" />
     <ClInclude Include="..\include\GeneralWebConfig.h" />
     <ClInclude Include="..\include\SceneGraphicConfig.h" />
@@ -64,6 +65,7 @@
     <ClInclude Include="..\include\SceneRecordConfig.h" />
     <ClInclude Include="..\include\RecordMode.h" />
     <ClInclude Include="..\include\SceneScriptConfig.h" />
+    <ClInclude Include="..\include\SceneFluidDefaultCustomConfig.h" />
     <ClInclude Include="..\include\SerializeConstraintLayout.h" />
     <ClInclude Include="..\include\SerializeParticleSystemLayout.h" />
     <ClInclude Include="..\include\SerializeRecordContraintsData.h" />

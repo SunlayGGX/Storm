@@ -7,6 +7,7 @@
 namespace Storm
 {
 	struct DFSPHSolverData;
+	struct SceneFluidCustomDFSPHConfig;
 
 	class DFSPHSolver :
 		public Storm::ISPHBaseSolver,
@@ -27,7 +28,7 @@ namespace Storm
 		void pressureSolve(const Storm::IterationParameter &iterationParameter, unsigned int &outIteration, float &outAverageError);
 		void computeDFSPHFactor(const Storm::IterationParameter &iterationParameter, Storm::FluidParticleSystem &fluidPSystem, Storm::DFSPHSolver::DFSPHSolverDataArray &pSystemData, const double kMultiplicationCoeff);
 		void computeDensityAdv(const Storm::IterationParameter &iterationParameter, Storm::FluidParticleSystem &fluidPSystem, const Storm::DFSPHSolver::DFSPHSolverDataArray* currentSystemData, Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex);
-		void computeDensityChange(const Storm::IterationParameter &iterationParameter, Storm::FluidParticleSystem &fluidPSystem, const Storm::DFSPHSolver::DFSPHSolverDataArray* currentSystemData, Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex, const std::size_t neighborThreshold);
+		void computeDensityChange(const Storm::IterationParameter &iterationParameter, Storm::FluidParticleSystem &fluidPSystem, const Storm::DFSPHSolver::DFSPHSolverDataArray* currentSystemData, Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex, const Storm::SceneFluidCustomDFSPHConfig &dfsphFluidConfig);
 
 	private:
 		std::map<unsigned int, Storm::DFSPHSolver::DFSPHSolverDataArray> _data;

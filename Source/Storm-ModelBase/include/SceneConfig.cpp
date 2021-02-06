@@ -8,6 +8,7 @@
 #include "SceneConstraintConfig.h"
 #include "SceneRecordConfig.h"
 #include "SceneScriptConfig.h"
+#include "SceneFluidCustomDFSPHConfig.h"
 
 #include "CollisionType.h"
 #include "SimulationMode.h"
@@ -17,6 +18,7 @@
 #include "InsideParticleRemovalTechnique.h"
 #include "RecordMode.h"
 #include "LayeringGenerationTechnique.h"
+
 
 
 Storm::SceneSimulationConfig::SceneSimulationConfig() :
@@ -105,6 +107,14 @@ Storm::SceneFluidUnitParticleConfig::SceneFluidUnitParticleConfig() :
 
 }
 
+Storm::SceneFluidCustomDFSPHConfig::SceneFluidCustomDFSPHConfig() :
+	_neighborThresholdDensity{ 20 },
+	_kPressurePredictedCoeff{ 1.f },
+	_enableThresholdDensity{ true }
+{
+
+}
+
 Storm::SceneFluidConfig::SceneFluidConfig() :
 	_fluidId{ std::numeric_limits<decltype(_fluidId)>::max() },
 	_density{ 1.2754f }, // Dry air density at 0 °C degrees and normal ATM pressure. https://en.wikipedia.org/wiki/Density_of_air.
@@ -112,12 +122,11 @@ Storm::SceneFluidConfig::SceneFluidConfig() :
 	_soundSpeed{ 331.4f }, // Sound speed in air at 0 °C degrees and normal ATM pressure. https://www.engineeringtoolbox.com/air-speed-sound-d_603.html,
 	_kPressureStiffnessCoeff{ 50000.f },
 	_kPressureExponentCoeff{ 7.f },
-	_kPressurePredictedCoeff{ 1.f },
 	_relaxationCoefficient{ 0.5f },
 	_pressureInitRelaxationCoefficient{ 0.5f },
 	_gravityEnabled{ true },
 	_removeParticlesCollidingWithRb{ true },
-	_neighborThresholdDensity{ 20 },
+	_customSimulationSettings{ nullptr }, // This will be filled when we'll read the config file to the right settings structure depending on our simulation mode.
 	_cinematicViscosity{ 0.f } // Computed automatically once final _dynamicViscosity value will be determined.
 {
 

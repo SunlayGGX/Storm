@@ -12,6 +12,7 @@
 #include "SceneConstraintConfig.h"
 #include "SceneRecordConfig.h"
 #include "SceneScriptConfig.h"
+#include "SceneFluidCustomDFSPHConfig.h"
 
 #include "GeneralConfig.h"
 
@@ -453,6 +454,20 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 	/* Fluids */
 	Storm::SceneFluidConfig &fluidConfig = _sceneConfig->_fluidConfig;
 
+	switch (sceneSimulationConfig._simulationMode)
+	{
+	case Storm::SimulationMode::DFSPH:
+		fluidConfig._customSimulationSettings = std::make_unique<Storm::SceneFluidCustomDFSPHConfig>();
+		break;
+
+	case Storm::SimulationMode::WCSPH:
+	case Storm::SimulationMode::PCISPH:
+	case Storm::SimulationMode::IISPH:
+	default:
+		fluidConfig._customSimulationSettings = std::make_unique<Storm::SceneFluidDefaultCustomConfig>();
+		break;
+	}
+
 	const auto &fluidTreeOpt = srcTree.get_child_optional("Fluid");
 	if (fluidTreeOpt.has_value())
 	{
@@ -490,18 +505,40 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 					}
 				}
 			}
+			else if (sceneSimulationConfig._simulationMode == SimulationMode::DFSPH && fluidXmlElement.first == "DFSPH")
+			{
+				Storm::SceneFluidCustomDFSPHConfig &fluidDfsphConfig = static_cast<Storm::SceneFluidCustomDFSPHConfig &>(*fluidConfig._customSimulationSettings);
+				for (const auto &fluidParticleCustomSimulConfigXml : fluidXmlElement.second)
+				{
+					if (
+						!Storm::XmlReader::handleXml(fluidParticleCustomSimulConfigXml, "pressurePredictKCoeff", fluidDfsphConfig._kPressurePredictedCoeff) &&
+						!Storm::XmlReader::handleXml(fluidParticleCustomSimulConfigXml, "enableThresholdDensity", fluidDfsphConfig._enableThresholdDensity) &&
+						!Storm::XmlReader::handleXml(fluidParticleCustomSimulConfigXml, "neighborThresholdDensity", fluidDfsphConfig._neighborThresholdDensity)
+						)
+					{
+						LOG_ERROR << "tag '" << fluidParticleCustomSimulConfigXml.first << "' (inside Scene.Fluid.DFSPH) is unknown, therefore it cannot be handled";
+					}
+				}
+
+				if (fluidDfsphConfig._kPressurePredictedCoeff < 0.f)
+				{
+					Storm::throwException<Storm::Exception>("Fluid " + std::to_string(fluidConfig._fluidId) + " predicted pressure coefficient of " + std::to_string(fluidDfsphConfig._kPressurePredictedCoeff) + " is invalid!");
+				}
+				else if (fluidDfsphConfig._enableThresholdDensity && fluidDfsphConfig._neighborThresholdDensity == 0)
+				{
+					Storm::throwException<Storm::Exception>("Fluid " + std::to_string(fluidConfig._fluidId) + " has enabled DFSPH density threshold but has an invalid threshold of 0!");
+				}
+			}
 			else if (
 				!Storm::XmlReader::handleXml(fluidXmlElement, "id", fluidConfig._fluidId) &&
 				!Storm::XmlReader::handleXml(fluidXmlElement, "viscosity", fluidConfig._dynamicViscosity) &&
 				!Storm::XmlReader::handleXml(fluidXmlElement, "soundSpeed", fluidConfig._soundSpeed) &&
 				!Storm::XmlReader::handleXml(fluidXmlElement, "pressureK1", fluidConfig._kPressureStiffnessCoeff) &&
 				!Storm::XmlReader::handleXml(fluidXmlElement, "pressureK2", fluidConfig._kPressureExponentCoeff) &&
-				!Storm::XmlReader::handleXml(fluidXmlElement, "pressurePredictKCoeff", fluidConfig._kPressurePredictedCoeff) &&
 				!Storm::XmlReader::handleXml(fluidXmlElement, "relaxationCoeff", fluidConfig._relaxationCoefficient) &&
 				!Storm::XmlReader::handleXml(fluidXmlElement, "initRelaxationCoeff", fluidConfig._pressureInitRelaxationCoefficient) &&
 				!Storm::XmlReader::handleXml(fluidXmlElement, "enableGravity", fluidConfig._gravityEnabled) &&
 				!Storm::XmlReader::handleXml(fluidXmlElement, "removeCollidingParticles", fluidConfig._removeParticlesCollidingWithRb) &&
-				!Storm::XmlReader::handleXml(fluidXmlElement, "neighborThreshold", fluidConfig._neighborThresholdDensity) &&
 				!Storm::XmlReader::handleXml(fluidXmlElement, "density", fluidConfig._density)
 				)
 			{
@@ -528,10 +565,6 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 		else if (fluidConfig._kPressureExponentCoeff < 0.f)
 		{
 			Storm::throwException<Storm::Exception>("Fluid " + std::to_string(fluidConfig._fluidId) + " pressure exponent of " + std::to_string(fluidConfig._kPressureExponentCoeff) + " is invalid!");
-		}
-		else if (fluidConfig._kPressurePredictedCoeff < 0.f)
-		{
-			Storm::throwException<Storm::Exception>("Fluid " + std::to_string(fluidConfig._fluidId) + " predicted pressure coefficient of " + std::to_string(fluidConfig._kPressurePredictedCoeff) + " is invalid!");
 		}
 		else if (fluidConfig._relaxationCoefficient < 0.f || fluidConfig._relaxationCoefficient > 1.f)
 		{

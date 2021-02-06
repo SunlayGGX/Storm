@@ -154,6 +154,9 @@
     <Filter Include="Header Files\Modules\Threading\Flagger">
       <UniqueIdentifier>{732ab86b-02e3-43ea-8c0f-db1d56f3b876}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Modules\Config\Scene\SimulationElement">
+      <UniqueIdentifier>{ff1ecbe2-3e99-4eb8-bc5c-02b2899bb570}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-ModelBasePCH.cpp">
@@ -475,6 +478,12 @@
     </ClInclude>
     <ClInclude Include="..\include\ThreadFlaggerObject.h">
       <Filter>Header Files\Modules\Threading\Flagger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SceneFluidCustomDFSPHConfig.h">
+      <Filter>Header Files\Modules\Config\Scene\SimulationElement</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SceneFluidDefaultCustomConfig.h">
+      <Filter>Header Files\Modules\Config\Scene\SimulationElement</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
