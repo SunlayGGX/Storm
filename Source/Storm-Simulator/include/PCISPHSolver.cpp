@@ -182,6 +182,7 @@ void Storm::PCISPHSolver::execute(const Storm::IterationParameter &iterationPara
 			const float density0 = fluidParticleSystem.getRestDensity();
 			const std::vector<Storm::ParticleNeighborhoodArray> &neighborhoodArrays = fluidParticleSystem.getNeighborhoodArrays();
 			std::vector<float> &pressures = fluidParticleSystem.getPressures();
+			std::vector<float> &masses = fluidParticleSystem.getMasses();
 
 			Storm::runParallel(fluidParticleSystem.getDensities(), [&](float &currentPDensity, const std::size_t currentPIndex)
 			{
@@ -217,6 +218,9 @@ void Storm::PCISPHSolver::execute(const Storm::IterationParameter &iterationPara
 				{
 					currentPPressure = fluidConfig._kPressureStiffnessCoeff * (std::powf(currentPDensity / density0, fluidConfig._kPressureExponentCoeff) - 1.f);
 				}
+
+				float &currentPMass = masses[currentPIndex];
+				currentPMass = currentPDensity * particleVolume;
 			});
 		}
 	}
