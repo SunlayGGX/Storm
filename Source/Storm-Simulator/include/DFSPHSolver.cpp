@@ -535,26 +535,15 @@ void Storm::DFSPHSolver::divergenceSolve(const Storm::IterationParameter &iterat
 						const float kSum = ki + lastNeighborFluidSystem->getRestDensity() / density0 * kj;
 						if (std::fabs(kSum) > k_epsilon)
 						{
-#if false // Original
-
-							const Storm::Vector3 grad_p_j = -lastNeighborFluidSystem->getParticleVolume() * neighbor._gradWij;
-							v_i -= iterationParameter._deltaTime * kSum * grad_p_j;			// ki, kj already contain inverse density
-#else // Optimized but not fixed
 							v_i += (iterationParameter._deltaTime * kSum * lastNeighborFluidSystem->getParticleVolume()) * neighbor._gradWij;
-#endif
 						}
 					}
 					else if (std::fabs(ki) > k_epsilon)
 					{
 						Storm::RigidBodyParticleSystem* neighborPSystemAsBoundary = static_cast<Storm::RigidBodyParticleSystem*>(neighbor._containingParticleSystem);
 
-#if false // Original
-
-						const Storm::Vector3 grad_p_j = -neighborPSystemAsBoundary->getVolumes()[neighbor._particleIndex] * neighbor._gradWij;
-						const Storm::Vector3 velChange = -iterationParameter._deltaTime * 1.f * ki * grad_p_j;				// kj already contains inverse density
-#else // Optimized but not fixed
 						const Storm::Vector3 velChange = (iterationParameter._deltaTime * 1.f * ki * neighborPSystemAsBoundary->getVolumes()[neighbor._particleIndex]) * neighbor._gradWij;	// kj already contains inverse density
-#endif
+
 						v_i += velChange;
 
 #if false
@@ -710,31 +699,17 @@ void Storm::DFSPHSolver::pressureSolve(const Storm::IterationParameter &iteratio
 						const float kSum = ki + lastNeighborFluidSystem->getRestDensity() / density0 * kj;
 						if (std::fabs(kSum) > k_epsilon)
 						{
-#if false // Original
-							const Storm::Vector3 grad_p_j = -lastNeighborFluidSystem->getParticleVolume() * neighbor._gradWij;
-
-							// Directly update velocities instead of storing pressure accelerations
-							v_i -= iterationParameter._deltaTime * kSum * grad_p_j;			// ki, kj already contain inverse density						
-#else // Optimized but not fixed
-
 							// Directly update velocities instead of storing pressure accelerations
 							v_i += (iterationParameter._deltaTime * kSum * lastNeighborFluidSystem->getParticleVolume()) * neighbor._gradWij;	// ki, kj already contain inverse density
-#endif
 						}
 					}
 					else if (std::fabs(ki) > k_epsilon)
 					{
 						Storm::RigidBodyParticleSystem* neighborPSystemAsBoundary = static_cast<Storm::RigidBodyParticleSystem*>(neighbor._containingParticleSystem);
 
-#if false // Original
-						const Storm::Vector3 grad_p_j = -neighborPSystemAsBoundary->getVolumes()[neighbor._particleIndex] * neighbor._gradWij;
+						// Directly update velocities instead of storing pressure accelerations
+						const Storm::Vector3 velChange = (iterationParameter._deltaTime * 1.f * ki * neighborPSystemAsBoundary->getVolumes()[neighbor._particleIndex]) * neighbor._gradWij; // kj already contains inverse density
 
-						// Directly update velocities instead of storing pressure accelerations
-						const Storm::Vector3 velChange = -iterationParameter._deltaTime * 1.f * ki * grad_p_j;	// kj already contains inverse density
-#else // Optimized but not fixed
-						// Directly update velocities instead of storing pressure accelerations
-						const Storm::Vector3 velChange = (iterationParameter._deltaTime * 1.f * ki * neighborPSystemAsBoundary->getVolumes()[neighbor._particleIndex]) * neighbor._gradWij;				// kj already contains inverse density
-#endif
 						v_i += velChange;
 
 #if true
