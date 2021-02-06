@@ -251,8 +251,14 @@ void Storm::DFSPHSolver::execute(const Storm::IterationParameter &iterationParam
 						const float neighborDensity = neighborRawDensity * density0 / neighborDensity0;
 						const float neighborVolume = neighborPSystemAsFluid->getParticleVolume();
 
+#if false // Standard Visco
 						// Viscosity
 						viscosityComponent = (viscoGlobalCoeff * fluidConfig._dynamicViscosity * neighborMass / neighborRawDensity) * neighbor._gradWij;
+#else // XSPH
+						
+						viscosityComponent = -(currentPMass * neighborMass * fluidConfig._cinematicViscosity / (iterationParameter._deltaTime * neighborDensity) * neighbor._Wij) * vij;
+
+#endif
 					}
 					else
 					{
@@ -264,7 +270,14 @@ void Storm::DFSPHSolver::execute(const Storm::IterationParameter &iterationParam
 						// Viscosity
 						if (rbViscosity > 0.f)
 						{
+#if false // Standard Visco
+
 							viscosityComponent = (viscoGlobalCoeff * rbViscosity * neighborVolume * density0 / currentPDensity) * neighbor._gradWij;
+#else // XSPH
+
+							viscosityComponent = -(currentPMass * rbViscosity * neighborVolume * density0 * neighbor._Wij / (iterationParameter._deltaTime * currentPDensity)) * vij;
+
+#endif
 						}
 						else
 						{
