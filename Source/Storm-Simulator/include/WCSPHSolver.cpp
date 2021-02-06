@@ -15,8 +15,123 @@
 #include "ParticleSelector.h"
 
 #include "Kernel.h"
+#include "ViscosityMethod.h"
 
 #include "RunnerHelper.h"
+
+
+namespace
+{
+
+	template<Storm::ViscosityMethod viscosityMethodOnFluid, Storm::ViscosityMethod viscosityMethodOnRigidBody>
+	void computePressureViscosity(const Storm::IterationParameter &iterationParameter, const Storm::SceneFluidConfig &fluidConfig, const float density0, const float currentPMass, const Storm::Vector3 &vi, const Storm::ParticleNeighborhoodArray &currentPNeighborhood, const float currentPDensity, const float currentPPressure, const float viscoPrecoeff, Storm::Vector3 &outTotalPressureForceOnParticle, Storm::Vector3 &outTotalViscosityForceOnParticle)
+	{
+		outTotalPressureForceOnParticle = Storm::Vector3::Zero();
+		outTotalViscosityForceOnParticle = Storm::Vector3::Zero();
+
+		const float currentPFluidPressureCoeff = currentPPressure / (currentPDensity * currentPDensity);
+
+		const float restMassDensity = currentPMass * density0;
+		const float currentPRestMassDensityBoundaryPressureCoeff = restMassDensity * (currentPFluidPressureCoeff + (currentPPressure / (density0 * density0)));
+
+		for (const Storm::NeighborParticleInfo &neighbor : currentPNeighborhood)
+		{
+			const Storm::Vector3 vij = vi - neighbor._containingParticleSystem->getVelocity()[neighbor._particleIndex];
+
+			const float vijDotXij = vij.dot(neighbor._xij);
+			const float viscoGlobalCoeff = currentPMass * 10.f * vijDotXij / (neighbor._xijSquaredNorm + viscoPrecoeff);
+
+			Storm::Vector3 pressureComponent;
+			Storm::Vector3 viscosityComponent;
+
+			if (neighbor._isFluidParticle)
+			{
+				const Storm::FluidParticleSystem* neighborPSystemAsFluid = static_cast<Storm::FluidParticleSystem*>(neighbor._containingParticleSystem);
+				const float neighborDensity0 = neighborPSystemAsFluid->getRestDensity();
+				const float neighborMass = neighborPSystemAsFluid->getMasses()[neighbor._particleIndex];
+				const float neighborRawDensity = neighborPSystemAsFluid->getDensities()[neighbor._particleIndex];
+				const float neighborDensity = neighborRawDensity * density0 / neighborDensity0;
+				const float neighborVolume = neighborPSystemAsFluid->getParticleVolume();
+
+				// Pressure
+				const float neighborPressureCoeff = neighborPSystemAsFluid->getPressures()[neighbor._particleIndex] / (neighborDensity * neighborDensity);
+				pressureComponent = -(restMassDensity * neighborVolume * (currentPFluidPressureCoeff + neighborPressureCoeff)) * neighbor._gradWij;
+
+				// Viscosity
+				if constexpr (viscosityMethodOnFluid == Storm::ViscosityMethod::Standard)
+				{
+					viscosityComponent = (viscoGlobalCoeff * fluidConfig._dynamicViscosity * neighborMass / neighborRawDensity) * neighbor._gradWij;
+				}
+				else if constexpr (viscosityMethodOnFluid == Storm::ViscosityMethod::XSPH)
+				{
+					viscosityComponent = (-(currentPMass * neighborMass * fluidConfig._cinematicViscosity / (iterationParameter._deltaTime * neighborDensity)) * neighbor._Wij) * vij;
+				}
+				else
+				{
+					Storm::throwException<Storm::Exception>("Non implemented viscosity method to use on fluid!");
+				}
+			}
+			else
+			{
+				const Storm::RigidBodyParticleSystem* neighborPSystemAsBoundary = static_cast<Storm::RigidBodyParticleSystem*>(neighbor._containingParticleSystem);
+
+				const float neighborVolume = neighborPSystemAsBoundary->getVolumes()[neighbor._particleIndex];
+
+				// Pressure
+				pressureComponent = -(currentPRestMassDensityBoundaryPressureCoeff * neighborVolume) * neighbor._gradWij;
+
+				// Viscosity
+				const float rbViscosity = neighborPSystemAsBoundary->getViscosity();
+				if (rbViscosity > 0.f)
+				{
+					if constexpr (viscosityMethodOnRigidBody == Storm::ViscosityMethod::Standard)
+					{
+						viscosityComponent = (viscoGlobalCoeff * rbViscosity * neighborVolume * density0 / currentPDensity) * neighbor._gradWij;
+					}
+					else if constexpr (viscosityMethodOnRigidBody == Storm::ViscosityMethod::XSPH)
+					{
+						viscosityComponent = (-(currentPMass * rbViscosity * neighborVolume * density0 / (iterationParameter._deltaTime * currentPDensity)) * neighbor._Wij) * vij;
+					}
+					else
+					{
+						Storm::throwException<Storm::Exception>("Non implemented viscosity method to use on rigid body!");
+					}
+				}
+				else
+				{
+					viscosityComponent = Storm::Vector3::Zero();
+				}
+
+				// Mirror the force on the boundary solid following the 3rd newton law
+				if (!neighborPSystemAsBoundary->isStatic())
+				{
+					Storm::Vector3 &boundaryNeighborForce = neighbor._containingParticleSystem->getForces()[neighbor._particleIndex];
+					Storm::Vector3 &boundaryNeighborTmpPressureForce = neighbor._containingParticleSystem->getTemporaryPressureForces()[neighbor._particleIndex];
+					Storm::Vector3 &boundaryNeighborTmpViscosityForce = neighbor._containingParticleSystem->getTemporaryViscosityForces()[neighbor._particleIndex];
+
+#define STORM_ENABLE_PRESSURE_FORCE_ON_RB true
+
+					const Storm::Vector3 sumForces =
+#if STORM_ENABLE_PRESSURE_FORCE_ON_RB
+						pressureComponent +
+#endif
+						viscosityComponent
+						;
+
+					std::lock_guard<std::mutex> lock{ neighbor._containingParticleSystem->_mutex };
+					boundaryNeighborForce -= sumForces;
+#if STORM_ENABLE_PRESSURE_FORCE_ON_RB
+					boundaryNeighborTmpPressureForce -= pressureComponent;
+#endif
+					boundaryNeighborTmpViscosityForce -= viscosityComponent;
+				}
+			}
+
+			outTotalPressureForceOnParticle += pressureComponent;
+			outTotalViscosityForceOnParticle += viscosityComponent;
+		}
+	}
+}
 
 
 void Storm::WCSPHSolver::execute(const Storm::IterationParameter &iterationParameter)
@@ -113,104 +228,51 @@ void Storm::WCSPHSolver::execute(const Storm::IterationParameter &iterationParam
 
 			Storm::runParallel(fluidParticleSystem.getForces(), [&](Storm::Vector3 &currentPForce, const std::size_t currentPIndex)
 			{
-				const float currentPMass = masses[currentPIndex];
-				const float currentPDensity = densities[currentPIndex];
-				const float currentPPressure = pressures[currentPIndex];
-				const Storm::Vector3 &vi = velocities[currentPIndex];
+				Storm::Vector3 &currentPTmpPressureForce = temporaryPPressureForce[currentPIndex];
+				Storm::Vector3 &currentPTmpViscoForce = temporaryPViscoForce[currentPIndex];
 
-				const float currentPFluidPressureCoeff = currentPPressure / (currentPDensity * currentPDensity);
+#define STORM_COMPUTE_VISCOSITY_AND_PRESSURE(fluidMethod, rbMethod) \
+	computePressureViscosity<fluidMethod, rbMethod>(iterationParameter, fluidConfig, fluidParticleSystem.getRestDensity(), masses[currentPIndex], velocities[currentPIndex], neighborhoodArrays[currentPIndex], densities[currentPIndex], pressures[currentPIndex], 0.01f * k_kernelLengthSquared, currentPTmpPressureForce, currentPTmpViscoForce)
 
-				const float restMassDensity = currentPMass * density0;
-				const float currentPRestMassDensityBoundaryPressureCoeff = restMassDensity * (currentPFluidPressureCoeff + (currentPPressure / density0Squared));
-
-				const float viscoPrecoeff = 0.01f * k_kernelLengthSquared;
-
-				Storm::Vector3 totalPressureForceOnParticle = Storm::Vector3::Zero();
-				Storm::Vector3 totalViscosityForceOnParticle = Storm::Vector3::Zero();
-
-				const Storm::ParticleNeighborhoodArray &currentPNeighborhood = neighborhoodArrays[currentPIndex];
-				for (const Storm::NeighborParticleInfo &neighbor : currentPNeighborhood)
+				switch (sceneSimulationConfig._fluidViscoMethod)
 				{
-					const Storm::Vector3 vij = vi - neighbor._containingParticleSystem->getVelocity()[neighbor._particleIndex];
-
-					const float vijDotXij = vij.dot(neighbor._xij);
-
-					// the currentPMass is because the formula given produces an acceleration but we want a force at the end.
-					const float viscoGlobalCoeff = currentPMass * 10.f * vijDotXij / (neighbor._xijSquaredNorm + viscoPrecoeff);
-
-					Storm::Vector3 pressureComponent;
-					Storm::Vector3 viscosityComponent;
-
-					if (neighbor._isFluidParticle)
+				case Storm::ViscosityMethod::Standard:
+					switch (sceneSimulationConfig._rbViscoMethod)
 					{
-						const Storm::FluidParticleSystem* neighborPSystemAsFluid = static_cast<Storm::FluidParticleSystem*>(neighbor._containingParticleSystem);
-						const float neighborDensity0 = neighborPSystemAsFluid->getRestDensity();
-						const float neighborMass = neighborPSystemAsFluid->getMasses()[neighbor._particleIndex];
-						const float neighborRawDensity = neighborPSystemAsFluid->getDensities()[neighbor._particleIndex];
-						const float neighborDensity = neighborRawDensity * density0 / neighborDensity0;
-						const float neighborVolume = neighborPSystemAsFluid->getParticleVolume();
+					case Storm::ViscosityMethod::Standard:
+						STORM_COMPUTE_VISCOSITY_AND_PRESSURE(Storm::ViscosityMethod::Standard, Storm::ViscosityMethod::Standard);
+						break;
+					case Storm::ViscosityMethod::XSPH:
+						STORM_COMPUTE_VISCOSITY_AND_PRESSURE(Storm::ViscosityMethod::Standard, Storm::ViscosityMethod::XSPH);
+						break;
 
-						// Pressure
-						const float neighborPressureCoeff = neighborPSystemAsFluid->getPressures()[neighbor._particleIndex] / (neighborDensity * neighborDensity);
-						pressureComponent = -(restMassDensity * neighborVolume * (currentPFluidPressureCoeff + neighborPressureCoeff)) * neighbor._gradWij;
-
-						// Viscosity
-						viscosityComponent = (viscoGlobalCoeff * fluidConfig._dynamicViscosity * neighborMass / neighborRawDensity) * neighbor._gradWij;
+					default:
+						Storm::throwException<Storm::Exception>("Non implemented viscosity method to use on rigid body!");
 					}
-					else
+					break;
+
+				case Storm::ViscosityMethod::XSPH:
+					switch (sceneSimulationConfig._rbViscoMethod)
 					{
-						const Storm::RigidBodyParticleSystem* neighborPSystemAsBoundary = static_cast<Storm::RigidBodyParticleSystem*>(neighbor._containingParticleSystem);
+					case Storm::ViscosityMethod::Standard:
+						STORM_COMPUTE_VISCOSITY_AND_PRESSURE(Storm::ViscosityMethod::XSPH, Storm::ViscosityMethod::Standard);
+						break;
+					case Storm::ViscosityMethod::XSPH:
+						STORM_COMPUTE_VISCOSITY_AND_PRESSURE(Storm::ViscosityMethod::XSPH, Storm::ViscosityMethod::XSPH);
+						break;
 
-						const float neighborVolume = neighborPSystemAsBoundary->getVolumes()[neighbor._particleIndex];
-						const float rbViscosity = neighborPSystemAsBoundary->getViscosity();
-
-						// Pressure
-						pressureComponent = -(currentPRestMassDensityBoundaryPressureCoeff * neighborVolume) * neighbor._gradWij;
-
-						// Viscosity
-						if (rbViscosity > 0.f)
-						{
-							viscosityComponent = (viscoGlobalCoeff * rbViscosity * neighborVolume * density0 / currentPDensity) * neighbor._gradWij;
-						}
-						else
-						{
-							viscosityComponent = Storm::Vector3::Zero();
-						}
-
-						// Mirror the force on the boundary solid following the 3rd newton law
-						if (!neighborPSystemAsBoundary->isStatic())
-						{
-							Storm::Vector3 &boundaryNeighborForce = neighbor._containingParticleSystem->getForces()[neighbor._particleIndex];
-							Storm::Vector3 &boundaryNeighborTmpPressureForce = neighbor._containingParticleSystem->getTemporaryPressureForces()[neighbor._particleIndex];
-							Storm::Vector3 &boundaryNeighborTmpViscosityForce = neighbor._containingParticleSystem->getTemporaryViscosityForces()[neighbor._particleIndex];
-
-#define STORM_ENABLE_PRESSURE_FORCE_ON_RB true
-
-							const Storm::Vector3 sumForces =
-#if STORM_ENABLE_PRESSURE_FORCE_ON_RB
-								pressureComponent +
-#endif
-								viscosityComponent
-								;
-
-							std::lock_guard<std::mutex> lock{ neighbor._containingParticleSystem->_mutex };
-							boundaryNeighborForce -= sumForces;
-#if STORM_ENABLE_PRESSURE_FORCE_ON_RB
-							boundaryNeighborTmpPressureForce -= pressureComponent;
-#endif
-							boundaryNeighborTmpViscosityForce -= viscosityComponent;
-						}
+					default:
+						Storm::throwException<Storm::Exception>("Non implemented viscosity method to use on rigid body!");
 					}
 
-					totalPressureForceOnParticle += pressureComponent;
-					totalViscosityForceOnParticle += viscosityComponent;
+				default:
+					Storm::throwException<Storm::Exception>("Non implemented viscosity method to use on fluid!");
 				}
 
-				currentPForce += totalPressureForceOnParticle;
-				currentPForce += totalViscosityForceOnParticle;
+#undef STORM_COMPUTE_VISCOSITY_AND_PRESSURE
 
-				temporaryPPressureForce[currentPIndex] = totalPressureForceOnParticle;
-				temporaryPViscoForce[currentPIndex] = totalViscosityForceOnParticle;
+				currentPForce += currentPTmpPressureForce;
+				currentPForce += currentPTmpViscoForce;
 			});
 		}
 	}
