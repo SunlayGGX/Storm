@@ -183,3 +183,10 @@ Storm::BlowerConeArea::BlowerConeArea(const Storm::SceneBlowerConfig &blowerConf
 	const float upRadiusSquared = blowerConfig._upRadius * blowerConfig._upRadius;
 	_diffRadiusSquared = upRadiusSquared - _downRadiusSquared;
 }
+
+Storm::BlowerCubeArea::~BlowerCubeArea() = default;
+Storm::BlowerSphereArea::~BlowerSphereArea() = default;
+Storm::BlowerRepulsionSphereArea::~BlowerRepulsionSphereArea() = default;
+Storm::BlowerExplosionSphereArea::~BlowerExplosionSphereArea() = default;
+Storm::BlowerCylinderArea::~BlowerCylinderArea() = default;
+Storm::BlowerConeArea::~BlowerConeArea() = default;

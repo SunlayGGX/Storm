@@ -9,6 +9,7 @@ namespace Storm
 	{
 	public:
 		BlowerCubeArea(const Storm::SceneBlowerConfig &blowerConfig);
+		virtual ~BlowerCubeArea();
 
 	public:
 		__forceinline bool isInside(const Storm::Vector3 &relativePosDiff) const
@@ -27,6 +28,7 @@ namespace Storm
 	{
 	public:
 		BlowerSphereArea(const Storm::SceneBlowerConfig &blowerConfig);
+		virtual ~BlowerSphereArea();
 
 	protected:
 		BlowerSphereArea(const Storm::SceneBlowerConfig &blowerConfig, int);
@@ -57,6 +59,7 @@ namespace Storm
 	{
 	public:
 		BlowerRepulsionSphereArea(const Storm::SceneBlowerConfig &blowerConfig);
+		virtual ~BlowerRepulsionSphereArea();
 
 	public:
 		using Storm::BlowerSphereArea::isInside;
@@ -72,6 +75,7 @@ namespace Storm
 	{
 	public:
 		BlowerExplosionSphereArea(const Storm::SceneBlowerConfig &blowerConfig);
+		virtual ~BlowerExplosionSphereArea();
 
 	public:
 		using Storm::BlowerSphereArea::isInside;
@@ -91,6 +95,7 @@ namespace Storm
 	{
 	public:
 		BlowerCylinderArea(const Storm::SceneBlowerConfig &blowerConfig);
+		virtual ~BlowerCylinderArea();
 
 	public:
 		__forceinline bool isInside(const Storm::Vector3 &relativePosDiff) const
@@ -113,6 +118,7 @@ namespace Storm
 	{
 	public:
 		BlowerConeArea(const Storm::SceneBlowerConfig &blowerConfig);
+		virtual ~BlowerConeArea();
 
 	public:
 		__forceinline bool isInside(const Storm::Vector3 &relativePosDiff) const
