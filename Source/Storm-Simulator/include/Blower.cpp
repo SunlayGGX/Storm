@@ -116,7 +116,7 @@ void Storm::BlowerGradualDirectionalCubeArea::applyDistanceEffectToTemporary(con
 {
 	// This distanceCoeff variable should be 1.f if the particle is on the center plane. 0.f if it is on the max distance from the center plane.
 	const float distanceCoeff = (1.f - std::fabs(_planeDirectionVect.dot(tmp)) / _maxDistanceToCenterPlane);
-	tmp *= (forceNorm / tmp.norm() * distanceCoeff);
+	tmp = force * distanceCoeff;
 }
 
 void Storm::BlowerRepulsionSphereArea::applyDistanceEffectToTemporary(const Storm::Vector3 &force, const float forceNorm, Storm::Vector3 &tmp) const
