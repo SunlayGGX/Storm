@@ -30,7 +30,7 @@ void Storm::BlowerSphereMeshMaker::generate(const Storm::SceneBlowerConfig &blow
 
 void Storm::BlowerCylinderMeshMaker::generate(const Storm::SceneBlowerConfig &blowerConfig, std::vector<Storm::Vector3> &outVertexes, std::vector<uint32_t> &outIndexes)
 {
-	STORM_ENSURE_MESH_MAKER_USED_ON_RIGHT_SETTING(blowerConfig, Storm::BlowerType::Cylinder);
+	STORM_ENSURE_MESH_MAKER_USED_ON_RIGHT_SETTING(blowerConfig, Storm::BlowerType::Cylinder, Storm::BlowerType::CylinderGradualMidPlanar);
 	Storm::AssetLoaderManager::instance().generateSimpleCylinder(blowerConfig._blowerPosition, blowerConfig._radius, blowerConfig._height, outVertexes, outIndexes);
 }
 

@@ -944,6 +944,7 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 			break;
 
 		case Storm::BlowerType::Cylinder:
+		case Storm::BlowerType::CylinderGradualMidPlanar:
 			if (blowerConfig._radius <= 0.f)
 			{
 				Storm::throwException<Storm::Exception>("Blower " + std::to_string(blowerConfig._blowerId) + " (a cylinder) should have defined a positive non-zero radius!");

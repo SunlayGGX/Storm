@@ -153,6 +153,12 @@ void Storm::BlowerExplosionSphereArea::applyDistanceEffectToTemporary(const Stor
 	}
 }
 
+void Storm::BlowerCylinderGradualMidPlanarArea::applyDistanceEffectToTemporary(const Storm::Vector3 &force, const float forceNorm, Storm::Vector3 &tmp) const
+{
+	const float distanceCoeff = 1.f - std::fabs(tmp.y()) / _midHeight;
+	tmp = force * distanceCoeff;
+}
+
 Storm::BlowerCubeArea::BlowerCubeArea(const Storm::SceneBlowerConfig &blowerConfig, int) :
 	_dimension{ blowerConfig._blowerDimension / 2.f }
 {
@@ -205,11 +211,24 @@ Storm::BlowerExplosionSphereArea::BlowerExplosionSphereArea(const Storm::SceneBl
 	STORM_CHECK_RIGHT_INHERITANCE(Storm::BlowerSphereArea);
 }
 
-Storm::BlowerCylinderArea::BlowerCylinderArea(const Storm::SceneBlowerConfig &blowerConfig) :
+Storm::BlowerCylinderArea::BlowerCylinderArea(const Storm::SceneBlowerConfig &blowerConfig, int) :
 	_radiusSquared{ blowerConfig._radius * blowerConfig._radius },
 	_midHeight{ blowerConfig._height / 2.f }
 {
+
+}
+
+Storm::BlowerCylinderArea::BlowerCylinderArea(const Storm::SceneBlowerConfig &blowerConfig) :
+	Storm::BlowerCylinderArea{ blowerConfig, 0 }
+{
 	STORM_ENSURE_CONSTRUCTED_ON_RIGHT_SETTING(blowerConfig, Storm::BlowerType::Cylinder);
+}
+
+Storm::BlowerCylinderGradualMidPlanarArea::BlowerCylinderGradualMidPlanarArea(const Storm::SceneBlowerConfig &blowerConfig) :
+	Storm::BlowerCylinderArea{ blowerConfig, 0 }
+{
+	STORM_ENSURE_CONSTRUCTED_ON_RIGHT_SETTING(blowerConfig, Storm::BlowerType::CylinderGradualMidPlanar);
+	STORM_CHECK_RIGHT_INHERITANCE(Storm::BlowerCylinderArea);
 }
 
 Storm::BlowerConeArea::BlowerConeArea(const Storm::SceneBlowerConfig &blowerConfig) :

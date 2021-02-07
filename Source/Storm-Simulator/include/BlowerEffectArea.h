@@ -115,6 +115,9 @@ namespace Storm
 	public:
 		BlowerCylinderArea(const Storm::SceneBlowerConfig &blowerConfig);
 
+	protected:
+		BlowerCylinderArea(const Storm::SceneBlowerConfig &blowerConfig, int);
+
 	public:
 		__forceinline bool isInside(const Storm::Vector3 &relativePosDiff) const
 		{
@@ -130,6 +133,22 @@ namespace Storm
 	protected:
 		float _midHeight;
 		float _radiusSquared;
+	};
+
+	// For now, a cylinder that is vertical (YAGNI). The plane is placed at mid height.
+	class BlowerCylinderGradualMidPlanarArea : private Storm::BlowerCylinderArea
+	{
+	public:
+		BlowerCylinderGradualMidPlanarArea(const Storm::SceneBlowerConfig &blowerConfig);
+
+	public:
+		using Storm::BlowerCylinderArea::isInside;
+
+	protected:
+		static constexpr bool hasDistanceEffect() { return true; }
+
+	public:
+		void applyDistanceEffectToTemporary(const Storm::Vector3 &force, const float forceNorm, Storm::Vector3 &tmp) const;
 	};
 
 	class BlowerConeArea
