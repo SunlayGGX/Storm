@@ -26,13 +26,13 @@ namespace
 	}
 }
 
-#define STORM_ENSURE_CONSTRUCTED_ON_RIGHT_SETTING(BlowerDataVariable, ...)												\
+#define STORM_ENSURE_CONSTRUCTED_ON_CORRECT_SETTINGS(BlowerDataVariable, ...)											\
 if (!CorrectSettingChecker<Storm::BlowerType>::check<__VA_ARGS__>(BlowerDataVariable._blowerType))						\
 	Storm::throwException<Storm::Exception>(__FUNCTION__ " is intended to be used for " #__VA_ARGS__ " blowers!")		\
 
-#define STORM_CHECK_RIGHT_INHERITANCE(ParentBlowerType)																									\
+#define STORM_CHECK_CORRECT_INHERITANCE_CONSTRUCT(ParentBlowerType)																						\
 using ThisType = std::remove_reference_t<decltype(*this)>;																								\
-STORM_STATIC_ASSERT(STORM_MAKE_PARAMETER_PACKED(std::is_base_of_v<ParentBlowerType, ThisType> && !std::is_convertible_v<ThisType, ParentBlowerType>),	\
+STORM_STATIC_ASSERT(STORM_MAKE_PACKED_PARAMETER(std::is_base_of_v<ParentBlowerType, ThisType> && !std::is_convertible_v<ThisType, ParentBlowerType>),	\
 "The current BlowerType should inherit privately from " STORM_STRINGIFY(ParentBlowerType))
 
 
@@ -173,15 +173,15 @@ Storm::BlowerCubeArea::BlowerCubeArea(const Storm::SceneBlowerConfig &blowerConf
 Storm::BlowerCubeArea::BlowerCubeArea(const Storm::SceneBlowerConfig &blowerConfig) :
 	Storm::BlowerCubeArea{ blowerConfig, 0 }
 {
-	STORM_ENSURE_CONSTRUCTED_ON_RIGHT_SETTING(blowerConfig, Storm::BlowerType::Cube);
+	STORM_ENSURE_CONSTRUCTED_ON_CORRECT_SETTINGS(blowerConfig, Storm::BlowerType::Cube);
 }
 
 Storm::BlowerGradualDirectionalCubeArea::BlowerGradualDirectionalCubeArea(const Storm::SceneBlowerConfig &blowerConfig) :
 	Storm::BlowerCubeArea{ blowerConfig, 0 },
 	_planeDirectionVect{ blowerConfig._blowerForce.normalized() } // For now, blowers don't have rotation. But when it would have one, use the rotation instead.
 {
-	STORM_ENSURE_CONSTRUCTED_ON_RIGHT_SETTING(blowerConfig, Storm::BlowerType::CubeGradualDirectional);
-	STORM_CHECK_RIGHT_INHERITANCE(Storm::BlowerCubeArea);
+	STORM_ENSURE_CONSTRUCTED_ON_CORRECT_SETTINGS(blowerConfig, Storm::BlowerType::CubeGradualDirectional);
+	STORM_CHECK_CORRECT_INHERITANCE_CONSTRUCT(Storm::BlowerCubeArea);
 
 	// This line is like : what is the farthest corner of the cube from the center plane ?
 	// And the farthest corner is the one aligned with the direction, therefore with a dot product positive on each element
@@ -195,7 +195,7 @@ Storm::BlowerGradualDirectionalCubeArea::BlowerGradualDirectionalCubeArea(const 
 Storm::BlowerSphereArea::BlowerSphereArea(const Storm::SceneBlowerConfig &blowerConfig) :
 	Storm::BlowerSphereArea{ blowerConfig, 0 }
 {
-	STORM_ENSURE_CONSTRUCTED_ON_RIGHT_SETTING(blowerConfig, Storm::BlowerType::Sphere);
+	STORM_ENSURE_CONSTRUCTED_ON_CORRECT_SETTINGS(blowerConfig, Storm::BlowerType::Sphere);
 }
 
 Storm::BlowerSphereArea::BlowerSphereArea(const Storm::SceneBlowerConfig &blowerConfig, int)
@@ -206,15 +206,15 @@ Storm::BlowerSphereArea::BlowerSphereArea(const Storm::SceneBlowerConfig &blower
 Storm::BlowerRepulsionSphereArea::BlowerRepulsionSphereArea(const Storm::SceneBlowerConfig &blowerConfig) :
 	Storm::BlowerSphereArea{ blowerConfig, 0 }
 {
-	STORM_ENSURE_CONSTRUCTED_ON_RIGHT_SETTING(blowerConfig, Storm::BlowerType::RepulsionSphere);
+	STORM_ENSURE_CONSTRUCTED_ON_CORRECT_SETTINGS(blowerConfig, Storm::BlowerType::RepulsionSphere);
 }
 
 Storm::BlowerExplosionSphereArea::BlowerExplosionSphereArea(const Storm::SceneBlowerConfig &blowerConfig) :
 	Storm::BlowerSphereArea{ blowerConfig, 0 },
 	_radius{ blowerConfig._radius }
 {
-	STORM_ENSURE_CONSTRUCTED_ON_RIGHT_SETTING(blowerConfig, Storm::BlowerType::ExplosionSphere, Storm::BlowerType::PulseExplosionSphere);
-	STORM_CHECK_RIGHT_INHERITANCE(Storm::BlowerSphereArea);
+	STORM_ENSURE_CONSTRUCTED_ON_CORRECT_SETTINGS(blowerConfig, Storm::BlowerType::ExplosionSphere, Storm::BlowerType::PulseExplosionSphere);
+	STORM_CHECK_CORRECT_INHERITANCE_CONSTRUCT(Storm::BlowerSphereArea);
 }
 
 Storm::BlowerSpherePlanarGradualArea::BlowerSpherePlanarGradualArea(const Storm::SceneBlowerConfig &blowerConfig) :
@@ -222,8 +222,8 @@ Storm::BlowerSpherePlanarGradualArea::BlowerSpherePlanarGradualArea(const Storm:
 	_planeDirectionVect{ blowerConfig._blowerForce.normalized() },
 	_radius{ blowerConfig._radius }
 {
-	STORM_ENSURE_CONSTRUCTED_ON_RIGHT_SETTING(blowerConfig, Storm::BlowerType::SpherePlanarGradual);
-	STORM_CHECK_RIGHT_INHERITANCE(Storm::BlowerSphereArea);
+	STORM_ENSURE_CONSTRUCTED_ON_CORRECT_SETTINGS(blowerConfig, Storm::BlowerType::SpherePlanarGradual);
+	STORM_CHECK_CORRECT_INHERITANCE_CONSTRUCT(Storm::BlowerSphereArea);
 }
 
 Storm::BlowerCylinderArea::BlowerCylinderArea(const Storm::SceneBlowerConfig &blowerConfig, int) :
@@ -236,21 +236,21 @@ Storm::BlowerCylinderArea::BlowerCylinderArea(const Storm::SceneBlowerConfig &bl
 Storm::BlowerCylinderArea::BlowerCylinderArea(const Storm::SceneBlowerConfig &blowerConfig) :
 	Storm::BlowerCylinderArea{ blowerConfig, 0 }
 {
-	STORM_ENSURE_CONSTRUCTED_ON_RIGHT_SETTING(blowerConfig, Storm::BlowerType::Cylinder);
+	STORM_ENSURE_CONSTRUCTED_ON_CORRECT_SETTINGS(blowerConfig, Storm::BlowerType::Cylinder);
 }
 
 Storm::BlowerCylinderGradualMidPlanarArea::BlowerCylinderGradualMidPlanarArea(const Storm::SceneBlowerConfig &blowerConfig) :
 	Storm::BlowerCylinderArea{ blowerConfig, 0 }
 {
-	STORM_ENSURE_CONSTRUCTED_ON_RIGHT_SETTING(blowerConfig, Storm::BlowerType::CylinderGradualMidPlanar);
-	STORM_CHECK_RIGHT_INHERITANCE(Storm::BlowerCylinderArea);
+	STORM_ENSURE_CONSTRUCTED_ON_CORRECT_SETTINGS(blowerConfig, Storm::BlowerType::CylinderGradualMidPlanar);
+	STORM_CHECK_CORRECT_INHERITANCE_CONSTRUCT(Storm::BlowerCylinderArea);
 }
 
 Storm::BlowerConeArea::BlowerConeArea(const Storm::SceneBlowerConfig &blowerConfig) :
 	_downRadiusSquared{ blowerConfig._downRadius * blowerConfig._downRadius },
 	_midHeight{ blowerConfig._height / 2.f }
 {
-	STORM_ENSURE_CONSTRUCTED_ON_RIGHT_SETTING(blowerConfig, Storm::BlowerType::Cone);
+	STORM_ENSURE_CONSTRUCTED_ON_CORRECT_SETTINGS(blowerConfig, Storm::BlowerType::Cone);
 
 	const float upRadiusSquared = blowerConfig._upRadius * blowerConfig._upRadius;
 	_diffRadiusSquared = upRadiusSquared - _downRadiusSquared;

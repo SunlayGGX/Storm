@@ -17,8 +17,8 @@
 #	define STORM_CONCAT(x, y) CONCAT(x, y)
 #endif
 
-#ifndef STORM_MAKE_PARAMETER_PACKED
-#	define STORM_MAKE_PARAMETER_PACKED(...) __VA_ARGS__
+#ifndef STORM_MAKE_PACKED_PARAMETER
+#	define STORM_MAKE_PACKED_PARAMETER(...) __VA_ARGS__
 #endif
 
 
