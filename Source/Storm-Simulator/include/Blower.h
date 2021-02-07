@@ -90,7 +90,7 @@ namespace Storm
 								this->setAndNotifyStateChanged<Storm::BlowerState::Fading>();
 							}
 
-							_force = _srcForce * fadeInCoefficient;
+							this->setActualForce(_srcForce * fadeInCoefficient);
 							return;
 						}
 					}
@@ -105,20 +105,15 @@ namespace Storm
 								this->setAndNotifyStateChanged<Storm::BlowerState::Fading>();
 							}
 
-							_force = _srcForce * fadeOutCoefficient;
+							this->setActualForce(_srcForce * fadeOutCoefficient);
 							return;
 						}
 					}
 
 					if (_state != Storm::BlowerState::FullyFonctional)
 					{
-						_force = _srcForce;
+						this->setActualForce(_srcForce);
 						this->setAndNotifyStateChanged<Storm::BlowerState::FullyFonctional>();
-					}
-
-					if constexpr (ThisType::hasDistanceEffect<BlowerEffectArea>(0))
-					{
-						_forceNorm = _force.norm();
 					}
 				}
 				else if (_state != Storm::BlowerState::NotWorking)
@@ -153,6 +148,15 @@ namespace Storm
 		{
 			BlowerCallbacks::notifyStateChanged(_id, newState);
 			_state = newState;
+		}
+
+		void setActualForce(const Storm::Vector3 &actualForce)
+		{
+			_force = actualForce;
+			if constexpr (ThisType::hasDistanceEffect<BlowerEffectArea>(0))
+			{
+				_forceNorm = _force.norm();
+			}
 		}
 
 	public:
