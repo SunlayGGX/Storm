@@ -861,6 +861,7 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 		switch (blowerConfig._blowerType)
 		{
 		case Storm::BlowerType::Cube:
+		case Storm::BlowerType::CubeGradualDirectional:
 			if (blowerConfig._blowerDimension == Storm::Vector3::Zero())
 			{
 				Storm::throwException<Storm::Exception>("Blower " + std::to_string(blowerConfig._blowerId) + " (a cube) should have defined a dimension!");
@@ -1020,8 +1021,10 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 			break;
 
 		case Storm::BlowerType::None:
-		default:
 			Storm::throwException<Storm::Exception>("Blower " + std::to_string(blowerConfig._blowerId) + " should have defined a blower type, this is mandatory!");
+
+		default:
+			Storm::throwException<Storm::Exception>("Blower " + std::to_string(blowerConfig._blowerId) + " check wasn't implemented!");
 		}
 	});
 }
