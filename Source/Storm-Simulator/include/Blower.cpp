@@ -7,6 +7,9 @@
 
 #include "CorrectSettingChecker.h"
 
+#include "StaticAssertionsMacros.h"
+#include "StormMacro.h"
+
 
 namespace
 {
@@ -23,9 +26,14 @@ namespace
 	}
 }
 
-#define STORM_ENSURE_CONSTRUCTED_ON_RIGHT_SETTING(BlowerDataVariable, ...)											\
-if (!CorrectSettingChecker<Storm::BlowerType>::check<__VA_ARGS__>(BlowerDataVariable._blowerType))					\
+#define STORM_ENSURE_CONSTRUCTED_ON_RIGHT_SETTING(BlowerDataVariable, ...)												\
+if (!CorrectSettingChecker<Storm::BlowerType>::check<__VA_ARGS__>(BlowerDataVariable._blowerType))						\
 	Storm::throwException<Storm::Exception>(__FUNCTION__ " is intended to be used for " #__VA_ARGS__ " blowers!")		\
+
+#define STORM_CHECK_RIGHT_INHERITANCE(ParentBlowerType)																									\
+using ThisType = std::remove_reference_t<decltype(*this)>;																								\
+STORM_STATIC_ASSERT(STORM_MAKE_PARAMETER_PACKED(std::is_base_of_v<ParentBlowerType, ThisType> && !std::is_convertible_v<ThisType, ParentBlowerType>),	\
+"The current BlowerType should inherit privately from " STORM_STRINGIFY(ParentBlowerType))
 
 
 Storm::BlowerTimeHandlerBase::BlowerTimeHandlerBase(const Storm::SceneBlowerConfig &blowerConfig) :
@@ -161,6 +169,7 @@ Storm::BlowerGradualDirectionalCubeArea::BlowerGradualDirectionalCubeArea(const 
 	_planeDirectionVect{ blowerConfig._blowerForce.normalized() } // For now, blowers don't have rotation. But when it would have one, use the rotation instead.
 {
 	STORM_ENSURE_CONSTRUCTED_ON_RIGHT_SETTING(blowerConfig, Storm::BlowerType::CubeGradualDirectional);
+	STORM_CHECK_RIGHT_INHERITANCE(Storm::BlowerCubeArea);
 
 	// This line is like : what is the farthest corner of the cube from the center plane ?
 	// And the farthest corner is the one aligned with the direction, therefore with a dot product positive on each element
@@ -193,6 +202,7 @@ Storm::BlowerExplosionSphereArea::BlowerExplosionSphereArea(const Storm::SceneBl
 	_radius{ blowerConfig._radius }
 {
 	STORM_ENSURE_CONSTRUCTED_ON_RIGHT_SETTING(blowerConfig, Storm::BlowerType::ExplosionSphere, Storm::BlowerType::PulseExplosionSphere);
+	STORM_CHECK_RIGHT_INHERITANCE(Storm::BlowerSphereArea);
 }
 
 Storm::BlowerCylinderArea::BlowerCylinderArea(const Storm::SceneBlowerConfig &blowerConfig) :
@@ -211,11 +221,3 @@ Storm::BlowerConeArea::BlowerConeArea(const Storm::SceneBlowerConfig &blowerConf
 	const float upRadiusSquared = blowerConfig._upRadius * blowerConfig._upRadius;
 	_diffRadiusSquared = upRadiusSquared - _downRadiusSquared;
 }
-
-Storm::BlowerCubeArea::~BlowerCubeArea() = default;
-Storm::BlowerGradualDirectionalCubeArea::~BlowerGradualDirectionalCubeArea() = default;
-Storm::BlowerSphereArea::~BlowerSphereArea() = default;
-Storm::BlowerRepulsionSphereArea::~BlowerRepulsionSphereArea() = default;
-Storm::BlowerExplosionSphereArea::~BlowerExplosionSphereArea() = default;
-Storm::BlowerCylinderArea::~BlowerCylinderArea() = default;
-Storm::BlowerConeArea::~BlowerConeArea() = default;

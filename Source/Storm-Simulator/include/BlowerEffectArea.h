@@ -9,7 +9,6 @@ namespace Storm
 	{
 	public:
 		BlowerCubeArea(const Storm::SceneBlowerConfig &blowerConfig);
-		virtual ~BlowerCubeArea();
 
 	protected:
 		BlowerCubeArea(const Storm::SceneBlowerConfig &blowerConfig, int);
@@ -28,11 +27,13 @@ namespace Storm
 	};
 
 	// Cube Area that applies a stronger effect if the particle is the the plane passing by the center of the cube.
-	class BlowerGradualDirectionalCubeArea : public Storm::BlowerCubeArea
+	class BlowerGradualDirectionalCubeArea : private Storm::BlowerCubeArea
 	{
 	public:
 		BlowerGradualDirectionalCubeArea(const Storm::SceneBlowerConfig &blowerConfig);
-		virtual ~BlowerGradualDirectionalCubeArea();
+
+	public:
+		using Storm::BlowerCubeArea::isInside;
 
 	public:
 		static constexpr bool hasDistanceEffect() { return true; }
@@ -49,7 +50,6 @@ namespace Storm
 	{
 	public:
 		BlowerSphereArea(const Storm::SceneBlowerConfig &blowerConfig);
-		virtual ~BlowerSphereArea();
 
 	protected:
 		BlowerSphereArea(const Storm::SceneBlowerConfig &blowerConfig, int);
@@ -80,7 +80,6 @@ namespace Storm
 	{
 	public:
 		BlowerRepulsionSphereArea(const Storm::SceneBlowerConfig &blowerConfig);
-		virtual ~BlowerRepulsionSphereArea();
 
 	public:
 		using Storm::BlowerSphereArea::isInside;
@@ -96,7 +95,6 @@ namespace Storm
 	{
 	public:
 		BlowerExplosionSphereArea(const Storm::SceneBlowerConfig &blowerConfig);
-		virtual ~BlowerExplosionSphereArea();
 
 	public:
 		using Storm::BlowerSphereArea::isInside;
@@ -116,7 +114,6 @@ namespace Storm
 	{
 	public:
 		BlowerCylinderArea(const Storm::SceneBlowerConfig &blowerConfig);
-		virtual ~BlowerCylinderArea();
 
 	public:
 		__forceinline bool isInside(const Storm::Vector3 &relativePosDiff) const
@@ -139,7 +136,6 @@ namespace Storm
 	{
 	public:
 		BlowerConeArea(const Storm::SceneBlowerConfig &blowerConfig);
-		virtual ~BlowerConeArea();
 
 	public:
 		__forceinline bool isInside(const Storm::Vector3 &relativePosDiff) const

@@ -17,6 +17,10 @@
 #	define STORM_CONCAT(x, y) CONCAT(x, y)
 #endif
 
+#ifndef STORM_MAKE_PARAMETER_PACKED
+#	define STORM_MAKE_PARAMETER_PACKED(...) __VA_ARGS__
+#endif
+
 
 #if defined(DEBUG) || defined(_DEBUG)
 #	define STORM_PLUGIN_NAME(plugin) plugin "_d"
