@@ -111,6 +111,14 @@ bool Storm::FadeInOutTimeHandler::shouldFadeOut(float &outFadeCoefficient) const
 	return computeFadeOutCoefficient(_currentTime, ThisType::UnderlyingFadeOutType::_startFadeTimeInSeconds, ThisType::UnderlyingFadeOutType::_fadeDurationInSeconds, outFadeCoefficient);
 }
 
+
+void Storm::BlowerGradualDirectionalCubeArea::applyDistanceEffectToTemporary(const Storm::Vector3 &force, const float forceNorm, Storm::Vector3 &tmp) const
+{
+	// This distanceCoeff variable should be 1.f if the particle is on the center plane. 0.f if it is on the max distance from the center plane.
+	const float distanceCoeff = (1.f - std::fabs(_planeDirectionVect.dot(tmp)) / _maxDistanceToCenterPlane);
+	tmp *= (forceNorm / tmp.norm() * distanceCoeff);
+}
+
 void Storm::BlowerRepulsionSphereArea::applyDistanceEffectToTemporary(const Storm::Vector3 &force, const float forceNorm, Storm::Vector3 &tmp) const
 {
 	const float distNormSquared = tmp.squaredNorm();
@@ -137,10 +145,30 @@ void Storm::BlowerExplosionSphereArea::applyDistanceEffectToTemporary(const Stor
 	}
 }
 
-Storm::BlowerCubeArea::BlowerCubeArea(const Storm::SceneBlowerConfig &blowerConfig) :
+Storm::BlowerCubeArea::BlowerCubeArea(const Storm::SceneBlowerConfig &blowerConfig, int) :
 	_dimension{ blowerConfig._blowerDimension / 2.f }
 {
+}
+
+Storm::BlowerCubeArea::BlowerCubeArea(const Storm::SceneBlowerConfig &blowerConfig) :
+	Storm::BlowerCubeArea{ blowerConfig, 0 }
+{
 	STORM_ENSURE_CONSTRUCTED_ON_RIGHT_SETTING(blowerConfig, Storm::BlowerType::Cube);
+}
+
+Storm::BlowerGradualDirectionalCubeArea::BlowerGradualDirectionalCubeArea(const Storm::SceneBlowerConfig &blowerConfig) :
+	Storm::BlowerCubeArea{ blowerConfig, 0 },
+	_planeDirectionVect{ blowerConfig._blowerForce.normalized() } // For now, blowers don't have rotation. But when it would have one, use the rotation instead.
+{
+	STORM_ENSURE_CONSTRUCTED_ON_RIGHT_SETTING(blowerConfig, Storm::BlowerType::CubeGradualDirectional);
+
+	// This line is like : what is the farthest corner of the cube from the center plane ?
+	// And the farthest corner is the one aligned with the direction, therefore with a dot product positive on each element
+	// (since this is a cube, there is always one valid corner which respect all of those assumptions).
+	_maxDistanceToCenterPlane =
+		std::fabs(_planeDirectionVect.x() * _dimension.x()) +
+		std::fabs(_planeDirectionVect.y() * _dimension.y()) +
+		std::fabs(_planeDirectionVect.z() * _dimension.z());
 }
 
 Storm::BlowerSphereArea::BlowerSphereArea(const Storm::SceneBlowerConfig &blowerConfig) :
@@ -185,6 +213,7 @@ Storm::BlowerConeArea::BlowerConeArea(const Storm::SceneBlowerConfig &blowerConf
 }
 
 Storm::BlowerCubeArea::~BlowerCubeArea() = default;
+Storm::BlowerGradualDirectionalCubeArea::~BlowerGradualDirectionalCubeArea() = default;
 Storm::BlowerSphereArea::~BlowerSphereArea() = default;
 Storm::BlowerRepulsionSphereArea::~BlowerRepulsionSphereArea() = default;
 Storm::BlowerExplosionSphereArea::~BlowerExplosionSphereArea() = default;
