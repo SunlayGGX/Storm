@@ -109,6 +109,25 @@ namespace Storm
 		float _radius;
 	};
 
+	class BlowerSpherePlanarGradualArea : private Storm::BlowerSphereArea
+	{
+	public:
+		BlowerSpherePlanarGradualArea(const Storm::SceneBlowerConfig &blowerConfig);
+
+	public:
+		using Storm::BlowerSphereArea::isInside;
+
+	protected:
+		static constexpr bool hasDistanceEffect() { return true; }
+
+	public:
+		void applyDistanceEffectToTemporary(const Storm::Vector3 &force, const float forceNorm, Storm::Vector3 &tmp) const;
+
+	protected:
+		Storm::Vector3 _planeDirectionVect;
+		float _radius;
+	};
+
 	// For now, a cylinder that is vertical. (YAGNI)
 	class BlowerCylinderArea
 	{

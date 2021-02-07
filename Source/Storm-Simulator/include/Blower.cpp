@@ -153,6 +153,12 @@ void Storm::BlowerExplosionSphereArea::applyDistanceEffectToTemporary(const Stor
 	}
 }
 
+void Storm::BlowerSpherePlanarGradualArea::applyDistanceEffectToTemporary(const Storm::Vector3 &force, const float forceNorm, Storm::Vector3 &tmp) const
+{
+	const float distanceCoeff = 1.f - std::fabs(_planeDirectionVect.dot(tmp) / _radius);
+	tmp = force * distanceCoeff;
+}
+
 void Storm::BlowerCylinderGradualMidPlanarArea::applyDistanceEffectToTemporary(const Storm::Vector3 &force, const float forceNorm, Storm::Vector3 &tmp) const
 {
 	const float distanceCoeff = 1.f - std::fabs(tmp.y()) / _midHeight;
@@ -208,6 +214,15 @@ Storm::BlowerExplosionSphereArea::BlowerExplosionSphereArea(const Storm::SceneBl
 	_radius{ blowerConfig._radius }
 {
 	STORM_ENSURE_CONSTRUCTED_ON_RIGHT_SETTING(blowerConfig, Storm::BlowerType::ExplosionSphere, Storm::BlowerType::PulseExplosionSphere);
+	STORM_CHECK_RIGHT_INHERITANCE(Storm::BlowerSphereArea);
+}
+
+Storm::BlowerSpherePlanarGradualArea::BlowerSpherePlanarGradualArea(const Storm::SceneBlowerConfig &blowerConfig) :
+	Storm::BlowerSphereArea{ blowerConfig, 0 },
+	_planeDirectionVect{ blowerConfig._blowerForce.normalized() },
+	_radius{ blowerConfig._radius }
+{
+	STORM_ENSURE_CONSTRUCTED_ON_RIGHT_SETTING(blowerConfig, Storm::BlowerType::SpherePlanarGradual);
 	STORM_CHECK_RIGHT_INHERITANCE(Storm::BlowerSphereArea);
 }
 

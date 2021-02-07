@@ -889,6 +889,7 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 			break;
 
 		case Storm::BlowerType::Sphere:
+		case Storm::BlowerType::SpherePlanarGradual:
 		case Storm::BlowerType::RepulsionSphere:
 		case Storm::BlowerType::ExplosionSphere:
 			if (blowerConfig._radius <= 0.f)

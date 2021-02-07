@@ -8,6 +8,7 @@
 STORM_XMACRO_GENERATE_ELEMENTARY_BLOWER(Cube, "cube", BlowerCubeArea, BlowerCubeMeshMaker)																	\
 STORM_XMACRO_GENERATE_ELEMENTARY_BLOWER(CubeGradualDirectional, "cubegradualdirectional", BlowerGradualDirectionalCubeArea, BlowerCubeMeshMaker)			\
 STORM_XMACRO_GENERATE_ELEMENTARY_BLOWER(Sphere, "sphere", BlowerSphereArea, BlowerSphereMeshMaker)															\
+STORM_XMACRO_GENERATE_ELEMENTARY_BLOWER(SpherePlanarGradual, "sphereplanargradual", BlowerSpherePlanarGradualArea, BlowerSphereMeshMaker)					\
 STORM_XMACRO_GENERATE_ELEMENTARY_BLOWER(Cylinder, "cylinder", BlowerCylinderArea, BlowerCylinderMeshMaker)													\
 STORM_XMACRO_GENERATE_ELEMENTARY_BLOWER(CylinderGradualMidPlanar, "cylindergradualmidplanar", BlowerCylinderGradualMidPlanarArea, BlowerCylinderMeshMaker)	\
 STORM_XMACRO_GENERATE_ELEMENTARY_BLOWER(Cone, "cone", BlowerConeArea, BlowerConeMeshMaker)																	\

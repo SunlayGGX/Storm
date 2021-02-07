@@ -22,7 +22,7 @@ void Storm::BlowerCubeMeshMaker::generate(const Storm::SceneBlowerConfig &blower
 void Storm::BlowerSphereMeshMaker::generate(const Storm::SceneBlowerConfig &blowerConfig, std::vector<Storm::Vector3> &outVertexes, std::vector<uint32_t> &outIndexes)
 {
 	STORM_ENSURE_MESH_MAKER_USED_ON_RIGHT_SETTING(blowerConfig,
-		Storm::BlowerType::Sphere, Storm::BlowerType::RepulsionSphere, Storm::BlowerType::ExplosionSphere, Storm::BlowerType::PulseExplosionSphere
+		Storm::BlowerType::Sphere, Storm::BlowerType::RepulsionSphere, Storm::BlowerType::ExplosionSphere, Storm::BlowerType::PulseExplosionSphere, Storm::BlowerType::SpherePlanarGradual
 	);
 
 	Storm::AssetLoaderManager::instance().generateSimpleSphere(blowerConfig._blowerPosition, blowerConfig._radius, outVertexes, outIndexes);
