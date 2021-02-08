@@ -23,6 +23,7 @@
 #include "WebManager.h"
 #include "NetworkManager.h"
 #include "BibliographyManager.h"
+#include "AnimationManager.h"
 
 #include "ScriptImplementation.inl.h"
 
@@ -59,6 +60,7 @@ namespace
 		Storm::PhysicsManager,
 		Storm::SpacePartitionerManager,
 		Storm::RaycastManager,
+		Storm::AnimationManager,
 		Storm::SimulatorManager
 	>;
 

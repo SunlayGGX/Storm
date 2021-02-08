@@ -488,5 +488,8 @@
     <ClInclude Include="..\include\ViscosityMethod.h">
       <Filter>Header Files\Modules\Simulation</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\IAnimationManager.h">
+      <Filter>Header Files\Singleton</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
