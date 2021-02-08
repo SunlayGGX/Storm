@@ -6,8 +6,6 @@
 
 namespace Storm
 {
-	enum class ThreadEnumeration;
-
 	class IScriptManager : public Storm::ISingletonHeldInterface<IScriptManager>
 	{
 	public:
