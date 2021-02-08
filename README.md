@@ -56,6 +56,7 @@ I'm using catch2 as our main unit test library. But to be able to use it, you sh
 
 # Modules
 - **Storm**: This is the executable that runs the SPH simulation.
+- **Storm-Animation**: This module is here to manage animation within the simulation without being bound to a specific physics engine.
 - **Storm-Config**: This is the configuration module.
 - **Storm-Graphics**: This is the module responsible to display and render the simulation. We use DirectX.
 - **Storm-Helper**: This module contains all helpers that should be shared among all modules.
