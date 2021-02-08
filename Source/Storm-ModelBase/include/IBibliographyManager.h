@@ -6,8 +6,6 @@
 
 namespace Storm
 {
-	enum class ThreadEnumeration;
-
 	class IBibliographyManager : public Storm::ISingletonHeldInterface<Storm::IBibliographyManager>
 	{
 	public:

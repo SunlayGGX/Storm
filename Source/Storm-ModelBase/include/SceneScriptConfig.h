@@ -3,8 +3,6 @@
 
 namespace Storm
 {
-	enum class ThreadEnumeration;
-
 	struct ScriptFileInitConfig
 	{
 	public:
