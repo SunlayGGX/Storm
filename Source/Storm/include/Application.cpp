@@ -97,6 +97,7 @@ namespace
 				Storm::ThreadFlagEnum::RaycastThread <<
 				Storm::ThreadFlagEnum::SpaceThread <<
 				Storm::ThreadFlagEnum::LoadingThread <<
+				Storm::ThreadFlagEnum::AnimationThread <<
 				Storm::ThreadFlagEnum::PhysicsThread;
 
 			Storm::OSHelper::logOSEnvironmentInformation();
