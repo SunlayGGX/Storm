@@ -210,6 +210,40 @@ if (blowerTypeStr == BlowerTypeXmlName) return Storm::BlowerType::BlowerTypeName
 			Storm::throwException<Storm::Exception>("Viscosity method value is unknown : '" + viscosityMethodStr + "'");
 		}
 	}
+
+	class AnimationsKeeper
+	{
+	public:
+		const boost::property_tree::ptree& retrieveAnimationXml(const std::string &animationPath)
+		{
+			if (const auto found = _xmlTree.find(animationPath); found != std::end(_xmlTree))
+			{
+				return found->second;
+			}
+			else
+			{
+				boost::property_tree::ptree animationXmlTree;
+
+				boost::property_tree::read_xml(animationPath, animationXmlTree, boost::property_tree::xml_parser::no_comments);
+				return _xmlTree.emplace_hint(found, animationPath, std::move(animationXmlTree))->second;
+			}
+		}
+
+	private:
+		std::map<std::string, boost::property_tree::ptree> _xmlTree;
+	};
+
+	struct XmlAnimationParserPolicy
+	{
+	public:
+		template<class Policy, class ValueType>
+		static std::string parse(const ValueType &xml)
+		{
+			std::stringstream str;
+			boost::property_tree::xml_parser::write_xml_element(str, "Animation", xml, 0, boost::property_tree::xml_writer_make_settings<std::string>());
+			return str.str();
+		}
+	};
 }
 
 
@@ -615,6 +649,8 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 	}
 
 	/* RigidBodies */
+	AnimationsKeeper animationsKeeper;
+
 	auto &rigidBodiesConfigArray = _sceneConfig->_rigidBodiesConfig;
 	float rbConfigAngularVelocityDampingTmp = -1.f;
 
@@ -638,15 +674,19 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "layeringGeneration", rbConfig._layerGenerationMode, parseLayeringGenerationTechnique) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "pInsideRemovalTechnique", rbConfig._insideRbFluidDetectionMethodEnum, parseInsideRemovalTech) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "collisionType", rbConfig._collisionShape, parseCollisionType) ||
+			Storm::XmlReader::handleXml(rigidBodyConfigXml, "animation", rbConfig._animationXmlPath) ||
+			Storm::XmlReader::handleXml(rigidBodyConfigXml, "animationName", rbConfig._animationName) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "translation", rbConfig._translation, parseVector3Element) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "rotation", rbConfig._rotation, parseVector3Element) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "scale", rbConfig._scale, parseVector3Element) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "color", rbConfig._color, parseColor4Element)
 			;
 	},
-		[&macroConfig, &rigidBodiesConfigArray, &fluidConfig, &rbConfigAngularVelocityDampingTmp](Storm::SceneRigidBodyConfig &rbConfig)
+		[&animationsKeeper, &macroConfig, &rigidBodiesConfigArray, &fluidConfig, &rbConfigAngularVelocityDampingTmp](Storm::SceneRigidBodyConfig &rbConfig)
 	{
 		macroConfig(rbConfig._meshFilePath);
+		macroConfig(rbConfig._animationXmlPath);
+		macroConfig(rbConfig._animationName);
 
 		if (rbConfig._rigidBodyID == std::numeric_limits<decltype(rbConfig._rigidBodyID)>::max())
 		{
@@ -722,6 +762,73 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 			if (!std::filesystem::is_regular_file(rbConfig._meshFilePath))
 			{
 				Storm::throwException<Storm::Exception>("'" + rbConfig._meshFilePath + "' is not a valid mesh file!");
+			}
+		}
+
+		// This is not the responsibility to the config module to parse and produce the animation.
+		// This is the task of the animation module, therefore we'll forward to it the animation content without touching it.
+		// Just having an animation content should be enough to flag to others module that an animation was made. Therefore this is the only thing we'll precompute here.
+		if (!rbConfig._animationXmlPath.empty())
+		{
+			if (rbConfig._isWall || rbConfig._static)
+			{
+				Storm::throwException<Storm::Exception>("The rigid body " + std::to_string(rbConfig._rigidBodyID) + " is static or a wall, therefore cannot move along an animation!");
+			}
+			else if (!std::filesystem::is_regular_file(rbConfig._animationXmlPath))
+			{
+				Storm::throwException<Storm::Exception>("The rigid body " + std::to_string(rbConfig._rigidBodyID) + " animation xml path ('" + rbConfig._animationXmlPath + "') doesn't exist or is not a file!");
+			}
+
+			bool found = false;
+			const boost::property_tree::ptree &animationXml = animationsKeeper.retrieveAnimationXml(rbConfig._animationXmlPath);
+			for (const auto &rbAnimXml : animationXml)
+			{
+				if (rbAnimXml.first == "RigidBody")
+				{
+					bool animTagValid = false;
+
+					std::string animName;
+					if (Storm::XmlReader::readXmlAttribute(rbAnimXml.second, animName, "name"))
+					{
+						animTagValid = true;
+						if (!animName.empty() && rbConfig._animationName == animName)
+						{
+							rbConfig._animationXmlContent = Storm::toStdString<XmlAnimationParserPolicy>(rbAnimXml.second);
+							found = true;
+							break;
+						}
+					}
+
+					decltype(rbConfig._rigidBodyID) rbAnimId;
+					if (Storm::XmlReader::readXmlAttribute(rbAnimXml.second, rbAnimId, "id"))
+					{
+						animTagValid = true;
+						if (rbAnimId == rbConfig._rigidBodyID)
+						{
+							if (found)
+							{
+								Storm::throwException<Storm::Exception>("The rigid body " + std::to_string(rbConfig._rigidBodyID) + " animation was found in two different place inside the xml file " + rbConfig._animationXmlPath + "! Please, merge both animations!");
+							}
+
+							rbConfig._animationXmlContent = Storm::toStdString<XmlAnimationParserPolicy>(rbAnimXml.second);
+							found = true;
+						}
+					}
+
+					if (!animTagValid)
+					{
+						Storm::throwException<Storm::Exception>("One of the animations found inside the xml file " + rbConfig._animationXmlPath + " doesn't have an id or a name! It must have one or both!");
+					}
+				}
+				else
+				{
+					LOG_ERROR << "tag '" << rbAnimXml.first << "' inside " + rbConfig._animationXmlPath + " is unknown, therefore it cannot be handled";
+				}
+			}
+
+			if (!found)
+			{
+				Storm::throwException<Storm::Exception>("The animation xml file '" + rbConfig._animationXmlPath + "' doesn't contain an animation for rigid body " + std::to_string(rbConfig._rigidBodyID) + "!");
 			}
 		}
 	});

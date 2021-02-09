@@ -44,5 +44,9 @@ namespace Storm
 
 		unsigned int _layerCount;
 		Storm::LayeringGenerationTechnique _layerGenerationMode;
+
+		std::string _animationXmlPath;
+		std::string _animationName;
+		std::string _animationXmlContent; // This is not the responsibility of the config modules to parse the animation.
 	};
 }
