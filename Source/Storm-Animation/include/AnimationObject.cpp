@@ -257,3 +257,8 @@ bool Storm::AnimationObject::getCurrentFrameOrShouldBeDestroyed(float currentTim
 
 	return _isLooping || _lastKeyIndex != lastKeyframeIndex;
 }
+
+std::size_t Storm::AnimationObject::getKeyframeCount() const
+{
+	return _keyframes.size();
+}

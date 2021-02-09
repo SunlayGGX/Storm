@@ -23,7 +23,8 @@ void Storm::AnimationManager::createAnimation(const Storm::SceneRigidBodyConfig 
 
 	if (const auto found = _animationMap.find(rbConfig._rigidBodyID); found == std::end(_animationMap))
 	{
-		_animationMap.emplace_hint(found, rbConfig._rigidBodyID, std::make_unique<Storm::AnimationObject>(rbConfig));
+		const auto addedAnimIter = _animationMap.emplace_hint(found, rbConfig._rigidBodyID, std::make_unique<Storm::AnimationObject>(rbConfig));
+		LOG_DEBUG << "Animation created from rigid body " << rbConfig._rigidBodyID << " with " << addedAnimIter->second->getKeyframeCount() << " keyframes.";
 	}
 	else
 	{

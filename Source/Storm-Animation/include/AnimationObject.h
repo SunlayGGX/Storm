@@ -15,6 +15,8 @@ namespace Storm
 	public:
 		bool getCurrentFrameOrShouldBeDestroyed(float currentTime, Storm::Vector3 &outPos, Storm::Vector3 &outRot) const;
 
+		std::size_t getKeyframeCount() const;
+
 	private:
 		std::vector<Storm::AnimationKeyframe> _keyframes;
 		bool _isLooping;
