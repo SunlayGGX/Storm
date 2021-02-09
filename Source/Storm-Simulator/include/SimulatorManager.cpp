@@ -1185,7 +1185,9 @@ void Storm::SimulatorManager::notifyFrameAdvanced()
 
 void Storm::SimulatorManager::flushPhysics(const float deltaTime)
 {
-	Storm::IPhysicsManager &physicsMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IPhysicsManager>();
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+
+	Storm::IPhysicsManager &physicsMgr = singletonHolder.getSingleton<Storm::IPhysicsManager>();
 
 	for (auto &particleSystem : _particleSystem)
 	{
@@ -1197,7 +1199,8 @@ void Storm::SimulatorManager::flushPhysics(const float deltaTime)
 		}
 	}
 
-	physicsMgr.update(deltaTime);
+	const Storm::ITimeManager &timeMgr = singletonHolder.getSingleton<Storm::ITimeManager>();
+	physicsMgr.update(timeMgr.getCurrentPhysicsElapsedTime(), deltaTime);
 
 	for (auto &particleSystem : _particleSystem)
 	{

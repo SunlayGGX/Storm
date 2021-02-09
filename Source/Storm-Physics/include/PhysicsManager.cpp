@@ -91,15 +91,15 @@ void Storm::PhysicsManager::notifyIterationStart()
 	}, _dynamicsRbMap, _staticsRbMap);
 }
 
-void Storm::PhysicsManager::update(float deltaTime)
+void Storm::PhysicsManager::update(const float currentTime, float deltaTime)
 {
 	if (!_rigidBodiesFixated)
 	{
 		_physXHandler->update(_simulationMutex, deltaTime);
 
-		Storm::SearchAlgo::executeOnContainer([](auto &rb)
+		Storm::SearchAlgo::executeOnContainer([time = currentTime + deltaTime](auto &rb)
 		{
-			rb.onPostUpdate();
+			rb.onPostUpdate(time);
 		}, _dynamicsRbMap, _staticsRbMap);
 
 		this->pushPhysicsVisualizationData();
@@ -305,6 +305,14 @@ Storm::Vector3 Storm::PhysicsManager::getForceOnPhysicalBody(const unsigned int 
 	return force;
 }
 
+void Storm::PhysicsManager::freeFromAnimation(const unsigned int rbId)
+{
+	Storm::SearchAlgo::executeOnObjectInContainer(rbId, [](auto &rbFound)
+	{
+		rbFound.freeFromAnimation();
+	}, _dynamicsRbMap);
+}
+
 void Storm::PhysicsManager::setRigidBodyAngularDamping(const unsigned int rbId, const float angularVelocityDamping)
 {
 	if (angularVelocityDamping > 1.f)
@@ -384,12 +392,15 @@ void Storm::PhysicsManager::applyLocalForces(unsigned int particleSystemId, cons
 		if (const auto dynamicFound = _dynamicsRbMap.find(particleSystemId); dynamicFound != std::end(_dynamicsRbMap))
 		{
 			Storm::PhysicsDynamicRigidBody &dynamicRb = *dynamicFound->second;
-			const std::size_t applyCount = position.size();
-
-			assert(applyCount == force.size() && "Mismatch detected between position and force apply count.");
-			for (std::size_t iter = 0; iter < applyCount; ++iter)
+			if (!dynamicRb.isAnimated())
 			{
-				dynamicRb.applyForce(position[iter], force[iter]);
+				const std::size_t applyCount = position.size();
+
+				assert(applyCount == force.size() && "Mismatch detected between position and force apply count.");
+				for (std::size_t iter = 0; iter < applyCount; ++iter)
+				{
+					dynamicRb.applyForce(position[iter], force[iter]);
+				}
 			}
 		}
 		else

@@ -19,7 +19,7 @@ namespace Storm
 
 	public:
 		virtual void notifyIterationStart() = 0;
-		virtual void update(float deltaTime) = 0;
+		virtual void update(const float currentTime, float deltaTime) = 0;
 
 	public:
 		virtual void addPhysicalBody(const Storm::SceneRigidBodyConfig &rbSceneConfig, const std::vector<Storm::Vector3> &vertexes, const std::vector<uint32_t> &indexes) = 0;
@@ -41,5 +41,7 @@ namespace Storm
 		// Doesn't account for fluid forces. Only forces from Physics engine.
 		virtual Storm::Vector3 getPhysicalForceOnPhysicalBody(const unsigned int id) const = 0;
 		virtual Storm::Vector3 getForceOnPhysicalBody(const unsigned int id, const float deltaTimeInSecond) const = 0;
+
+		virtual void freeFromAnimation(const unsigned int rbId) = 0;
 	};
 }

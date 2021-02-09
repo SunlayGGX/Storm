@@ -28,7 +28,7 @@ namespace Storm
 
 	public:
 		void notifyIterationStart() final override;
-		void update(float deltaTime) final override;
+		void update(const float currentTime, float deltaTime) final override;
 
 	public:
 		void addPhysicalBody(const Storm::SceneRigidBodyConfig &rbSceneConfig, const std::vector<Storm::Vector3> &vertexes, const std::vector<uint32_t> &indexes) final override;
@@ -49,6 +49,8 @@ namespace Storm
 
 		Storm::Vector3 getPhysicalForceOnPhysicalBody(const unsigned int id) const final override;
 		Storm::Vector3 getForceOnPhysicalBody(const unsigned int id, const float deltaTimeInSecond) const final override;
+
+		void freeFromAnimation(const unsigned int rbId) final override;
 
 	public:
 		void setRigidBodyAngularDamping(const unsigned int rbId, const float angularVelocityDamping);

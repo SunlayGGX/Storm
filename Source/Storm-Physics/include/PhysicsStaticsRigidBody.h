@@ -19,7 +19,7 @@ namespace Storm
 
 	public:
 		void onIterationStart() noexcept;
-		void onPostUpdate() noexcept;
+		void onPostUpdate(const float currentTime) noexcept;
 
 	public:
 		void getMeshTransform(Storm::Vector3 &outTrans, Storm::Vector3 &outRot) const;

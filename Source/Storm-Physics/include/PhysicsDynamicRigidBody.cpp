@@ -2,6 +2,9 @@
 
 #include "PhysXCoordHelpers.h"
 
+#include "SingletonHolder.h"
+#include "IAnimationManager.h"
+
 #include "PhysicsManager.h"
 #include "PhysXHandler.h"
 
@@ -54,22 +57,28 @@ Storm::PhysicsDynamicRigidBody::PhysicsDynamicRigidBody(const Storm::SceneRigidB
 	{
 		_fixedPos = _internalRb->getGlobalPose().p;
 	}
+
+	_isAnimated = !rbSceneConfig._animationXmlContent.empty();
+	_internalRb->setRigidBodyFlag(physx::PxRigidBodyFlag::Enum::eKINEMATIC, _isAnimated);
 }
 
 void Storm::PhysicsDynamicRigidBody::onIterationStart() noexcept
 {
 	_currentIterationVelocity = _internalRb->getLinearVelocity();
 
-	_internalRb->clearForce();
-	_internalRb->clearTorque();
-
-	// PhysX angular damping coeff default value of 0.05 is a lie, therefore I'm doing the damping myself.
-	physx::PxVec3 currentAngularVelocity = _internalRb->getAngularVelocity();
-	currentAngularVelocity *= _currentAngularVelocityDampingCoefficient;
-	_internalRb->setAngularVelocity(currentAngularVelocity);
+	if (!_isAnimated)
+	{
+		_internalRb->clearForce();
+		_internalRb->clearTorque();
+	
+		// PhysX angular damping coeff default value of 0.05 is a lie, therefore I'm doing the damping myself.
+		physx::PxVec3 currentAngularVelocity = _internalRb->getAngularVelocity();
+		currentAngularVelocity *= _currentAngularVelocityDampingCoefficient;
+		_internalRb->setAngularVelocity(currentAngularVelocity);
+	}
 }
 
-void Storm::PhysicsDynamicRigidBody::onPostUpdate() noexcept
+void Storm::PhysicsDynamicRigidBody::onPostUpdate(const float currentTime) noexcept
 {
 	if (_translationFixed)
 	{
@@ -80,12 +89,35 @@ void Storm::PhysicsDynamicRigidBody::onPostUpdate() noexcept
 
 		_internalRb->setLinearVelocity(physx::PxVec3{ physx::PxZERO::PxZero });
 	}
+
+	if (_isAnimated)
+	{
+		Storm::Vector3 animatedPos;
+		Storm::Vector3 animatedRot;
+
+		Storm::IAnimationManager &animationMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IAnimationManager>();
+		if (animationMgr.retrieveAnimationData(currentTime, _id, animatedPos, animatedRot))
+		{
+			physx::PxTransform animatedTransform = _internalRb->getGlobalPose();
+			animatedTransform.p = Storm::convertToPx(animatedPos);
+			animatedTransform.q = Storm::convertToPxRotation(animatedRot);
+
+			_internalRb->setGlobalPose(animatedTransform);
+		}
+		else
+		{
+			this->freeFromAnimation();
+		}
+	}
 }
 
 void Storm::PhysicsDynamicRigidBody::resetForce()
 {
-	const physx::PxVec3 zeroVec{ 0.f, 0.f, 0.f };
-	_internalRb->setForceAndTorque(zeroVec, zeroVec);
+	if (!_isAnimated)
+	{
+		const physx::PxVec3 zeroVec{ 0.f, 0.f, 0.f };
+		_internalRb->setForceAndTorque(zeroVec, zeroVec);
+	}
 }
 
 void Storm::PhysicsDynamicRigidBody::applyForce(const Storm::Vector3 &location, const Storm::Vector3 &force)
@@ -179,4 +211,15 @@ void Storm::PhysicsDynamicRigidBody::setTranslationFixed(bool fixTranslation)
 	{
 		_fixedPos = _internalRb->getGlobalPose().p;
 	}
+}
+
+void Storm::PhysicsDynamicRigidBody::freeFromAnimation()
+{
+	_internalRb->setRigidBodyFlag(physx::PxRigidBodyFlag::Enum::eKINEMATIC, false);
+	_isAnimated = false;
+}
+
+bool Storm::PhysicsDynamicRigidBody::isAnimated() const
+{
+	return _isAnimated;
 }

@@ -20,7 +20,7 @@ namespace Storm
 
 	public:
 		void onIterationStart() noexcept;
-		void onPostUpdate() noexcept;
+		void onPostUpdate(const float currentTime) noexcept;
 
 	public:
 		void resetForce();
@@ -40,6 +40,9 @@ namespace Storm
 
 		void setTranslationFixed(bool fixTranslation);
 
+		void freeFromAnimation();
+		bool isAnimated() const;
+
 	private:
 		Storm::UniquePointer<physx::PxRigidDynamic> _internalRb;
 		std::vector<std::shared_ptr<Storm::PhysicsConstraint>> _constraints;
@@ -49,5 +52,7 @@ namespace Storm
 
 		physx::PxVec3 _fixedPos;
 		bool _translationFixed;
+
+		bool _isAnimated;
 	};
 }

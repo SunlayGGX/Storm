@@ -43,7 +43,7 @@ void Storm::PhysicsStaticsRigidBody::onIterationStart() noexcept
 
 }
 
-void Storm::PhysicsStaticsRigidBody::onPostUpdate() noexcept
+void Storm::PhysicsStaticsRigidBody::onPostUpdate(const float) noexcept
 {
 
 }

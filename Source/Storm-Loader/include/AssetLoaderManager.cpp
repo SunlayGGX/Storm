@@ -10,6 +10,7 @@
 #include "IThreadManager.h"
 #include "ISerializerManager.h"
 #include "ITimeManager.h"
+#include "IAnimationManager.h"
 
 #include "SceneSimulationConfig.h"
 #include "SceneFluidConfig.h"
@@ -473,6 +474,16 @@ void Storm::AssetLoaderManager::initializeForSimulation()
 
 				LOG_DEBUG << "Rigid body " << emplacedRbId << " created and bound to the right modules.";
 			}));
+		}
+
+		/* Loading animations */
+		Storm::IAnimationManager &animMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IAnimationManager>();
+		for (const auto &rbToLoad : rigidBodiesConfigToLoad)
+		{
+			if (!rbToLoad._animationXmlPath.empty())
+			{
+				animMgr.createAnimation(rbToLoad);
+			}
 		}
 	}
 
