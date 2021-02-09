@@ -102,7 +102,7 @@ namespace Storm
 		}
 
 		template<class ResultType, class TreeItem>
-		static void readXmlAttribute(const TreeItem &treeItem, ResultType &value, const std::string_view &tag)
+		static bool readXmlAttribute(const TreeItem &treeItem, ResultType &value, const std::string_view &tag)
 		{
 			constexpr std::string_view xmlAttrIdentificator{ "<xmlattr>." };
 
@@ -115,7 +115,10 @@ namespace Storm
 			if (auto maybeAttr = treeItem.get_optional<ResultType>(finalTag); maybeAttr.has_value())
 			{
 				value = maybeAttr.value();
+				return true;
 			}
+
+			return false;
 		}
 
 		template<class ResultType, class TreeItem>
