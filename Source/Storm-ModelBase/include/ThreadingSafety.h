@@ -16,4 +16,5 @@ namespace Storm
 	bool isTimeThread();
 	bool isScriptThread();
 	bool isPhysicsThread();
+	bool isAnimationThread();
 }

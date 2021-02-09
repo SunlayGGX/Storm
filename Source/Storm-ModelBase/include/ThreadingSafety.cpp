@@ -92,3 +92,8 @@ bool Storm::isPhysicsThread()
 {
 	return currentThreadContainsFlag<Storm::ThreadFlagEnum::PhysicsThread>();
 }
+
+bool Storm::isAnimationThread()
+{
+	return currentThreadContainsFlag<Storm::ThreadFlagEnum::AnimationThread>();
+}
