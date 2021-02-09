@@ -7,7 +7,8 @@
 #include "PhysXHandler.h"
 
 
-Storm::PhysicalShape::PhysicalShape(const Storm::SceneRigidBodyConfig &rbSceneConfig, const std::vector<Storm::Vector3> &vertices, const std::vector<uint32_t> &indexes)
+Storm::PhysicalShape::PhysicalShape(const Storm::SceneRigidBodyConfig &rbSceneConfig, const std::vector<Storm::Vector3> &vertices, const std::vector<uint32_t> &indexes) :
+	_id{ rbSceneConfig._rigidBodyID }
 {
 	auto &physicsHandler = Storm::PhysicsManager::instance().getPhysXHandler();
 	if (rbSceneConfig._collisionShape != Storm::CollisionType::None)

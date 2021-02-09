@@ -16,6 +16,7 @@ namespace Storm
 		virtual ~PhysicalShape() = default;
 
 	protected:
+		unsigned int _id;
 		Storm::UniquePointer<physx::PxShape> _internalRbShape;
 		Storm::UniquePointer<physx::PxMaterial> _internalRbMaterial;
 	};
