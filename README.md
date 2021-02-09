@@ -351,6 +351,8 @@ Inside this element should be put all rigidbodies. Each rigidbody should be spec
 - **isStatic (boolean, facultative)**: Specify this to tell the simulation that this object is fixed (won't move throughout the simulation). Default value is "true".
 - **wall (boolean, facultative)**: Specify that this object is the wall (considered to be a wall). By defainition, a wall is static so if the value is true, the object will be considered static no matter the value set to isStatic. Default value is "false".
 - **collisionType (string, facultative)**: Specify what is the collision shape and how should it be handled. This is not case sensitive. Possible values are "None" (Default value), "Sphere", "Cube", "Particle" and "Custom". Note that if it is a particle, some settings won't be taken into account (like the scale, the rotation or the layer count) and the engine will consider this rigid body as a single particle (only one particle will be made).
+- **animation (string, facultative, accept macro)**: The path to the animation xml file that describes how to animate the rigidbody.
+- **animationName (string, facultative, accept macro)**: The name of the animation to use. If there is none (default), then the animation to use will be the one with the same id than the rigid body.
 - **translation (vector3, facultative)**: The initial position in meters of the object. Default value is { x=0.0, y=0.0, z=0.0 }.
 - **rotation (vector3, facultative)**: The initial rotation in degrees of the object (this is euler angle : roll, pich, yaw). Default value is { x=0.0, y=0.0, z=0.0 }.
 - **scale (vector3, facultative)**: The initial scale of the object. Default value is { x=1.0, y=1.0, z=1.0 }.
@@ -401,12 +403,32 @@ Inside this element should be put all rigidbodies. Each rigidbody should be spec
 - **force (vector3, facultative)**: This defines the force applied by the blower to each particle in range (inside its effect area defined by the blower's dimension). Default is { x=0.0, y=0.0, z=0.0 }...
 
 
+### Animation
+
+Animation config are where we define a rigid body animation.
+Each rigid body animation should begin by a tag "RigidBody". Inside, as an attribute, you must define either an id (which is the same than the id of the rigid body from your scene config), and/or a name which would be the name of the Animation.
+We advise you to use the animation "name" attribute instead of the id since it is more scalable.
+Then inside the RigidBody must be define a list of xml child tags those purpose is to define the animation.
+Note that you should be careful of the order of each child since they must be defined in chronological order.
+
+- **Keyframe (tag, facultative)**: This tag define a keyframe. Frame in between are interpolated. Defined attributes are :
+	+ **time (float, mandatory)**: This is the keyframe time in seconds.
+	+ **posX (float, facultative)**: This is the x position coordinate of your rigid body at the keyframe time. If it isn't set, then the x position of the last keyframe will be used. If there is no keyframe before, the initial x position of the rigid body will be used.
+	+ **posY (float, facultative)**: This is the y position coordinate of your rigid body at the keyframe time. If it isn't set, then the y position of the last keyframe will be used. If there is no keyframe before, the initial y position of the rigid body will be used.
+	+ **posZ (float, facultative)**: This is the z position coordinate of your rigid body at the keyframe time. If it isn't set, then the z position of the last keyframe will be used. If there is no keyframe before, the initial z position of the rigid body will be used.
+	+ **rotX (float, facultative)**: This is the x rotation in degree of your rigid body at the keyframe time. If it isn't set, then the x rotation of the last keyframe will be used. If there is no keyframe before, the initial x rotation of the rigid body will be used.
+	+ **rotY (float, facultative)**: This is the y rotation in degree of your rigid body at the keyframe time. If it isn't set, then the y rotation of the last keyframe will be used. If there is no keyframe before, the initial y rotation of the rigid body will be used.
+	+ **rotZ (float, facultative)**: This is the z rotation in degree of your rigid body at the keyframe time. If it isn't set, then the z rotation of the last keyframe will be used. If there is no keyframe before, the initial z rotation of the rigid body will be used.
+- **Loop (tag, facultative)**: This tag should be placed last if you need it. Specifying one will make the animation loop to the beginning when it has finished playing.
+
+
 ### Internal
 
 Internal Config is a versioned config that mustn't change much. It contains data that I didn't want to hard code.<br><br>
 Since this configuration file shouldn't be exposed a lot (but I'll document it nevertheless), we wouldn't be permissive in case an error happens and immediately exit the application.<br>
 The location of the Internal config named "InternalConfig.xml" is inside under the folder "$[StormConfig]/Internal".
 So now, you are warned to not modify this config file unless it is truly necessary.
+
 
 #### References
 References contains a list of all references to articles, papers, books, websites, ... I used :

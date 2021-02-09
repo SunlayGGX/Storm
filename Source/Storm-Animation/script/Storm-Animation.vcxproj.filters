@@ -13,21 +13,36 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\Animation">
+      <UniqueIdentifier>{240c6a65-c0a4-4de7-8cd7-69def921e731}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Animation">
+      <UniqueIdentifier>{606d2527-2166-493a-8d87-f24497075788}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-AnimationPCH.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\AnimationObject.cpp">
+      <Filter>Source Files\Animation</Filter>
+    </ClCompile>
     <ClCompile Include="..\include\AnimationManager.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Animation</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-AnimationPCH.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\AnimationObject.h">
+      <Filter>Header Files\Animation</Filter>
+    </ClInclude>
     <ClInclude Include="..\include\AnimationManager.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\AnimationKeyframe.h">
+      <Filter>Header Files\Animation</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

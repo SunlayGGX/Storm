@@ -12,13 +12,16 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\AnimationManager.cpp" />
+    <ClCompile Include="..\include\AnimationObject.cpp" />
     <ClCompile Include="..\include\Storm-AnimationPCH.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\include\AnimationKeyframe.h" />
     <ClInclude Include="..\include\AnimationManager.h" />
+    <ClInclude Include="..\include\AnimationObject.h" />
     <ClInclude Include="..\include\Storm-AnimationPCH.h" />
   </ItemGroup>
   <ItemGroup>
