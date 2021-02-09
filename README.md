@@ -410,7 +410,6 @@ Each rigid body animation should begin by a tag "RigidBody". Inside, as an attri
 We advise you to use the animation "name" attribute instead of the id since it is more scalable.
 Then inside the RigidBody must be define a list of xml child tags those purpose is to define the animation.
 Note that you should be careful of the order of each child since they must be defined in chronological order.
-
 - **Keyframe (tag, facultative)**: This tag define a keyframe. Frame in between are interpolated. Defined attributes are :
 	+ **time (float, mandatory)**: This is the keyframe time in seconds.
 	+ **posX (float, facultative)**: This is the x position coordinate of your rigid body at the keyframe time. If it isn't set, then the x position of the last keyframe will be used. If there is no keyframe before, the initial x position of the rigid body will be used.

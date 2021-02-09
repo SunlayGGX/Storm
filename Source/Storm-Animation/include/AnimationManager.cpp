@@ -16,6 +16,7 @@ void Storm::AnimationManager::createAnimation(const Storm::SceneRigidBodyConfig 
 	if (rbConfig._animationXmlContent.empty())
 	{
 		LOG_WARNING << "Animation creation ignored for rigid body " << rbConfig._rigidBodyID << " because animation content is empty!";
+		return;
 	}
 
 	assert(Storm::isAnimationThread() && "This method should only be called from animation thread!");
