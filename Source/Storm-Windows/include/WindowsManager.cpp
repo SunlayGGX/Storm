@@ -14,6 +14,7 @@
 #include "GeneralApplicationConfig.h"
 #include "GeneratedGitConfig.h"
 #include "InternalReferenceConfig.h"
+#include "SceneRigidBodyConfig.h"
 
 #include "DynamicMenuBuilder.h"
 
@@ -473,6 +474,42 @@ void Storm::WindowsManager::initializeInternal()
 			else
 			{
 				Storm::MFCHelper::setMenuEnabled(mainMenu, ID_LINK_REFERENCES, false);
+			}
+
+			const std::vector<Storm::SceneRigidBodyConfig> &allRigidBodiesConfig = configMgr.getSceneRigidBodiesConfig();
+			std::vector<std::string> animationFiles;
+			animationFiles.reserve(allRigidBodiesConfig.size());
+
+			for (const Storm::SceneRigidBodyConfig &sceneRbConfig : allRigidBodiesConfig)
+			{
+				if (!sceneRbConfig._animationXmlPath.empty())
+				{
+					animationFiles.emplace_back(sceneRbConfig._animationXmlPath);
+				}
+			}
+
+			if (!animationFiles.empty())
+			{
+				HMENU notepadReference = Storm::MFCHelper::findMenuByName(mainMenu, STORM_TEXT("Notepad"));
+				HMENU animFileReference = Storm::MFCHelper::findMenuByName(notepadReference, STORM_TEXT("Animations"));
+				HMENU animFileReferenceSubmenu = Storm::MFCHelper::getChild(animFileReference, 2);
+
+				for (std::string &animationFile : animationFiles)
+				{
+					std::wstring menuName = Storm::toStdWString(animationFile);
+					_menuBuilderHandler->appendMenu(animFileReferenceSubmenu, menuName, [filePath = std::move(animationFile)]()
+					{
+						std::size_t outProcessUID;
+						Storm::StormProcessOpener::openTextFile(Storm::StormProcessOpener::OpenParameter{
+							._failureQuit = false,
+							._additionalParameterStr = filePath
+						}, outProcessUID);
+					});
+				}
+			}
+			else
+			{
+				Storm::MFCHelper::setMenuEnabled(mainMenu, ID_NOTEPAD_ANIMATION, false);
 			}
 		}
 		else

@@ -135,6 +135,11 @@ bool Storm::StormProcessOpener::openCurrentConfigFile(const Storm::StormProcessO
 	return openNotepadOnFile(param, outProcessUID, sceneConfigFilePath);
 }
 
+bool Storm::StormProcessOpener::openTextFile(const OpenParameter &param, std::size_t &outProcessUID)
+{
+	return openNotepadOnFile(param, outProcessUID, std::string{ param._additionalParameterStr });
+}
+
 bool Storm::StormProcessOpener::openStormUrlLink(const Storm::StormProcessOpener::OpenParameter &param, std::size_t &outProcessUID)
 {
 	return tryOpenProcess(param, outProcessUID, defaultOpenURL, param._additionalParameterStr);
