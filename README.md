@@ -422,10 +422,10 @@ Note that you should be careful of the order of each child since they must be de
 	+ **pivotX (float, facultative)**: This is the x position coordinate of your motor hinge point. The circular motion will orbit around this specific point. The default value is the location of your rigid body.
 	+ **pivotY (float, facultative)**: This is the y position coordinate of your motor hinge point. The circular motion will orbit around this specific point. The default value is the location of your rigid body.
 	+ **pivotZ (float, facultative)**: This is the z position coordinate of your motor hinge point. The circular motion will orbit around this specific point. The default value is the location of your rigid body.
-	+ **rotAxisX (float, facultative)**: This is the z rotation axis coordinate of your motor. The final vector defined by x, y and z should be non-zero.
-	+ **rotAxisY (float, facultative)**: This is the y rotation axis coordinate of your motor. The final vector defined by x, y and z should be non-zero.
-	+ **rotAxisZ (float, facultative)**: This is the z rotation axis coordinate of your motor. The final vector defined by x, y and z should be non-zero.
-	+ **speed (float, facultative)**: This is your motor angular speed defined in turn per second.
+	+ **rotAxisX (float, semi-facultative)**: This is the z rotation axis coordinate of your motor. Default is 0.f but the final vector defined by x, y and z should be non-null.
+	+ **rotAxisY (float, semi-facultative)**: This is the y rotation axis coordinate of your motor. Default is 0.f but the final vector defined by x, y and z should be non-null.
+	+ **rotAxisZ (float, semi-facultative)**: This is the z rotation axis coordinate of your motor. Default is 0.f but the final vector defined by x, y and z should be non-null.
+	+ **speed (float, mandatory)**: This is your motor angular speed defined in turn per second. A positive value make the motor rotate clockwise. Negative would make it rotate counter clockwise. This value shouldn't be 0.
 - **Loop (tag, facultative)**: This tag should be placed last if you need it. Specifying one will make the animation loop to the beginning when it has finished playing.
 
 

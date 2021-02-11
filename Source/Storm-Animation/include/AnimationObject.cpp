@@ -105,10 +105,10 @@ Storm::AnimationObject::AnimationObject(const Storm::SceneRigidBodyConfig &rbSce
 			Storm::XmlReader::readXmlAttribute(motorElementXmlTree, pivotPoint.y(), "pivotY");
 			Storm::XmlReader::readXmlAttribute(motorElementXmlTree, pivotPoint.z(), "pivotZ");
 
-			Storm::Vector3 rotationAxis;
-			Storm::XmlReader::sureReadXmlAttribute(motorElementXmlTree, rotationAxis.x(), "rotAxisX");
-			Storm::XmlReader::sureReadXmlAttribute(motorElementXmlTree, rotationAxis.y(), "rotAxisY");
-			Storm::XmlReader::sureReadXmlAttribute(motorElementXmlTree, rotationAxis.z(), "rotAxisZ");
+			Storm::Vector3 rotationAxis = Storm::Vector3::Zero();
+			Storm::XmlReader::readXmlAttribute(motorElementXmlTree, rotationAxis.x(), "rotAxisX");
+			Storm::XmlReader::readXmlAttribute(motorElementXmlTree, rotationAxis.y(), "rotAxisY");
+			Storm::XmlReader::readXmlAttribute(motorElementXmlTree, rotationAxis.z(), "rotAxisZ");
 
 			const float rotationAxisNorm = rotationAxis.norm();
 			if (rotationAxisNorm < 0.00001f)
@@ -120,6 +120,10 @@ Storm::AnimationObject::AnimationObject(const Storm::SceneRigidBodyConfig &rbSce
 
 			float rotateSpeed;
 			Storm::XmlReader::sureReadXmlAttribute(motorElementXmlTree, rotateSpeed, "speed");
+			if (rotateSpeed == 0.f)
+			{
+				Storm::throwException<Storm::Exception>("Motor should move!");
+			}
 
 			constexpr unsigned int angularTurnDivision = 180;
 			const float angularTimeDivision = 1.f / (static_cast<float>(angularTurnDivision) * rotateSpeed);
