@@ -149,8 +149,7 @@ Storm::AnimationObject::AnimationObject(const Storm::SceneRigidBodyConfig &rbSce
 
 			const Storm::Vector3 deltaInternalRotation = Eigen::EulerAnglesYZXf::FromRotation<false, false, false>(rotationAxisDescription).angles() * radToDegrees;
 
-			constexpr unsigned int divisionCount = angularTurnDivision - 1;
-			for (unsigned int iter = 1; iter < divisionCount; ++iter)
+			for (unsigned int iter = 1; iter < angularTurnDivision; ++iter)
 			{
 				const Storm::AnimationKeyframe &lastKeyframe = _keyframes.back();
 
