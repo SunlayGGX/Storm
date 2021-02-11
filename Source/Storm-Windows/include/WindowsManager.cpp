@@ -482,7 +482,9 @@ void Storm::WindowsManager::initializeInternal()
 
 			for (const Storm::SceneRigidBodyConfig &sceneRbConfig : allRigidBodiesConfig)
 			{
-				if (!sceneRbConfig._animationXmlPath.empty())
+				if (!sceneRbConfig._animationXmlPath.empty() &&
+					std::find(std::begin(animationFiles), std::end(animationFiles), sceneRbConfig._animationXmlPath) == std::end(animationFiles)
+					)
 				{
 					animationFiles.emplace_back(sceneRbConfig._animationXmlPath);
 				}
