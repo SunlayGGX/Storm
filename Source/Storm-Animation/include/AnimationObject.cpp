@@ -9,6 +9,9 @@
 #include <boost\property_tree\ptree_fwd.hpp>
 #include <boost\property_tree\xml_parser.hpp>
 
+#include <unsupported\Eigen\src\EulerAngles\EulerSystem.h>
+#include <unsupported\Eigen\src\EulerAngles\EulerAngles.h>
+
 
 namespace
 {
@@ -90,6 +93,75 @@ Storm::AnimationObject::AnimationObject(const Storm::SceneRigidBodyConfig &rbSce
 			Storm::XmlReader::readXmlAttribute(keyframeElementXmlTree, keyframe._rotation.x(), "rotX");
 			Storm::XmlReader::readXmlAttribute(keyframeElementXmlTree, keyframe._rotation.y(), "rotY");
 			Storm::XmlReader::readXmlAttribute(keyframeElementXmlTree, keyframe._rotation.z(), "rotZ");
+		}
+		else if (animationKeys.first == "Motor")
+		{
+			const boost::property_tree::ptree &motorElementXmlTree = animationKeys.second;
+
+			Storm::Vector3 initialRbPosition = _keyframes.empty() ? rbSceneConfig._translation : (_keyframes.back()._position);
+
+			Storm::Vector3 pivotPoint = initialRbPosition;
+			Storm::XmlReader::readXmlAttribute(motorElementXmlTree, pivotPoint.x(), "pivotX");
+			Storm::XmlReader::readXmlAttribute(motorElementXmlTree, pivotPoint.y(), "pivotY");
+			Storm::XmlReader::readXmlAttribute(motorElementXmlTree, pivotPoint.z(), "pivotZ");
+
+			Storm::Vector3 rotationAxis;
+			Storm::XmlReader::sureReadXmlAttribute(motorElementXmlTree, rotationAxis.x(), "rotAxisX");
+			Storm::XmlReader::sureReadXmlAttribute(motorElementXmlTree, rotationAxis.y(), "rotAxisY");
+			Storm::XmlReader::sureReadXmlAttribute(motorElementXmlTree, rotationAxis.z(), "rotAxisZ");
+
+			const float rotationAxisNorm = rotationAxis.norm();
+			if (rotationAxisNorm < 0.00001f)
+			{
+				Storm::throwException<Storm::Exception>("Rotation axis shouldn't be a null vector!");
+			}
+
+			rotationAxis /= rotationAxisNorm;
+
+			float rotateSpeed;
+			Storm::XmlReader::sureReadXmlAttribute(motorElementXmlTree, rotateSpeed, "speed");
+
+			constexpr unsigned int angularTurnDivision = 180;
+			const float angularTimeDivision = 1.f / (static_cast<float>(angularTurnDivision) * rotateSpeed);
+
+			constexpr float angularStep = static_cast<float>(2.0 * M_PI / static_cast<double>(angularTurnDivision));
+			constexpr float radToDegrees = static_cast<float>(180.0 / M_PI);
+
+			const Eigen::AngleAxisf rotationAxisDescription{ angularStep, rotationAxis };
+
+			const Storm::Quaternion rotationQuaternion{ rotationAxisDescription };
+			const Storm::Quaternion conjugateRotationQuaternion = rotationQuaternion.conjugate();
+
+			_keyframes.reserve(_keyframes.size() + angularTurnDivision + 1);
+
+			{
+				Storm::AnimationKeyframe &keyframe = _keyframes.emplace_back();
+				keyframe._timeInSecond = _keyframes.empty() ? 0.f : (_keyframes.back()._timeInSecond + angularTimeDivision);
+				keyframe._position = initialRbPosition;
+				keyframe._rotation = _keyframes.empty() ? rbSceneConfig._rotation : (_keyframes.back()._rotation);
+			}
+
+			Storm::Vector3 relativePos = initialRbPosition - pivotPoint;
+
+			const Storm::Vector3 deltaInternalRotation = Eigen::EulerAnglesYZXf::FromRotation<false, false, false>(rotationAxisDescription).angles() * radToDegrees;
+
+			constexpr unsigned int divisionCount = angularTurnDivision - 1;
+			for (unsigned int iter = 1; iter < divisionCount; ++iter)
+			{
+				const Storm::AnimationKeyframe &lastKeyframe = _keyframes.back();
+
+				const Storm::Quaternion lastPosAsPureQuat{ 0.f, relativePos.x(), relativePos.y(), relativePos.z() };
+
+				const Storm::Quaternion newPos = rotationQuaternion * lastPosAsPureQuat * conjugateRotationQuaternion;
+				relativePos = newPos.vec();
+
+				Storm::AnimationKeyframe &keyframe = _keyframes.emplace_back();
+				keyframe._timeInSecond = lastKeyframe._timeInSecond + angularTimeDivision;
+				keyframe._position = relativePos + pivotPoint;
+				keyframe._rotation = lastKeyframe._rotation + deltaInternalRotation;
+			}
+
+			_isLooping = true;
 		}
 		else if (animationKeys.first == "Loop")
 		{

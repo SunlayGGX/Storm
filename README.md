@@ -418,6 +418,14 @@ Note that you should be careful of the order of each child since they must be de
 	+ **rotX (float, facultative)**: This is the x rotation in degree of your rigid body at the keyframe time. If it isn't set, then the x rotation of the last keyframe will be used. If there is no keyframe before, the initial x rotation of the rigid body will be used.
 	+ **rotY (float, facultative)**: This is the y rotation in degree of your rigid body at the keyframe time. If it isn't set, then the y rotation of the last keyframe will be used. If there is no keyframe before, the initial y rotation of the rigid body will be used.
 	+ **rotZ (float, facultative)**: This is the z rotation in degree of your rigid body at the keyframe time. If it isn't set, then the z rotation of the last keyframe will be used. If there is no keyframe before, the initial z rotation of the rigid body will be used.
+- **Motor (tag, facultative)**: This tag should be placed last if you need it. Specifying one will create a rotation motion around a fixed point.
+	+ **pivotX (float, facultative)**: This is the x position coordinate of your motor hinge point. The circular motion will orbit around this specific point. The default value is the location of your rigid body.
+	+ **pivotY (float, facultative)**: This is the y position coordinate of your motor hinge point. The circular motion will orbit around this specific point. The default value is the location of your rigid body.
+	+ **pivotZ (float, facultative)**: This is the z position coordinate of your motor hinge point. The circular motion will orbit around this specific point. The default value is the location of your rigid body.
+	+ **rotAxisX (float, facultative)**: This is the z rotation axis coordinate of your motor. The final vector defined by x, y and z should be non-zero.
+	+ **rotAxisY (float, facultative)**: This is the y rotation axis coordinate of your motor. The final vector defined by x, y and z should be non-zero.
+	+ **rotAxisZ (float, facultative)**: This is the z rotation axis coordinate of your motor. The final vector defined by x, y and z should be non-zero.
+	+ **speed (float, facultative)**: This is your motor angular speed defined in turn per second.
 - **Loop (tag, facultative)**: This tag should be placed last if you need it. Specifying one will make the animation loop to the beginning when it has finished playing.
 
 
