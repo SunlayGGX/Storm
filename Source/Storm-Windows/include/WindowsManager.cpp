@@ -490,8 +490,7 @@ void Storm::WindowsManager::initializeInternal()
 
 			if (!animationFiles.empty())
 			{
-				HMENU notepadReference = Storm::MFCHelper::findMenuByName(mainMenu, STORM_TEXT("Notepad"));
-				HMENU animFileReference = Storm::MFCHelper::findMenuByName(notepadReference, STORM_TEXT("Animations"));
+				HMENU animFileReference = Storm::MFCHelper::findMenuByName(mainMenu, STORM_TEXT("Animations"));
 				HMENU animFileReferenceSubmenu = Storm::MFCHelper::getChild(animFileReference, 2);
 
 				for (std::string &animationFile : animationFiles)
