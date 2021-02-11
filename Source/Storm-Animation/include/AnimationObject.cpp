@@ -126,14 +126,16 @@ Storm::AnimationObject::AnimationObject(const Storm::SceneRigidBodyConfig &rbSce
 			}
 
 			constexpr unsigned int angularTurnDivision = 180;
-			const float angularTimeDivision = 1.f / (static_cast<float>(angularTurnDivision) * rotateSpeed);
+			const float angularTimeDivision = 1.f / (static_cast<float>(angularTurnDivision) * std::fabs(rotateSpeed));
 
 			constexpr float angularStep = static_cast<float>(2.0 * M_PI / static_cast<double>(angularTurnDivision));
 			constexpr float radToDegrees = static_cast<float>(180.0 / M_PI);
 
 			const Eigen::AngleAxisf rotationAxisDescription{ angularStep, rotationAxis };
 
-			const Storm::Quaternion rotationQuaternion{ rotationAxisDescription };
+			const bool rotateClockwise = rotateSpeed > 0.f;
+
+			const Storm::Quaternion rotationQuaternion = rotateClockwise ? Storm::Quaternion{ rotationAxisDescription } : Storm::Quaternion{ rotationAxisDescription }.inverse();
 			const Storm::Quaternion conjugateRotationQuaternion = rotationQuaternion.conjugate();
 
 			_keyframes.reserve(_keyframes.size() + angularTurnDivision + 1);
@@ -147,7 +149,7 @@ Storm::AnimationObject::AnimationObject(const Storm::SceneRigidBodyConfig &rbSce
 
 			Storm::Vector3 relativePos = initialRbPosition - pivotPoint;
 
-			const Storm::Vector3 deltaInternalRotation = Eigen::EulerAnglesYZXf::FromRotation<false, false, false>(rotationAxisDescription).angles() * radToDegrees;
+			const Storm::Vector3 deltaInternalRotation = Eigen::EulerAnglesYZXf::FromRotation<true, true, true>(rotationAxisDescription).angles() * (rotateClockwise ? radToDegrees : -radToDegrees);
 
 			for (unsigned int iter = 1; iter < angularTurnDivision; ++iter)
 			{
