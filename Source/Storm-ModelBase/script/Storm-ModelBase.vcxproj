@@ -23,6 +23,7 @@
     <ClCompile Include="..\include\SceneConfig.cpp" />
     <ClCompile Include="..\include\SerializeRecordData.cpp" />
     <ClCompile Include="..\include\ShaderMacroItem.cpp" />
+    <ClCompile Include="..\include\SocketSetting.cpp" />
     <ClCompile Include="..\include\StateOrders.cpp" />
     <ClCompile Include="..\include\Storm-ModelBasePCH.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -80,6 +81,7 @@
     <ClInclude Include="..\include\SerializeRecordPendingData.h" />
     <ClInclude Include="..\include\ShaderMacroItem.h" />
     <ClInclude Include="..\include\SimulationState.h" />
+    <ClInclude Include="..\include\SocketSetting.h" />
     <ClInclude Include="..\include\StateLoadingOrders.h" />
     <ClInclude Include="..\include\StormProcessStartup.h" />
     <ClInclude Include="..\include\SystemSimulationStateObject.h" />

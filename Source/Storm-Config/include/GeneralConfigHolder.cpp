@@ -3,10 +3,11 @@
 #include "MacroConfigHolder.h"
 
 #include "GeneralConfig.h"
-
 #include "GeneralWebConfig.h"
 
 #include "XmlReader.h"
+
+#include "SocketSetting.h"
 
 #include "VectoredExceptionDisplayMode.h"
 #include "PreferredBrowser.h"
@@ -86,6 +87,30 @@ namespace
 		else
 		{
 			Storm::throwException<Storm::Exception>("Unknown or unhandled internet browser : " + valueStr);
+		}
+	}
+
+	void parseSocketSettings(const boost::property_tree::ptree &tree, const std::unique_ptr<Storm::SocketSetting> &outSetting)
+	{
+		std::string ipStr;
+
+		if (Storm::XmlReader::readXmlAttribute(tree, ipStr, "ip"))
+		{
+			outSetting->setIP(ipStr);
+		}
+
+		Storm::XmlReader::readXmlAttribute(tree, outSetting->_port, "port");
+
+		if (!outSetting->isValid())
+		{
+			Storm::throwException<Storm::Exception>(Storm::toStdString(outSetting) + " is not a valid address!");
+		}
+
+		Storm::XmlReader::readXmlAttribute(tree, outSetting->_timeoutMillisec, "timeout");
+		
+		if (!Storm::XmlReader::readXmlAttribute(tree, outSetting->_isEnabled, "enabled"))
+		{
+			outSetting->_isEnabled = true;
 		}
 	}
 }

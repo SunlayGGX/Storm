@@ -157,6 +157,12 @@
     <Filter Include="Header Files\Modules\Config\Scene\SimulationElement">
       <UniqueIdentifier>{ff1ecbe2-3e99-4eb8-bc5c-02b2899bb570}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Modules\Network\Socket">
+      <UniqueIdentifier>{066d06d8-4342-4320-9320-3cad54d7cf63}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Modules\Network">
+      <UniqueIdentifier>{af8b1382-e059-4a08-8408-dcdd544546d5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-ModelBasePCH.cpp">
@@ -197,6 +203,9 @@
     </ClCompile>
     <ClCompile Include="..\include\ThreadFlaggerObject.cpp">
       <Filter>Source Files\Modules\Threading</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\SocketSetting.cpp">
+      <Filter>Source Files\Modules\Network</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -490,6 +499,9 @@
     </ClInclude>
     <ClInclude Include="..\include\IAnimationManager.h">
       <Filter>Header Files\Singleton</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SocketSetting.h">
+      <Filter>Header Files\Modules\Network\Socket</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -152,6 +152,7 @@ Except some exceptions described below, you should define the xml value for tagN
 - if the type is "vector3", then the xml should be defined like this : \<tagName x="xValue" y="yValue" z="zValue" \\>
 - if the type is "RGBAcolor", then the xml should be defined like this : \<tagName r="rValue" g="gValue" b="bValue" a="aValue" \\>. Besides, all r, g, b, a values are to be float values between 0.0 and 1.0 included.
 - if the type is "article", "misc", then see the section "Internal".
+- if the type is "SocketSetting", then the xml should be defined like this : \<tagName ip="yyy.yyy.yyy.yyy" port="portValue" timeout="timeoutValue" enabled="boolean" \\>. With yyy a number between 0 and 255 included. Note that some ip and ports are invalid to use. timeout is a facultative positive integer defined in milliseconds (default is 34 ms) and enabled is a facultative boolean those default value is true.
 
 
 ### Macro Configs
