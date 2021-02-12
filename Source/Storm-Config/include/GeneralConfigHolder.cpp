@@ -247,6 +247,18 @@ bool Storm::GeneralConfigHolder::read(const std::string &generalConfigFilePathSt
 							}
 						}
 					}
+					else if (debugXmlElement.first == "PhysX")
+					{
+						for (const auto &physXDataXml : debugXmlElement.second)
+						{
+							if (
+								!Storm::XmlReader::handleXml(physXDataXml, "physXPvdSocket", generalDebugConfig._physXPvdDebugSocketSettings, parseSocketSettings)
+								)
+							{
+								LOG_ERROR << physXDataXml.first << " (inside General.Debug.PhysX) is unknown, therefore it cannot be handled";
+							}
+						}
+					}
 					else
 					{
 						LOG_ERROR << debugXmlElement.first << " (inside General.Debug) is unknown, therefore it cannot be handled";

@@ -232,6 +232,10 @@ Note that the maximum value you can set is Fatal, it means that no matter what l
 - **profileSimulationSpeed (boolean, faculative)** : Specify that we should enable Simulation speed profile. Default is false.
 
 
+##### - PhysX (facultative)
+- **physXPvdSocket (SocketSetting, facultative)**: The socket settings to use to communicate with PhysX visual debugger. Default values of ip and port are 127.0.0.1 and 5425 respectively. If the tag is unset (default), we won't create a way to communicate with PhysX debugger.
+
+
 #### Web (facultative)
 - **browser (string, facultative)**: Specify the browser to use when opening an url. This is not case sensitive. Accepted values are "Chrome", "Firefox", "Edge", "InternetExplorer" or you can leave the field empty. Default is no browser. Note that if there is no browser set, then opening an url won't work and an error will be issued instead.
 - **incognito (boolean, facultative)**: Specify we want to open a new browser window in incognito mode when we'll browse through an url. Default is false.

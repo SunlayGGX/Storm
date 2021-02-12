@@ -9,6 +9,8 @@
 #include "PreferredBrowser.h"
 #include "VectoredExceptionDisplayMode.h"
 
+#include "SocketSetting.h"
+
 
 Storm::GeneralGraphicConfig::GeneralGraphicConfig() :
 	_wantedApplicationHeight{ 800 },
@@ -38,7 +40,8 @@ Storm::GeneralDebugConfig::GeneralDebugConfig() :
 	_shouldLogGraphicDeviceMessage{ false },
 	_shouldLogPhysics{ false },
 	_profileSimulationSpeed{ false },
-	_displayVectoredExceptions{ Storm::VectoredExceptionDisplayMode::DisplayFatal }
+	_displayVectoredExceptions{ Storm::VectoredExceptionDisplayMode::DisplayFatal },
+	_physXPvdDebugSocketSettings{ std::make_unique<Storm::SocketSetting>("127.0.0.1", 5425) }
 {}
 
 Storm::GeneralApplicationConfig::GeneralApplicationConfig() :
@@ -46,3 +49,5 @@ Storm::GeneralApplicationConfig::GeneralApplicationConfig() :
 {
 
 }
+
+Storm::GeneralDebugConfig::~GeneralDebugConfig() = default;

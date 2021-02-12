@@ -4,11 +4,13 @@
 namespace Storm
 {
 	enum class VectoredExceptionDisplayMode;
+	struct SocketSetting;
 
 	struct GeneralDebugConfig
 	{
 	public:
 		GeneralDebugConfig();
+		~GeneralDebugConfig();
 
 	public:
 		// Logs
@@ -26,5 +28,8 @@ namespace Storm
 
 		// Profile
 		bool _profileSimulationSpeed;
+
+		// PhysX
+		std::unique_ptr<Storm::SocketSetting> _physXPvdDebugSocketSettings;
 	};
 }
