@@ -1,6 +1,7 @@
 #include "PhysXHandler.h"
 
 #include "CustomPhysXLogger.h"
+#include "PhysXDebugger.h"
 
 #include "Version.h"
 #include "PhysXCoordHelpers.h"
@@ -195,6 +196,11 @@ Storm::PhysXHandler::PhysXHandler() :
 	}
 
 
+	// Create the physics debugger network object.
+
+	_physXDebugger = std::make_unique<Storm::PhysXDebugger>(*_foundationInstance);
+
+
 	// Create the Physics object.
 
 #if defined(_DEBUG) || defined(DEBUG)
@@ -204,7 +210,7 @@ Storm::PhysXHandler::PhysXHandler() :
 #endif
 
 	physx::PxTolerancesScale toleranceScale;
-	_physics = PxCreatePhysics(PX_PHYSICS_VERSION, *_foundationInstance, toleranceScale, recordMemoryAlloc);
+	_physics = PxCreatePhysics(PX_PHYSICS_VERSION, *_foundationInstance, toleranceScale, recordMemoryAlloc, _physXDebugger->getPvd());
 	if (!_physics)
 	{
 		Storm::throwException<Storm::Exception>("PxCreatePhysics failed! We cannot use PhysX features, aborting!");
@@ -264,6 +270,11 @@ Storm::PhysXHandler::~PhysXHandler()
 	_triangleMeshReferences.clear();
 
 	_physics->unregisterDeletionListener(*this);
+
+	_scene.reset();
+	_cpuDispatcher.reset();
+	_physics.reset();
+	_physXDebugger.reset();
 }
 
 physx::PxPhysics& Storm::PhysXHandler::getPhysics() const

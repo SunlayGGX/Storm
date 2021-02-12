@@ -8,6 +8,8 @@ namespace Storm
 	struct SceneRigidBodyConfig;
 	struct SceneConstraintConfig;
 
+	class PhysXDebugger;
+
 	class PhysXHandler : public physx::PxDeletionListener
 	{
 	public:
@@ -43,6 +45,8 @@ namespace Storm
 		Storm::UniquePointer<physx::PxCooking> _cooking;
 		Storm::UniquePointer<physx::PxDefaultCpuDispatcher> _cpuDispatcher;
 		Storm::UniquePointer<physx::PxScene> _scene;
+
+		std::unique_ptr<Storm::PhysXDebugger> _physXDebugger;
 
 		// Since PhysX doesn't own it.
 		std::vector<Storm::UniquePointer<physx::PxTriangleMesh>> _triangleMeshReferences;
