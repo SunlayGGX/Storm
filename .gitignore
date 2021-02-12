@@ -41,6 +41,7 @@
 **/[Rr]elease/**
 **/[Dd]ebug/**
 **/[Bb]in/**
+**/[Pp]rofile/**
 
 # Custom
 **/[Dd]ependencies/**

@@ -38,8 +38,8 @@ Note that :
 - **PhysX v4.0.0** build for Visual Studio 2017 (link: https://github.com/NVIDIAGameWorks/PhysX/tree/4.0.0 ). (You can use Visual Studio 2019 but the toolset installed should be 2017 (v141), or not... see the first point)
 	+ Follow instruction on their site. Note that it isn't said in their website, but the generated solution to build is under physx/compiler/[the setting you've chosen].
 Note that I chose "vc15win64" settings. If you use another Visual Studio, be aware of Binary compatibility (Visual Studio 2015, 2017 and 2019 are binary compatible, but I don't know about my future and they aren't with the past). Be also aware that the result file won't be in the same folder than what was expected by this readme so adapt a little.
-	+ Build the library in "release" and "debug".
-	+ Go to "physx/(Your output directory)/win.x86_64.vc141.mt" (this name could change if you have chosen another build setting) and copy "debug" and "release" folder inside a new folder "physx/lib"
+	+ Build the library in "release", "debug" and "profile".
+	+ Go to "physx/(Your output directory)/win.x86_64.vc141.mt" (this name could change if you have chosen another build setting) and copy "profile", "debug" and "release" folders inside a new folder named "physx/lib"
 - **Lua v5.4.0 release 2 (24/08/2020)** (link: http://luabinaries.sourceforge.net/). Take the static binaries for Windows 64 platform unless you want to compile them from scratch. Normally, it's name is lua-5.4.0_Win64_vc16_lib. I took the vc16 library since I'm using Visual Studio 2019, and Win64 because I'm working with a x64 workstation and project.
 	+ If needed, ensure that the .lib file is inside a folder named "bin" beside "include" folder. Move it inside if it isn't.
 - **Sol2 v3.2.2** (link: https://github.com/ThePhD/sol2/tree/v3.2.2). Just download the zip and extract it.

@@ -4,6 +4,7 @@ SET STORM_DEPENDENCIES=%STORM_REPO_ROOT%\Dependencies
 SET STORM_BINARY=%STORM_REPO_ROOT%\bin
 SET STORM_DEBUG_BINARY=%STORM_BINARY%\Debug
 SET STORM_RELEASE_BINARY=%STORM_BINARY%\Release
+SET STORM_PROFILE_BINARY=%STORM_BINARY%\Profile
 
 if exist "%STORM_DEPENDENCIES%" rmdir /s /q "%STORM_DEPENDENCIES%"
 mkdir "%STORM_DEPENDENCIES%"
@@ -43,9 +44,11 @@ if not errorlevel 1 (
 	%createFolderIfNeeded% "%STORM_BINARY%"
 	%createFolderIfNeeded% "%STORM_DEBUG_BINARY%"
 	%createFolderIfNeeded% "%STORM_RELEASE_BINARY%"
+	%createFolderIfNeeded% "%STORM_PROFILE_BINARY%"
 
 	%makeFolderLink% "%STORM_DEBUG_BINARY%\Shaders" "%STORM_REPO_ROOT%\Source\Shaders"
 	%makeFolderLink% "%STORM_RELEASE_BINARY%\Shaders" "%STORM_REPO_ROOT%\Source\Shaders"
+	%makeFolderLink% "%STORM_PROFILE_BINARY%\Shaders" "%STORM_REPO_ROOT%\Source\Shaders"
 )
 
 
@@ -53,11 +56,13 @@ set OIS_DEPENDENCY_BINARY_PATH=%STORM_DEPENDENCIES%\OIS\bin
 %provideDependencyFile% "%STORM_DEBUG_BINARY%\OIS_d.dll" "%OIS_DEPENDENCY_BINARY_PATH%\Debug\OIS_d.dll"
 %provideDependencyFile% "%STORM_DEBUG_BINARY%\OIS_d.pdb" "%OIS_DEPENDENCY_BINARY_PATH%\Debug\OIS_d.pdb"
 %provideDependencyFile% "%STORM_RELEASE_BINARY%\OIS.dll" "%OIS_DEPENDENCY_BINARY_PATH%\Release\OIS.dll"
+%provideDependencyFile% "%STORM_PROFILE_BINARY%\OIS.dll" "%OIS_DEPENDENCY_BINARY_PATH%\Release\OIS.dll"
 
 set ASSIMP_DEPENDENCY_BINARY_PATH=%STORM_DEPENDENCIES%\Assimp\bin\code
 %provideDependencyFile% "%STORM_DEBUG_BINARY%\assimpd.dll" "%ASSIMP_DEPENDENCY_BINARY_PATH%\Debug\assimpd.dll"
 %provideDependencyFile% "%STORM_DEBUG_BINARY%\assimpd.pdb" "%ASSIMP_DEPENDENCY_BINARY_PATH%\Debug\assimpd.pdb"
 %provideDependencyFile% "%STORM_RELEASE_BINARY%\assimp.dll" "%ASSIMP_DEPENDENCY_BINARY_PATH%\Release\assimp.dll"
+%provideDependencyFile% "%STORM_PROFILE_BINARY%\assimp.dll" "%ASSIMP_DEPENDENCY_BINARY_PATH%\Release\assimp.dll"
 
 set PHYSX_DEPENDENCY_BINARY_PATH=%STORM_DEPENDENCIES%\PhysX\physx\lib
 %provideDependencyFile% "%STORM_DEBUG_BINARY%\PhysXFoundation_64.dll" "%PHYSX_DEPENDENCY_BINARY_PATH%\Debug\PhysXFoundation_64.dll"
@@ -77,6 +82,15 @@ set PHYSX_DEPENDENCY_BINARY_PATH=%STORM_DEPENDENCIES%\PhysX\physx\lib
 %provideDependencyFile% "%STORM_RELEASE_BINARY%\PhysXCommon_64.pdb" "%PHYSX_DEPENDENCY_BINARY_PATH%\Release\PhysXCommon_64.pdb"
 %provideDependencyFile% "%STORM_RELEASE_BINARY%\PhysXCooking_64.dll" "%PHYSX_DEPENDENCY_BINARY_PATH%\Release\PhysXCooking_64.dll"
 %provideDependencyFile% "%STORM_RELEASE_BINARY%\PhysXCooking_64.pdb" "%PHYSX_DEPENDENCY_BINARY_PATH%\Release\PhysXCooking_64.pdb"
+
+%provideDependencyFile% "%STORM_PROFILE_BINARY%\PhysXFoundation_64.dll" "%PHYSX_DEPENDENCY_BINARY_PATH%\Profile\PhysXFoundation_64.dll"
+%provideDependencyFile% "%STORM_PROFILE_BINARY%\PhysXFoundation_64.pdb" "%PHYSX_DEPENDENCY_BINARY_PATH%\Profile\PhysXFoundation_64.pdb"
+%provideDependencyFile% "%STORM_PROFILE_BINARY%\PhysX_64.dll" "%PHYSX_DEPENDENCY_BINARY_PATH%\Profile\PhysX_64.dll"
+%provideDependencyFile% "%STORM_PROFILE_BINARY%\PhysX_64.pdb" "%PHYSX_DEPENDENCY_BINARY_PATH%\Profile\PhysX_64.pdb"
+%provideDependencyFile% "%STORM_PROFILE_BINARY%\PhysXCommon_64.dll" "%PHYSX_DEPENDENCY_BINARY_PATH%\Profile\PhysXCommon_64.dll"
+%provideDependencyFile% "%STORM_PROFILE_BINARY%\PhysXCommon_64.pdb" "%PHYSX_DEPENDENCY_BINARY_PATH%\Profile\PhysXCommon_64.pdb"
+%provideDependencyFile% "%STORM_PROFILE_BINARY%\PhysXCooking_64.dll" "%PHYSX_DEPENDENCY_BINARY_PATH%\Profile\PhysXCooking_64.dll"
+%provideDependencyFile% "%STORM_PROFILE_BINARY%\PhysXCooking_64.pdb" "%PHYSX_DEPENDENCY_BINARY_PATH%\Profile\PhysXCooking_64.pdb"
 
 
 exit /B %errorlevel%
