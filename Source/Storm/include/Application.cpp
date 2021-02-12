@@ -124,6 +124,8 @@ namespace
 
 			Storm::SerializerManager::instance().initialize();
 
+			Storm::AnimationManager::instance().initialize();
+
 			Storm::PhysicsManager::instance().initialize();
 
 			Storm::ShaderManager::instance().initialize();
@@ -194,6 +196,7 @@ namespace
 			Storm::AssetLoaderManager::instance().cleanUp();
 			Storm::ShaderManager::instance().cleanUp();
 			Storm::PhysicsManager::instance().cleanUp();
+			Storm::AnimationManager::instance().cleanUp();
 
 			if (hasUI)
 			{
