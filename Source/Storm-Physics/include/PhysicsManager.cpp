@@ -313,6 +313,11 @@ void Storm::PhysicsManager::freeFromAnimation(const unsigned int rbId)
 	}, _dynamicsRbMap);
 }
 
+void Storm::PhysicsManager::reconnectPhysicsDebugger()
+{
+	_physXHandler->reconnectPhysicsDebugger();
+}
+
 void Storm::PhysicsManager::setRigidBodyAngularDamping(const unsigned int rbId, const float angularVelocityDamping)
 {
 	if (angularVelocityDamping > 1.f)

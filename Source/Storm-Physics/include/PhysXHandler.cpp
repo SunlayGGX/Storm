@@ -263,6 +263,8 @@ Storm::PhysXHandler::PhysXHandler() :
 	_scene->setFlag(physx::PxSceneFlag::Enum::eENABLE_KINEMATIC_PAIRS, true);
 	_scene->setFlag(physx::PxSceneFlag::Enum::eENABLE_KINEMATIC_STATIC_PAIRS, true);
 	_scene->setFlag(physx::PxSceneFlag::Enum::eENABLE_STABILIZATION, true);
+
+	_physXDebugger->finishSetup(_scene.get());
 }
 
 Storm::PhysXHandler::~PhysXHandler()
@@ -270,6 +272,8 @@ Storm::PhysXHandler::~PhysXHandler()
 	_triangleMeshReferences.clear();
 
 	_physics->unregisterDeletionListener(*this);
+
+	_physXDebugger->prepareDestroy();
 
 	_scene.reset();
 	_cpuDispatcher.reset();
@@ -322,6 +326,8 @@ void Storm::PhysXHandler::update(std::mutex &fetchingMutex, float deltaTime)
 	{
 		LOG_ERROR << "Error happened in Physics simulation. Error code was " << errorCode;
 	}
+
+	_physXDebugger->reconnectIfNeeded();
 }
 
 Storm::UniquePointer<physx::PxRigidStatic> Storm::PhysXHandler::createStaticRigidBody(const Storm::SceneRigidBodyConfig &rbSceneConfig)
@@ -419,4 +425,9 @@ std::pair<Storm::UniquePointer<physx::PxJoint>, Storm::UniquePointer<physx::PxJo
 	std::pair<Storm::UniquePointer<physx::PxJoint>, Storm::UniquePointer<physx::PxJoint>> result;
 
 	return result;
+}
+
+void Storm::PhysXHandler::reconnectPhysicsDebugger()
+{
+	_physXDebugger->reconnectIfNeeded();
 }

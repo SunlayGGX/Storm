@@ -233,7 +233,10 @@ Note that the maximum value you can set is Fatal, it means that no matter what l
 
 
 ##### - PhysX (facultative)
-- **physXPvdSocket (SocketSetting, facultative)**: The socket settings to use to communicate with PhysX visual debugger. Default values of ip and port are 127.0.0.1 and 5425 respectively. If the tag is unset (default), we won't create a way to communicate with PhysX debugger.
+- **physXPvdSocket (SocketSetting, facultative)**: The socket settings to use to communicate with PhysX visual debugger. Default values of ip and port are 127.0.0.1 and 5425 respectively. If the tag is unset (default), we won't create a way to communicate with PhysX debugger. Besides, Only Debug and Profile configuration are able to use the PVD. PVD cannot be used with Release. 
+- **pvdTransmitContacts (boolean, facultative)**: Specify we'll send contact data to the PVD. Default is true.
+- **pvdTransmitConstraints (boolean, facultative)**: Specify we'll send constraints data to the PVD. Default is true.
+- **pvdTransmitSceneQueries (boolean, facultative)**: Specify we'll send scene query data to the PVD. Default is false.
 
 
 #### Web (facultative)
@@ -584,6 +587,7 @@ Here the list of available commands :
 
 - **void setRigidBodyAngularDamping(const unsigned int rbId, const float angularVelocityDamping)**: Set the angular velodity damping value of the rigid body specified by its id. This method is only defined for dynamic rigid bodies.
 - **void fixDynamicRigidBodyTranslation(const unsigned int rbId, const bool fixed)**: Set the specified rigid body's translation fixed flag. This method is only defined for dynamic rigid bodies.
+- **void reconnectPhysicsDebugger()**: Force the reconnection to the Physics Debugger which is the PhysX's PVD (PhysX Visual Debugger).
 
 
 #### OSManager (osMgr)

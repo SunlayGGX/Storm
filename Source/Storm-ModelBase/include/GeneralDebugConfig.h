@@ -31,5 +31,8 @@ namespace Storm
 
 		// PhysX
 		std::unique_ptr<Storm::SocketSetting> _physXPvdDebugSocketSettings;
+		bool _pvdTransmitConstraints;
+		bool _pvdTransmitContacts;
+		bool _pvdTransmitSceneQueries;
 	};
 }

@@ -39,6 +39,9 @@ namespace Storm
 		Storm::UniquePointer<physx::PxJoint> createDistanceJoint(const Storm::SceneConstraintConfig &constraintConfig, physx::PxRigidActor* actor1, physx::PxRigidActor* actor2);
 		std::pair<Storm::UniquePointer<physx::PxJoint>, Storm::UniquePointer<physx::PxJoint>> createSpinnableJoint(const Storm::SceneConstraintConfig &constraintConfig, physx::PxRigidActor* actor1, physx::PxRigidActor* actor2);
 
+	public:
+		void reconnectPhysicsDebugger();
+
 	private:
 		Storm::UniquePointer<physx::PxFoundation> _foundationInstance;
 		Storm::UniquePointer<physx::PxPhysics> _physics;

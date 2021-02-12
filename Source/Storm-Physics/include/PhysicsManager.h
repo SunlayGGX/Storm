@@ -52,6 +52,8 @@ namespace Storm
 
 		void freeFromAnimation(const unsigned int rbId) final override;
 
+		void reconnectPhysicsDebugger() final override;
+
 	public:
 		void setRigidBodyAngularDamping(const unsigned int rbId, const float angularVelocityDamping);
 		void fixDynamicRigidBodyTranslation(const unsigned int rbId, const bool fixed);

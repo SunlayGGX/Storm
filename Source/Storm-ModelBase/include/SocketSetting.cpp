@@ -22,17 +22,6 @@ namespace
 
 		return static_cast<uint8_t>(tmp);
 	}
-
-	void appendIp(const Storm::SocketSetting &socketSetting, std::string &inOutStr)
-	{
-		inOutStr += std::to_string(socketSetting._ip._numbers[0]);
-		inOutStr += '.';
-		inOutStr += std::to_string(socketSetting._ip._numbers[1]);
-		inOutStr += '.';
-		inOutStr += std::to_string(socketSetting._ip._numbers[2]);
-		inOutStr += '.';
-		inOutStr += std::to_string(socketSetting._ip._numbers[3]);
-	}
 }
 
 
@@ -40,6 +29,7 @@ Storm::SocketSetting::SocketSetting() :
 	_isEnabled{ false },
 	_port{ 0 },
 	_ip{ ._packedValue = 0x0 },
+	_ipStrCached{ "" },
 	_timeoutMillisec{ 33 }
 {
 
@@ -77,25 +67,32 @@ void Storm::SocketSetting::setIP(const std::string_view &value)
 	_ip._numbers[1] = extractSafeIpNumber(numberSplitted[1]);
 	_ip._numbers[2] = extractSafeIpNumber(numberSplitted[2]);
 	_ip._numbers[3] = extractSafeIpNumber(numberSplitted[3]);
+
+	_ipStrCached = value;
 }
 
-std::string Storm::SocketSetting::getIPStr() const
+const std::string& Storm::SocketSetting::getIPStr() const
 {
-	std::string result;
-	result.reserve(15);
+	return _ipStrCached;
+}
 
-	appendIp(*this, result);
+uint32_t Storm::SocketSetting::getIP() const
+{
+	return _ip._packedValue;
+}
 
-	return result;
+uint8_t Storm::SocketSetting::getIPNumber(const std::size_t numberIndex) const
+{
+	assert(numberIndex < 4 && "This is ipv4 !");
+	return _ip._numbers[numberIndex];
 }
 
 std::string Storm::SocketSetting::toStdString() const
 {
 	std::string result;
-	result.reserve(24);
+	result.reserve(_ipStrCached.size() + 7);
 
-	appendIp(*this, result);
-
+	result += _ipStrCached;
 	result += "::";
 	result += std::to_string(_port);
 
