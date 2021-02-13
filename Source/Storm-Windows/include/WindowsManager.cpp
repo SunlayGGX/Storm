@@ -297,10 +297,10 @@ void Storm::WindowsManager::initialize_Implementation(const Storm::NoUI &)
 		Storm::ITimeManager &timeMgr = singletonHolder.getSingleton<Storm::ITimeManager>();
 		Storm::IThreadManager &threadMgr = singletonHolder.getSingleton<Storm::IThreadManager>();
 
-		constexpr const std::chrono::milliseconds k_windowsThreadRefreshRate{ 500 };
+		constexpr const std::chrono::milliseconds k_windowsThreadRefreshRate{ 2000 };
 		while (timeMgr.waitForTimeOrExit(k_windowsThreadRefreshRate))
 		{
-			threadMgr.processCurrentThreadActions();
+			threadMgr.clearCurrentThreadActions();
 		}
 	} };
 }
