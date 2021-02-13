@@ -269,7 +269,7 @@ void Storm::ReplaySolver::computeNextRecordTime(float &inOutNextRecordTime, cons
 
 bool Storm::ReplaySolver::replayCurrentNextFrame(Storm::ParticleSystemContainer &particleSystems, Storm::SerializeRecordPendingData &frameBefore, Storm::SerializeRecordPendingData &frameAfter, const float recordFps, std::vector<Storm::SerializeRecordContraintsData> &outFrameConstraintData)
 {
-	Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 	Storm::ITimeManager &timeMgr = singletonHolder.getSingleton<Storm::ITimeManager>();
 	Storm::ISerializerManager &serializerMgr = singletonHolder.getSingleton<Storm::ISerializerManager>();
 

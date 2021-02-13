@@ -29,7 +29,7 @@ void Storm::UIFieldContainer::push() const
 		tmp.emplace_back(field->getFieldName(), field->getFieldValue());
 	}
 
-	Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 	Storm::IGraphicsManager &graphicMgr = singletonHolder.getSingleton<Storm::IGraphicsManager>();
 	singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::GraphicsThread, [&graphicMgr, fieldRawBuf = std::move(tmp)]() mutable
 	{
@@ -39,7 +39,7 @@ void Storm::UIFieldContainer::push() const
 
 void Storm::UIFieldContainer::pushFieldW(const std::wstring_view &fieldName) const
 {
-	Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 	for (const std::unique_ptr<Storm::UIFieldBase> &field : _fields)
 	{
 		if (field->getFieldName() == fieldName)

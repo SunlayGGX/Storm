@@ -231,7 +231,7 @@ Storm::PhysXHandler::PhysXHandler() :
 
 	// Create the PhysX Scene
 
-	Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
 
 	const Storm::SceneSimulationConfig &sceneSimulationConfig = configMgr.getSceneSimulationConfig();

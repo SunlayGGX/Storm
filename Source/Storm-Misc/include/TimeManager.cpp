@@ -70,7 +70,7 @@ Storm::TimeManager::~TimeManager()
 
 void Storm::TimeManager::initialize_Implementation()
 {
-	Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
 	Storm::IWindowsManager &windowMgr = singletonHolder.getSingleton<Storm::IWindowsManager>();
