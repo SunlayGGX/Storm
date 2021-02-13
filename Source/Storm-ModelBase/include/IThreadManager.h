@@ -22,6 +22,9 @@ namespace Storm
 		virtual void processCurrentThreadActions() = 0;
 		virtual void processActionsOfThread(Storm::ThreadEnumeration threadEnum) = 0; // This is only to be used if you know what you are doing.
 
+		// Clear without processing any actions.
+		virtual void clearCurrentThreadActions() = 0;
+
 		virtual bool isExecutingOnThread(Storm::ThreadEnumeration threadEnum) const = 0;
 
 		virtual void setCurrentThreadPriority(const Storm::ThreadPriority priority) const = 0;

@@ -21,6 +21,7 @@ namespace Storm
 		void executeOnThread(Storm::ThreadEnumeration threadEnum, Storm::AsyncAction &&action) final override;
 		void executeDefferedOnThread(Storm::ThreadEnumeration threadEnum, Storm::AsyncAction &&action) final override;
 		void processCurrentThreadActions() final override;
+		void clearCurrentThreadActions() final override;
 		void processActionsOfThread(Storm::ThreadEnumeration threadEnum) final override;
 		bool isExecutingOnThread(Storm::ThreadEnumeration threadEnum) const final override;
 

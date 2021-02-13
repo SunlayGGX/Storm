@@ -144,6 +144,21 @@ void Storm::ThreadManager::processCurrentThreadActions()
 	currentThreadExecutor->execute();
 }
 
+void Storm::ThreadManager::clearCurrentThreadActions()
+{
+	const auto thisThreadId = std::this_thread::get_id();
+
+	std::lock_guard<std::recursive_mutex> lock{ _mutex };
+	if (const auto executorFound = _toExecute.find(thisThreadId); executorFound != std::end(_toExecute))
+	{
+		executorFound->second->clear();
+	}
+	else
+	{
+		Storm::throwException<Storm::Exception>("Thread with id " + Storm::toStdString(thisThreadId) + " was not registered!");
+	}
+}
+
 void Storm::ThreadManager::processActionsOfThread(Storm::ThreadEnumeration threadEnum)
 {
 	Storm::AsyncActionExecutor* currentThreadExecutor;
