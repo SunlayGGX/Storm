@@ -147,6 +147,7 @@
     </ClCompile>
     <ClCompile Include="..\include\StringAlgoTester.cpp" />
     <ClCompile Include="..\include\toStdStringTesterHelper.cpp" />
+    <ClCompile Include="..\include\VersionTester.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Storm-Helper\script\Storm-Helper.vcxproj">
