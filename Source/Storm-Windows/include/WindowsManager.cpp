@@ -289,6 +289,10 @@ void Storm::WindowsManager::initialize_Implementation(const Storm::NoUI &)
 	{
 		STORM_REGISTER_THREAD(WindowsAndInputThread);
 
+		STORM_DECLARE_THIS_THREAD_IS <<
+			Storm::ThreadFlagEnum::WindowsThread <<
+			Storm::ThreadFlagEnum::InputThread;
+
 		const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 		Storm::ITimeManager &timeMgr = singletonHolder.getSingleton<Storm::ITimeManager>();
 		Storm::IThreadManager &threadMgr = singletonHolder.getSingleton<Storm::IThreadManager>();
