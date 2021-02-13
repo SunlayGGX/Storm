@@ -9,7 +9,7 @@ namespace Storm
 
 	class Version :
 		private Storm::FullHierarchisable<Version>,
-		private Storm::FullHierarchisable<Version, std::string>
+		private Storm::FullHierarchisable<Version, std::string_view>
 	{
 	public:
 		using VersionNumber = uint8_t;
@@ -23,7 +23,7 @@ namespace Storm
 			_value._dividedInternals._subminor = subminor;
 		}
 
-		Version(const std::string &versionStr);
+		Version(const std::string_view &versionStr);
 
 	public:
 		constexpr bool operator==(const Version &other) const noexcept
@@ -36,8 +36,8 @@ namespace Storm
 			return _value._bunk < other._value._bunk;
 		}
 
-		bool operator==(const std::string &versionStr) const;
-		bool operator<(const std::string &versionStr) const;
+		bool operator==(const std::string_view &versionStr) const;
+		bool operator<(const std::string_view &versionStr) const;
 
 		void serialize(Storm::SerializePackage &package);
 		static std::size_t getSizeInSerializePacket();
