@@ -1,7 +1,6 @@
 #include "StormProcessOpener.h"
 
 #include "SingletonHolder.h"
-#include "ISimulatorManager.h"
 #include "IConfigManager.h"
 #include "IWebManager.h"
 
@@ -11,7 +10,7 @@
 
 #include "SceneScriptConfig.h"
 
-#include "ExitCode.h"
+#include "StormExiter.h"
 
 #include "StringAlgo.h"
 
@@ -72,8 +71,7 @@ namespace
 
 		if (param._failureQuit)
 		{
-			Storm::ISimulatorManager &simulMgr = Storm::SingletonHolder::instance().getSingleton<Storm::ISimulatorManager>();
-			simulMgr.exitWithCode(Storm::ExitCode::k_otherThreadTermination);
+			Storm::requestExitOtherThread();
 		}
 
 		outProcessUID = k_failureIndex;

@@ -1538,7 +1538,7 @@ void Storm::SimulatorManager::requestCycleColoredSetting()
 	}
 }
 
-void Storm::SimulatorManager::exitWithCode(Storm::ExitCode code)
+void Storm::SimulatorManager::exitWithCode(const Storm::ExitCode code)
 {
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 	singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::MainThread, [this, code, &singletonHolder]()

@@ -30,6 +30,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\include\StormExiter.cpp" />
     <ClCompile Include="..\include\ThreadFlaggerObject.cpp" />
     <ClCompile Include="..\include\ThreadingSafety.cpp" />
     <ClCompile Include="..\include\UIField.cpp" />
@@ -83,6 +84,7 @@
     <ClInclude Include="..\include\SimulationState.h" />
     <ClInclude Include="..\include\SocketSetting.h" />
     <ClInclude Include="..\include\StateLoadingOrders.h" />
+    <ClInclude Include="..\include\StormExiter.h" />
     <ClInclude Include="..\include\StormProcessStartup.h" />
     <ClInclude Include="..\include\SystemSimulationStateObject.h" />
     <ClInclude Include="..\include\StateSavingOrders.h" />

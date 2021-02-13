@@ -106,7 +106,7 @@ namespace Storm
 		void requestCycleColoredSetting();
 
 	public:
-		void exitWithCode(Storm::ExitCode code) final override;
+		void exitWithCode(const Storm::ExitCode code) final override;
 
 	public:
 		void beginRecord() const;

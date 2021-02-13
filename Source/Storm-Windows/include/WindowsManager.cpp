@@ -28,7 +28,7 @@
 #include "RAII.h"
 
 #include "UIModality.h"
-#include "ExitCode.h"
+#include "StormExiter.h"
 
 #include "StormProcessOpener.h"
 
@@ -186,8 +186,7 @@ namespace
 			"Stack trace : " << stackTrace
 			;
 
-		Storm::ISimulatorManager &simulMgr = Storm::SingletonHolder::instance().getSingleton<Storm::ISimulatorManager>();
-		simulMgr.exitWithCode(Storm::ExitCode::k_otherThreadTermination);
+		Storm::requestExitOtherThread();
 	}
 
 	template<class Func>

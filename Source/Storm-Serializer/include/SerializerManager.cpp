@@ -4,11 +4,8 @@
 #include "IThreadManager.h"
 #include "ITimeManager.h"
 #include "IConfigManager.h"
-#include "ISimulatorManager.h"
 
 #include "SceneSimulationConfig.h"
-
-#include "ExitCode.h"
 
 #include "SerializeRecordContraintsData.h"
 #include "SerializeRecordParticleSystemData.h"
@@ -33,6 +30,8 @@
 #include "StateSavingOrders.h"
 #include "StateWriter.h"
 #include "StateReader.h"
+
+#include "StormExiter.h"
 
 
 namespace
@@ -145,7 +144,7 @@ void Storm::SerializerManager::run()
 
 	if (!normalExit)
 	{
-		singletonHolder.getSingleton<Storm::ISimulatorManager>().exitWithCode(Storm::ExitCode::k_otherThreadTermination);
+		Storm::requestExitOtherThread();
 		this->clearRecordQueue();
 	}
 }

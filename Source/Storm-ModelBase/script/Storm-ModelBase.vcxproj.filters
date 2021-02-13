@@ -207,6 +207,9 @@
     <ClCompile Include="..\include\SocketSetting.cpp">
       <Filter>Source Files\Modules\Network</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\StormExiter.cpp">
+      <Filter>Source Files\General</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-ModelBasePCH.h">
@@ -502,6 +505,9 @@
     </ClInclude>
     <ClInclude Include="..\include\SocketSetting.h">
       <Filter>Header Files\Modules\Network\Socket</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\StormExiter.h">
+      <Filter>Header Files\General</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -48,7 +48,7 @@ namespace Storm
 		virtual void printFluidParticleData() const = 0;
 
 	public:
-		virtual void exitWithCode(Storm::ExitCode code) = 0;
+		virtual void exitWithCode(const Storm::ExitCode code) = 0;
 
 	public:
 		virtual void saveSimulationState() const = 0;
