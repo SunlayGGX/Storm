@@ -5,6 +5,7 @@
 #include "GeneralWebConfig.h"
 #include "GeneralDebugConfig.h"
 #include "GeneralApplicationConfig.h"
+#include "GeneralNetworkConfig.h"
 
 
 namespace Storm
@@ -14,6 +15,7 @@ namespace Storm
 	public:
 		Storm::GeneralGraphicConfig _generalGraphicConfig;
 		Storm::GeneralSimulationConfig _generalSimulationConfig;
+		Storm::GeneralNetworkConfig _generalNetworkConfig;
 		Storm::GeneralWebConfig _generalWebConfig;
 		Storm::GeneralDebugConfig _generalDebugConfig;
 		Storm::GeneralApplicationConfig _generalApplicationConfig;

@@ -421,6 +421,11 @@ const Storm::GeneralSimulationConfig& Storm::ConfigManager::getGeneralSimulation
 	return _generalConfigHolder.getConfig()._generalSimulationConfig;
 }
 
+const Storm::GeneralNetworkConfig& Storm::ConfigManager::getGeneralNetworkConfig() const
+{
+	return _generalConfigHolder.getConfig()._generalNetworkConfig;
+}
+
 const Storm::GeneralWebConfig& Storm::ConfigManager::getGeneralWebConfig() const
 {
 	return _generalConfigHolder.getConfig()._generalWebConfig;

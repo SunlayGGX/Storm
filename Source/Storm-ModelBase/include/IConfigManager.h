@@ -10,6 +10,7 @@ namespace Storm
 
 	struct GeneralGraphicConfig;
 	struct GeneralSimulationConfig;
+	struct GeneralNetworkConfig;
 	struct GeneralWebConfig;
 	struct GeneralDebugConfig;
 	struct GeneralApplicationConfig;
@@ -52,6 +53,7 @@ namespace Storm
 		// General config
 		virtual const Storm::GeneralGraphicConfig& getGeneralGraphicConfig() const = 0;
 		virtual const Storm::GeneralSimulationConfig& getGeneralSimulationConfig() const = 0;
+		virtual const Storm::GeneralNetworkConfig& getGeneralNetworkConfig() const = 0;
 		virtual const Storm::GeneralWebConfig& getGeneralWebConfig() const = 0;
 		virtual const Storm::GeneralDebugConfig& getGeneralDebugConfig() const = 0;
 		virtual const Storm::GeneralApplicationConfig& getGeneralApplicationConfig() const = 0;

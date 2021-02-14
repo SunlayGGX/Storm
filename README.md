@@ -239,6 +239,11 @@ Note that the maximum value you can set is Fatal, it means that no matter what l
 - **pvdTransmitSceneQueries (boolean, facultative)**: Specify we'll send scene query data to the PVD. Default is false.
 
 
+#### Network (facultative)
+- **enable (boolean, facultative)**: If false, the network module communication with Storm tools will be disabled. Default is false. Note that even if it is disabled, processes start/stop and web logic are still enabled.
+- **scriptSender (SocketSetting, facultative)**: The socket settings referring to the communication with the Script sender tool. Ignored if the network module is disabled.
+
+
 #### Web (facultative)
 - **browser (string, facultative)**: Specify the browser to use when opening an url. This is not case sensitive. Accepted values are "Chrome", "Firefox", "Edge", "InternetExplorer" or you can leave the field empty. Default is no browser. Note that if there is no browser set, then opening an url won't work and an error will be issued instead.
 - **incognito (boolean, facultative)**: Specify we want to open a new browser window in incognito mode when we'll browse through an url. Default is false.

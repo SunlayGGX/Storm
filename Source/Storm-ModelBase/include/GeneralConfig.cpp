@@ -2,6 +2,7 @@
 
 #include "GeneralGraphicConfig.h"
 #include "GeneralSimulationConfig.h"
+#include "GeneralNetworkConfig.h"
 #include "GeneralWebConfig.h"
 #include "GeneralDebugConfig.h"
 #include "GeneralApplicationConfig.h"
@@ -10,6 +11,8 @@
 #include "VectoredExceptionDisplayMode.h"
 
 #include "SocketSetting.h"
+
+#include "Network/NetworkConstants.cs"
 
 
 Storm::GeneralGraphicConfig::GeneralGraphicConfig() :
@@ -25,6 +28,11 @@ Storm::GeneralGraphicConfig::GeneralGraphicConfig() :
 
 Storm::GeneralSimulationConfig::GeneralSimulationConfig() :
 	_allowNoFluid{ false }
+{}
+
+Storm::GeneralNetworkConfig::GeneralNetworkConfig() :
+	_enableNetwork{ false },
+	_scriptSenderSocket{ std::make_unique<Storm::SocketSetting>("127.0.0.1", Storm::NetworkConstants::k_defaultScriptSenderPort) }
 {}
 
 Storm::GeneralWebConfig::GeneralWebConfig() :
@@ -55,3 +63,4 @@ Storm::GeneralApplicationConfig::GeneralApplicationConfig() :
 }
 
 Storm::GeneralDebugConfig::~GeneralDebugConfig() = default;
+Storm::GeneralNetworkConfig::~GeneralNetworkConfig() = default;
