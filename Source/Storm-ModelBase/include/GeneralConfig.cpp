@@ -42,6 +42,7 @@ Storm::GeneralDebugConfig::GeneralDebugConfig() :
 	_profileSimulationSpeed{ false },
 	_displayVectoredExceptions{ Storm::VectoredExceptionDisplayMode::DisplayFatal },
 	_physXPvdDebugSocketSettings{ std::make_unique<Storm::SocketSetting>("127.0.0.1", 5425) },
+	_pvdConnectTimeoutMillisec{ 33 },
 	_pvdTransmitConstraints{ true },
 	_pvdTransmitContacts{ true },
 	_pvdTransmitSceneQueries{ false }

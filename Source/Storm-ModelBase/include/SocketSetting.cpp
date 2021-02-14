@@ -29,16 +29,12 @@ Storm::SocketSetting::SocketSetting() :
 	_isEnabled{ false },
 	_port{ 0 },
 	_ip{ ._packedValue = 0x0 },
-	_ipStrCached{ "" },
-	_timeoutMillisec{ 33 }
-{
-
-}
+	_ipStrCached{ "" }
+{}
 
 Storm::SocketSetting::SocketSetting(const std::string_view &ip, uint16_t port) :
 	_isEnabled{ false },
-	_port{ port },
-	_timeoutMillisec{ 33 }
+	_port{ port }
 {
 	this->setIP(ip);
 }

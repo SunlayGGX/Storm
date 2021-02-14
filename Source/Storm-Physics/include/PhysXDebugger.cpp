@@ -138,7 +138,7 @@ Storm::PhysXDebugger::PhysXDebugger(physx::PxFoundation &foundation)
 		_transport = physx::PxDefaultPvdSocketTransportCreate(
 			ip.c_str(),
 			generalDebugConfig._physXPvdDebugSocketSettings->_port,
-			generalDebugConfig._physXPvdDebugSocketSettings->_timeoutMillisec
+			generalDebugConfig._pvdConnectTimeoutMillisec
 		);
 
 		_pvdConnectHandler = std::make_unique<Storm::PhysXPVDConnectHandler>(_pvd.get(), _transport.get());

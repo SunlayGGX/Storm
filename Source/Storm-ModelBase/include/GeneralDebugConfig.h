@@ -31,6 +31,7 @@ namespace Storm
 
 		// PhysX
 		std::unique_ptr<Storm::SocketSetting> _physXPvdDebugSocketSettings;
+		unsigned int _pvdConnectTimeoutMillisec;
 		bool _pvdTransmitConstraints;
 		bool _pvdTransmitContacts;
 		bool _pvdTransmitSceneQueries;

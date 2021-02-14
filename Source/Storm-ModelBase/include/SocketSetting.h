@@ -24,7 +24,6 @@ namespace Storm
 		bool _isEnabled;
 
 		uint16_t _port;
-		unsigned int _timeoutMillisec;
 
 	private:
 		union

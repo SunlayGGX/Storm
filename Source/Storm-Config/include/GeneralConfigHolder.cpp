@@ -105,8 +105,6 @@ namespace
 		{
 			Storm::throwException<Storm::Exception>(Storm::toStdString(outSetting) + " is not a valid address!");
 		}
-
-		Storm::XmlReader::readXmlAttribute(tree, outSetting->_timeoutMillisec, "timeout");
 		
 		if (!Storm::XmlReader::readXmlAttribute(tree, outSetting->_isEnabled, "enabled"))
 		{
@@ -253,6 +251,7 @@ bool Storm::GeneralConfigHolder::read(const std::string &generalConfigFilePathSt
 						{
 							if (
 								!Storm::XmlReader::handleXml(physXDataXml, "physXPvdSocket", generalDebugConfig._physXPvdDebugSocketSettings, parseSocketSettings) &&
+								!Storm::XmlReader::handleXml(physXDataXml, "pvdConnectTimeout", generalDebugConfig._pvdConnectTimeoutMillisec) &&
 								!Storm::XmlReader::handleXml(physXDataXml, "pvdTransmitContacts", generalDebugConfig._pvdTransmitContacts) &&
 								!Storm::XmlReader::handleXml(physXDataXml, "pvdTransmitConstraints", generalDebugConfig._pvdTransmitConstraints) &&
 								!Storm::XmlReader::handleXml(physXDataXml, "pvdTransmitSceneQueries", generalDebugConfig._pvdTransmitSceneQueries)
