@@ -25,6 +25,15 @@
     <Filter Include="Source Files\Network">
       <UniqueIdentifier>{90e2e401-36cc-443b-98e3-2e6d2ab5466e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Network\General">
+      <UniqueIdentifier>{cf324af7-c963-4a78-91a1-07d13bb9ea79}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Network\General">
+      <UniqueIdentifier>{f43ee3d1-61b2-48b6-9782-84663643b579}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Network\General\TCP">
+      <UniqueIdentifier>{4f4332b3-dea5-4a39-9794-93630665c246}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-NetworkPCH.cpp">
@@ -36,6 +45,9 @@
     <ClCompile Include="..\include\NetworkManager.cpp">
       <Filter>Source Files\Network</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\NetworkCore.cpp">
+      <Filter>Source Files\Network\General</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-NetworkPCH.h">
@@ -46,6 +58,12 @@
     </ClInclude>
     <ClInclude Include="..\include\NetworkManager.h">
       <Filter>Header Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\NetworkCore.h">
+      <Filter>Header Files\Network\General</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ITCPClient.h">
+      <Filter>Header Files\Network\General\TCP</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

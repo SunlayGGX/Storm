@@ -25,6 +25,7 @@
     <ClCompile Include="..\include\WebManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\include\ITCPClient.h" />
     <ClInclude Include="..\include\NetworkCore.h" />
     <ClInclude Include="..\include\NetworkManager.h" />
     <ClInclude Include="..\include\Storm-NetworkPCH.h" />
