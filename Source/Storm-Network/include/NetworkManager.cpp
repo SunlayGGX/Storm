@@ -1,5 +1,7 @@
 #include "NetworkManager.h"
 
+#include "NetworkCore.h"
+
 #include "IThreadManager.h"
 #include "ITimeManager.h"
 #include "IConfigManager.h"
@@ -57,10 +59,13 @@ void Storm::NetworkManager::run()
 
 	try
 	{
+		_netCore->initialize();
+
 		constexpr std::chrono::milliseconds k_refreshMillisec{ 64 };
 		while (timeMgr.waitForTimeOrExit(k_refreshMillisec))
 		{
 			threadMgr.processCurrentThreadActions();
+			_netCore->execute();
 		}
 	}
 	catch (const Storm::Exception &e)
@@ -90,6 +95,8 @@ void Storm::NetworkManager::run()
 
 		Storm::requestExitOtherThread();
 	}
+
+	_netCore.reset();
 }
 
 void Storm::NetworkManager::dummyNoRun()

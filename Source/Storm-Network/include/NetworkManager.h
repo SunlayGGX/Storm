@@ -6,6 +6,7 @@
 
 namespace Storm
 {
+	class NetworkCore;
 	class NetworkManager final :
 		private Storm::Singleton<Storm::NetworkManager>,
 		public Storm::INetworkManager
@@ -21,6 +22,8 @@ namespace Storm
 		void dummyNoRun();
 
 	private:
+		std::unique_ptr<Storm::NetworkCore> _netCore;
+
 		std::thread _networkThread;
 	};
 }
