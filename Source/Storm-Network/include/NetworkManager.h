@@ -15,5 +15,12 @@ namespace Storm
 	private:
 		void initialize_Implementation();
 		void cleanUp_Implementation();
+
+	private:
+		void run();
+		void dummyNoRun();
+
+	private:
+		std::thread _networkThread;
 	};
 }
