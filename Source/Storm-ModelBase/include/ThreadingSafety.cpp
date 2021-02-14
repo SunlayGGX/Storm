@@ -97,3 +97,8 @@ bool Storm::isAnimationThread()
 {
 	return currentThreadContainsFlag<Storm::ThreadFlagEnum::AnimationThread>();
 }
+
+bool Storm::isNetworkThread()
+{
+	return currentThreadContainsFlag<Storm::ThreadFlagEnum::NetworkThread>();
+}
