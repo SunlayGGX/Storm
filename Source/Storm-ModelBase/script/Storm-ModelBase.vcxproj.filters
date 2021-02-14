@@ -506,6 +506,9 @@
     <ClInclude Include="..\include\SocketSetting.h">
       <Filter>Header Files\Modules\Network\Socket</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\GeneralNetworkConfig.h">
+      <Filter>Header Files\Modules\Config\General</Filter>
+    </ClInclude>
     <ClInclude Include="..\include\StormExiter.h">
       <Filter>Header Files\General</Filter>
     </ClInclude>

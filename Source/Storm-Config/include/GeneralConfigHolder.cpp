@@ -268,6 +268,25 @@ bool Storm::GeneralConfigHolder::read(const std::string &generalConfigFilePathSt
 				}
 			}
 
+			/* Network */
+			Storm::GeneralNetworkConfig &generalNetworkConfig = _generalConfig->_generalNetworkConfig;
+
+			const auto &netTreeOpt = generalTree.get_child_optional("Network");
+			if (netTreeOpt.has_value())
+			{
+				const auto &netTree = netTreeOpt.value();
+				for (const auto &netXmlElement : netTree)
+				{
+					if (
+						!Storm::XmlReader::handleXml(netXmlElement, "enable", generalNetworkConfig._enableNetwork) &&
+						!Storm::XmlReader::handleXml(netXmlElement, "scriptSender", generalNetworkConfig._scriptSenderSocket, parseSocketSettings)
+						)
+					{
+						LOG_ERROR << netXmlElement.first << " (inside General.Network) is unknown, therefore it cannot be handled";
+					}
+				}
+			}
+
 			/* Web */
 			Storm::GeneralWebConfig &generalWebConfig = _generalConfig->_generalWebConfig;
 

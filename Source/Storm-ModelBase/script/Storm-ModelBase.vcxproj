@@ -39,6 +39,7 @@
     <ClInclude Include="..\include\AsyncAction.h" />
     <ClInclude Include="..\include\GeneralConfig.h" />
     <ClInclude Include="..\include\GeneralDebugConfig.h" />
+    <ClInclude Include="..\include\GeneralNetworkConfig.h" />
     <ClInclude Include="..\include\IAnimationManager.h" />
     <ClInclude Include="..\include\IBibliographyManager.h" />
     <ClInclude Include="..\include\InternalConfig.h" />
