@@ -152,7 +152,7 @@ Except some exceptions described below, you should define the xml value for tagN
 - if the type is "vector3", then the xml should be defined like this : \<tagName x="xValue" y="yValue" z="zValue" \\>
 - if the type is "RGBAcolor", then the xml should be defined like this : \<tagName r="rValue" g="gValue" b="bValue" a="aValue" \\>. Besides, all r, g, b, a values are to be float values between 0.0 and 1.0 included.
 - if the type is "article", "misc", then see the section "Internal".
-- if the type is "SocketSetting", then the xml should be defined like this : \<tagName ip="yyy.yyy.yyy.yyy" port="portValue" timeout="timeoutValue" enabled="boolean" \\>. With yyy a number between 0 and 255 included. Note that some ip and ports are invalid to use. timeout is a facultative positive integer defined in milliseconds (default is 34 ms) and enabled is a facultative boolean those default value is true.
+- if the type is "SocketSetting", then the xml should be defined like this : \<tagName ip="yyy.yyy.yyy.yyy" port="portValue" enabled="boolean" \\>. With yyy a number between 0 and 255 included. Note that some ip and ports are invalid to use. enabled is a facultative boolean those default value is true.
 
 
 ### Macro Configs
@@ -234,6 +234,7 @@ Note that the maximum value you can set is Fatal, it means that no matter what l
 
 ##### - PhysX (facultative)
 - **physXPvdSocket (SocketSetting, facultative)**: The socket settings to use to communicate with PhysX visual debugger. Default values of ip and port are 127.0.0.1 and 5425 respectively. If the tag is unset (default), we won't create a way to communicate with PhysX debugger. Besides, Only Debug and Profile configuration are able to use the PVD. PVD cannot be used with Release. 
+- **pvdConnectTimeout (unsigned integer, facultative)**: Positive integer defined in milliseconds specifying the conncection timeout to the PVD. Default is 33 (=> 33ms).
 - **pvdTransmitContacts (boolean, facultative)**: Specify we'll send contact data to the PVD. Default is true.
 - **pvdTransmitConstraints (boolean, facultative)**: Specify we'll send constraints data to the PVD. Default is true.
 - **pvdTransmitSceneQueries (boolean, facultative)**: Specify we'll send scene query data to the PVD. Default is false.
