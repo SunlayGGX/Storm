@@ -60,6 +60,67 @@ namespace Storm
 		}
 
 	private:
+		template<class StrType>
+		static constexpr auto extractRaw(const StrType &val, int) -> decltype(val.c_str())
+		{
+			return val.c_str();
+		}
+
+		template<class StrType>
+		static constexpr auto extractRaw(const StrType &val, void*) -> decltype(val.data())
+		{
+			return val.data();
+		}
+
+	public:
+		template<class Type>
+		static constexpr auto extractRaw(const Type &val)
+		{
+			return StringAlgo::extractRaw(val, 0);
+		}
+
+
+	private:
+		template<class OutStringType, class ValCharType>
+		static auto arrayPush(std::vector<OutStringType> &container, const ValCharType* start, const ValCharType* end, int) -> decltype(container.emplace_back(start, end), void())
+		{
+			container.emplace_back(start, end);
+		}
+
+		template<class OutStringType, class ValCharType>
+		static auto arrayPush(std::vector<OutStringType> &container, const ValCharType* start, const ValCharType* end, void*) -> decltype(container.push_back(OutStringType(start, end)), void())
+		{
+			container.push_back(OutStringType(start, end));
+		}
+
+	private:
+		template<class StringType>
+		struct ExtractCharType
+		{
+		private:
+			template<class StrType>
+			static auto evaluateType(int) -> decltype(StrType::template value_type{});
+
+			template<class CharType>
+			static auto evaluateType(void*) -> decltype(std::remove_cvref_t<decltype(*std::remove_cvref_t<CharType>)>{});
+
+		public:
+			using Type = decltype(evaluateType<StringType>(0));
+		};
+
+		template<class CharType, std::size_t count>
+		struct ExtractCharType<CharType(&)[count]>
+		{
+			using Type = std::remove_cvref_t<CharType>;
+		};
+
+		template<class CharType, std::size_t count>
+		struct ExtractCharType<CharType[count]>
+		{
+			using Type = std::remove_cvref_t<CharType>;
+		};
+
+	private:
 		// Tags
 		struct And {};
 		struct Or {};
@@ -80,7 +141,9 @@ namespace Storm
 		struct PredicateSearchInParam
 		{
 		public:
-			const StringType::template value_type* _currentPos;
+			using ValueType = ExtractCharType<StringType>::template Type;
+
+			const ValueType* _currentPos;
 			std::size_t _remainingSize;
 		};
 
@@ -230,8 +293,8 @@ namespace Storm
 		//********************************************************************************//
 
 	public:
-		template<class StringType, class Predicate>
-		static std::vector<StringType>& split(std::vector<StringType> &inOutResult, const StringType &input, const Predicate &pred)
+		template<class OutStringType, class StringType, class Predicate>
+		static std::vector<OutStringType>& split(std::vector<OutStringType> &inOutResult, const StringType &input, const Predicate &pred)
 		{
 			STORM_PREDICATE_CHECK_TAG(Predicate, Storm::StringAlgo::SplitterAlgoTag, Storm::StringAlgo::makeSplitPredicate);
 
@@ -275,7 +338,7 @@ namespace Storm
 					{
 						if (lastPos != param._currentPos)
 						{
-							inOutResult.emplace_back(lastPos, param._currentPos);
+							Storm::StringAlgo::arrayPush(inOutResult, lastPos, param._currentPos, 0);
 						}
 
 						param._currentPos += additionalSearchRes._lastPredicateSize;
@@ -298,7 +361,7 @@ namespace Storm
 
 				if (lastPos != param._currentPos)
 				{
-					inOutResult.emplace_back(lastPos, param._currentPos);
+					Storm::StringAlgo::arrayPush(inOutResult, lastPos, param._currentPos, 0);
 				}
 			}
 

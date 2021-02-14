@@ -324,6 +324,16 @@ TEST_CASE("StringAlgo.split.u32string", "[classic]")
 #undef STORM_TEXT
 
 
+TEST_CASE("StringAlgo.split.mix", "[classic]")
+{
+	std::vector<std::string_view> stringViewResult;
+	CHECK(
+		Storm::StringAlgo::split(stringViewResult, std::string{ "#####\n Enab:superman\n#####\ntoto\ntiti()\n#####\n#####\n\nsuperman:toto(5)\n" }, Storm::StringAlgo::makeSplitPredicate("#####")) ==
+		std::vector<std::string_view>{ "\n Enab:superman\n", "\ntoto\ntiti()\n", "\n", "\n\nsuperman:toto(5)\n" }
+	);
+}
+
+
 TEST_CASE("StringAlgo.replace.string", "[classic]")
 {
 	using StringType = std::string;
