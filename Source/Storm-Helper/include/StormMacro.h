@@ -9,6 +9,14 @@
 #	define STORM_STRINGIFY(x) STRINGIFY(x)
 #endif
 
+#ifndef STRINGIFY_ARGS
+#	define STRINGIFY_ARGS(...) #__VA_ARGS__
+#endif
+
+#ifndef STORM_STRINGIFY_ARGS
+#	define STORM_STRINGIFY_ARGS(...) STRINGIFY_ARGS(__VA_ARGS__)
+#endif
+
 #ifndef CONCAT
 #	define CONCAT(x, y) x##y
 #endif
