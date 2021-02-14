@@ -5,6 +5,7 @@ SET STORM_BINARY=%STORM_REPO_ROOT%\bin
 SET STORM_DEBUG_BINARY=%STORM_BINARY%\Debug
 SET STORM_RELEASE_BINARY=%STORM_BINARY%\Release
 SET STORM_PROFILE_BINARY=%STORM_BINARY%\Profile
+SET STORM_SOURCES=%STORM_REPO_ROOT%\Source
 
 if exist "%STORM_DEPENDENCIES%" rmdir /s /q "%STORM_DEPENDENCIES%"
 mkdir "%STORM_DEPENDENCIES%"
@@ -17,6 +18,19 @@ if not exist "%STORM_DEPENDENCIES%" (
 set makeFolderLink=call :CreateFolderLink
 set createFolderIfNeeded=call :CreateFolderIfNoExist
 set provideDependencyFile=call :ProvideFileDependency
+
+
+:: Uniformize Storm Sources project that are not uniform by design with the architecture of any Storm project (for example of C# project those hierarchy must be mirrored by their folder tree. Which is inadequate with C++ projects)...
+echo Uniformize Storm code files
+%makeFolderLink% "%STORM_SOURCES%\Storm-CsCppShared\include\Network" "%STORM_SOURCES%\Storm-CsCppShared\script\Network"
+
+
+if not errorlevel 1 (
+	echo Uniformization finished successfully
+) else (
+	echo Uniformization failed.
+	exit /B %errorlevel%
+)
 
 
 echo Make dependency junctions
@@ -46,9 +60,9 @@ if not errorlevel 1 (
 	%createFolderIfNeeded% "%STORM_RELEASE_BINARY%"
 	%createFolderIfNeeded% "%STORM_PROFILE_BINARY%"
 
-	%makeFolderLink% "%STORM_DEBUG_BINARY%\Shaders" "%STORM_REPO_ROOT%\Source\Shaders"
-	%makeFolderLink% "%STORM_RELEASE_BINARY%\Shaders" "%STORM_REPO_ROOT%\Source\Shaders"
-	%makeFolderLink% "%STORM_PROFILE_BINARY%\Shaders" "%STORM_REPO_ROOT%\Source\Shaders"
+	%makeFolderLink% "%STORM_DEBUG_BINARY%\Shaders" "%STORM_SOURCES%\Shaders"
+	%makeFolderLink% "%STORM_RELEASE_BINARY%\Shaders" "%STORM_SOURCES%\Shaders"
+	%makeFolderLink% "%STORM_PROFILE_BINARY%\Shaders" "%STORM_SOURCES%\Shaders"
 )
 
 

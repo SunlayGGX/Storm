@@ -8,7 +8,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)..\..\..\Source\Storm-Helper\include;$(MSBuildThisFileDirectory)..\..\..\Source\Generated;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)..\..\..\Source\Storm-Helper\include;$(MSBuildThisFileDirectory)..\..\..\Source\Storm-CsCppShared\include;$(MSBuildThisFileDirectory)..\..\..\Source\Generated;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <AdditionalOptions>/permissive %(AdditionalOptions)</AdditionalOptions>
       <OpenMPSupport>true</OpenMPSupport>
