@@ -5,3 +5,6 @@
 
 #include "Logging.h"
 #define STORM_MODULE_NAME "Network"
+
+
+#include <sdkddkver.h>
