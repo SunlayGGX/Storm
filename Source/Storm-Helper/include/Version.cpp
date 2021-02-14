@@ -52,6 +52,11 @@ std::size_t Storm::Version::getSizeInSerializePacket()
 	return sizeof(Storm::Version::_value._bunk);
 }
 
+Storm::Version& Storm::Version::operator=(const std::string_view &versionStr)
+{
+	return *this = Storm::Version{ versionStr };
+}
+
 Storm::Version::operator std::string() const
 {
 	std::string result;

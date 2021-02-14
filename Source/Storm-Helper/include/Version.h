@@ -44,6 +44,8 @@ namespace Storm
 
 		explicit operator std::string() const;
 
+		Version& operator=(const std::string_view &versionStr);
+
 	public:
 		static constexpr Version retrieveCurrentStormVersion()
 		{
