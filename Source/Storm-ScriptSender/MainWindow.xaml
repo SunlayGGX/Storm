@@ -17,8 +17,10 @@
 		<Grid Grid.Row="0">
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition Width="40"/>
+				<ColumnDefinition Width="40"/>
 			</Grid.ColumnDefinitions>
-			<Button Content="New" Name="NewButton" Click="NewButton_Click" />
+			<Button Grid.Column="0" Content="New" Name="NewButton" Click="NewButton_Click" />
+			<Button Grid.Column="1" Content="Save" Name="SaveButton" Click="SaveButton_Click" />
 		</Grid>
 		<ListBox Grid.Row="1" x:Name="ScriptsList">
 			<ListBox.ItemTemplate>
@@ -30,8 +32,8 @@
 							<ColumnDefinition Width="auto"/>
 						</Grid.ColumnDefinitions>
 						<TextBox Grid.Column="0" Text="{Binding ScriptTextContent, Mode=TwoWay}" IsReadOnly="False" AcceptsReturn="True" />
-						<Button Grid.Column="1" Content="Remove" Name="RemoveButton" Click="RemoveButton_Click" Tag="{Binding Path=.}"/>
-						<Button Grid.Column="2" Content="Send" Name="SendButton" Click="SendButton_Click" />
+						<Button Grid.Column="1" Content="Remove" Name="RemoveButton" Click="RemoveButton_Click" Tag="{Binding Path=.}" />
+						<Button Grid.Column="2" Content="Send" Name="SendButton" Click="SendButton_Click" Tag="{Binding Path=.}" />
 					</Grid>
 				</DataTemplate>
 			</ListBox.ItemTemplate>

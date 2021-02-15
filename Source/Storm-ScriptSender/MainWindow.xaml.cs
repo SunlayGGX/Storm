@@ -5,6 +5,7 @@ using System.Windows.Controls;
 using System.Diagnostics;
 using Storm_ScriptSender.Source.Script;
 using Storm_ScriptSender.Source.Network;
+using System.Collections.Generic;
 
 namespace Storm_ScriptSender
 {
@@ -15,7 +16,7 @@ namespace Storm_ScriptSender
     {
         //public event PropertyChangedEventHandler PropertyChanged;
 
-        private ObservableCollection<ScriptItem> _scriptItemsList = new ObservableCollection<ScriptItem>();
+        private ObservableCollection<ScriptItem> _scriptItemsList;
         public ObservableCollection<ScriptItem> ScriptItemsList
         {
             get => _scriptItemsList;
@@ -26,6 +27,7 @@ namespace Storm_ScriptSender
         {
             InitializeComponent();
 
+            _scriptItemsList = new ObservableCollection<ScriptItem>(ScriptManager.Instance.LoadScripts());
             ScriptsList.ItemsSource = ScriptItemsList;
         }
 
@@ -92,6 +94,13 @@ namespace Storm_ScriptSender
         private void NewButton_Click(object sender, RoutedEventArgs e)
         {
             this.AddScriptItem(new ScriptItem());
+            e.Handled = true;
+        }
+
+        private void SaveButton_Click(object sender, RoutedEventArgs e)
+        {
+            List<ScriptItem> items = new List<ScriptItem>(_scriptItemsList);
+            ScriptManager.Instance.SaveScripts(items);
             e.Handled = true;
         }
     }
