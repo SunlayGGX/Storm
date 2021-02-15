@@ -2,14 +2,19 @@
 
 namespace Storm
 {
-    enum class NetworkApplication
+#if __cplusplus
+    enum class
+#else
+    enum
+#endif
+        NetworkApplication
     {
         Unknown,
 
         Storm,
         Storm_ScriptSender,
     }
-# ifdef __cplusplus
+#if __cplusplus
     ;
 #endif
 }

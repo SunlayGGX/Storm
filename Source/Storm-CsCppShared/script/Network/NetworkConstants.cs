@@ -1,4 +1,4 @@
-# ifndef __cplusplus
+# if !__cplusplus
 using System;
 #endif
 
@@ -7,37 +7,60 @@ namespace Storm
 {
     class NetworkConstants
     {
-# ifdef __cplusplus
+#if __cplusplus
     public:
         using string = std::string_view;
         using UInt32 = uint32_t;
         using UInt16 = uint16_t;
-
-#   pragma push_macro("const")
-#   define const constexpr
-
-#   pragma push_macro("public")
-#   define public
 #endif
+        
+        // ------------------- Network Version -------------------- //
+#if __cplusplus
+        constexpr static
+#else
+        public
+#endif
+            const string k_networkVersion = "1.0.0";
 
-        public static const string k_networkVersion = "1.0.0";
 
-        public static const string k_networkSeparator = "/|||/";
-        public static const UInt32 k_magicKeyword = 0xFABC770C;
+        // ------------------- Network Separator -------------------- //
+#if __cplusplus
+        constexpr static
+#else
+        public
+#endif
+            const string k_networkSeparator = "/|||/";
 
-        public static const UInt16 k_defaultScriptSenderPort = 24139;
 
-        public static const string k_endOfMessageCommand = "++EOM_COM++";
+        // ------------------- Network Magic Keyword -------------------- //
+#if __cplusplus
+        constexpr static
+#else
+        public
+#endif
+            const UInt32 k_magicKeyword = 0xFABC770C;
+
+
+        // ------------------- Network Default sender port -------------------- //
+#if __cplusplus
+        constexpr static
+#else
+        public
+#endif
+            const UInt16 k_defaultScriptSenderPort = 24139;
+
+
+        // ------------------- Network End of message token -------------------- //
+#if __cplusplus
+        constexpr static
+#else
+        public
+#endif
+            const string k_endOfMessageCommand = "++EOM_COM++";
 
     }
-#ifdef __cplusplus
+#if __cplusplus
     ;
-
-#   undef const
-#   pragma pop_macro("const")
-
-#   undef public
-#   pragma pop_macro("public")
 #endif
 
 }

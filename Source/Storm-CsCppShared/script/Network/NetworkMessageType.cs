@@ -1,12 +1,17 @@
 ﻿
 namespace Storm
 {
-    enum class NetworkMessageType
+#if __cplusplus
+    enum class
+#else
+    enum
+#endif
+        NetworkMessageType
     {
         None,
         Script,
     }
-#ifdef __cplusplus
+#if __cplusplus
     ;
-#endif 
+#endif
 }
