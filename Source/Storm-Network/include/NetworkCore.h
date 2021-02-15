@@ -13,7 +13,7 @@ namespace Storm
 		~NetworkCore();
 
 	public:
-		void initialize();
+		bool initialize();
 
 	public:
 		void execute();

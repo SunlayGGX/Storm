@@ -57,15 +57,26 @@ void Storm::NetworkManager::run()
 	Storm::ITimeManager &timeMgr = singletonHolder.getSingleton<Storm::ITimeManager>();
 	Storm::IThreadManager &threadMgr = singletonHolder.getSingleton<Storm::IThreadManager>();
 
+	bool runContinue;
+
 	try
 	{
-		_netCore->initialize();
-
-		constexpr std::chrono::milliseconds k_refreshMillisec{ 64 };
-		while (timeMgr.waitForTimeOrExit(k_refreshMillisec))
+		runContinue = _netCore->initialize();
+		if (runContinue)
 		{
-			threadMgr.processCurrentThreadActions();
-			_netCore->execute();
+			constexpr std::chrono::milliseconds k_refreshMillisec{ 64 };
+			while (timeMgr.waitForTimeOrExit(k_refreshMillisec))
+			{
+				threadMgr.processCurrentThreadActions();
+				_netCore->execute();
+			}
+
+			runContinue = false;
+		}
+		else
+		{
+			// To dummy run.
+			runContinue = true;
 		}
 	}
 	catch (const Storm::Exception &e)
@@ -75,7 +86,8 @@ void Storm::NetworkManager::run()
 			"Error was " << e.what() << ".\n"
 			"Call stack was " << e.stackTrace()
 			;
-
+		
+		runContinue = false;
 		Storm::requestExitOtherThread();
 	}
 	catch (const std::exception &e)
@@ -85,6 +97,7 @@ void Storm::NetworkManager::run()
 			"Error was " << e.what() << "."
 			;
 
+		runContinue = false;
 		Storm::requestExitOtherThread();
 	}
 	catch (...)
@@ -93,7 +106,13 @@ void Storm::NetworkManager::run()
 			"unknown exception catched forcing us to stop the network module."
 			;
 
+		runContinue = false;
 		Storm::requestExitOtherThread();
+	}
+
+	if (runContinue)
+	{
+		this->dummyNoRun();
 	}
 
 	_netCore.reset();

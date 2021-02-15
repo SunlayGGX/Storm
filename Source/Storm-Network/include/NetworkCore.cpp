@@ -8,9 +8,10 @@
 
 Storm::NetworkCore::~NetworkCore() = default;
 
-void Storm::NetworkCore::initialize()
+bool Storm::NetworkCore::initialize()
 {
 
+	return !_clients.empty();
 }
 
 void Storm::NetworkCore::execute()
