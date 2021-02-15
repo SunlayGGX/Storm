@@ -66,6 +66,9 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Source\General\ConfigManager.cs" />
+    <Compile Include="Source\Network\NetworkHelpers.cs" />
+    <Compile Include="Source\Network\NetworkManager.cs" />
+    <Compile Include="Source\Network\ScriptItemData.cs" />
     <Compile Include="Source\Script\ScriptItem.cs" />
     <Compile Include="Source\Script\ScriptManager.cs" />
     <Page Include="MainWindow.xaml">

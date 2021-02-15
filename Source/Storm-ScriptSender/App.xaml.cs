@@ -15,6 +15,7 @@ namespace Storm_ScriptSender
             Console.WriteLine("Starting Storm Script Sender Application");
 
             ConfigManager.Create(e.Args);
+            NetworkManager.Instance.Initialize();
         }
     }
 }

@@ -35,6 +35,8 @@ namespace Storm_ScriptSender
         {
             Console.WriteLine("Ending Storm Log Reader Application");
 
+            NetworkManager.Instance.Close();
+
             // Shutdown the application.
             Application.Current.Shutdown();
             // OR You can Also go for below logic
@@ -88,7 +90,9 @@ namespace Storm_ScriptSender
 
         private void SendButton_Click(object sender, RoutedEventArgs e)
         {
-
+            ScriptItem currentScriptItem = this.GetFromButtonSource(e);
+            NetworkManager.Instance.SendScript(currentScriptItem);
+            e.Handled = true;
         }
 
         private void NewButton_Click(object sender, RoutedEventArgs e)
