@@ -65,6 +65,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Source\General\ConfigManager.cs" />
     <Compile Include="Source\Script\ScriptItem.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -105,9 +106,9 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Source\Network\" />
-  </ItemGroup>
+  <ItemGroup />
+  <Import Project="..\Storm-CsCppShared\script\Storm-CsCppShared.projitems" Label="Shared" />
+  <Import Project="..\Storm-CsHelper\Storm-CsHelper.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>if "$(Configuration)" == "Debug" (
