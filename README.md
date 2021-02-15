@@ -97,6 +97,7 @@ To use them, you need to have built all Storm projects once, and have all depend
 ## Command line
 Here are the command lines allowed values for the different executables. Command line keys are case unsensitive.
 
+
 ### Storm.exe
 This is the simulation application. Command lines are exposed like this : --key=value or --key.
 - **help (no value, facultative)**: Displays the help. The simulation won't be run and the other command line argument won't have any effect.
@@ -110,7 +111,7 @@ This is the simulation application. Command lines are exposed like this : --key=
 - **noUI (no value, facultative)**: Specify we don't want to visualize the simulation (save and speed up CPU ressource to focus only on what is important). This should be used with Record mode. Default is unset (which displays the simulation inside a UI).
 - **clearLogs (no value, facultative)**: Specify that we should empty the log folder before proceeding. Warning: we mustn't use this flag if you intend to run multiple Storm processes at the same time. Default is unset (we won't clear the log folder).
 - **threadPriority (string, facultative)**: Specify the priority of the simulation thread was should be taken. If it is unset, default OS priority will be applied. Accepted values (case unsensitive) are 'Below', 'Normal' or 'High'.
-- **stateFile (string, facultative, accept macro)**: Specify the simulation state file to load from. If unset, we won't load a state file. Default is unset. Note that it doesn't make sense to start with a state file when we're replaying, therefore this setting isn't available if the mode is set to "Replay".
+- **stateFile (string, facultative, accept macros)**: Specify the simulation state file to load from. If unset, we won't load a state file. Default is unset. Note that it doesn't make sense to start with a state file when we're replaying, therefore this setting isn't available if the mode is set to "Replay".
 - **noPhysicsTimeLoad (no value, facultative)**: Specify we don't want to load the physics time recorded in the state file. Default is false (we want to load it). Note that the setting should only be used if we specified a state file to load.
 - **noVelocityLoad (no value, facultative)**: Specify we don't want to load the velocities part of the simulation state file. Default is false (we want to load them). Note that the setting should only be used if we specified a state file to load.
 - **noForceLoad (no value, facultative)**: Specify we don't want to load the forces part of the simulation state file. Default is false (we want to load them). Note that the setting should only be used if we specified a state file to load.
@@ -122,6 +123,15 @@ This is the application to see logs in a more friendly manner. Command lines are
 - **LogFilePath (string, facultative, accept macro)**: This is the log file to display. If there is none, then we will select the one latest inside the default Log folder (located inside the default temporary folder). By not setting it, we also allow the LogViewer to parse the next log when the day change (we will always select the latest file at runtime, at the moment we check for the file modification)...
 - **NoInitialRead (no value, facultative)**: When a Simulator application is already running, then we'll just read and display the log after the moment since the log viewer started... Otherwise, we would display all logs.
 - **ReadLast (no value, facultative)**: Read the last log file found. This flag is ignored if we specified a log file to read with LogFilePath...
+
+
+### Storm-ScriptSender.exe
+This application provides an UI to easily send scripts to a connected Storm application without using files and commands. Like Storm-LogViewer, Command lines are exposed like this : key=value.
+- **MacroConfigFilePath (string, facultative, accept built-in only macros)**: This is the macro config file path to use. If there is none, then we will select the one inside the default Config folder (the one inside Custom/General takes precedence over the one inside Custom/General/Original).
+- **Port (unsigned integer, facultative)**: Allows to manually set a port to listen to instead of the one per default (5007). This integer should be in the range 0 to 65535.
+- **IntermediateSenderFolder (string, facultative, accept macros)**: Specify the folder where the script sender will save and load its xml script file. Default is inside "$[StormIntermediate]/ScriptSender".
+- **ScriptXmlFileName (string, facultative, accept macros)**: The script file name to save into/load from. Default is "SaveScriptCached.xml".
+
 
 ### Storm-Packager.exe
 This application is to package easily a running version of Storm application and Co. into a zip. It can also change and build a branch easily.

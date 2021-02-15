@@ -1,4 +1,5 @@
 ﻿using Storm_CsHelper.Source.Config;
+using Storm_ScriptSender.Source.Script;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -32,6 +33,23 @@ namespace Storm_ScriptSender.Source.General.Config
             get => _port;
         }
 
+        private string _intermediateScriptSenderFolder = Path.Combine(MacroConfig.Macroify("StormIntermediate"), "ScriptSender");
+        public string IntermediateScriptSenderFolder
+        {
+            get => _intermediateScriptSenderFolder;
+        }
+
+        private string _scriptXmlFileName = "SaveScriptCached.xml";
+        public string ScriptXmlFileName
+        {
+            get => _scriptXmlFileName;
+        }
+
+        private string _scriptXmlCompleteFilePath;
+        public string ScriptXmlCompleteFilePath
+        {
+            get => _scriptXmlCompleteFilePath;
+        }
 
         #endregion
 
@@ -97,6 +115,14 @@ namespace Storm_ScriptSender.Source.General.Config
                 {
                     _port = UInt16.Parse(value);
                 }
+                else if (ConfigManager.IsCommandLine(arg, "IntermediateSenderFolder"))
+                {
+                    _intermediateScriptSenderFolder = value;
+                }
+                else if (ConfigManager.IsCommandLine(arg, "ScriptXmlFileName"))
+                {
+                    _scriptXmlFileName = value;
+                }
             }
         }
 
@@ -113,6 +139,32 @@ namespace Storm_ScriptSender.Source.General.Config
             if (_port < 1500)
             {
                 throw new Exception("Port below 1500 is dangerous! Aborting. Requested value was " + _port);
+            }
+
+            if (string.IsNullOrWhiteSpace(_scriptXmlFileName))
+            {
+                throw new Exception("Script file name shouldn't be empty!");
+            }
+
+            MacrosConfig.ResolveInPlace(ref _scriptXmlFileName);
+            MacrosConfig.ResolveInPlace(ref _intermediateScriptSenderFolder);
+
+            char[] forbiddenChars = Path.GetInvalidFileNameChars();
+            if (_scriptXmlFileName.Any(character => forbiddenChars.Contains(character)))
+            {
+                throw new Exception("Invalid file name '" + _scriptXmlFileName + "'. It contains forbidden characters!");
+            }
+            
+            if (!string.IsNullOrEmpty(_intermediateScriptSenderFolder))
+            {
+                Directory.CreateDirectory(_intermediateScriptSenderFolder);
+            }
+
+            _scriptXmlCompleteFilePath = Path.Combine(_intermediateScriptSenderFolder, _scriptXmlFileName);
+
+            if (Directory.Exists(_scriptXmlCompleteFilePath))
+            {
+                throw new Exception("'" + _scriptXmlCompleteFilePath + "' is a directory, not a file!");
             }
         }
 
