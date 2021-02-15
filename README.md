@@ -242,7 +242,7 @@ Note that the maximum value you can set is Fatal, it means that no matter what l
 
 #### Network (facultative)
 - **enable (boolean, facultative)**: If false, the network module communication with Storm tools will be disabled. Default is false. Note that even if it is disabled, processes start/stop and web logic are still enabled.
-- **scriptSender (SocketSetting, facultative)**: The socket settings referring to the communication with the Script sender tool. Ignored if the network module is disabled.
+- **scriptSender (SocketSetting, facultative)**: The socket settings referring to the communication with the Script sender tool. Ignored if the network module is disabled. The default used port is 5007.
 
 
 #### Web (facultative)

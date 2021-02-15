@@ -47,7 +47,7 @@ namespace Storm
 #else
         public
 #endif
-            const UInt16 k_defaultScriptSenderPort = 24139;
+            const UInt16 k_defaultScriptSenderPort = 5007;
 
 
         // ------------------- Network End of message token -------------------- //
