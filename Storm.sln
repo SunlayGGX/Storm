@@ -123,6 +123,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Storm-Animation", "Source\S
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Storm-CsCppShared", "Source\Storm-CsCppShared\script\Storm-CsCppShared.shproj", "{30AE641C-FDD2-49B8-ABD0-19EA070978D3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Storm-ScriptSender", "Source\Storm-ScriptSender\Storm-ScriptSender.csproj", "{A1DC8DD9-AEBE-49C5-9530-CA4EBA5681CF}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Source\Storm-CsCppShared\script\Storm-CsCppShared.projitems*{30ae641c-fdd2-49b8-abd0-19ea070978d3}*SharedItemsImports = 13
@@ -463,6 +465,21 @@ Global
 		{268B5631-F9C8-4D62-99FC-1A4A63A0A601}.ReleaseNoPackager|Any CPU.Build.0 = Release|x64
 		{268B5631-F9C8-4D62-99FC-1A4A63A0A601}.ReleaseNoPackager|x64.ActiveCfg = Release|x64
 		{268B5631-F9C8-4D62-99FC-1A4A63A0A601}.ReleaseNoPackager|x64.Build.0 = Release|x64
+		{A1DC8DD9-AEBE-49C5-9530-CA4EBA5681CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1DC8DD9-AEBE-49C5-9530-CA4EBA5681CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1DC8DD9-AEBE-49C5-9530-CA4EBA5681CF}.Debug|x64.ActiveCfg = Profile|Any CPU
+		{A1DC8DD9-AEBE-49C5-9530-CA4EBA5681CF}.Debug|x64.Build.0 = Profile|Any CPU
+		{A1DC8DD9-AEBE-49C5-9530-CA4EBA5681CF}.Profile|Any CPU.ActiveCfg = Release|Any CPU
+		{A1DC8DD9-AEBE-49C5-9530-CA4EBA5681CF}.Profile|x64.ActiveCfg = Profile|Any CPU
+		{A1DC8DD9-AEBE-49C5-9530-CA4EBA5681CF}.Profile|x64.Build.0 = Profile|Any CPU
+		{A1DC8DD9-AEBE-49C5-9530-CA4EBA5681CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1DC8DD9-AEBE-49C5-9530-CA4EBA5681CF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A1DC8DD9-AEBE-49C5-9530-CA4EBA5681CF}.Release|x64.ActiveCfg = Release|Any CPU
+		{A1DC8DD9-AEBE-49C5-9530-CA4EBA5681CF}.Release|x64.Build.0 = Release|Any CPU
+		{A1DC8DD9-AEBE-49C5-9530-CA4EBA5681CF}.ReleaseNoPackager|Any CPU.ActiveCfg = Release|Any CPU
+		{A1DC8DD9-AEBE-49C5-9530-CA4EBA5681CF}.ReleaseNoPackager|Any CPU.Build.0 = Release|Any CPU
+		{A1DC8DD9-AEBE-49C5-9530-CA4EBA5681CF}.ReleaseNoPackager|x64.ActiveCfg = Release|Any CPU
+		{A1DC8DD9-AEBE-49C5-9530-CA4EBA5681CF}.ReleaseNoPackager|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -506,6 +523,7 @@ Global
 		{CF8D7CD2-56CF-4E65-AA42-17B3E6D6D758} = {7410768D-6BA0-4898-B2E0-0AE483393E88}
 		{268B5631-F9C8-4D62-99FC-1A4A63A0A601} = {71FDD4FA-5CB7-4461-A3FD-A8818CF6C865}
 		{30AE641C-FDD2-49B8-ABD0-19EA070978D3} = {F98F7CDA-1DB8-439B-9673-B8C23D38E1F7}
+		{A1DC8DD9-AEBE-49C5-9530-CA4EBA5681CF} = {F79A0D9C-2055-4FD3-89F6-A901CD582DBD}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {AC48B795-9776-4952-84E0-CE8AB938B72B}
