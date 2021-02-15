@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Storm_LogViewer.Source.Script
+namespace Storm_ScriptSender.Source.Script
 {
     public class ScriptItem
     {
