@@ -125,9 +125,15 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Storm-CsCppShared", "Source
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Storm-ScriptSender", "Source\Storm-ScriptSender\Storm-ScriptSender.csproj", "{A1DC8DD9-AEBE-49C5-9530-CA4EBA5681CF}"
 EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Storm-CsHelper", "Source\Storm-CsHelper\Storm-CsHelper.shproj", "{F19CC26F-2518-4126-A199-423A268A3191}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Source\Storm-CsCppShared\script\Storm-CsCppShared.projitems*{30ae641c-fdd2-49b8-abd0-19ea070978d3}*SharedItemsImports = 13
+		Source\Storm-CsHelper\Storm-CsHelper.projitems*{5b489712-203d-4e22-817c-89244dcf9434}*SharedItemsImports = 4
+		Source\Storm-CsCppShared\script\Storm-CsCppShared.projitems*{a1dc8dd9-aebe-49c5-9530-ca4eba5681cf}*SharedItemsImports = 4
+		Source\Storm-CsHelper\Storm-CsHelper.projitems*{a1dc8dd9-aebe-49c5-9530-ca4eba5681cf}*SharedItemsImports = 4
+		Source\Storm-CsHelper\Storm-CsHelper.projitems*{f19cc26f-2518-4126-a199-423a268a3191}*SharedItemsImports = 13
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -524,6 +530,7 @@ Global
 		{268B5631-F9C8-4D62-99FC-1A4A63A0A601} = {71FDD4FA-5CB7-4461-A3FD-A8818CF6C865}
 		{30AE641C-FDD2-49B8-ABD0-19EA070978D3} = {F98F7CDA-1DB8-439B-9673-B8C23D38E1F7}
 		{A1DC8DD9-AEBE-49C5-9530-CA4EBA5681CF} = {F79A0D9C-2055-4FD3-89F6-A901CD582DBD}
+		{F19CC26F-2518-4126-A199-423A268A3191} = {F98F7CDA-1DB8-439B-9673-B8C23D38E1F7}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {AC48B795-9776-4952-84E0-CE8AB938B72B}

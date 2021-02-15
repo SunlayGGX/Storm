@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Threading;
 using System.Xml.Linq;
+using Storm_CsHelper.Source.Xml;
 using Storm_LogViewer.Source.Converters;
-using Storm_LogViewer.Source.General.Filterer;
-using Storm_LogViewer.Source.Helpers;
 
 namespace Storm_LogViewer.Source.Log
 {

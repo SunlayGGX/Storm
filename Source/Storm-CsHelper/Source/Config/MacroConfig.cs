@@ -1,10 +1,10 @@
-﻿using Storm_LogViewer.Source.Helpers;
+﻿using Storm_CsHelper.Source.Xml;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml.Linq;
 
-namespace Storm_LogViewer.Source.General.Config
+namespace Storm_CsHelper.Source.Config
 {
     class MacroConfig
     {

@@ -1,4 +1,5 @@
-﻿using Storm_LogViewer.Source.Log;
+﻿using Storm_CsHelper.Source.Config;
+using Storm_LogViewer.Source.Log;
 using System;
 using System.Collections.Generic;
 using System.IO;
