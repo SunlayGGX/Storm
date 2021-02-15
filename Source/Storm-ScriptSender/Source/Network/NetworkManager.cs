@@ -29,6 +29,8 @@ namespace Storm_ScriptSender.Source.Network
 
         private Int32 _pid;
 
+        private CancellationTokenSource _acceptanceWaitCancellationToken = new CancellationTokenSource();
+
 
         private static NetworkManager s_instance = null;
         public static NetworkManager Instance
@@ -101,10 +103,27 @@ namespace Storm_ScriptSender.Source.Network
                 }
                 else
                 {
-                    // Additional pause while waiting for any connection.
-                    if (_acceptance?.Wait(250) ?? false)
+                    if (!_running)
                     {
-                        AddConnection(_acceptance.Result);
+                        return;
+                    }
+
+                    try
+                    {
+                        // Additional pause while waiting for any connection.
+                        if (_acceptance?.Wait(250, _acceptanceWaitCancellationToken.Token) ?? false)
+                        {
+                            AddConnection(_acceptance.Result);
+                            _acceptance = null;
+                        }
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        if (!_running)
+                        {
+                            return;
+                        }
+                        
                         _acceptance = null;
                     }
                 }
@@ -127,6 +146,9 @@ namespace Storm_ScriptSender.Source.Network
             {
                 _backToSend.Clear();
             }
+
+            _acceptanceWaitCancellationToken.Cancel();
+            Thread.Sleep(10);
 
             _netListener.Stop();
             _acceptance = null;
@@ -159,19 +181,31 @@ namespace Storm_ScriptSender.Source.Network
 
         private bool TestOrTryConnection()
         {
-            if (_acceptance?.IsCompleted ?? false)
+            try
             {
-                this.AddConnection(_acceptance.Result);
-            }
-
-            while (_acceptance == null)
-            {
-                _acceptance = _netListener.AcceptSocketAsync();
-                if (_acceptance.Wait(10))
+                if (_acceptance?.IsCompleted ?? false)
                 {
                     this.AddConnection(_acceptance.Result);
-                    _acceptance = null;
                 }
+
+                while (_acceptance == null)
+                {
+                    _acceptance = _netListener.AcceptSocketAsync();
+                    if (_acceptance.Wait(10, _acceptanceWaitCancellationToken.Token))
+                    {
+                        this.AddConnection(_acceptance.Result);
+                        _acceptance = null;
+                    }
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                if (!_running)
+                {
+                    return false;
+                }
+
+                _acceptance = null;
             }
 
             return _clients.Count > 0;
