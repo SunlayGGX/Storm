@@ -70,7 +70,12 @@ namespace
 				Storm::SingletonHolder::instance().getSingleton<Storm::ISimulatorManager>().saveSimulationState();
 				break;
 
-			case ID_TOOLS_STORM: // In fact it is the logviewer.
+			case ID_TOOLS_STORM_SCRIPT_SENDER:
+				Storm::StormProcessOpener::openStormScriptSender(Storm::StormProcessOpener::OpenParameter{
+					._failureQuit = false
+				}, outProcessUID);
+				break;
+
 			case ID_STORM_LOG_VIEWER:
 				Storm::StormProcessOpener::openStormLogViewer(Storm::StormProcessOpener::OpenParameter{
 					._failureQuit = false

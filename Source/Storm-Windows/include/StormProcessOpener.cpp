@@ -101,6 +101,22 @@ namespace
 }
 
 
+bool Storm::StormProcessOpener::openStormScriptSender(const OpenParameter &param, std::size_t &outProcessUID)
+{
+	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
+
+	const std::filesystem::path exeFolderPath = std::filesystem::path{ configMgr.getExePath() }.parent_path();
+
+	return tryOpenProcess(param, outProcessUID, defaultOpenProcess, Storm::StormProcessStartup{
+		._exePath = (exeFolderPath / STORM_EXECUTABLE_NAME("Storm-ScriptSender")).string(),
+		._workingDirectoryPath = exeFolderPath.string(),
+		._commandLine = "",
+		._bindIO = true,
+		._shareLife = false,
+		._isCmd = false
+	});
+}
+
 bool Storm::StormProcessOpener::openStormLogViewer(const Storm::StormProcessOpener::OpenParameter &param, std::size_t &outProcessUID)
 {
 	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
