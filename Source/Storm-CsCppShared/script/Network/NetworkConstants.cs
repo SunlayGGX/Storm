@@ -10,7 +10,7 @@ namespace Storm
 #if __cplusplus
     public:
         using string = std::string_view;
-        using UInt32 = uint32_t;
+        using Int32 = int32_t;
         using UInt16 = uint16_t;
 #endif
         
@@ -38,7 +38,7 @@ namespace Storm
 #else
         public
 #endif
-            const UInt32 k_magicKeyword = 0xFABC770C;
+            const Int32 k_magicKeyword = 0x7ABC7F0C;
 
 
         // ------------------- Network Default sender port -------------------- //
