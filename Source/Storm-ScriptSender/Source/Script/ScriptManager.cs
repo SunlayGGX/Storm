@@ -12,7 +12,8 @@ namespace Storm_ScriptSender.Source.Script
 {
     class ScriptManager
     {
-        private const string k_scriptXmlTag = "script";
+        private const string k_scriptContentXmlTag = "script";
+        private const string k_scriptTabXmlTag = "Tab";
 
 
         private static ScriptManager s_instance = null;
@@ -38,12 +39,15 @@ namespace Storm_ScriptSender.Source.Script
             {
                 xmlWriter.WriteStartElement("Scripts");
 
+                // For now, one tab to gather them all. Would prevent retro compatibility issues afterward when I'll implement them.
+                xmlWriter.WriteStartElement(k_scriptTabXmlTag);
                 foreach (ScriptItem scriptItem in scriptsList)
                 {
-                    xmlWriter.WriteStartElement(k_scriptXmlTag);
+                    xmlWriter.WriteStartElement(k_scriptContentXmlTag);
                     xmlWriter.WriteValue(scriptItem.ScriptTextContent);
                     xmlWriter.WriteEndElement();
                 }
+                xmlWriter.WriteEndElement();
 
                 xmlWriter.WriteEndElement();
                 xmlWriter.Flush();
@@ -88,7 +92,7 @@ namespace Storm_ScriptSender.Source.Script
 
                 XmlHelper.LoadAnyElementsXMLFrom(doc.Root, elem =>
                 {
-                    if (elem.Name == k_scriptXmlTag)
+                    if (elem.Name == k_scriptContentXmlTag)
                     {
                         ScriptItem newScriptItem = new ScriptItem();
 
@@ -96,6 +100,20 @@ namespace Storm_ScriptSender.Source.Script
                         newScriptItem.Index = result.Count;
 
                         result.Add(newScriptItem);
+                    }
+                    else if (elem.Name == k_scriptTabXmlTag)
+                    {
+                        // For now, tabs aren't implemented, so it is ok to ignore it and proceed as if all scripts are gathered altogether.
+                        // TODO : Change it when tabs would be implemented.
+                        XmlHelper.LoadAnyElementsXMLFrom(elem, scriptElem =>
+                        {
+                            ScriptItem newScriptItem = new ScriptItem();
+
+                            newScriptItem.ScriptTextContent = scriptElem.Value;
+                            newScriptItem.Index = result.Count;
+
+                            result.Add(newScriptItem);
+                        });
                     }
                 });
             }
