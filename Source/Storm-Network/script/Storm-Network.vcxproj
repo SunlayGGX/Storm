@@ -15,20 +15,32 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\include\NetworkHelpers.cpp" />
     <ClCompile Include="..\include\NetworkManager.cpp" />
+    <ClCompile Include="..\include\NetworkScriptReceiver.cpp" />
     <ClCompile Include="..\include\Storm-NetworkPCH.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\include\NetworkCore.cpp" />
+    <ClCompile Include="..\include\TCPClientBase.cpp" />
     <ClCompile Include="..\include\WebManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\include\ConnectionStatus.h" />
+    <ClInclude Include="..\include\EndPointIdentifier.h" />
     <ClInclude Include="..\include\ITCPClient.h" />
+    <ClInclude Include="..\include\NetworkHelpers.h" />
+    <ClInclude Include="..\include\TCPClientBase.h" />
     <ClInclude Include="..\include\NetworkCore.h" />
     <ClInclude Include="..\include\NetworkManager.h" />
+    <ClInclude Include="..\include\NetworkScriptReceiver.h" />
+    <ClInclude Include="..\include\NetworkSendParam.h" />
+    <ClInclude Include="..\include\OnConnectionChangedParam.h" />
+    <ClInclude Include="..\include\OnMessageReceivedParam.h" />
     <ClInclude Include="..\include\Storm-NetworkPCH.h" />
+    <ClInclude Include="..\include\TcpClientHandler.h" />
     <ClInclude Include="..\include\WebManager.h" />
   </ItemGroup>
   <ItemGroup>

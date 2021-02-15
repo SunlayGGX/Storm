@@ -6,7 +6,9 @@
 
 namespace Storm
 {
+	struct OnConnectionStateChangedParam;
 	class NetworkCore;
+
 	class NetworkManager final :
 		private Storm::Singleton<Storm::NetworkManager>,
 		public Storm::INetworkManager
@@ -21,7 +23,11 @@ namespace Storm
 		void run();
 		void dummyNoRun();
 
+	public:
+		void notifyApplicationConnectionChanged(Storm::OnConnectionStateChangedParam &&param);
+
 	private:
+		std::map<std::string, std::vector<unsigned int>> _connectedPIDs;
 		std::unique_ptr<Storm::NetworkCore> _netCore;
 
 		std::thread _networkThread;

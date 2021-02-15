@@ -25,8 +25,17 @@
     <Filter Include="Source Files\Network">
       <UniqueIdentifier>{90e2e401-36cc-443b-98e3-2e6d2ab5466e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Network\ScriptSender">
+      <UniqueIdentifier>{8ed7d9da-72d9-42a2-832e-d7ea67831dd4}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Header Files\Network\General">
       <UniqueIdentifier>{cf324af7-c963-4a78-91a1-07d13bb9ea79}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Network\General\Param">
+      <UniqueIdentifier>{e26103c9-e35b-4ba1-844c-2f0524c55bbc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Network\ScriptSender">
+      <UniqueIdentifier>{b14e87be-ef0b-4d97-a82d-e20c4984a88f}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Network\General">
       <UniqueIdentifier>{f43ee3d1-61b2-48b6-9782-84663643b579}</UniqueIdentifier>
@@ -45,7 +54,16 @@
     <ClCompile Include="..\include\NetworkManager.cpp">
       <Filter>Source Files\Network</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\NetworkScriptReceiver.cpp">
+      <Filter>Source Files\Network\ScriptSender</Filter>
+    </ClCompile>
     <ClCompile Include="..\include\NetworkCore.cpp">
+      <Filter>Source Files\Network\General</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\TCPClientBase.cpp">
+      <Filter>Source Files\Network\General</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\NetworkHelpers.cpp">
       <Filter>Source Files\Network\General</Filter>
     </ClCompile>
   </ItemGroup>
@@ -59,11 +77,38 @@
     <ClInclude Include="..\include\NetworkManager.h">
       <Filter>Header Files\Network</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\NetworkScriptReceiver.h">
+      <Filter>Header Files\Network\ScriptSender</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\OnConnectionChangedParam.h">
+      <Filter>Header Files\Network\General\Param</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\OnMessageReceivedParam.h">
+      <Filter>Header Files\Network\General\Param</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\EndPointIdentifier.h">
+      <Filter>Header Files\Network\General</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\NetworkSendParam.h">
+      <Filter>Header Files\Network\General\Param</Filter>
+    </ClInclude>
     <ClInclude Include="..\include\NetworkCore.h">
       <Filter>Header Files\Network\General</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\TCPClientBase.h">
+      <Filter>Header Files\Network\General\TCP</Filter>
+    </ClInclude>
     <ClInclude Include="..\include\ITCPClient.h">
       <Filter>Header Files\Network\General\TCP</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\TcpClientHandler.h">
+      <Filter>Header Files\Network\General\TCP</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ConnectionStatus.h">
+      <Filter>Header Files\Network\General\TCP</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\NetworkHelpers.h">
+      <Filter>Header Files\Network\General</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

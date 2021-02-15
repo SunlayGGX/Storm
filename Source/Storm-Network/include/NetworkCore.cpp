@@ -1,6 +1,7 @@
 #include "NetworkCore.h"
 
 #include "ITCPClient.h"
+#include "NetworkScriptReceiver.h"
 
 #include "ITimeManager.h"
 #include "SingletonHolder.h"
@@ -10,6 +11,10 @@ Storm::NetworkCore::~NetworkCore() = default;
 
 bool Storm::NetworkCore::initialize()
 {
+	if (Storm::NetworkScriptReceiver::shouldCreate())
+	{
+		_clients.emplace_back(TcpClientSessionPtr{ new Storm::NetworkScriptReceiver{ _networkService }, &Storm::NetworkCore::destroyTCPClient });
+	}
 
 	return !_clients.empty();
 }
