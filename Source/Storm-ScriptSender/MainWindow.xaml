@@ -25,11 +25,11 @@
 				<DataTemplate>
 					<Grid>
 						<Grid.ColumnDefinitions>
-							<ColumnDefinition Width="auto"/>
+							<ColumnDefinition Width="auto" MinWidth="200"/>
 							<ColumnDefinition Width="auto"/>
 							<ColumnDefinition Width="auto"/>
 						</Grid.ColumnDefinitions>
-						<TextBox Grid.Column="0" Text="{Binding ScriptTextContent, Mode=TwoWay}" IsReadOnly="False" />
+						<TextBox Grid.Column="0" Text="{Binding ScriptTextContent, Mode=TwoWay}" IsReadOnly="False" AcceptsReturn="True" />
 						<Button Grid.Column="1" Content="Remove" Name="RemoveButton" Click="RemoveButton_Click" Tag="{Binding Path=.}"/>
 						<Button Grid.Column="2" Content="Send" Name="SendButton" Click="SendButton_Click" />
 					</Grid>
