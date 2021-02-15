@@ -22,6 +22,7 @@ set provideDependencyFile=call :ProvideFileDependency
 
 :: Uniformize Storm Sources project that are not uniform by design with the architecture of any Storm project (for example of C# project those hierarchy must be mirrored by their folder tree. Which is inadequate with C++ projects)...
 echo Uniformize Storm code files
+%createFolderIfNeeded% "%STORM_SOURCES%\Storm-CsCppShared\include"
 %makeFolderLink% "%STORM_SOURCES%\Storm-CsCppShared\include\Network" "%STORM_SOURCES%\Storm-CsCppShared\script\Network"
 
 
