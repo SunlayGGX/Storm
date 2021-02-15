@@ -7,6 +7,7 @@ using System.IO;
 using Storm_ScriptSender.Source.General.Config;
 using System.Xml.Linq;
 using Storm_CsHelper.Source.Xml;
+using System.Collections.ObjectModel;
 
 namespace Storm_ScriptSender.Source.Script
 {
@@ -14,6 +15,8 @@ namespace Storm_ScriptSender.Source.Script
     {
         private const string k_scriptContentXmlTag = "script";
         private const string k_scriptTabXmlTag = "Tab";
+        private const string k_scriptTabTitleXmlAttributeTag = "Title";
+        private const string k_selectedTabXmlAttributeTag = "SelectedIndex";
 
 
         private static ScriptManager s_instance = null;
@@ -31,23 +34,29 @@ namespace Storm_ScriptSender.Source.Script
         }
 
 
-        public void SaveScripts(List<ScriptItem> scriptsList)
+        public void SaveScripts(List<UIScriptTabItem> tabScriptsList, int selectedTabIndex)
         {
             XDocument doc = new XDocument();
 
             using (var xmlWriter = doc.CreateWriter())
             {
                 xmlWriter.WriteStartElement("Scripts");
+                xmlWriter.WriteAttributeString(k_selectedTabXmlAttributeTag, selectedTabIndex.ToString());
 
-                // For now, one tab to gather them all. Would prevent retro compatibility issues afterward when I'll implement them.
-                xmlWriter.WriteStartElement(k_scriptTabXmlTag);
-                foreach (ScriptItem scriptItem in scriptsList)
+                foreach (UIScriptTabItem tabScripts in tabScriptsList)
                 {
-                    xmlWriter.WriteStartElement(k_scriptContentXmlTag);
-                    xmlWriter.WriteValue(scriptItem.ScriptTextContent);
+                    // For now, one tab to gather them all. Would prevent retro compatibility issues afterward when I'll implement them.
+                    xmlWriter.WriteStartElement(k_scriptTabXmlTag);
+                    xmlWriter.WriteAttributeString(k_scriptTabTitleXmlAttributeTag, tabScripts.Title);
+
+                    foreach (ScriptItem scriptItem in tabScripts.Items)
+                    {
+                        xmlWriter.WriteStartElement(k_scriptContentXmlTag);
+                        xmlWriter.WriteValue(scriptItem.ScriptTextContent);
+                        xmlWriter.WriteEndElement();
+                    }
                     xmlWriter.WriteEndElement();
                 }
-                xmlWriter.WriteEndElement();
 
                 xmlWriter.WriteEndElement();
                 xmlWriter.Flush();
@@ -56,9 +65,11 @@ namespace Storm_ScriptSender.Source.Script
             doc.Save(ConfigManager.Instance.ScriptXmlCompleteFilePath);
         }
 
-        public List<ScriptItem> LoadScripts()
+        public List<UIScriptTabItem> LoadScripts(out int selectedTabIndex)
         {
-            List<ScriptItem> result = new List<ScriptItem>();
+            selectedTabIndex = 0;
+
+            List<UIScriptTabItem> result = new List<UIScriptTabItem>();
 
             FileInfo savedFile = new FileInfo(ConfigManager.Instance.ScriptXmlCompleteFilePath);
             if (savedFile.Exists)
@@ -90,6 +101,10 @@ namespace Storm_ScriptSender.Source.Script
                     return result;
                 }
 
+                int selectedTabIndexInLambdaCsWorkaround = 0;
+                doc.Root.LoadAttributeAndThrowIfNotExist(k_selectedTabXmlAttributeTag, selectedIndexStr => selectedTabIndexInLambdaCsWorkaround = int.Parse(selectedIndexStr));
+                selectedTabIndex = selectedTabIndexInLambdaCsWorkaround;
+
                 XmlHelper.LoadAnyElementsXMLFrom(doc.Root, elem =>
                 {
                     if (elem.Name == k_scriptContentXmlTag)
@@ -97,12 +112,43 @@ namespace Storm_ScriptSender.Source.Script
                         ScriptItem newScriptItem = new ScriptItem();
 
                         newScriptItem.ScriptTextContent = elem.Value;
-                        newScriptItem.Index = result.Count;
 
-                        result.Add(newScriptItem);
+                        UIScriptTabItem tabToAddInto;
+
+                        if (result.Count == 0)
+                        {
+                            tabToAddInto = new UIScriptTabItem();
+                            tabToAddInto.Title = "Default";
+                            tabToAddInto.Items = new ObservableCollection<ScriptItem>();
+
+                            result.Add(tabToAddInto);
+
+                        }
+                        else
+                        {
+                            tabToAddInto = result.Last();
+                        }
+
+                        newScriptItem.Index = tabToAddInto.Items.Count;
+                        newScriptItem.ParentTab = tabToAddInto;
+
+                        tabToAddInto.Items.Add(newScriptItem);
                     }
                     else if (elem.Name == k_scriptTabXmlTag)
                     {
+                        string title = null;
+                        elem.LoadAttributeAndThrowIfNotExist(k_scriptTabTitleXmlAttributeTag, uiTabValue => title = uiTabValue);
+
+                        UIScriptTabItem tab = result.FirstOrDefault(uiTab => uiTab.Title == title);
+                        if (tab == null)
+                        {
+                            tab = new UIScriptTabItem();
+                            tab.Title = title;
+                            tab.Items = new ObservableCollection<ScriptItem>();
+
+                            result.Add(tab);
+                        }
+
                         // For now, tabs aren't implemented, so it is ok to ignore it and proceed as if all scripts are gathered altogether.
                         // TODO : Change it when tabs would be implemented.
                         XmlHelper.LoadAnyElementsXMLFrom(elem, scriptElem =>
@@ -110,9 +156,10 @@ namespace Storm_ScriptSender.Source.Script
                             ScriptItem newScriptItem = new ScriptItem();
 
                             newScriptItem.ScriptTextContent = scriptElem.Value;
-                            newScriptItem.Index = result.Count;
+                            newScriptItem.Index = tab.Items.Count;
+                            newScriptItem.ParentTab = tab;
 
-                            result.Add(newScriptItem);
+                            tab.Items.Add(newScriptItem);
                         });
                     }
                 });

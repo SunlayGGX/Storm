@@ -16,40 +16,49 @@
 		</Grid.RowDefinitions>
 		<Grid Grid.Row="0">
 			<Grid.ColumnDefinitions>
-				<ColumnDefinition Width="40"/>
-				<ColumnDefinition Width="40"/>
+				<ColumnDefinition Width="75"/>
+				<ColumnDefinition Width="75"/>
+				<ColumnDefinition Width="75"/>
 			</Grid.ColumnDefinitions>
-			<Button Grid.Column="0" Content="New" Name="NewButton" Click="NewButton_Click" />
-			<Button Grid.Column="1" Content="Save" Name="SaveButton" Click="SaveButton_Click" />
+			<Button Grid.Column="0" Content="New Script" Name="NewButton" Click="NewScriptButton_Click" />
+			<Button Grid.Column="1" Content="New Tab" Name="NewTab" Click="NewTab_Click" />
+			<Button Grid.Column="2" Content="Save" Name="SaveButton" Click="SaveButton_Click" />
 		</Grid>
-		<ListBox Grid.Row="1" x:Name="ScriptsList">
-			<ListBox.ItemTemplate>
+		<TabControl Grid.Row="1" x:Name="TabScriptsList" >
+			<TabControl.ItemTemplate>
 				<DataTemplate>
 					<Grid>
 						<Grid.ColumnDefinitions>
-							<ColumnDefinition Width="auto" MinWidth="200"/>
+							<ColumnDefinition Width="10"/>
 							<ColumnDefinition Width="auto"/>
 							<ColumnDefinition Width="auto"/>
+							<ColumnDefinition Width="10"/>
 						</Grid.ColumnDefinitions>
-						<TextBox Grid.Column="0" Text="{Binding ScriptTextContent, Mode=TwoWay}" IsReadOnly="False" AcceptsReturn="True" />
-						<Button Grid.Column="1" Content="Remove" Name="RemoveButton" Click="RemoveButton_Click" Tag="{Binding Path=.}" />
-						<Button Grid.Column="2" Content="Send" Name="SendButton" Click="SendButton_Click" Tag="{Binding Path=.}" />
+						<TextBox Grid.Column="1" Text="{Binding Title, Mode=TwoWay}" />
+						<Button Grid.Column="2" Content="X" Name="RemoveTabButton" Click="RemoveTabButton_Click"  Tag="{Binding Path=.}" />
 					</Grid>
 				</DataTemplate>
-			</ListBox.ItemTemplate>
-		</ListBox>
-		<!--<ListView Margin="4,4,4,4" Background="LightGray" Name="ScriptArea" Grid.Row="1" ScrollViewer.VerticalScrollBarVisibility="Visible" ScrollViewer.CanContentScroll="False" >
-			<ListView.View>
-				<GridView>
-					<GridViewColumn Header="Index" Width="auto" DisplayMemberBinding="{Binding NumberIndex}"/>
-					<GridViewColumn Header="Script" Width="auto" DisplayMemberBinding="{Binding Script}"/>
-				</GridView>
-			</ListView.View>
-			<ListView.ItemContainerStyle>
-				<Style TargetType="{x:Type ListViewItem}">
-					<Setter Property="Background" Value="{Binding LogLevel}"/>
-				</Style>
-			</ListView.ItemContainerStyle>
-		</ListView>-->
+			</TabControl.ItemTemplate>
+			<TabControl.ContentTemplate>
+				<DataTemplate>
+					<ListBox ItemsSource="{Binding Items}">
+						<ListBox.ItemTemplate>
+							<DataTemplate>
+								<Grid>
+									<Grid.ColumnDefinitions>
+										<ColumnDefinition Width="auto" MinWidth="200"/>
+										<ColumnDefinition Width="auto"/>
+										<ColumnDefinition Width="auto"/>
+									</Grid.ColumnDefinitions>
+									<TextBox Grid.Column="0" Text="{Binding ScriptTextContent, Mode=TwoWay}" IsReadOnly="False" AcceptsReturn="True" />
+									<Button Grid.Column="1" Content="X" Name="RemoveButton" Click="RemoveButton_Click" Tag="{Binding Path=.}" />
+									<Button Grid.Column="2" Content="Send" Name="SendButton" Click="SendButton_Click" Tag="{Binding Path=.}" />
+								</Grid>
+							</DataTemplate>
+						</ListBox.ItemTemplate>
+					</ListBox>
+				</DataTemplate>
+			</TabControl.ContentTemplate>
+		</TabControl>
 	</Grid>
 </Window>

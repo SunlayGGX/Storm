@@ -16,10 +16,10 @@ namespace Storm_ScriptSender
     {
         //public event PropertyChangedEventHandler PropertyChanged;
 
-        private ObservableCollection<ScriptItem> _scriptItemsList;
-        public ObservableCollection<ScriptItem> ScriptItemsList
+        private ObservableCollection<UIScriptTabItem> _tabsScriptItemsList;
+        public ObservableCollection<UIScriptTabItem> TabsScriptItemsList
         {
-            get => _scriptItemsList;
+            get => _tabsScriptItemsList;
         }
 
 
@@ -27,8 +27,21 @@ namespace Storm_ScriptSender
         {
             InitializeComponent();
 
-            _scriptItemsList = new ObservableCollection<ScriptItem>(ScriptManager.Instance.LoadScripts());
-            ScriptsList.ItemsSource = ScriptItemsList;
+            int selectedTabIndex;
+            List<UIScriptTabItem> tabScriptsItemList = ScriptManager.Instance.LoadScripts(out selectedTabIndex);
+            _tabsScriptItemsList = new ObservableCollection<UIScriptTabItem>(tabScriptsItemList);
+            
+            if (TabsScriptItemsList.Count == 0)
+            {
+                TabsScriptItemsList.Add(new UIScriptTabItem()
+                {
+                    Title = "Default",
+                    Items = new ObservableCollection<ScriptItem>()
+                });
+            }
+
+            TabScriptsList.SelectedIndex = selectedTabIndex < TabsScriptItemsList.Count ? selectedTabIndex : 0;
+            TabScriptsList.ItemsSource = TabsScriptItemsList;
         }
 
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
@@ -48,31 +61,69 @@ namespace Storm_ScriptSender
         //    Application.Current.Dispatcher.InvokeAsync(action).Wait();
         //}
 
-        private void ReorderScripts(int iter = 0)
+        private void ReorderScripts(int tab, int iter = 0)
         {
-            int itemCount = ScriptItemsList.Count;
+            UIScriptTabItem currentTab = TabsScriptItemsList[tab];
+            int itemCount = currentTab.Items.Count;
             for (; iter < itemCount; ++iter)
             {
-                ScriptItemsList[iter].Index = iter;
+                currentTab.Items[iter].Index = iter;
             }
         }
 
         private void AddScriptItem(ScriptItem item)
         {
-            item.Index = ScriptItemsList.Count;
-            ScriptItemsList.Add(item);
+            UIScriptTabItem currentTab = TabsScriptItemsList[TabScriptsList.SelectedIndex];
+            item.Index = currentTab.Items.Count;
+            item.ParentTab = currentTab;
+
+            currentTab.Items.Add(item);
+        }
+
+        private void AddNewTabItem()
+        {
+            string tabRootName = "Default";
+
+            UIScriptTabItem added = new UIScriptTabItem();
+            added.Title = tabRootName;
+            added.Items = new ObservableCollection<ScriptItem>();
+            int index = 0;
+            do
+            {
+                bool found = false;
+                foreach (var tabItem in TabsScriptItemsList)
+                {
+                    if (tabItem.Title == added.Title)
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (found)
+                {
+                    added.Title = tabRootName + "_" + index.ToString();
+                    ++index;
+                }
+                else
+                {
+                    break;
+                }
+            } while (true);
+
+            TabScriptsList.SelectedIndex = TabsScriptItemsList.Count;
+            TabsScriptItemsList.Add(added);
         }
 
         private void RemoveScriptItem(ScriptItem item)
         {
-            ScriptItemsList.RemoveAt(item.Index);
-            ReorderScripts(item.Index);
+            _tabsScriptItemsList[TabScriptsList.SelectedIndex].Items.RemoveAt(item.Index);
+            ReorderScripts(TabScriptsList.SelectedIndex, item.Index);
         }
 
         private ScriptItem GetFromButtonSource(RoutedEventArgs e)
         {
             Button clickedCurrent = e.Source as Button;
-
             Debug.Assert(clickedCurrent != null, "Clicked current should be a Button!");
 
             ScriptItem parentScriptItem = clickedCurrent.Tag as ScriptItem;
@@ -95,16 +146,39 @@ namespace Storm_ScriptSender
             e.Handled = true;
         }
 
-        private void NewButton_Click(object sender, RoutedEventArgs e)
+        private void NewScriptButton_Click(object sender, RoutedEventArgs e)
         {
             this.AddScriptItem(new ScriptItem());
             e.Handled = true;
         }
 
+        private void NewTab_Click(object sender, RoutedEventArgs e)
+        {
+            this.AddNewTabItem();
+            e.Handled = true;
+        }
+
+        private void RemoveTabButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (_tabsScriptItemsList.Count == 1)
+            {
+                return;
+            }
+
+            Button clickedCurrent = e.Source as Button;
+            Debug.Assert(clickedCurrent != null, "Clicked current should be a Button!");
+
+            UIScriptTabItem tabToRemove = clickedCurrent.Tag as UIScriptTabItem;
+            Debug.Assert(tabToRemove != null, "Clicked current should be tagged with the parent script tab using Tag in the xaml!");
+
+            _tabsScriptItemsList.Remove(tabToRemove);
+            e.Handled = true;
+        }
+
         private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
-            List<ScriptItem> items = new List<ScriptItem>(_scriptItemsList);
-            ScriptManager.Instance.SaveScripts(items);
+            List<UIScriptTabItem> items = new List<UIScriptTabItem>(_tabsScriptItemsList);
+            ScriptManager.Instance.SaveScripts(items, TabScriptsList.SelectedIndex);
             e.Handled = true;
         }
     }
