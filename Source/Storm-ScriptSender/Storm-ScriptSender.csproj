@@ -71,6 +71,7 @@
     <Compile Include="Source\Network\ScriptItemData.cs" />
     <Compile Include="Source\Script\ScriptItem.cs" />
     <Compile Include="Source\Script\ScriptManager.cs" />
+    <Compile Include="Source\Script\UIScriptTabItem.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

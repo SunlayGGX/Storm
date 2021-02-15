@@ -21,5 +21,12 @@ namespace Storm_ScriptSender.Source.Script
             get => _scriptTextContent;
             set => _scriptTextContent = value;
         }
+
+        private UIScriptTabItem _parentTab = null;
+        public UIScriptTabItem ParentTab
+        {
+            get => _parentTab;
+            set => _parentTab = value;
+        }
     }
 }
