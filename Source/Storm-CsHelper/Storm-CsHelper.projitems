@@ -10,6 +10,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Source\Config\MacroConfig.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Source\UI\UIHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Source\Xml\XmlHelper.cs" />
   </ItemGroup>
 </Project>
