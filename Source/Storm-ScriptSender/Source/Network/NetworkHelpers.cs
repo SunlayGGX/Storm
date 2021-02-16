@@ -72,6 +72,11 @@ namespace Storm_ScriptSender.Source.Network
             return PrepareForSending(scriptData._scriptContent, currentPID, Storm.NetworkMessageType.Script);
         }
 
+        public static byte[] PreparePing(Int32 currentPID)
+        {
+            return PrepareForSending(string.Empty, currentPID, Storm.NetworkMessageType.Ping);
+        }
+
         private static int CompareWithExpected(byte[] msg, int offset, string expected, out bool res)
         {
             res = true;

@@ -3,8 +3,7 @@
 #include "ITCPClient.h"
 
 #include "MethodEnsurerMacro.h"
-
-#include "OnConnectionChangedParam.h"
+#include "EndPointIdentifier.h"
 
 #include <boost\asio\io_service.hpp>
 #include <boost\asio\ip\tcp.hpp>
@@ -12,6 +11,7 @@
 
 namespace Storm
 {
+	struct OnConnectionStateChangedParam;
 	struct OnMessageReceivedParam;
 	struct SocketSetting;
 	enum class NetworkMessageType;
@@ -20,6 +20,7 @@ namespace Storm
 	{
 		NotConnected,
 		Connecting,
+		WaitingForAuthentication,
 		Connected,
 	};
 
@@ -43,23 +44,25 @@ namespace Storm
 		void connect(Traits::NetworkService &ioService, Traits::SocketType &socket, const Storm::SocketSetting &settings);
 		void disconnect(Traits::NetworkService &ioService, Traits::SocketType &socket);
 
-		void autenthicate(Traits::SocketType &socket, Storm::EndPointIdentifier &cachedApplicationIdentifier, Storm::OnConnectionStateChangedParam &param);
-
 		void sendMessage(Traits::SocketType &socket, std::string &&msg, const Storm::NetworkMessageType messageType);
 		void sendAsyncMessage(Traits::SocketType &socket, std::string &&msg, const Storm::NetworkMessageType messageType, std::size_t byteWroteSince = 0);
 
 		void startRead(Traits::SocketType &socket);
 
-		void definitiveStop(Traits::SocketType &socket);
+		void definitiveStop(Traits::SocketType &socket, const bool connected);
+
+	private:
+		void doAuthentication(Traits::SocketType &socket);
 
 	protected:
-		void onConnectionChanged(const Storm::OnConnectionStateChangedParam &param, Storm::ConnectionStatus &connectedFlag);
-		void onMessageReceived(const Storm::OnMessageReceivedParam &param);
+		void onConnectionChanged(const Storm::OnConnectionStateChangedParam &param, Storm::ConnectionStatus &connectedFlag, Storm::EndPointIdentifier &outApplicationId);
+		bool onMessageReceived(const Storm::OnMessageReceivedParam &param);
 
 	protected:
 		// Method to trigger logic from the base
-		virtual void connectHandler(const boost::system::error_code &ec) = 0;
 		virtual void disconnectLogicCall() = 0;
+		virtual void notifyStartAuthentication() = 0;
+		virtual void notifyOnConnectionChanged(Storm::OnConnectionStateChangedParam &&param) = 0;
 		virtual void notifyOnMessageReceived(Storm::OnMessageReceivedParam &&param) = 0;
 
 	private:
@@ -131,7 +134,7 @@ namespace Storm
 
 		bool isConnected() const noexcept final override
 		{
-			return _status == Storm::ConnectionStatus::Connected;
+			return _status == Storm::ConnectionStatus::Connected || _status == Storm::ConnectionStatus::WaitingForAuthentication;
 		}
 
 		bool shouldConnect() const noexcept final override
@@ -148,76 +151,40 @@ namespace Storm
 	public:
 		void onConnectionChanged(Storm::OnConnectionStateChangedParam &&param) final override
 		{
+			Logic::onConnectionChanged(param, _status, _cachedApplicationIdentifier);
+
 			Child &currentNoIndirect = static_cast<Child&>(*this);
+			currentNoIndirect.onConnectionChanged_Implementation(std::move(param));
 
-			try
+			if (this->isConnected())
 			{
-				Logic::onConnectionChanged(param, _status);
-				currentNoIndirect.onConnectionChanged_Implementation(std::move(param));
-
-				if (this->isConnected())
-				{
-					Logic::startRead(_socket);
-				}
-			}
-			catch (...)
-			{
-				// If we catch something here, then it is considered as a connection refusal from our end. So we disconnect.
-
-				if (this->isConnected())
-				{
-					this->disconnect();
-				}
-				throw;
+				Logic::startRead(_socket);
 			}
 		}
 
 		void onMessageReceived(Storm::OnMessageReceivedParam &&receivedMsg) final override
 		{
-			Logic::onMessageReceived(receivedMsg);
-			
-			Child &currentNoIndirect = static_cast<Child&>(*this);
-			currentNoIndirect.onMessageReceived_Implementation(std::move(receivedMsg));
+			if (Logic::onMessageReceived(receivedMsg))
+			{
+				Child &currentNoIndirect = static_cast<Child&>(*this);
+				currentNoIndirect.onMessageReceived_Implementation(std::move(receivedMsg));
+			}
 		}
 
 	private:
-		void connectHandler(const boost::system::error_code &ec) final override
+		void notifyStartAuthentication() final override
 		{
-			if (!ec)
-			{
-				Child &currentNoIndirect = static_cast<Child&>(*this);
+			_status = Storm::ConnectionStatus::WaitingForAuthentication;
+		}
 
-				try
-				{
-					Storm::OnConnectionStateChangedParam param;
-					Logic::autenthicate(_socket, _cachedApplicationIdentifier, param);
-
-					this->onConnectionChanged(std::move(param));
-
-					return;
-				}
-				catch (const Storm::Exception &e)
-				{
-					LOG_ERROR <<
-						"Storm::Exception catched while connecting : " << e.what() << ".\n"
-						"Stack trace :\n" << e.stackTrace()
-						;
-				}
-				catch (const std::exception &e)
-				{
-					LOG_ERROR << "std::exception catched while connecting : " << e.what();
-				}
-
-				this->disconnect();
-			}
-			else
-			{
-				this->disconnect();
-			}
+		void notifyOnConnectionChanged(Storm::OnConnectionStateChangedParam &&param) final override
+		{
+			this->onConnectionChanged(std::move(param));
 		}
 
 		void disconnectLogicCall() final override
 		{
+			Logic::disconnect(*_netService, _socket);
 			this->disconnect();
 		}
 

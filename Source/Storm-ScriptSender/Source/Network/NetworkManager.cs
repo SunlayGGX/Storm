@@ -31,6 +31,8 @@ namespace Storm_ScriptSender.Source.Network
 
         private CancellationTokenSource _acceptanceWaitCancellationToken = new CancellationTokenSource();
 
+        DateTime _nextPingTime = DateTime.MinValue;
+
 
         private static NetworkManager s_instance = null;
         public static NetworkManager Instance
@@ -45,6 +47,11 @@ namespace Storm_ScriptSender.Source.Network
                 return s_instance;
             }
         }
+
+
+        private bool _lastConnectionState = false;
+        public delegate void OnConnectionStateChangedHandler(bool connected);
+        public event OnConnectionStateChangedHandler OnConnectionStateChanged;
 
         #endregion
 
@@ -101,13 +108,8 @@ namespace Storm_ScriptSender.Source.Network
                         _frontToSend.Clear();
                     }
                 }
-                else
+                else if (_running)
                 {
-                    if (!_running)
-                    {
-                        return;
-                    }
-
                     try
                     {
                         // Additional pause while waiting for any connection.
@@ -125,6 +127,40 @@ namespace Storm_ScriptSender.Source.Network
                         }
                         
                         _acceptance = null;
+                    }
+                }
+                else
+                {
+                    return;
+                }
+
+                if (_clients.Count > 0)
+                {
+                    if (DateTime.Now > _nextPingTime)
+                    {
+                        _nextPingTime = DateTime.Now.AddMilliseconds(2500);
+                        byte[] pingMessage = NetworkHelpers.PreparePing(_pid);
+                        foreach (Socket socket in _clients)
+                        {
+                            try
+                            {
+                                socket.Send(pingMessage);
+                            }
+                            catch (SocketException)
+                            {
+                                _closedToRemove.Add(socket);
+                            }
+                        }
+
+                        if (_closedToRemove.Count > 0)
+                        {
+                            foreach (Socket toClose in _closedToRemove)
+                            {
+                                toClose.Close();
+                                _clients.Remove(toClose);
+                            }
+                            _closedToRemove.Clear();
+                        }
                     }
                 }
 
@@ -208,7 +244,58 @@ namespace Storm_ScriptSender.Source.Network
                 _acceptance = null;
             }
 
-            return _clients.Count > 0;
+            foreach (Socket client in _clients)
+            {
+                if (!this.SocketIsConnected(client))
+                {
+                    _closedToRemove.Add(client);
+                }
+            }
+
+            if (_closedToRemove.Count > 0)
+            {
+                foreach (Socket toClose in _closedToRemove)
+                {
+                    toClose.Close();
+                    _clients.Remove(toClose);
+                }
+                _closedToRemove.Clear();
+            }
+
+            if (_clients.Count > 0)
+            {
+                try
+                {
+                    if (!_lastConnectionState)
+                    {
+                        _lastConnectionState = true;
+                        OnConnectionStateChanged?.Invoke(true);
+                    }
+                }
+                catch (Exception)
+                {
+
+                }
+
+                return true;
+            }
+            else
+            {
+                try
+                {
+                    if (_lastConnectionState)
+                    {
+                        _lastConnectionState = false;
+                        OnConnectionStateChanged?.Invoke(false);
+                    }
+                }
+                catch (Exception)
+                {
+
+                }
+
+                return false;
+            }
         }
 
         private void SendThroughSocket(Socket socket, byte[] bytesToSend)
@@ -258,6 +345,31 @@ namespace Storm_ScriptSender.Source.Network
             {
                 toConnect.Close();
             }
+        }
+
+        private class BlockingGuard : IDisposable
+        {
+            bool _blockingState;
+            Socket _socket = null;
+
+            public BlockingGuard(Socket socket)
+            {
+                _blockingState = socket.Blocking;
+                _socket = socket;
+            }
+
+            public void Dispose()
+            {
+                if (_socket != null)
+                {
+                    _socket.Blocking = _blockingState;
+                }
+            }
+        }
+
+        private bool SocketIsConnected(Socket client)
+        {
+            return client.Connected;
         }
 
         #endregion

@@ -10,6 +10,7 @@ namespace Storm
     {
         None,
         Script,
+        Ping,
     }
 #if __cplusplus
     ;

@@ -6,15 +6,19 @@ using System.Diagnostics;
 using Storm_ScriptSender.Source.Script;
 using Storm_ScriptSender.Source.Network;
 using System.Collections.Generic;
+using System.ComponentModel;
+using Storm_CsHelper.Source.UI;
 
 namespace Storm_ScriptSender
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window//, INotifyPropertyChanged
+    public partial class MainWindow : Window, INotifyPropertyChanged
     {
-        //public event PropertyChangedEventHandler PropertyChanged;
+#pragma warning disable 0067
+        public event PropertyChangedEventHandler PropertyChanged;
+#pragma warning restore 0067
 
         private ObservableCollection<UIScriptTabItem> _tabsScriptItemsList;
         public ObservableCollection<UIScriptTabItem> TabsScriptItemsList
@@ -22,10 +26,26 @@ namespace Storm_ScriptSender
             get => _tabsScriptItemsList;
         }
 
+        private string _connectedStateStr = MainWindow.ParseConnectionState(false);
+        public string ConnectedStateStr
+        {
+            get
+            {
+                return _connectedStateStr;
+            }
+            set
+            {
+                _connectedStateStr = value;
+                this.RaisePropertyChanged();
+            }
+        }
+
 
         public MainWindow()
         {
             InitializeComponent();
+
+            ConnectionStateTextbox.DataContext = this;
 
             int selectedTabIndex;
             List<UIScriptTabItem> tabScriptsItemList = ScriptManager.Instance.LoadScripts(out selectedTabIndex);
@@ -42,6 +62,11 @@ namespace Storm_ScriptSender
 
             TabScriptsList.SelectedIndex = selectedTabIndex < TabsScriptItemsList.Count ? selectedTabIndex : 0;
             TabScriptsList.ItemsSource = TabsScriptItemsList;
+
+            NetworkManager.Instance.OnConnectionStateChanged += (connected) =>
+            {
+                ConnectedStateStr = MainWindow.ParseConnectionState(connected);
+            };
         }
 
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
@@ -60,6 +85,11 @@ namespace Storm_ScriptSender
         //{
         //    Application.Current.Dispatcher.InvokeAsync(action).Wait();
         //}
+
+        private static string ParseConnectionState(bool connected)
+        {
+            return connected ? "Connected" : "Not Connected";
+        }
 
         private void ReorderScripts(int tab, int iter = 0)
         {

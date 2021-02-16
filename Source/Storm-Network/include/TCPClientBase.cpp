@@ -8,8 +8,11 @@
 #include "StringAlgo.h"
 #include "NetworkHelpers.h"
 #include "ThreadingSafety.h"
+#include "RAII.h"
 
 #include "Network/NetworkConstants.cs"
+#include "Network/NetworkMessageType.cs"
+#include "Network/NetworkApplication.cs"
 
 #include <boost/asio/read_until.hpp>
 #include <boost/asio/connect.hpp>
@@ -31,7 +34,32 @@ void Storm::TCPClientBasePrivateLogic::connect(Traits::NetworkService &ioService
 		settings._port
 	};
 
-	socket.async_connect(endpt, std::bind(&Storm::TCPClientBasePrivateLogic::connectHandler, this, std::placeholders::_1));
+	socket.async_connect(endpt, [this, &socket](const boost::system::error_code &ec)
+	{
+		if (!ec)
+		{
+			try
+			{
+				this->notifyStartAuthentication();
+
+				this->doAuthentication(socket);
+				return;
+			}
+			catch (const Storm::Exception &e)
+			{
+				LOG_ERROR <<
+					"Storm::Exception catched while connecting : " << e.what() << ".\n"
+					"Stack trace :\n" << e.stackTrace()
+					;
+			}
+			catch (const std::exception &e)
+			{
+				LOG_ERROR << "std::exception catched while connecting : " << e.what();
+			}
+
+			this->disconnectLogicCall();
+		}
+	});
 }
 
 void Storm::TCPClientBasePrivateLogic::disconnect(Traits::NetworkService &ioService, Traits::SocketType &socket)
@@ -39,74 +67,108 @@ void Storm::TCPClientBasePrivateLogic::disconnect(Traits::NetworkService &ioServ
 	socket.close();
 }
 
-void Storm::TCPClientBasePrivateLogic::autenthicate(Traits::SocketType &socket, Storm::EndPointIdentifier &cachedApplicationIdentifier, Storm::OnConnectionStateChangedParam &param)
+void Storm::TCPClientBasePrivateLogic::doAuthentication(Traits::SocketType &socket)
 {
+	Storm::EndPointIdentifier applicationIdentifier;
+
 	const auto remoteEndpoint = socket.remote_endpoint();
-	cachedApplicationIdentifier._ipAddress = remoteEndpoint.address().to_v4().to_string();
+	applicationIdentifier._ipAddress = remoteEndpoint.address().to_v4().to_string();
 
-	std::string autenthicationMsgToSend = Storm::NetworkHelpers::makeAuthenticationMsg();
-	if (socket.send(boost::asio::buffer(autenthicationMsgToSend.data(), autenthicationMsgToSend.size())) != autenthicationMsgToSend.size())
+	_temporaryRead.clear();
+	boost::asio::async_read_until(socket, boost::asio::dynamic_buffer(_temporaryRead), Storm::NetworkConstants::k_endOfMessageCommand,
+		[this, appIdentifier = std::move(applicationIdentifier)](const boost::system::error_code &ec, const std::size_t) mutable
 	{
-		Storm::throwException<Storm::Exception>("Wasn't able to authenticate ourself!");
-	}
-
-	std::size_t remainingSize =
-		Storm::NetworkConstants::k_networkSeparator.size() * 4 +
-		sizeof(Storm::NetworkConstants::k_magicKeyword) +
-		sizeof(uint8_t) + // ApplicationType
-		sizeof(uint32_t) + // PID
-		sizeof(uint64_t) + // Version
-		Storm::NetworkConstants::k_endOfMessageCommand.size()
-		;
-
-	std::string authenticatedMsgReceived;
-	authenticatedMsgReceived.resize(remainingSize);
-
-	do 
-	{
-		const std::size_t readByteCount = socket.read_some(boost::asio::buffer(authenticatedMsgReceived.data(), remainingSize));
-		
-		if (readByteCount > 0)
+		auto disconnectRaiiObject = Storm::makeLazyRAIIObject([this]() 
 		{
-			remainingSize -= readByteCount;
+			_temporaryRead.clear();
+			this->disconnectLogicCall();
+		});
+
+		if (ec)
+		{
+			return;
+		}
+
+		std::string authenticatedMsgReceived = std::move(_temporaryRead);
+
+		const std::size_t authenticateSize =
+			Storm::NetworkConstants::k_networkSeparator.size() * 4 +
+			sizeof(Storm::NetworkConstants::k_magicKeyword) +
+			sizeof(uint8_t) + // ApplicationType
+			sizeof(uint32_t) + // PID
+			sizeof(uint64_t) + // Version
+			Storm::NetworkConstants::k_endOfMessageCommand.size()
+			;
+
+		if (authenticatedMsgReceived.size() != authenticateSize)
+		{
+			LOG_ERROR << "Wrong authentication message size received from " << appIdentifier._ipAddress << "!";
+			return;
+		}
+
+		std::vector<std::string_view> authenticatedTokens;
+
+		Storm::StringAlgo::split(authenticatedTokens, authenticatedMsgReceived, Storm::StringAlgo::makeSplitPredicate(Storm::NetworkConstants::k_networkSeparator));
+
+		if (authenticatedTokens.size() == 5)
+		{
+			const uint32_t magicKeyword = Storm::NetworkHelpers::fromNetwork<uint32_t>(authenticatedTokens[0]);
+			if (magicKeyword != Storm::NetworkConstants::k_magicKeyword)
+			{
+				LOG_ERROR << "Wrong magic word received received from " << appIdentifier._ipAddress << ". Value received was " << magicKeyword;
+				return;
+			}
+
+			if (authenticatedTokens[4] != Storm::NetworkConstants::k_endOfMessageCommand)
+			{
+				LOG_ERROR << "Authentication message received from received from " << appIdentifier._ipAddress << " did not finish by an end of message. Value received was " << authenticatedTokens[4];
+				return;
+			}
+
+			appIdentifier._connectedApplication = static_cast<Storm::NetworkApplication>(Storm::NetworkHelpers::fromNetwork<uint8_t>(authenticatedTokens[1]));
+			appIdentifier._pid = Storm::NetworkHelpers::fromNetwork<uint32_t>(authenticatedTokens[2]);
+
+			if (authenticatedTokens[3].empty())
+			{
+				LOG_ERROR << "We didn't received a network version. The authentication message received from " << appIdentifier._ipAddress << " is invalid!";
+				return;
+			}
+
+			Storm::OnConnectionStateChangedParam param;
+			param._applicationId = appIdentifier;
+
+			std::size_t versionSize = 0;
+			for (; authenticatedTokens[3][versionSize] != '\0'; ++versionSize);
+			param._applicationVersion = std::string{ authenticatedTokens[3].data(), versionSize };
+
+			param._connected = true;
+
+			this->notifyOnConnectionChanged(std::move(param));
+
+			// The only way to not disconnect is to successfully come here.
+			disconnectRaiiObject.release();
 		}
 		else
 		{
-			Storm::throwException<Storm::Exception>("Broken socket while authenticating!");
+			LOG_ERROR << "Authentication failed because of a wrong number of arguments received from " << appIdentifier._ipAddress << "!";
 		}
+	});
 
-	} while (remainingSize != 0);
-
-	std::vector<std::string_view> authenticatedTokens;
-	authenticatedTokens.reserve(4);
-
-	Storm::StringAlgo::split(authenticatedTokens, authenticatedMsgReceived, Storm::StringAlgo::makeSplitPredicate(Storm::NetworkConstants::k_networkSeparator));
-
-	if (authenticatedTokens.size() == 5)
+	std::string authenticationMsgToSend = Storm::NetworkHelpers::makeAuthenticationMsg();
+	const std::size_t authenticationMsgLength = authenticationMsgToSend.size();
+	auto buffer = boost::asio::buffer(authenticationMsgToSend.data(), authenticationMsgLength);
+	socket.async_send(buffer, [this, aliveKeeper = std::move(authenticationMsgToSend), authenticationMsgLength](const boost::system::error_code &ec, const std::size_t byteWrote)
 	{
-		const uint32_t magicKeyword = Storm::NetworkHelpers::fromNetwork<uint32_t>(authenticatedTokens[0]);
-		if (magicKeyword != Storm::NetworkConstants::k_magicKeyword)
+		if (!ec && byteWrote == authenticationMsgLength)
 		{
-			Storm::throwException<Storm::Exception>("Wrong magic word received from connected application. Value received was " + std::to_string(magicKeyword));
+			LOG_DEBUG << "Authenticated ourself successfully!";
 		}
-
-		if (authenticatedTokens[4] != Storm::NetworkConstants::k_endOfMessageCommand)
+		else
 		{
-			Storm::throwException<Storm::Exception>("Authentication message received from connected application did not finish by an end of message. Value received was " + Storm::toStdString(authenticatedTokens[4]));
+			LOG_ERROR << "We weren't able to authenticate ourself!";
+			this->disconnectLogicCall();
 		}
-
-		cachedApplicationIdentifier._connectedApplication = static_cast<Storm::NetworkApplication>(Storm::NetworkHelpers::fromNetwork<uint8_t>(authenticatedTokens[1]));
-		cachedApplicationIdentifier._pid = Storm::NetworkHelpers::fromNetwork<uint32_t>(authenticatedTokens[2]);
-		
-		param._applicationId = cachedApplicationIdentifier;
-		param._applicationVersion = std::string{ Storm::toStdString(authenticatedTokens[3]).c_str() };
-
-		param._connected = true;
-	}
-	else
-	{
-		Storm::throwException<Storm::Exception>("Authentication failed because of a wrong number of arguments!");
-	}
+	});
 }
 
 void Storm::TCPClientBasePrivateLogic::sendMessage(Traits::SocketType &socket, std::string &&msg, const Storm::NetworkMessageType messageType)
@@ -177,7 +239,7 @@ void Storm::TCPClientBasePrivateLogic::definitiveStop(Traits::SocketType &socket
 	socket.close();
 }
 
-void Storm::TCPClientBasePrivateLogic::onConnectionChanged(const Storm::OnConnectionStateChangedParam &param, Storm::ConnectionStatus &connectedFlag)
+void Storm::TCPClientBasePrivateLogic::onConnectionChanged(const Storm::OnConnectionStateChangedParam &param, Storm::ConnectionStatus &connectedFlag, Storm::EndPointIdentifier &outApplicationId)
 {
 	assert(Storm::isNetworkThread() && "This method should only be called from Network thread!");
 
@@ -193,16 +255,24 @@ void Storm::TCPClientBasePrivateLogic::onConnectionChanged(const Storm::OnConnec
 				"We cannot accept the connection until both versions are the same!"
 			);
 		}
+
+		outApplicationId = param._applicationId;
 	}
 	else
 	{
 		connectedFlag = Storm::ConnectionStatus::NotConnected;
+
+		outApplicationId._connectedApplication = Storm::NetworkApplication::Unknown;
+		outApplicationId._ipAddress.clear();
+		outApplicationId._pid = 0;
 	}
 }
 
-void Storm::TCPClientBasePrivateLogic::onMessageReceived(const Storm::OnMessageReceivedParam &)
+bool Storm::TCPClientBasePrivateLogic::onMessageReceived(const Storm::OnMessageReceivedParam &param)
 {
 	assert(Storm::isNetworkThread() && "This method should only be called from Network thread!");
 	_temporaryRead.clear();
+
+	return param._messageType != Storm::NetworkMessageType::Ping;
 }
 
