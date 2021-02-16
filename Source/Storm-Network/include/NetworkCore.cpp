@@ -47,7 +47,17 @@ void Storm::NetworkCore::execute()
 	const auto quitTime = std::chrono::high_resolution_clock::now() + totalRunTime;
 	while (timeMgr.isRunning())
 	{
-		_networkService.run_for(iterationRunTime);
+		try
+		{
+			_networkService.run_for(iterationRunTime);
+		}
+		catch (const Storm::Exception &exception)
+		{
+			LOG_ERROR <<
+				"Network error happened :\n"
+				"Error: " << exception.what() << ".\n"
+				"at " << exception.stackTrace();
+		}
 
 		if (std::chrono::high_resolution_clock::now() > quitTime)
 		{
