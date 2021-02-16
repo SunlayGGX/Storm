@@ -30,7 +30,8 @@ namespace Storm_ScriptSender.Source.Network
             return offset + toCopySize;
         }
 
-        public static byte[] PrepareForSending(ScriptItemData scriptData, Int32 currentPID)
+
+        public static byte[] PrepareForSending(string scriptContent, Int32 currentPID, Storm.NetworkMessageType messageType)
         {
             int k_networkSepLength = Storm.NetworkConstants.k_networkSeparator.Length;
             int k_additionalSize =
@@ -42,8 +43,8 @@ namespace Storm_ScriptSender.Source.Network
                 k_networkSepLength * 5
                 ;
 
-            byte[] bytes = new byte[scriptData._scriptContent.Length + k_additionalSize];
-            
+            byte[] bytes = new byte[scriptContent.Length + k_additionalSize];
+
             int offset = CopyInto(bytes, BitConverter.GetBytes(IPAddress.HostToNetworkOrder(Storm.NetworkConstants.k_magicKeyword)), 0);
 
             offset = CopyInto(bytes, Storm.NetworkConstants.k_networkSeparator, offset);
@@ -54,16 +55,21 @@ namespace Storm_ScriptSender.Source.Network
             offset = CopyInto(bytes, BitConverter.GetBytes(IPAddress.HostToNetworkOrder(currentPID)), offset);
 
             offset = CopyInto(bytes, Storm.NetworkConstants.k_networkSeparator, offset);
-            bytes[offset] = (byte)Storm.NetworkMessageType.Script;
+            bytes[offset] = (byte)messageType;
             offset += 1;
 
             offset = CopyInto(bytes, Storm.NetworkConstants.k_networkSeparator, offset);
-            offset = CopyInto(bytes, scriptData._scriptContent, offset);
+            offset = CopyInto(bytes, scriptContent, offset);
 
             offset = CopyInto(bytes, Storm.NetworkConstants.k_networkSeparator, offset);
             offset = CopyInto(bytes, Storm.NetworkConstants.k_endOfMessageCommand, offset);
 
             return bytes;
+        }
+
+        public static byte[] PrepareForSending(ScriptItemData scriptData, Int32 currentPID)
+        {
+            return PrepareForSending(scriptData._scriptContent, currentPID, Storm.NetworkMessageType.Script);
         }
 
         private static int CompareWithExpected(byte[] msg, int offset, string expected, out bool res)
