@@ -162,7 +162,7 @@ In this section, all xml tags are described like this :
 ♦ <ins>tagName</ins> is the name of the xml tag.<br>
 ♦ <ins>type</ins> is the value type of the xml value.<br>
 ♦ <ins>modality</ins> is the importance of the tag :
-- "mandatory" means the tag isn't set, the application will abort.
+- "mandatory" means the application will abort if the tag is left unset.
 - "faculative" means the default value is used if the value is left unset.
 - "semi-facultative" means the importance will depend on another setting : it could become mandatory or should remain unset.<br>
 <br>
