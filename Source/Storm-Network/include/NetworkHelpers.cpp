@@ -52,9 +52,10 @@ bool Storm::NetworkHelpers::parseMsg(const std::string &msg, Storm::OnMessageRec
 		std::vector<std::string_view> msgTokens;
 		Storm::StringAlgo::split(msgTokens, msg, Storm::StringAlgo::makeSplitPredicate(Storm::NetworkConstants::k_networkSeparator));
 
-		if (msgTokens.size() < 6)
+		const std::size_t msgTockenCount = msgTokens.size();
+		if (msgTockenCount < 5)
 		{
-			Storm::throwException<Storm::Exception>("Wrong number of message tokens received! Received " + std::to_string(msgTokens.size()));
+			Storm::throwException<Storm::Exception>("Wrong number of message tokens received! Received " + std::to_string(msgTockenCount));
 		}
 
 		const uint32_t magicKeyword = Storm::NetworkHelpers::fromNetwork<uint32_t>(msgTokens[0]);
@@ -68,15 +69,18 @@ bool Storm::NetworkHelpers::parseMsg(const std::string &msg, Storm::OnMessageRec
 
 		param._messageType = static_cast<Storm::NetworkMessageType>(Storm::NetworkHelpers::fromNetwork<uint8_t>(msgTokens[3]));
 
-		const std::size_t lastMsgParamsIndex = msgTokens.size() - 1;
-		param._parameters.reserve(lastMsgParamsIndex - 4);
-
-		for (std::size_t iter = 4; iter < lastMsgParamsIndex; ++iter)
+		const std::size_t lastMsgParamsIndex = msgTockenCount - 1;
+		if (lastMsgParamsIndex > 4)
 		{
-			const std::string_view msgParam = msgTokens[iter];
-			if (!msgParam.empty())
+			param._parameters.reserve(lastMsgParamsIndex - 4);
+
+			for (std::size_t iter = 4; iter < lastMsgParamsIndex; ++iter)
 			{
-				param._parameters.emplace_back(msgParam);
+				const std::string_view msgParam = msgTokens[iter];
+				if (!msgParam.empty())
+				{
+					param._parameters.emplace_back(msgParam);
+				}
 			}
 		}
 
