@@ -5,7 +5,10 @@ using System;
 
 namespace Storm
 {
-    class NetworkConstants
+#if !__cplusplus
+    public
+#endif
+        class NetworkConstants
     {
 #if __cplusplus
     public:

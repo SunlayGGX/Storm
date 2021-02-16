@@ -5,7 +5,7 @@ namespace Storm
 #if __cplusplus
     enum class
 #else
-    enum
+    public enum
 #endif
         NetworkApplication
     {
