@@ -2,156 +2,169 @@
 SPH (Smoothed Particle Hydrodynamics) reimplementation for fluids simulation of air
 
 
+
 # Setup
-From the root folder containing this README. Execute once Build\Script\Setup.bat, then modify the newly created Build\Script\UserSettings.bat to match the path of each dependencies in your workstation.
-Reexecute Build\Script\Setup.bat once all paths inside Build\Script\UserSettings.bat are ok.
-Note that : 
-- you should have downloaded all dependencies beforehand and have done all setup that was specified (see next section).
-- We rely on junctions. It means that all your dependencies folder and Storm project should be on compatible disks format (i.e. NTFS). But if junctions don't work, we advise to copy your dependencies under the Storm's root "Dependencies" folder after calling Setup (also change the way the batch file are executed or you will remove those dependencies each time).
+From the root folder containing this README. Execute Build\Script\Setup.bat once, then modify the newly created Build\Script\UserSettings.bat to match the path of each dependency in your workstation. And reexecute Build\Script\Setup.bat.
+Note :
+- You should have downloaded all dependencies beforehand and should have done all setup steps that were specified (see next sections).
+- We rely on junctions. It means that all your dependencies folder and Storm project should be put on compatible disks format (i.e. NTFS). But if junctions don't work, we advise to copy your dependencies under the Storm's root "Dependencies" folder after calling the setup script (then, you should also change how the setup script works unless you want to delete your dependencies every time).
 
 
 
 # Prerequisite
-- **Visual Studio Community 2019 v16.8.1 with C++20** (in fact the latest draft that was a preview of C++20). Maybe it works for a later Visual Studio but I have never tested it.
-- **Python 2.7.6 or later** (needed to build PhysX, see "Dependencies list" section). To know what is the current version of your installed python (or if there is any), type python in a cmd console.
+- **Visual Studio Community 2019 v16.8.1 with C++20** (or latest draft). Later version of visual studio are not tested.
+- **Python 2.7.6 or later** (to build PhysX, see "Dependencies list" section). To know your current installed version if you have one, type python in a cmd console.
 - **Visual Studio 2017 toolsets (v141) and 2019 toolsets (v142)**
-- **cmake_gui 3.15.0-rc1 or later**. (3.15.0-rc1 is what I used. I can't guarantee for a version below this one)...
-- Because we use a lot of junctions and hardlinks to setup the project, we advise you to use an NTFS disk where everything are put together (or at least a disk format that supports it).
-- **.NET Framework 4.7.2** if you want to compile and use the LogViewer tool.
+- **cmake_gui 3.15.0-rc1 or later**. (We used 3.15.0-rc1. We can't guarantee an earlier version would work)...
+- Because we rely a lot on junctions and hardlinks to setup the project, we advise you to use a NTFS disk (or at least a disk format that supports it).
+- **.NET Framework 4.7.2** If you want to compile and use the "log viewer" or "script sender" tools.
+
 
 
 # Dependencies list
-- **Boost 1.75** compiled for Visual Studio 2019 (link: https://sourceforge.net/projects/boost/files/boost-binaries/1.75.0/ ). Choose the right and execute the downloaded executable (for me, since I'm using VS 2019 with a x64 architecture, I downloaded "boost_1_75_0-msvc-14.2-64.exe").
-	+ Choose to extract boost into a new folder named boost_1_75_0__2019 inside your dependencies folder (if not, you'll have to change the path to boost dependencies inside UserSettings.bat).
-    + Rename the folder "lib[xx]-msvc-[yy.y]" to "lib" with xx your platform architecture (for me it was 64 because I'm working on a x64 architecture) and yy.y your toolset version (For me, it was 14.2).
+- **Boost 1.75** built with Visual Studio 2019 (link: https://sourceforge.net/projects/boost/files/boost-binaries/1.75.0/ ). Choose the right and execute the downloaded executable (as for me, since I'm using VS 2019 with a x64 architecture, Therefore I downloaded "boost_1_75_0-msvc-14.2-64.exe").
+	+ Extract boost into a new folder named "boost_1_75_0__2019" inside your dependencies folder (if not, you must change the path to boost dependencies inside UserSettings.bat).
+    + Rename the folder "lib[xx]-msvc-[yy.y]" to "lib" with xx your platform architecture (as for me, it was 64 because I'm working on a x64 architecture) and yy.y your toolset version (likewise, it was 14.2).
     + Create a new folder inside boost_1_75_0__2019 named "include".
-    + Move the folder "boost" ([YourDependenciesFolder]/boost_1_75_0__2019/boost) into the new include folder ([YourDependenciesFolder]/boost_1_75_0__2019/include). You should have your boost folder at path ([YourDependenciesFolder]/boost_1_75_0__2019/include/boost).
+    + Move the folder "boost" ([YourDependenciesFolder]/boost_1_75_0__2019/boost) to a new include folder ([YourDependenciesFolder]/boost_1_75_0__2019/include). You should have your boost folder at path ([YourDependenciesFolder]/boost_1_75_0__2019/include/boost).
 - **Eigen 3.3.7** (link: https://gitlab.com/libeigen/eigen/-/tree/3.3.7).
-- **OIS v1.5** compiled for Visual Studio 2019 (link: https://github.com/wgois/OIS/tree/v1.5 ). Follow the instructions on their site.
-	+ Generate the Visual studio file inside a folder named "bin" at OIS root folder (i.e if OIS is installed like this : C:/dep/OIS, then generate the vs project file into C:/dep/OIS/bin).
+- **OIS v1.5** built with Visual Studio 2019 (link: https://github.com/wgois/OIS/tree/v1.5 ). Follow the instructions on their site.
+	+ Generate the Visual studio file inside a folder named "bin" at OIS root folder (i.e if OIS path is C:/dep/OIS, then generate the vs project file into C:/dep/OIS/bin).
 	+ generate with default settings
 	+ build OIS into Debug and Release configurations.
-- **Assimp v5.0.1** (link: https://github.com/assimp/assimp/releases/tag/v5.0.1 ). Take the .zip file (and the pdf if you want some documentation on how to use Assimp)...
-	+ Use CMake. Keep all settings except for the "LIBRARY_SUFFIX" and "ASSIMP_LIBRARY_SUFFIX" that should be set to an empty field value (don't forgot to validate).
-	You should also name the folder where to build the binary "bin" directly under the root (the folder containing the README).
+- **Assimp v5.0.1** (link: https://github.com/assimp/assimp/releases/tag/v5.0.1 ). Download the .zip file (and the pdf if you want some documentation on how to use Assimp)...
+	+ Use CMake. Keep all settings as they come except for "LIBRARY_SUFFIX" and "ASSIMP_LIBRARY_SUFFIX" that should be kept but set to an empty field value (don't forget to validate).
+	You should also name the folder where to build the binary "bin" directly inside the root (the folder containing the README).
 	+ Build the generated sln both in debug and release configurations.
-- **PhysX v4.0.0** build for Visual Studio 2017 (link: https://github.com/NVIDIAGameWorks/PhysX/tree/4.0.0 ). (You can use Visual Studio 2019 but the toolset installed should be 2017 (v141), or not... see the first point)
-	+ Follow instruction on their site. Note that it isn't said in their website, but the generated solution to build is under physx/compiler/[the setting you've chosen].
-Note that I chose "vc15win64" settings. If you use another Visual Studio, be aware of Binary compatibility (Visual Studio 2015, 2017 and 2019 are binary compatible, but I don't know about my future and they aren't with the past). Be also aware that the result file won't be in the same folder than what was expected by this readme so adapt a little.
-	+ Build the library in "release", "debug" and "profile".
-	+ Go to "physx/(Your output directory)/win.x86_64.vc141.mt" (this name could change if you have chosen another build setting) and copy "profile", "debug" and "release" folders inside a new folder named "physx/lib"
-- **Lua v5.4.0 release 2 (24/08/2020)** (link: http://luabinaries.sourceforge.net/). Take the static binaries for Windows 64 platform unless you want to compile them from scratch. Normally, it's name is lua-5.4.0_Win64_vc16_lib. I took the vc16 library since I'm using Visual Studio 2019, and Win64 because I'm working with a x64 workstation and project.
-	+ If needed, ensure that the .lib file is inside a folder named "bin" beside "include" folder. Move it inside if it isn't.
+- **PhysX v4.0.0** built with Visual Studio 2017 (link: https://github.com/NVIDIAGameWorks/PhysX/tree/4.0.0 ). (You can use Visual Studio 2019 but the toolset installed should be 2017 (v141), or not... see the first point)
+	+ Follow instructions on their website. It is not said on their website, but the generated solution output the build under physx/compiler/[the setting you've chosen]. <br>
+Note that I chose "vc15win64" settings. If you use another Visual Studio, be aware of Binary compatibility (Visual Studio 2015, 2017 and 2019 are binary compatible, but I don't know about the future and they weren't in the past). Be also aware the result file won't be in the same folder than what we said, so adapt a little.
+	+ Build the library on "release", "debug" and "profile" configurations.
+	+ Go to "physx/(Your output directory)/win.x86_64.vc141.mt" (the name could change if you have chosen another build setting) and copy "profile", "debug" and "release" folders inside a new folder named "physx/lib"
+- **Lua v5.4.0 release 2 (24/08/2020)** (link: http://luabinaries.sourceforge.net/). Take the static binaries for Windows 64 platform, or you are free to build them from scratch. Normally, it should be named "lua-5.4.0_Win64_vc16_lib". I took the vc16 library since I'm using Visual Studio 2019, and Win64 because I'm working with a x64 workstation and project.
+	+ Ensure that the .lib file is inside a folder named "bin" beside "include" folder. Move it inside if not.
 - **Sol2 v3.2.2** (link: https://github.com/ThePhD/sol2/tree/v3.2.2). Just download the zip and extract it.
-- **Catch2 v2.12.2**. Not mandatory, but it is used for unit testing. (link: https://github.com/catchorg/catch2/releases ). If you choose to not pull it, then unload All Automation project from your Storm.sln... If you want to run tests, do not forget to setup your Visual Studio for this. See section "Test Setup" for further details.
+- **Catch2 v2.12.2**. Not mandatory, but it is used for unit testing. (link: https://github.com/catchorg/catch2/releases ). If you choose to skip it, then unload all Automation projects from Storm.sln...
+
 
 
 # Test Setup
-I'm using catch2 as our main unit test library. But to be able to use it, you should :
-- Install Catch2 adapter as a Visual studio extension (go to Extensions -> Manage Extensions -> Online, Then download and Install "Test Adapter for Catch2").
-- Configure your run settings. Go to Test -> Configure Run Settings -> Select Solution Wide runsettings File. Navigate from Storm root directory to Source\Automation\StormAutomation-Base and select catch2.runsettings... 
-- Select your processor architecture : Go to Test -> Processor Architecture for AnyCPU Projects and select "x64". Though I don't think this step is really useful...
-- Maybe you'll have to disable Boost test adapter. Go to Extensions -> Manage Extensions -> Installed and search for "Test Adapter for Boost.Test". If it is enabled, you can disable it.
+We use catch2 as our unit test library. If you decided to download it, you must :
+- Install Visual studio extension named "Test Adapter for Catch2" (Extensions -> Manage Extensions -> Online).
+- Configure your run settings : Go to Test -> Configure Run Settings -> Select Solution Wide runsettings File. Navigate from Storm root directory to Source\Automation\StormAutomation-Base and select catch2.runsettings... 
+- Select your processor architecture : Go to Test -> Processor Architecture for AnyCPU Projects and select "x64". Though we aren't sure of the usefulness of this step...
+- Maybe you'll have to disable Boost test adapter. Go to Extensions -> Manage Extensions -> Installed and search for "Test Adapter for Boost.Test".
+
 
 
 # Modules
-- **Storm**: This is the executable that runs the SPH simulation.
-- **Storm-Animation**: This module is here to manage animation within the simulation without being bound to a specific physics engine.
+- **Storm**: This is the SPH simulation executable entry point.
+- **Storm-Animation**: This module is here to manage animations within the simulation (without being bound to a specific physics engine).
 - **Storm-Config**: This is the configuration module.
-- **Storm-Graphics**: This is the module responsible to display and render the simulation. We use DirectX.
-- **Storm-Helper**: This module contains all helpers that should be shared among all modules.
+- **Storm-Graphics**: This is the module responsible to display and render the simulation. It uses DirectX.
+- **Storm-Helper**: This module contains all helpers that should be shared among all projects.
 - **Storm-Input**: This module is for managing inputs, bindings and their callback.
 - **Storm-Loader**: This module's purpose is to load external object like meshes.
 - **Storm-Logger**: This module is for logging.
-- **Storm-Misc**: This module is intended to gather module manager helper that shouldn't be made into helpers since they are Storm project implementation related but cannot be put into any other modules. Example are the RandomManager (that should be deterministic), the TimeManager (that should be compliant with Storm simulator), the ThreadManager (that is intended to be executed in the main Simulation loop like Unreal's Async method), ... .
+- **Storm-Misc**: This module is here to gather miscellaneous objects that cannot make a module by their own. For example, the RandomManager (that should be deterministic), the TimeManager (that should be compliant with Storm simulator), the ThreadManager (that is intended to be executed in the main Simulation loop like Unreal's Async method), ... .
 - **Storm-Network**: This module is intended to be the crossroad with the outside. It contains everything that could be used to manage network and web.
-- **Storm-ModelBase**: This module is the base for each modules. It contains everything that could be used to bind the modules together without the need to reference each other.
+- **Storm-ModelBase**: This module is the base for each module and provide an abstraction layer with interfaces and input/output objects. This allows modules to work together without directly referencing each other.
 - **Storm-Physics**: This module is responsible for initializing and managing Physics computations.
-- **Storm-Profiler**: This module is to allow getting some profiling data. This does not intend to replace the Visual Studio buit-in tool or any other external library, but just a way to register times, speed, ... and display it inside the Storm application UI or logging it.
-- **Storm-Script**: This module is to abstract scripting used inside the engine. Under the hood, it is lua, but it can change and this module is here to hide it.
-- **Storm-Serializer**: This module is to handle serialization process. Serialization for cooking the simulation into real time replay for example.
-- **Storm-Space**: This module is where we implement the space visualisation of the domain. Be it Voxels, Grids, octree, ... This is where we compute and store element for a fast neighborhood search.
-- **Storm-Simulator**: This module is where the Simulation classes would be. It is responsible to handle SPH.
-- **Storm-Windows**: This module is responsible for managing the Windows and everything related to it.
+- **Storm-Profiler**: This module provide some profiling data. It does not intend to replace Visual Studio buit-in tool nor any other external library. But it provides a convenient way to register times, speed, ... and display it directly inside Storm application UI (or logging).
+- **Storm-Script**: This module is to abstract the scripting language used by the engine. For now, the scripting language is lua.
+- **Storm-Serializer**: This module is to handle serializationof data to make real time replay for example.
+- **Storm-Space**: This module is responsible to optimize and process the space partitioning of any data existing inside the virtual world.
+- **Storm-Simulator**: This module is where the core of the simulation is done. It is the core "mastermind" module.
+- **Storm-Windows**: This module is responsible for creating and managing the UI Window and everything related to it (like the title bar, menu, ... and their callbacks). It is the module that is the most platform dependent because it relies heavily on how Windows build its UI.
+
 
 
 # Tools
-Some Tools were developped to ease our life. Those tools are :
-- **Storm-LogViewer**: This is a little UI tool made with C# and WPF in an afternoon (sorry for the dirty code inside) those purpose is to make the log prettier to see, to read and to sort (to find the log we want easily and efficiently from the hundreds of logs hard to see on a command line windows).
-- **Storm-Restarter**: This tool isn't made to be manipulated directly and is used to restart Storm application. You need to build it if you want to restart Storm from the menu.
+Some Tools were developped to ease our life. The main tools are :
+- **Storm-LogViewer**: It is a little UI tool made with C# and WPF in an afternoon (sorry for the dirty code inside). its purpose is to make the log easier to read, to search into and to sort.
+- **Storm-Restarter**: This tool isn't made to be manipulated directly by the user. It is used by the application itself to restart from the menu, therefore you need to build it if you want to use this feature.
+- **Storm-ScriptSender**: Like the log viewer, it is a UI C#/WPF tool made in a week-end. It was made to send, save and sort easily scripts. It is an alternative to the shared script file.
+- **Storm-Packager**: This tool packages the minimum needed to run Storm and/or any other tools. Then you can deploy the resulting zip folder and run any Storm application on another station. It is also able to request to package automatically for another branch (it will switch branch, build the solution, package it and revert to the old branch afterward).
+
 
 
 # Launcher
-Inside "Launcher" folder present into the Storm root folder, you'll find some utility scripts (batch) to easy start applications from built executable.
-To use them, you need to have built all Storm projects once, and have all dependencies setup.
+"Launcher" folder is present directly inside the Storm root folder. You'll find inside some utility scripts (batch) to easily start applications from executables you've built.
 - **Storm**: This folder contains script to start the simulator (Storm.exe).
-   - **Storm_Release.bat**: Start Release version of the simulator with default settings.  
+   - **Storm_Release.bat**: Start Release version of the simulator with default settings.
+   - **Storm_Profile.bat**: Start Profile version of the simulator with default settings. The profile version is akin to the Release version, except that PhysX PVD (PhysX Visual Debugger) will be able to watch the simulator application. Note that it can impact performances so run it only if you want to use the PVD.
    - **Storm_Debug.bat**: Start Debug version of the simulator with default settings. 
 - **Storm-LogViewer**: This folder contains script to start the log viewer (Storm-LogViewer.exe).
    - **Storm-LogViewer.bat**: Start Storm-LogViewer.exe with default setting.
    - **Storm-LogViewer_NoInitRead.bat**: Start Storm-LogViewer.exe without initial read... The Storm-LogViewer will begin reading the last wrote log file from the moment where it was launched.
 
 
+
 # Configuration
 
 ## Command line
-Here are the command lines allowed values for the different executables. Command line keys are case unsensitive.
+Below are command lines for the different executables. Unless explicited, command line keys are case unsensitive.
+
 
 
 ### Storm.exe
-This is the simulation application. Command lines are exposed like this : --key=value or --key.
-- **help (no value, facultative)**: Displays the help. The simulation won't be run and the other command line argument won't have any effect.
-- **scene (string, facultative, accept macro)**: This is the scene config file path to use. If there is none, then we will ask the user to choose one at the start of the application with the default installed file explorer.
-- **macroConfig (string, facultative, accept built-in only macros)**: This is the macro config file path to use. If there is none, then we will select the one inside the default Config folder (the one inside Custom/General takes precedence over the one inside Custom/General/Original).
-- **generalConfig (string, facultative, accept macro)**: This is the general config file path to use. If there is none, then we will select the one inside the default Config folder (the one inside Custom/General takes precedence over the one inside Custom/General/Original).
-- **tempPath (string, facultative, accept macro)**: This is the temporary path to use (to a folder). If there is none, then we will select the default temporary path folder.
-- **mode (string, facultative)**: Specify the record/replay mode of the simulator. Accepted (case unsensitive) values are "Record" or "Replay". If the simulator is in record mode, then the simulation played will be recorded for a future replay. Default is unset, which means the application will just simulate without doing anything.
-- **recordFile (string, facultative)**: Specify the path the recording will be. Record file path should remain unset if record mode is left unset, otherwise it should reference a valid record file in case we're in Replay mode (Note that this setting can be left Unset if there is a path inside the scene config loaded).
-- **regenPCache (no value, facultative)**: Specify this flag and we will regenerate the rigid body particle cache data.
-- **noUI (no value, facultative)**: Specify we don't want to visualize the simulation (save and speed up CPU ressource to focus only on what is important). This should be used with Record mode. Default is unset (which displays the simulation inside a UI).
-- **clearLogs (no value, facultative)**: Specify that we should empty the log folder before proceeding. Warning: we mustn't use this flag if you intend to run multiple Storm processes at the same time. Default is unset (we won't clear the log folder).
-- **threadPriority (string, facultative)**: Specify the priority of the simulation thread was should be taken. If it is unset, default OS priority will be applied. Accepted values (case unsensitive) are 'Below', 'Normal' or 'High'.
-- **stateFile (string, facultative, accept macros)**: Specify the simulation state file to load from. If unset, we won't load a state file. Default is unset. Note that it doesn't make sense to start with a state file when we're replaying, therefore this setting isn't available if the mode is set to "Replay".
-- **noPhysicsTimeLoad (no value, facultative)**: Specify we don't want to load the physics time recorded in the state file. Default is false (we want to load it). Note that the setting should only be used if we specified a state file to load.
-- **noVelocityLoad (no value, facultative)**: Specify we don't want to load the velocities part of the simulation state file. Default is false (we want to load them). Note that the setting should only be used if we specified a state file to load.
-- **noForceLoad (no value, facultative)**: Specify we don't want to load the forces part of the simulation state file. Default is false (we want to load them). Note that the setting should only be used if we specified a state file to load.
+It is the main simulation application. Command lines should be used like this : --key=value or --key.
+- **help (no value, facultative)**: Display the help. No simulation will be run and any other command line argument will be ignored.
+- **scene (string, facultative, accept macro)**: This is the scene config file path to use. If left unset, we will pop the default installed file explorer and ask the user to choose one. Closing this popup without choosing a scene will exit the application.
+- **macroConfig (string, facultative, accept built-in only macros)**: It is the macro config file path to use. If left unset, we will select the one inside the default Config folder (the one inside Custom/General takes priority over the one inside Custom/General/Original).
+- **generalConfig (string, facultative, accept macro)**: This is the general config file path to use. If left unset, we will select the one inside the default Config folder (the one inside Custom/General takes priority over the one inside Custom/General/Original).
+- **tempPath (string, facultative, accept macro)**: This is the temporary path to use (to a folder). If left unset, we will select the default temporary path folder.
+- **mode (string, facultative)**: Specify the record/replay mode of the simulator. Accepted values (case unsensitive) are "Record" or "Replay". If the simulator is in record mode, then the simulation played will be recorded for a future replay. Default is unset, which means the application will just simulate without doing anything (not recording or replaying).
+- **recordFile (string, facultative)**: Specify the path to output or read the recording. It must remain unset if no record mode was specified. Otherwise, it should reference a valid record file in case we're in Replay mode (Note that this setting can be left Unset if there is a path inside the loaded scene config).
+- **regenPCache (no value, facultative)**: Use this flag to regenerate the rigid body particle cache data.
+- **noUI (no value, facultative)**: Specify we don't want to visualize the simulation (this saves precious CPU ressources to speed up the simulation). It must be used with Record mode. Default is unset and the simulation will run naturally on an UI.
+- **clearLogs (no value, facultative)**: Specify that we should empty the log folder before proceeding. Warning note: we mustn't use this flag if we intend to run multiple Storm processes at the same time. Default is unset (we won't clear the log folder).
+- **threadPriority (string, facultative)**: Specify the priority of the simulation thread. If it is left unset, default OS priority will be applied. Accepted values (case unsensitive) are 'Below', 'Normal' or 'High'.
+- **stateFile (string, facultative, accept macros)**: Specify the simulation state file to load from. If left unset (default), we won't load any. Note that it doesn't make sense to start from a state file when we're replaying, therefore this setting isn't available if the mode is set to "Replay".
+- **noPhysicsTimeLoad (no value, facultative)**: Specify we shouldn't load the physics time recorded in the state file. We'll load it by default. Note that this setting should only be used if a state file was specified.
+- **noVelocityLoad (no value, facultative)**: Specify we shouldn't load the velocity part of the simulation state file. We'll load it by default. Note that the setting should only be used if a state file was specified.
+- **noForceLoad (no value, facultative)**: Specify we shouldn't load the forces part of the simulation state file. We'll load it by default. Note that the setting should only be used if a state file was specified.
+
 
 
 ### Storm-LogViewer.exe
-This is the application to see logs in a more friendly manner. Command lines are exposed like this : key=value. The accepted command line arguments are :
-- **MacroConfigFilePath (string, facultative, accept built-in only macros)**: This is the macro config file path to use. If there is none, then we will select the one inside the default Config folder (the one inside Custom/General takes precedence over the one inside Custom/General/Original).
-- **LogFilePath (string, facultative, accept macro)**: This is the log file to display. If there is none, then we will select the one latest inside the default Log folder (located inside the default temporary folder). By not setting it, we also allow the LogViewer to parse the next log when the day change (we will always select the latest file at runtime, at the moment we check for the file modification)...
-- **NoInitialRead (no value, facultative)**: When a Simulator application is already running, then we'll just read and display the log after the moment since the log viewer started... Otherwise, we would display all logs.
-- **ReadLast (no value, facultative)**: Read the last log file found. This flag is ignored if we specified a log file to read with LogFilePath...
+It is the application to see logs in a more friendly and clear manner. Command lines are exposed like this : key=value. The accepted command line arguments are :
+- **MacroConfigFilePath (string, facultative, accept built-in only macros)**: This is the macro config file path to use. If left unset, we will select the one inside the default Config folder (the one inside Custom/General takes priority over the one inside Custom/General/Original).
+- **LogFilePath (string, facultative, accept macro)**: This is the log file to display. If left unset, we will select the latest inside the default Log folder (located inside the default temporary folder). By not setting it, we'll also allow the LogViewer to parse the next log when the day change...
+- **NoInitialRead (no value, facultative)**: We'll just read and display the log after the time the log viewer started... Otherwise, we would display all logs.
+- **ReadLast (no value, facultative)**: Read and display the last log file found. This flag is ignored if we specified a log file to read with LogFilePath...
+
 
 
 ### Storm-ScriptSender.exe
-This application provides an UI to easily send scripts to a connected Storm application without using files and commands. Like Storm-LogViewer, Command lines are exposed like this : key=value.
-- **MacroConfigFilePath (string, facultative, accept built-in only macros)**: This is the macro config file path to use. If there is none, then we will select the one inside the default Config folder (the one inside Custom/General takes precedence over the one inside Custom/General/Original).
-- **Port (unsigned integer, facultative)**: Allows to manually set a port to listen to instead of the one per default (5007). This integer should be in the range 0 to 65535.
-- **IntermediateSenderFolder (string, facultative, accept macros)**: Specify the folder where the script sender will save and load its xml script file. Default is inside "$[StormIntermediate]/ScriptSender".
-- **ScriptXmlFileName (string, facultative, accept macros)**: The script file name to save into/load from. Default is "SaveScriptCached.xml".
+This application provides an UI to easily send scripts to a connected Storm application without using a shared file with commands. Like Storm-LogViewer, command lines are exposed like this : key=value.
+- **MacroConfigFilePath (string, facultative, accept built-in only macros)**: This is the macro config file path to use. If left unset, we will select the one inside the default Config folder (the one inside Custom/General takes priority over the one inside Custom/General/Original).
+- **Port (unsigned integer, facultative)**: Manually set a port to listen to instead of 5007 by default. This integer should be in the range 1500 to 65535.
+- **IntermediateSenderFolder (string, facultative, accept macros)**: Specify the folder where the script sender will save and load its xml script file. Default is equivalent to "$[StormIntermediate]/ScriptSender".
+- **ScriptXmlFileName (string, facultative, accept macros)**: The script file name to save/load into/from. Default is "SaveScriptCached.xml".
+
 
 
 ### Storm-Packager.exe
-This application is to package easily a running version of Storm application and Co. into a zip. It can also change and build a branch easily.
-This is not a professional application though, so it does not intend to replace huge integration tool we could find on the market. But it has the advantage to be custom made for Storm application (it is like a build script, but made with c++ that I'm so much more familiar with)...
-When you start it, wait for it to finish. Thanks... The allowed commands are :
-- **build (string, facultative)**: When specifying it with the branch name to build (i.e --build=develop), the packager will build the specified branch before packaging it (in the example, it will build checkout develo, then build Storm.sln, package, and finally it will revert to the branch we were before checking out develop).
+This application was made to package easily a running version of Storm application and Co. into a zip. It can also change and package another Storm's git branch version.
+It is not a professional application though, it does not intend to replace huge integration tool we could find on the market. But it has the advantage to be custom made for Storm application (it is like a build script, but made with c++ that I'm so much more familiar with)...
+When you start it, wait for it to finish or some nasty bugs could happen. The allowed commands are :
+- **build (string, facultative)**: When specifying it with the branch name to build (i.e --build=develop), the packager will build the specified branch before packaging it (in the example, it will checkout develop, then build Storm.sln, package the result. And finally, it will revert to the branch we were before checking out develop).
+
 
 
 ## Config file
 
 ### Generality
-When reading this section, all xml tags are described like this :
+In this section, all xml tags are described like this :
 - **tagName (type, modality:[mandatory/faculative/semi-faculative], ...)** : description<br>
 
 ♦ <ins>tagName</ins> is the name of the xml tag.<br>
 ♦ <ins>type</ins> is the value type of the xml value.<br>
-♦ <ins>modality</ins> is the importance the tag is.
-- If it is "mandatory" and the tag isn't set, the application will abort.
-- If it is "faculative", the default value will be chosen if the value isn't set.
-- If it is "semi-facultative", then the modality will depend on another setting : it could become mandatory or should remain unset.<br>
+♦ <ins>modality</ins> is the importance of the tag :
+- "mandatory" means the tag isn't set, the application will abort.
+- "faculative" means the default value is used if the value is left unset.
+- "semi-facultative" means the importance will depend on another setting : it could become mandatory or should remain unset.<br>
 <br>
 
 Except some exceptions described below, you should define the xml value for tagName like this : <br>
@@ -159,57 +172,55 @@ Except some exceptions described below, you should define the xml value for tagN
 
 
 <ins>Exceptions</ins>
-- if the type is "vector3", then the xml should be defined like this : \<tagName x="xValue" y="yValue" z="zValue" \\>
-- if the type is "RGBAcolor", then the xml should be defined like this : \<tagName r="rValue" g="gValue" b="bValue" a="aValue" \\>. Besides, all r, g, b, a values are to be float values between 0.0 and 1.0 included.
-- if the type is "article", "misc", then see the section "Internal".
-- if the type is "SocketSetting", then the xml should be defined like this : \<tagName ip="yyy.yyy.yyy.yyy" port="portValue" enabled="boolean" \\>. With yyy a number between 0 and 255 included. Note that some ip and ports are invalid to use. enabled is a facultative boolean those default value is true.
+- If the type is "vector3", the xml should be defined like this : \<tagName x="xValue" y="yValue" z="zValue" \\>
+- If the type is "RGBAcolor", the xml should be defined like this : \<tagName r="rValue" g="gValue" b="bValue" a="aValue" \\>. All "r", "g", "b" and "a" values are float values between 0.0 and 1.0 included.
+- If the type is "article", "misc", see the section "Internal".
+- If the type is "SocketSetting", the xml should be defined like this : \<tagName ip="yyy.yyy.yyy.yyy" port="portValue" enabled="boolean" \\>. With yyy a number between 0 and 255 included. Note that some ip and ports are invalid to use.
 
 
 ### Macro Configs
 
-Macro are runtime substituated text defined by the user. In some text, we try to find a key and substituate in place with a value. The key would be a text under $[...] (i.e a macro with a key named "toto" and a value "titi", if inside a text we see $[toto] then we will replace it by titi).
-It is useful to slimmer down a path or some texts.
-Macro configuration are stored inside an xml file named Macro.xml located inside "Config\Custom\General".
+Macro are runtime substituated text defined by the user. In some text, we'll try to find a key and substituate it in place with a value. The key is a text element inside $[...]. This feature is useful to slimmer down a path or some texts.<br>
+i.e : If we have a macro defined with a key equals "toto" and a value equals "titi". If, inside a text accepting macros, we see $[toto], then we will replace it by titi).
+Macro settings are stored in an xml file named "Macro.xml" located inside "Config\Custom\General".
 
-It is shared by all Scenes and if there is no Macro.xml defined by the user, we will use the one inside the folder "Config\Custom\General\Original" that is a copy of the commited "Config\Template\General\Macro.xml". Note that we advise you to not make modification to this one and make your own Macro.xml at "Config\Custom\General" instead.
-Or you can specify the path to the Macro.xml from the command line (see the specific section)
+It is shared by all Scenes and if there is no Macro.xml defined by the user, we will use the one inside the folder "Config\Custom\General\Original" which is a copy of the commited "Config\Template\General\Macro.xml". Note that it is advised to make your own Macro.xml file and put it inside "Config\Custom\General". Or you could specify the path to the Macro.xml from the command lines (see the specific section).<br>
 
-A Macro is defined by a tag "macro" inside "macros" and has 2 attributes :
-+ "key" (string, mandatory) : a text by which we identify a macro. Do not add the macro identifier $[].
-+ "value" (string, mandatory) : a text to substituate the key.
-	
-Besides, you can reference a macro into another macro, in any kind of order you want (define a macro after a macro that will use it). But beware, we solve the macro iteratively so do not make circular dependencies of macros or Storm.exe will exit after complaining.
+A Macro element is defined by a tag "macro" inside "macros" and has 2 attributes :
++ "key" (string, mandatory) : a token used to identify a macro. Do not add $[].
++ "value" (string, mandatory) : a text value to substituate the key.
 
-There are some pre-built-in macros that aren't defined inside the macro file and can be used anywhere (even in command line) :
+Besides, you can reference a macro into another macro, in any kind of order you want (define a macro after a macro that will use it). But note that we will solve the macro iteratively and it cannot solve circular macros references (we'll detect it and exit after complaining).
+
+There are some pre-built-in macros that aren't defined inside the macro file. Those can be used anywhere accepting macros (even inside command lines) :
 + **$[StormExe]** will refer to the Storm executable.
-+ **$[StormFolderExe]** will refer to folder that contains Storm executable that is running.
-+ **$[StormRoot]** will refer, in case the executable location was never man-made changed, to the Storm root folder.
++ **$[StormFolderExe]** will refer to folder containing the running storm executable.
++ **$[StormRoot]** will refer, in case the storm application folders remained consistent, to the Storm root folder.
 + **$[StormConfig]** will refer, in case StormRoot macro is valid, to where Config files are set.
 + **$[StormResource]** will refer, in case StormRoot macro is valid, to where the Resource folder is.
 + **$[StormIntermediate]** will refer, in case StormRoot macro is valid, to where the Output folder is.
-+ **$[StormRecord]** will refer, in case StormRoot macro is valid, to where the Record folder is.
-+ **$[StormScripts]** will refer, in case StormRoot macro is valid, to where the Scripts folder is (where scripts will be put by default).
-+ **$[StormStates]** will refer, in case StormRoot macro is valid, to where the States folder is (where all states will be registered in a folder representing the scene name).
++ **$[StormRecord]** will refer, in case StormRoot macro is valid, to where the "Record" folder is.
++ **$[StormScripts]** will refer, in case StormRoot macro is valid, to where the "Scripts" folder is (where scripts will be put by default).
++ **$[StormStates]** will refer, in case StormRoot macro is valid, to where the "States" folder is.
 + **$[StormTmp]** will refer to the StormIntermediate if StormRoot macro is valid, or to OS defined temporary location.
-+ **$[DateTime]** will refer to the current date when the Application is run (in filesystem compatible format : Weekday_Year_Month_Day_Hour_Minute_Second ).
-+ **$[Date]**, like DateTime, will refer to the current date when the Application is run but without hours and lesser time division (in filesystem compatible format : Weekday_Year_Month_Day ).
++ **$[DateTime]** will refer to the current date at the time the Application is started (in filesystem compatible format : Weekday_Year_Month_Day_Hour_Minute_Second ).
++ **$[Date]**, like DateTime, will refer to the current date at the time the Application is started, but without hours and lesser time division (in filesystem compatible format : Weekday_Year_Month_Day ).
 + **$[PID]** will refer to the process unique ID (PID).
-+ **$[SceneName]** will refer to the chosen scene name. This is an exception to the pre-build-in macros which can be used anywhere. This macro can only be used after selecting a scene, therefore can only be used at some point like when we read the general config and the scene config. Therefore, be cautious when using this pre built macro.
-+ **$[SceneStateFolder]** will refer to the default state folder path. Since this macro is made from SceneName macro, it is also an exception to the pre-build-in macros which can be used anywhere. This macro can only be used after selecting a scene, therefore can only be used at some point like when we read the general config and the scene config. Therefore, be cautious when using this pre built macro.
++ **$[SceneName]** will refer to the chosen scene name. This is an exception to the pre-build-in macros which can be used anywhere. It can only be used after selecting a scene. Therefore, be cautious when using this pre-built macro.
++ **$[SceneStateFolder]** will refer to the default state folder path. Since this macro is made from SceneName macro, it is also an exception to the pre-build-in macros which can be used anywhere.
 
 
-Note that macros are applied to command line as well except for the path to the macro configuration were we will use only the built-in macros (it is kind of expected since we don't know about those macros unless we get to read the file specified by the path of the command line...). But you're safe to use the prebuilt macros.
+Note : macros are also applied to command lines except for the path to the macro configuration. But you're still safe to use the pre built-in macros except for the exceptional one.
+
 
 
 ### General config
 
-General config (named Global.xml) is global configuration of the application. It is shared by all scenes.
-Like the Macro config, you can either specify one to use with command line, or it will search for one inside the default config folder ("Config\Custom\General" or "Config\Custom\General\Original" if it doesn't find it). We advise you to create and make your changes to the one inside "Config\Custom\General".
+General config (named Global.xml) is the global configuration of the application. It is the same for all scenes.
+Like the Macro config, you can either specify one to use with command line, or it will search by default one inside the default config folder ("Config\Custom\General" or "Config\Custom\General\Original" if it doesn't find it). It is advised to create and make your changes to the one inside "Config\Custom\General".
 
 
-Unless explicited, the following settings doesn't support Macros (see section Macro)
-
-Here the architecture of the config file (each section are a tag in xml where the subsection should be put into)
+Unless explicited, the following settings does not accept macros.
 
 
 #### Application
@@ -479,6 +490,7 @@ References contains a list of all references to articles, papers, books, website
 	+ **bibTex (string, facultative)**: The relative path from BibTex folder (folder besides the InternalConfig.xml) to a text file containing the BibTex reference of the article. Note that we don't validate the BibTex string is valid.
 
 
+
 # Input bindings
 
 ## Key bindings
@@ -539,17 +551,18 @@ Note : If the term in the parenthesis is "Numpad", then the keybinding is the va
     - Increase/Decrease the physics time step change speed. Valid only if we are not in replay mode, or if CFL is disabled.
 
 
+
 # Scripting API
 
-Scripting is done with lua. You'll be able to send lua command to the engine from a plain text file that is watched once every "refreshTime" millisecond for any changes.
-Just save your file after modifying it and the content will be sent.
-There is also the initialization file that allows to customize further the initialization of the engine. This custom initialization is done after the engine ended its normal initialization.
+The scripting language used is lua. You'll be able to send lua command to the engine from a plain text file that is watched once every "refreshTime" millisecond for any changes.
+Just save your file after modifying it and the content will be sent. An alternative would be to use the Storm-ScriptSender tool.
+There is also the initialization file that allows to further customize the initialization of the engine. This custom initialization is done at the end of the engine's "normal" initialization.
 
-The reasons I decided to include a scripting API is because : 
-- we have too much inputs and too little keys to control all features I want to add. And it is starting to be a real bother to remember all keys.
-- we could control many instance of the application at the same time (just make them watch the same scripting file and they'll execute the command seemingly at the same time).
-- Better control over the parameter (where key input uses pre-built-in default value or separate manipulation to control how the action will respond, we can just pass users parameters to the script to execute).
-- Script is the only way to control the application when it doesn't run in UI mode.
+The reasons we decided to include a scripting API is because : 
+- We have too many inputs and too few keys to control all features we have to add. And it starts to be really bothersome.
+- We could control many instance of the application at the same time and use the script langage as a way to synchronize animations.
+- Better control over the parameters (we can use the exact value we want).
+- It is the only way to control the application when it doesn't run with a UI.
 
 
 ## Developpers notes
@@ -619,4 +632,4 @@ Here the list of available commands :
 
 # References
 
-TODO (Sorry, since the engine is a work in progress. This section will be the last one I'll update... But I promise to reference all sources I used and cite their respective authors).
+TODO (Sorry, since the engine is a work in progress. This section will be updated last... But we promise to reference all used sources and cite their respective authors).
