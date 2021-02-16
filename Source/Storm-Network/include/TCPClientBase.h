@@ -142,7 +142,7 @@ namespace Storm
 	public:
 		void definitiveStop() final override
 		{
-			Logic::definitiveStop(_socket);
+			Logic::definitiveStop(_socket, this->isConnected());
 		}
 
 	public:
