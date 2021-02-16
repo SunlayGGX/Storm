@@ -50,6 +50,8 @@ namespace Storm
 
 		void startRead(Traits::SocketType &socket);
 
+		void definitiveStop(Traits::SocketType &socket);
+
 	protected:
 		void onConnectionChanged(const Storm::OnConnectionStateChangedParam &param, Storm::ConnectionStatus &connectedFlag);
 		void onMessageReceived(const Storm::OnMessageReceivedParam &param);
@@ -135,6 +137,12 @@ namespace Storm
 		bool shouldConnect() const noexcept final override
 		{
 			return _status == Storm::ConnectionStatus::NotConnected;
+		}
+
+	public:
+		void definitiveStop() final override
+		{
+			Logic::definitiveStop(_socket);
 		}
 
 	public:

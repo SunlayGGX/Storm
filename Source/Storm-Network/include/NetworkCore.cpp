@@ -6,8 +6,18 @@
 #include "ITimeManager.h"
 #include "SingletonHolder.h"
 
+#include "ThreadingSafety.h"
 
-Storm::NetworkCore::~NetworkCore() = default;
+
+Storm::NetworkCore::NetworkCore()
+{
+	assert(Storm::isMainThread() && "NetworkCore construction should happen in the main thread!");
+}
+
+Storm::NetworkCore::~NetworkCore()
+{
+	assert(Storm::isMainThread() && "NetworkCore destruction should happen in the main thread!");
+}
 
 bool Storm::NetworkCore::initialize()
 {
@@ -44,6 +54,17 @@ void Storm::NetworkCore::execute()
 			break;
 		}
 	}
+}
+
+void Storm::NetworkCore::close()
+{
+	// We never add clients after the initialization, therefore since the vector doesn't change, no need to lock anything... This is thread safe.
+	for (const auto &client : _clients)
+	{
+		client->definitiveStop();
+	}
+
+	_networkService.stop();
 }
 
 void Storm::NetworkCore::destroyTCPClient(Storm::ITCPClient*const client)

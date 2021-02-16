@@ -15,6 +15,8 @@ namespace Storm
 	public:
 		virtual void close() = 0;
 
+		virtual void definitiveStop() = 0;
+
 	public:
 		virtual void connect() = 0;
 		virtual void disconnect() = 0;

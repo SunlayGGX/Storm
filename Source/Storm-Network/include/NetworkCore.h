@@ -10,6 +10,7 @@ namespace Storm
 	class NetworkCore
 	{
 	public:
+		NetworkCore();
 		~NetworkCore();
 
 	public:
@@ -17,6 +18,7 @@ namespace Storm
 
 	public:
 		void execute();
+		void close();
 
 	private:
 		static void destroyTCPClient(Storm::ITCPClient*const client);

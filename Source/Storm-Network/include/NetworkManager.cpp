@@ -119,8 +119,6 @@ void Storm::NetworkManager::run()
 	{
 		this->dummyNoRun();
 	}
-
-	_netCore.reset();
 }
 
 void Storm::NetworkManager::dummyNoRun()
@@ -139,7 +137,13 @@ void Storm::NetworkManager::dummyNoRun()
 
 void Storm::NetworkManager::cleanUp_Implementation()
 {
+	if (_netCore != nullptr)
+	{
+		_netCore->close();
+	}
+
 	Storm::join(_networkThread);
+	_netCore.reset();
 }
 
 void Storm::NetworkManager::notifyApplicationConnectionChanged(Storm::OnConnectionStateChangedParam &&param)

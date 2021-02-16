@@ -166,6 +166,14 @@ void Storm::TCPClientBasePrivateLogic::startRead(Traits::SocketType &socket)
 	});
 }
 
+void Storm::TCPClientBasePrivateLogic::definitiveStop(Traits::SocketType &socket)
+{
+	// This is thread safe, so no need to lock anything.
+	socket.cancel();
+	socket.shutdown(boost::asio::socket_base::shutdown_type::shutdown_both);
+	socket.close();
+}
+
 void Storm::TCPClientBasePrivateLogic::onConnectionChanged(const Storm::OnConnectionStateChangedParam &param, Storm::ConnectionStatus &connectedFlag)
 {
 	assert(Storm::isNetworkThread() && "This method should only be called from Network thread!");
