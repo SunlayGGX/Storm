@@ -32,7 +32,7 @@ void Storm::AnimationManager::createAnimation(const Storm::SceneRigidBodyConfig 
 	}
 }
 
-bool Storm::AnimationManager::retrieveAnimationData(const float currentTime, const unsigned int rbId, Storm::Vector3 &outPos, Storm::Vector3 &outRot)
+bool Storm::AnimationManager::retrieveAnimationData(const float currentTime, const unsigned int rbId, Storm::Vector3 &outPos, Storm::Rotation &outRot)
 {
 	assert(Storm::isAnimationThread() && "This method should only be called from animation thread!");
 

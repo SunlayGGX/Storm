@@ -8,6 +8,6 @@ namespace Storm
 	public:
 		float _timeInSecond;
 		Storm::Vector3 _position;
-		Storm::Vector3 _rotation;
+		Storm::Rotation _rotation;
 	};
 }

@@ -91,7 +91,7 @@ unsigned int Storm::RigidBody::getRigidBodyID() const
 	return _rbId;
 }
 
-void Storm::RigidBody::getRigidBodyTransform(Storm::Vector3 &outTrans, Storm::Vector3 &outRot) const
+void Storm::RigidBody::getRigidBodyTransform(Storm::Vector3 &outTrans, Storm::Rotation &outRot) const
 {
 	// Physics module should have the ownership of this data.
 	const Storm::IPhysicsManager &physicsMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IPhysicsManager>();

@@ -423,7 +423,8 @@ void Storm::AssetCacheData::generateCurrentData(const float layerDistance)
 	_finalCurrent._vertices.reserve(verticeCount);
 	_finalCurrent._normals.reserve(normalsCount);
 
-	const aiQuaterniont<Storm::Vector3::Scalar> rotationQuat{ _rbConfig._rotation.x(), _rbConfig._rotation.y(), _rbConfig._rotation.z() };
+	const Storm::Quaternion tmpEigenQuat{ _rbConfig._rotation };
+	const aiQuaterniont<Storm::Vector3::Scalar> rotationQuat{ tmpEigenQuat.w(), tmpEigenQuat.x(), tmpEigenQuat.y(), tmpEigenQuat.z() };
 	aiQuaterniont<Storm::Vector3::Scalar> rotationQuatConjugate = rotationQuat;
 	rotationQuatConjugate.Conjugate();
 

@@ -17,6 +17,6 @@ namespace Storm
 		virtual void createAnimation(const Storm::SceneRigidBodyConfig &rbConfig) = 0;
 
 	public:
-		virtual bool retrieveAnimationData(const float currentTime, const unsigned int rbId, Storm::Vector3 &outPos, Storm::Vector3 &outRot) = 0;
+		virtual bool retrieveAnimationData(const float currentTime, const unsigned int rbId, Storm::Vector3 &outPos, Storm::Rotation &outRot) = 0;
 	};
 }

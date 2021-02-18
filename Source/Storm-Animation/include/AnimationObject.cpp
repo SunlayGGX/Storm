@@ -20,9 +20,15 @@ namespace
 		result = vectBefore + (vectAfter - vectBefore) * coeff;
 	}
 
+	void lerp(const Storm::Rotation &vectBefore, const Storm::Rotation &vectAfter, const float coeff, Storm::Rotation &result)
+	{
+		result.axis() = vectBefore.axis();  // TODO : Maybe a slerp. But I don't need it for now since axises are constants
+		result.angle() = std::lerp(vectBefore.angle(), vectAfter.angle(), coeff);
+	}
+
 	// Called keyframe a and b on purpose. a goes to b, no telling in what chronological direction it is
 	// (if a time is less than b time, we goes to the future, otherwise we'll go to the past).
-	void lerpKeyframe(const Storm::AnimationKeyframe &a, const Storm::AnimationKeyframe &b, const float time, Storm::Vector3 &outPos, Storm::Vector3 &outRot)
+	void lerpKeyframe(const Storm::AnimationKeyframe &a, const Storm::AnimationKeyframe &b, const float time, Storm::Vector3 &outPos, Storm::Rotation &outRot)
 	{
 		if (a._timeInSecond == b._timeInSecond)
 		{
@@ -90,9 +96,10 @@ Storm::AnimationObject::AnimationObject(const Storm::SceneRigidBodyConfig &rbSce
 			Storm::XmlReader::readXmlAttribute(keyframeElementXmlTree, keyframe._position.y(), "posY");
 			Storm::XmlReader::readXmlAttribute(keyframeElementXmlTree, keyframe._position.z(), "posZ");
 
-			Storm::XmlReader::readXmlAttribute(keyframeElementXmlTree, keyframe._rotation.x(), "rotX");
-			Storm::XmlReader::readXmlAttribute(keyframeElementXmlTree, keyframe._rotation.y(), "rotY");
-			Storm::XmlReader::readXmlAttribute(keyframeElementXmlTree, keyframe._rotation.z(), "rotZ");
+			Storm::XmlReader::readXmlAttribute(keyframeElementXmlTree, keyframe._rotation.angle(), "angle");
+			Storm::XmlReader::readXmlAttribute(keyframeElementXmlTree, keyframe._rotation.axis().x(), "rotX");
+			Storm::XmlReader::readXmlAttribute(keyframeElementXmlTree, keyframe._rotation.axis().y(), "rotY");
+			Storm::XmlReader::readXmlAttribute(keyframeElementXmlTree, keyframe._rotation.axis().z(), "rotZ");
 		}
 		else if (animationKeys.first == "Motor")
 		{
@@ -105,18 +112,19 @@ Storm::AnimationObject::AnimationObject(const Storm::SceneRigidBodyConfig &rbSce
 			Storm::XmlReader::readXmlAttribute(motorElementXmlTree, pivotPoint.y(), "pivotY");
 			Storm::XmlReader::readXmlAttribute(motorElementXmlTree, pivotPoint.z(), "pivotZ");
 
-			Storm::Vector3 rotationAxis = Storm::Vector3::Zero();
-			Storm::XmlReader::readXmlAttribute(motorElementXmlTree, rotationAxis.x(), "rotAxisX");
-			Storm::XmlReader::readXmlAttribute(motorElementXmlTree, rotationAxis.y(), "rotAxisY");
-			Storm::XmlReader::readXmlAttribute(motorElementXmlTree, rotationAxis.z(), "rotAxisZ");
+			Storm::Rotation rotationAxis = Storm::Rotation::Identity();
+			Storm::XmlReader::readXmlAttribute(motorElementXmlTree, rotationAxis.axis().x(), "rotX");
+			Storm::XmlReader::readXmlAttribute(motorElementXmlTree, rotationAxis.axis().y(), "rotY");
+			Storm::XmlReader::readXmlAttribute(motorElementXmlTree, rotationAxis.axis().z(), "rotZ");
 
-			const float rotationAxisNorm = rotationAxis.norm();
+			const float rotationAxisNorm = rotationAxis.axis().norm();
 			if (rotationAxisNorm < 0.00001f)
 			{
 				Storm::throwException<Storm::Exception>("Rotation axis shouldn't be a null vector!");
 			}
 
-			rotationAxis /= rotationAxisNorm;
+			rotationAxis.axis() /= rotationAxisNorm;
+			rotationAxis.angle() = std::fmodf(rotationAxis.angle(), static_cast<float>(2.0 * M_PI));
 
 			float rotateSpeed;
 			Storm::XmlReader::sureReadXmlAttribute(motorElementXmlTree, rotateSpeed, "speed");
@@ -131,7 +139,8 @@ Storm::AnimationObject::AnimationObject(const Storm::SceneRigidBodyConfig &rbSce
 			constexpr float angularStep = static_cast<float>(2.0 * M_PI / static_cast<double>(angularTurnDivision));
 			constexpr float radToDegrees = static_cast<float>(180.0 / M_PI);
 
-			const Eigen::AngleAxisf rotationAxisDescription{ angularStep, rotationAxis };
+			Storm::Rotation rotationAxisDescription = rotationAxis;
+			rotationAxisDescription.angle() = angularStep;
 
 			const bool rotateClockwise = rotateSpeed > 0.f;
 
@@ -141,10 +150,13 @@ Storm::AnimationObject::AnimationObject(const Storm::SceneRigidBodyConfig &rbSce
 			_keyframes.reserve(_keyframes.size() + angularTurnDivision + 1);
 
 			{
+				bool noKeyframe = _keyframes.empty();
+				Storm::Rotation currentRotation = noKeyframe ? rotationAxis : (_keyframes.back()._rotation);
+
 				Storm::AnimationKeyframe &keyframe = _keyframes.emplace_back();
-				keyframe._timeInSecond = _keyframes.empty() ? 0.f : (_keyframes.back()._timeInSecond + angularTimeDivision);
+				keyframe._timeInSecond = noKeyframe ? 0.f : (_keyframes.back()._timeInSecond + angularTimeDivision);
 				keyframe._position = initialRbPosition;
-				keyframe._rotation = _keyframes.empty() ? rbSceneConfig._rotation : (_keyframes.back()._rotation);
+				keyframe._rotation = currentRotation;
 			}
 
 			Storm::Vector3 relativePos = initialRbPosition - pivotPoint;
@@ -163,7 +175,8 @@ Storm::AnimationObject::AnimationObject(const Storm::SceneRigidBodyConfig &rbSce
 				Storm::AnimationKeyframe &keyframe = _keyframes.emplace_back();
 				keyframe._timeInSecond = lastKeyframe._timeInSecond + angularTimeDivision;
 				keyframe._position = relativePos + pivotPoint;
-				keyframe._rotation = lastKeyframe._rotation + deltaInternalRotation;
+				keyframe._rotation.axis() = lastKeyframe._rotation.axis(); // TODO : Maybe a slerp. But I don't need it for now since axises are constants
+				keyframe._rotation.angle() = lastKeyframe._rotation.angle() + rotationAxisDescription.angle();
 			}
 
 			_isLooping = true;
@@ -193,7 +206,7 @@ Storm::AnimationObject::AnimationObject(const Storm::SceneRigidBodyConfig &rbSce
 
 Storm::AnimationObject::~AnimationObject() = default;
 
-bool Storm::AnimationObject::getCurrentFrameOrShouldBeDestroyed(float currentTime, Storm::Vector3 &outPos, Storm::Vector3 &outRot) const
+bool Storm::AnimationObject::getCurrentFrameOrShouldBeDestroyed(float currentTime, Storm::Vector3 &outPos, Storm::Rotation &outRot) const
 {
 	assert(Storm::isAnimationThread() && "This method should only be called in animation thread!");
 

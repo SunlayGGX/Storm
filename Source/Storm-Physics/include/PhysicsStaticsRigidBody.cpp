@@ -22,7 +22,7 @@ Storm::PhysicsStaticsRigidBody::PhysicsStaticsRigidBody(const Storm::SceneRigidB
 	Storm::PhysicalShape{ rbSceneConfig, vertices, indexes },
 	_internalRb{ createStaticRigidBody(rbSceneConfig) },
 	_trans{ rbSceneConfig._translation },
-	_eulerRotation{ rbSceneConfig._rotation }
+	_rotation{ rbSceneConfig._rotation }
 {
 	if (!_internalRb)
 	{
@@ -48,10 +48,10 @@ void Storm::PhysicsStaticsRigidBody::onPostUpdate(const float) noexcept
 
 }
 
-void Storm::PhysicsStaticsRigidBody::getMeshTransform(Storm::Vector3 &outTrans, Storm::Vector3 &outRot) const
+void Storm::PhysicsStaticsRigidBody::getMeshTransform(Storm::Vector3 &outTrans, Storm::Rotation &outRot) const
 {
 	outTrans = _trans;
-	outRot = _eulerRotation;
+	outRot = _rotation;
 }
 
 physx::PxRigidStatic* Storm::PhysicsStaticsRigidBody::getInternalPhysicsPointer() const

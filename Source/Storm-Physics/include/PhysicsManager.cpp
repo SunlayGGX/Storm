@@ -382,7 +382,7 @@ void Storm::PhysicsManager::pushConstraintsVisualizationData() const
 	}
 }
 
-void Storm::PhysicsManager::getMeshTransform(unsigned int meshId, Storm::Vector3 &outTrans, Storm::Vector3 &outRot) const
+void Storm::PhysicsManager::getMeshTransform(unsigned int meshId, Storm::Vector3 &outTrans, Storm::Rotation &outRot) const
 {
 	Storm::SearchAlgo::executeOnObjectInContainer(meshId, [&outTrans, &outRot](const auto &rbFound)
 	{

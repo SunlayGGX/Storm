@@ -93,7 +93,7 @@ void Storm::PhysicsDynamicRigidBody::onPostUpdate(const float currentTime) noexc
 	if (_isAnimated)
 	{
 		Storm::Vector3 animatedPos;
-		Storm::Vector3 animatedRot;
+		Storm::Rotation animatedRot;
 
 		Storm::IAnimationManager &animationMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IAnimationManager>();
 		if (animationMgr.retrieveAnimationData(currentTime, _id, animatedPos, animatedRot))
@@ -163,7 +163,7 @@ physx::PxRigidDynamic* Storm::PhysicsDynamicRigidBody::getInternalPhysicsPointer
 	return _internalRb.get();
 }
 
-void Storm::PhysicsDynamicRigidBody::getMeshTransform(Storm::Vector3 &outTrans, Storm::Vector3 &outRot) const
+void Storm::PhysicsDynamicRigidBody::getMeshTransform(Storm::Vector3 &outTrans, Storm::Rotation &outRot) const
 {
 	physx::PxTransform currentTransform;
 
@@ -173,7 +173,7 @@ void Storm::PhysicsDynamicRigidBody::getMeshTransform(Storm::Vector3 &outTrans, 
 	}
 
 	outTrans = Storm::convertToStorm(currentTransform.p);
-	outRot = Storm::convertToStorm<Storm::Vector3>(currentTransform.q);
+	outRot = Storm::convertToStorm<Storm::Rotation>(currentTransform.q);
 }
 
 void Storm::PhysicsDynamicRigidBody::getMeshTransform(Storm::Vector3 &outTrans, Storm::Quaternion &outQuatRot) const

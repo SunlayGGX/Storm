@@ -34,6 +34,7 @@
     <ClCompile Include="..\include\ThreadFlaggerObject.cpp" />
     <ClCompile Include="..\include\ThreadingSafety.cpp" />
     <ClCompile Include="..\include\UIField.cpp" />
+    <ClCompile Include="..\include\Vector3.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\AsyncAction.h" />

@@ -20,7 +20,7 @@ namespace Storm
 	public:
 		void createAnimation(const Storm::SceneRigidBodyConfig &rbConfig) final override;
 
-		bool retrieveAnimationData(const float currentTime, const unsigned int rbId, Storm::Vector3 &outPos, Storm::Vector3 &outRot) final override;
+		bool retrieveAnimationData(const float currentTime, const unsigned int rbId, Storm::Vector3 &outPos, Storm::Rotation &outRot) final override;
 
 	private:
 		std::map<unsigned int, std::unique_ptr<Storm::AnimationObject>> _animationMap;

@@ -13,7 +13,7 @@ namespace Storm
 		~AnimationObject();
 
 	public:
-		bool getCurrentFrameOrShouldBeDestroyed(float currentTime, Storm::Vector3 &outPos, Storm::Vector3 &outRot) const;
+		bool getCurrentFrameOrShouldBeDestroyed(float currentTime, Storm::Vector3 &outPos, Storm::Rotation &outRot) const;
 
 		std::size_t getKeyframeCount() const;
 

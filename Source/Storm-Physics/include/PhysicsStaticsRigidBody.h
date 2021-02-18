@@ -22,7 +22,7 @@ namespace Storm
 		void onPostUpdate(const float currentTime) noexcept;
 
 	public:
-		void getMeshTransform(Storm::Vector3 &outTrans, Storm::Vector3 &outRot) const;
+		void getMeshTransform(Storm::Vector3 &outTrans, Storm::Rotation &outRot) const;
 		void getMeshTransform(Storm::Vector3 &outTrans, Storm::Quaternion &outQuatRot) const;
 
 		physx::PxRigidStatic* getInternalPhysicsPointer() const;
@@ -34,7 +34,7 @@ namespace Storm
 		Storm::UniquePointer<physx::PxRigidStatic> _internalRb;
 
 		Storm::Vector3 _trans;
-		Storm::Vector3 _eulerRotation;
+		Storm::Rotation _rotation;
 		Storm::Quaternion _quatRotation;
 	};
 }

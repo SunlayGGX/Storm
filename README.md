@@ -173,6 +173,7 @@ Except some exceptions described below, you should define the xml value for tagN
 
 <ins>Exceptions</ins>
 - If the type is "vector3", the xml should be defined like this : \<tagName x="xValue" y="yValue" z="zValue" \\>
+- If the type is "rotation", the xml should be defined like this : \<tagName angle="angleValue" x="xAxisValue" y="yAxisValue" z="zAxisValue" \\>
 - If the type is "RGBAcolor", the xml should be defined like this : \<tagName r="rValue" g="gValue" b="bValue" a="aValue" \\>. All "r", "g", "b" and "a" values are float values between 0.0 and 1.0 included.
 - If the type is "article", "misc", see the section "Internal".
 - If the type is "SocketSetting", the xml should be defined like this : \<tagName ip="yyy.yyy.yyy.yyy" port="portValue" enabled="boolean" \\>. With yyy a number between 0 and 255 included. Note that some ip and ports are invalid to use.
@@ -389,7 +390,7 @@ Inside this element should be put all rigidbodies. Each rigidbody should be spec
 - **animation (string, facultative, accept macro)**: The path to the animation xml file that describes how to animate the rigidbody.
 - **animationName (string, facultative, accept macro)**: The name of the animation to use. If there is none (default), then the animation to use will be the one with the same id than the rigid body.
 - **translation (vector3, facultative)**: The initial position in meters of the object. Default value is { x=0.0, y=0.0, z=0.0 }.
-- **rotation (vector3, facultative)**: The initial rotation in degrees of the object (this is euler angle : roll, pich, yaw). Default value is { x=0.0, y=0.0, z=0.0 }.
+- **rotation (rotation, facultative)**: The initial rotation in degrees of the object. Default value is { angle=0.0, x=1.0, y=0.0, z=0.0 }.
 - **scale (vector3, facultative)**: The initial scale of the object. Default value is { x=1.0, y=1.0, z=1.0 }.
 - **color (RGBAColor, facultative)**: The color of the rigid body. Default value is { r=0.3, g=0.5, b=0.5 a=1.0 }.
 - **staticFrictionCoeff (float, facultative)**: The static friction coefficient of the object, it should be larger than 0.0. PhysX needs it but physically speaking I don't know what to set. This is the minimum force norm threshold that makes our object move. See http://docs.garagegames.com/torque-3d/reference/classPxMaterial.html.

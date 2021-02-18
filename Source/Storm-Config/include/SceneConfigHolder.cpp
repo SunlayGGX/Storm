@@ -47,6 +47,28 @@ namespace
 		return result;
 	}
 
+	Storm::Rotation parseRotationElement(const boost::property_tree::ptree &tree)
+	{
+		Storm::Rotation result;
+
+		Storm::XmlReader::sureReadXmlAttribute(tree, result.angle(), "angle");
+		Storm::XmlReader::sureReadXmlAttribute(tree, result.axis().x(), "x");
+		Storm::XmlReader::sureReadXmlAttribute(tree, result.axis().y(), "y");
+		Storm::XmlReader::sureReadXmlAttribute(tree, result.axis().z(), "z");
+
+		const float axisNormSquared = result.axis().squaredNorm();
+		if (axisNormSquared > 0.0000001f)
+		{
+			result.axis() /= std::sqrtf(axisNormSquared);
+		}
+		else
+		{
+			Storm::throwException<Storm::Exception>("Rotation axis mustn't be a null vector!");
+		}
+
+		return result;
+	}
+
 	Storm::Vector4 parseColor4Element(const boost::property_tree::ptree &tree)
 	{
 		Storm::Vector4 result;
@@ -677,7 +699,7 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "animation", rbConfig._animationXmlPath) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "animationName", rbConfig._animationName) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "translation", rbConfig._translation, parseVector3Element) ||
-			Storm::XmlReader::handleXml(rigidBodyConfigXml, "rotation", rbConfig._rotation, parseVector3Element) ||
+			Storm::XmlReader::handleXml(rigidBodyConfigXml, "rotation", rbConfig._rotation, parseRotationElement) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "scale", rbConfig._scale, parseVector3Element) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "color", rbConfig._color, parseColor4Element)
 			;

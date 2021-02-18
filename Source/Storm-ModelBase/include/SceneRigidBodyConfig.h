@@ -17,7 +17,7 @@ namespace Storm
 		std::string _meshFilePath;
 
 		Storm::Vector3 _translation;
-		Storm::Vector3 _rotation;
+		Storm::Rotation _rotation;
 		Storm::Vector3 _scale;
 
 		Storm::CollisionType _collisionShape;

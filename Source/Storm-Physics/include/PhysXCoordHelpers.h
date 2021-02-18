@@ -16,15 +16,15 @@ namespace Storm
 	template<class Ret>
 	__forceinline Ret convertToStorm(const physx::PxQuat &q);
 
-	__forceinline physx::PxQuat convertToPxRotation(const Storm::Vector3 &rot)
+	__forceinline physx::PxQuat convertToPxRotation(const Storm::Vector3 &eulerRot)
 	{
 		physx::PxQuat result;
 
 		constexpr const float midDegreeToRadianCoeff = static_cast<float>(M_PI / 180.0 * 0.5) ;
 
-		const float midRoll = rot.z() * midDegreeToRadianCoeff;
-		const float midPitch = rot.x() * midDegreeToRadianCoeff;
-		const float midYaw = rot.y() * midDegreeToRadianCoeff;
+		const float midRoll = eulerRot.z() * midDegreeToRadianCoeff;
+		const float midPitch = eulerRot.x() * midDegreeToRadianCoeff;
+		const float midYaw = eulerRot.y() * midDegreeToRadianCoeff;
 
 		// https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
 		const float cy = std::cosf(midYaw);
@@ -40,6 +40,12 @@ namespace Storm
 		result.z = cr * cp * sy - sr * sp * cy;
 
 		return result;
+	}
+
+	__forceinline physx::PxQuat convertToPxRotation(const Storm::Rotation &rot)
+	{
+		const Storm::Quaternion quatRot{ rot };
+		return physx::PxQuat{ quatRot.x(), quatRot.y(), quatRot.z(), quatRot.w() };
 	}
 
 	template<>
@@ -81,12 +87,18 @@ namespace Storm
 		return Storm::Quaternion{ q.w, q.x, q.y, q.z };
 	}
 
-	__forceinline physx::PxTransform convertToPx(const Storm::Vector3 &translation, const Storm::Vector3 &eulerRot)
+	template<>
+	__forceinline Storm::Rotation convertToStorm<Storm::Rotation>(const physx::PxQuat &q)
+	{
+		return Storm::Rotation{ Storm::Quaternion{ q.w, q.x, q.y, q.z } };
+	}
+
+	__forceinline physx::PxTransform convertToPx(const Storm::Vector3 &translation, const Storm::Rotation &rot)
 	{
 		physx::PxTransform result;
 
 		result.p = Storm::convertToPx(translation);
-		result.q = Storm::convertToPxRotation(eulerRot);
+		result.q = Storm::convertToPxRotation(rot);
 
 		return result;
 	}
