@@ -138,6 +138,9 @@
     <ClCompile Include="..\include\GraphicAreaBaseHolder.cpp">
       <Filter>Source Files\GraphicComponent</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\GeneralReadOnlyUIDisplay.cpp">
+      <Filter>Source Files\GraphicComponent</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-GraphicsPCH.h">
@@ -234,6 +237,9 @@
       <Filter>Header Files\Rendered</Filter>
     </ClInclude>
     <ClInclude Include="..\include\GraphicAreaBaseHolder.h">
+      <Filter>Header Files\GraphicComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\GeneralReadOnlyUIDisplay.h">
       <Filter>Header Files\GraphicComponent</Filter>
     </ClInclude>
   </ItemGroup>

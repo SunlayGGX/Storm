@@ -3,6 +3,8 @@
 #include "DirectXController.h"
 #include "Camera.h"
 
+#include "GeneralReadOnlyUIDisplay.h"
+
 #include "Grid.h"
 #include "GraphicCoordinateSystem.h"
 #include "GraphicRigidBody.h"
@@ -149,6 +151,8 @@ void Storm::GraphicManager::initialize_Implementation(void* hwnd)
 	{
 		_directXController->setAllParticleState();
 	}
+
+	_readOnlyFields = std::make_unique<Storm::GeneralReadOnlyUIDisplay>();
 
 	_renderThread = std::thread([this]()
 	{

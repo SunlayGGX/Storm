@@ -9,6 +9,7 @@ namespace Storm
 {
 	class DirectXController;
 	class Camera;
+	class GeneralReadOnlyUIDisplay;
 	class IRenderedElement;
 	class GraphicRigidBody;
 	class GraphicParticleSystem;
@@ -115,6 +116,7 @@ namespace Storm
 		std::unique_ptr<Storm::ParticleForceRenderer> _forceRenderer;
 		std::unique_ptr<Storm::GraphicKernelEffectArea> _kernelEffectArea;
 
+		std::unique_ptr<Storm::GeneralReadOnlyUIDisplay> _readOnlyFields;
 		std::map<std::wstring_view, std::wstring> _fieldsMap;
 
 		std::unique_ptr<Storm::GraphicPipe> _pipe;

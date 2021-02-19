@@ -21,6 +21,7 @@
     <ClCompile Include="..\include\CoordinateSystemShader.cpp" />
     <ClCompile Include="..\include\DirectXController.cpp" />
     <ClCompile Include="..\include\DirectXHardwareInfo.cpp" />
+    <ClCompile Include="..\include\GeneralReadOnlyUIDisplay.cpp" />
     <ClCompile Include="..\include\GraphicAreaBaseHolder.cpp" />
     <ClCompile Include="..\include\GraphicBlower.cpp" />
     <ClCompile Include="..\include\GraphicConstraintSystem.cpp" />
@@ -53,6 +54,7 @@
     <ClInclude Include="..\include\ConstantBufferHolder.h" />
     <ClInclude Include="..\include\ConstraintShader.h" />
     <ClInclude Include="..\include\CoordinateSystemShader.h" />
+    <ClInclude Include="..\include\GeneralReadOnlyUIDisplay.h" />
     <ClInclude Include="..\include\GraphicAreaBaseHolder.h" />
     <ClInclude Include="..\include\GraphicCoordinateSystem.h" />
     <ClInclude Include="..\include\DirectXController.h" />
