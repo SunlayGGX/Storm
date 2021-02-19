@@ -189,4 +189,6 @@ void Storm::StateWriter::execute(Storm::StateSavingOrders &savingOrder)
 	package << toSerialize;
 
 	toSerialize.endSerialize(package);
+
+	LOG_DEBUG << "Saving request handled. Saving at " << savingOrder._settings._filePath;
 }
