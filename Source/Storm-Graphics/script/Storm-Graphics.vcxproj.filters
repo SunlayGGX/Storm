@@ -55,6 +55,12 @@
     <Filter Include="Source Files\DirectX\Helper">
       <UniqueIdentifier>{19d65fe9-5db2-4476-ad7e-a7254a8dba9b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Helpers">
+      <UniqueIdentifier>{6e508409-e919-4b51-a42b-6ebf7cb01103}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Helpers">
+      <UniqueIdentifier>{12f21f6d-6dc8-4b33-aab7-637cd333110d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-GraphicsPCH.cpp">
@@ -140,6 +146,9 @@
     </ClCompile>
     <ClCompile Include="..\include\GeneralReadOnlyUIDisplay.cpp">
       <Filter>Source Files\GraphicComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\GraphicHelpers.cpp">
+      <Filter>Source Files\Helpers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -241,6 +250,9 @@
     </ClInclude>
     <ClInclude Include="..\include\GeneralReadOnlyUIDisplay.h">
       <Filter>Header Files\GraphicComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\GraphicHelpers.h">
+      <Filter>Header Files\Helpers</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

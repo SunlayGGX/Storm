@@ -26,6 +26,7 @@
     <ClCompile Include="..\include\GraphicBlower.cpp" />
     <ClCompile Include="..\include\GraphicConstraintSystem.cpp" />
     <ClCompile Include="..\include\GraphicCoordinateSystem.cpp" />
+    <ClCompile Include="..\include\GraphicHelpers.cpp" />
     <ClCompile Include="..\include\GraphicKernelEffectArea.cpp" />
     <ClCompile Include="..\include\GraphicManager.cpp" />
     <ClCompile Include="..\include\GraphicParticleData.cpp" />
@@ -60,6 +61,7 @@
     <ClInclude Include="..\include\DirectXController.h" />
     <ClInclude Include="..\include\DirectXHardwareInfo.h" />
     <ClInclude Include="..\include\GraphicConstraintSystem.h" />
+    <ClInclude Include="..\include\GraphicHelpers.h" />
     <ClInclude Include="..\include\GraphicKernelEffectArea.h" />
     <ClInclude Include="..\include\GraphicManager.h" />
     <ClInclude Include="..\include\GraphicParticleData.h" />

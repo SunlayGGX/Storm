@@ -11,6 +11,7 @@
 #include "UIField.h"
 
 #include "XMStormHelpers.h"
+#include "GraphicHelpers.h"
 
 #define STORM_CAMERA_POSITION_FIELD_NAME "Camera"
 #define STORM_TARGET_POSITION_FIELD_NAME "Target"
@@ -171,28 +172,19 @@ namespace
 
 	struct CustomFieldParser
 	{
-	private:
-		static void removeUselessZeros(std::wstring &inOutValue)
-		{
-			while (inOutValue.back() == L'0')
-			{
-				inOutValue.pop_back();
-			}
-		}
-
 	public:
 		static std::wstring parseToWString(const DirectX::XMFLOAT3 &val)
 		{
 			std::wstring result;
 
 			std::wstring xWStr = std::to_wstring(val.x);
-			CustomFieldParser::removeUselessZeros(xWStr);
+			Storm::GraphicHelpers::removeUselessZeros(xWStr);
 
 			std::wstring yWStr = std::to_wstring(val.y);
-			CustomFieldParser::removeUselessZeros(yWStr);
+			Storm::GraphicHelpers::removeUselessZeros(yWStr);
 
 			std::wstring zWStr = std::to_wstring(val.z);
-			CustomFieldParser::removeUselessZeros(zWStr);
+			Storm::GraphicHelpers::removeUselessZeros(zWStr);
 
 			result.reserve(4 + xWStr.size() + yWStr.size() + zWStr.size());
 
