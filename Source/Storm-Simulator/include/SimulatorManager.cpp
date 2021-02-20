@@ -425,7 +425,7 @@ namespace
 
 					if (hasInternalBoundingBox)
 					{
-						LOG_DEBUG << "Solid particle system " << currentPSystem.getId() << " is hollow, we will optimize the skin colliding algorithm by using an internal bounding box. We'll save the indexes removed so the algorithm will a little be slower.";
+						LOG_DEBUG << "Solid particle system " << currentPSystem.getId() << " is hollow, we will optimize the skin colliding algorithm by using an internal bounding box. We'll save the indexes removed so the algorithm will be slower.";
 
 						thresholdToEliminate = std::stable_partition(std::execution::par, std::begin(inOutParticlePositions), thresholdToEliminate, [&](const Storm::Vector3 &particlePos)
 						{
@@ -455,7 +455,7 @@ namespace
 					}
 					else
 					{
-						LOG_DEBUG << "We'll save the particle removed indexes due to collision with rigid body " << currentPSystem.getId() << ". Since we'll keep index, algorithm would be a little slower.";
+						LOG_DEBUG << "We'll save the particle removed indexes due to collision with rigid body " << currentPSystem.getId() << ". Since we'll keep index, algorithm will be slower.";
 
 						thresholdToEliminate = std::stable_partition(std::execution::par, std::begin(inOutParticlePositions), thresholdToEliminate, [&](const Storm::Vector3 &particlePos)
 						{
