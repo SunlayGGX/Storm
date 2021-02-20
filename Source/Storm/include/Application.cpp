@@ -323,6 +323,8 @@ Storm::EarlyExitAnswer Storm::Application::ensureCleanStateAfterException(const 
 		{
 			result._exitCode = static_cast<int>(Storm::ExitCode::k_imbricatedUnknownException);
 		}
+
+		return result;
 	}
 	else
 	{
