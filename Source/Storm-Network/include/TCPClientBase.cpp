@@ -56,9 +56,9 @@ void Storm::TCPClientBasePrivateLogic::connect(Traits::NetworkService &ioService
 			{
 				LOG_ERROR << "std::exception catched while connecting : " << e.what();
 			}
-
-			this->disconnectLogicCall();
 		}
+
+		this->disconnectLogicCall();
 	});
 }
 
