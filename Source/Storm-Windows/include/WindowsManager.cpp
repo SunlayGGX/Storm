@@ -70,6 +70,7 @@ namespace
 				Storm::SingletonHolder::instance().getSingleton<Storm::ISimulatorManager>().saveSimulationState();
 				break;
 
+			case ID_STORM_SCRIPT_SENDER:
 			case ID_TOOLS_STORM_SCRIPT_SENDER:
 				Storm::StormProcessOpener::openStormScriptSender(Storm::StormProcessOpener::OpenParameter{
 					._failureQuit = false
