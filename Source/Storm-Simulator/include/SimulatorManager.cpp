@@ -2121,18 +2121,38 @@ void Storm::SimulatorManager::logAverageDensity() const
 
 				const std::size_t currentPCount = densities.size();
 				const double densityCountDb = static_cast<double>(currentPCount);
+
 				double averageDensity = 0.0;
-				for (const double currentPDensity : densities)
+				float maxDensity = std::numeric_limits<float>::lowest();
+				float minDensity = std::numeric_limits<float>::max();
+				for (const float currentPDensity : densities)
 				{
 					// Because floating point number are more accurate near 0, and lose accuracy (cannot represent all integers) at high value, we must divide now.
-					averageDensity += currentPDensity / densityCountDb;
+					averageDensity += static_cast<double>(currentPDensity) / densityCountDb;
+
+					if (maxDensity < currentPDensity)
+					{
+						maxDensity = currentPDensity;
+					}
+					if (minDensity > currentPDensity)
+					{
+						minDensity = currentPDensity;
+					}
 				}
 
-				logPerPSystem += "Fluid ";
-				logPerPSystem += std::to_string(particleSystemPair.first);
-				logPerPSystem += " average density is ";
-				logPerPSystem += std::to_string(averageDensity);
-				logPerPSystem += ".\n";
+				if (currentPCount != 0)
+				{
+					logPerPSystem += "Fluid ";
+					logPerPSystem += std::to_string(particleSystemPair.first);
+					logPerPSystem += " average density is ";
+					logPerPSystem += std::to_string(averageDensity);
+
+					logPerPSystem += ". {min, max}={";
+					logPerPSystem += std::to_string(minDensity);
+					logPerPSystem += ", ";
+					logPerPSystem += std::to_string(maxDensity);
+					logPerPSystem += "}.\n";
+				}
 			}
 		}
 
