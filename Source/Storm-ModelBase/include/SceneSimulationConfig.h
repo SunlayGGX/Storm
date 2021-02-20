@@ -50,5 +50,8 @@ namespace Storm
 		bool _fixRigidBodyAtStartTime;
 
 		float _endSimulationPhysicsTimeInSeconds;
+
+		bool _shouldRemoveRbCollidingPAtStateFileLoad;
+		bool _considerRbWallAtCollingingPStateFileLoad;
 	};
 }

@@ -46,7 +46,9 @@ Storm::SceneSimulationConfig::SceneSimulationConfig() :
 	_fixRigidBodyAtStartTime{ false },
 	_endSimulationPhysicsTimeInSeconds{ -1.f },
 	_fluidViscoMethod{ Storm::ViscosityMethod::Standard },
-	_rbViscoMethod{ Storm::ViscosityMethod::Standard }
+	_rbViscoMethod{ Storm::ViscosityMethod::Standard },
+	_shouldRemoveRbCollidingPAtStateFileLoad{ true },
+	_considerRbWallAtCollingingPStateFileLoad{ true }
 {
 
 }
