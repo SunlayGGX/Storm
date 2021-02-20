@@ -30,6 +30,7 @@
     <ClCompile Include="..\include\RigidBodyParticleSystem.cpp" />
     <ClCompile Include="..\include\SemiImplicitEulerSolver.cpp" />
     <ClCompile Include="..\include\SimulatorManager.cpp" />
+    <ClCompile Include="..\include\SolverParameterChange.cpp" />
     <ClCompile Include="..\include\SPHBaseSolver.cpp" />
     <ClCompile Include="..\include\StateSaverHelper.cpp" />
     <ClCompile Include="..\include\Storm-SimulatorPCH.cpp">
@@ -69,6 +70,7 @@
     <ClInclude Include="..\include\SemiImplicitEulerSolver.h" />
     <ClInclude Include="..\include\SimulatorManager.h" />
     <ClInclude Include="..\include\SolverCreationParameter.h" />
+    <ClInclude Include="..\include\SolverParameterChange.h" />
     <ClInclude Include="..\include\SPHBaseSolver.h" />
     <ClInclude Include="..\include\SplishSplashCubicSplineKernel.h" />
     <ClInclude Include="..\include\StateSaverHelper.h" />

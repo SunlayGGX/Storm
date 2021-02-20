@@ -23,16 +23,22 @@ namespace Storm
 	public:
 		void execute(const Storm::IterationParameter &iterationParameter) final override;
 
+	public:
+		void setEnableThresholdDensity(bool enable);
+		void setNeighborThresholdDensity(std::size_t neighborCount);
+
 	private:
 		void divergenceSolve(const Storm::IterationParameter &iterationParameter, unsigned int &outIteration, float &outAverageError);
 		void pressureSolve(const Storm::IterationParameter &iterationParameter, unsigned int &outIteration, float &outAverageError);
 		void computeDFSPHFactor(const Storm::IterationParameter &iterationParameter, Storm::FluidParticleSystem &fluidPSystem, Storm::DFSPHSolver::DFSPHSolverDataArray &pSystemData, const double kMultiplicationCoeff);
 		void computeDensityAdv(const Storm::IterationParameter &iterationParameter, Storm::FluidParticleSystem &fluidPSystem, const Storm::DFSPHSolver::DFSPHSolverDataArray* currentSystemData, Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex);
-		void computeDensityChange(const Storm::IterationParameter &iterationParameter, Storm::FluidParticleSystem &fluidPSystem, const Storm::DFSPHSolver::DFSPHSolverDataArray* currentSystemData, Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex, const Storm::SceneFluidCustomDFSPHConfig &dfsphFluidConfig);
+		void computeDensityChange(const Storm::IterationParameter &iterationParameter, Storm::FluidParticleSystem &fluidPSystem, const Storm::DFSPHSolver::DFSPHSolverDataArray* currentSystemData, Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex);
 
 	private:
 		std::map<unsigned int, Storm::DFSPHSolver::DFSPHSolverDataArray> _data;
 		float _totalParticleCountFl;
 		bool _enableDivergenceSolve;
+		bool _enableThresholdDensity;
+		std::size_t _neighborThresholdDensity;
 	};
 }

@@ -78,6 +78,7 @@
 #include "PushedParticleSystemData.h"
 
 #include "SolverCreationParameter.h"
+#include "SolverParameterChange.h"
 #include "IterationParameter.h"
 
 #include <fstream>
@@ -1554,6 +1555,24 @@ void Storm::SimulatorManager::advanceBlowersTime(const float deltaTime)
 	{
 		blowerUPtr->advanceTime(deltaTime);
 	}
+}
+
+void Storm::SimulatorManager::setEnableThresholdDensity_DFSPH(bool enable)
+{
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::MainThread, [this, enable]()
+	{
+		Storm::SolverParameterChange::setEnableThresholdDensity_DFSPH(_sphSolver.get(), enable);
+	});
+}
+
+void Storm::SimulatorManager::setNeighborThresholdDensity_DFSPH(std::size_t neighborCount)
+{
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::MainThread, [this, neighborCount]()
+	{
+		Storm::SolverParameterChange::setNeighborThresholdDensity_DFSPH(_sphSolver.get(), neighborCount);
+	});
 }
 
 void Storm::SimulatorManager::tweekRaycastEnabling()

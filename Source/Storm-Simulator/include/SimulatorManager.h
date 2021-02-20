@@ -87,6 +87,10 @@ namespace Storm
 		void advanceBlowersTime(const float deltaTime);
 
 	public:
+		void setEnableThresholdDensity_DFSPH(bool enable);
+		void setNeighborThresholdDensity_DFSPH(std::size_t neighborCount);
+
+	public:
 		void tweekRaycastEnabling();
 
 	public:

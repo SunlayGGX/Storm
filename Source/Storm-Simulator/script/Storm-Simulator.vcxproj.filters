@@ -129,6 +129,9 @@
     <ClCompile Include="..\include\ParticleCountInfo.cpp">
       <Filter>Source Files\General</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\SolverParameterChange.cpp">
+      <Filter>Source Files\Solver\SPHSolvers\Base</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-SimulatorPCH.h">
@@ -232,6 +235,9 @@
     </ClInclude>
     <ClInclude Include="..\include\RaycastEnablingFlag.h">
       <Filter>Header Files\General</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SolverParameterChange.h">
+      <Filter>Header Files\Solver\SPHSolvers\Base</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
