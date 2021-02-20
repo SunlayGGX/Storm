@@ -285,9 +285,8 @@ namespace
 				else
 				{
 					// No more remove, so just flush the remaining elements, and leave the loop.
-					for (; posToKeep < containerElemCount; ++index)
+					for (; posToKeep < containerElemCount; ++index, ++posToKeep)
 					{
-						posToKeep = index + offset;
 						container[index] = std::move(container[posToKeep]);
 					}
 					break;
