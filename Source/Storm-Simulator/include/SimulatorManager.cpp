@@ -2104,3 +2104,46 @@ void Storm::SimulatorManager::printRigidBodyMoment(const unsigned int id) const
 		Storm::throwException<Storm::Exception>("Cannot find the rigid body with id " + std::to_string(id) + "!");
 	}
 }
+
+void Storm::SimulatorManager::logAverageDensity() const
+{
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::MainThread, [this, &singletonHolder]()
+	{
+		std::string logPerPSystem;
+		logPerPSystem.reserve(_particleSystem.size() * 64);
+
+		for (const auto &particleSystemPair : _particleSystem)
+		{
+			if (particleSystemPair.second->isFluids())
+			{
+				const std::vector<float> &densities = static_cast<Storm::FluidParticleSystem*>(particleSystemPair.second.get())->getDensities();
+
+				const std::size_t currentPCount = densities.size();
+				const double densityCountDb = static_cast<double>(currentPCount);
+				double averageDensity = 0.0;
+				for (const double currentPDensity : densities)
+				{
+					// Because floating point number are more accurate near 0, and lose accuracy (cannot represent all integers) at high value, we must divide now.
+					averageDensity += currentPDensity / densityCountDb;
+				}
+
+				logPerPSystem += "Fluid ";
+				logPerPSystem += std::to_string(particleSystemPair.first);
+				logPerPSystem += " average density is ";
+				logPerPSystem += std::to_string(averageDensity);
+				logPerPSystem += ".\n";
+			}
+		}
+
+		if (!logPerPSystem.empty())
+		{
+			logPerPSystem.pop_back();
+			LOG_ALWAYS << logPerPSystem;
+		}
+		else
+		{
+			LOG_ALWAYS << "No fluid particle!";
+		}
+	});
+}

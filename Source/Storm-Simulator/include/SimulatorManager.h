@@ -141,6 +141,9 @@ namespace Storm
 		void printRigidBodyMoment(const unsigned int id) const;
 
 	private:
+		void logAverageDensity() const;
+
+	private:
 		Storm::ParticleSystemContainer _particleSystem;
 		std::vector<std::unique_ptr<Storm::IBlower>> _blowers;
 
