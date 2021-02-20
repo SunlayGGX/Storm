@@ -81,6 +81,7 @@
 #include "IterationParameter.h"
 
 #include <fstream>
+#include <future>
 
 #define STORM_PROGRESS_REMAINING_TIME_NAME "Remaining time"
 #define STORM_FRAME_NUMBER_FIELD_NAME "Frame No"
@@ -242,7 +243,66 @@ namespace
 		return (externalBoundingBoxCorner - externalBoundingBoxTranslation) * coeff + externalBoundingBoxTranslation;
 	}
 
-	void removeParticleInsideRbPosition(std::vector<Storm::Vector3> &inOutParticlePositions, const Storm::ParticleSystemContainer &allParticleSystem, const float particleRadius)
+	struct RemovedIndexesParam
+	{
+		bool _shouldConsiderWall;
+		std::vector<std::size_t> _outRemovedIndexes;
+	};
+
+	template<class ValueType>
+	void removeFromIndex(std::vector<ValueType> &container, const std::vector<std::size_t> &indexesToRemove)
+	{
+		const std::size_t countToRemove = indexesToRemove.size();
+		if (countToRemove == 1)
+		{
+			container.erase(std::begin(container) + indexesToRemove[0]);
+			return;
+		}
+
+		const std::size_t containerElemCount = container.size();
+		const std::size_t lastToRemoveIndex = countToRemove - 1;
+		std::size_t startRemoveIndex = 1;
+		std::size_t offset = 1;
+		std::size_t index = indexesToRemove[0];
+		std::size_t posToKeep = index + offset;
+		for (; posToKeep < containerElemCount;)
+		{
+			if (posToKeep != indexesToRemove[startRemoveIndex])
+			{
+				container[index] = std::move(container[posToKeep]);
+				++index;
+				posToKeep = index + offset;
+			}
+			else
+			{
+				++offset;
+				posToKeep = index + offset;
+
+				if (startRemoveIndex < lastToRemoveIndex)
+				{
+					++startRemoveIndex;
+				}
+				else
+				{
+					// No more remove, so just flush the remaining elements, and leave the loop.
+					for (; posToKeep < containerElemCount; ++index)
+					{
+						posToKeep = index + offset;
+						container[index] = std::move(container[posToKeep]);
+					}
+					break;
+				}
+			}
+		}
+
+		while (offset != 0)
+		{
+			container.pop_back();
+			--offset;
+		}
+	}
+
+	void removeParticleInsideRbPosition(std::vector<Storm::Vector3> &inOutParticlePositions, const Storm::ParticleSystemContainer &allParticleSystem, const float particleRadius, RemovedIndexesParam* outRemovedIndexes)
 	{
 		const std::size_t particleSystemCount = allParticleSystem.size();
 
@@ -256,6 +316,11 @@ namespace
 			getterCoordFunc(box.first) = getterCoordFunc(*minMaxElems.first) - particleRadiusPlusMargin;
 			getterCoordFunc(box.second) = getterCoordFunc(*minMaxElems.second) + particleRadiusPlusMargin;
 		};
+
+		if (outRemovedIndexes != nullptr)
+		{
+			outRemovedIndexes->_outRemovedIndexes.reserve(inOutParticlePositions.size());
+		}
 
 		auto thresholdToEliminate = std::end(inOutParticlePositions);
 
@@ -305,46 +370,118 @@ namespace
 					internalBoundingBox.second = computeInternalBoundingBoxCorner(externalBoundingBox.second, externalBoundingBoxTranslation, coeff);
 				}
 
-				if (hasInternalBoundingBox)
+				if (outRemovedIndexes == nullptr)
 				{
-					LOG_DEBUG << "Solid particle system " << currentPSystem.getId() << " is hollow, we will optimize the skin colliding algorithm by using an internal bounding box";
-
-					thresholdToEliminate = std::partition(std::execution::par, std::begin(inOutParticlePositions), thresholdToEliminate, [&currentPSystemPositionBegin, &currentPSystemPositionEnd, &particleRadius, &externalBoundingBox, &internalBoundingBox](const Storm::Vector3 &particlePos)
+					if (hasInternalBoundingBox)
 					{
-						if (
-							!Storm::isInsideBoundingBox(internalBoundingBox.first, internalBoundingBox.second, particlePos) &&
-							Storm::isInsideBoundingBox(externalBoundingBox.first, externalBoundingBox.second, particlePos)
-							)
-						{
-							return std::find_if(std::execution::par, currentPSystemPositionBegin, currentPSystemPositionEnd, [&particlePos, particleRadius](const Storm::Vector3 &rbPPosition)
-							{
-								return
-									std::fabs(rbPPosition.x() - particlePos.x()) < particleRadius &&
-									std::fabs(rbPPosition.y() - particlePos.y()) < particleRadius &&
-									std::fabs(rbPPosition.z() - particlePos.z()) < particleRadius;
-							}) == currentPSystemPositionEnd;
-						}
+						LOG_DEBUG << "Solid particle system " << currentPSystem.getId() << " is hollow, we will optimize the skin colliding algorithm by using an internal bounding box";
 
-						return true;
-					});
+						thresholdToEliminate = std::partition(std::execution::par, std::begin(inOutParticlePositions), thresholdToEliminate, [&currentPSystemPositionBegin, &currentPSystemPositionEnd, &particleRadius, &externalBoundingBox, &internalBoundingBox](const Storm::Vector3 &particlePos)
+						{
+							if (
+								!Storm::isInsideBoundingBox(internalBoundingBox.first, internalBoundingBox.second, particlePos) &&
+								Storm::isInsideBoundingBox(externalBoundingBox.first, externalBoundingBox.second, particlePos)
+								)
+							{
+								return std::find_if(std::execution::par, currentPSystemPositionBegin, currentPSystemPositionEnd, [&particlePos, particleRadius](const Storm::Vector3 &rbPPosition)
+								{
+									return
+										std::fabs(rbPPosition.x() - particlePos.x()) < particleRadius &&
+										std::fabs(rbPPosition.y() - particlePos.y()) < particleRadius &&
+										std::fabs(rbPPosition.z() - particlePos.z()) < particleRadius;
+								}) == currentPSystemPositionEnd;
+							}
+
+							return true;
+						});
+					}
+					else
+					{
+						thresholdToEliminate = std::partition(std::execution::par, std::begin(inOutParticlePositions), thresholdToEliminate, [&currentPSystemPositionBegin, &currentPSystemPositionEnd, &particleRadius, &externalBoundingBox](const Storm::Vector3 &particlePos)
+						{
+							if (Storm::isInsideBoundingBox(externalBoundingBox.first, externalBoundingBox.second, particlePos))
+							{
+								return std::find_if(std::execution::par, currentPSystemPositionBegin, currentPSystemPositionEnd, [&particlePos, particleRadius](const Storm::Vector3 &rbPPosition)
+								{
+									return
+										std::fabs(rbPPosition.x() - particlePos.x()) < particleRadius &&
+										std::fabs(rbPPosition.y() - particlePos.y()) < particleRadius &&
+										std::fabs(rbPPosition.z() - particlePos.z()) < particleRadius;
+								}) == currentPSystemPositionEnd;
+							}
+
+							return true;
+						});
+					}
 				}
-				else
+				else if (!currentPSystem.isWall() || (outRemovedIndexes->_shouldConsiderWall && currentPSystem.isWall()))
 				{
-					thresholdToEliminate = std::partition(std::execution::par, std::begin(inOutParticlePositions), thresholdToEliminate, [&currentPSystemPositionBegin, &currentPSystemPositionEnd, &particleRadius, &externalBoundingBox](const Storm::Vector3 &particlePos)
-					{
-						if (Storm::isInsideBoundingBox(externalBoundingBox.first, externalBoundingBox.second, particlePos))
-						{
-							return std::find_if(std::execution::par, currentPSystemPositionBegin, currentPSystemPositionEnd, [&particlePos, particleRadius](const Storm::Vector3 &rbPPosition)
-							{
-								return
-									std::fabs(rbPPosition.x() - particlePos.x()) < particleRadius &&
-									std::fabs(rbPPosition.y() - particlePos.y()) < particleRadius &&
-									std::fabs(rbPPosition.z() - particlePos.z()) < particleRadius;
-							}) == currentPSystemPositionEnd;
-						}
+					// Since we need to keep what indexes we removed (because in the case of a state file loading, the other data structures were created and we need to mirror the particle removals to them too).
+					// But, to keep indexes consistent, we'll use stable_partition instead of partition, which is far slower + We'll need to lock mutexes.
 
-						return true;
-					});
+					std::vector<std::size_t> &removedIndexRef = outRemovedIndexes->_outRemovedIndexes;
+
+					std::mutex _removedIndexMutexes;
+
+					if (hasInternalBoundingBox)
+					{
+						LOG_DEBUG << "Solid particle system " << currentPSystem.getId() << " is hollow, we will optimize the skin colliding algorithm by using an internal bounding box. We'll save the indexes removed so the algorithm will a little be slower.";
+
+						thresholdToEliminate = std::stable_partition(std::execution::par, std::begin(inOutParticlePositions), thresholdToEliminate, [&](const Storm::Vector3 &particlePos)
+						{
+							if (
+								!Storm::isInsideBoundingBox(internalBoundingBox.first, internalBoundingBox.second, particlePos) &&
+								Storm::isInsideBoundingBox(externalBoundingBox.first, externalBoundingBox.second, particlePos)
+								)
+							{
+								if (std::find_if(std::execution::par, currentPSystemPositionBegin, currentPSystemPositionEnd, [&particlePos, particleRadius](const Storm::Vector3 &rbPPosition)
+								{
+									return
+										std::fabs(rbPPosition.x() - particlePos.x()) < particleRadius &&
+										std::fabs(rbPPosition.y() - particlePos.y()) < particleRadius &&
+										std::fabs(rbPPosition.z() - particlePos.z()) < particleRadius;
+								}) != currentPSystemPositionEnd)
+								{
+									// Works because it is contiguous in memory
+									std::lock_guard<std::mutex> lock{ _removedIndexMutexes };
+									removedIndexRef.emplace_back(static_cast<std::size_t>(&particlePos - &*std::begin(inOutParticlePositions)));
+
+									return false;
+								}
+							}
+
+							return true;
+						});
+					}
+					else
+					{
+						LOG_DEBUG << "We'll save the particle removed indexes due to collision with rigid body " << currentPSystem.getId() << ". Since we'll keep index, algorithm would be a little slower.";
+
+						thresholdToEliminate = std::stable_partition(std::execution::par, std::begin(inOutParticlePositions), thresholdToEliminate, [&](const Storm::Vector3 &particlePos)
+						{
+							if (Storm::isInsideBoundingBox(externalBoundingBox.first, externalBoundingBox.second, particlePos))
+							{
+								if (std::find_if(std::execution::par, currentPSystemPositionBegin, currentPSystemPositionEnd, [&particlePos, particleRadius](const Storm::Vector3 &rbPPosition)
+								{
+									return
+										std::fabs(rbPPosition.x() - particlePos.x()) < particleRadius &&
+										std::fabs(rbPPosition.y() - particlePos.y()) < particleRadius &&
+										std::fabs(rbPPosition.z() - particlePos.z()) < particleRadius;
+								}) != currentPSystemPositionEnd)
+								{
+									// Works because it is contiguous in memory
+									std::lock_guard<std::mutex> lock{ _removedIndexMutexes };
+									removedIndexRef.emplace_back(static_cast<std::size_t>(&particlePos - &*std::begin(inOutParticlePositions)));
+
+									return false;
+								}
+							}
+
+							return true;
+						});
+					}
+
+					std::sort(std::execution::par, std::begin(removedIndexRef), std::end(removedIndexRef));
 				}
 			}
 		}
@@ -1262,7 +1399,7 @@ void Storm::SimulatorManager::addFluidParticleSystem(unsigned int id, std::vecto
 		LOG_COMMENT << "Removing fluid particles that collide with rigid bodies particles.";
 
 		const Storm::SceneSimulationConfig &sceneSimulationConfig = configMgr.getSceneSimulationConfig();
-		removeParticleInsideRbPosition(particlePositions, _particleSystem, sceneSimulationConfig._particleRadius);
+		removeParticleInsideRbPosition(particlePositions, _particleSystem, sceneSimulationConfig._particleRadius, nullptr);
 
 		const std::size_t currentParticleCount = particlePositions.size();
 		LOG_DEBUG << "We removed " << initialParticleCount - currentParticleCount << " particle(s) after checking which collide with existing rigid bodies.";
@@ -1303,22 +1440,34 @@ void Storm::SimulatorManager::addFluidParticleSystem(Storm::SystemSimulationStat
 	const std::size_t initialParticleCount = state._positions.size();
 	LOG_COMMENT << "Creating fluid particle system with " << initialParticleCount << " particles.";
 
-#if false 
-
-	// FIXME : The algorithm to remove insider particle wasn't made with state reloading in mind (This feature was made long before I did the state reloading feature, I did YAGNI, and now I'm paying the price).
 	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
+
+	const Storm::SceneSimulationConfig &simulConfig = configMgr.getSceneSimulationConfig();
 	const Storm::SceneFluidConfig &sceneFluidConfig = configMgr.getSceneFluidConfig();
-	if (sceneFluidConfig._removeParticlesCollidingWithRb)
+	if (simulConfig._shouldRemoveRbCollidingPAtStateFileLoad && sceneFluidConfig._removeParticlesCollidingWithRb)
 	{
 		LOG_COMMENT << "Removing fluid particles that collide with rigid bodies particles.";
 
+		RemovedIndexesParam removeParam;
+		removeParam._shouldConsiderWall = simulConfig._considerRbWallAtCollingingPStateFileLoad;
+
 		const Storm::SceneSimulationConfig &sceneSimulationConfig = configMgr.getSceneSimulationConfig();
-		removeParticleInsideRbPosition(state._positions, _particleSystem, sceneSimulationConfig._particleRadius);
+		removeParticleInsideRbPosition(state._positions, _particleSystem, sceneSimulationConfig._particleRadius, &removeParam);
+
+		if (!removeParam._outRemovedIndexes.empty())
+		{
+			std::future<void> removalsFutures[] =
+			{
+				std::async(std::launch::async, [&state, &removeParam]() { removeFromIndex(state._velocities, removeParam._outRemovedIndexes); }),
+				std::async(std::launch::async, [&state, &removeParam]() { removeFromIndex(state._forces, removeParam._outRemovedIndexes); }),
+				std::async(std::launch::async, [&state, &removeParam]() { removeFromIndex(state._pressures, removeParam._outRemovedIndexes); }),
+				std::async(std::launch::async, [&state, &removeParam]() { removeFromIndex(state._densities, removeParam._outRemovedIndexes); }),
+				std::async(std::launch::async, [&state, &removeParam]() { removeFromIndex(state._masses, removeParam._outRemovedIndexes); }),
+			};
+		}
 
 		LOG_DEBUG << "We removed " << initialParticleCount - state._positions.size() << " particle(s) after checking which collide with existing rigid bodies.";
 	}
-
-#endif
 
 	Storm::FluidParticleSystem &newPSystem = addParticleSystemToMap<Storm::FluidParticleSystem>(_particleSystem, state._id, std::move(state._positions));
 	newPSystem.setVelocity(std::move(state._velocities));
