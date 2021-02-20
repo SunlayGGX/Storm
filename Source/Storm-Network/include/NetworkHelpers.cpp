@@ -6,6 +6,7 @@
 #include "OnMessageReceivedParam.h"
 
 #include "StringAlgo.h"
+#include "RAII.h"
 
 #include "Network/NetworkConstants.cs"
 #include "Network/NetworkApplication.cs"
@@ -45,41 +46,83 @@ void Storm::NetworkHelpers::prepareMsg(std::string &inOutMsg, const Storm::Netwo
 	msgWithHeader += Storm::NetworkConstants::k_endOfMessageCommand;
 }
 
-bool Storm::NetworkHelpers::parseMsg(const std::string &msg, Storm::OnMessageReceivedParam &param)
+bool Storm::NetworkHelpers::parseMsg(std::string &inOutMsg, std::vector<Storm::OnMessageReceivedParam> &params)
 {
-	if (msg.ends_with(Storm::NetworkConstants::k_endOfMessageCommand))
+	enum : std::size_t
 	{
-		std::vector<std::string_view> msgTokens;
-		Storm::StringAlgo::split(msgTokens, msg, Storm::StringAlgo::makeSplitPredicate(Storm::NetworkConstants::k_networkSeparator));
+		k_minimalTokenCount = 4,
+		k_lastMandatoryTokenIndex = k_minimalTokenCount - 1,
+	};
 
-		const std::size_t msgTockenCount = msgTokens.size();
-		if (msgTockenCount < 5)
+	if (inOutMsg.find(Storm::NetworkConstants::k_endOfMessageCommand) != std::string::npos)
+	{
+		std::vector<std::string_view> splitted;
+		Storm::StringAlgo::split(splitted, inOutMsg, Storm::StringAlgo::makeSplitPredicate(Storm::NetworkConstants::k_endOfMessageCommand));
+
+		bool unprocessedLeft;
+		std::size_t msgCount;
+		if (inOutMsg.ends_with(Storm::NetworkConstants::k_endOfMessageCommand))
 		{
-			Storm::throwException<Storm::Exception>("Wrong number of message tokens received! Received " + std::to_string(msgTockenCount));
+			msgCount = splitted.size();
+			unprocessedLeft = false;
+		}
+		else
+		{
+			msgCount = splitted.size() - 1;
+			unprocessedLeft = true;
 		}
 
-		const uint32_t magicKeyword = Storm::NetworkHelpers::fromNetwork<uint32_t>(msgTokens[0]);
-		if (magicKeyword != Storm::NetworkConstants::k_magicKeyword)
+		auto raiiClearer = Storm::makeLazyRAIIObject([unprocessedLeft, &splitted, &inOutMsg]()
 		{
-			Storm::throwException<Storm::Exception>("Wrong magic word received from connected application. Value received was " + std::to_string(magicKeyword));
-		}
-
-		param._senderId._connectedApplication = static_cast<Storm::NetworkApplication>(Storm::NetworkHelpers::fromNetwork<uint8_t>(msgTokens[1]));
-		param._senderId._pid = Storm::NetworkHelpers::fromNetwork<uint32_t>(msgTokens[2]);
-
-		param._messageType = static_cast<Storm::NetworkMessageType>(Storm::NetworkHelpers::fromNetwork<uint8_t>(msgTokens[3]));
-
-		const std::size_t lastMsgParamsIndex = msgTockenCount - 1;
-		if (lastMsgParamsIndex > 4)
-		{
-			param._parameters.reserve(lastMsgParamsIndex - 4);
-
-			for (std::size_t iter = 4; iter < lastMsgParamsIndex; ++iter)
+			if (unprocessedLeft)
 			{
-				const std::string_view msgParam = msgTokens[iter];
-				if (!msgParam.empty())
+				inOutMsg = splitted.back();
+			}
+			else
+			{
+				inOutMsg.clear();
+			}
+		});
+
+		params.reserve(splitted.size());
+
+		for (std::size_t iter = 0; iter < msgCount; ++iter)
+		{
+			const std::string_view currentMsg = splitted[iter];
+
+			Storm::OnMessageReceivedParam &param = params.emplace_back();
+
+			std::vector<std::string_view> msgTokens;
+			Storm::StringAlgo::split(msgTokens, currentMsg, Storm::StringAlgo::makeSplitPredicate(Storm::NetworkConstants::k_networkSeparator));
+
+			const std::size_t msgTokenCount = msgTokens.size();
+			if (msgTokenCount < k_minimalTokenCount)
+			{
+				Storm::throwException<Storm::Exception>("Wrong number of message tokens received! Received " + std::to_string(msgTokenCount));
+			}
+
+			const uint32_t magicKeyword = Storm::NetworkHelpers::fromNetwork<uint32_t>(msgTokens[0]);
+			if (magicKeyword != Storm::NetworkConstants::k_magicKeyword)
+			{
+				Storm::throwException<Storm::Exception>("Wrong magic word received from connected application. Value received was " + std::to_string(magicKeyword));
+			}
+
+			param._senderId._connectedApplication = static_cast<Storm::NetworkApplication>(Storm::NetworkHelpers::fromNetwork<uint8_t>(msgTokens[1]));
+			param._senderId._pid = Storm::NetworkHelpers::fromNetwork<uint32_t>(msgTokens[2]);
+
+			param._messageType = static_cast<Storm::NetworkMessageType>(Storm::NetworkHelpers::fromNetwork<uint8_t>(msgTokens[3]));
+
+			if (msgTokenCount > k_minimalTokenCount)
+			{
+				param._parameters.reserve(msgTokenCount - k_minimalTokenCount);
+
+				for (std::size_t iter = k_minimalTokenCount; iter < msgTokenCount; ++iter)
 				{
-					param._parameters.emplace_back(msgParam);
+					const std::string_view msgParam = msgTokens[iter];
+					if (!msgParam.empty())
+					{
+						param._parameters.emplace_back(msgParam);
+					}
 				}
 			}
 		}

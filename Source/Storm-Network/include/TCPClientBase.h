@@ -65,6 +65,8 @@ namespace Storm
 		virtual void notifyOnConnectionChanged(Storm::OnConnectionStateChangedParam &&param) = 0;
 		virtual void notifyOnMessageReceived(Storm::OnMessageReceivedParam &&param) = 0;
 
+		virtual bool queryIsConnected() const = 0;
+
 	private:
 		std::string _temporaryRead;
 	};
@@ -191,6 +193,11 @@ namespace Storm
 		void notifyOnMessageReceived(Storm::OnMessageReceivedParam &&param) final override
 		{
 			this->onMessageReceived(std::move(param));
+		}
+
+		bool queryIsConnected() const final override
+		{
+			return this->isConnected();
 		}
 
 	protected:

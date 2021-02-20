@@ -146,6 +146,7 @@ void Storm::TCPClientBasePrivateLogic::doAuthentication(Traits::SocketType &sock
 			this->notifyOnConnectionChanged(std::move(param));
 
 			// The only way to not disconnect is to successfully come here.
+			_temporaryRead.clear();
 			disconnectRaiiObject.release();
 		}
 		else
@@ -207,25 +208,34 @@ void Storm::TCPClientBasePrivateLogic::sendAsyncMessage(Traits::SocketType &sock
 
 void Storm::TCPClientBasePrivateLogic::startRead(Traits::SocketType &socket)
 {
-	boost::asio::async_read_until(socket, boost::asio::dynamic_buffer(_temporaryRead), Storm::NetworkConstants::k_endOfMessageCommand,
-		[this, &socket](const boost::system::error_code &ec, const std::size_t byteRead)
+	if (this->queryIsConnected())
 	{
-		if (!ec)
+		boost::asio::async_read_until(socket, boost::asio::dynamic_buffer(_temporaryRead), Storm::NetworkConstants::k_endOfMessageCommand,
+			[this, &socket](const boost::system::error_code &ec, const std::size_t byteRead)
 		{
-			Storm::OnMessageReceivedParam param;
-			if (Storm::NetworkHelpers::parseMsg(_temporaryRead, param))
+			if (!ec)
 			{
-				this->notifyOnMessageReceived(std::move(param));
-			}
+				auto raiiRestartRead = Storm::makeLazyRAIIObject([this, &socket]()
+				{
+					this->startRead(socket);
+				});
 
-			this->startRead(socket);
-		}
-		else
-		{
-			_temporaryRead.clear();
-			this->disconnectLogicCall();
-		}
-	});
+				std::vector<Storm::OnMessageReceivedParam> params;
+				if (Storm::NetworkHelpers::parseMsg(_temporaryRead, params))
+				{
+					for (Storm::OnMessageReceivedParam &param : params)
+					{
+						this->notifyOnMessageReceived(std::move(param));
+					}
+				}
+			}
+			else
+			{
+				_temporaryRead.clear();
+				this->disconnectLogicCall();
+			}
+		});
+	}
 }
 
 void Storm::TCPClientBasePrivateLogic::definitiveStop(Traits::SocketType &socket, const bool connected)

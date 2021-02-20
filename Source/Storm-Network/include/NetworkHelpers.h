@@ -79,7 +79,7 @@ namespace Storm
 
 	public:
 		static void prepareMsg(std::string &inOutMsg, const Storm::NetworkMessageType messageType);
-		static bool parseMsg(const std::string &msg, Storm::OnMessageReceivedParam &param);
+		static bool parseMsg(std::string &inOutMsg, std::vector<Storm::OnMessageReceivedParam> &params);
 
 		static std::string makeAuthenticationMsg();
 	};
