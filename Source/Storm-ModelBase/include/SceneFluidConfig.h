@@ -45,6 +45,7 @@ namespace Storm
 		float _relaxationCoefficient;
 		bool _gravityEnabled;
 		bool _removeParticlesCollidingWithRb;
+		bool _removeOutDomainParticles;
 
 		std::unique_ptr<Storm::SceneFluidDefaultCustomConfig> _customSimulationSettings;
 	};
