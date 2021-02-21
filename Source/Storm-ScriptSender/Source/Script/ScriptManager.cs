@@ -63,6 +63,8 @@ namespace Storm_ScriptSender.Source.Script
             }
 
             doc.Save(ConfigManager.Instance.ScriptXmlCompleteFilePath);
+
+            Console.WriteLine("Script xml saved at " + ConfigManager.Instance.ScriptXmlCompleteFilePath);
         }
 
         public List<UIScriptTabItem> LoadScripts(out int selectedTabIndex)
@@ -163,6 +165,8 @@ namespace Storm_ScriptSender.Source.Script
                         });
                     }
                 });
+
+                Console.WriteLine("Script xml loaded from " + ConfigManager.Instance.ScriptXmlCompleteFilePath + ". We have loaded " + result.Count + " script tabs.");
             }
 
             return result;

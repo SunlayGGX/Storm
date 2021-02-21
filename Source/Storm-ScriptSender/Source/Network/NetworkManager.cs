@@ -226,6 +226,8 @@ namespace Storm_ScriptSender.Source.Network
 
                 while (_acceptance == null)
                 {
+                    Console.WriteLine("Listening to new connections");
+
                     _acceptance = _netListener.AcceptSocketAsync();
                     if (_acceptance.Wait(10, _acceptanceWaitCancellationToken.Token))
                     {
@@ -308,6 +310,8 @@ namespace Storm_ScriptSender.Source.Network
                 {
                     totalSend += socket.Send(bytesToSend, totalSend, bytesToSend.Length - totalSend, SocketFlags.None);
                 } while (totalSend != bytesToSend.Length);
+
+                Console.WriteLine("Message sent to " + socket.RemoteEndPoint.ToString());
             }
             catch (SocketException)
             {
@@ -337,9 +341,13 @@ namespace Storm_ScriptSender.Source.Network
 
         private void AddConnection(Socket toConnect)
         {
+            string remoteEndPoint = toConnect.RemoteEndPoint.ToString();
+            Console.WriteLine(remoteEndPoint + " is connecting");
+
             if (NetworkHelpers.AuthenticateConnection(toConnect, _pid))
             {
                 _clients.Add(toConnect);
+                Console.WriteLine(remoteEndPoint + " authenticated successfully");
             }
             else
             {
