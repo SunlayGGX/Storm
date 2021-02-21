@@ -101,6 +101,12 @@ namespace
 					._failureQuit = false
 				}, outProcessUID);
 				break;
+
+			case ID_NOTEPAD_README:
+				Storm::StormProcessOpener::openReadmeFile(Storm::StormProcessOpener::OpenParameter{
+					._failureQuit = false
+				}, outProcessUID);
+				break;
 				
 			case ID_LINK_GITHUB:
 				Storm::StormProcessOpener::openStormUrlLink(Storm::StormProcessOpener::OpenParameter{

@@ -149,6 +149,15 @@ bool Storm::StormProcessOpener::openCurrentConfigFile(const Storm::StormProcessO
 	return openNotepadOnFile(param, outProcessUID, sceneConfigFilePath);
 }
 
+bool Storm::StormProcessOpener::openReadmeFile(const OpenParameter &param, std::size_t &outProcessUID)
+{
+	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
+	std::string readmePath = "$[StormRoot]\\Readme.md";
+	configMgr.getMacroizedConvertedValue(readmePath);
+
+	return openNotepadOnFile(param, outProcessUID, readmePath);
+}
+
 bool Storm::StormProcessOpener::openTextFile(const OpenParameter &param, std::size_t &outProcessUID)
 {
 	return openNotepadOnFile(param, outProcessUID, std::string{ param._additionalParameterStr });

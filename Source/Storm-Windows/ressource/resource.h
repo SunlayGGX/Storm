@@ -33,13 +33,14 @@
 #define ID_TOOLS_STORM40029             40029
 #define ID_TOOLS_STORM_SCRIPT_SENDER    40030
 #define ID_STORM_SCRIPT_SENDER          40031
+#define ID_NOTEPAD_README               40033
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        106
-#define _APS_NEXT_COMMAND_VALUE         40033
+#define _APS_NEXT_COMMAND_VALUE         40034
 #define _APS_NEXT_CONTROL_VALUE         1001
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
