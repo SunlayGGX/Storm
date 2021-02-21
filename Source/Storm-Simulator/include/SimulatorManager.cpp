@@ -302,7 +302,7 @@ namespace
 		}
 	}
 
-	void removeParticleInsideRbPosition(std::vector<Storm::Vector3> &inOutParticlePositions, const Storm::ParticleSystemContainer &allParticleSystem, const float particleRadius, RemovedIndexesParam* outRemovedIndexes)
+	void removeParticleInsideRbPosition(std::vector<Storm::Vector3> &inOutParticlePositions, const Storm::ParticleSystemContainer &allParticleSystem, const float particleRadius, std::pair<Storm::Vector3, Storm::Vector3> &outDomainBoundingBox, RemovedIndexesParam* outRemovedIndexes)
 	{
 		const std::size_t particleSystemCount = allParticleSystem.size();
 
@@ -339,6 +339,13 @@ namespace
 				computeBoxCoordinate(externalBoundingBox, currentPSystemPositions, [](auto &vect) -> auto& { return vect.z(); });
 
 				const Storm::Vector3 externalBoundingBoxTranslation = (externalBoundingBox.second + externalBoundingBox.first) / 2.f;
+
+				Storm::minInPlace(outDomainBoundingBox, externalBoundingBox, [](auto &vect) -> auto& { return vect.first.x(); });
+				Storm::minInPlace(outDomainBoundingBox, externalBoundingBox, [](auto &vect) -> auto& { return vect.first.y(); });
+				Storm::minInPlace(outDomainBoundingBox, externalBoundingBox, [](auto &vect) -> auto& { return vect.first.z(); });
+				Storm::maxInPlace(outDomainBoundingBox, externalBoundingBox, [](auto &vect) -> auto& { return vect.second.x(); });
+				Storm::maxInPlace(outDomainBoundingBox, externalBoundingBox, [](auto &vect) -> auto& { return vect.second.y(); });
+				Storm::maxInPlace(outDomainBoundingBox, externalBoundingBox, [](auto &vect) -> auto& { return vect.second.z(); });
 
 				float coeff = 0.96f;
 				std::pair<Storm::Vector3, Storm::Vector3> internalBoundingBox{ 
@@ -484,6 +491,55 @@ namespace
 					std::sort(std::execution::par, std::begin(removedIndexRef), std::end(removedIndexRef));
 				}
 			}
+		}
+
+		outDomainBoundingBox.first.x() += particleRadius;
+		outDomainBoundingBox.first.y() += particleRadius;
+		outDomainBoundingBox.first.z() += particleRadius;
+		outDomainBoundingBox.second.x() -= particleRadius;
+		outDomainBoundingBox.second.y() -= particleRadius;
+		outDomainBoundingBox.second.z() -= particleRadius;
+
+		for (std::size_t toRemove = std::end(inOutParticlePositions) - thresholdToEliminate; toRemove > 0; --toRemove)
+		{
+			inOutParticlePositions.pop_back();
+		}
+	}
+
+	void removeOutDomainParticle(std::vector<Storm::Vector3> &inOutParticlePositions, const std::pair<Storm::Vector3, Storm::Vector3> &outDomainBoundingBox, RemovedIndexesParam* outRemovedIndexes)
+	{
+		LOG_DEBUG << "Removing particles outside domain of { " << outDomainBoundingBox.first << ", " << outDomainBoundingBox.second << " }";
+
+		auto thresholdToEliminate = std::end(inOutParticlePositions);
+		if (outRemovedIndexes == nullptr)
+		{
+			thresholdToEliminate = std::partition(std::execution::par, std::begin(inOutParticlePositions), thresholdToEliminate, [&outDomainBoundingBox](const Storm::Vector3 &particlePos)
+			{
+				return Storm::isInsideBoundingBox(outDomainBoundingBox.first, outDomainBoundingBox.second, particlePos);
+			});
+		}
+		else
+		{
+			LOG_DEBUG << "We'll save the out of domains particles removed indexes. Since we'll keep indexes, algorithm will be slower.";
+
+			std::vector<std::size_t> &removedIndexRef = outRemovedIndexes->_outRemovedIndexes;
+			std::mutex _removedIndexMutexes;
+
+			thresholdToEliminate = std::stable_partition(std::execution::par, std::begin(inOutParticlePositions), thresholdToEliminate, [&](const Storm::Vector3 &particlePos)
+			{
+				if (!Storm::isInsideBoundingBox(outDomainBoundingBox.first, outDomainBoundingBox.second, particlePos))
+				{
+					// Works because it is contiguous in memory
+					std::lock_guard<std::mutex> lock{ _removedIndexMutexes };
+					removedIndexRef.emplace_back(static_cast<std::size_t>(&particlePos - &*std::begin(inOutParticlePositions)));
+					
+					return false;
+				}
+
+				return true;
+			});
+
+			std::sort(std::execution::par, std::begin(removedIndexRef), std::end(removedIndexRef));
 		}
 
 		for (std::size_t toRemove = std::end(inOutParticlePositions) - thresholdToEliminate; toRemove > 0; --toRemove)
@@ -1398,8 +1454,15 @@ void Storm::SimulatorManager::addFluidParticleSystem(unsigned int id, std::vecto
 	{
 		LOG_COMMENT << "Removing fluid particles that collide with rigid bodies particles.";
 
+		std::pair<Storm::Vector3, Storm::Vector3> outDomain{ Storm::initVector3ForMin(), Storm::initVector3ForMax() };
+
 		const Storm::SceneSimulationConfig &sceneSimulationConfig = configMgr.getSceneSimulationConfig();
-		removeParticleInsideRbPosition(particlePositions, _particleSystem, sceneSimulationConfig._particleRadius, nullptr);
+		removeParticleInsideRbPosition(particlePositions, _particleSystem, sceneSimulationConfig._particleRadius, outDomain, nullptr);
+
+		if (sceneFluidConfig._removeOutDomainParticles)
+		{
+			removeOutDomainParticle(particlePositions, outDomain, nullptr);
+		}
 
 		const std::size_t currentParticleCount = particlePositions.size();
 		LOG_DEBUG << "We removed " << initialParticleCount - currentParticleCount << " particle(s) after checking which collide with existing rigid bodies.";
@@ -1451,8 +1514,10 @@ void Storm::SimulatorManager::addFluidParticleSystem(Storm::SystemSimulationStat
 		RemovedIndexesParam removeParam;
 		removeParam._shouldConsiderWall = simulConfig._considerRbWallAtCollingingPStateFileLoad;
 
+		std::pair<Storm::Vector3, Storm::Vector3> outDomain{ Storm::initVector3ForMin(), Storm::initVector3ForMax() };
+
 		const Storm::SceneSimulationConfig &sceneSimulationConfig = configMgr.getSceneSimulationConfig();
-		removeParticleInsideRbPosition(state._positions, _particleSystem, sceneSimulationConfig._particleRadius, &removeParam);
+		removeParticleInsideRbPosition(state._positions, _particleSystem, sceneSimulationConfig._particleRadius, outDomain, &removeParam);
 
 		if (!removeParam._outRemovedIndexes.empty())
 		{
@@ -1464,6 +1529,24 @@ void Storm::SimulatorManager::addFluidParticleSystem(Storm::SystemSimulationStat
 				std::async(std::launch::async, [&state, &removeParam]() { removeFromIndex(state._densities, removeParam._outRemovedIndexes); }),
 				std::async(std::launch::async, [&state, &removeParam]() { removeFromIndex(state._masses, removeParam._outRemovedIndexes); }),
 			};
+		}
+
+		if (sceneFluidConfig._removeOutDomainParticles)
+		{
+			removeParam._outRemovedIndexes.clear();
+			removeOutDomainParticle(state._positions, outDomain, &removeParam);
+
+			if (!removeParam._outRemovedIndexes.empty())
+			{
+				std::future<void> removalsFutures[] =
+				{
+					std::async(std::launch::async, [&state, &removeParam]() { removeFromIndex(state._velocities, removeParam._outRemovedIndexes); }),
+					std::async(std::launch::async, [&state, &removeParam]() { removeFromIndex(state._forces, removeParam._outRemovedIndexes); }),
+					std::async(std::launch::async, [&state, &removeParam]() { removeFromIndex(state._pressures, removeParam._outRemovedIndexes); }),
+					std::async(std::launch::async, [&state, &removeParam]() { removeFromIndex(state._densities, removeParam._outRemovedIndexes); }),
+					std::async(std::launch::async, [&state, &removeParam]() { removeFromIndex(state._masses, removeParam._outRemovedIndexes); }),
+				};
+			}
 		}
 
 		LOG_DEBUG << "We removed " << initialParticleCount - state._positions.size() << " particle(s) after checking which collide with existing rigid bodies.";
