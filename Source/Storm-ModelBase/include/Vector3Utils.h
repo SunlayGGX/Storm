@@ -5,8 +5,8 @@
 
 namespace Storm
 {
-	template<class SelectorFunc>
-	void minInPlace(Storm::Vector3 &toBeMin, const Storm::Vector3 &other, const SelectorFunc &selector)
+	template<class ValueType, class SelectorFunc>
+	void minInPlace(ValueType &toBeMin, const ValueType &other, const SelectorFunc &selector)
 	{
 		STORM_STATIC_ASSERT(
 			std::is_reference_v<decltype(selector(toBeMin))>,
@@ -21,8 +21,8 @@ namespace Storm
 		}
 	}
 
-	template<class SelectorFunc>
-	void maxInPlace(Storm::Vector3 &toBeMax, const Storm::Vector3 &other, const SelectorFunc &selector)
+	template<class ValueType, class SelectorFunc>
+	void maxInPlace(ValueType &toBeMax, const ValueType &other, const SelectorFunc &selector)
 	{
 		STORM_STATIC_ASSERT(
 			std::is_reference_v<decltype(selector(toBeMax))>,
@@ -37,8 +37,8 @@ namespace Storm
 		}
 	}
 
-	template<class SelectorFunc>
-	void minMaxInPlace(Storm::Vector3 &toBeMin, Storm::Vector3 &toBeMax, const Storm::Vector3 &other, const SelectorFunc &selector)
+	template<class ValueType, class SelectorFunc>
+	void minMaxInPlace(ValueType &toBeMin, ValueType &toBeMax, const ValueType &other, const SelectorFunc &selector)
 	{
 		minInPlace(toBeMin, other, selector);
 		maxInPlace(toBeMax, other, selector);
