@@ -213,17 +213,40 @@ lock.lock()														\
 	if (toBeRemovedCount > 0)
 	{
 		LOG_COMMENT << "We would remove " << toBeRemovedCount << " log file (were detected older than " << removeLogOlderThanDay << " days from now).";
+
+		const std::size_t expectedLengthNoRealloc = (4 + 128) * toBeRemovedCount;
+
+		std::string removed;
+		std::string notRemoved;
+		removed.reserve(expectedLengthNoRealloc);
+		notRemoved.reserve(expectedLengthNoRealloc / 4); // Less because it is exceptional, so we estimate that it should be far less than the real realloc.
+
 		for (const auto &logFilePathToRemove : logsToBeRemoved)
 		{
 			if (std::filesystem::remove(logFilePathToRemove))
 			{
-				LOG_DEBUG << logFilePathToRemove << " was removed successfully";
+				removed += "\n\t- ";
+				removed += Storm::toStdString(logFilePathToRemove);
 			}
 			else
 			{
-				LOG_DEBUG << "Could not remove " << logFilePathToRemove;
+				notRemoved += "\n\t- ";
+				notRemoved += Storm::toStdString(logFilePathToRemove);
 			}
 		}
+
+		if (!removed.empty())
+		{
+			LOG_DEBUG << "We successfully removed those logs :" << removed;
+		}
+		if (!notRemoved.empty())
+		{
+			LOG_ERROR << "We failed to remove those logs :" << notRemoved;
+		}
+	}
+	else
+	{
+		LOG_DEBUG << "No logs to remove.";
 	}
 
 	// Wait for the thread to start before continuing.
