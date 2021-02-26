@@ -400,11 +400,12 @@ void Storm::PhysicsManager::applyLocalForces(unsigned int particleSystemId, cons
 			if (!dynamicRb.isAnimated())
 			{
 				const std::size_t applyCount = position.size();
+				const float applyCountFl = static_cast<float>(applyCount);
 
 				assert(applyCount == force.size() && "Mismatch detected between position and force apply count.");
 				for (std::size_t iter = 0; iter < applyCount; ++iter)
 				{
-					dynamicRb.applyForce(position[iter], force[iter]);
+					dynamicRb.applyForce(position[iter], force[iter] / applyCountFl);
 				}
 			}
 		}
