@@ -8,6 +8,7 @@ struct aiScene;
 namespace Storm
 {
 	struct SceneRigidBodyConfig;
+	struct SystemSimulationStateObject;
 
 	class AssetCacheData
 	{
@@ -30,10 +31,10 @@ namespace Storm
 		const Storm::Vector3& getFinalBoundingBoxMax() const noexcept;
 
 	public:
-		void removeInsiderParticle(std::vector<Storm::Vector3> &inOutParticles) const;
+		void removeInsiderParticle(std::vector<Storm::Vector3> &inOutParticles, Storm::SystemSimulationStateObject* inOutSimulStateObjectPtr) const;
 
 	private:
-		void removeInsiderParticleWithNormalsMethod(std::vector<Storm::Vector3> &inOutParticles) const;
+		void removeInsiderParticleWithNormalsMethod(std::vector<Storm::Vector3> &inOutParticles, Storm::SystemSimulationStateObject* inOutSimulStateObjectPtr) const;
 
 	public:
 		const std::vector<Storm::Vector3>& getSrcVertices() const noexcept;

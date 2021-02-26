@@ -4,6 +4,8 @@
 
 #include "SceneRigidBodyConfig.h"
 
+#include "SystemSimulationStateObject.h"
+
 #include "InsideParticleRemovalTechnique.h"
 #include "LayeringGenerationTechnique.h"
 
@@ -234,6 +236,12 @@ namespace
 		cont.reserve(hijacker._newSize);
 		Storm::setNumUninitialized_hijack(cont, hijacker);
 	}
+
+	template<class Type>
+	__forceinline void removeAtIndex(std::vector<Type> &container, const std::size_t index)
+	{
+		container.erase(std::begin(container) + index);
+	}
 }
 
 
@@ -301,7 +309,7 @@ const Storm::Vector3& Storm::AssetCacheData::getFinalBoundingBoxMax() const noex
 	return _finalBoundingBoxMax;
 }
 
-void Storm::AssetCacheData::removeInsiderParticle(std::vector<Storm::Vector3> &inOutParticles) const
+void Storm::AssetCacheData::removeInsiderParticle(std::vector<Storm::Vector3> &inOutParticles, Storm::SystemSimulationStateObject* inOutSimulStateObjectPtr) const
 {
 	const std::size_t exParticleCount = inOutParticles.size();
 	bool hasRunRemovalAlgorithm = true;
@@ -309,7 +317,7 @@ void Storm::AssetCacheData::removeInsiderParticle(std::vector<Storm::Vector3> &i
 	switch (_rbConfig._insideRbFluidDetectionMethodEnum)
 	{
 	case Storm::InsideParticleRemovalTechnique::Normals:
-		this->removeInsiderParticleWithNormalsMethod(inOutParticles);
+		this->removeInsiderParticleWithNormalsMethod(inOutParticles, inOutSimulStateObjectPtr);
 		break;
 
 	default:
@@ -327,7 +335,7 @@ void Storm::AssetCacheData::removeInsiderParticle(std::vector<Storm::Vector3> &i
 	}
 }
 
-void Storm::AssetCacheData::removeInsiderParticleWithNormalsMethod(std::vector<Storm::Vector3> &inOutParticles) const
+void Storm::AssetCacheData::removeInsiderParticleWithNormalsMethod(std::vector<Storm::Vector3> &inOutParticles, Storm::SystemSimulationStateObject* inOutSimulStateObjectPtr) const
 {
 	LOG_DEBUG << "Remove insider particles from rigid body " << _rbConfig._rigidBodyID << " using normals technique.";
 
@@ -335,32 +343,80 @@ void Storm::AssetCacheData::removeInsiderParticleWithNormalsMethod(std::vector<S
 
 	assert(_finalCurrent._vertices.size() == normalCount && "Vertices count mismatch Normals count!");
 
-	auto eraseIt = std::partition(std::execution::par, std::begin(inOutParticles), std::end(inOutParticles), [this, normalCount](const Storm::Vector3 &particlePos)
+	auto eraseIt = std::end(inOutParticles);
+	if (inOutSimulStateObjectPtr == nullptr)
 	{
-		if (this->isInsideFinalBoundingBox(particlePos))
+		eraseIt = std::partition(std::execution::par, std::begin(inOutParticles), eraseIt, [this, normalCount](const Storm::Vector3 &particlePos)
 		{
-			Storm::Vector3 relativePosToVertex;
-
-			for (std::size_t iter = 0; iter < normalCount; iter += 3)
+			if (this->isInsideFinalBoundingBox(particlePos))
 			{
-				const Storm::Vector3 &consideredVertex = _finalCurrent._vertices[iter];
+				Storm::Vector3 relativePosToVertex;
 
-				relativePosToVertex.x() = consideredVertex.x() - particlePos.x();
-				relativePosToVertex.y() = consideredVertex.y() - particlePos.y();
-				relativePosToVertex.z() = consideredVertex.z() - particlePos.z();
-
-				// The point is in front of the face, therefore it is outside.
-				if (relativePosToVertex.dot(_finalCurrent._normals[iter]) < 0.f)
+				for (std::size_t iter = 0; iter < normalCount; iter += 3)
 				{
-					return true;
+					const Storm::Vector3 &consideredVertex = _finalCurrent._vertices[iter];
+
+					relativePosToVertex.x() = consideredVertex.x() - particlePos.x();
+					relativePosToVertex.y() = consideredVertex.y() - particlePos.y();
+					relativePosToVertex.z() = consideredVertex.z() - particlePos.z();
+
+					// The point is in front of the face, therefore it is outside.
+					if (relativePosToVertex.dot(_finalCurrent._normals[iter]) < 0.f)
+					{
+						return true;
+					}
 				}
+
+				return false;
 			}
 
-			return false;
-		}
+			return true;
+		});
+	}
+	else
+	{
+		Storm::SystemSimulationStateObject &simulState = *inOutSimulStateObjectPtr;
+		std::mutex mutex;
+		eraseIt = std::stable_partition(std::execution::par, std::begin(inOutParticles), eraseIt, [this, &mutex, &inOutParticles, &simulState, normalCount](const Storm::Vector3 &particlePos)
+		{
+			if (this->isInsideFinalBoundingBox(particlePos))
+			{
+				Storm::Vector3 relativePosToVertex;
 
-		return true;
-	});
+				for (std::size_t iter = 0; iter < normalCount; iter += 3)
+				{
+					const Storm::Vector3 &consideredVertex = _finalCurrent._vertices[iter];
+
+					relativePosToVertex.x() = consideredVertex.x() - particlePos.x();
+					relativePosToVertex.y() = consideredVertex.y() - particlePos.y();
+					relativePosToVertex.z() = consideredVertex.z() - particlePos.z();
+
+					// The point is in front of the face, therefore it is outside.
+					if (relativePosToVertex.dot(_finalCurrent._normals[iter]) < 0.f)
+					{
+						return true;
+					}
+				}
+
+				if (simulState._isFluid)
+				{
+					const std::size_t index = &particlePos - inOutParticles.data();
+
+					std::lock_guard<std::mutex> lock{ mutex };
+
+					removeAtIndex(simulState._velocities, index);
+					removeAtIndex(simulState._forces, index);
+					removeAtIndex(simulState._pressures, index);
+					removeAtIndex(simulState._densities, index);
+					removeAtIndex(simulState._masses, index);
+				}
+
+				return false;
+			}
+
+			return true;
+		});
+	}
 
 	for (std::size_t toRemove = std::end(inOutParticles) - eraseIt; toRemove > 0; --toRemove)
 	{

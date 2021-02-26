@@ -10,6 +10,7 @@ namespace Storm
 	class IRigidBody;
 	class AssetCacheData;
 	struct AssetCacheDataOrder;
+	struct SystemSimulationStateObject;
 
 	class AssetLoaderManager final :
 		private Storm::Singleton<AssetLoaderManager>,
@@ -42,7 +43,7 @@ namespace Storm
 		void clearCachedAssetData();
 
 	private:
-		void removeRbInsiderFluidParticle(std::vector<Storm::Vector3> &inOutFluidParticles) const;
+		void removeRbInsiderFluidParticle(std::vector<Storm::Vector3> &inOutFluidParticles, Storm::SystemSimulationStateObject* inOutSimulStateObjectPtr) const;
 
 	public:
 		std::mutex& getAddingMutex() const;

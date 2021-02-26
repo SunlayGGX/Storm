@@ -554,7 +554,7 @@ case Storm::BlowerType::BlowerTypeName: \
 				}
 
 				waitForFutures(asyncLoadingArray);
-				this->removeRbInsiderFluidParticle(fluidState._positions);
+				this->removeRbInsiderFluidParticle(fluidState._positions, &fluidState);
 
 				// We need to update the position to regenerate the position of any rigid body particle according to its translation.
 				// This needs to be done only for rigid bodies. Fluids don't need it. 
@@ -620,7 +620,7 @@ case Storm::BlowerType::BlowerTypeName: \
 
 			waitForFutures(asyncLoadingArray);
 
-			this->removeRbInsiderFluidParticle(fluidParticlePos);
+			this->removeRbInsiderFluidParticle(fluidParticlePos, nullptr);
 
 			// We need to update the position to regenerate the position of any rigid body particle according to its translation.
 			// This needs to be done only for rigid bodies. Fluids don't need it. 
@@ -726,13 +726,13 @@ void Storm::AssetLoaderManager::clearCachedAssetData()
 	_cachedAssetData.clear();
 }
 
-void Storm::AssetLoaderManager::removeRbInsiderFluidParticle(std::vector<Storm::Vector3> &inOutFluidParticles) const
+void Storm::AssetLoaderManager::removeRbInsiderFluidParticle(std::vector<Storm::Vector3> &inOutFluidParticles, Storm::SystemSimulationStateObject* inOutSimulStateObjectPtr) const
 {
 	for (const auto &cachedDataArrayPair : _cachedAssetData)
 	{
 		for (const auto &rbCachedDataPtr : cachedDataArrayPair.second)
 		{
-			rbCachedDataPtr->removeInsiderParticle(inOutFluidParticles);
+			rbCachedDataPtr->removeInsiderParticle(inOutFluidParticles, inOutSimulStateObjectPtr);
 		}
 	}
 }
