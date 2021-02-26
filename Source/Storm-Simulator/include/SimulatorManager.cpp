@@ -1499,8 +1499,7 @@ void Storm::SimulatorManager::addFluidParticleSystem(Storm::SystemSimulationStat
 {
 	assert(!Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().isInReplayMode() && "This method should not be used in replay mode!");
 
-
-	const std::size_t initialParticleCount = state._positions.size();
+	std::size_t initialParticleCount = state._positions.size();
 	LOG_COMMENT << "Creating fluid particle system with " << initialParticleCount << " particles.";
 
 	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
@@ -1531,6 +1530,9 @@ void Storm::SimulatorManager::addFluidParticleSystem(Storm::SystemSimulationStat
 			};
 		}
 
+		LOG_DEBUG << "We removed " << initialParticleCount - state._positions.size() << " particle(s) after checking which collide with existing rigid bodies.";
+		initialParticleCount = state._positions.size();
+
 		if (sceneFluidConfig._removeOutDomainParticles)
 		{
 			removeParam._outRemovedIndexes.clear();
@@ -1549,7 +1551,7 @@ void Storm::SimulatorManager::addFluidParticleSystem(Storm::SystemSimulationStat
 			}
 		}
 
-		LOG_DEBUG << "We removed " << initialParticleCount - state._positions.size() << " particle(s) after checking which collide with existing rigid bodies.";
+		LOG_DEBUG << "We removed " << initialParticleCount - state._positions.size() << " particle(s) after checking out of domain particles.";
 	}
 
 	Storm::FluidParticleSystem &newPSystem = addParticleSystemToMap<Storm::FluidParticleSystem>(_particleSystem, state._id, std::move(state._positions));
