@@ -257,6 +257,11 @@ float Storm::TimeManager::advanceCurrentPhysicsElapsedTime()
 	return _physicsElapsedTimeInSeconds;
 }
 
+void Storm::TimeManager::resetPhysicsElapsedTime()
+{
+	this->setCurrentPhysicsElapsedTime(0.f);
+}
+
 void Storm::TimeManager::increaseCurrentPhysicsDeltaTime()
 {
 	this->setCurrentPhysicsDeltaTime(_physicsDeltaTimeCoeff + _physicsDeltaTimeCoeff);

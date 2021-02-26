@@ -123,6 +123,9 @@ namespace Storm
 		// Manually decrease the change step of the physics delta time step.
 		virtual void decreasePhysicsDeltaTimeStepSize() = 0;
 
+		// Reset the physics elasped time value.
+		virtual void resetPhysicsElapsedTime() = 0;
+
 
 		/************************************************************************/
 		/*							TimeManager controls                        */

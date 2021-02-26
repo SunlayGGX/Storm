@@ -609,6 +609,7 @@ Here the list of available commands :
 #### TimeManager (timeMgr)
 
 - **bool changeSimulationPauseState()**: Pause/Unpause the simulation. This is the same method bound to the key inputs.
+- **void resetPhysicsElapsedTime()**: Reset the elapsed time to 0.
 
 
 #### GraphicManager (graphicMgr)

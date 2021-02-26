@@ -49,6 +49,7 @@ namespace Storm
 		void setCurrentPhysicsElapsedTime(float physicsElapsedTimeInSeconds) final override;
 		void increaseCurrentPhysicsElapsedTime(float timeIncreaseInSeconds) final override;
 		float advanceCurrentPhysicsElapsedTime() final override;
+		void resetPhysicsElapsedTime() final override;
 
 		void increaseCurrentPhysicsDeltaTime() final override;
 		void decreaseCurrentPhysicsDeltaTime() final override;
