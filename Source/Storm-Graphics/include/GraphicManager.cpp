@@ -53,7 +53,8 @@ Storm::GraphicManager::GraphicManager() :
 	_renderCounter{ 0 },
 	_directXController{ std::make_unique<Storm::DirectXController>() },
 	_selectedParticle{ std::numeric_limits<decltype(_selectedParticle.first)>::max(), 0 },
-	_hasUI{ false }
+	_hasUI{ false },
+	_dirty{ true }
 {
 
 }
@@ -244,10 +245,10 @@ void Storm::GraphicManager::cleanUp_Implementation(const Storm::NoUI &)
 
 void Storm::GraphicManager::update()
 {
-	if (_renderCounter++ % 2 == 0)
-	{
-		SingletonHolder::instance().getSingleton<Storm::IThreadManager>().processCurrentThreadActions();
+	SingletonHolder::instance().getSingleton<Storm::IThreadManager>().processCurrentThreadActions();
 
+	if (_renderCounter++ % 2 == 0 && _dirty)
+	{
 		_directXController->clearView(g_defaultColor);
 		_directXController->initView();
 
@@ -259,6 +260,8 @@ void Storm::GraphicManager::update()
 		_directXController->presentToDisplay();
 
 		_directXController->reportDeviceMessages();
+
+		_dirty = false;
 	}
 }
 
@@ -322,6 +325,8 @@ void Storm::GraphicManager::pushParticlesData(const Storm::PushedParticleSystemD
 				{
 					_kernelEffectArea->setAreaPosition(particlePosDataCopy[_selectedParticle.second]);
 				}
+
+				_dirty = true;
 			}
 		});
 	}
@@ -344,6 +349,7 @@ void Storm::GraphicManager::pushParticleSelectionForceData(const Storm::Vector3 
 			[this, selectedParticlePos, selectedParticleForce]() mutable
 		{
 			_forceRenderer->refreshForceData(_directXController->getDirectXDevice(), selectedParticlePos, selectedParticleForce);
+			_dirty = true;
 		});
 	}
 }
@@ -423,6 +429,7 @@ void Storm::GraphicManager::safeSetSelectedParticle(unsigned int particleSystemI
 			_selectedParticle.first = particleSystemId;
 			_selectedParticle.second = particleIndex;
 			_kernelEffectArea->setHasParticleHook(true);
+			_dirty = true;
 		});
 	}
 }
@@ -435,6 +442,7 @@ void Storm::GraphicManager::safeClearSelectedParticle()
 		{
 			_selectedParticle.first = std::numeric_limits<decltype(_selectedParticle.first)>::max();
 			_kernelEffectArea->setHasParticleHook(false);
+			_dirty = true;
 		});
 	}
 }
@@ -457,6 +465,7 @@ void Storm::GraphicManager::setUIFieldEnabled(bool enable)
 	Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::GraphicsThread, [this, enable]()
 	{
 		_directXController->setUIFieldDrawEnabled(enable);
+		_dirty = true;
 	});
 }
 
@@ -477,6 +486,7 @@ void Storm::GraphicManager::setTargetPositionTo(const Storm::Vector3 &newTargetP
 		Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::GraphicsThread, [this, newTargetPosition]()
 		{
 			_camera->setTarget(newTargetPosition.x(), newTargetPosition.y(), newTargetPosition.z());
+			_dirty = true;
 		});
 	}
 }
@@ -488,6 +498,7 @@ void Storm::GraphicManager::changeBlowerState(const std::size_t blowerId, const 
 		Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::GraphicsThread, [this, blowerId, newState]()
 		{
 			_blowersMap[blowerId]->setBlowerState(newState);
+			_dirty = true;
 		});
 	}
 }
@@ -520,6 +531,7 @@ void Storm::GraphicManager::setColorSettingMinMaxValue(float minValue, float max
 		Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::MainThread, [this, minValue, maxValue]()
 		{
 			_pipe->setMinMaxColorationValue(minValue, maxValue);
+			_dirty = true;
 		});
 	}
 }
@@ -529,6 +541,7 @@ void Storm::GraphicManager::showCoordinateSystemAxis(const bool shouldShow)
 	Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::GraphicsThread, [this, shouldShow]()
 	{
 		_coordSystemNonOwningPtr->show(shouldShow);
+		_dirty = true;
 	});
 }
 
@@ -537,5 +550,6 @@ void Storm::GraphicManager::setKernelAreaRadius(const float radius)
 	Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::GraphicsThread, [this, radius]()
 	{
 		_kernelEffectArea->setAreaRadius(radius);
+		_dirty = true;
 	});
 }

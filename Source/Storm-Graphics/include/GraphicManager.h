@@ -104,6 +104,7 @@ namespace Storm
 		unsigned char _renderCounter;
 
 		bool _hasUI;
+		bool _dirty;
 
 		std::unique_ptr<Storm::DirectXController> _directXController;
 		std::unique_ptr<Storm::Camera> _camera;
