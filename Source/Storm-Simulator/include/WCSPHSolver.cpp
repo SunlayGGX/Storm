@@ -60,7 +60,7 @@ namespace
 				// Viscosity
 				if constexpr (viscosityMethodOnFluid == Storm::ViscosityMethod::Standard)
 				{
-					viscosityComponent = (viscoGlobalCoeff * fluidConfig._dynamicViscosity * neighborMass / neighborRawDensity) * neighbor._gradWij;
+					viscosityComponent = (viscoGlobalCoeff * fluidConfig._cinematicViscosity * neighborMass / neighborRawDensity) * neighbor._gradWij;
 				}
 				else if constexpr (viscosityMethodOnFluid == Storm::ViscosityMethod::XSPH)
 				{
