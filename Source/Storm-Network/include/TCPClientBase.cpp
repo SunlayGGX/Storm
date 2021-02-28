@@ -241,7 +241,15 @@ void Storm::TCPClientBasePrivateLogic::startRead(Traits::SocketType &socket)
 void Storm::TCPClientBasePrivateLogic::definitiveStop(Traits::SocketType &socket, const bool connected)
 {
 	// This is thread safe, so no need to lock anything.
-	socket.cancel();
+	try
+	{
+		socket.cancel();
+	}
+	catch (const std::exception &ex)
+	{
+		LOG_ERROR << "Cannot cancel socket : " << ex.what();
+	}
+
 	if (connected)
 	{
 		socket.shutdown(boost::asio::socket_base::shutdown_type::shutdown_both);
