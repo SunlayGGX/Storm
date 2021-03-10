@@ -119,6 +119,17 @@ namespace Storm_ScriptSender.Source.Network
                             _acceptance = null;
                         }
                     }
+                    catch (ObjectDisposedException)
+                    {
+                        if (!_running)
+                        {
+                            return;
+                        }
+
+                        _acceptance = null;
+
+                        Console.WriteLine("Error when adding connection : Cannot access a disposed objects (here a TcpSocket).");
+                    }
                     catch (OperationCanceledException)
                     {
                         if (!_running)
