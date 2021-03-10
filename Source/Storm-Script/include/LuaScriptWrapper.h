@@ -23,7 +23,7 @@ namespace Storm
 		{
 		public:
 			template<class Type, class ... Args>
-			static void registerType(LuaScriptWrapper &wrapper, const std::string& name, Args &&... args)
+			static void registerType(LuaScriptWrapper &wrapper, const std::string &name, Args &&... args)
 			{
 				wrapper.getUnderlying().new_usertype<Type>(name, std::forward<Args>(args)...);
 			}
@@ -34,7 +34,7 @@ namespace Storm
 		{
 		public:
 			template<class Type, class ... Args>
-			static void registerType(LuaScriptWrapper &wrapper, const std::string& name, Args &&... args)
+			static void registerType(LuaScriptWrapper &wrapper, const std::string &name, Args &&... args)
 			{
 				TypeRegisterer<Storm::Inheritance<BaseTypes...>>::registerType(wrapper, name, std::forward<Args>(args)..., sol::base_classes, sol::bases<BaseType>());
 			}
@@ -45,7 +45,7 @@ namespace Storm
 		{
 		public:
 			template<class Type, class ... Args>
-			static void registerType(LuaScriptWrapper &wrapper, const std::string& name, Args &&... args)
+			static void registerType(LuaScriptWrapper &wrapper, const std::string &name, Args &&... args)
 			{
 				TypeRegisterer<Storm::Inheritance<>>::registerType(wrapper, name, std::forward<Args>(args)..., sol::base_classes, sol::bases<BaseType>());
 			}
@@ -56,16 +56,16 @@ namespace Storm
 
 	public:
 		template<class Type, class InheritanceField = Storm::Inheritance<>, class ... Args>
-		LuaScriptWrapper& registerType(const std::string& name, Args &&... args)
+		LuaScriptWrapper& registerType(const std::string &name, Args &&... args)
 		{
 			TypeRegisterer<InheritanceField>::registerType<Type>(*this, name, std::forward<Args>(args)...);
 			return *this;
 		}
 
-		template<class Type, class ... Args>
-		LuaScriptWrapper& registerEnum(const std::string& name, Args &&... args)
+		template<class NameType, class ... Args>
+		LuaScriptWrapper& registerEnum(const NameType &name, Args &&... args)
 		{
-			_lua.new_enum<Type>(name, std::forward<Args>(args)...);
+			_lua.new_enum(name, std::forward<Args>(args)...);
 			return *this;
 		}
 
