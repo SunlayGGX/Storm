@@ -11,6 +11,8 @@
 #include "OSManager.h"
 #include "PhysicsManager.h"
 
+#include "ColoredSetting.h"
+
 
 /////////////////////////////////////////////////
 /////////////// Utility Macros //////////////////
@@ -28,11 +30,19 @@
 #	undef registerCurrentType
 #endif
 
+#ifdef registerCurrentEnum
+#	define STORM_registerCurrentEnum_DEFINED
+#	pragma push_macro("registerCurrentEnum")
+#	undef registerCurrentEnum
+#endif
+
 
 #define registerCurrentInstance(instanceName) registerInstance(this, instanceName)
 #define registerCurrentType(...) registerType<STORM_CURRENT_REGISTERED_TYPE>(std::string{ Storm::NameExtractor::extractTypeNameFromType(STORM_STRINGIFY(STORM_CURRENT_REGISTERED_TYPE)) }, __VA_ARGS__)
+#define registerCurrentEnum(EnumType, ...) registerEnum(Storm::NameExtractor::extractTypeNameFromType(STORM_STRINGIFY(EnumType)), __VA_ARGS__)
 
 #define STORM_DECLARE_SCRIPTED_METHOD(methodName) #methodName, &STORM_CURRENT_REGISTERED_TYPE::methodName
+#define STORM_DECLARE_SCRIPTED_ENUM(enumValue) Storm::NameExtractor::extractTypeNameFromType(STORM_STRINGIFY(enumValue)), enumValue
 
 
 
@@ -101,9 +111,16 @@ void STORM_CURRENT_REGISTERED_TYPE::registerCurrentOnScript(IScriptWrapperInterf
 template<class IScriptWrapperInterface>
 void STORM_CURRENT_REGISTERED_TYPE::registerCurrentOnScript(IScriptWrapperInterface &script) const
 {
+	script.registerCurrentEnum(Storm::ColoredSetting,
+		STORM_DECLARE_SCRIPTED_ENUM(Storm::ColoredSetting::Velocity),
+		STORM_DECLARE_SCRIPTED_ENUM(Storm::ColoredSetting::Pressure),
+		STORM_DECLARE_SCRIPTED_ENUM(Storm::ColoredSetting::Density)
+	);
+
 	script.registerCurrentType(
 
 		STORM_DECLARE_SCRIPTED_METHOD(cycleColoredSetting),
+		STORM_DECLARE_SCRIPTED_METHOD(setUseColorSetting),
 		STORM_DECLARE_SCRIPTED_METHOD(setColorSettingMinMaxValue),
 
 		STORM_DECLARE_SCRIPTED_METHOD(showCoordinateSystemAxis),
@@ -186,6 +203,12 @@ void STORM_CURRENT_REGISTERED_TYPE::registerCurrentOnScript(IScriptWrapperInterf
 #	undef registerCurrentType
 #	pragma pop_macro("registerCurrentType")
 #	undef STORM_registerCurrentType_DEFINED
+#endif
+
+#ifdef STORM_registerCurrentEnum_DEFINED
+#	undef registerCurrentEnum
+#	pragma pop_macro("registerCurrentEnum")
+#	undef STORM_registerCurrentEnum_DEFINED
 #endif
 
 #undef STORM_METHOD

@@ -592,7 +592,17 @@ Here the list of available commands :
 
 ## Exposed methods
 
-#### SimulatorManager (simulMgr)
+### Exposed Enumerations
+
+#### - ColoredSetting
+- **Velocity**: The color field data to display should be the particules's velocity norms.
+- **Pressure**: The color field data to display should be the particule's pressure.
+- **Density**: The color field data to display should be the particule's density.
+
+
+### Exposed Instance
+
+#### - SimulatorManager (simulMgr)
 
 - **void resetReplay()**: Reset the replay. This is the same method bound to the key inputs.
 - **void saveSimulationState()**: Save the simulation state into a state file. This is the same method bound to the key inputs.
@@ -606,33 +616,34 @@ Here the list of available commands :
 - **void setNeighborThresholdDensity_DFSPH(size_t neighborCount)**: Set the neighbor threshold value on density solver. This method is only available if the solver is DFSPH.
 
 
-#### TimeManager (timeMgr)
+#### - TimeManager (timeMgr)
 
 - **bool changeSimulationPauseState()**: Pause/Unpause the simulation. This is the same method bound to the key inputs.
 - **void resetPhysicsElapsedTime()**: Reset the elapsed time to 0.
 
 
-#### GraphicManager (graphicMgr)
+#### - GraphicManager (graphicMgr)
 
 - **void cycleColoredSetting()**: Cycle the particle coloring observed quantities. This is the same method bound to the key inputs.
 - **void setColorSettingMinMaxValue(float minValue, float maxValue)**: Set the min and max values for the observed particle colors fields.
+- **void setUseColorSetting(const ColoredSetting selectedColoredSetting)**: Set the setting to display.
 - **void showCoordinateSystemAxis(const bool shouldShow)**: Display the axis coordinate system if true, hide it otherwise.
 - **void setUIFieldEnabled(bool enable)**: Set if we should display the UI fields (enabled to true) or hide it (enabled to false).
 
 
-#### PhysicsManager (physicsMgr)
+#### - PhysicsManager (physicsMgr)
 
 - **void setRigidBodyAngularDamping(const unsigned int rbId, const float angularVelocityDamping)**: Set the angular velodity damping value of the rigid body specified by its id. This method is only defined for dynamic rigid bodies.
 - **void fixDynamicRigidBodyTranslation(const unsigned int rbId, const bool fixed)**: Set the specified rigid body's translation fixed flag. This method is only defined for dynamic rigid bodies.
 - **void reconnectPhysicsDebugger()**: Force the reconnection to the Physics Debugger which is the PhysX's PVD (PhysX Visual Debugger).
 
 
-#### OSManager (osMgr)
+#### - OSManager (osMgr)
 
 - **void clearProcesses()**: Clear all processes (this closes all processes those life are bound to Storm application).
 
 
-#### WindowsManager (winMgr)
+#### - WindowsManager (winMgr)
 
 - **void restartApplication(const std::string_view &additionalArgs)**: Restart Storm application and applies additional parameters. Note that the application will be restarted to the current scene and will forward its current command line, therefore additional parameters should only contains parameters that aren't already in those.
 
