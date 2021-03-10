@@ -259,18 +259,31 @@ Storm::GraphicPipe::ColorSetting& Storm::GraphicPipe::getColorSettingFromSelecti
 
 void Storm::GraphicPipe::cycleColoredSetting()
 {
-	_selectedColoredSetting = static_cast<Storm::ColoredSetting>((static_cast<uint8_t>(_selectedColoredSetting) + 1) % static_cast<uint8_t>(Storm::ColoredSetting::Count));
-	_chosenColorSetting = &this->getColorSettingFromSelection(_selectedColoredSetting);
-
-	_coloredSettingWStr = parseColoredSetting(_selectedColoredSetting);
-
-	_fields->pushField(STORM_COLORED_SETTING_FIELD_NAME);
-	_fields->pushField(STORM_COLOR_VALUE_SETTING_FIELD_NAME);
+	this->setUsedColorSetting(static_cast<Storm::ColoredSetting>((static_cast<uint8_t>(_selectedColoredSetting) + 1) % static_cast<uint8_t>(Storm::ColoredSetting::Count)));
 }
 
 const Storm::GraphicPipe::ColorSetting& Storm::GraphicPipe::getUsedColorSetting() const
 {
 	return *_chosenColorSetting;
+}
+
+void Storm::GraphicPipe::setUsedColorSetting(const Storm::ColoredSetting setting)
+{
+	if (setting == Storm::ColoredSetting::Count)
+	{
+		Storm::throwException<Storm::Exception>("Colored Setting 'Count' is not allowed!");
+	}
+
+	if (_selectedColoredSetting != setting)
+	{
+		_selectedColoredSetting = setting;
+		_chosenColorSetting = &this->getColorSettingFromSelection(_selectedColoredSetting);
+
+		_coloredSettingWStr = parseColoredSetting(_selectedColoredSetting);
+
+		_fields->pushField(STORM_COLORED_SETTING_FIELD_NAME);
+		_fields->pushField(STORM_COLOR_VALUE_SETTING_FIELD_NAME);
+	}
 }
 
 void Storm::GraphicPipe::setMinMaxColorationValue(float newMinValue, float newMaxValue, const Storm::ColoredSetting setting)

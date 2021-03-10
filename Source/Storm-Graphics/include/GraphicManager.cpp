@@ -520,6 +520,7 @@ void Storm::GraphicManager::cycleColoredSetting()
 		Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::MainThread, [this]()
 		{
 			_pipe->cycleColoredSetting();
+			_dirty = true;
 		});
 	}
 }
@@ -531,6 +532,18 @@ void Storm::GraphicManager::setColorSettingMinMaxValue(float minValue, float max
 		Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::MainThread, [this, minValue, maxValue]()
 		{
 			_pipe->setMinMaxColorationValue(minValue, maxValue);
+			_dirty = true;
+		});
+	}
+}
+
+void Storm::GraphicManager::setUseColorSetting(const Storm::ColoredSetting colorSetting)
+{
+	if (this->isActive())
+	{
+		Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::MainThread, [this, colorSetting]()
+		{
+			_pipe->setUsedColorSetting(colorSetting);
 			_dirty = true;
 		});
 	}

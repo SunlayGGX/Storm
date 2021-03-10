@@ -36,6 +36,7 @@ namespace Storm
 	public:
 		void cycleColoredSetting();
 		const Storm::GraphicPipe::ColorSetting& getUsedColorSetting() const;
+		void setUsedColorSetting(const Storm::ColoredSetting setting);
 
 		void setMinMaxColorationValue(float newMinValue, float newMaxValue, const Storm::ColoredSetting setting);
 		void setMinMaxColorationValue(float newMinValue, float newMaxValue);

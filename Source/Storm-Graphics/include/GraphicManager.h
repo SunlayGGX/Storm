@@ -20,6 +20,8 @@ namespace Storm
 	class GraphicCoordinateSystem;
 	class GraphicKernelEffectArea;
 
+	enum class ColoredSetting : uint8_t;
+
 	struct WithUI;
 	struct NoUI;
 
@@ -93,6 +95,7 @@ namespace Storm
 	public:
 		void cycleColoredSetting() final override;
 		void setColorSettingMinMaxValue(float minValue, float maxValue) final override;
+		void setUseColorSetting(const Storm::ColoredSetting colorSetting);
 
 	public:
 		void showCoordinateSystemAxis(const bool shouldShow);
