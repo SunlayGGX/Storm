@@ -138,6 +138,8 @@ namespace Storm_ScriptSender.Source.Network
                         }
                         
                         _acceptance = null;
+
+                        Console.WriteLine("Error when adding connection : Connection Canceled.");
                     }
                 }
                 else
