@@ -253,7 +253,7 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 		}
 		else
 		{
-			LOG_WARNING << "State loading is an experimental feature and wasn't fully tested! It is still incomplete and could have bugs! Enable it at your own risks!";
+			LOG_DEBUG << "State loading requested! File to load is " << _stateFileToLoad;
 		}
 
 		Storm::SceneConfig &sceneConfig = _sceneConfigHolder.getConfig();
