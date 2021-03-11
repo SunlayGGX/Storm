@@ -40,6 +40,8 @@ namespace Storm
 		void loadForReplay(const Storm::SceneRigidBodyConfig &rbSceneConfig);
 		void loadFromState(const Storm::SceneRigidBodyConfig &rbSceneConfig, Storm::SystemSimulationStateObject &&state);
 
+		void initializeVolume(const Storm::SceneRigidBodyConfig &rbSceneConfig, const Storm::AssetCacheData*const assetCachedData);
+
 	private:
 		std::string _meshPath;
 		unsigned int _rbId;

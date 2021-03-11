@@ -19,6 +19,9 @@
 #include "AssetCacheDataOrder.h"
 
 #include "CollisionType.h"
+#include "VolumeComputationTechnique.h"
+
+#include "VolumeIntegrator.h"
 
 #include <Assimp\Importer.hpp>
 #include <Assimp\scene.h>
@@ -387,6 +390,8 @@ void Storm::RigidBody::load(const Storm::SceneRigidBodyConfig &rbSceneConfig)
 		}
 
 		lock.unlock();
+
+		this->initializeVolume(rbSceneConfig, cachedDataPtr.get());
 	}
 	else
 	{
@@ -407,7 +412,8 @@ void Storm::RigidBody::loadForReplay(const Storm::SceneRigidBodyConfig &rbSceneC
 		Storm::throwException<Storm::Exception>(__FUNCSIG__ " should only be used in replay mode!");
 	}
 
-	this->baseLoadAssimp(rbSceneConfig, computeLayerDistance(configMgr.getSceneSimulationConfig()._particleRadius));
+	const std::shared_ptr<Storm::AssetCacheData> cachedDataPtr = this->baseLoadAssimp(rbSceneConfig, computeLayerDistance(configMgr.getSceneSimulationConfig()._particleRadius));
+	this->initializeVolume(rbSceneConfig, cachedDataPtr.get());
 }
 
 void Storm::RigidBody::loadFromState(const Storm::SceneRigidBodyConfig &rbSceneConfig, Storm::SystemSimulationStateObject &&state)
@@ -418,8 +424,72 @@ void Storm::RigidBody::loadFromState(const Storm::SceneRigidBodyConfig &rbSceneC
 
 	Storm::AssetLoaderManager &assetLoaderMgr = Storm::AssetLoaderManager::instance();
 
-	this->baseLoadAssimp(rbSceneConfig, computeLayerDistance(configMgr.getSceneSimulationConfig()._particleRadius));
+	const std::shared_ptr<Storm::AssetCacheData> cachedDataPtr = this->baseLoadAssimp(rbSceneConfig, computeLayerDistance(configMgr.getSceneSimulationConfig()._particleRadius));
+	this->initializeVolume(rbSceneConfig, cachedDataPtr.get());
 
 	std::lock_guard<std::mutex> addingLock{ assetLoaderMgr.getAddingMutex() };
 	simulMgr.addRigidBodyParticleSystem(std::move(state));
+}
+
+void Storm::RigidBody::initializeVolume(const Storm::SceneRigidBodyConfig &rbSceneConfig, const Storm::AssetCacheData*const assetCachedData)
+{
+	bool useMeshCompute;
+
+	switch (rbSceneConfig._volumeComputationTechnique)
+	{
+	case Storm::VolumeComputationTechnique::None:
+		return;
+
+	case Storm::VolumeComputationTechnique::Auto:
+		useMeshCompute = rbSceneConfig._collisionShape == Storm::CollisionType::Custom;
+		break;
+
+	case Storm::VolumeComputationTechnique::TriangleIntegration:
+		useMeshCompute = true;
+		break;
+
+	default:
+		Storm::throwException<Storm::Exception>("Unknown volume computation technique (" + Storm::toStdString(rbSceneConfig._volumeComputationTechnique) + ")!");
+	}
+
+	if (useMeshCompute)
+	{
+		if (assetCachedData == nullptr)
+		{
+			LOG_DEBUG_ERROR << "Asset cache data is null. Cannot compute the rigid body volume!";
+			return;
+		}
+
+		switch (rbSceneConfig._volumeComputationTechnique)
+		{
+		case Storm::VolumeComputationTechnique::TriangleIntegration:
+			_rbVolume = Storm::VolumeIntegrator::computeTriangleMeshVolume(*assetCachedData);
+			break;
+
+		case Storm::VolumeComputationTechnique::Auto:
+		case Storm::VolumeComputationTechnique::None:
+		default:
+			assert(false && "We should have handled the technique to use decision over mesh compute in the preceding switch case! Unless the technique isn't implemented!");
+			Storm::throwException<Storm::Exception>("We should have handled the technique to use decision over mesh compute in the preceding switch case! Unless the technique isn't implemented!");
+		}
+	}
+	else
+	{
+		switch (rbSceneConfig._collisionShape)
+		{
+		case Storm::CollisionType::Sphere:
+			_rbVolume = Storm::VolumeIntegrator::computeSphereVolume(rbSceneConfig._scale);
+			break;
+		case Storm::CollisionType::Cube:
+			_rbVolume = Storm::VolumeIntegrator::computeCubeVolume(rbSceneConfig._scale);
+			break;
+
+		case Storm::CollisionType::None:
+		case Storm::CollisionType::IndividualParticle:
+		case Storm::CollisionType::Custom:
+		default:
+			Storm::throwException<Storm::Exception>("Cannot fast compute the volume when collision shape is not on a standard shape");
+			break;
+		}
+	}
 }
