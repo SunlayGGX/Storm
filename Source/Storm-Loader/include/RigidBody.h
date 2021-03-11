@@ -28,6 +28,8 @@ namespace Storm
 		std::vector<Storm::Vector3> getRigidBodyObjectSpaceVertexes() const final override;
 		std::vector<Storm::Vector3> getRigidBodyObjectSpaceNormals() const final override;
 
+		float getRigidBodyVolume() const final override;
+
 	public:
 		static std::filesystem::path retrieveParticleDataCacheFolder();
 
@@ -41,5 +43,7 @@ namespace Storm
 	private:
 		std::string _meshPath;
 		unsigned int _rbId;
+
+		float _rbVolume;
 	};
 }

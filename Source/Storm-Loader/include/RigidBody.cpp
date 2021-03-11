@@ -62,21 +62,24 @@ namespace
 
 Storm::RigidBody::RigidBody(const Storm::SceneRigidBodyConfig &rbSceneConfig) :
 	_meshPath{ rbSceneConfig._meshFilePath },
-	_rbId{ rbSceneConfig._rigidBodyID }
+	_rbId{ rbSceneConfig._rigidBodyID },
+	_rbVolume{ -1.f }
 {
 	this->load(rbSceneConfig);
 }
 
 Storm::RigidBody::RigidBody(const Storm::SceneRigidBodyConfig &rbSceneConfig, Storm::SystemSimulationStateObject &&state) :
 	_meshPath{ rbSceneConfig._meshFilePath },
-	_rbId{ rbSceneConfig._rigidBodyID }
+	_rbId{ rbSceneConfig._rigidBodyID },
+	_rbVolume{ -1.f }
 {
 	this->loadFromState(rbSceneConfig, std::move(state));
 }
 
 Storm::RigidBody::RigidBody(const Storm::SceneRigidBodyConfig &rbSceneConfig, ReplayMode) :
 	_meshPath{ rbSceneConfig._meshFilePath },
-	_rbId{ rbSceneConfig._rigidBodyID }
+	_rbId{ rbSceneConfig._rigidBodyID },
+	_rbVolume{ -1.f }
 {
 	this->loadForReplay(rbSceneConfig);
 }
@@ -122,6 +125,11 @@ std::vector<Storm::Vector3> Storm::RigidBody::getRigidBodyObjectSpaceNormals() c
 {
 	// TODO : Graphics module should have the ownership of this data.
 	throw std::logic_error("The method or operation is not implemented.");
+}
+
+float Storm::RigidBody::getRigidBodyVolume() const
+{
+	return _rbVolume;
 }
 
 std::filesystem::path Storm::RigidBody::retrieveParticleDataCacheFolder()
