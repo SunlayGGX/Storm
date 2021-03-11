@@ -50,7 +50,7 @@ float Storm::VolumeIntegrator::computeTriangleMeshVolume(const Storm::AssetCache
 #endif
 
 	const std::vector<Storm::Vector3> &vertices = mesh.getSrcVertices();
-	const std::vector<uint32_t> &indices = mesh.getIndices();
+	const std::vector<uint32_t> &indices = mesh.getSrcIndices();
 	const std::size_t indicesCount = indices.size();
 
 	for (std::size_t iter = 0; iter < indicesCount; iter += 3)
