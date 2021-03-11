@@ -11,6 +11,7 @@
 #include "ITimeManager.h"
 #include "IRaycastManager.h"
 #include "ISerializerManager.h"
+#include "IAssetLoaderManager.h"
 
 #include "TimeWaitResult.h"
 
@@ -23,6 +24,7 @@
 #include "SceneSimulationConfig.h"
 #include "SceneFluidConfig.h"
 #include "SceneRecordConfig.h"
+#include "SceneRigidBodyConfig.h"
 
 #include "KernelMode.h"
 #include "RecordMode.h"
@@ -49,6 +51,8 @@
 #include "BlowerTimeHandler.h"
 #include "BlowerEffectArea.h"
 #include "Blower.h"
+
+#include "IRigidBody.h"
 
 #include "ThreadingSafety.h"
 #include "ThreadEnumeration.h"
@@ -2187,6 +2191,47 @@ void Storm::SimulatorManager::printRigidBodyMoment(const unsigned int id) const
 	else
 	{
 		Storm::throwException<Storm::Exception>("Cannot find the rigid body with id " + std::to_string(id) + "!");
+	}
+}
+
+void Storm::SimulatorManager::printRigidBodyGlobalDensity(const unsigned int id) const
+{
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
+	const Storm::IAssetLoaderManager &assetLoaderMgr = singletonHolder.getSingleton<Storm::IAssetLoaderManager>();
+
+	const float rigidBodyMass = configMgr.getSceneRigidBodyConfig(id)._mass;
+	const std::shared_ptr<Storm::IRigidBody> rigidBody = assetLoaderMgr.getRigidBody(id);
+
+	const float rbGlobalVolume =  rigidBody->getRigidBodyVolume();
+	if (rbGlobalVolume > 0.f)
+	{
+		const float density = rigidBodyMass / rbGlobalVolume;
+
+		LOG_ALWAYS << "Rigidbody " << id << " density is " << density;
+	}
+	else
+	{
+		LOG_ERROR << "Rigidbody " << id << " cannot query the density because no valid volume computation technique was specified.";
+	}
+}
+
+void Storm::SimulatorManager::printMassForRbDensity(const unsigned int id, const float wantedDensity)
+{
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	const Storm::IAssetLoaderManager &assetLoaderMgr = singletonHolder.getSingleton<Storm::IAssetLoaderManager>();
+
+	const std::shared_ptr<Storm::IRigidBody> rigidBody = assetLoaderMgr.getRigidBody(id);
+
+	const float rbGlobalVolume = rigidBody->getRigidBodyVolume();
+	if (rbGlobalVolume > 0.f)
+	{
+		float wantedMass = wantedDensity * rbGlobalVolume;
+		LOG_ALWAYS << "Rigidbody " << id << " wanted mass from density " << wantedDensity << " is " << wantedMass << "kg.";
+	}
+	else
+	{
+		LOG_ERROR << "Rigidbody " << id << " cannot compute mass from density because no valid volume computation technique was specified.";
 	}
 }
 

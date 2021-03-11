@@ -76,8 +76,10 @@ void STORM_CURRENT_REGISTERED_TYPE::registerCurrentOnScript(IScriptWrapperInterf
 
 		// Debug
 		STORM_DECLARE_SCRIPTED_METHOD(printRigidBodyMoment),
+		STORM_DECLARE_SCRIPTED_METHOD(printRigidBodyGlobalDensity),
 		STORM_DECLARE_SCRIPTED_METHOD(printFluidParticleData),
-		STORM_DECLARE_SCRIPTED_METHOD(logAverageDensity)
+		STORM_DECLARE_SCRIPTED_METHOD(logAverageDensity),
+		STORM_DECLARE_SCRIPTED_METHOD(printMassForRbDensity)
 
 	).registerCurrentInstance("simulMgr");
 }

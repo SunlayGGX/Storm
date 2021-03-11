@@ -139,6 +139,8 @@ namespace Storm
 	private:
 		void executeAllForcesCheck();
 		void printRigidBodyMoment(const unsigned int id) const;
+		void printRigidBodyGlobalDensity(const unsigned int id) const;
+		void printMassForRbDensity(const unsigned int id, const float wantedDensity);
 
 	private:
 		void logAverageDensity() const;

@@ -16,7 +16,7 @@ float Storm::VolumeIntegrator::computeSphereVolume(const Storm::Vector3 &dimensi
 		Storm::throwException<Storm::Exception>("Spheroids aren't handled for now!");
 	}
 
-	const double radius = static_cast<double>(dimension.x());
+	const double radius = static_cast<double>(dimension.x()) / 2.0;
 	constexpr double k_coeff = 4.0 / 3.0 * M_PI;
 
 	return static_cast<float>(k_coeff * radius * radius * radius);
