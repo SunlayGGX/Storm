@@ -10,7 +10,7 @@
 
 float Storm::VolumeIntegrator::computeSphereVolume(const Storm::Vector3 &dimension)
 {
-	if (dimension.x() == dimension.y() && dimension.x() == dimension.z())
+	if (dimension.x() != dimension.y() || dimension.x() != dimension.z())
 	{
 		assert(false && "Spheroids aren't handled for now!");
 		Storm::throwException<Storm::Exception>("Spheroids aren't handled for now!");
