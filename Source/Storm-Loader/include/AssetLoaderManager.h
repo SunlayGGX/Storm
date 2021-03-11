@@ -28,6 +28,7 @@ namespace Storm
 
 	public:
 		const std::vector<std::shared_ptr<Storm::IRigidBody>>& getRigidBodyArray() const final override;
+		std::shared_ptr<Storm::IRigidBody> getRigidBody(const unsigned int rbId) const final override;
 
 	public:
 		void generateSimpleSmoothedCube(const Storm::Vector3 &position, const Storm::Vector3 &dimension, std::vector<Storm::Vector3> &inOutVertexes, std::vector<uint32_t> &inOutIndexes, std::vector<Storm::Vector3>*const inOutNormals = nullptr) const final override;

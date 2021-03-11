@@ -658,6 +658,21 @@ const std::vector<std::shared_ptr<Storm::IRigidBody>>& Storm::AssetLoaderManager
 	return _rigidBodies;
 }
 
+std::shared_ptr<Storm::IRigidBody> Storm::AssetLoaderManager::getRigidBody(const unsigned int rbId) const
+{
+	if (const auto found = std::find_if(std::begin(_rigidBodies), std::end(_rigidBodies), [rbId](const auto &rb)
+	{
+		return rb->getRigidBodyID() == rbId;
+	}); found != std::end(_rigidBodies))
+	{
+		return *found;
+	}
+	else
+	{
+		Storm::throwException<Storm::Exception>("Cannot find the rigid body with id " + std::to_string(rbId));
+	}
+}
+
 void Storm::AssetLoaderManager::generateSimpleSmoothedCube(const Storm::Vector3 &position, const Storm::Vector3 &dimension, std::vector<Storm::Vector3> &inOutVertexes, std::vector<uint32_t> &inOutIndexes, std::vector<Storm::Vector3>*const inOutNormals /*= nullptr*/) const
 {
 	Storm::BasicMeshGenerator::generateSmoothedCube(position, dimension, inOutVertexes, inOutIndexes, inOutNormals);

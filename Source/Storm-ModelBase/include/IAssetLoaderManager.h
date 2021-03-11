@@ -14,6 +14,7 @@ namespace Storm
 
 	public:
 		virtual const std::vector<std::shared_ptr<Storm::IRigidBody>>& getRigidBodyArray() const = 0;
+		virtual std::shared_ptr<Storm::IRigidBody> getRigidBody(const unsigned int rbId) const = 0;
 
 	public:
 		// Simple mesh generation.
