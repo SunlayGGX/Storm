@@ -412,7 +412,7 @@ Inside this element should be put all rigidbodies. Each rigidbody should be spec
   * "Normals" means we will use rigidbody normals to detect a particle inside the rigidbodies... We suppose the rigid bodies has normals those directions point outside and that the rigidbody has no holes.
 - **volumeComputation (string, facultative)**: Specify the technique used to compute the volume of the rigid body. It isn't case sensitive and the accepted values are "None" (default), "Auto" and "TriangleIntegration". Note that no matter the choice, volume computation will be disabled for individual particles.
   * "None" means we won't compute a volume for the rigid body (it does not affect the simulation but some methods will be disabled). In another hand, this will speed up the starts of the Simulation.
-  * "TriangleIntegration" will use mesh's triangles to compute the volume by integrating the volume of each pyramids defined by the triangle to the center of the rigid body. This does not work for Concave geometries (Only Convexes geometries are handled correctly).
+  * "TriangleIntegration" will use mesh's triangles to compute the volume by integrating the volume of each tetrahedron defined by the triangle to the center of the rigid body. This does not work for Concave geometries (Only Convexes geometries are handled correctly).
   * "Auto" means we'll use the collision type of the object to fastly compute the volume (this suppose the Collision Type was set and is correct). For Custom geometry, "TriangleIntegration" will be used.
 
 
