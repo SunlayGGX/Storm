@@ -24,6 +24,7 @@
 #include "BlowerDef.h"
 #include "InsideParticleRemovalTechnique.h"
 #include "LayeringGenerationTechnique.h"
+#include "VolumeComputationTechnique.h"
 #include "ViscosityMethod.h"
 
 #include "ColorChecker.h"
@@ -213,6 +214,23 @@ if (blowerTypeStr == BlowerTypeXmlName) return Storm::BlowerType::BlowerTypeName
 		else
 		{
 			Storm::throwException<Storm::Exception>("Layering generation technique value is unknown : '" + layeringTechTypeStr + "'");
+		}
+	}
+
+	Storm::VolumeComputationTechnique parseVolumeComputationTechnique(std::string volumeComputTechTypeStr)
+	{
+		boost::algorithm::to_lower(volumeComputTechTypeStr);
+		if (volumeComputTechTypeStr == "triangleintegration")
+		{
+			return Storm::VolumeComputationTechnique::TriangleIntegration;
+		}
+		else if (volumeComputTechTypeStr == "auto")
+		{
+			return Storm::VolumeComputationTechnique::Auto;
+		}
+		else
+		{
+			Storm::throwException<Storm::Exception>("Volume computation technique value is unknown : '" + volumeComputTechTypeStr + "'");
 		}
 	}
 
@@ -697,6 +715,7 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "viscosity", rbConfig._viscosity) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "layerCount", rbConfig._layerCount) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "layeringGeneration", rbConfig._layerGenerationMode, parseLayeringGenerationTechnique) ||
+			Storm::XmlReader::handleXml(rigidBodyConfigXml, "volumeComputation", rbConfig._volumeComputationTechnique, parseVolumeComputationTechnique) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "pInsideRemovalTechnique", rbConfig._insideRbFluidDetectionMethodEnum, parseInsideRemovalTech) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "collisionType", rbConfig._collisionShape, parseCollisionType) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "animation", rbConfig._animationXmlPath) ||
@@ -787,6 +806,27 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 			if (!std::filesystem::is_regular_file(rbConfig._meshFilePath))
 			{
 				Storm::throwException<Storm::Exception>("'" + rbConfig._meshFilePath + "' is not a valid mesh file!");
+			}
+		}
+
+		if (rbConfig._volumeComputationTechnique == Storm::VolumeComputationTechnique::Auto)
+		{
+			switch (rbConfig._collisionShape)
+			{
+			case Storm::CollisionType::IndividualParticle:
+				LOG_WARNING << "Rigid body " << rbConfig._rigidBodyID << " specified an individual particle : there is no volume on a point... Reverting to No volume computation!";
+				rbConfig._volumeComputationTechnique = Storm::VolumeComputationTechnique::None;
+				break;
+
+			case Storm::CollisionType::None:
+				Storm::throwException<Storm::Exception>("The rigid body " + std::to_string(rbConfig._rigidBodyID) + " animation xml path ('" + rbConfig._animationXmlPath + "') doesn't exist or is not a file!");
+
+			case Storm::CollisionType::Sphere:
+			case Storm::CollisionType::Cube:
+			case Storm::CollisionType::Custom:
+			default:
+				// Pass through. The Loader module will handle those cases.
+				break;
 			}
 		}
 

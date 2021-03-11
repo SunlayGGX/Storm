@@ -515,5 +515,8 @@
     <ClInclude Include="..\include\StormExiter.h">
       <Filter>Header Files\General</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\VolumeComputationTechnique.h">
+      <Filter>Header Files\Modules\Load</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

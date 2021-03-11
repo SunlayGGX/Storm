@@ -6,6 +6,7 @@ namespace Storm
 	enum class CollisionType;
 	enum class InsideParticleRemovalTechnique;
 	enum class LayeringGenerationTechnique;
+	enum class VolumeComputationTechnique;
 
 	struct SceneRigidBodyConfig
 	{
@@ -44,6 +45,8 @@ namespace Storm
 
 		unsigned int _layerCount;
 		Storm::LayeringGenerationTechnique _layerGenerationMode;
+
+		Storm::VolumeComputationTechnique _volumeComputationTechnique;
 
 		std::string _animationXmlPath;
 		std::string _animationName;

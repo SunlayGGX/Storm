@@ -19,6 +19,7 @@
 #include "RecordMode.h"
 #include "LayeringGenerationTechnique.h"
 #include "ViscosityMethod.h"
+#include "VolumeComputationTechnique.h"
 
 
 
@@ -71,7 +72,8 @@ Storm::SceneRigidBodyConfig::SceneRigidBodyConfig() :
 	_mass{ -1.f },
 	_viscosity{ 0.f },
 	_layerCount{ 1 },
-	_layerGenerationMode{ Storm::LayeringGenerationTechnique::Scaling }
+	_layerGenerationMode{ Storm::LayeringGenerationTechnique::Scaling },
+	_volumeComputationTechnique{ Storm::VolumeComputationTechnique::None }
 {
 
 }
