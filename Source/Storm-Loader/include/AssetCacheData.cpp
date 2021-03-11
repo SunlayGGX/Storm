@@ -429,6 +429,11 @@ const std::vector<Storm::Vector3>& Storm::AssetCacheData::getSrcVertices() const
 	return _src->_vertices;
 }
 
+const std::vector<uint32_t>& Storm::AssetCacheData::getSrcIndices() const noexcept
+{
+	return *_indices;
+}
+
 const std::vector<Storm::Vector3>& Storm::AssetCacheData::getSrcNormals() const noexcept
 {
 	return _src->_normals;

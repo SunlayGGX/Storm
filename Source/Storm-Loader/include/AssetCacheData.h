@@ -38,6 +38,7 @@ namespace Storm
 
 	public:
 		const std::vector<Storm::Vector3>& getSrcVertices() const noexcept;
+		const std::vector<uint32_t>& getSrcIndices() const noexcept;
 		const std::vector<Storm::Vector3>& getSrcNormals() const noexcept;
 		const std::vector<Storm::Vector3>& getScaledVertices() const noexcept;
 		const std::vector<Storm::Vector3>& getScaledNormals() const noexcept;
