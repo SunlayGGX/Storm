@@ -20,5 +20,7 @@ namespace Storm
 		virtual std::vector<Storm::Vector3> getRigidBodyParticlesWorldPositions() const = 0;
 		virtual std::vector<Storm::Vector3> getRigidBodyObjectSpaceVertexes() const = 0;
 		virtual std::vector<Storm::Vector3> getRigidBodyObjectSpaceNormals() const = 0;
+
+		virtual float getRigidBodyVolume() const = 0;
 	};
 }
