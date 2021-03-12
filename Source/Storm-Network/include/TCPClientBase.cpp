@@ -210,7 +210,7 @@ void Storm::TCPClientBasePrivateLogic::startRead(Traits::SocketType &socket)
 {
 	if (this->queryIsConnected())
 	{
-		boost::asio::async_read_until(socket, boost::asio::dynamic_buffer(_temporaryRead), Storm::NetworkConstants::k_endOfMessageCommand,
+		boost::asio::async_read_until(socket, boost::asio::dynamic_buffer(_temporaryRead2), Storm::NetworkConstants::k_endOfMessageCommand,
 			[this, &socket](const boost::system::error_code &ec, const std::size_t byteRead)
 		{
 			if (!ec)
@@ -221,7 +221,7 @@ void Storm::TCPClientBasePrivateLogic::startRead(Traits::SocketType &socket)
 				});
 
 				std::vector<Storm::OnMessageReceivedParam> params;
-				if (Storm::NetworkHelpers::parseMsg(_temporaryRead, params))
+				if (Storm::NetworkHelpers::parseMsg(_temporaryRead2, params))
 				{
 					for (Storm::OnMessageReceivedParam &param : params)
 					{
@@ -231,7 +231,7 @@ void Storm::TCPClientBasePrivateLogic::startRead(Traits::SocketType &socket)
 			}
 			else
 			{
-				_temporaryRead.clear();
+				_temporaryRead2.clear();
 				this->disconnectLogicCall();
 			}
 		});
@@ -289,7 +289,7 @@ void Storm::TCPClientBasePrivateLogic::onConnectionChanged(const Storm::OnConnec
 bool Storm::TCPClientBasePrivateLogic::onMessageReceived(const Storm::OnMessageReceivedParam &param)
 {
 	assert(Storm::isNetworkThread() && "This method should only be called from Network thread!");
-	_temporaryRead.clear();
+	_temporaryRead2.clear();
 
 	return param._messageType != Storm::NetworkMessageType::Ping;
 }

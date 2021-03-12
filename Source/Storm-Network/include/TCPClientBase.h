@@ -69,6 +69,7 @@ namespace Storm
 
 	private:
 		std::string _temporaryRead;
+		std::string _temporaryRead2;
 	};
 
 	template<class Child>
