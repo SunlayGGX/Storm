@@ -49,7 +49,7 @@ float Storm::VolumeIntegrator::computeTriangleMeshVolume(const Storm::AssetCache
 	tetrahedron[0] = mesh.getAssociatedRbConfig()._translation;
 #endif
 
-	const std::vector<Storm::Vector3> &vertices = mesh.getSrcVertices();
+	const std::vector<Storm::Vector3> &vertices = mesh.getScaledVertices();
 	const std::vector<uint32_t> &indices = mesh.getSrcIndices();
 	const std::size_t indicesCount = indices.size();
 
