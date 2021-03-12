@@ -62,9 +62,18 @@ float Storm::VolumeIntegrator::computeTriangleMeshVolume(const Storm::AssetCache
 		result += Storm::VolumeIntegrator::computeTetrahedronVolume(tetrahedron);
 	}
 
-	if (result == 0.f)
+	const float englobingVolume = computeCubeVolume(mesh.getFinalBoundingBoxMax() - mesh.getFinalBoundingBoxMin());
+	if (result == 0.f && englobingVolume == 0.f)
 	{
 		LOG_WARNING << "Volume was computed as empty!";
+	}
+	else if (result == 0.f)
+	{
+		result = englobingVolume;
+	}
+	else if (englobingVolume != 0.f)
+	{
+		result = std::min(result, englobingVolume);
 	}
 
 	return result;
