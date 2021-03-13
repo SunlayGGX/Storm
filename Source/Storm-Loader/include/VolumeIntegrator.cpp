@@ -24,7 +24,7 @@ float Storm::VolumeIntegrator::computeSphereVolume(const Storm::Vector3 &dimensi
 
 float Storm::VolumeIntegrator::computeCubeVolume(const Storm::Vector3 &dimension)
 {
-	return dimension.x() * dimension.y() * dimension.z();
+	return std::fabs(dimension.x() * dimension.y() * dimension.z());
 }
 
 float Storm::VolumeIntegrator::computeTetrahedronVolume(const Storm::Vector3(&vertexes)[4])
