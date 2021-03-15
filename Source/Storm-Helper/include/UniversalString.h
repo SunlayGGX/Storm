@@ -161,7 +161,7 @@ namespace Storm
 
 			template<class IteratorType>
 			static auto parseImpl(const IteratorType &val, void*)
-				-> decltype(std::enable_if_t<!std::is_pointer_v<IteratorType>, std::true_type>::value, Storm::details::toStdString<Policy>(*val))
+				-> decltype(std::enable_if_t<!std::is_pointer_v<IteratorType> && !std::is_array_v<IteratorType>, std::true_type>::value, Storm::details::toStdString<Policy>(*val))
 			{
 				return Storm::details::toStdString<Policy>(*val);
 			}
