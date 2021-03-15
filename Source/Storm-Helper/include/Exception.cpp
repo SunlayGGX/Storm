@@ -41,7 +41,9 @@ Storm::Exception::Exception(const std::string &exceptionMsg) noexcept :
 	Storm::Exception{ exceptionMsg.c_str() }
 {}
 
-Storm::Exception::Exception(const Storm::Exception &other) noexcept
+Storm::Exception::Exception(const Storm::Exception &other) noexcept :
+	std::exception{ other.what() },
+	_stackTrace{}
 {
 	copyExceptionData(other._stackTrace, _stackTrace);
 	_stackTraceSize = other._stackTraceSize;
