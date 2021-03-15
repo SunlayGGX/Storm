@@ -37,6 +37,7 @@
     <ClInclude Include="..\include\BitField.h" />
     <ClInclude Include="..\include\CallbackIdType.h" />
     <ClInclude Include="..\include\CoInitializerRAII.h" />
+    <ClInclude Include="..\include\CommaSeparatedPolicy.h" />
     <ClInclude Include="..\include\CorrectSettingChecker.h" />
     <ClInclude Include="..\include\CRTPHierarchy.h" />
     <ClInclude Include="..\include\DebuggerHelper.h" />

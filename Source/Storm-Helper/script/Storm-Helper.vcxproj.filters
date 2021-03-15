@@ -97,6 +97,9 @@
     <Filter Include="Source Files\General\Exception">
       <UniqueIdentifier>{ba054aa0-55d1-45ce-aeb8-ba9cfbfa8d35}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\General\UniversalString">
+      <UniqueIdentifier>{0238800d-185f-4e96-bcf5-aa7657b648ce}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-HelperPCH.cpp">
@@ -236,9 +239,6 @@
     <ClInclude Include="..\include\StringOperator.h">
       <Filter>Header Files\Prerequisite</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\UniversalString.h">
-      <Filter>Header Files\General\Misc</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\RunnerHelper.h">
       <Filter>Header Files\General\Misc</Filter>
     </ClInclude>
@@ -310,6 +310,12 @@
     </ClInclude>
     <ClInclude Include="..\include\MethodEnsurerMacro.h">
       <Filter>Header Files\Macro</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\UniversalString.h">
+      <Filter>Header Files\General\UniversalString</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\CommaSeparatedPolicy.h">
+      <Filter>Header Files\General\UniversalString</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
