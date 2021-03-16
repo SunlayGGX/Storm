@@ -24,6 +24,7 @@ namespace Storm
 	struct SceneSimulationConfig;
 	struct SceneRecordConfig;
 	struct SceneScriptConfig;
+	struct SceneCageConfig;
 
 	enum class ThreadPriority;
 	enum class VectoredExceptionDisplayMode;
@@ -68,6 +69,8 @@ namespace Storm
 		virtual const std::vector<Storm::SceneConstraintConfig>& getSceneConstraintsConfig() const = 0;
 		virtual const Storm::SceneRigidBodyConfig& getSceneRigidBodyConfig(unsigned int rbId) const = 0;
 		virtual const Storm::SceneScriptConfig& getSceneScriptConfig() const = 0;
+
+		virtual const Storm::SceneCageConfig* getSceneOptionalCageConfig() const = 0;
 
 		// Special highly used method
 		virtual bool isInReplayMode() const noexcept = 0;

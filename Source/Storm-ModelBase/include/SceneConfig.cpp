@@ -9,6 +9,7 @@
 #include "SceneRecordConfig.h"
 #include "SceneScriptConfig.h"
 #include "SceneFluidCustomDFSPHConfig.h"
+#include "SceneCageConfig.h"
 
 #include "CollisionType.h"
 #include "SimulationMode.h"
@@ -21,6 +22,27 @@
 #include "ViscosityMethod.h"
 #include "VolumeComputationTechnique.h"
 
+
+namespace
+{
+	inline Storm::Vector3 dummyMandatoryVector3ForMax()
+	{
+		return Storm::Vector3{
+			std::numeric_limits<Storm::Vector3::Scalar>::lowest(),
+			std::numeric_limits<Storm::Vector3::Scalar>::lowest(),
+			std::numeric_limits<Storm::Vector3::Scalar>::lowest()
+		};
+	}
+
+	inline Storm::Vector3 dummyMandatoryVector3ForMin()
+	{
+		return Storm::Vector3{
+			std::numeric_limits<Storm::Vector3::Scalar>::max(),
+			std::numeric_limits<Storm::Vector3::Scalar>::max(),
+			std::numeric_limits<Storm::Vector3::Scalar>::max()
+		};
+	}
+}
 
 
 Storm::SceneSimulationConfig::SceneSimulationConfig() :
@@ -36,11 +58,13 @@ Storm::SceneSimulationConfig::SceneSimulationConfig() :
 	_minPredictIteration{ 2 },
 	_maxPredictIteration{ 150 },
 	_maxDensityError{ 0.01f },
+	_maxPressureError{ 0.01f },
 	_kernelMode{ Storm::KernelMode::CubicSpline },
 	_kernelIncrementSpeedInSeconds{ -1.f },
 	_maxKernelIncrementCoeff{ 0.f },
 	_maxCFLTime{ 0.5f },
 	_recomputeNeighborhoodStep{ 1 },
+	_midUpdateViscosity{ false },
 	_simulationNoWait{ false },
 	_hasFluid{ true },
 	_computeCFL{ false },
@@ -187,5 +211,19 @@ Storm::SceneScriptConfig::SceneScriptConfig() :
 	_scriptFilePipe._filePath = (std::filesystem::path{ "$[StormScripts]" } / "RuntimeScript.txt").string();
 }
 
+Storm::SceneCageConfig::SceneCageConfig() :
+	_boxMin{ dummyMandatoryVector3ForMin() },
+	_boxMax{ dummyMandatoryVector3ForMax() }
+{
+
+}
+
+Storm::SceneConfig::SceneConfig() :
+	_optionalCageConfig{ nullptr }
+{}
+
 // Needed for prototypes. Otherwise, std::vector declared inside this structure won't compile anywhere else because the underlying structure wasn't defined (vector cannot destroy undefined element)...
-Storm::SceneConfig::~SceneConfig() = default;
+Storm::SceneConfig::~SceneConfig()
+{
+	delete _optionalCageConfig;
+}

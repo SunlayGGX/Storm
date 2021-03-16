@@ -58,6 +58,8 @@ namespace Storm
 		const Storm::SceneRigidBodyConfig& getSceneRigidBodyConfig(unsigned int rbId) const final override;
 		const Storm::SceneScriptConfig& getSceneScriptConfig() const final override;
 
+		const Storm::SceneCageConfig* getSceneOptionalCageConfig() const final override;
+
 		bool isInReplayMode() const noexcept final override;
 		bool userCanModifyTimestep() const noexcept final override;
 		const std::string& getSceneName() const final override;

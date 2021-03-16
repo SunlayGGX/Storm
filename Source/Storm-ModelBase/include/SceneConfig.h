@@ -12,10 +12,12 @@ namespace Storm
 	struct SceneRigidBodyConfig;
 	struct SceneBlowerConfig;
 	struct SceneConstraintConfig;
+	struct SceneCageConfig;
 
 	struct SceneConfig
 	{
 	public:
+		SceneConfig();
 		~SceneConfig();
 
 	public:
@@ -24,6 +26,9 @@ namespace Storm
 		Storm::SceneFluidConfig _fluidConfig;
 		Storm::SceneRecordConfig _recordConfig;
 		Storm::SceneScriptConfig _scriptConfig;
+
+		// Can't delete an incomplete type is what is preventing me from using unique_ptr
+		Storm::SceneCageConfig* _optionalCageConfig;
 
 		std::vector<Storm::SceneRigidBodyConfig> _rigidBodiesConfig;
 		std::vector<Storm::SceneBlowerConfig> _blowersConfig;

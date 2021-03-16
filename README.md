@@ -446,6 +446,12 @@ Inside this element should be put all rigidbodies. Each rigidbody should be spec
 - **force (vector3, facultative)**: This defines the force applied by the blower to each particle in range (inside its effect area defined by the blower's dimension). Default is { x=0.0, y=0.0, z=0.0 }...
 
 
+#### Cage
+This element is completely optional. Not declaring it prevent to create a cage inside the simulation (a domain where no particle is allowed to leave (but not physically meaningful)). Cage is a box.
+- **boxMin (vector3, mandatory)**: The lower point of the cage spatial domain. All its components must be lower than boxMax.
+- **boxMax (vector3, mandatory)**: The higher point of the cage spatial domain. All its components must be greater than boxMin.
+
+
 ### Animation
 
 Animation config are where we define a rigid body animation.

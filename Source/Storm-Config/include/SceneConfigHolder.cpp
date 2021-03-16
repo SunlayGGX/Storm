@@ -12,6 +12,7 @@
 #include "SceneConstraintConfig.h"
 #include "SceneRecordConfig.h"
 #include "SceneScriptConfig.h"
+#include "SceneCageConfig.h"
 #include "SceneFluidCustomDFSPHConfig.h"
 
 #include "GeneralConfig.h"
@@ -492,6 +493,35 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 		}
 
 		// The other validations will be done later.
+	}
+
+	/* Cage */
+	const auto &cageTreeOpt = srcTree.get_child_optional("Cage");
+	if (cageTreeOpt.has_value())
+	{
+		_sceneConfig->_optionalCageConfig = new Storm::SceneCageConfig();
+		Storm::SceneCageConfig &cageConfig = *_sceneConfig->_optionalCageConfig;
+
+		const auto &cageTree = cageTreeOpt.value();
+		for (const auto &cageXmlElement : cageTree)
+		{
+			if (
+				!Storm::XmlReader::handleXml(cageXmlElement, "boxMin", cageConfig._boxMin, parseVector3Element) &&
+				!Storm::XmlReader::handleXml(cageXmlElement, "boxMax", cageConfig._boxMax, parseVector3Element)
+				)
+			{
+				LOG_ERROR << "tag '" << cageXmlElement.first << "' (inside Scene.Cage) is unknown, therefore it cannot be handled";
+			}
+		}
+
+		if (cageConfig._boxMin.x() >= cageConfig._boxMax.x() || cageConfig._boxMin.y() >= cageConfig._boxMax.y() || cageConfig._boxMin.z() >= cageConfig._boxMax.z())
+		{
+			Storm::throwException<Storm::Exception>(
+				"No components of cage box min should be greater or equal than box max\n"
+				"=> Box min : " + Storm::toStdString(cageConfig._boxMin) + "\n"
+				"=> Box max : " + Storm::toStdString(cageConfig._boxMax)
+			);
+		}
 	}
 
 	/* Script */
