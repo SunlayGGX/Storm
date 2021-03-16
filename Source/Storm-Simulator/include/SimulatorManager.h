@@ -19,6 +19,7 @@ namespace Storm
 	class IBlower;
 	class ISPHBaseSolver;
 	class UIFieldContainer;
+	class Cage;
 	struct SceneSimulationConfig;
 	struct SerializeRecordPendingData;
 	enum class RaycastEnablingFlag : uint8_t;
@@ -154,6 +155,8 @@ namespace Storm
 
 		Storm::ParticleSelector _particleSelector;
 		Storm::RaycastEnablingFlag _raycastFlag;
+
+		std::unique_ptr<Storm::Cage> _cage;
 
 		Storm::ExitCode _runExitCode;
 

@@ -16,6 +16,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Blower.cpp" />
+    <ClCompile Include="..\include\Cage.cpp" />
     <ClCompile Include="..\include\DFSPHSolver.cpp" />
     <ClCompile Include="..\include\FluidParticleSystem.cpp" />
     <ClCompile Include="..\include\IISPHSolver.cpp" />
@@ -44,6 +45,7 @@
     <ClInclude Include="..\include\Blower.h" />
     <ClInclude Include="..\include\BlowerEffectArea.h" />
     <ClInclude Include="..\include\BlowerTimeHandler.h" />
+    <ClInclude Include="..\include\Cage.h" />
     <ClInclude Include="..\include\CubicSplineKernel.h" />
     <ClInclude Include="..\include\DFSPHSolver.h" />
     <ClInclude Include="..\include\DFSPHSolverData.h" />

@@ -52,6 +52,8 @@
 #include "BlowerEffectArea.h"
 #include "Blower.h"
 
+#include "Cage.h"
+
 #include "IRigidBody.h"
 
 #include "ThreadingSafety.h"
@@ -686,6 +688,12 @@ void Storm::SimulatorManager::initialize_Implementation()
 		/* Initialize kernels */
 
 		Storm::initializeKernels(this->getKernelLength());
+
+		const Storm::SceneCageConfig* sceneOptionalCageConfig = configMgr.getSceneOptionalCageConfig();
+		if (sceneOptionalCageConfig)
+		{
+			_cage = std::make_unique<Storm::Cage>(*sceneOptionalCageConfig);
+		}
 	}
 
 	/* Initialize inputs */
@@ -1118,6 +1126,11 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 			._kernelLength = this->getKernelLength(),
 			._deltaTime = timeMgr.getCurrentPhysicsDeltaTime()
 		});
+
+		if (_cage)
+		{
+			_cage->doEnclose(_particleSystem);
+		}
 
 		// Update the particle selector data with the external sum force.
 		this->refreshParticleSelection();

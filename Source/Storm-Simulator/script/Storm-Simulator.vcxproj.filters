@@ -132,6 +132,9 @@
     <ClCompile Include="..\include\SolverParameterChange.cpp">
       <Filter>Source Files\Solver\SPHSolvers\Base</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\Cage.cpp">
+      <Filter>Source Files\General</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-SimulatorPCH.h">
@@ -238,6 +241,9 @@
     </ClInclude>
     <ClInclude Include="..\include\SolverParameterChange.h">
       <Filter>Header Files\Solver\SPHSolvers\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Cage.h">
+      <Filter>Header Files\General</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

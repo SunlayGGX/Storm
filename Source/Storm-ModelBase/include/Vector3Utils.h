@@ -6,7 +6,7 @@
 namespace Storm
 {
 	template<class ValueType, class SelectorFunc>
-	void minInPlace(ValueType &toBeMin, const ValueType &other, const SelectorFunc &selector)
+	bool minInPlace(ValueType &toBeMin, const ValueType &other, const SelectorFunc &selector)
 	{
 		STORM_STATIC_ASSERT(
 			std::is_reference_v<decltype(selector(toBeMin))>,
@@ -18,11 +18,14 @@ namespace Storm
 		if (val > toCheck)
 		{
 			val = toCheck;
+			return true;
 		}
+
+		return false;
 	}
 
 	template<class ValueType, class SelectorFunc>
-	void maxInPlace(ValueType &toBeMax, const ValueType &other, const SelectorFunc &selector)
+	bool maxInPlace(ValueType &toBeMax, const ValueType &other, const SelectorFunc &selector)
 	{
 		STORM_STATIC_ASSERT(
 			std::is_reference_v<decltype(selector(toBeMax))>,
@@ -34,7 +37,10 @@ namespace Storm
 		if (val < toCheck)
 		{
 			val = toCheck;
+			return true;
 		}
+
+		return false;
 	}
 
 	template<class ValueType, class SelectorFunc>
@@ -42,6 +48,15 @@ namespace Storm
 	{
 		minInPlace(toBeMin, other, selector);
 		maxInPlace(toBeMax, other, selector);
+	}
+
+
+	template<class ValueType, class SelectorFunc>
+	bool clampInPlace(const ValueType &minValue, const ValueType &maxValue, ValueType &other, const SelectorFunc &selector)
+	{
+		return
+			minInPlace(other, maxValue, selector) ||
+			maxInPlace(other, minValue, selector);
 	}
 
 	// Init the Vector3 to use into max algorithm (get the max value, so it is important that the value is the lowest possible value).
