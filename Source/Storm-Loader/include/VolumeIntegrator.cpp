@@ -7,6 +7,30 @@
 #	include "SceneRigidBodyConfig.h"
 #endif
 
+namespace
+{
+	template<bool shouldConsiderLastAsCenter>
+	float computeTetrahedronVolumeImpl(const Storm::Vector3(&vertexes)[4])
+	{
+		float tmp;
+		if constexpr (shouldConsiderLastAsCenter)
+		{
+			const Storm::Vector3 v30 = vertexes[0] - vertexes[3];
+			const Storm::Vector3 v20 = vertexes[1] - vertexes[3];
+			const Storm::Vector3 v10 = vertexes[2] - vertexes[3];
+			tmp = std::fabs(v30.cross(v20).dot(v10));
+		}
+		else // Center at 0.0, so no need to subtract.
+		{
+			const Storm::Vector3 &v30 = vertexes[0];
+			const Storm::Vector3 &v20 = vertexes[1];
+			const Storm::Vector3 &v10 = vertexes[2];
+			tmp = std::fabs(v30.cross(v20).dot(v10));
+		}
+		return  tmp / 6.f;
+	}
+}
+
 
 float Storm::VolumeIntegrator::computeSphereVolume(const Storm::Vector3 &dimension)
 {
@@ -29,12 +53,7 @@ float Storm::VolumeIntegrator::computeCubeVolume(const Storm::Vector3 &dimension
 
 float Storm::VolumeIntegrator::computeTetrahedronVolume(const Storm::Vector3(&vertexes)[4])
 {
-	constexpr float k_coeff = 1.f / 6.f;
-	const Storm::Vector3 v01 = vertexes[1] - vertexes[0];
-	const Storm::Vector3 v02 = vertexes[2] - vertexes[0];
-	const Storm::Vector3 v03 = vertexes[3] - vertexes[0];
-
-	return k_coeff * std::fabs(v01.cross(v02).dot(v03));
+	return computeTetrahedronVolumeImpl<true>(vertexes);
 }
 
 float Storm::VolumeIntegrator::computeTriangleMeshVolume(const Storm::AssetCacheData &mesh)
@@ -43,10 +62,8 @@ float Storm::VolumeIntegrator::computeTriangleMeshVolume(const Storm::AssetCache
 
 	Storm::Vector3 tetrahedron[4];
 
-#if XAGORA_SRC_OBJECT_SPACE
-	tetrahedron[0] = Storm::Vector3::Zero();
-#else
-	tetrahedron[0] = mesh.getAssociatedRbConfig()._translation;
+#if !XAGORA_SRC_OBJECT_SPACE
+	tetrahedron[3] = mesh.getAssociatedRbConfig()._translation;
 #endif
 
 	const std::vector<Storm::Vector3> &vertices = mesh.getScaledVertices();
@@ -55,11 +72,15 @@ float Storm::VolumeIntegrator::computeTriangleMeshVolume(const Storm::AssetCache
 
 	for (std::size_t iter = 0; iter < indicesCount; iter += 3)
 	{
-		tetrahedron[1] = vertices[indices[iter]];
-		tetrahedron[2] = vertices[indices[iter + 1]];
-		tetrahedron[3] = vertices[indices[iter + 2]];
+		tetrahedron[0] = vertices[indices[iter]];
+		tetrahedron[1] = vertices[indices[iter + 1]];
+		tetrahedron[2] = vertices[indices[iter + 2]];
 
-		result += Storm::VolumeIntegrator::computeTetrahedronVolume(tetrahedron);
+#if XAGORA_SRC_OBJECT_SPACE
+		result += computeTetrahedronVolumeImpl<false>(tetrahedron);
+#else
+		result += computeTetrahedronVolumeImpl<true>(tetrahedron);
+#endif
 	}
 
 	const float englobingVolume = computeCubeVolume(mesh.getFinalBoundingBoxMax() - mesh.getFinalBoundingBoxMin());
