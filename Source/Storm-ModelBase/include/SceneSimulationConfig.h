@@ -32,6 +32,7 @@ namespace Storm
 		unsigned int _maxPredictIteration;
 		unsigned int _minPredictIteration;
 		float _maxDensityError;
+		float _maxPressureError;
 
 		bool _startPaused;
 

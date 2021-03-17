@@ -469,7 +469,7 @@ void Storm::DFSPHSolver::divergenceSolve(const Storm::IterationParameter &iterat
 
 	const unsigned int minIter = sceneSimulationConfig._minPredictIteration;
 	const unsigned int maxIter = sceneSimulationConfig._maxPredictIteration;
-	const float maxError = sceneSimulationConfig._maxDensityError;
+	const float etaCoeff = invertDeltaTime * sceneSimulationConfig._maxDensityError * 0.01f;
 
 	//////////////////////////////////////////////////////////////////////////
 	// Compute velocity of density change
@@ -591,7 +591,7 @@ void Storm::DFSPHSolver::divergenceSolve(const Storm::IterationParameter &iterat
 
 			// Maximal allowed density fluctuation
 			// use maximal density error divided by time step size
-			const float eta = invertDeltaTime * maxError * 0.01f * density0;  // maxError is given in percent
+			const float eta = etaCoeff * density0;  // maxError is given in percent
 			chk = chk && (avgDensityErrAtom <= eta);
 
 			outAverageError += avgDensityErrAtom;
@@ -631,7 +631,7 @@ void Storm::DFSPHSolver::pressureSolve(const Storm::IterationParameter &iteratio
 
 	const unsigned int minIter = sceneSimulationConfig._minPredictIteration;
 	const unsigned int maxIter = sceneSimulationConfig._maxPredictIteration;
-	const float maxError = sceneSimulationConfig._maxDensityError;
+	const float etaCoeff = sceneSimulationConfig._maxPressureError * 0.01f;
 
 	const float deltaTimeSquared = iterationParameter._deltaTime * iterationParameter._deltaTime;
 	const float invDeltaTime = 1.f / iterationParameter._deltaTime;
@@ -756,7 +756,7 @@ void Storm::DFSPHSolver::pressureSolve(const Storm::IterationParameter &iteratio
 			outAverageError = densityError / _totalParticleCountFl;
 
 			// Maximal allowed density fluctuation
-			const float eta = maxError * 0.01f * density0;  // maxError is given in percent
+			const float eta = etaCoeff * density0;  // maxError is given in percent
 			chk = chk && (outAverageError <= eta);
 		}
 

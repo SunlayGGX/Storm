@@ -322,6 +322,7 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 			!Storm::XmlReader::handleXml(generalXmlElement, "minPredictIteration", sceneSimulationConfig._minPredictIteration) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "maxPredictIteration", sceneSimulationConfig._maxPredictIteration) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "maxDensityError", sceneSimulationConfig._maxDensityError) &&
+			!Storm::XmlReader::handleXml(generalXmlElement, "maxPressureError", sceneSimulationConfig._maxPressureError) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "neighborCheckStep", sceneSimulationConfig._recomputeNeighborhoodStep) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "simulationNoWait", sceneSimulationConfig._simulationNoWait) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "particleRadius", sceneSimulationConfig._particleRadius) &&
@@ -347,6 +348,10 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 	else if (sceneSimulationConfig._maxDensityError <= 0.f)
 	{
 		Storm::throwException<Storm::Exception>("Max density error cannot be negative or equal to 0.f!");
+	}
+	else if (sceneSimulationConfig._maxPressureError <= 0.f)
+	{
+		Storm::throwException<Storm::Exception>("Max pressure error cannot be negative or equal to 0.f!");
 	}
 	else if (sceneSimulationConfig._minPredictIteration > sceneSimulationConfig._maxPredictIteration)
 	{
