@@ -659,6 +659,7 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 				!Storm::XmlReader::handleXml(fluidXmlElement, "id", fluidConfig._fluidId) &&
 				!Storm::XmlReader::handleXml(fluidXmlElement, "viscosity", fluidConfig._dynamicViscosity) &&
 				!Storm::XmlReader::handleXml(fluidXmlElement, "soundSpeed", fluidConfig._soundSpeed) &&
+				!Storm::XmlReader::handleXml(fluidXmlElement, "particleVolume", fluidConfig._particleVolume) &&
 				!Storm::XmlReader::handleXml(fluidXmlElement, "pressureK1", fluidConfig._kPressureStiffnessCoeff) &&
 				!Storm::XmlReader::handleXml(fluidXmlElement, "pressureK2", fluidConfig._kPressureExponentCoeff) &&
 				!Storm::XmlReader::handleXml(fluidXmlElement, "relaxationCoeff", fluidConfig._relaxationCoefficient) &&
@@ -684,6 +685,10 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 		else if (fluidConfig._density <= 0.f)
 		{
 			Storm::throwException<Storm::Exception>("Fluid " + std::to_string(fluidConfig._fluidId) + " density of " + std::to_string(fluidConfig._density) + "kg.m^-3 is invalid!");
+		}
+		else if (fluidConfig._particleVolume != -1.f && fluidConfig._particleVolume <= 0.f)
+		{
+			Storm::throwException<Storm::Exception>("Fluid " + std::to_string(fluidConfig._fluidId) + " particle volume should be left unset or should be strictly greater than 0.0! Value was " + std::to_string(fluidConfig._particleVolume) + "m^3.");
 		}
 		else if (fluidConfig._kPressureStiffnessCoeff < 0.f)
 		{

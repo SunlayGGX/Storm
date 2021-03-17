@@ -36,6 +36,7 @@ namespace Storm
 		std::vector<Storm::SceneFluidBlockConfig> _fluidGenConfig;
 		std::vector<Storm::SceneFluidUnitParticleConfig> _fluidUnitParticleGenConfig;
 		float _density;
+		float _particleVolume;
 		float _dynamicViscosity;
 		float _cinematicViscosity;
 		float _soundSpeed;

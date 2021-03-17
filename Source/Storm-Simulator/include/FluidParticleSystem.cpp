@@ -41,7 +41,14 @@ Storm::FluidParticleSystem::FluidParticleSystem(unsigned int particleSystemIndex
 
 	const float particleDiameter = sceneSimulationConfig._particleRadius * 2.f;
 
-	_particleVolume = particleDiameter * particleDiameter * particleDiameter;
+	if (fluidConfig._particleVolume == -1.f)
+	{
+		_particleVolume = particleDiameter * particleDiameter * particleDiameter;
+	}
+	else
+	{
+		_particleVolume = fluidConfig._particleVolume;
+	}
 
 	_masses.resize(particleCount, _particleVolume * _restDensity);
 	_densities.resize(particleCount);
