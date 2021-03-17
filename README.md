@@ -624,6 +624,7 @@ Here the list of available commands :
 - **void printRigidBodyGlobalDensity(const unsigned int id)**: Print the rigid body density evaluated from a predicted volume and its mass set in the config file. Disabled if the volume wasn't computed.
 - **void printFluidParticleData()**: Debug command to print to a human readable text giving all position, velocity and force values of all fluid particles. The data is printed inside the output (temp) directory inside "Debug" folder.
 - **void logAverageDensity()**: Log the average density of the simulation.
+- **void logVelocityData()**: Log min and max velocity of each particle system.
 - **void setEnableThresholdDensity_DFSPH(bool enable)**: Enable/Disable the neighbor threshold on density solver. Enabled means that we'll use a threshold. Disabled means that the density solving won't use a neighborhood threshold and solve the density whatever the neighbor count is. This method is only available if the solver is DFSPH.
 - **void setNeighborThresholdDensity_DFSPH(size_t neighborCount)**: Set the neighbor threshold value on density solver. This method is only available if the solver is DFSPH.
 

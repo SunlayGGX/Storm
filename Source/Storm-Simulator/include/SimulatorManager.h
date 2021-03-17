@@ -145,6 +145,7 @@ namespace Storm
 
 	private:
 		void logAverageDensity() const;
+		void logVelocityData() const;
 
 	private:
 		Storm::ParticleSystemContainer _particleSystem;

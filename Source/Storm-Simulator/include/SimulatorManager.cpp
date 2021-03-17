@@ -2310,3 +2310,48 @@ void Storm::SimulatorManager::logAverageDensity() const
 		}
 	});
 }
+
+void Storm::SimulatorManager::logVelocityData() const
+{
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::MainThread, [this, &singletonHolder]()
+	{
+		std::string logs;
+		logs.reserve(_particleSystem.size() * 128);
+
+		for (const auto &particleSystemPair : _particleSystem)
+		{
+			const Storm::ParticleSystem &currentPSystem = *particleSystemPair.second;
+			if (!currentPSystem.isStatic())
+			{
+				const std::vector<Storm::Vector3> &velocities = particleSystemPair.second->getVelocity();
+				const auto minMaxVelocities = std::minmax_element(std::execution::par, std::begin(velocities), std::end(velocities), [](const Storm::Vector3 &left, const Storm::Vector3 &right)
+				{
+					return left.squaredNorm() < right.squaredNorm();
+				});
+
+				logs += "Particle system ";
+				logs += std::to_string(particleSystemPair.first);
+				logs += " { Min, Max } = { ";
+				logs += Storm::toStdString(minMaxVelocities.first);
+				logs += ", ";
+				logs += Storm::toStdString(minMaxVelocities.second);
+				logs += " } => { ";
+				logs += std::to_string(minMaxVelocities.first->norm());
+				logs += ", ";
+				logs += std::to_string(minMaxVelocities.second->norm());
+				logs += " }\n";
+			}
+		}
+
+		if (!logs.empty())
+		{
+			logs.pop_back();
+			LOG_ALWAYS << logs;
+		}
+		else
+		{
+			LOG_ALWAYS << "No particle system!";
+		}
+	});
+}
