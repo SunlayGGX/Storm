@@ -375,6 +375,38 @@ void Storm::DFSPHSolver::execute(const Storm::IterationParameter &iterationParam
 		}
 	}
 
+	if (sceneSimulationConfig._midUpdateViscosity)
+	{
+		// Update Rb velocities with viscosity (experimental)
+		for (auto &particleSystemPair : particleSystems)
+		{
+			Storm::ParticleSystem &currentParticleSystem = *particleSystemPair.second;
+			if (!currentParticleSystem.isFluids())
+			{
+				Storm::RigidBodyParticleSystem &rbParticleSystem = static_cast<Storm::RigidBodyParticleSystem &>(currentParticleSystem);
+
+				const std::vector<Storm::Vector3> &viscoForces = rbParticleSystem.getTemporaryViscosityForces();
+				std::vector<Storm::Vector3> &forces = rbParticleSystem.getForces();
+
+				std::copy(std::execution::par, std::begin(viscoForces), std::end(viscoForces), std::begin(forces));
+			}
+		}
+
+		simulMgr.flushPhysics(iterationParameter._deltaTime);
+		for (auto &particleSystemPair : particleSystems)
+		{
+			Storm::ParticleSystem &currentParticleSystem = *particleSystemPair.second;
+			if (!currentParticleSystem.isFluids())
+			{
+				Storm::RigidBodyParticleSystem &rbParticleSystem = static_cast<Storm::RigidBodyParticleSystem &>(currentParticleSystem);
+
+				rbParticleSystem.updatePosition(iterationParameter._deltaTime, false);
+			}
+		}
+
+		simulMgr.refreshParticleNeighborhood();
+	}
+
 	// 8th : TODO : CFL
 	// ...
 
@@ -433,7 +465,7 @@ void Storm::DFSPHSolver::execute(const Storm::IterationParameter &iterationParam
 		});
 
 		fluidParticleSystem.setIsDirty(dirtyTmp);
-	});
+	}, !sceneSimulationConfig._midUpdateViscosity);
 
 	// 11th : flush physics state (rigid bodies)
 	simulMgr.flushPhysics(iterationParameter._deltaTime);

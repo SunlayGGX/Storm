@@ -34,6 +34,8 @@ namespace Storm
 		float _maxDensityError;
 		float _maxPressureError;
 
+		bool _midUpdateViscosity;
+
 		bool _startPaused;
 
 		bool _simulationNoWait;

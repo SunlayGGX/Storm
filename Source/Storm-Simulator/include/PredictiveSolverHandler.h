@@ -16,6 +16,8 @@ namespace Storm
 
 		using SolversNames = const wchar_t*const(&)[Storm::PredictiveSolverHandler::k_maxSolverCount];
 
+		using FluidTransfertCallback = void(*)(void*, const unsigned int, Storm::FluidParticleSystem &, const Storm::IterationParameter &);
+
 	protected:
 		PredictiveSolverHandler(const Storm::PredictiveSolverHandler::SolversNames &solversIterationNames, const Storm::PredictiveSolverHandler::SolversNames &solversErrorsNames);
 		~PredictiveSolverHandler();
@@ -25,7 +27,7 @@ namespace Storm
 
 	protected:
 		void initializePredictionIteration(Storm::ParticleSystemContainer &particleSystems, float &averageDensityError);
-		void transfertEndDataToSystems(Storm::ParticleSystemContainer &particleSystems, const Storm::IterationParameter &iterationParameter, void* data, void(*fluidTransfertCallback)(void*, const unsigned int, Storm::FluidParticleSystem &, const Storm::IterationParameter &));
+		void transfertEndDataToSystems(Storm::ParticleSystemContainer &particleSystems, const Storm::IterationParameter &iterationParameter, void* data, FluidTransfertCallback fluidTransfertCallback, const bool rbViscoTransfered = true);
 
 	private:
 		unsigned int _solverPredictionIter[Storm::PredictiveSolverHandler::k_maxSolverCount];

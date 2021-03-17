@@ -86,7 +86,7 @@ void Storm::PredictiveSolverHandler::initializePredictionIteration(Storm::Partic
 	averageDensityError = 0.f;
 }
 
-void Storm::PredictiveSolverHandler::transfertEndDataToSystems(Storm::ParticleSystemContainer &particleSystems, const Storm::IterationParameter &iterationParameter, void* data, void(*fluidTransfertCallback)(void*, const unsigned int, Storm::FluidParticleSystem &, const Storm::IterationParameter &))
+void Storm::PredictiveSolverHandler::transfertEndDataToSystems(Storm::ParticleSystemContainer &particleSystems, const Storm::IterationParameter &iterationParameter, void* data, FluidTransfertCallback fluidTransfertCallback, const bool rbViscoTransfered /*= true*/)
 {
 	for (auto &particleSystemPair : particleSystems)
 	{
@@ -97,10 +97,20 @@ void Storm::PredictiveSolverHandler::transfertEndDataToSystems(Storm::ParticleSy
 		}
 		else if (!particleSystem.isStatic())
 		{
-			Storm::runParallel(particleSystem.getForces(), [&particleSystem](Storm::Vector3 &forces, const std::size_t currentPIndex)
+			if (rbViscoTransfered)
 			{
-				forces = particleSystem.getTemporaryViscosityForces()[currentPIndex] + particleSystem.getTemporaryPressureForces()[currentPIndex];
-			});
+				Storm::runParallel(particleSystem.getForces(), [&particleSystem](Storm::Vector3 &forces, const std::size_t currentPIndex)
+				{
+					forces = particleSystem.getTemporaryViscosityForces()[currentPIndex] + particleSystem.getTemporaryPressureForces()[currentPIndex];
+				});
+			}
+			else
+			{
+				const std::vector<Storm::Vector3> &pressureForces = particleSystem.getTemporaryPressureForces();
+				std::vector<Storm::Vector3> &forces = particleSystem.getForces();
+
+				std::copy(std::execution::par, std::begin(pressureForces), std::end(pressureForces), std::begin(forces));
+			}
 		}
 	}
 }
