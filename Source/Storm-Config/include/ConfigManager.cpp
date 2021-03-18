@@ -499,7 +499,7 @@ const Storm::SceneScriptConfig& Storm::ConfigManager::getSceneScriptConfig() con
 
 const Storm::SceneCageConfig* Storm::ConfigManager::getSceneOptionalCageConfig() const
 {
-	return _sceneConfigHolder.getConfig()._optionalCageConfig;
+	return _sceneConfigHolder.getConfig()._optionalCageConfig.get();
 }
 
 bool Storm::ConfigManager::isInReplayMode() const noexcept

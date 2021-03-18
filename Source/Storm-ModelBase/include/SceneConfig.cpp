@@ -219,12 +219,7 @@ Storm::SceneCageConfig::SceneCageConfig() :
 
 }
 
-Storm::SceneConfig::SceneConfig() :
-	_optionalCageConfig{ nullptr }
-{}
+Storm::SceneConfig::SceneConfig() = default;
 
 // Needed for prototypes. Otherwise, std::vector declared inside this structure won't compile anywhere else because the underlying structure wasn't defined (vector cannot destroy undefined element)...
-Storm::SceneConfig::~SceneConfig()
-{
-	delete _optionalCageConfig;
-}
+Storm::SceneConfig::~SceneConfig() = default;

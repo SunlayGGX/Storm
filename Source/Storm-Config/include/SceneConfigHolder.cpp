@@ -505,7 +505,7 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 	const auto &cageTreeOpt = srcTree.get_child_optional("Cage");
 	if (cageTreeOpt.has_value())
 	{
-		_sceneConfig->_optionalCageConfig = new Storm::SceneCageConfig();
+		_sceneConfig->_optionalCageConfig = std::make_unique<Storm::SceneCageConfig>();
 		Storm::SceneCageConfig &cageConfig = *_sceneConfig->_optionalCageConfig;
 
 		const auto &cageTree = cageTreeOpt.value();
