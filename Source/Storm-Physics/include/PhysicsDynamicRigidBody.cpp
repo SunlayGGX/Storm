@@ -12,6 +12,8 @@
 
 #include "PhysicsConstraint.h"
 
+#include "ThreadingSafety.h"
+
 #include <PxRigidDynamic.h>
 
 
@@ -156,6 +158,12 @@ Storm::Vector3 Storm::PhysicsDynamicRigidBody::getTotalForce(const float deltaTi
 	const physx::PxVec3 currentAcceleration = (currentVelocity - _currentIterationVelocity) / deltaTime;
 
 	return Storm::convertToStorm(currentMass * currentAcceleration);
+}
+
+Storm::Vector3 Storm::PhysicsDynamicRigidBody::getCurrentLinearVelocity() const noexcept
+{
+	assert(Storm::isPhysicsThread() && "This method should only be called from Physics thread.");
+	return Storm::convertToStorm(_internalRb->getLinearVelocity());
 }
 
 physx::PxRigidDynamic* Storm::PhysicsDynamicRigidBody::getInternalPhysicsPointer() const

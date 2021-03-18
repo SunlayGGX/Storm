@@ -32,6 +32,8 @@ namespace Storm
 		Storm::Vector3 getPhysicAppliedForce() const noexcept;
 		Storm::Vector3 getTotalForce(const float deltaTime) const noexcept;
 
+		Storm::Vector3 getCurrentLinearVelocity() const noexcept;
+
 		physx::PxRigidDynamic* getInternalPhysicsPointer() const;
 
 		void registerConstraint(const std::shared_ptr<Storm::PhysicsConstraint> &constraint);

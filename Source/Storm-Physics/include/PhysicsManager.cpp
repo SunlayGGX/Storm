@@ -305,6 +305,17 @@ Storm::Vector3 Storm::PhysicsManager::getForceOnPhysicalBody(const unsigned int 
 	return force;
 }
 
+Storm::Vector3 Storm::PhysicsManager::getPhysicalBodyCurrentLinearVelocity(const unsigned int id) const
+{
+	Storm::Vector3 velocity;
+	Storm::SearchAlgo::executeOnObjectInContainer(id, [&velocity](const auto &rbFound)
+	{
+		velocity = rbFound.getCurrentLinearVelocity();
+	}, _dynamicsRbMap);
+
+	return velocity;
+}
+
 void Storm::PhysicsManager::freeFromAnimation(const unsigned int rbId)
 {
 	Storm::SearchAlgo::executeOnObjectInContainer(rbId, [](auto &rbFound)

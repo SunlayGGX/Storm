@@ -42,6 +42,8 @@ namespace Storm
 		virtual Storm::Vector3 getPhysicalForceOnPhysicalBody(const unsigned int id) const = 0;
 		virtual Storm::Vector3 getForceOnPhysicalBody(const unsigned int id, const float deltaTimeInSecond) const = 0;
 
+		virtual Storm::Vector3 getPhysicalBodyCurrentLinearVelocity(const unsigned int id) const = 0;
+
 		virtual void freeFromAnimation(const unsigned int rbId) = 0;
 
 		virtual void reconnectPhysicsDebugger() = 0;

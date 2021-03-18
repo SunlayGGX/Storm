@@ -50,6 +50,8 @@ namespace Storm
 		Storm::Vector3 getPhysicalForceOnPhysicalBody(const unsigned int id) const final override;
 		Storm::Vector3 getForceOnPhysicalBody(const unsigned int id, const float deltaTimeInSecond) const final override;
 
+		Storm::Vector3 getPhysicalBodyCurrentLinearVelocity(const unsigned int id) const final override;
+
 		void freeFromAnimation(const unsigned int rbId) final override;
 
 		void reconnectPhysicsDebugger() final override;
