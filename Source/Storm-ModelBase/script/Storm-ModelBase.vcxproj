@@ -59,6 +59,7 @@
     <ClInclude Include="..\include\CollisionType.h" />
     <ClInclude Include="..\include\ColoredSetting.h" />
     <ClInclude Include="..\include\ColorChecker.h" />
+    <ClInclude Include="..\include\SceneCageConfig.h" />
     <ClInclude Include="..\include\SceneConstraintConfig.h" />
     <ClInclude Include="..\include\FluidParticleLoadDenseMode.h" />
     <ClInclude Include="..\include\SceneFluidCustomDFSPHConfig.h" />

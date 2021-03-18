@@ -524,5 +524,8 @@
     <ClInclude Include="..\include\VolumeIntegrator.h">
       <Filter>Header Files\General</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\SceneCageConfig.h">
+      <Filter>Header Files\Modules\Config\Scene</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
