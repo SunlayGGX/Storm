@@ -23,6 +23,7 @@ namespace Storm
 	struct SceneSimulationConfig;
 	struct SerializeRecordPendingData;
 	enum class RaycastEnablingFlag : uint8_t;
+	enum class SimulationSystemsState : uint8_t;
 
 	class SimulatorManager final :
 		private Storm::Singleton<Storm::SimulatorManager, Storm::DefineDefaultCleanupImplementationOnly>,
@@ -58,6 +59,14 @@ namespace Storm
 
 	private:
 		void notifyFrameAdvanced();
+
+	private:
+		void evaluateCurrentSystemsState();
+
+		void notifyCurrentSimulationStatesChanged();
+		void onSystemStateIdle();
+		void onSystemStateNormal();
+		void onSystemStateUnstable();
 
 	public:
 		void flushPhysics(const float deltaTime);
@@ -158,6 +167,10 @@ namespace Storm
 		Storm::RaycastEnablingFlag _raycastFlag;
 
 		std::unique_ptr<Storm::Cage> _cage;
+
+		Storm::SimulationSystemsState _currentSimulationSystemsState;
+		float _maxVelocitySquaredLastStateCheck;
+		std::vector<float> _tmp; // Temporary buffer for any work
 
 		Storm::ExitCode _runExitCode;
 

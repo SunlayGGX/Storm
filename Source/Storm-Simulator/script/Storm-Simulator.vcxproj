@@ -70,6 +70,7 @@
     <ClInclude Include="..\include\ReplaySolver.h" />
     <ClInclude Include="..\include\RigidBodyParticleSystem.h" />
     <ClInclude Include="..\include\SemiImplicitEulerSolver.h" />
+    <ClInclude Include="..\include\SimulationSystemsState.h" />
     <ClInclude Include="..\include\SimulatorManager.h" />
     <ClInclude Include="..\include\SolverCreationParameter.h" />
     <ClInclude Include="..\include\SolverParameterChange.h" />

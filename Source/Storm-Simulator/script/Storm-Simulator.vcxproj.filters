@@ -245,5 +245,8 @@
     <ClInclude Include="..\include\Cage.h">
       <Filter>Header Files\General</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\SimulationSystemsState.h">
+      <Filter>Header Files\State</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -44,6 +44,7 @@
 #include "RunnerHelper.h"
 #include "Vector3Utils.h"
 #include "BoundingBox.h"
+#include "VolumeIntegrator.h"
 
 #include "BlowerDef.h"
 #include "BlowerType.h"
@@ -76,6 +77,8 @@
 
 #include "ExitCode.h"
 
+#include "SimulationSystemsState.h"
+
 #include "RaycastEnablingFlag.h"
 
 #include "UIField.h"
@@ -86,6 +89,10 @@
 #include "SolverCreationParameter.h"
 #include "SolverParameterChange.h"
 #include "IterationParameter.h"
+
+#define STORM_HIJACKED_TYPE float
+#	include "VectHijack.h"
+#undef STORM_HIJACKED_TYPE
 
 #include <fstream>
 #include <future>
@@ -621,7 +628,9 @@ Storm::SimulatorManager::SimulatorManager() :
 	_progressRemainingTime{ STORM_TEXT("N/A") },
 	_uiFields{ std::make_unique<Storm::UIFieldContainer>() },
 	_frameAdvanceCount{ -1 },
-	_currentFrameNumber{ 0 }
+	_currentFrameNumber{ 0 },
+	_currentSimulationSystemsState{ Storm::SimulationSystemsState::Normal },
+	_maxVelocitySquaredLastStateCheck{ 0.f }
 {
 	(*_uiFields)
 		.bindField(STORM_FRAME_NUMBER_FIELD_NAME, _currentFrameNumber);
@@ -1391,6 +1400,170 @@ void Storm::SimulatorManager::notifyFrameAdvanced()
 
 	++_currentFrameNumber;
 	_uiFields->pushField(STORM_FRAME_NUMBER_FIELD_NAME);
+
+	this->evaluateCurrentSystemsState();
+}
+
+void Storm::SimulatorManager::evaluateCurrentSystemsState()
+{
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	const int64_t systemStateRefreshFrameCount = singletonHolder.getSingleton<Storm::IConfigManager>().getGeneralSimulationConfig()._stateRefreshFrameCount;
+
+	if (systemStateRefreshFrameCount > 0 && _currentFrameNumber % systemStateRefreshFrameCount == 0)
+	{
+		const Storm::IPhysicsManager &physicsMgr = singletonHolder.getSingleton<Storm::IPhysicsManager>();
+
+		const Storm::SimulationSystemsState lastState = _currentSimulationSystemsState;
+		float currentMaxVelocitySquared = 0.f;
+
+		for (const auto &particleSystemPair : _particleSystem)
+		{
+			const Storm::ParticleSystem &pSystem = *particleSystemPair.second;
+			if (pSystem.isFluids()) // fluids
+			{
+				const std::vector<Storm::Vector3> &velocities = pSystem.getVelocity();
+
+				Storm::setNumUninitialized_safeHijack(_tmp, Storm::VectorHijacker{ velocities.size() });
+				Storm::runParallel(velocities, [&tmp = this->_tmp](const Storm::Vector3 &currentPVelocity, const std::size_t currentPIndex)
+				{
+					tmp[currentPIndex] = currentPVelocity.squaredNorm();
+				});
+
+				currentMaxVelocitySquared = std::max(currentMaxVelocitySquared, *std::max_element(std::begin(_tmp), std::end(_tmp)));
+			}
+			else if (!pSystem.isStatic()) // dynamic rigid body
+			{
+				currentMaxVelocitySquared = std::max(currentMaxVelocitySquared, physicsMgr.getPhysicalBodyCurrentLinearVelocity(particleSystemPair.first).squaredNorm());
+			}
+		}
+
+		// For now, they are only heuristics... But in the future, we should find a way to really detect if a simulation is idle or unstable.
+		constexpr float velocityConsideredIdle = 0.0001f;
+		if (currentMaxVelocitySquared < velocityConsideredIdle)
+		{
+			_currentSimulationSystemsState = Storm::SimulationSystemsState::Stationnary;
+		}
+		else
+		{
+			const float maxVelocityDiff = currentMaxVelocitySquared - _maxVelocitySquaredLastStateCheck;
+			constexpr float velocityDiffConsideredUnstable = 25000.f;
+			if (maxVelocityDiff > velocityDiffConsideredUnstable)
+			{
+				_currentSimulationSystemsState = Storm::SimulationSystemsState::Unstable;
+			}
+			else
+			{
+				_currentSimulationSystemsState = Storm::SimulationSystemsState::Normal;
+			}
+		}
+
+		_maxVelocitySquaredLastStateCheck = currentMaxVelocitySquared;
+		if (lastState != _currentSimulationSystemsState)
+		{
+			this->notifyCurrentSimulationStatesChanged();
+		}
+	}
+}
+
+void Storm::SimulatorManager::notifyCurrentSimulationStatesChanged()
+{
+	switch (_currentSimulationSystemsState)
+	{
+	case Storm::SimulationSystemsState::Normal:
+		this->onSystemStateNormal();
+		break;
+
+	case Storm::SimulationSystemsState::Stationnary:
+		this->onSystemStateIdle();
+		break;
+
+	case Storm::SimulationSystemsState::Unstable:
+		this->onSystemStateUnstable();
+		break;
+
+	default:
+		__assume(false);
+		Storm::throwException<Storm::Exception>("Current simulation state unknown!");
+	}
+}
+
+void Storm::SimulatorManager::onSystemStateIdle()
+{
+	LOG_DEBUG << "Simulation state made idle.";
+}
+
+void Storm::SimulatorManager::onSystemStateNormal()
+{
+
+}
+
+void Storm::SimulatorManager::onSystemStateUnstable()
+{
+	LOG_DEBUG_WARNING << "Simulation state was deemed unstable.";
+
+	std::string unstabilityMaybeReason;
+	unstabilityMaybeReason.reserve(256);
+
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
+
+	float domainVolume = std::numeric_limits<float>::max();
+	float totalVolume = 0.f;
+
+	for (const auto &particleSystemPair : _particleSystem)
+	{
+		const Storm::ParticleSystem &pSystem = *particleSystemPair.second;
+		if (pSystem.isFluids()) // fluids
+		{
+			const Storm::FluidParticleSystem &pSystemAsFluid = static_cast<const Storm::FluidParticleSystem &>(pSystem);
+			totalVolume += static_cast<float>(pSystemAsFluid.getParticleCount()) * pSystemAsFluid.getParticleVolume();
+		}
+		else
+		{
+			const Storm::RigidBodyParticleSystem &pSystemAsRb = static_cast<const Storm::RigidBodyParticleSystem &>(pSystem);
+			const Storm::SceneRigidBodyConfig &sceneRigidBodyConfig = configMgr.getSceneRigidBodyConfig(particleSystemPair.first);
+
+			const std::vector<float> &rbParticleVolumes = pSystemAsRb.getVolumes();
+
+			float addedVolume = 0.f;
+			for (const float currentPVolume : rbParticleVolumes)
+			{
+				addedVolume += currentPVolume;
+			}
+
+			if (sceneRigidBodyConfig._isWall)
+			{
+				// The division is because for the case of a wall, only the first layer (the one making the wall of the domain) participate, and only by half (because half of the particle sphere is outside).
+				totalVolume += addedVolume / static_cast<float>(sceneRigidBodyConfig._layerCount * 2.f);
+				domainVolume = Storm::VolumeIntegrator::computeCubeVolume(sceneRigidBodyConfig._scale);
+			}
+			else
+			{
+				totalVolume += addedVolume;
+			}
+		}
+	}
+
+	if (domainVolume != std::numeric_limits<float>::max() && totalVolume > domainVolume)
+	{
+		unstabilityMaybeReason += "\n"
+			"- Found that total volume is greater than domain volume!\n"
+			"It is like wanting to fill a 1L tank with incompressible 2L fluids.\n"
+			"Total volume : ";
+		unstabilityMaybeReason += std::to_string(totalVolume);
+		unstabilityMaybeReason += "m^3. Domain volume : ";
+		unstabilityMaybeReason += std::to_string(domainVolume);
+		unstabilityMaybeReason += "m^3.";
+	}
+
+	if (!unstabilityMaybeReason.empty())
+	{
+		LOG_DEBUG_WARNING << "Unstability reason could be " << unstabilityMaybeReason;
+	}
+	else
+	{
+		LOG_DEBUG << "Unstability reason unknown.";
+	}
 }
 
 void Storm::SimulatorManager::flushPhysics(const float deltaTime)
