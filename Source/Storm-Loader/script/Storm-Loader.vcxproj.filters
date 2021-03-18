@@ -60,7 +60,7 @@
     <ClCompile Include="..\include\AssetCacheDataOrder.cpp">
       <Filter>Source Files\General\AssetCacheData</Filter>
     </ClCompile>
-    <ClCompile Include="..\include\VolumeIntegrator.cpp">
+    <ClCompile Include="..\include\AssetVolumeIntegrator.cpp">
       <Filter>Source Files\General</Filter>
     </ClCompile>
   </ItemGroup>
@@ -92,7 +92,7 @@
     <ClInclude Include="..\include\AssetCacheDataOrder.h">
       <Filter>Header Files\General\AssetCacheData</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\VolumeIntegrator.h">
+    <ClInclude Include="..\include\AssetVolumeIntegrator.h">
       <Filter>Header Files\General</Filter>
     </ClInclude>
   </ItemGroup>

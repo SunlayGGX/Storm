@@ -21,7 +21,7 @@
 #include "CollisionType.h"
 #include "VolumeComputationTechnique.h"
 
-#include "VolumeIntegrator.h"
+#include "AssetVolumeIntegrator.h"
 
 #include <Assimp\Importer.hpp>
 #include <Assimp\scene.h>
@@ -463,7 +463,7 @@ void Storm::RigidBody::initializeVolume(const Storm::SceneRigidBodyConfig &rbSce
 		switch (rbSceneConfig._volumeComputationTechnique)
 		{
 		case Storm::VolumeComputationTechnique::TriangleIntegration:
-			_rbVolume = Storm::VolumeIntegrator::computeTriangleMeshVolume(*assetCachedData);
+			_rbVolume = Storm::AssetVolumeIntegrator::computeTriangleMeshVolume(*assetCachedData);
 			break;
 
 		case Storm::VolumeComputationTechnique::Auto:
@@ -478,10 +478,10 @@ void Storm::RigidBody::initializeVolume(const Storm::SceneRigidBodyConfig &rbSce
 		switch (rbSceneConfig._collisionShape)
 		{
 		case Storm::CollisionType::Sphere:
-			_rbVolume = Storm::VolumeIntegrator::computeSphereVolume(rbSceneConfig._scale);
+			_rbVolume = Storm::AssetVolumeIntegrator::computeSphereVolume(rbSceneConfig._scale);
 			break;
 		case Storm::CollisionType::Cube:
-			_rbVolume = Storm::VolumeIntegrator::computeCubeVolume(rbSceneConfig._scale);
+			_rbVolume = Storm::AssetVolumeIntegrator::computeCubeVolume(rbSceneConfig._scale);
 			break;
 
 		case Storm::CollisionType::None:

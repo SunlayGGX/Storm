@@ -213,6 +213,9 @@
     <ClCompile Include="..\include\Vector3.cpp">
       <Filter>Source Files\General</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\VolumeIntegrator.cpp">
+      <Filter>Source Files\General</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-ModelBasePCH.h">
@@ -517,6 +520,9 @@
     </ClInclude>
     <ClInclude Include="..\include\VolumeComputationTechnique.h">
       <Filter>Header Files\Modules\Load</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\VolumeIntegrator.h">
+      <Filter>Header Files\General</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

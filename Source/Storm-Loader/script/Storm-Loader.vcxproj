@@ -28,7 +28,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\include\VolumeIntegrator.cpp" />
+    <ClCompile Include="..\include\AssetVolumeIntegrator.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\AssetCacheData.h" />
@@ -40,7 +40,7 @@
     <ClInclude Include="..\include\PoissonDiskSampler.h" />
     <ClInclude Include="..\include\RigidBody.h" />
     <ClInclude Include="..\include\Storm-LoaderPCH.h" />
-    <ClInclude Include="..\include\VolumeIntegrator.h" />
+    <ClInclude Include="..\include\AssetVolumeIntegrator.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Storm-Helper\script\Storm-Helper.vcxproj">
