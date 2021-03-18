@@ -316,11 +316,25 @@ bool Storm::GeneralConfigHolder::read(const std::string &generalConfigFilePathSt
 				for (const auto &simulationXmlElement : simulationTree)
 				{
 					if (
-						!Storm::XmlReader::handleXml(simulationXmlElement, "allowNoFluid", generalSimulationConfig._allowNoFluid)
+						!Storm::XmlReader::handleXml(simulationXmlElement, "allowNoFluid", generalSimulationConfig._allowNoFluid) &&
+						!Storm::XmlReader::handleXml(simulationXmlElement, "stateRefreshFrameCount", generalSimulationConfig._stateRefreshFrameCount)
 						)
 					{
 						LOG_ERROR << simulationXmlElement.first << " (inside General.Simulation) is unknown, therefore it cannot be handled";
 					}
+				}
+
+				if (generalSimulationConfig._stateRefreshFrameCount < 0)
+				{
+					Storm::throwException<Storm::Exception>("State refresh frame count must be a positive value! Value was : " + std::to_string(generalSimulationConfig._stateRefreshFrameCount));
+				}
+				else if (generalSimulationConfig._stateRefreshFrameCount == 0)
+				{
+					LOG_WARNING << 
+						"Simulation state refresh frame is 0. Therefore refresh system state feature will remain disabled.\n"
+						"It could improve performance but we won't be advised when simulation reached a specific state.\n"
+						"And we won't execute some checks and won't be advised about why this state was reached."
+						;
 				}
 			}
 

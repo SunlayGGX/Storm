@@ -10,5 +10,7 @@ namespace Storm
 
 	public:
 		bool _allowNoFluid;
+
+		int64_t _stateRefreshFrameCount;
 	};
 }

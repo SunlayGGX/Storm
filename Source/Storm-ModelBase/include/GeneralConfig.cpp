@@ -27,7 +27,8 @@ Storm::GeneralGraphicConfig::GeneralGraphicConfig() :
 {}
 
 Storm::GeneralSimulationConfig::GeneralSimulationConfig() :
-	_allowNoFluid{ false }
+	_allowNoFluid{ false },
+	_stateRefreshFrameCount{ 0 }
 {}
 
 Storm::GeneralNetworkConfig::GeneralNetworkConfig() :

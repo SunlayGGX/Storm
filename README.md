@@ -285,7 +285,7 @@ Note that the maximum value you can set is Fatal, it means that no matter what l
 
 #### Simulation (faculative)
 - **allowNoFluid (boolean, facultative)**: If true, we will allow the scene config file to not have any fluid (useful for testing rigid body features without minding particles while developping). Default is false.
-
+- **stateRefreshFrameCount (positive integer, facultative)**: Specify how many frame before the next system state refresh. This value must be a positive integer. 0 means the state refresh is disabled. Default is 0.
 
 
 ### Scene Config
