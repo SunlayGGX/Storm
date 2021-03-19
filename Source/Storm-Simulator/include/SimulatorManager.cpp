@@ -619,6 +619,56 @@ namespace
 			outResult += STORM_TEXT("N/A");
 		}
 	}
+
+	template<class OnWallFunc>
+	float queryTotalVolume(const Storm::ParticleSystemContainer &particleSystems, const OnWallFunc &onWallFunc)
+	{
+		const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+		const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
+
+		float totalVolume = 0.f;
+
+		for (const auto &particleSystemPair : particleSystems)
+		{
+			const Storm::ParticleSystem &pSystem = *particleSystemPair.second;
+			if (pSystem.isFluids()) // fluids
+			{
+				const Storm::FluidParticleSystem &pSystemAsFluid = static_cast<const Storm::FluidParticleSystem &>(pSystem);
+				totalVolume += static_cast<float>(pSystemAsFluid.getParticleCount()) * pSystemAsFluid.getParticleVolume();
+			}
+			else
+			{
+				const Storm::RigidBodyParticleSystem &pSystemAsRb = static_cast<const Storm::RigidBodyParticleSystem &>(pSystem);
+				const Storm::SceneRigidBodyConfig &sceneRigidBodyConfig = configMgr.getSceneRigidBodyConfig(particleSystemPair.first);
+
+				const std::vector<float> &rbParticleVolumes = pSystemAsRb.getVolumes();
+
+				float addedVolume = 0.f;
+				for (const float currentPVolume : rbParticleVolumes)
+				{
+					addedVolume += currentPVolume;
+				}
+
+				if (addedVolume == 0.f)
+				{
+					Storm::throwException<Storm::Exception>("Total volume cannot be queried before rigid body were fully initialized. Run at least one frame.");
+				}
+
+				if (sceneRigidBodyConfig._isWall)
+				{
+					// The division is because for the case of a wall, only the first layer (the one making the wall of the domain) participate, and only by half (because half of the particle sphere is outside).
+					totalVolume += addedVolume / static_cast<float>(sceneRigidBodyConfig._layerCount * 2.f);
+					onWallFunc(sceneRigidBodyConfig);
+				}
+				else
+				{
+					totalVolume += addedVolume;
+				}
+			}
+		}
+
+		return totalVolume;
+	}
 }
 
 Storm::SimulatorManager::SimulatorManager() :
@@ -1504,45 +1554,11 @@ void Storm::SimulatorManager::onSystemStateUnstable()
 	std::string unstabilityMaybeReason;
 	unstabilityMaybeReason.reserve(256);
 
-	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
-	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
-
 	float domainVolume = std::numeric_limits<float>::max();
-	float totalVolume = 0.f;
-
-	for (const auto &particleSystemPair : _particleSystem)
+	const float totalVolume = queryTotalVolume(_particleSystem, [&domainVolume](const Storm::SceneRigidBodyConfig &sceneRigidBodyConfig)
 	{
-		const Storm::ParticleSystem &pSystem = *particleSystemPair.second;
-		if (pSystem.isFluids()) // fluids
-		{
-			const Storm::FluidParticleSystem &pSystemAsFluid = static_cast<const Storm::FluidParticleSystem &>(pSystem);
-			totalVolume += static_cast<float>(pSystemAsFluid.getParticleCount()) * pSystemAsFluid.getParticleVolume();
-		}
-		else
-		{
-			const Storm::RigidBodyParticleSystem &pSystemAsRb = static_cast<const Storm::RigidBodyParticleSystem &>(pSystem);
-			const Storm::SceneRigidBodyConfig &sceneRigidBodyConfig = configMgr.getSceneRigidBodyConfig(particleSystemPair.first);
-
-			const std::vector<float> &rbParticleVolumes = pSystemAsRb.getVolumes();
-
-			float addedVolume = 0.f;
-			for (const float currentPVolume : rbParticleVolumes)
-			{
-				addedVolume += currentPVolume;
-			}
-
-			if (sceneRigidBodyConfig._isWall)
-			{
-				// The division is because for the case of a wall, only the first layer (the one making the wall of the domain) participate, and only by half (because half of the particle sphere is outside).
-				totalVolume += addedVolume / static_cast<float>(sceneRigidBodyConfig._layerCount * 2.f);
-				domainVolume = Storm::VolumeIntegrator::computeCubeVolume(sceneRigidBodyConfig._scale);
-			}
-			else
-			{
-				totalVolume += addedVolume;
-			}
-		}
-	}
+		domainVolume = Storm::VolumeIntegrator::computeCubeVolume(sceneRigidBodyConfig._scale);
+	});
 
 	if (domainVolume != std::numeric_limits<float>::max() && totalVolume > domainVolume)
 	{
@@ -2526,5 +2542,15 @@ void Storm::SimulatorManager::logVelocityData() const
 		{
 			LOG_ALWAYS << "No particle system!";
 		}
+	});
+}
+
+void Storm::SimulatorManager::logTotalVolume() const
+{
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::MainThread, [this]()
+	{
+		const float totalVolume = queryTotalVolume(_particleSystem, [](const Storm::SceneRigidBodyConfig &) {});
+		LOG_ALWAYS << "Total volume involved in the domain is " << totalVolume;
 	});
 }
