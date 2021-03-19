@@ -27,6 +27,8 @@ namespace Storm
 		virtual void bindFinishInitializeCallback(Storm::FinishedInitializeDelegate &&callback) = 0;
 		virtual unsigned short bindWindowsResizedCallback(Storm::WindowsResizedDelegate &&callback) = 0;
 		virtual void unbindWindowsResizedCallback(unsigned short callbackId) = 0;
+		virtual unsigned short bindWindowsMovedCallback(Storm::WindowsMovedDelegate &&callback) = 0;
+		virtual void unbindWindowsMovedCallback(unsigned short callbackId) = 0;
 
 		virtual void focus() = 0;
 

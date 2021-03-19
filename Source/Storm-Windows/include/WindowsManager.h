@@ -57,12 +57,15 @@ namespace Storm
 		void bindFinishInitializeCallback(Storm::FinishedInitializeDelegate &&callback) final override;
 		unsigned short bindWindowsResizedCallback(Storm::WindowsResizedDelegate &&callback) final override;
 		void unbindWindowsResizedCallback(unsigned short callbackId) final override;
+		unsigned short bindWindowsMovedCallback(Storm::WindowsMovedDelegate &&callback) final override;
+		void unbindWindowsMovedCallback(unsigned short callbackId) final override;
 
 	private:
 		void unbindCallbacks();
 
 	public:
 		void callWindowsResizedCallback(unsigned int newWidth, unsigned int newHeight);
+		void callWindowsMovedCallback(unsigned int newX, unsigned int newY);
 
 	public:
 		void focus() final override;
@@ -84,6 +87,7 @@ namespace Storm
 		Storm::MultiCallback<Storm::QuitDelegate> _quitCallback;
 		Storm::MultiCallback<Storm::FinishedInitializeDelegate> _finishedInitCallback;
 		Storm::MultiCallback<Storm::WindowsResizedDelegate> _windowsResizedCallback;
+		Storm::MultiCallback<Storm::WindowsMovedDelegate> _windowsMovedCallback;
 
 		std::thread _windowsThread;
 	};

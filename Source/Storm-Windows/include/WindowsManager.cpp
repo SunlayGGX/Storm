@@ -141,6 +141,13 @@ namespace
 		}
 		break;
 
+		case WM_MOVE:
+		{
+			Storm::WindowsManager::instance().callWindowsMovedCallback(LOWORD(lParam), HIWORD(lParam));
+			return DefWindowProc(hWnd, message, wParam, lParam);
+		}
+		break;
+
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
 		}
@@ -646,6 +653,18 @@ void Storm::WindowsManager::unbindWindowsResizedCallback(unsigned short callback
 	_windowsResizedCallback.remove(callbackId);
 }
 
+unsigned short Storm::WindowsManager::bindWindowsMovedCallback(Storm::WindowsMovedDelegate &&callback)
+{
+	std::lock_guard<std::recursive_mutex> autoLocker{ _callbackMutex };
+	return _windowsMovedCallback.add(std::move(callback));
+}
+
+void Storm::WindowsManager::unbindWindowsMovedCallback(unsigned short callbackId)
+{
+	std::lock_guard<std::recursive_mutex> autoLocker{ _callbackMutex };
+	_windowsMovedCallback.remove(callbackId);
+}
+
 void Storm::WindowsManager::callQuitCallback()
 {
 	std::lock_guard<std::recursive_mutex> autoLocker{ _callbackMutex };
@@ -685,6 +704,12 @@ void Storm::WindowsManager::callWindowsResizedCallback(unsigned int newWidth, un
 {
 	std::lock_guard<std::recursive_mutex> autoLocker{ _callbackMutex };
 	Storm::prettyCallMultiCallback(_windowsResizedCallback, newWidth, newHeight);
+}
+
+void Storm::WindowsManager::callWindowsMovedCallback(unsigned int newX, unsigned int newY)
+{
+	std::lock_guard<std::recursive_mutex> autoLocker{ _callbackMutex };
+	Storm::prettyCallMultiCallback(_windowsMovedCallback, newX, newY);
 }
 
 void Storm::WindowsManager::unbindQuitCallback(unsigned short callbackId)

@@ -129,6 +129,7 @@ namespace Storm
 		std::thread _renderThread;
 
 		unsigned short _windowsResizedCallbackId;
+		unsigned short _windowsMovedCallbackId;
 
 		Storm::GraphicCoordinateSystem* _coordSystemNonOwningPtr;
 	};
