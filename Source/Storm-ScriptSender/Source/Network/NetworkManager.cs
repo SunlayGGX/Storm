@@ -249,6 +249,15 @@ namespace Storm_ScriptSender.Source.Network
                     }
                 }
             }
+            catch (ObjectDisposedException)
+            {
+                if (!_running)
+                {
+                    return false;
+                }
+
+                _acceptance = null;
+            }
             catch (OperationCanceledException)
             {
                 if (!_running)
