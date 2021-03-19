@@ -62,7 +62,7 @@ namespace Storm
 		template<class Callback, class ResultStorage, class ... Args2>
 		auto call(Callback &callback, ResultStorage &result, int, const Args2 &... args) -> decltype(result._returnValue = callback(result._callbackId, args...), void())
 		{
-			result._returnValue = callback(callbackId, args...);
+			result._returnValue = callback(result._callbackId, args...);
 		}
 
 		template<class Callback, class ResultStorage, class ... Args2>
@@ -74,7 +74,7 @@ namespace Storm
 		template<class Callback, class ResultStorage, class ... Args2>
 		auto call(Callback &callback, ResultStorage &result, void*, const Args2 &... args) -> decltype(callback(result._callbackId, args...), void())
 		{
-			callback(callbackId, args...);
+			callback(result._callbackId, args...);
 		}
 
 		template<class Callback, class ResultStorage, class ... Args2>
@@ -156,7 +156,7 @@ namespace Storm
 						currentReturnElement._error.reserve(exceptionMsg.size() + exceptionStackTrace.size() + 16);
 
 						currentReturnElement._error += exceptionMsg;
-						currentReturnElement._error += ".\nStackTrace :\n";
+						currentReturnElement._error += "\n\nStackTrace :\n";
 						currentReturnElement._error += exceptionStackTrace;
 					}
 					catch (const std::exception &ex)
@@ -228,7 +228,8 @@ namespace Storm
 					"Callback with id '" << resultElement._callbackId << 
 					"' from '" << callbackName << 
 					"' and called from '" << fromFunc << 
-					"' was aborted because it threw an error : \"" << resultElement._error << '"';
+					"' was aborted because it threw an error :\n"
+					"\"" << resultElement._error << '"';
 			}
 		}
 
