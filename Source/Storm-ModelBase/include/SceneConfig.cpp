@@ -21,6 +21,7 @@
 #include "LayeringGenerationTechnique.h"
 #include "ViscosityMethod.h"
 #include "VolumeComputationTechnique.h"
+#include "ParticleRemovalMode.h"
 
 
 namespace
@@ -73,7 +74,8 @@ Storm::SceneSimulationConfig::SceneSimulationConfig() :
 	_fluidViscoMethod{ Storm::ViscosityMethod::Standard },
 	_rbViscoMethod{ Storm::ViscosityMethod::Standard },
 	_shouldRemoveRbCollidingPAtStateFileLoad{ true },
-	_considerRbWallAtCollingingPStateFileLoad{ true }
+	_considerRbWallAtCollingingPStateFileLoad{ true },
+	_fluidParticleRemovalMode{ Storm::ParticleRemovalMode::Sphere }
 {
 
 }

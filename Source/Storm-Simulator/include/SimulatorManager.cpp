@@ -90,6 +90,8 @@
 #include "SolverParameterChange.h"
 #include "IterationParameter.h"
 
+#include "ParticleRemovalMode.h"
+
 #define STORM_HIJACKED_TYPE float
 #	include "VectHijack.h"
 #undef STORM_HIJACKED_TYPE
@@ -315,6 +317,7 @@ namespace
 		}
 	}
 
+	template<Storm::ParticleRemovalMode removalMode>
 	void removeParticleInsideRbPosition(std::vector<Storm::Vector3> &inOutParticlePositions, const Storm::ParticleSystemContainer &allParticleSystem, const float particleRadius, std::pair<Storm::Vector3, Storm::Vector3> &outDomainBoundingBox, RemovedIndexesParam* outRemovedIndexes)
 	{
 		const std::size_t particleSystemCount = allParticleSystem.size();
@@ -328,6 +331,34 @@ namespace
 
 			getterCoordFunc(box.first) = getterCoordFunc(*minMaxElems.first) - particleRadiusPlusMargin;
 			getterCoordFunc(box.second) = getterCoordFunc(*minMaxElems.second) + particleRadiusPlusMargin;
+		};
+
+		const auto particleDetectLambda = [](const float particleRadius, const Storm::Vector3 &rbPPosition, const Storm::Vector3 &particlePos)
+		{
+			if constexpr (removalMode == Storm::ParticleRemovalMode::Sphere)
+			{
+				return
+					std::fabs(rbPPosition.x() - particlePos.x()) < particleRadius &&
+					std::fabs(rbPPosition.y() - particlePos.y()) < particleRadius &&
+					std::fabs(rbPPosition.z() - particlePos.z()) < particleRadius;
+			}
+			else if constexpr (removalMode == Storm::ParticleRemovalMode::Cube)
+			{
+				return
+					std::fabs(rbPPosition.x() - particlePos.x()) < particleRadius ||
+					std::fabs(rbPPosition.y() - particlePos.y()) < particleRadius ||
+					std::fabs(rbPPosition.z() - particlePos.z()) < particleRadius;
+			}
+			else
+			{
+				__assume(false);
+				Storm::throwException<Storm::Exception>("Unknown particle removal mode!");
+			}
+		};
+
+		const auto particleFinderLambda = [&particleDetectLambda, particleRadius](const Storm::Vector3 &rbPPosition, const Storm::Vector3 &particlePos)
+		{
+			return particleDetectLambda(particleRadius, rbPPosition, particlePos);
 		};
 
 		if (outRemovedIndexes != nullptr)
@@ -396,19 +427,16 @@ namespace
 					{
 						LOG_DEBUG << "Solid particle system " << currentPSystem.getId() << " is hollow, we will optimize the skin colliding algorithm by using an internal bounding box";
 
-						thresholdToEliminate = std::partition(std::execution::par, std::begin(inOutParticlePositions), thresholdToEliminate, [&currentPSystemPositionBegin, &currentPSystemPositionEnd, &particleRadius, &externalBoundingBox, &internalBoundingBox](const Storm::Vector3 &particlePos)
+						thresholdToEliminate = std::partition(std::execution::par, std::begin(inOutParticlePositions), thresholdToEliminate, [&currentPSystemPositionBegin, &currentPSystemPositionEnd, &particleFinderLambda, &externalBoundingBox, &internalBoundingBox](const Storm::Vector3 &particlePos)
 						{
 							if (
 								!Storm::isInsideBoundingBox(internalBoundingBox.first, internalBoundingBox.second, particlePos) &&
 								Storm::isInsideBoundingBox(externalBoundingBox.first, externalBoundingBox.second, particlePos)
 								)
 							{
-								return std::find_if(std::execution::par, currentPSystemPositionBegin, currentPSystemPositionEnd, [&particlePos, particleRadius](const Storm::Vector3 &rbPPosition)
+								return std::find_if(std::execution::par, currentPSystemPositionBegin, currentPSystemPositionEnd, [&particlePos, &particleFinderLambda](const Storm::Vector3 &rbPPosition)
 								{
-									return
-										std::fabs(rbPPosition.x() - particlePos.x()) < particleRadius &&
-										std::fabs(rbPPosition.y() - particlePos.y()) < particleRadius &&
-										std::fabs(rbPPosition.z() - particlePos.z()) < particleRadius;
+									return particleFinderLambda(rbPPosition, particlePos);
 								}) == currentPSystemPositionEnd;
 							}
 
@@ -417,16 +445,13 @@ namespace
 					}
 					else
 					{
-						thresholdToEliminate = std::partition(std::execution::par, std::begin(inOutParticlePositions), thresholdToEliminate, [&currentPSystemPositionBegin, &currentPSystemPositionEnd, &particleRadius, &externalBoundingBox](const Storm::Vector3 &particlePos)
+						thresholdToEliminate = std::partition(std::execution::par, std::begin(inOutParticlePositions), thresholdToEliminate, [&currentPSystemPositionBegin, &currentPSystemPositionEnd, &particleFinderLambda, &externalBoundingBox](const Storm::Vector3 &particlePos)
 						{
 							if (Storm::isInsideBoundingBox(externalBoundingBox.first, externalBoundingBox.second, particlePos))
 							{
-								return std::find_if(std::execution::par, currentPSystemPositionBegin, currentPSystemPositionEnd, [&particlePos, particleRadius](const Storm::Vector3 &rbPPosition)
+								return std::find_if(std::execution::par, currentPSystemPositionBegin, currentPSystemPositionEnd, [&particlePos, &particleFinderLambda](const Storm::Vector3 &rbPPosition)
 								{
-									return
-										std::fabs(rbPPosition.x() - particlePos.x()) < particleRadius &&
-										std::fabs(rbPPosition.y() - particlePos.y()) < particleRadius &&
-										std::fabs(rbPPosition.z() - particlePos.z()) < particleRadius;
+									return particleFinderLambda(rbPPosition, particlePos);
 								}) == currentPSystemPositionEnd;
 							}
 
@@ -454,12 +479,9 @@ namespace
 								Storm::isInsideBoundingBox(externalBoundingBox.first, externalBoundingBox.second, particlePos)
 								)
 							{
-								if (std::find_if(std::execution::par, currentPSystemPositionBegin, currentPSystemPositionEnd, [&particlePos, particleRadius](const Storm::Vector3 &rbPPosition)
+								if (std::find_if(std::execution::par, currentPSystemPositionBegin, currentPSystemPositionEnd, [&particlePos, &particleFinderLambda](const Storm::Vector3 &rbPPosition)
 								{
-									return
-										std::fabs(rbPPosition.x() - particlePos.x()) < particleRadius &&
-										std::fabs(rbPPosition.y() - particlePos.y()) < particleRadius &&
-										std::fabs(rbPPosition.z() - particlePos.z()) < particleRadius;
+									return particleFinderLambda(rbPPosition, particlePos);
 								}) != currentPSystemPositionEnd)
 								{
 									// Works because it is contiguous in memory
@@ -481,12 +503,9 @@ namespace
 						{
 							if (Storm::isInsideBoundingBox(externalBoundingBox.first, externalBoundingBox.second, particlePos))
 							{
-								if (std::find_if(std::execution::par, currentPSystemPositionBegin, currentPSystemPositionEnd, [&particlePos, particleRadius](const Storm::Vector3 &rbPPosition)
+								if (std::find_if(std::execution::par, currentPSystemPositionBegin, currentPSystemPositionEnd, [&particlePos, &particleFinderLambda](const Storm::Vector3 &rbPPosition)
 								{
-									return
-										std::fabs(rbPPosition.x() - particlePos.x()) < particleRadius &&
-										std::fabs(rbPPosition.y() - particlePos.y()) < particleRadius &&
-										std::fabs(rbPPosition.z() - particlePos.z()) < particleRadius;
+									return particleFinderLambda(rbPPosition, particlePos);
 								}) != currentPSystemPositionEnd)
 								{
 									// Works because it is contiguous in memory
@@ -1663,7 +1682,20 @@ void Storm::SimulatorManager::addFluidParticleSystem(unsigned int id, std::vecto
 		std::pair<Storm::Vector3, Storm::Vector3> outDomain{ Storm::initVector3ForMin(), Storm::initVector3ForMax() };
 
 		const Storm::SceneSimulationConfig &sceneSimulationConfig = configMgr.getSceneSimulationConfig();
-		removeParticleInsideRbPosition(particlePositions, _particleSystem, sceneSimulationConfig._particleRadius, outDomain, nullptr);
+
+#define STORM_removeParticleInsideRbPosition_CASE(RemovalMode) \
+	case RemovalMode: removeParticleInsideRbPosition<RemovalMode>(particlePositions, _particleSystem, sceneSimulationConfig._particleRadius, outDomain, nullptr); break
+		
+		switch (sceneSimulationConfig._fluidParticleRemovalMode)
+		{
+			STORM_removeParticleInsideRbPosition_CASE(Storm::ParticleRemovalMode::Sphere);
+			STORM_removeParticleInsideRbPosition_CASE(Storm::ParticleRemovalMode::Cube);
+		
+		default:
+			Storm::throwException<Storm::Exception>("Unknown fluid particle removal mode!");
+		}
+
+#undef STORM_removeParticleInsideRbPosition_CASE
 
 		if (sceneFluidConfig._removeOutDomainParticles)
 		{
@@ -1722,7 +1754,20 @@ void Storm::SimulatorManager::addFluidParticleSystem(Storm::SystemSimulationStat
 		std::pair<Storm::Vector3, Storm::Vector3> outDomain{ Storm::initVector3ForMin(), Storm::initVector3ForMax() };
 
 		const Storm::SceneSimulationConfig &sceneSimulationConfig = configMgr.getSceneSimulationConfig();
-		removeParticleInsideRbPosition(state._positions, _particleSystem, sceneSimulationConfig._particleRadius, outDomain, &removeParam);
+
+#define STORM_removeParticleInsideRbPosition_CASE(RemovalMode) \
+	case RemovalMode: removeParticleInsideRbPosition<RemovalMode>(state._positions, _particleSystem, sceneSimulationConfig._particleRadius, outDomain, &removeParam); break
+
+		switch (sceneSimulationConfig._fluidParticleRemovalMode)
+		{
+			STORM_removeParticleInsideRbPosition_CASE(Storm::ParticleRemovalMode::Sphere);
+			STORM_removeParticleInsideRbPosition_CASE(Storm::ParticleRemovalMode::Cube);
+
+		default:
+			Storm::throwException<Storm::Exception>("Unknown fluid particle removal mode!");
+		}
+
+#undef STORM_removeParticleInsideRbPosition_CASE
 
 		if (!removeParam._outRemovedIndexes.empty())
 		{

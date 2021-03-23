@@ -321,6 +321,7 @@ Unlike the others config files, it can be named as you want. Here the xml tags y
 - **endPhysicsTime (float, facultative)**: This is the end time (physics time) in seconds the simulation should stop. After this time, the Simulator will exit... The value should be greater than zero. Default is unset (the simulator will continue indefinitely).
 - **fluidViscosityMethod (string, falcultative)**: Specify what method to use when computing viscosity force of a fluid particle on another fluid particle. This setting is case unsentitive. Allowed values are "Standard" (default) and "XSPH".
 - **rbViscosityMethod (string, falcultative)**: Specify what method to use when computing viscosity force of a fluid particle on a rigidbody particle. This setting is case unsentitive. Allowed values are "Standard" (default) and "XSPH".
+- **fluidParticleRemovalMode (string, falcultative)**: Specify what method formula to use to detect a fluid particle overlaps a rigidbody particle, therefore should be eliminated at initialization time. This setting is case unsentitive. Allowed values are "Sphere" (default) and "Cube".
 
 
 #### Graphics

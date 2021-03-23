@@ -27,6 +27,7 @@
 #include "LayeringGenerationTechnique.h"
 #include "VolumeComputationTechnique.h"
 #include "ViscosityMethod.h"
+#include "ParticleRemovalMode.h"
 
 #include "ColorChecker.h"
 #include "XmlReader.h"
@@ -252,6 +253,23 @@ if (blowerTypeStr == BlowerTypeXmlName) return Storm::BlowerType::BlowerTypeName
 		}
 	}
 
+	Storm::ParticleRemovalMode parseParticleRemovalMode(std::string particleRemovalModeStr)
+	{
+		boost::algorithm::to_lower(particleRemovalModeStr);
+		if (particleRemovalModeStr == "sphere")
+		{
+			return Storm::ParticleRemovalMode::Sphere;
+		}
+		else if (particleRemovalModeStr == "cube")
+		{
+			return Storm::ParticleRemovalMode::Cube;
+		}
+		else
+		{
+			Storm::throwException<Storm::Exception>("Particle removal mode value is unknown : '" + particleRemovalModeStr + "'");
+		}
+	}
+
 	class AnimationsKeeper
 	{
 	public:
@@ -330,6 +348,7 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 			!Storm::XmlReader::handleXml(generalXmlElement, "endPhysicsTime", sceneSimulationConfig._endSimulationPhysicsTimeInSeconds) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "stateFileConsiderRbWallCollide", sceneSimulationConfig._considerRbWallAtCollingingPStateFileLoad) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "stateFileRemoveRbCollide", sceneSimulationConfig._shouldRemoveRbCollidingPAtStateFileLoad) &&
+			!Storm::XmlReader::handleXml(generalXmlElement, "fluidParticleRemovalMode", sceneSimulationConfig._fluidParticleRemovalMode, parseParticleRemovalMode) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "startFixRigidBodies", sceneSimulationConfig._fixRigidBodyAtStartTime)
 			)
 		{

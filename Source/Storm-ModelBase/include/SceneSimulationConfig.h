@@ -6,6 +6,7 @@ namespace Storm
 	enum class SimulationMode;
 	enum class KernelMode;
 	enum class ViscosityMethod;
+	enum class ParticleRemovalMode;
 
 	struct SceneSimulationConfig
 	{
@@ -56,5 +57,7 @@ namespace Storm
 
 		bool _shouldRemoveRbCollidingPAtStateFileLoad;
 		bool _considerRbWallAtCollingingPStateFileLoad;
+
+		Storm::ParticleRemovalMode _fluidParticleRemovalMode;
 	};
 }
