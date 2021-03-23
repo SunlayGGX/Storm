@@ -5,11 +5,11 @@
 #include "IOSManager.h"
 
 #include "InternalConfig.h"
-
 #include "GeneralConfig.h"
-
 #include "SceneConfig.h"
 #include "SceneRigidBodyConfig.h"
+
+#include "ConfigReadParam.h"
 
 #include "RecordMode.h"
 #include "ViscosityMethod.h"
@@ -66,14 +66,16 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 		std::string recordModeStr = parser.getRecordModeStr();
 		boost::algorithm::to_lower(recordModeStr);
 
-		Storm::RecordMode chosenRecordMode =
+		Storm::ConfigReadParam simulationConfigParam;
+
+		simulationConfigParam._simulatorRecordMode =
 			recordModeStr == "record" ? Storm::RecordMode::Record :
 			recordModeStr == "replay" ? Storm::RecordMode::Replay :
 			Storm::RecordMode::None;
 
-		if (!recordModeStr.empty() && chosenRecordMode != Storm::RecordMode::None)
+		if (!recordModeStr.empty() && simulationConfigParam._simulatorRecordMode != Storm::RecordMode::None)
 		{
-			switch (chosenRecordMode)
+			switch (simulationConfigParam._simulatorRecordMode)
 			{
 			case Storm::RecordMode::None:
 				LOG_COMMENT << "Simulator in normal mode requested (no record or replay).";
@@ -95,7 +97,7 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 		const bool noUI = parser.getNoUI();
 		if (noUI)
 		{
-			if (chosenRecordMode != Storm::RecordMode::Record)
+			if (simulationConfigParam._simulatorRecordMode != Storm::RecordMode::Record)
 			{
 				Storm::throwException<Storm::Exception>("When starting without a UI means that it is focused on recording! Not setting recording mode isn't allowed then.");
 			}
@@ -203,7 +205,7 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 
 			_generalConfigHolder.applyMacros(_macroConfig);
 
-			_sceneConfigHolder.read(_sceneConfigFilePath, _macroConfig, _generalConfigHolder);
+			_sceneConfigHolder.read(_sceneConfigFilePath, _macroConfig, _generalConfigHolder, simulationConfigParam);
 		}
 		else
 		{
@@ -263,7 +265,7 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 		_loadVelocities = !noVelocitiesLoadSpecified;
 
 		Storm::SceneRecordConfig &sceneRecordConfig = sceneConfig._recordConfig;
-		sceneRecordConfig._recordMode = chosenRecordMode;
+		sceneRecordConfig._recordMode = simulationConfigParam._simulatorRecordMode;
 
 		std::string recordFilePath;
 		switch (sceneRecordConfig._recordMode)

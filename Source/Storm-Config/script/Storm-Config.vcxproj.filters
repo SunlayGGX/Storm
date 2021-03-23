@@ -77,5 +77,8 @@
     <ClInclude Include="..\include\MacroConfigHolder.h">
       <Filter>Header Files\ConfigHolder</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\ConfigReadParam.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

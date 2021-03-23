@@ -72,6 +72,8 @@ namespace Storm
 
 		Storm::Vector3 _rbTotalForce;
 
+		bool _volumeFixed;
+
 		bool _isStatic;
 		bool _isWall;
 		bool _velocityDirtyInternal;

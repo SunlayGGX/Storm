@@ -31,6 +31,7 @@
   <ItemGroup>
     <ClInclude Include="..\include\CommandLineParser.h" />
     <ClInclude Include="..\include\ConfigManager.h" />
+    <ClInclude Include="..\include\ConfigReadParam.h" />
     <ClInclude Include="..\include\GeneralConfigHolder.h" />
     <ClInclude Include="..\include\GeneratedWrapper.h" />
     <ClInclude Include="..\include\InternalConfigHolder.h" />

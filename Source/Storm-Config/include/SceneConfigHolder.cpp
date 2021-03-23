@@ -2,6 +2,7 @@
 
 #include "MacroConfigHolder.h"
 #include "GeneralConfigHolder.h"
+#include "ConfigReadParam.h"
 
 #include "SceneConfig.h"
 #include "SceneSimulationConfig.h"
@@ -28,6 +29,8 @@
 #include "VolumeComputationTechnique.h"
 #include "ViscosityMethod.h"
 #include "ParticleRemovalMode.h"
+
+#include "RecordMode.h"
 
 #include "ColorChecker.h"
 #include "XmlReader.h"
@@ -306,7 +309,7 @@ if (blowerTypeStr == BlowerTypeXmlName) return Storm::BlowerType::BlowerTypeName
 }
 
 
-void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, const Storm::MacroConfigHolder &macroConfig, const Storm::GeneralConfigHolder &generalConfigHolder)
+void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, const Storm::MacroConfigHolder &macroConfig, const Storm::GeneralConfigHolder &generalConfigHolder, const Storm::ConfigReadParam &param)
 {
 	_sceneConfig = std::make_unique<Storm::SceneConfig>();
 
@@ -787,7 +790,7 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "color", rbConfig._color, parseColor4Element)
 			;
 	},
-		[&animationsKeeper, &macroConfig, &rigidBodiesConfigArray, &fluidConfig, &rbConfigAngularVelocityDampingTmp](Storm::SceneRigidBodyConfig &rbConfig)
+		[&animationsKeeper, &macroConfig, &rigidBodiesConfigArray, &fluidConfig, &rbConfigAngularVelocityDampingTmp, &param](Storm::SceneRigidBodyConfig &rbConfig)
 	{
 		macroConfig(rbConfig._meshFilePath);
 		macroConfig(rbConfig._animationXmlPath);
@@ -837,9 +840,13 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 			LOG_WARNING << "The rigid body " << rbConfig._rigidBodyID + " is not dynamic! Therefore the translation fixed flag set to true will be ignored.";
 		}
 
-		if (rbConfig._fixedSimulationVolume && rbConfig._volumeComputationTechnique == Storm::VolumeComputationTechnique::None)
+		if (rbConfig._fixedSimulationVolume)
 		{
-			Storm::throwException<Storm::Exception>("RigidBody id " + std::to_string(rbConfig._rigidBodyID) + " has fixed its volume but no volume computation technique was specified!");
+			if (param._simulatorRecordMode == Storm::RecordMode::Replay)
+			{
+				LOG_WARNING << "Volume was specified as fixated but we are replaying a former simulation. Therefore volume will change and this setting will be ignored!";
+				rbConfig._fixedSimulationVolume = false;
+			}
 		}
 
 		if (rbConfigAngularVelocityDampingTmp != -1.f)
