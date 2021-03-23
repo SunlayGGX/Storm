@@ -46,6 +46,7 @@ namespace Storm
 		unsigned int _layerCount;
 		Storm::LayeringGenerationTechnique _layerGenerationMode;
 
+		bool _fixedSimulationVolume;
 		Storm::VolumeComputationTechnique _volumeComputationTechnique;
 
 		std::string _animationXmlPath;
