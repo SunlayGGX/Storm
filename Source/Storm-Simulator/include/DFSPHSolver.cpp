@@ -31,6 +31,7 @@
 #undef STORM_HIJACKED_TYPE
 
 #include "RunnerHelper.h"
+#include "SPHSolverUtils.h"
 
 
 namespace
@@ -469,6 +470,11 @@ void Storm::DFSPHSolver::execute(const Storm::IterationParameter &iterationParam
 
 	// 11th : flush physics state (rigid bodies)
 	simulMgr.flushPhysics(iterationParameter._deltaTime);
+}
+
+void Storm::DFSPHSolver::removeRawEndData(const unsigned int pSystemId, std::size_t toRemoveCount)
+{
+	Storm::SPHSolverUtils::removeRawEndData(pSystemId, toRemoveCount, _data);
 }
 
 void Storm::DFSPHSolver::setEnableThresholdDensity(bool enable)

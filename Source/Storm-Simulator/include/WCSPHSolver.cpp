@@ -323,3 +323,8 @@ void Storm::WCSPHSolver::execute(const Storm::IterationParameter &iterationParam
 		}
 	}
 }
+
+void Storm::WCSPHSolver::removeRawEndData(const unsigned int pSystemId, std::size_t toRemoveCount)
+{
+
+}

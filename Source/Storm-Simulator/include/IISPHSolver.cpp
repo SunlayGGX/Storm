@@ -11,6 +11,7 @@
 #include "RigidBodyParticleSystem.h"
 
 #include "RunnerHelper.h"
+#include "SPHSolverUtils.h"
 
 #include "Kernel.h"
 #include "ViscosityMethod.h"
@@ -666,4 +667,9 @@ void Storm::IISPHSolver::execute(const Storm::IterationParameter &iterationParam
 
 	// 7th : flush physics state (rigid bodies)
 	simulMgr.flushPhysics(iterationParameter._deltaTime);
+}
+
+void Storm::IISPHSolver::removeRawEndData(const unsigned int pSystemId, std::size_t toRemoveCount)
+{
+	Storm::SPHSolverUtils::removeRawEndData(pSystemId, toRemoveCount, _data);
 }

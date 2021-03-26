@@ -580,6 +580,49 @@ namespace
 		}
 	}
 
+	template<class ContainerType>
+	void removeRawParticles(ContainerType &data, std::size_t toRemove)
+	{
+		if (!data.empty())
+		{
+			while (toRemove != 0)
+			{
+				data.pop_back();
+				--toRemove;
+			}
+		}
+	}
+
+	template<class RemoveCallback>
+	void removeVolumeBurstingFluidPaticle(const Storm::ParticleSystemContainer &allParticleSystems, Storm::FluidParticleSystem &addedFluidPSystem, const RemoveCallback &removeCallback)
+	{
+		LOG_DEBUG << "Removing fluid particles that burst the global domain volume.";
+		const float particleVolume = addedFluidPSystem.getParticleVolume();
+
+		float domainVolume = std::numeric_limits<float>::max();
+		
+		try
+		{
+			const float totalVolume = queryTotalVolume(allParticleSystems, [&domainVolume](const Storm::SceneRigidBodyConfig &sceneRigidBodyConfig)
+			{
+				domainVolume = Storm::VolumeIntegrator::computeCubeVolume(sceneRigidBodyConfig._scale);
+			});
+
+			float diffVolume = totalVolume - domainVolume;
+			if (diffVolume > 0.f)
+			{
+				const std::size_t toRemove = static_cast<std::size_t>(std::ceilf(diffVolume / particleVolume) + std::numeric_limits<float>::epsilon());
+				removeCallback(addedFluidPSystem, toRemove);
+
+				LOG_DEBUG << "Removed " << toRemove << " particles that bursts the domain volume.";
+			}
+		}
+		catch (const std::exception &e)
+		{
+			LOG_ERROR << "Cannot remove fluid particles bursting of domain volume because " << e.what();
+		}
+	}
+
 	float computeCFLDistance(const Storm::SceneSimulationConfig &sceneSimulationConfig)
 	{
 		const float maxDistanceAllowed = sceneSimulationConfig._particleRadius * 2.f;
@@ -1259,7 +1302,35 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 
 		this->notifyFrameAdvanced();
 
-		firstFrame = false;
+		if (firstFrame)
+		{
+			if (!shouldBeRecording)
+			{
+				for (auto &particleSystemPair : _particleSystem)
+				{
+					Storm::ParticleSystem &pSystem = *particleSystemPair.second;
+					if (pSystem.isFluids())
+					{
+						removeVolumeBurstingFluidPaticle(_particleSystem, static_cast<Storm::FluidParticleSystem &>(pSystem), [this, &singletonHolder](Storm::FluidParticleSystem &fluidPSystem, const std::size_t toRemoveCount)
+						{
+							removeRawParticles(fluidPSystem.getDensities(), toRemoveCount);
+							removeRawParticles(fluidPSystem.getMasses(), toRemoveCount);
+							removeRawParticles(fluidPSystem.getPressures(), toRemoveCount);
+							removeRawParticles(fluidPSystem.getForces(), toRemoveCount);
+							removeRawParticles(fluidPSystem.getTemporaryPressureForces(), toRemoveCount);
+							removeRawParticles(fluidPSystem.getTemporaryViscosityForces(), toRemoveCount);
+							removeRawParticles(fluidPSystem.getPositions(), toRemoveCount);
+							removeRawParticles(fluidPSystem.getVelocity(), toRemoveCount);
+							removeRawParticles(fluidPSystem.getNeighborhoodArrays(), toRemoveCount);
+
+							_sphSolver->removeRawEndData(fluidPSystem.getId(), toRemoveCount);
+						});
+					}
+				}
+			}
+
+			firstFrame = false;
+		}
 
 	} while (true);
 }

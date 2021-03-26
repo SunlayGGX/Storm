@@ -75,6 +75,7 @@
     <ClInclude Include="..\include\SolverCreationParameter.h" />
     <ClInclude Include="..\include\SolverParameterChange.h" />
     <ClInclude Include="..\include\SPHBaseSolver.h" />
+    <ClInclude Include="..\include\SPHSolverUtils.h" />
     <ClInclude Include="..\include\SplishSplashCubicSplineKernel.h" />
     <ClInclude Include="..\include\StateSaverHelper.h" />
     <ClInclude Include="..\include\Storm-SimulatorPCH.h" />

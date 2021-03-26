@@ -20,6 +20,7 @@
 #include "IterationParameter.h"
 
 #include "RunnerHelper.h"
+#include "SPHSolverUtils.h"
 
 #define STORM_HIJACKED_TYPE Storm::PCISPHSolverData
 #	include "VectHijack.h"
@@ -665,4 +666,9 @@ void Storm::PCISPHSolver::execute(const Storm::IterationParameter &iterationPara
 
 	// 7th : flush physics state (rigid bodies)
 	simulMgr.flushPhysics(iterationParameter._deltaTime);
+}
+
+void Storm::PCISPHSolver::removeRawEndData(const unsigned int pSystemId, std::size_t toRemoveCount)
+{
+	Storm::SPHSolverUtils::removeRawEndData(pSystemId, toRemoveCount, _data);
 }
