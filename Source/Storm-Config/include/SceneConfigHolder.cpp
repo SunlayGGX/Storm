@@ -351,6 +351,7 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 			!Storm::XmlReader::handleXml(generalXmlElement, "endPhysicsTime", sceneSimulationConfig._endSimulationPhysicsTimeInSeconds) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "stateFileConsiderRbWallCollide", sceneSimulationConfig._considerRbWallAtCollingingPStateFileLoad) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "stateFileRemoveRbCollide", sceneSimulationConfig._shouldRemoveRbCollidingPAtStateFileLoad) &&
+			!Storm::XmlReader::handleXml(generalXmlElement, "removeFluidForVolumeConsistency", sceneSimulationConfig._removeFluidForVolumeConsistency) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "fluidParticleRemovalMode", sceneSimulationConfig._fluidParticleRemovalMode, parseParticleRemovalMode) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "startFixRigidBodies", sceneSimulationConfig._fixRigidBodyAtStartTime)
 			)
@@ -428,6 +429,12 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 	}
 
 	sceneSimulationConfig._computeCFL = sceneSimulationConfig._physicsTimeInSec <= 0.f;
+
+	if (param._simulatorRecordMode == Storm::RecordMode::Record && sceneSimulationConfig._removeFluidForVolumeConsistency)
+	{
+		LOG_WARNING << "Fluid removal to prevent fluid volume domain burst is disabled in record mode!";
+		sceneSimulationConfig._removeFluidForVolumeConsistency = false;
+	}
 
 	/* Graphic */
 	const float defaultLineThickness = sceneSimulationConfig._particleRadius / 3.f;

@@ -57,6 +57,7 @@ namespace Storm
 
 		bool _shouldRemoveRbCollidingPAtStateFileLoad;
 		bool _considerRbWallAtCollingingPStateFileLoad;
+		bool _removeFluidForVolumeConsistency;
 
 		Storm::ParticleRemovalMode _fluidParticleRemovalMode;
 	};

@@ -75,7 +75,8 @@ Storm::SceneSimulationConfig::SceneSimulationConfig() :
 	_rbViscoMethod{ Storm::ViscosityMethod::Standard },
 	_shouldRemoveRbCollidingPAtStateFileLoad{ true },
 	_considerRbWallAtCollingingPStateFileLoad{ true },
-	_fluidParticleRemovalMode{ Storm::ParticleRemovalMode::Sphere }
+	_fluidParticleRemovalMode{ Storm::ParticleRemovalMode::Sphere },
+	_removeFluidForVolumeConsistency{ false }
 {
 
 }
