@@ -11,9 +11,10 @@
 
 #include "SceneSimulationConfig.h"
 #include "SceneRigidBodyConfig.h"
-#include "CollisionType.h"
-
 #include "SceneConstraintConfig.h"
+#include "ScenePhysicsConfig.h"
+
+#include "CollisionType.h"
 
 #define STORM_USE_FAST_SPHERE_SHAPE_ALGO true
 
@@ -197,7 +198,6 @@ Storm::PhysXHandler::PhysXHandler() :
 
 
 	// Create the physics debugger network object.
-
 	_physXDebugger = std::make_unique<Storm::PhysXDebugger>(*_foundationInstance);
 
 
@@ -239,7 +239,21 @@ Storm::PhysXHandler::PhysXHandler() :
 	physx::PxSceneDesc sceneDesc{ _physics->getTolerancesScale() };
 	sceneDesc.gravity = Storm::convertToPx(sceneSimulationConfig._gravity);
 
-	sceneDesc.flags |= physx::PxSceneFlag::eENABLE_PCM;
+	const Storm::ScenePhysicsConfig &scenePhysicsConfig = configMgr.getScenePhysicsConfig();
+# define STORM_ADD_FLAG_IF_CONFIG(configFlag, flagName) if (scenePhysicsConfig.configFlag) sceneDesc.flags |= physx::PxSceneFlag::flagName
+
+	STORM_ADD_FLAG_IF_CONFIG(_enablePCM, eENABLE_PCM);
+	STORM_ADD_FLAG_IF_CONFIG(_enableAdaptiveForce, eADAPTIVE_FORCE);
+	STORM_ADD_FLAG_IF_CONFIG(_enableFrictionEveryIteration, eENABLE_FRICTION_EVERY_ITERATION);
+	STORM_ADD_FLAG_IF_CONFIG(_enableStabilization, eENABLE_STABILIZATION);
+	STORM_ADD_FLAG_IF_CONFIG(_enableKinematicPairs, eENABLE_KINEMATIC_PAIRS);
+	STORM_ADD_FLAG_IF_CONFIG(_enableKinematicStaticPairs, eENABLE_KINEMATIC_STATIC_PAIRS);
+	STORM_ADD_FLAG_IF_CONFIG(_enableAveragePoint, eENABLE_AVERAGE_POINT);
+	STORM_ADD_FLAG_IF_CONFIG(_enableEnhancedDeterminism, eENABLE_ENHANCED_DETERMINISM);
+	STORM_ADD_FLAG_IF_CONFIG(_enableCCD, eENABLE_CCD);
+
+#undef STORM_ADD_FLAG_IF_CONFIG
+
 	sceneDesc.gpuMaxNumPartitions = 8;
 	
 	sceneDesc.filterShader = physx::PxDefaultSimulationFilterShader;
@@ -259,10 +273,6 @@ Storm::PhysXHandler::PhysXHandler() :
 	{
 		Storm::throwException<Storm::Exception>("PhysX main scene creation failed!");
 	}
-
-	_scene->setFlag(physx::PxSceneFlag::Enum::eENABLE_KINEMATIC_PAIRS, true);
-	_scene->setFlag(physx::PxSceneFlag::Enum::eENABLE_KINEMATIC_STATIC_PAIRS, true);
-	_scene->setFlag(physx::PxSceneFlag::Enum::eENABLE_STABILIZATION, true);
 
 	_physXDebugger->finishSetup(_scene.get());
 }

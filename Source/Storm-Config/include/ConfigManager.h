@@ -50,6 +50,7 @@ namespace Storm
 
 		const Storm::SceneGraphicConfig& getSceneGraphicConfig() const final override;
 		const Storm::SceneSimulationConfig& getSceneSimulationConfig() const final override;
+		const Storm::ScenePhysicsConfig& getScenePhysicsConfig() const final override;
 		const std::vector<Storm::SceneRigidBodyConfig>& getSceneRigidBodiesConfig() const final override;
 		const Storm::SceneFluidConfig& getSceneFluidConfig() const final override;
 		const Storm::SceneRecordConfig& getSceneRecordConfig() const final override;

@@ -345,6 +345,18 @@ Unlike the others config files, it can be named as you want. Here the xml tags y
 - **forceColor (RGBAcolor, facultative)**: Specify the color of the line when visualizing the selected particle force. Default is { r=0.0, g=1.0, b=1.0, a=0.8 }.
 
 
+#### Physics
+- **enablePCM (boolean, facultative)**: Enable GJK-based distance collision detection system. Default is true.
+- **enableAdaptiveForce (boolean, facultative)**: Enable adaptive forces to accelerate convergence of the solver. Default is true.
+- **enableFrictionEveryIteration (boolean, facultative)**: Controls processing friction in all solver iterations. If false, PhysX processes friction only in the final 3 position iterations, and all velocity iterations. Default is true.
+- **enableStabilization (boolean, facultative)**: Enables additional stabilization pass in solver. When set to true, this enables additional stabilization processing to improve that stability of complex interactions between large numbers of bodies. Note PhysX still consider it an experimental feature which does result in some loss of momentum. Default is true.
+- **enableKinematicPairs (boolean, facultative)**: Enable contact pair filtering between kinematic rigid bodies. Seems deprecated but default is true.
+- **enableKinematicStaticPairs (boolean, facultative)**: Enable contact pair filtering between kinematic and static rigid bodies. Seems deprecated but default is true.
+- **enableAveragePoint (boolean, facultative)**: Enables average points in contact manifolds. When set to true, this enables additional contacts to be generated per manifold to represent the average point in a manifold. This can stabilize stacking when only a small number of solver iterations is used. Default is true.
+- **enableEnhancedDeterminism (boolean, facultative)**: Provides improved determinism at the expense of performance. Default is false.
+- **enableCCD (boolean, facultative)**: Enables a second broad phase check after integration that makes it possible to prevent objects from tunneling through each other. Default is true.
+
+
 #### Record
 - **recordFps (float, semi-facultative)**: This is the record fps. It becomes mandatory if the Simulator is started in Record mode.
 - **recordFile (string, facultative, accept macros)**: Specify the path the recording will be. This path will be used in case it wasn't set from the command line.

@@ -1,6 +1,7 @@
 #include "SceneConfig.h"
 
 #include "SceneSimulationConfig.h"
+#include "ScenePhysicsConfig.h"
 #include "SceneRigidBodyConfig.h"
 #include "SceneGraphicConfig.h"
 #include "SceneFluidConfig.h"
@@ -77,6 +78,20 @@ Storm::SceneSimulationConfig::SceneSimulationConfig() :
 	_considerRbWallAtCollingingPStateFileLoad{ true },
 	_fluidParticleRemovalMode{ Storm::ParticleRemovalMode::Sphere },
 	_removeFluidForVolumeConsistency{ false }
+{
+
+}
+
+Storm::ScenePhysicsConfig::ScenePhysicsConfig() :
+	_enablePCM{ true },
+	_enableAdaptiveForce{ true },
+	_enableFrictionEveryIteration{ true },
+	_enableStabilization{ true },
+	_enableKinematicPairs{ true },
+	_enableKinematicStaticPairs{ true },
+	_enableAveragePoint{ true },
+	_enableEnhancedDeterminism{ false },
+	_enableCCD{ true }
 {
 
 }
