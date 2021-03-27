@@ -527,5 +527,11 @@
     <ClInclude Include="..\include\SceneCageConfig.h">
       <Filter>Header Files\Modules\Config\Scene</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\ParticleRemovalMode.h">
+      <Filter>Header Files\Modules\Load</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ScenePhysicsConfig.h">
+      <Filter>Header Files\Modules\Config\Scene</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

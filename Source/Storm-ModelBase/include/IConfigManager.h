@@ -17,6 +17,7 @@ namespace Storm
 
 	struct SceneConfig;
 	struct SceneGraphicConfig;
+	struct ScenePhysicsConfig;
 	struct SceneRigidBodyConfig;
 	struct SceneFluidConfig;
 	struct SceneBlowerConfig;
@@ -62,6 +63,7 @@ namespace Storm
 		// Scene config
 		virtual const Storm::SceneGraphicConfig& getSceneGraphicConfig() const = 0;
 		virtual const Storm::SceneSimulationConfig& getSceneSimulationConfig() const = 0;
+		virtual const Storm::ScenePhysicsConfig& getScenePhysicsConfig() const = 0;
 		virtual const std::vector<Storm::SceneRigidBodyConfig>& getSceneRigidBodiesConfig() const = 0;
 		virtual const Storm::SceneFluidConfig& getSceneFluidConfig() const = 0;
 		virtual const Storm::SceneRecordConfig& getSceneRecordConfig() const = 0;

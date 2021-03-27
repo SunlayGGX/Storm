@@ -451,6 +451,11 @@ const Storm::SceneSimulationConfig& Storm::ConfigManager::getSceneSimulationConf
 	return _sceneConfigHolder.getConfig()._simulationConfig;
 }
 
+const Storm::ScenePhysicsConfig& Storm::ConfigManager::getScenePhysicsConfig() const
+{
+	return _sceneConfigHolder.getConfig()._physicsConfig;
+}
+
 const std::vector<Storm::SceneRigidBodyConfig>& Storm::ConfigManager::getSceneRigidBodiesConfig() const
 {
 	return _sceneConfigHolder.getConfig()._rigidBodiesConfig;

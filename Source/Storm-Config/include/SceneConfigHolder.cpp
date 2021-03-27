@@ -5,6 +5,7 @@
 
 #include "SceneConfig.h"
 #include "SceneSimulationConfig.h"
+#include "ScenePhysicsConfig.h"
 #include "SceneRigidBodyConfig.h"
 #include "SceneGraphicConfig.h"
 #include "SceneFluidConfig.h"
@@ -472,6 +473,32 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 	else if (graphicConfig._forceThickness <= 0.f)
 	{
 		Storm::throwException<Storm::Exception>("Selected particle force thickness is invalid (" + Storm::toStdString(graphicConfig._forceThickness) + ")! It must be a positive non zero value.");
+	}
+
+	/* Physics */
+	const auto &physicsTreeOpt = srcTree.get_child_optional("Physics");
+	if (physicsTreeOpt.has_value())
+	{
+		Storm::ScenePhysicsConfig &physicsConfig = _sceneConfig->_physicsConfig;
+
+		const auto &physicsTree = physicsTreeOpt.value();
+		for (const auto &physicsXmlElement : physicsTree)
+		{
+			if (
+				Storm::XmlReader::handleXml(physicsXmlElement, "enablePCM", physicsConfig._enablePCM) ||
+				Storm::XmlReader::handleXml(physicsXmlElement, "enableAdaptiveForce", physicsConfig._enableAdaptiveForce) ||
+				Storm::XmlReader::handleXml(physicsXmlElement, "enableFrictionEveryIteration", physicsConfig._enableFrictionEveryIteration) ||
+				Storm::XmlReader::handleXml(physicsXmlElement, "enableStabilization", physicsConfig._enableStabilization) ||
+				Storm::XmlReader::handleXml(physicsXmlElement, "enableKinematicPairs", physicsConfig._enableKinematicPairs) ||
+				Storm::XmlReader::handleXml(physicsXmlElement, "enableKinematicStaticPairs", physicsConfig._enableKinematicStaticPairs) ||
+				Storm::XmlReader::handleXml(physicsXmlElement, "enableAveragePoint", physicsConfig._enableAveragePoint) ||
+				Storm::XmlReader::handleXml(physicsXmlElement, "enableEnhancedDeterminism", physicsConfig._enableEnhancedDeterminism) ||
+				Storm::XmlReader::handleXml(physicsXmlElement, "enableCCD", physicsConfig._enableCCD)
+				)
+			{
+				LOG_ERROR << "tag '" << physicsXmlElement.first << "' (inside Scene.Physics) is unknown, therefore it cannot be handled";
+			}
+		}
 	}
 
 	/* Record */
