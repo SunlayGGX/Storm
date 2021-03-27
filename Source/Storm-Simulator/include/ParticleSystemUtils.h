@@ -71,7 +71,7 @@ namespace Storm
 		inOutParam._xij = _mm_sub_ps(inOutParam._currentPPos, STORM_INTRINSICS_LOAD_PS_FROM_VECT3(toCheckPPos));
 
 		inOutParam._normSquared = _mm_dp_ps(inOutParam._xij, inOutParam._xij, dotProductMask).m128_f32[0];
-		return inOutParam._normSquared > 0.000000001f && inOutParam._normSquared < inOutParam._kernelLengthSquared;
+		return inOutParam._normSquared > 0.000001f && inOutParam._normSquared < inOutParam._kernelLengthSquared;
 	}
 #endif
 
