@@ -310,10 +310,32 @@ void Storm::RigidBody::load(const Storm::SceneRigidBodyConfig &rbSceneConfig)
 						std::string versionTmp;
 						Storm::binaryRead(cacheReadStream, versionTmp);
 
-						Storm::Version cacheFileVersion{ versionTmp };
-						if (cacheFileVersion != currentVersion)
+						try
 						{
-							LOG_WARNING << "'" << meshPath << "' has a particle cached file but it is was made with a previous version of the application (no retro compatibility), therefore we will regenerate it anew.";
+							Storm::Version cacheFileVersion{ versionTmp };
+							if (cacheFileVersion != currentVersion)
+							{
+								LOG_WARNING << "'" << meshPath << "' has a particle cached file but it is was made with a previous version of the application (no retro compatibility), therefore we will regenerate it anew.";
+								hasCache = false;
+							}
+						}
+						catch (const Storm::Exception &e)
+						{
+							LOG_ERROR <<
+								"Cache version parsing failed. We'll invalidate the cache. Reason was " << e.what() << "\n\n"
+								"Stack trace :\n" <<
+								e.stackTrace();
+
+							hasCache = false;
+						}
+						catch (const std::exception &e)
+						{
+							LOG_ERROR << "Cache version parsing failed. We'll invalidate the cache. Reason was " << e.what();
+							hasCache = false;
+						}
+						catch (...)
+						{
+							LOG_ERROR << "Cache version parsing failed for unknown reasons. We'll invalidate the cache";
 							hasCache = false;
 						}
 					}
