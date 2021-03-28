@@ -389,6 +389,8 @@ This element is all setting appartaining to a fluid. Here the tag you can set in
 - **initRelaxationCoeff (positive zero-able float, falcultative)**: This is the pressure initial relaxation coefficient used inside some Simulation methods (like IISPH) when initializing pressure fields. It should be greater or equal to 0.0. Default is 0.5.
 - **viscosity (positive float, falcultative)**: This is the dynamic viscosity of the fluid in N.s/m² (or Pa.s). Default is 0.00001715 N.s/m² which is the dynamic viscosity of Dry air at 0 °C and normal ATM pressure.
 - **soundSpeed (positive float, falcultative)**: This is the speed of sound inside the given fluid in m/s. Default is 331.4 m/s which is the speed of sound of Dry air at 0 °C) and normal ATM pressure (340 is for 15 °C).
+- **uniformDragCoeff (positive zero-able float, facultative)**: This is a user constant used to compute drag effect. It is typically equal to 1/2 * Cd * A where Cd is the drag coefficient and A is the cross-sectional area. But since this is particle to particle drag, the cross-sectional area is meaningless and can be tweeked by the user. The value should be greater or equal to zero. Default is 0 (no drag effect).
+- **applyDragEffectOnFluid (boolean, falcultative)**: Enable fluid to fluid drag effects. Default is false.
 - **enableGravity (boolean, falcultative)**: Enable the gravity for the associated fluid particle system. Default is true.
 - **removeCollidingParticles (boolean, falcultative)**: If true, any fluid particle that collides with any rigid bodies will be forcefully removed when it is spawned. This does not reproduce the behavior of SplishSplash since it does not remove insider particles. If false, fluid particles can spawn inside rigid bodies, possibly leading to some explosion, instabilities and bad physical states. Default is true.
 - **removeOutDomainParticles (boolean, falcultative)**: If true, any fluid particle outside the domain will be removed. Otherwise, fluid particles can spawn outside the domain. Default is true.
@@ -550,7 +552,7 @@ Note : If the term in the parenthesis is "Numpad", then the keybinding is the va
 - **E**: Enable all disabled blower, and disable all enabled ones.
 - **R**: Enable (if disabled)/Disable (if enabled) raycasts system.
 - **L**: Fix (if unfixed)/Unfix (if fixed) rigid bodies.
-- **Y**: Cycle the particle selection force to display (between [...] -> Pressure -> Viscosity -> AllForces (except gravity) -> Total force on rigid body -> [...]).
+- **Y**: Cycle the particle selection force to display (between [...] -> Pressure -> Viscosity -> Drag -> AllForces (except gravity) -> Total force on rigid body -> [...]).
 - **I**: Reset the replaying to the first frame. This feature exists only in replay mode.
 - **C**: Request all forces check to zero as per physics conservation of momentum law says for isolated systems that is in an equilibrium state.
 - **J**: Force refresh watched script files. Or re read all of them.

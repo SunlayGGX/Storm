@@ -889,6 +889,7 @@ void Storm::SimulatorManager::initialize_Implementation()
 						_particleSelector.setSelectedParticleVelocity(selectedPSystem.getVelocity()[firstHit._particleId]);
 						_particleSelector.setSelectedParticlePressureForce(selectedPSystem.getTemporaryPressureForces()[firstHit._particleId]);
 						_particleSelector.setSelectedParticleViscosityForce(selectedPSystem.getTemporaryViscosityForces()[firstHit._particleId]);
+						_particleSelector.setSelectedParticleDragForce(selectedPSystem.getTemporaryDragForces()[firstHit._particleId]);
 
 						if (!selectedPSystem.isFluids())
 						{
@@ -2087,6 +2088,7 @@ void Storm::SimulatorManager::refreshParticleSelection()
 			_particleSelector.setSelectedParticleVelocity(pSystem.getVelocity()[selectedParticleIndex]);
 			_particleSelector.setSelectedParticlePressureForce(pSystem.getTemporaryPressureForces()[selectedParticleIndex]);
 			_particleSelector.setSelectedParticleViscosityForce(pSystem.getTemporaryViscosityForces()[selectedParticleIndex]);
+			_particleSelector.setSelectedParticleDragForce(pSystem.getTemporaryDragForces()[selectedParticleIndex]);
 			_particleSelector.setSelectedParticleSumForce(pSystem.getForces()[selectedParticleIndex]);
 
 			if (!pSystem.isFluids())
@@ -2192,6 +2194,7 @@ void Storm::SimulatorManager::pushRecord(float currentPhysicsTime, bool pushStat
 			framePSystemElementData._forces = pSystemRef.getForces();
 			framePSystemElementData._pressureComponentforces = pSystemRef.getTemporaryPressureForces();
 			framePSystemElementData._viscosityComponentforces = pSystemRef.getTemporaryViscosityForces();
+			framePSystemElementData._dragComponentforces = pSystemRef.getTemporaryDragForces();
 		}
 	}
 

@@ -7,7 +7,7 @@ namespace Storm
 	struct NotEqual
 	{
 	public:
-		friend bool operator!=(const Child &right, const Other &left)
+		friend constexpr bool operator!=(const Child &right, const Other &left)
 		{
 			return !(right == left);
 		}
@@ -17,7 +17,7 @@ namespace Storm
 	struct InvertNotEqual
 	{
 	public:
-		friend bool operator!=(const Other &right, const Child& left)
+		friend constexpr bool operator!=(const Other &right, const Child& left)
 		{
 			return !(left == right);
 		}
@@ -31,7 +31,7 @@ namespace Storm
 	struct InvertEqual
 	{
 	public:
-		friend bool operator==(const Other &right, const Child& left)
+		friend constexpr bool operator==(const Other &right, const Child& left)
 		{
 			return left == right;
 		}
@@ -45,17 +45,17 @@ namespace Storm
 	struct Hierarchisable
 	{
 	public:
-		friend bool operator>=(const Child& right, const Other &left)
+		friend constexpr bool operator>=(const Child& right, const Other &left)
 		{
 			return !(right < left);
 		}
 
-		friend bool operator<=(const Child& right, const Other& left)
+		friend constexpr bool operator<=(const Child& right, const Other& left)
 		{
 			return (right < left) || (right == left);
 		}
 
-		friend bool operator>(const Child& right, const Other& left)
+		friend constexpr bool operator>(const Child& right, const Other& left)
 		{
 			return !(right <= left);
 		}
@@ -66,22 +66,22 @@ namespace Storm
 	struct InvertHierarchisable
 	{
 	public:
-		friend bool operator>=(const Other &right, const Child& left)
+		friend constexpr bool operator>=(const Other &right, const Child& left)
 		{
 			return left <= right;
 		}
 
-		friend bool operator<=(const Other& right, const Child& left)
+		friend constexpr bool operator<=(const Other& right, const Child& left)
 		{
 			return left >= right;
 		}
 
-		friend bool operator>(const Other& right, const Child& left)
+		friend constexpr bool operator>(const Other& right, const Child& left)
 		{
 			return left < right;
 		}
 
-		friend bool operator<(const Other& right, const Child& left)
+		friend constexpr bool operator<(const Other& right, const Child& left)
 		{
 			return left > right;
 		}

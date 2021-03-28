@@ -11,7 +11,8 @@ namespace Storm
 
 		Pressure,
 		Viscosity,
-		ViscosityAndPressure,
+		Drag,
+		AllOnParticle,
 
 		RbForce,
 

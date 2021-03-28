@@ -22,17 +22,26 @@
 
 namespace
 {
+	enum DragComputeMode
+	{
+		NoCompute,
+		RbOnly,
+		ForAll,
+	};
 
-	template<Storm::ViscosityMethod viscosityMethodOnFluid, Storm::ViscosityMethod viscosityMethodOnRigidBody>
-	void computePressureViscosity(const Storm::IterationParameter &iterationParameter, const Storm::SceneFluidConfig &fluidConfig, const float density0, const float currentPMass, const Storm::Vector3 &vi, const Storm::ParticleNeighborhoodArray &currentPNeighborhood, const float currentPDensity, const float currentPPressure, const float viscoPrecoeff, Storm::Vector3 &outTotalPressureForceOnParticle, Storm::Vector3 &outTotalViscosityForceOnParticle)
+	template<Storm::ViscosityMethod viscosityMethodOnFluid, Storm::ViscosityMethod viscosityMethodOnRigidBody, DragComputeMode dragComputeMode>
+	void computeAll(const Storm::IterationParameter &iterationParameter, const Storm::SceneFluidConfig &fluidConfig, const float density0, const float currentPMass, const Storm::Vector3 &vi, const Storm::ParticleNeighborhoodArray &currentPNeighborhood, const float currentPDensity, const float currentPPressure, const float viscoPrecoeff, Storm::Vector3 &outTotalPressureForceOnParticle, Storm::Vector3 &outTotalViscosityForceOnParticle, Storm::Vector3 &outTotalDragForceOnParticle)
 	{
 		outTotalPressureForceOnParticle = Storm::Vector3::Zero();
 		outTotalViscosityForceOnParticle = Storm::Vector3::Zero();
+		outTotalDragForceOnParticle = Storm::Vector3::Zero();
 
 		const float currentPFluidPressureCoeff = currentPPressure / (currentPDensity * currentPDensity);
 
 		const float restMassDensity = currentPMass * density0;
 		const float currentPRestMassDensityBoundaryPressureCoeff = restMassDensity * (currentPFluidPressureCoeff + (currentPPressure / (density0 * density0)));
+
+		const float dragPreCoeff = -fluidConfig._uniformDragCoefficient * currentPDensity;
 
 		for (const Storm::NeighborParticleInfo &neighbor : currentPNeighborhood)
 		{
@@ -70,6 +79,12 @@ namespace
 				{
 					Storm::throwException<Storm::Exception>("Non implemented viscosity method to use on fluid!");
 				}
+
+				// Drag
+				if constexpr (dragComputeMode == DragComputeMode::ForAll)
+				{
+					outTotalDragForceOnParticle += (dragPreCoeff * neighbor._Wij * vij.norm()) * vij;
+				}
 			}
 			else
 			{
@@ -102,12 +117,25 @@ namespace
 					viscosityComponent = Storm::Vector3::Zero();
 				}
 
+				//Drag
+				Storm::Vector3 dragComponent;
+				if constexpr (dragComputeMode != DragComputeMode::NoCompute)
+				{
+					dragComponent = (dragPreCoeff * neighbor._Wij * vij.norm()) * vij;
+					outTotalDragForceOnParticle += dragComponent;
+				}
+				else
+				{
+					dragComponent = Storm::Vector3::Zero();
+				}
+
 				// Mirror the force on the boundary solid following the 3rd newton law
 				if (!neighborPSystemAsBoundary->isStatic())
 				{
 					Storm::Vector3 &boundaryNeighborForce = neighbor._containingParticleSystem->getForces()[neighbor._particleIndex];
 					Storm::Vector3 &boundaryNeighborTmpPressureForce = neighbor._containingParticleSystem->getTemporaryPressureForces()[neighbor._particleIndex];
 					Storm::Vector3 &boundaryNeighborTmpViscosityForce = neighbor._containingParticleSystem->getTemporaryViscosityForces()[neighbor._particleIndex];
+					Storm::Vector3 &boundaryNeighborTmpDragForce = neighbor._containingParticleSystem->getTemporaryDragForces()[neighbor._particleIndex];
 
 #define STORM_ENABLE_PRESSURE_FORCE_ON_RB true
 
@@ -115,7 +143,8 @@ namespace
 #if STORM_ENABLE_PRESSURE_FORCE_ON_RB
 						pressureComponent +
 #endif
-						viscosityComponent
+						viscosityComponent +
+						dragComponent
 						;
 
 					std::lock_guard<std::mutex> lock{ neighbor._containingParticleSystem->_mutex };
@@ -124,6 +153,11 @@ namespace
 					boundaryNeighborTmpPressureForce -= pressureComponent;
 #endif
 					boundaryNeighborTmpViscosityForce -= viscosityComponent;
+
+					if constexpr (dragComputeMode != DragComputeMode::NoCompute)
+					{
+						boundaryNeighborTmpDragForce -= dragComponent;
+					}
 				}
 			}
 
@@ -207,6 +241,7 @@ void Storm::WCSPHSolver::execute(const Storm::IterationParameter &iterationParam
 	}
 
 	const float k_kernelLengthSquared = iterationParameter._kernelLength * iterationParameter._kernelLength;
+	const float k_kernelLengthSquared00_1 = 0.01f * k_kernelLengthSquared;
 
 	// 3rd : Compute forces : pressure and viscosity
 	for (auto &particleSystemPair : particleSystems)
@@ -225,14 +260,28 @@ void Storm::WCSPHSolver::execute(const Storm::IterationParameter &iterationParam
 			const std::vector<Storm::Vector3> &velocities = fluidParticleSystem.getVelocity();
 			std::vector<Storm::Vector3> &temporaryPPressureForce = fluidParticleSystem.getTemporaryPressureForces();
 			std::vector<Storm::Vector3> &temporaryPViscoForce = fluidParticleSystem.getTemporaryViscosityForces();
+			std::vector<Storm::Vector3> &temporaryPDragForce = fluidParticleSystem.getTemporaryDragForces();
 
 			Storm::runParallel(fluidParticleSystem.getForces(), [&](Storm::Vector3 &currentPForce, const std::size_t currentPIndex)
 			{
 				Storm::Vector3 &currentPTmpPressureForce = temporaryPPressureForce[currentPIndex];
 				Storm::Vector3 &currentPTmpViscoForce = temporaryPViscoForce[currentPIndex];
+				Storm::Vector3 &currentPTmpDragForce = temporaryPDragForce[currentPIndex];
 
-#define STORM_COMPUTE_VISCOSITY_AND_PRESSURE(fluidMethod, rbMethod) \
-	computePressureViscosity<fluidMethod, rbMethod>(iterationParameter, fluidConfig, fluidParticleSystem.getRestDensity(), masses[currentPIndex], velocities[currentPIndex], neighborhoodArrays[currentPIndex], densities[currentPIndex], pressures[currentPIndex], 0.01f * k_kernelLengthSquared, currentPTmpPressureForce, currentPTmpViscoForce)
+#define STORM_COMPUTE_ALL(fluidMethod, rbMethod)	\
+	if (fluidConfig._uniformDragCoefficient == 0.f)	\
+	{												\
+		computeAll<fluidMethod, rbMethod, DragComputeMode::NoCompute>(iterationParameter, fluidConfig, fluidParticleSystem.getRestDensity(), masses[currentPIndex], velocities[currentPIndex], neighborhoodArrays[currentPIndex], densities[currentPIndex], pressures[currentPIndex], k_kernelLengthSquared00_1, currentPTmpPressureForce, currentPTmpViscoForce, currentPTmpDragForce);					  \
+	}												\
+	else if (fluidConfig._applyDragEffectOnFluid)	\
+	{												\
+		computeAll<fluidMethod, rbMethod, DragComputeMode::ForAll>(iterationParameter, fluidConfig, fluidParticleSystem.getRestDensity(), masses[currentPIndex], velocities[currentPIndex], neighborhoodArrays[currentPIndex], densities[currentPIndex], pressures[currentPIndex], k_kernelLengthSquared00_1, currentPTmpPressureForce, currentPTmpViscoForce, currentPTmpDragForce);					  \
+	}												\
+	else											\
+	{												\
+		computeAll<fluidMethod, rbMethod, DragComputeMode::RbOnly>(iterationParameter, fluidConfig, fluidParticleSystem.getRestDensity(), masses[currentPIndex], velocities[currentPIndex], neighborhoodArrays[currentPIndex], densities[currentPIndex], pressures[currentPIndex], k_kernelLengthSquared00_1, currentPTmpPressureForce, currentPTmpViscoForce, currentPTmpDragForce);					  \
+	}
+
 
 				switch (sceneSimulationConfig._fluidViscoMethod)
 				{
@@ -240,10 +289,10 @@ void Storm::WCSPHSolver::execute(const Storm::IterationParameter &iterationParam
 					switch (sceneSimulationConfig._rbViscoMethod)
 					{
 					case Storm::ViscosityMethod::Standard:
-						STORM_COMPUTE_VISCOSITY_AND_PRESSURE(Storm::ViscosityMethod::Standard, Storm::ViscosityMethod::Standard);
+						STORM_COMPUTE_ALL(Storm::ViscosityMethod::Standard, Storm::ViscosityMethod::Standard);
 						break;
 					case Storm::ViscosityMethod::XSPH:
-						STORM_COMPUTE_VISCOSITY_AND_PRESSURE(Storm::ViscosityMethod::Standard, Storm::ViscosityMethod::XSPH);
+						STORM_COMPUTE_ALL(Storm::ViscosityMethod::Standard, Storm::ViscosityMethod::XSPH);
 						break;
 
 					default:
@@ -255,10 +304,10 @@ void Storm::WCSPHSolver::execute(const Storm::IterationParameter &iterationParam
 					switch (sceneSimulationConfig._rbViscoMethod)
 					{
 					case Storm::ViscosityMethod::Standard:
-						STORM_COMPUTE_VISCOSITY_AND_PRESSURE(Storm::ViscosityMethod::XSPH, Storm::ViscosityMethod::Standard);
+						STORM_COMPUTE_ALL(Storm::ViscosityMethod::XSPH, Storm::ViscosityMethod::Standard);
 						break;
 					case Storm::ViscosityMethod::XSPH:
-						STORM_COMPUTE_VISCOSITY_AND_PRESSURE(Storm::ViscosityMethod::XSPH, Storm::ViscosityMethod::XSPH);
+						STORM_COMPUTE_ALL(Storm::ViscosityMethod::XSPH, Storm::ViscosityMethod::XSPH);
 						break;
 
 					default:

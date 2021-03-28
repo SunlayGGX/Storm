@@ -48,6 +48,9 @@ namespace Storm
 		bool _removeParticlesCollidingWithRb;
 		bool _removeOutDomainParticles;
 
+		float _uniformDragCoefficient; // F = 1/2 rho * |vj - vi|(vj - vi) * Cd * Ai => _uniformDragCoefficient = 1/2 * Cd * Ai
+		bool _applyDragEffectOnFluid;
+
 		std::unique_ptr<Storm::SceneFluidDefaultCustomConfig> _customSimulationSettings;
 	};
 }

@@ -22,9 +22,9 @@ Storm::Version::Version(const std::string_view &versionStr) :
 
 	switch (splitted.size())
 	{
-	case 3: _value._dividedInternals._subminor = boost::lexical_cast<Storm::Version::VersionNumber>(splitted[2]) - k_parsingNumberOffset;
-	case 2: _value._dividedInternals._minor = boost::lexical_cast<Storm::Version::VersionNumber>(splitted[1]) - k_parsingNumberOffset;
-	case 1: _value._dividedInternals._major = boost::lexical_cast<Storm::Version::VersionNumber>(splitted[0]) - k_parsingNumberOffset;
+	case 3: _value |= (boost::lexical_cast<Storm::Version::VersionNumber>(splitted[2]) - k_parsingNumberOffset) << 8;
+	case 2: _value |= (boost::lexical_cast<Storm::Version::VersionNumber>(splitted[1]) - k_parsingNumberOffset) << 16;
+	case 1: _value |= (boost::lexical_cast<Storm::Version::VersionNumber>(splitted[0]) - k_parsingNumberOffset) << 24;
 	case 0:
 		break;
 
@@ -44,12 +44,12 @@ bool Storm::Version::operator<(const std::string_view &versionStr) const
 
 void Storm::Version::serialize(Storm::SerializePackage &package)
 {
-	package << _value._bunk;
+	package << _value;
 }
 
 std::size_t Storm::Version::getSizeInSerializePacket()
 {
-	return sizeof(Storm::Version::_value._bunk);
+	return sizeof(Storm::Version::_value);
 }
 
 Storm::Version& Storm::Version::operator=(const std::string_view &versionStr)
@@ -62,11 +62,11 @@ Storm::Version::operator std::string() const
 	std::string result;
 	result.reserve(8);
 
-	result += std::to_string(_value._dividedInternals._major);
+	result += std::to_string(_value);
 	result += '.';
-	result += std::to_string(_value._dividedInternals._minor);
+	result += std::to_string(_value);
 	result += '.';
-	result += std::to_string(_value._dividedInternals._subminor);
+	result += std::to_string(_value);
 
 	return result;
 }

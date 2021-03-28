@@ -323,8 +323,11 @@ void Storm::DFSPHSolver::execute(const Storm::IterationParameter &iterationParam
 
 				Storm::Vector3 &currentPTmpViscoForce = temporaryPViscoForces[currentPIndex];
 
+				const float currentPDensity = densities[currentPIndex];
+				const Storm::ParticleNeighborhoodArray &currentPNeighborhood = neighborhoodArrays[currentPIndex];
+
 #define STORM_COMPUTE_VISCOSITY(fluidMethod, rbMethod) \
-	computeViscosity<fluidMethod, rbMethod>(iterationParameter, fluidConfig, fluidParticleSystem, currentPIndex, currentPMass, vi, neighborhoodArrays[currentPIndex], densities[currentPIndex], viscoPrecoeff)
+	computeViscosity<fluidMethod, rbMethod>(iterationParameter, fluidConfig, fluidParticleSystem, currentPIndex, currentPMass, vi, currentPNeighborhood, currentPDensity, viscoPrecoeff)
 
 				switch (sceneSimulationConfig._fluidViscoMethod)
 				{
@@ -364,6 +367,22 @@ void Storm::DFSPHSolver::execute(const Storm::IterationParameter &iterationParam
 #undef STORM_COMPUTE_VISCOSITY
 
 				currentPForce += currentPTmpViscoForce;
+
+				if (fluidConfig._uniformDragCoefficient > 0.f)
+				{
+					Storm::Vector3 &currentPTmpDragForceComponent = fluidParticleSystem.getTemporaryDragForces()[currentPIndex];
+
+					if (fluidConfig._applyDragEffectOnFluid)
+					{
+						currentPTmpDragForceComponent = Storm::SPHSolverUtils::computeSumDragForce<true>(iterationParameter, fluidConfig._uniformDragCoefficient, fluidParticleSystem, vi, currentPNeighborhood, currentPDensity);
+					}
+					else
+					{
+						currentPTmpDragForceComponent = Storm::SPHSolverUtils::computeSumDragForce<false>(iterationParameter, fluidConfig._uniformDragCoefficient, fluidParticleSystem, vi, currentPNeighborhood, currentPDensity);
+					}
+
+					currentPForce += currentPTmpDragForceComponent;
+				}
 
 				// We should also initialize the data field now (avoid to restart the threads).
 				Storm::DFSPHSolverData &currentPDataField = dataField[currentPIndex];

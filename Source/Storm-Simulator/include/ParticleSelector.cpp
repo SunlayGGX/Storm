@@ -20,7 +20,8 @@ namespace
 		case Storm::ParticleSelectionMode::Velocity: return STORM_TEXT("Velocity");
 		case Storm::ParticleSelectionMode::Pressure: return STORM_TEXT("Pressure");
 		case Storm::ParticleSelectionMode::Viscosity: return STORM_TEXT("Viscosity");
-		case Storm::ParticleSelectionMode::ViscosityAndPressure: return STORM_TEXT("All");
+		case Storm::ParticleSelectionMode::Drag: return STORM_TEXT("Drag");
+		case Storm::ParticleSelectionMode::AllOnParticle: return STORM_TEXT("All");
 		case Storm::ParticleSelectionMode::RbForce: return STORM_TEXT("Rb Total force");
 
 		case Storm::ParticleSelectionMode::SelectionModeCount:
@@ -42,13 +43,15 @@ namespace
 	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Velocity)				\
 	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Pressure)				\
 	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Viscosity)				\
-	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, ViscosityAndPressure)	\
+	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Drag)					\
+	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, AllOnParticle)			\
 
 #define STORM_XMACRO_SELECTION_RB_MODE_BINDINGS(SelectionMode)					\
 	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Velocity)				\
 	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Pressure)				\
 	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Viscosity)				\
-	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, ViscosityAndPressure)	\
+	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Drag)					\
+	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, AllOnParticle)			\
 	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, RbForce)					\
 
 
@@ -86,7 +89,7 @@ namespace
 
 
 Storm::ParticleSelector::ParticleSelector() :
-	_currentParticleSelectionMode{ Storm::ParticleSelectionMode::ViscosityAndPressure }
+	_currentParticleSelectionMode{ Storm::ParticleSelectionMode::AllOnParticle }
 {
 	_selectionModeStr = parseSelectedParticleMode(_currentParticleSelectionMode);
 	_selectedParticleData._selectedParticle = std::make_pair(std::numeric_limits<decltype(_selectedParticleData._selectedParticle.first)>::max(), 0);
@@ -181,6 +184,11 @@ void Storm::ParticleSelector::setSelectedParticleViscosityForce(const Storm::Vec
 	_selectedParticleData._viscosityForce = viscoForce;
 }
 
+void Storm::ParticleSelector::setSelectedParticleDragForce(const Storm::Vector3 &dragForce)
+{
+	_selectedParticleData._dragForce = dragForce;
+}
+
 void Storm::ParticleSelector::setSelectedParticleSumForce(const Storm::Vector3 &sumForce)
 {
 	_selectedParticleData._externalSumForces = sumForce;
@@ -210,7 +218,8 @@ const Storm::Vector3& Storm::ParticleSelector::getSelectedVectorToDisplay() cons
 	case Storm::ParticleSelectionMode::Velocity:				return _selectedParticleData._velocity;
 	case Storm::ParticleSelectionMode::Pressure:				return _selectedParticleData._pressureForce;
 	case Storm::ParticleSelectionMode::Viscosity:				return _selectedParticleData._viscosityForce;
-	case Storm::ParticleSelectionMode::ViscosityAndPressure:	return _selectedParticleData._externalSumForces;
+	case Storm::ParticleSelectionMode::Drag:					return _selectedParticleData._dragForce;
+	case Storm::ParticleSelectionMode::AllOnParticle:			return _selectedParticleData._externalSumForces;
 	case Storm::ParticleSelectionMode::RbForce:					return _selectedParticleData._totalForcesOnRb;
 
 	case Storm::ParticleSelectionMode::SelectionModeCount:
@@ -261,6 +270,7 @@ void Storm::ParticleSelector::logForceComponents() const
 		"Velocity: " << _selectedParticleData._velocity << ". Norm: " << _selectedParticleData._velocity.norm() << " m/s.\n"
 		"Pressure: " << _selectedParticleData._pressureForce << ". Norm: " << _selectedParticleData._pressureForce.norm() << " N.\n"
 		"Viscosity: " << _selectedParticleData._viscosityForce << ". Norm: " << _selectedParticleData._viscosityForce.norm() << " N.\n"
+		"Drag: " << _selectedParticleData._dragForce << ". Norm: " << _selectedParticleData._dragForce.norm() << " N.\n"
 		"Sum : " << _selectedParticleData._externalSumForces << ". Norm: " << _selectedParticleData._externalSumForces.norm() << " N." <<
 		rbSpecificInfosStr
 		;

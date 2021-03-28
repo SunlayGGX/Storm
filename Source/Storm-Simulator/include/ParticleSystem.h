@@ -30,6 +30,8 @@ namespace Storm
 		std::vector<Storm::Vector3>& getTemporaryPressureForces() noexcept;
 		const std::vector<Storm::Vector3>& getTemporaryViscosityForces() const noexcept;
 		std::vector<Storm::Vector3>& getTemporaryViscosityForces() noexcept;
+		const std::vector<Storm::Vector3>& getTemporaryDragForces() const noexcept;
+		std::vector<Storm::Vector3>& getTemporaryDragForces() noexcept;
 
 		const std::vector<Storm::ParticleNeighborhoodArray>& getNeighborhoodArrays() const noexcept;
 		std::vector<Storm::ParticleNeighborhoodArray>& getNeighborhoodArrays() noexcept;
@@ -55,6 +57,7 @@ namespace Storm
 		virtual void setMasses(std::vector<float> &&masses) = 0;
 		virtual void setTmpPressureForces(std::vector<Storm::Vector3> &&tmpPressureForces) = 0;
 		virtual void setTmpViscosityForces(std::vector<Storm::Vector3> &&tmpViscoForces) = 0;
+		virtual void setTmpDragForces(std::vector<Storm::Vector3> &&tmpDragForces) = 0;
 		virtual void setParticleSystemPosition(const Storm::Vector3 &pSystemPosition) = 0;
 		virtual void setParticleSystemTotalForce(const Storm::Vector3 &pSystemTotalForce) = 0;
 
@@ -95,6 +98,7 @@ namespace Storm
 		// Tmp force value only valid if we're selecting a force, or if we are recording.
 		std::vector<Storm::Vector3> _tmpPressureForce;
 		std::vector<Storm::Vector3> _tmpViscosityForce;
+		std::vector<Storm::Vector3> _tmpDragForce;
 
 		// This contains the neighborhood per particle.
 		// Note : For static rigid body, it does not contain the static particles neighborhood because we use it only one time (when initializing the volume) and this is a huge lost of computation time !

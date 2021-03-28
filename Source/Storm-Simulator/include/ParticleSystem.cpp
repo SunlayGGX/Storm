@@ -42,6 +42,7 @@ void Storm::ParticleSystem::initParticlesCount(const std::size_t particleCount)
 	_force.resize(particleCount, Storm::Vector3::Zero());
 	_tmpPressureForce.resize(particleCount, Storm::Vector3::Zero());
 	_tmpViscosityForce.resize(particleCount, Storm::Vector3::Zero());
+	_tmpDragForce.resize(particleCount, Storm::Vector3::Zero());
 
 	const bool replayMode = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().isInReplayMode();
 	if (!replayMode)
@@ -104,6 +105,16 @@ const std::vector<Storm::Vector3>& Storm::ParticleSystem::getTemporaryViscosityF
 std::vector<Storm::Vector3>& Storm::ParticleSystem::getTemporaryViscosityForces() noexcept
 {
 	return _tmpViscosityForce;
+}
+
+const std::vector<Storm::Vector3>& Storm::ParticleSystem::getTemporaryDragForces() const noexcept
+{
+	return _tmpDragForce;
+}
+
+std::vector<Storm::Vector3>& Storm::ParticleSystem::getTemporaryDragForces() noexcept
+{
+	return _tmpDragForce;
 }
 
 std::vector<Storm::Vector3>& Storm::ParticleSystem::getForces() noexcept
@@ -178,6 +189,7 @@ void Storm::ParticleSystem::onIterationStart()
 		particleCount == _force.size() &&
 		particleCount == _tmpPressureForce.size() &&
 		particleCount == _tmpViscosityForce.size() &&
+		particleCount == _tmpDragForce.size() &&
 		(replayMode || particleCount == _neighborhood.size()) &&
 		"Particle count mismatch detected! An array of particle property has not the same particle count than the other!"
 	);

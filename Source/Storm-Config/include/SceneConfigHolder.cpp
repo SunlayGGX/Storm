@@ -729,6 +729,8 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 				!Storm::XmlReader::handleXml(fluidXmlElement, "enableGravity", fluidConfig._gravityEnabled) &&
 				!Storm::XmlReader::handleXml(fluidXmlElement, "removeCollidingParticles", fluidConfig._removeParticlesCollidingWithRb) &&
 				!Storm::XmlReader::handleXml(fluidXmlElement, "removeOutDomainParticles", fluidConfig._removeOutDomainParticles) &&
+				!Storm::XmlReader::handleXml(fluidXmlElement, "uniformDragCoeff", fluidConfig._uniformDragCoefficient) &&
+				!Storm::XmlReader::handleXml(fluidXmlElement, "applyDragEffectOnFluid", fluidConfig._applyDragEffectOnFluid) &&
 				!Storm::XmlReader::handleXml(fluidXmlElement, "density", fluidConfig._density)
 				)
 			{
@@ -775,6 +777,10 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 		else if (fluidConfig._soundSpeed <= 0.f)
 		{
 			Storm::throwException<Storm::Exception>("Fluid " + std::to_string(fluidConfig._fluidId) + " sound of speed (" + std::to_string(fluidConfig._dynamicViscosity) + "m/s) is invalid!");
+		}
+		else if (fluidConfig._uniformDragCoefficient < 0.f)
+		{
+			Storm::throwException<Storm::Exception>("Fluid " + std::to_string(fluidConfig._fluidId) + " uniform drag coefficient should be positive or 0 (disabled). Value was " + std::to_string(fluidConfig._uniformDragCoefficient));
 		}
 
 		fluidConfig._cinematicViscosity = fluidConfig._dynamicViscosity / fluidConfig._density;

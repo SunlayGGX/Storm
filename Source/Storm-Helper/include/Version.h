@@ -16,11 +16,9 @@ namespace Storm
 
 	public:
 		constexpr Version(VersionNumber major = 0, VersionNumber minor = 0, VersionNumber subminor = 0) :
-			_value{ 0 }
+			_value{ major << 24 | minor << 16 | subminor << 8 }
 		{
-			_value._dividedInternals._major = major;
-			_value._dividedInternals._minor = minor;
-			_value._dividedInternals._subminor = subminor;
+
 		}
 
 		Version(const std::string_view &versionStr);
@@ -28,12 +26,12 @@ namespace Storm
 	public:
 		constexpr bool operator==(const Version &other) const noexcept
 		{
-			return _value._bunk == other._value._bunk;
+			return _value == other._value;
 		}
 
 		constexpr bool operator<(const Version &other) const noexcept
 		{
-			return _value._bunk < other._value._bunk;
+			return _value < other._value;
 		}
 
 		bool operator==(const std::string_view &versionStr) const;
@@ -53,16 +51,6 @@ namespace Storm
 		}
 
 	private:
-		union
-		{
-			struct DividedData
-			{
-				VersionNumber _major;
-				VersionNumber _minor;
-				VersionNumber _subminor;
-			} _dividedInternals;
-
-			int32_t _bunk;
-		} _value;
+		int32_t _value;
 	};
 }

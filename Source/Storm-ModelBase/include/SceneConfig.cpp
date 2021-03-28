@@ -179,7 +179,9 @@ Storm::SceneFluidConfig::SceneFluidConfig() :
 	_removeParticlesCollidingWithRb{ true },
 	_removeOutDomainParticles{ true },
 	_customSimulationSettings{ nullptr }, // This will be filled when we'll read the config file to the right settings structure depending on our simulation mode.
-	_cinematicViscosity{ 0.f } // Computed automatically once final _dynamicViscosity value will be determined.
+	_cinematicViscosity{ 0.f }, // Computed automatically once final _dynamicViscosity value will be determined.
+	_uniformDragCoefficient{ 0.f },
+	_applyDragEffectOnFluid{ false }
 {
 
 }
