@@ -393,6 +393,19 @@ void Storm::GraphicManager::updateGraphicsField(std::vector<std::pair<std::wstri
 	}
 }
 
+void Storm::GraphicManager::updateGraphicsField(const std::wstring_view &fieldName, std::wstring &&fieldValue)
+{
+	if (auto found = _fieldsMap.find(fieldName); found != std::end(_fieldsMap))
+	{
+		found->second = std::move(fieldValue);
+	}
+}
+
+std::size_t Storm::GraphicManager::getFieldCount() const
+{
+	return _fieldsMap.size();
+}
+
 void Storm::GraphicManager::convertScreenPositionToRay(const Storm::Vector2 &screenPos, Storm::Vector3 &outRayOrigin, Storm::Vector3 &outRayDirection) const
 {
 	assert(Storm::isGraphicThread() && "this method should only be executed on graphic thread.");
@@ -462,19 +475,6 @@ void Storm::GraphicManager::safeClearSelectedParticle()
 			_dirty = true;
 		});
 	}
-}
-
-void Storm::GraphicManager::updateGraphicsField(const std::wstring_view &fieldName, std::wstring &&fieldValue)
-{
-	if (auto found = _fieldsMap.find(fieldName); found != std::end(_fieldsMap))
-	{
-		found->second = std::move(fieldValue);
-	}
-}
-
-std::size_t Storm::GraphicManager::getFieldCount() const
-{
-	return _fieldsMap.size();
 }
 
 void Storm::GraphicManager::setUIFieldEnabled(bool enable)
