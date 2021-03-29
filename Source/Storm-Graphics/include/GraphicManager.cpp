@@ -398,6 +398,7 @@ void Storm::GraphicManager::updateGraphicsField(const std::wstring_view &fieldNa
 	if (auto found = _fieldsMap.find(fieldName); found != std::end(_fieldsMap))
 	{
 		found->second = std::move(fieldValue);
+		_dirty = true;
 	}
 }
 
