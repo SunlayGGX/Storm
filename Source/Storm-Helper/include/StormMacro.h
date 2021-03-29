@@ -74,3 +74,12 @@
 #else
 #	define STORM_HAS_INCLUDE(includeName) true
 #endif
+
+
+#if _HAS_CXX20
+#	define STORM_LIKELY [[likely]]
+#	define STORM_UNLIKELY [[unlikely]]
+#else
+#	define STORM_LIKELY
+#	define STORM_UNLIKELY
+#endif

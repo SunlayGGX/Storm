@@ -155,7 +155,7 @@ void Storm::SerializerManager::execute()
 
 	if (!_pendingRecord.empty())
 	{
-		if (_recordWriter)
+		if (_recordWriter) STORM_LIKELY
 		{
 			this->processRecordQueue_Unchecked();
 		}

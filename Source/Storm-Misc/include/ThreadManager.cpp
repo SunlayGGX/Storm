@@ -81,7 +81,7 @@ void Storm::ThreadManager::executeDefferedOnThread(Storm::ThreadEnumeration thre
 	bool executeNow = false;
 
 	std::lock_guard<std::recursive_mutex> lock{ _mutex };
-	if (const auto found = _threadIdMapping.find(threadEnum); found != std::end(_threadIdMapping))
+	if (const auto found = _threadIdMapping.find(threadEnum); found != std::end(_threadIdMapping)) STORM_LIKELY
 	{
 		this->executeOnThreadInternal(found->second, std::move(action));
 	}
@@ -98,7 +98,7 @@ void Storm::ThreadManager::executeOnThread(Storm::ThreadEnumeration threadEnum, 
 
 	{
 		std::lock_guard<std::recursive_mutex> lock{ _mutex };
-		if (const auto found = _threadIdMapping.find(threadEnum); found != std::end(_threadIdMapping))
+		if (const auto found = _threadIdMapping.find(threadEnum); found != std::end(_threadIdMapping)) STORM_LIKELY
 		{
 			if (found->second != thisThreadId)
 			{
@@ -130,7 +130,7 @@ void Storm::ThreadManager::processCurrentThreadActions()
 
 	{
 		std::lock_guard<std::recursive_mutex> lock{ _mutex };
-		if (const auto executorFound = _toExecute.find(thisThreadId); executorFound != std::end(_toExecute))
+		if (const auto executorFound = _toExecute.find(thisThreadId); executorFound != std::end(_toExecute)) STORM_LIKELY
 		{
 			currentThreadExecutor = executorFound->second.get();
 			currentThreadExecutor->prepare();
@@ -149,7 +149,7 @@ void Storm::ThreadManager::clearCurrentThreadActions()
 	const auto thisThreadId = std::this_thread::get_id();
 
 	std::lock_guard<std::recursive_mutex> lock{ _mutex };
-	if (const auto executorFound = _toExecute.find(thisThreadId); executorFound != std::end(_toExecute))
+	if (const auto executorFound = _toExecute.find(thisThreadId); executorFound != std::end(_toExecute)) STORM_LIKELY
 	{
 		executorFound->second->clear();
 	}
@@ -165,7 +165,7 @@ void Storm::ThreadManager::processActionsOfThread(Storm::ThreadEnumeration threa
 
 	{
 		std::lock_guard<std::recursive_mutex> lock{ _mutex };
-		if (const auto foundThreadId = _threadIdMapping.find(threadEnum); foundThreadId != std::end(_threadIdMapping))
+		if (const auto foundThreadId = _threadIdMapping.find(threadEnum); foundThreadId != std::end(_threadIdMapping)) STORM_LIKELY
 		{
 			if (const auto executorFound = _toExecute.find(foundThreadId->second); executorFound != std::end(_toExecute))
 			{
@@ -183,7 +183,7 @@ void Storm::ThreadManager::processActionsOfThread(Storm::ThreadEnumeration threa
 		}
 	}
 
-	if (currentThreadExecutor)
+	if (currentThreadExecutor) STORM_LIKELY
 	{
 		currentThreadExecutor->execute();
 	}
@@ -224,7 +224,7 @@ void Storm::ThreadManager::setCurrentThreadPriority(const Storm::ThreadPriority 
 
 void Storm::ThreadManager::executeOnThreadInternal(const std::thread::id &threadId, AsyncAction &&action)
 {
-	if (const auto executorFound = _toExecute.find(threadId); executorFound != std::end(_toExecute))
+	if (const auto executorFound = _toExecute.find(threadId); executorFound != std::end(_toExecute)) STORM_LIKELY
 	{
 		executorFound->second->bind(std::move(action));
 	}
