@@ -1,16 +1,12 @@
 #pragma once
 
+#include "Average.h"
+
 
 namespace Storm
 {
 	class SpeedProfileData
 	{
-	private:
-		enum : std::size_t { k_speedBufferCount = 11 };
-
-	public:
-		SpeedProfileData();
-
 	public:
 		void startTime();
 		void stopTime();
@@ -20,8 +16,6 @@ namespace Storm
 	private:
 		std::chrono::high_resolution_clock::time_point _lastStartTime;
 
-		float* _bufferPtr;
-		float _lastSpeedBuffer[Storm::SpeedProfileData::k_speedBufferCount];
-		float _currentComputationSpeed;
+		Storm::Average<float, Storm::MovingAverageTraits<11>> _averageComputationSpeed;
 	};
 }

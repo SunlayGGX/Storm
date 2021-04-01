@@ -71,6 +71,7 @@
     <ClInclude Include="..\include\RaycastEnablingFlag.h" />
     <ClInclude Include="..\include\ReplaySolver.h" />
     <ClInclude Include="..\include\RigidBodyParticleSystem.h" />
+    <ClInclude Include="..\include\SelectedParticleData.h" />
     <ClInclude Include="..\include\SemiImplicitEulerSolver.h" />
     <ClInclude Include="..\include\SimulationSystemsState.h" />
     <ClInclude Include="..\include\SimulatorManager.h" />

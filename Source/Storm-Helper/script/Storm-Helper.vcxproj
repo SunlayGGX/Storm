@@ -34,6 +34,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\ArchitectureMacros.h" />
+    <ClInclude Include="..\include\Average.h" />
     <ClInclude Include="..\include\BitField.h" />
     <ClInclude Include="..\include\CallbackIdType.h" />
     <ClInclude Include="..\include\CoInitializerRAII.h" />

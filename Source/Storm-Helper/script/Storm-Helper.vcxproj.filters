@@ -100,6 +100,9 @@
     <Filter Include="Header Files\General\UniversalString">
       <UniqueIdentifier>{0238800d-185f-4e96-bcf5-aa7657b648ce}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\General\Math">
+      <UniqueIdentifier>{ca3fd4c8-61fa-45a3-83b5-e3632608547a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-HelperPCH.cpp">
@@ -316,6 +319,9 @@
     </ClInclude>
     <ClInclude Include="..\include\CommaSeparatedPolicy.h">
       <Filter>Header Files\General\UniversalString</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Average.h">
+      <Filter>Header Files\General\Math</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

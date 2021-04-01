@@ -15,6 +15,7 @@ namespace Storm
 		AllOnParticle,
 
 		RbForce,
+		AverageRbForce,
 
 		// Should remain the last
 		SelectionModeCount
