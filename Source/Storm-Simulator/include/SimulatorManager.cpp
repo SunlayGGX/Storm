@@ -2237,7 +2237,7 @@ void Storm::SimulatorManager::resetReplay()
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 	singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::MainThread, [this]()
 	{
-		this->resetReplay();
+		this->resetReplay_SimulationThread();
 	});
 }
 
