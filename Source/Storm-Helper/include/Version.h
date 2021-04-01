@@ -17,9 +17,7 @@ namespace Storm
 	public:
 		constexpr Version(VersionNumber major = 0, VersionNumber minor = 0, VersionNumber subminor = 0) :
 			_value{ major << 24 | minor << 16 | subminor << 8 }
-		{
-
-		}
+		{}
 
 		Version(const std::string_view &versionStr);
 
