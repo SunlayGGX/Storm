@@ -2257,7 +2257,10 @@ void Storm::SimulatorManager::resetReplay_SimulationThread()
 			{
 				const Storm::SceneRecordConfig &sceneRecordConfig = configMgr.getSceneRecordConfig();
 				this->applyReplayFrame(frameBefore, sceneRecordConfig._recordFps, false);
-				
+
+				_currentFrameNumber = 0;
+				_uiFields->pushField(STORM_FRAME_NUMBER_FIELD_NAME);
+
 				_reinitFrameAfter = true;
 
 				LOG_DEBUG << "Replay successfully reset to its starting point.";
