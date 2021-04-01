@@ -86,7 +86,7 @@ Storm::ScenePhysicsConfig::ScenePhysicsConfig() :
 	_enablePCM{ true },
 	_enableAdaptiveForce{ true },
 	_enableFrictionEveryIteration{ true },
-	_enableStabilization{ true },
+	_enableStabilization{ false },
 	_enableKinematicPairs{ true },
 	_enableKinematicStaticPairs{ true },
 	_enableAveragePoint{ true },

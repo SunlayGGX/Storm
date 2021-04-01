@@ -347,9 +347,9 @@ Unlike the others config files, it can be named as you want. Here the xml tags y
 
 #### Physics
 - **enablePCM (boolean, facultative)**: Enable GJK-based distance collision detection system. Default is true.
-- **enableAdaptiveForce (boolean, facultative)**: Enable adaptive forces to accelerate convergence of the solver. Default is true.
+- **enableAdaptiveForce (boolean, facultative)**: Enable adaptive forces to accelerate convergence of the solver. Default is true. Note this setting is incompatible with enableStabilization.
 - **enableFrictionEveryIteration (boolean, facultative)**: Controls processing friction in all solver iterations. If false, PhysX processes friction only in the final 3 position iterations, and all velocity iterations. Default is true.
-- **enableStabilization (boolean, facultative)**: Enables additional stabilization pass in solver. When set to true, this enables additional stabilization processing to improve that stability of complex interactions between large numbers of bodies. Note PhysX still consider it an experimental feature which does result in some loss of momentum. Default is true.
+- **enableStabilization (boolean, facultative)**: Enables additional stabilization pass in solver. When set to true, this enables additional stabilization processing to improve that stability of complex interactions between large numbers of bodies. Note PhysX still consider it an experimental feature which does result in some loss of momentum. Default is false. Note this setting is incompatible with enableAdaptiveForce.
 - **enableKinematicPairs (boolean, facultative)**: Enable contact pair filtering between kinematic rigid bodies. Seems deprecated but default is true.
 - **enableKinematicStaticPairs (boolean, facultative)**: Enable contact pair filtering between kinematic and static rigid bodies. Seems deprecated but default is true.
 - **enableAveragePoint (boolean, facultative)**: Enables average points in contact manifolds. When set to true, this enables additional contacts to be generated per manifold to represent the average point in a manifold. This can stabilize stacking when only a small number of solver iterations is used. Default is true.

@@ -532,6 +532,11 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 				LOG_ERROR << "tag '" << physicsXmlElement.first << "' (inside Scene.Physics) is unknown, therefore it cannot be handled";
 			}
 		}
+
+		if (physicsConfig._enableAdaptiveForce && physicsConfig._enableStabilization)
+		{
+			Storm::throwException<Storm::Exception>("Enable adaptice force and enable stabilization are incompatible settings!");
+		}
 	}
 
 	/* Record */
