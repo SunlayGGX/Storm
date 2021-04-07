@@ -669,6 +669,7 @@ Here the list of available commands :
 
 - **void setRigidBodyAngularDamping(const unsigned int rbId, const float angularVelocityDamping)**: Set the angular velodity damping value of the rigid body specified by its id. This method is only defined for dynamic rigid bodies.
 - **void fixDynamicRigidBodyTranslation(const unsigned int rbId, const bool fixed)**: Set the specified rigid body's translation fixed flag. This method is only defined for dynamic rigid bodies.
+- **void setRigidBodiesFixed(const bool shouldFix)**: If shouldFixate is set to true, fix the rigid bodies in place. This is another way to fix/unfix without using inputs.
 - **void reconnectPhysicsDebugger()**: Force the reconnection to the Physics Debugger which is the PhysX's PVD (PhysX Visual Debugger).
 
 

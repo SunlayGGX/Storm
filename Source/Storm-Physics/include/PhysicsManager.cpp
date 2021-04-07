@@ -360,6 +360,16 @@ void Storm::PhysicsManager::fixDynamicRigidBodyTranslation(const unsigned int rb
 	});
 }
 
+void Storm::PhysicsManager::setRigidBodiesFixed(const bool shouldFix)
+{
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	Storm::IThreadManager &threadMgr = singletonHolder.getSingleton<Storm::IThreadManager>();
+	threadMgr.executeOnThread(Storm::ThreadEnumeration::MainThread, [this, shouldFix]()
+	{
+		_rigidBodiesFixated = shouldFix;
+	});
+}
+
 void Storm::PhysicsManager::pushPhysicsVisualizationData() const
 {
 	this->pushConstraintsVisualizationData();
