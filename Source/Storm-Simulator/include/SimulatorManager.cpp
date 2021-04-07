@@ -12,6 +12,7 @@
 #include "IRaycastManager.h"
 #include "ISerializerManager.h"
 #include "IAssetLoaderManager.h"
+#include "IOSManager.h"
 
 #include "TimeWaitResult.h"
 
@@ -19,6 +20,7 @@
 #include "FluidParticleSystem.h"
 #include "RigidBodyParticleSystem.h"
 
+#include "GeneralApplicationConfig.h"
 #include "GeneralSimulationConfig.h"
 #include "GeneralDebugConfig.h"
 #include "SceneSimulationConfig.h"
@@ -1281,6 +1283,13 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 		if (hasAutoEndSimulation)
 		{
 			timeMgr.quit();
+
+			const Storm::GeneralApplicationConfig &generalAppConfig = configMgr.getGeneralApplicationConfig();
+			if (generalAppConfig._bipSoundOnFinish)
+			{
+				Storm::IOSManager &osMgr = singletonHolder.getSingleton<Storm::IOSManager>();
+				osMgr.makeBipSound(std::chrono::milliseconds{ 500 });
+			}
 		}
 		else if (autoEndSimulation)
 		{

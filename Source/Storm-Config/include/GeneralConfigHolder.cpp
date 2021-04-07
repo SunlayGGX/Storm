@@ -141,7 +141,8 @@ bool Storm::GeneralConfigHolder::read(const std::string &generalConfigFilePathSt
 				for (const auto &applicationXmlElement : applicationTree)
 				{
 					if (
-						!Storm::XmlReader::handleXml(applicationXmlElement, "displayBranch", generalApplicationConfig._showBranchInTitle)
+						!Storm::XmlReader::handleXml(applicationXmlElement, "displayBranch", generalApplicationConfig._showBranchInTitle) &&
+						!Storm::XmlReader::handleXml(applicationXmlElement, "beepOnFinish", generalApplicationConfig._bipSoundOnFinish)
 						)
 					{
 						LOG_ERROR << applicationXmlElement.first << " (inside General.Application) is unknown, therefore it cannot be handled";

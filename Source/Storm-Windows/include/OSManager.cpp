@@ -373,3 +373,9 @@ int Storm::OSManager::waitForProcessExitCode(const std::size_t processUID, bool 
 {
 	return _processHolder->waitForProcessExitCode(processUID, outFailure);
 }
+
+void Storm::OSManager::makeBipSound(const std::chrono::milliseconds bipDuration)
+{
+	enum : DWORD { k_frequencyHz = 523 };
+	::Beep(k_frequencyHz, bipDuration.count());
+}

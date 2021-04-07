@@ -36,6 +36,9 @@ namespace Storm
 		int queryProcessExitCode(const std::size_t processUID, bool &outReturned, bool &outFailure) const final override;
 		int waitForProcessExitCode(const std::size_t processUID, bool &outFailure) final override;
 
+	public:
+		void makeBipSound(const std::chrono::milliseconds bipDuration) final override;
+
 	private:
 		std::unique_ptr<Storm::details::ProcessesHolder> _processHolder;
 	};

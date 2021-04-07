@@ -10,5 +10,6 @@ namespace Storm
 
 	public:
 		bool _showBranchInTitle;
+		bool _bipSoundOnFinish;
 	};
 }

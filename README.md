@@ -227,6 +227,7 @@ Unless explicited, the following settings does not accept macros.
 #### Application
 
 - **displayBranch (boolean, facultative)**: If true, the branch the application was built upon will be displayed as part as its title when starting the application. It is useful for when we want to compare runs built from many branch and we want to know which is which. Default is false (because it is not really graceful if I want the application to be a proper application in the future).
+- **beepOnFinish (boolean, facultative)**: If true, we'll signal the user the end of the application with some Beep noise in case the simulation should stop automatically (i.e has a end time). Default is false.
 
 
 #### Debug (facultative)

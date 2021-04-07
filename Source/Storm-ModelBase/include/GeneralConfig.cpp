@@ -58,7 +58,8 @@ Storm::GeneralDebugConfig::GeneralDebugConfig() :
 {}
 
 Storm::GeneralApplicationConfig::GeneralApplicationConfig() :
-	_showBranchInTitle{ false }
+	_showBranchInTitle{ false },
+	_bipSoundOnFinish{ false }
 {
 
 }
