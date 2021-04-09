@@ -9,6 +9,19 @@ namespace Storm
 	{
 	private:
 		template<class PtrType>
+		static auto extract(PtrType &value, int) -> decltype(value.second == nullptr, Storm::SearchAlgo::extract(*value.second, 0))
+		{
+			if (value.second != nullptr)
+			{
+				return Storm::SearchAlgo::extract(*value.second, 0);
+			}
+			else
+			{
+				Storm::throwException<Storm::Exception>("Trying to extract a null value! It is forbidden!");
+			}
+		}
+
+		template<class PtrType>
 		static auto extract(PtrType &value, int) -> decltype(value == nullptr, Storm::SearchAlgo::extract(*value, 0))
 		{
 			if (value != nullptr)
@@ -127,7 +140,7 @@ namespace Storm
 		{
 			for (auto &item : container)
 			{
-				func(Storm::SearchAlgo::extract(item.second, 0));
+				func(Storm::SearchAlgo::extract(item, 0));
 			}
 		}
 
