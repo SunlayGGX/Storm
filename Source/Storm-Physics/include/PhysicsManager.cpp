@@ -97,6 +97,12 @@ void Storm::PhysicsManager::update(const float currentTime, float deltaTime)
 	{
 		_physXHandler->update(_simulationMutex, deltaTime);
 
+		Storm::SearchAlgo::executeOnContainer([](auto &constraint)
+		{
+			// Resolve manual constraints that aren't pushed to PhysX.
+			constraint.executeIfNeeded();
+		}, _constraints);
+
 		Storm::SearchAlgo::executeOnContainer([time = currentTime + deltaTime](auto &rb)
 		{
 			rb.onPostUpdate(time);

@@ -5,6 +5,7 @@ namespace Storm
 {
 	struct SceneConstraintConfig;
 	class CordJoint;
+	class HardJoint;
 	class UIFieldContainer;
 
 	// Link constraint... Some other constraint type exist but won't I use them (I don't need them, YAGNI), so PhysicsConstraint == Distance joint.
@@ -30,11 +31,19 @@ namespace Storm
 	public:
 		void setCordDistance(float distance);
 
+	public:
+		void executeIfNeeded();
+
 	private:
 		const unsigned int _id;
 		std::unique_ptr<Storm::CordJoint> _cordJointPtr;
 		bool _shouldVisualize;
 		const float _maxDistance;
+
+		std::unique_ptr<Storm::HardJoint> _hardConstraintJoint;
+
+		unsigned int _rb1Id;
+		unsigned int _rb2Id;
 
 		std::wstring _distanceWStr;
 		const std::wstring _distanceFieldNameWStr;

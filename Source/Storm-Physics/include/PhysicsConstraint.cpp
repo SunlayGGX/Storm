@@ -1,11 +1,14 @@
 #include "PhysicsConstraint.h"
 
 #include "CordJoint.h"
+#include "HardJoint.h"
 
 #include "SceneConstraintConfig.h"
 
 #include "UIField.h"
 #include "UIFieldContainer.h"
+
+#include "ConstraintType.h"
 
 
 namespace
@@ -35,15 +38,30 @@ namespace
 
 Storm::PhysicsConstraint::PhysicsConstraint(const Storm::SceneConstraintConfig &data, physx::PxRigidActor* actor1, physx::PxRigidActor* actor2) :
 	_id{ data._constraintId },
-	_cordJointPtr{ std::make_unique<Storm::CordJoint>(data, actor1, actor2) },
 	_shouldVisualize{ data._shouldVisualize },
 	_fields{ std::make_unique<Storm::UIFieldContainer>() },
 	_maxDistance{ data._constraintsLength },
-	_distanceFieldNameWStr{ retrievePhysicsConstraintField(_id) }
+	_distanceFieldNameWStr{ retrievePhysicsConstraintField(_id) },
+	_rb1Id{ data._rigidBodyId1 },
+	_rb2Id{ data._rigidBodyId2 }
 {
+	switch (data._type)
+	{
+	case Storm::ConstraintType::HardDistanceJoint:
+		_hardConstraintJoint = std::make_unique<Storm::HardJoint>(data, actor1, actor2);
+		break;
+
+	case Storm::ConstraintType::PhysicsDistanceJoint:
+		_cordJointPtr = std::make_unique<Storm::CordJoint>(data, actor1, actor2);
+		break;
+
+	default:
+		Storm::throwException<Storm::Exception>("Unknown constraint type! " + Storm::toStdString(data._type));
+	}
+
 	Storm::Vector3 pos1;
 	Storm::Vector3 pos2;
-	_cordJointPtr->getJointPositionToArray(pos1, pos2);
+	this->getCordPosition(pos1, pos2);
 
 	_distanceWStr = computePhysicsConstraintDistanceWStr((pos1 - pos2).norm(), _maxDistance);
 
@@ -54,7 +72,9 @@ Storm::PhysicsConstraint::PhysicsConstraint(const Storm::SceneConstraintConfig &
 	_id{ data._constraintId },
 	_maxDistance{ data._constraintsLength },
 	_fields{ std::make_unique<Storm::UIFieldContainer>() },
-	_distanceFieldNameWStr{ retrievePhysicsConstraintField(_id) }
+	_distanceFieldNameWStr{ retrievePhysicsConstraintField(_id) },
+	_rb1Id{ data._rigidBodyId1 },
+	_rb2Id{ data._rigidBodyId2 }
 {
 	_fields->bindFieldW(_distanceFieldNameWStr, _distanceWStr);
 }
@@ -63,7 +83,20 @@ Storm::PhysicsConstraint::~PhysicsConstraint() = default;
 
 void Storm::PhysicsConstraint::getCordPosition(Storm::Vector3 &outPosition1, Storm::Vector3 &outPosition2) const
 {
-	_cordJointPtr->getJointPositionToArray(outPosition1, outPosition2);
+	if (_cordJointPtr)
+	{
+		_cordJointPtr->getJointPositionToArray(outPosition1, outPosition2);
+	}
+	else if (_hardConstraintJoint)
+	{
+		_hardConstraintJoint->getJointPositionToArray(outPosition1, outPosition2);
+	}
+	else
+	{
+		assert(false && "We shouldn't call this method with no solver!");
+		outPosition1 = Storm::Vector3::Zero();
+		outPosition2 = Storm::Vector3::Zero();
+	}
 }
 
 void Storm::PhysicsConstraint::appendJointPositionToArray(std::vector<Storm::Vector3> &inOutJointPositions)
@@ -89,11 +122,31 @@ std::size_t Storm::PhysicsConstraint::getID() const noexcept
 
 Storm::Vector3 Storm::PhysicsConstraint::getForceApplied() const
 {
-	return _cordJointPtr->getForceApplied();
+	if (_cordJointPtr)
+	{
+		return _cordJointPtr->getForceApplied();
+	}
+	else if (_hardConstraintJoint)
+	{
+		return _hardConstraintJoint->getForceApplied();
+	}
+	else
+	{
+		assert(false && "We shouldn't call this method with no solver!");
+		return Storm::Vector3::Zero();
+	}
 }
 
 void Storm::PhysicsConstraint::setCordDistance(float distance)
 {
 	_distanceWStr = computePhysicsConstraintDistanceWStr(distance, _maxDistance);
 	_fields->pushFieldW(_distanceFieldNameWStr);
+}
+
+void Storm::PhysicsConstraint::executeIfNeeded()
+{
+	if (_hardConstraintJoint)
+	{
+		_hardConstraintJoint->execute();
+	}
 }

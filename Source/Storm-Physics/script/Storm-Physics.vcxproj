@@ -17,6 +17,7 @@
   <ItemGroup>
     <ClCompile Include="..\include\CordJoint.cpp" />
     <ClCompile Include="..\include\CustomPhysXLogger.cpp" />
+    <ClCompile Include="..\include\HardJoint.cpp" />
     <ClCompile Include="..\include\PhysXJointBase.cpp" />
     <ClCompile Include="..\include\PhysicalShape.cpp" />
     <ClCompile Include="..\include\PhysicsConstraint.cpp" />
@@ -34,6 +35,7 @@
   <ItemGroup>
     <ClInclude Include="..\include\CordJoint.h" />
     <ClInclude Include="..\include\CustomPhysXLogger.h" />
+    <ClInclude Include="..\include\HardJoint.h" />
     <ClInclude Include="..\include\PhysXJointBase.h" />
     <ClInclude Include="..\include\PhysicalShape.h" />
     <ClInclude Include="..\include\PhysicsConstraint.h" />
