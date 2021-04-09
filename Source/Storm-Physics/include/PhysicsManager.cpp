@@ -64,7 +64,7 @@ void Storm::PhysicsManager::initialize_Implementation()
 	_rigidBodiesFixated = configMgr.getSceneSimulationConfig()._fixRigidBodyAtStartTime;
 
 	Storm::IInputManager &inputMgr = singletonHolder.getSingleton<Storm::IInputManager>();
-	inputMgr.bindKey(Storm::SpecialKey::KC_L, [this]() { _rigidBodiesFixated = !_rigidBodiesFixated; });
+	inputMgr.bindKey(Storm::SpecialKey::KC_L, [this]() { this->setRigidbodiesFixedInternalImpl(!_rigidBodiesFixated); });
 
 	LOG_COMMENT << "PhysX initialization ended";
 }
@@ -372,8 +372,14 @@ void Storm::PhysicsManager::setRigidBodiesFixed(const bool shouldFix)
 	Storm::IThreadManager &threadMgr = singletonHolder.getSingleton<Storm::IThreadManager>();
 	threadMgr.executeOnThread(Storm::ThreadEnumeration::MainThread, [this, shouldFix]()
 	{
-		_rigidBodiesFixated = shouldFix;
+		this->setRigidbodiesFixedInternalImpl(shouldFix);
 	});
+}
+
+void Storm::PhysicsManager::setRigidbodiesFixedInternalImpl(bool shouldFix)
+{
+	_rigidBodiesFixated = shouldFix;
+	LOG_DEBUG << "Rigidbodies " << (_rigidBodiesFixated ? "fixed" : "unfixed");
 }
 
 void Storm::PhysicsManager::pushPhysicsVisualizationData() const

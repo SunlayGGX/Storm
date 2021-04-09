@@ -62,6 +62,9 @@ namespace Storm
 		void setRigidBodiesFixed(const bool shouldFix);
 
 	private:
+		void setRigidbodiesFixedInternalImpl(bool shouldFix);
+
+	private:
 		void pushPhysicsVisualizationData() const;
 		void pushConstraintsVisualizationData() const;
 
