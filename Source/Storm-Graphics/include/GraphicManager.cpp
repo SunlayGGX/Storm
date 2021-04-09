@@ -379,6 +379,8 @@ void Storm::GraphicManager::createGraphicsField(const std::wstring_view &fieldNa
 		_fieldsMap[fieldName] = std::move(fieldValueStr);
 
 		_directXController->notifyFieldCount(_fieldsMap.size());
+
+		_dirty = true;
 	}
 }
 
