@@ -13,6 +13,7 @@
 #include "SceneCageConfig.h"
 
 #include "CollisionType.h"
+#include "ConstraintType.h"
 #include "SimulationMode.h"
 #include "KernelMode.h"
 #include "FluidParticleLoadDenseMode.h"
@@ -205,6 +206,7 @@ Storm::SceneBlowerConfig::SceneBlowerConfig() :
 }
 
 Storm::SceneConstraintConfig::SceneConstraintConfig() :
+	_type{ Storm::ConstraintType::None },
 	_rigidBodyId1{ std::numeric_limits<decltype(_rigidBodyId1)>::max() },
 	_rigidBodyId2{ std::numeric_limits<decltype(_rigidBodyId2)>::max() },
 	_constraintsLength{ 0.f },

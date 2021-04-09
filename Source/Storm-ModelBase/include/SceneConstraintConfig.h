@@ -3,12 +3,16 @@
 
 namespace Storm
 {
+	enum class ConstraintType;
+
 	struct SceneConstraintConfig
 	{
 	public:
 		SceneConstraintConfig();
 
 	public:
+		Storm::ConstraintType _type;
+
 		unsigned int _constraintId;
 
 		unsigned int _rigidBodyId1;

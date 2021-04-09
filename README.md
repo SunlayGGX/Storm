@@ -440,6 +440,7 @@ Inside this element should be put all rigidbodies. Each rigidbody should be spec
 #### Constraints
 
 ##### Constraint
+- **type (string, mandatory)**: This is the type of the constraint. It is a mandatory setting. Accepted values (non case sensitive) and are "PhysicsJoint" (to simulate a Joint purely with PhysX (beware : it can be springy)) or "Hardjoint" (we'll simulate the joint ourself by blocking the position of the 2nd actor (we suppose the 1st actor is static and the second should be dynamic))
 - **rbId1 (positive integer, mandatory)**: This is the id of the first rigid body the contraints is attached to. It is a mandatory setting and the rigid body id must exist.
 - **rbId2 (positive integer, mandatory)**: This is the id of the second rigid body the contraints is attached to. It is a mandatory setting and the rigid body id must exist.
 - **length (positive float, facultative)**: This is the max length (in meter) of the contraints separating both rigid bodies (+ the initial distance between those rigidbodies). It should be a positive value and default is 0.0.

@@ -533,5 +533,8 @@
     <ClInclude Include="..\include\ScenePhysicsConfig.h">
       <Filter>Header Files\Modules\Config\Scene</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\ConstraintType.h">
+      <Filter>Header Files\Modules\Physics</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
