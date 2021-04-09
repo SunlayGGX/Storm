@@ -1,6 +1,6 @@
 #pragma once
 
-#include "JointBase.h"
+#include "PhysXJointBase.h"
 #include "UniquePointer.h"
 
 
@@ -8,7 +8,7 @@ namespace Storm
 {
 	struct SceneConstraintConfig;
 
-	class CordJoint : public Storm::JointBase
+	class CordJoint : public Storm::PhysXJointBase
 	{
 	public:
 		CordJoint(const Storm::SceneConstraintConfig &data, physx::PxRigidActor* actor1, physx::PxRigidActor* actor2);

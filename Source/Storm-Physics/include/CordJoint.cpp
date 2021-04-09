@@ -6,11 +6,11 @@
 
 
 Storm::CordJoint::CordJoint(const Storm::SceneConstraintConfig &data, physx::PxRigidActor* actor1, physx::PxRigidActor* actor2) :
-	_internalDistanceJointPtr{ Storm::JointBase::makeDistanceJoint(data, actor1, actor2) }
+	_internalDistanceJointPtr{ Storm::PhysXJointBase::makeDistanceJoint(data, actor1, actor2) }
 {
 	if (data._preventRotations)
 	{
-		auto spinnableJoints = Storm::JointBase::makeSpinnableJoint(data, actor1, actor2);
+		auto spinnableJoints = Storm::PhysXJointBase::makeSpinnableJoint(data, actor1, actor2);
 		_internalRevoluteJoint0Ptr = std::move(spinnableJoints.first);
 		_internalRevoluteJoint1Ptr = std::move(spinnableJoints.second);
 	}

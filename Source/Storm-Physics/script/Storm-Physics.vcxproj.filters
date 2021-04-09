@@ -78,7 +78,7 @@
     <ClCompile Include="..\include\CordJoint.cpp">
       <Filter>Source Files\PhysicsComponent\Constraint\Joints</Filter>
     </ClCompile>
-    <ClCompile Include="..\include\JointBase.cpp">
+    <ClCompile Include="..\include\PhysXJointBase.cpp">
       <Filter>Source Files\PhysicsComponent\Constraint\Joints</Filter>
     </ClCompile>
     <ClCompile Include="..\include\PhysXDebugger.cpp">
@@ -113,7 +113,7 @@
     <ClInclude Include="..\include\PhysicalShape.h">
       <Filter>Header Files\PhysicsComponent\Shape</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\JointBase.h">
+    <ClInclude Include="..\include\PhysXJointBase.h">
       <Filter>Header Files\PhysicsComponent\Constraint\Joints</Filter>
     </ClInclude>
     <ClInclude Include="..\include\CordJoint.h">
