@@ -1332,6 +1332,7 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 							removeRawParticles(fluidPSystem.getTemporaryDragForces(), toRemoveCount);
 							removeRawParticles(fluidPSystem.getPositions(), toRemoveCount);
 							removeRawParticles(fluidPSystem.getVelocity(), toRemoveCount);
+							removeRawParticles(fluidPSystem.getVelocityPreTimestep(), toRemoveCount);
 							removeRawParticles(fluidPSystem.getNeighborhoodArrays(), toRemoveCount);
 
 							_sphSolver->removeRawEndData(fluidPSystem.getId(), toRemoveCount);

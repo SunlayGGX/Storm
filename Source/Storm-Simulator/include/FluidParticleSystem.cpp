@@ -129,6 +129,7 @@ void Storm::FluidParticleSystem::setPositions(std::vector<Storm::Vector3> &&posi
 
 void Storm::FluidParticleSystem::setVelocity(std::vector<Storm::Vector3> &&velocities)
 {
+	_velocityPreTimestep = velocities;
 	_velocity = std::move(velocities);
 }
 
@@ -242,6 +243,16 @@ std::vector<float>& Storm::FluidParticleSystem::getPressures() noexcept
 const std::vector<float>& Storm::FluidParticleSystem::getPressures() const noexcept
 {
 	return _pressure;
+}
+
+std::vector<Storm::Vector3>& Storm::FluidParticleSystem::getVelocityPreTimestep() noexcept
+{
+	return _velocityPreTimestep;
+}
+
+const std::vector<Storm::Vector3>& Storm::FluidParticleSystem::getVelocityPreTimestep() const noexcept
+{
+	return _velocityPreTimestep;
 }
 
 void Storm::FluidParticleSystem::buildNeighborhoodOnParticleSystemUsingSpacePartition(const Storm::ParticleSystemContainer &allParticleSystems, const float kernelLength)
