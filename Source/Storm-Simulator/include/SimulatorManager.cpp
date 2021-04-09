@@ -1291,7 +1291,7 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 				osMgr.makeBipSound(std::chrono::milliseconds{ 500 });
 			}
 		}
-		else if (autoEndSimulation)
+		else if (autoEndSimulation && (hasUI || (_currentFrameNumber % 36) == 0))
 		{
 			computeProgression(
 				_progressRemainingTime,
@@ -1304,7 +1304,7 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 			{
 				_uiFields->pushField(STORM_PROGRESS_REMAINING_TIME_NAME);
 			}
-			else if ((_currentFrameNumber % 32) == 0)
+			else
 			{
 				LOG_DEBUG << STORM_PROGRESS_REMAINING_TIME_NAME << " : " << Storm::toStdString(_progressRemainingTime);
 			}
