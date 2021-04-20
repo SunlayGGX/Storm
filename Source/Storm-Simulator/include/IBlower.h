@@ -15,7 +15,8 @@ namespace Storm
 
 	public:
 		virtual Storm::BlowerType getType() const = 0;
-		virtual void advanceTime(float deltaTime) = 0;
+		virtual void advanceTime(float deltaTimeSec) = 0;
+		virtual void setTime(float timeSec) = 0;
 		virtual void applyForce(const Storm::Vector3 &inParticlePosition, Storm::Vector3 &inOutParticleForce) const = 0;
 
 		virtual bool operator==(const std::size_t id) const = 0;

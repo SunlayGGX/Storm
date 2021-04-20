@@ -2272,6 +2272,11 @@ void Storm::SimulatorManager::resetReplay_SimulationThread()
 				_currentFrameNumber = 0;
 				_uiFields->pushField(STORM_FRAME_NUMBER_FIELD_NAME);
 
+				for (auto &blower : _blowers)
+				{
+					blower->setTime(0.f);
+				}
+
 				_reinitFrameAfter = true;
 
 				LOG_DEBUG << "Replay successfully reset to its starting point.";

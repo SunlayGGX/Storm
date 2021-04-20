@@ -69,7 +69,27 @@ bool Storm::BlowerPulseTimeHandler::advanceTime(const float deltaTimeInSeconds)
 
 bool Storm::BlowerTimeHandlerBase::advanceTime(const float deltaTimeInSeconds)
 {
-	_currentTime += deltaTimeInSeconds;
+	return this->forceSetTime(_currentTime + deltaTimeInSeconds);
+}
+
+bool Storm::BlowerPulseTimeHandler::forceSetTime(const float timeInSeconds)
+{
+	_currentTime = timeInSeconds;
+	if (_currentTime >= _startTime)
+	{
+		_enabled = false;
+		return true;
+	}
+	else STORM_LIKELY
+	{
+		_enabled = true;
+		return false;
+	}
+}
+
+bool Storm::BlowerTimeHandlerBase::forceSetTime(const float timeInSeconds)
+{
+	_currentTime = timeInSeconds;
 	return _currentTime >= _startTime && (_stopTime == -1.f || _currentTime < _stopTime);
 }
 

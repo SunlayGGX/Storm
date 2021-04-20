@@ -12,6 +12,7 @@ namespace Storm
 
 	public:
 		bool advanceTime(const float deltaTimeInSeconds);
+		bool forceSetTime(const float timeInSeconds);
 
 	protected:
 		float _currentTime;
@@ -26,6 +27,7 @@ namespace Storm
 
 	public:
 		bool advanceTime(const float deltaTimeInSeconds);
+		bool forceSetTime(const float timeInSeconds);
 
 	protected:
 		bool _enabled;

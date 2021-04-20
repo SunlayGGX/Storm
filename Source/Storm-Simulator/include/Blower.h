@@ -74,11 +74,11 @@ namespace Storm
 			return blowerType;
 		}
 
-		void advanceTime(float deltaTime) final override
+		void advanceTime(float deltaTimeSec) final override
 		{
 			if (_enabled)
 			{
-				if (BlowerTimeHandler::advanceTime(deltaTime))
+				if (BlowerTimeHandler::advanceTime(deltaTimeSec))
 				{
 					if constexpr (ThisType::hasFadeIn<BlowerTimeHandler>(0))
 					{
@@ -120,6 +120,49 @@ namespace Storm
 				{
 					this->setAndNotifyStateChanged<Storm::BlowerState::NotWorking>();
 				}
+			}
+		}
+
+		void setTime(float timeSec) final override
+		{
+			if (BlowerTimeHandler::forceSetTime(timeSec))
+			{
+				float coeff;
+				if constexpr (ThisType::hasFadeIn<BlowerTimeHandler>(0))
+				{
+					if (BlowerTimeHandler::shouldFadeIn(coeff))
+					{
+						if (_state != Storm::BlowerState::Fading)
+						{
+							this->setAndNotifyStateChanged<Storm::BlowerState::Fading>();
+							this->setActualForce(_srcForce * coeff);
+						}
+						return;
+					}
+				}
+
+				if constexpr (ThisType::hasFadeOut<BlowerTimeHandler>(0))
+				{
+					if (BlowerTimeHandler::shouldFadeOut(coeff))
+					{
+						if (_state != Storm::BlowerState::Fading)
+						{
+							this->setAndNotifyStateChanged<Storm::BlowerState::Fading>();
+							this->setActualForce(_srcForce * coeff);
+						}
+						return;
+					}
+				}
+
+				if (_state != Storm::BlowerState::FullyFonctional)
+				{
+					this->setActualForce(_srcForce);
+					this->setAndNotifyStateChanged<Storm::BlowerState::FullyFonctional>();
+				}
+			}
+			else if (_state != Storm::BlowerState::NotWorking)
+			{
+				this->setAndNotifyStateChanged<Storm::BlowerState::NotWorking>();
 			}
 		}
 
