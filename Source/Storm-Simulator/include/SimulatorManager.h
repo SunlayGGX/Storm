@@ -83,7 +83,6 @@ namespace Storm
 
 		void addFluidParticleSystem(Storm::SystemSimulationStateObject &&state) final override;
 		void addRigidBodyParticleSystem(Storm::SystemSimulationStateObject &&state) final override;
-		void setBlowersStateTime(float blowerStateTime) final override;
 
 		void addFluidParticleSystem(unsigned int id, const std::size_t particleCount) final override;
 		void addRigidBodyParticleSystem(unsigned int id, const std::size_t particleCount) final override;
@@ -95,6 +94,7 @@ namespace Storm
 		void loadBlower(const Storm::SceneBlowerConfig &blowerConfig) final override;
 		void tweekBlowerEnabling();
 		void advanceBlowersTime(const float deltaTime);
+		void setBlowersStateTime(float blowerStateTime) final override;
 
 	public:
 		void setEnableThresholdDensity_DFSPH(bool enable);

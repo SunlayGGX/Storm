@@ -1808,14 +1808,6 @@ void Storm::SimulatorManager::addRigidBodyParticleSystem(unsigned int id, std::v
 	LOG_DEBUG << "Rigid body particle system " << id << " was created and successfully registered in simulator!";
 }
 
-void Storm::SimulatorManager::setBlowersStateTime(float blowerStateTime)
-{
-	for (const auto &blower : _blowers)
-	{
-		blower->advanceTime(blowerStateTime);
-	}
-}
-
 void Storm::SimulatorManager::addFluidParticleSystem(Storm::SystemSimulationStateObject &&state)
 {
 	assert(!Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().isInReplayMode() && "This method should not be used in replay mode!");
@@ -1973,6 +1965,14 @@ void Storm::SimulatorManager::advanceBlowersTime(const float deltaTime)
 	for (const std::unique_ptr<Storm::IBlower> &blowerUPtr : _blowers)
 	{
 		blowerUPtr->advanceTime(deltaTime);
+	}
+}
+
+void Storm::SimulatorManager::setBlowersStateTime(float blowerStateTime)
+{
+	for (const auto &blower : _blowers)
+	{
+		blower->advanceTime(blowerStateTime);
 	}
 }
 
