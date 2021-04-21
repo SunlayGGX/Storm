@@ -32,8 +32,7 @@ namespace
 
 	__forceinline void storeLinkHookPosition(const physx::PxTransform &actorTransf, const Storm::Vector3 &localOffset, Storm::Vector3 &outPos)
 	{
-		outPos = Storm::convertToStorm(actorTransf.p);
-		outPos *= std::sqrtf(localOffset.squaredNorm() / outPos.squaredNorm());
+		outPos = Storm::convertToStorm(actorTransf.p) + localOffset;
 	}
 
 	__forceinline void storeLinkHookPosition(const physx::PxRigidActor &actor, const Storm::Vector3 &localOffset, Storm::Vector3 &outPos)
@@ -44,13 +43,27 @@ namespace
 
 
 Storm::HardJoint::HardJoint(const Storm::SceneConstraintConfig &data, physx::PxRigidActor* actor1, physx::PxRigidActor* actor2) :
+	_constraintId{ data._constraintId },
 	_actor1{ actor1 },
 	_actor2{ actor2 },
 	_actor1LinkHookOffset{ data._rigidBody1LinkTranslationOffset },
 	_actor2LinkHookOffset{ data._rigidBody2LinkTranslationOffset },
-	_hardDistSquared{ computeAddedNorm(data._rigidBody1LinkTranslationOffset, data._rigidBody2LinkTranslationOffset, data._constraintsLength) }
+	_hardDistSquared{ computeAddedNorm(data._rigidBody1LinkTranslationOffset, data._rigidBody2LinkTranslationOffset, data._constraintsLength) },
+	_actor1Static{ actor1 && actor1->is<physx::PxRigidStatic>() },
+	_actor2Static{ actor2 && actor2->is<physx::PxRigidStatic>() }
 {
-	_hardCoeff = -std::sqrtf(_hardDistSquared);
+	if ((actor1 && !actor2) || (actor2 && !actor1))
+	{
+		Storm::throwException<Storm::Exception>("Rb 1 or Rb 2 in constraint " + std::to_string(data._constraintId) + " is null!");
+	}
+	else if (_actor1Static && _actor2Static)
+	{
+		Storm::throwException<Storm::Exception>("Rb 1 and Rb 2 are both static, so they couldn't be constrained!");
+	}
+	else if (!_actor1Static && !_actor2Static)
+	{
+		Storm::throwException<Storm::Exception>("Rb 1 and Rb 2 are both dynamic, this is not implemented (not handled) for hard joint!");
+	}
 }
 
 void Storm::HardJoint::getJointPositionToArray(Storm::Vector3 &outPos1, Storm::Vector3 &outPos2) const
@@ -76,13 +89,25 @@ void Storm::HardJoint::execute()
 
 	if (distanceSquared > _hardDistSquared)
 	{
-		const float coeff = _hardCoeff / std::sqrtf(distanceSquared);
-		link *= coeff;
+		link *= std::sqrtf(_hardDistSquared / distanceSquared);
 		
-		// This suppose actor1 is fixed. If it isn't, then we should consider it (but since it is never the case for what I need, I'll take some shortcut (YAGNI)).
-		actor2Transform.p = actor1Transform.p + Storm::convertToPx(link);
-
-		_actor2->setGlobalPose(actor2Transform);
+		if (_actor1Static)
+		{
+			actor2Transform.p = actor1Transform.p - Storm::convertToPx(link);
+			_actor2->setGlobalPose(actor2Transform);
+		}
+		else if (_actor2Static)
+		{
+			actor1Transform.p = actor2Transform.p + Storm::convertToPx(link);
+			_actor1->setGlobalPose(actor1Transform);
+		}
+		// No one is static
+		else
+		{
+			// I don't need this case, so I won't implement it. It is more complex than it appears (because of mass/inertia matrix ratios between both object)
+			// and since I don't use them, then I won't bother to implement it (YAGNI)
+			STORM_NOT_IMPLEMENTED;
+		}
 	}
 }
 

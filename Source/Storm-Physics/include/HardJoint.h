@@ -24,12 +24,16 @@ namespace Storm
 		void execute();
 
 	private:
-		const physx::PxRigidActor* _actor1;
-		physx::PxRigidActor* _actor2;
+		unsigned int _constraintId;
+
+		physx::PxRigidActor*const _actor1;
+		physx::PxRigidActor*const _actor2;
 
 		const Storm::Vector3 _actor1LinkHookOffset;
 		const Storm::Vector3 _actor2LinkHookOffset;
 		float _hardDistSquared;
-		float _hardCoeff;
+
+		bool _actor1Static;
+		bool _actor2Static;
 	};
 }
