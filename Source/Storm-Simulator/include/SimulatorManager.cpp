@@ -27,6 +27,7 @@
 #include "SceneFluidConfig.h"
 #include "SceneRecordConfig.h"
 #include "SceneRigidBodyConfig.h"
+#include "SceneCageConfig.h"
 
 #include "KernelMode.h"
 #include "RecordMode.h"
@@ -405,8 +406,8 @@ namespace
 				bool hasInternalBoundingBox = false;
 
 				// Try to isolate an internal bounding box... Work only if the particle system is hollow (99% of the time).
-				// This is an optimization. Try 9 times with a smaller internal bounding box each time.
-				for (std::size_t iter = 0; iter < 9; ++iter)
+				// This is an optimization. Try 18 times with a smaller internal bounding box each time.
+				for (std::size_t iter = 0; iter < 18; ++iter)
 				{
 					if (std::find_if(std::execution::par, currentPSystemPositionBegin, currentPSystemPositionEnd, [&internalBoundingBox](const Storm::Vector3 &rbPPosition)
 					{
@@ -417,7 +418,7 @@ namespace
 						break;
 					}
 
-					coeff -= 0.1f;
+					coeff -= 0.05f;
 
 					internalBoundingBox.first = computeInternalBoundingBoxCorner(externalBoundingBox.first, externalBoundingBoxTranslation, coeff);
 					internalBoundingBox.second = computeInternalBoundingBoxCorner(externalBoundingBox.second, externalBoundingBoxTranslation, coeff);
@@ -1819,47 +1820,63 @@ void Storm::SimulatorManager::addFluidParticleSystem(Storm::SystemSimulationStat
 
 	const Storm::SceneSimulationConfig &simulConfig = configMgr.getSceneSimulationConfig();
 	const Storm::SceneFluidConfig &sceneFluidConfig = configMgr.getSceneFluidConfig();
-	if (simulConfig._shouldRemoveRbCollidingPAtStateFileLoad && sceneFluidConfig._removeParticlesCollidingWithRb)
+	if (simulConfig._shouldRemoveRbCollidingPAtStateFileLoad)
 	{
-		LOG_COMMENT << "Removing fluid particles that collide with rigid bodies particles.";
-
 		RemovedIndexesParam removeParam;
 		removeParam._shouldConsiderWall = simulConfig._considerRbWallAtCollingingPStateFileLoad;
 
+		const Storm::SceneSimulationConfig &sceneSimulationConfig = configMgr.getSceneSimulationConfig();
+
 		std::pair<Storm::Vector3, Storm::Vector3> outDomain{ Storm::initVector3ForMin(), Storm::initVector3ForMax() };
 
-		const Storm::SceneSimulationConfig &sceneSimulationConfig = configMgr.getSceneSimulationConfig();
+		if (sceneFluidConfig._removeParticlesCollidingWithRb)
+		{
+			LOG_COMMENT << "Removing fluid particles that collide with rigid bodies particles.";
 
 #define STORM_removeParticleInsideRbPosition_CASE(RemovalMode) \
 	case RemovalMode: removeParticleInsideRbPosition<RemovalMode>(state._positions, _particleSystem, sceneSimulationConfig._particleRadius, outDomain, &removeParam); break
 
-		switch (sceneSimulationConfig._fluidParticleRemovalMode)
-		{
-			STORM_removeParticleInsideRbPosition_CASE(Storm::ParticleRemovalMode::Sphere);
-			STORM_removeParticleInsideRbPosition_CASE(Storm::ParticleRemovalMode::Cube);
+			switch (sceneSimulationConfig._fluidParticleRemovalMode)
+			{
+				STORM_removeParticleInsideRbPosition_CASE(Storm::ParticleRemovalMode::Sphere);
+				STORM_removeParticleInsideRbPosition_CASE(Storm::ParticleRemovalMode::Cube);
 
-		default:
-			Storm::throwException<Storm::Exception>("Unknown fluid particle removal mode!");
-		}
+			default:
+				Storm::throwException<Storm::Exception>("Unknown fluid particle removal mode!");
+			}
 
 #undef STORM_removeParticleInsideRbPosition_CASE
 
-		if (!removeParam._outRemovedIndexes.empty())
-		{
-			std::future<void> removalsFutures[] =
+			if (!removeParam._outRemovedIndexes.empty())
 			{
-				std::async(std::launch::async, [&state, &removeParam]() { removeFromIndex(state._velocities, removeParam._outRemovedIndexes); }),
-				std::async(std::launch::async, [&state, &removeParam]() { removeFromIndex(state._forces, removeParam._outRemovedIndexes); }),
-				std::async(std::launch::async, [&state, &removeParam]() { removeFromIndex(state._pressures, removeParam._outRemovedIndexes); }),
-				std::async(std::launch::async, [&state, &removeParam]() { removeFromIndex(state._densities, removeParam._outRemovedIndexes); }),
-				std::async(std::launch::async, [&state, &removeParam]() { removeFromIndex(state._masses, removeParam._outRemovedIndexes); }),
-			};
+				std::future<void> removalsFutures[] =
+				{
+					std::async(std::launch::async, [&state, &removeParam]() { removeFromIndex(state._velocities, removeParam._outRemovedIndexes); }),
+					std::async(std::launch::async, [&state, &removeParam]() { removeFromIndex(state._forces, removeParam._outRemovedIndexes); }),
+					std::async(std::launch::async, [&state, &removeParam]() { removeFromIndex(state._pressures, removeParam._outRemovedIndexes); }),
+					std::async(std::launch::async, [&state, &removeParam]() { removeFromIndex(state._densities, removeParam._outRemovedIndexes); }),
+					std::async(std::launch::async, [&state, &removeParam]() { removeFromIndex(state._masses, removeParam._outRemovedIndexes); }),
+				};
+			}
+		}
+		else
+		{
+			const Storm::SceneCageConfig* cageDomain = configMgr.getSceneOptionalCageConfig();
+			if (cageDomain)
+			{
+				outDomain.first = cageDomain->_boxMin;
+				outDomain.second = cageDomain->_boxMax;
+			}
+			else
+			{
+				LOG_DEBUG_WARNING << "No cage => no default domain : cannot remove particles outside domain.";
+			}
 		}
 
 		const std::size_t particleCountAfterCollidingRemove = state._positions.size();
 		LOG_DEBUG << "We removed " << initialParticleCount - particleCountAfterCollidingRemove << " particle(s) after checking which collide with existing rigid bodies.";
 
-		if (sceneFluidConfig._removeOutDomainParticles)
+		if (sceneFluidConfig._removeOutDomainParticles && outDomain.first != Storm::initVector3ForMin() && outDomain.second != Storm::initVector3ForMax())
 		{
 			removeParam._outRemovedIndexes.clear();
 			removeOutDomainParticle(state._positions, outDomain, &removeParam);
