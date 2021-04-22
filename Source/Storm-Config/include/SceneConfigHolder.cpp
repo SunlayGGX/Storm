@@ -376,7 +376,8 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 			!Storm::XmlReader::handleXml(generalXmlElement, "stateFileRemoveRbCollide", sceneSimulationConfig._shouldRemoveRbCollidingPAtStateFileLoad) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "removeFluidForVolumeConsistency", sceneSimulationConfig._removeFluidForVolumeConsistency) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "fluidParticleRemovalMode", sceneSimulationConfig._fluidParticleRemovalMode, parseParticleRemovalMode) &&
-			!Storm::XmlReader::handleXml(generalXmlElement, "startFixRigidBodies", sceneSimulationConfig._fixRigidBodyAtStartTime)
+			!Storm::XmlReader::handleXml(generalXmlElement, "startFixRigidBodies", sceneSimulationConfig._fixRigidBodyAtStartTime) &&
+			!Storm::XmlReader::handleXml(generalXmlElement, "freeRbAtTime", sceneSimulationConfig._freeRbAtPhysicsTime)
 			)
 		{
 			LOG_ERROR << "tag '" << generalXmlElement.first << "' (inside Scene.General) is unknown, therefore it cannot be handled";
@@ -440,6 +441,17 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 	else if (sceneSimulationConfig._kernelIncrementSpeedInSeconds != -1.f && sceneSimulationConfig._kernelIncrementSpeedInSeconds < 0.f)
 	{
 		Storm::throwException<Storm::Exception>("Time to finish increasing the kernel coefficient in seconds should be positive or -1 (disabled). Value was " + std::to_string(sceneSimulationConfig._kernelIncrementSpeedInSeconds));
+	}
+	else if (sceneSimulationConfig._freeRbAtPhysicsTime != -1.f)
+	{
+		if (sceneSimulationConfig._freeRbAtPhysicsTime < 0.f)
+		{
+			Storm::throwException<Storm::Exception>("Cannot free rigid bodies in negative time. Value was " + std::to_string(sceneSimulationConfig._freeRbAtPhysicsTime));
+		}
+		else if (sceneSimulationConfig._freeRbAtPhysicsTime == 0.f && sceneSimulationConfig._fixRigidBodyAtStartTime)
+		{
+			Storm::throwException<Storm::Exception>("Cannot free rigid bodies at simulation starting time and fix it at the same time!");
+		}
 	}
 
 	if (sceneSimulationConfig._kernelIncrementSpeedInSeconds != -1.f && sceneSimulationConfig._maxKernelIncrementCoeff == 0.f)

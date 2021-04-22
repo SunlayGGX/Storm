@@ -52,6 +52,7 @@ namespace Storm
 		bool _hasFluid;
 
 		bool _fixRigidBodyAtStartTime;
+		float _freeRbAtPhysicsTime;
 
 		float _endSimulationPhysicsTimeInSeconds;
 

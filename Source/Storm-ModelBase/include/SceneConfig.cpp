@@ -78,7 +78,8 @@ Storm::SceneSimulationConfig::SceneSimulationConfig() :
 	_shouldRemoveRbCollidingPAtStateFileLoad{ true },
 	_considerRbWallAtCollingingPStateFileLoad{ true },
 	_fluidParticleRemovalMode{ Storm::ParticleRemovalMode::Sphere },
-	_removeFluidForVolumeConsistency{ false }
+	_removeFluidForVolumeConsistency{ false },
+	_freeRbAtPhysicsTime{ -1.f }
 {
 
 }

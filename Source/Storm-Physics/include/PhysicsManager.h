@@ -59,7 +59,7 @@ namespace Storm
 	public:
 		void setRigidBodyAngularDamping(const unsigned int rbId, const float angularVelocityDamping);
 		void fixDynamicRigidBodyTranslation(const unsigned int rbId, const bool fixed);
-		void setRigidBodiesFixed(const bool shouldFix);
+		void setRigidBodiesFixed(const bool shouldFix) final override;
 
 	private:
 		void setRigidbodiesFixedInternalImpl(bool shouldFix);

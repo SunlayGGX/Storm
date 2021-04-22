@@ -47,5 +47,7 @@ namespace Storm
 		virtual void freeFromAnimation(const unsigned int rbId) = 0;
 
 		virtual void reconnectPhysicsDebugger() = 0;
+
+		virtual void setRigidBodiesFixed(const bool shouldFix) = 0;
 	};
 }

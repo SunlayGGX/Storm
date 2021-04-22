@@ -1204,6 +1204,8 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 
 	const bool noWait = sceneSimulationConfig._simulationNoWait || !hasUI;
 
+	bool shouldUnfixRbAutomatically = sceneSimulationConfig._freeRbAtPhysicsTime != -1.f;
+
 	do
 	{
 		SpeedProfileBalist simulationSpeedProfile{ profilerMgrNullablePtr };
@@ -1270,6 +1272,12 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 		threadMgr.processCurrentThreadActions();
 
 		float currentPhysicsTime = timeMgr.advanceCurrentPhysicsElapsedTime();
+
+		if (shouldUnfixRbAutomatically && currentPhysicsTime >= sceneSimulationConfig._freeRbAtPhysicsTime)
+		{
+			physicsMgr.setRigidBodiesFixed(false);
+			shouldUnfixRbAutomatically = false;
+		}
 
 		if (shouldBeRecording)
 		{
