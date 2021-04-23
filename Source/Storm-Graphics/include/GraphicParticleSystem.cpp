@@ -99,18 +99,22 @@ void Storm::GraphicParticleSystem::render(const ComPtr<ID3D11Device> &device, co
 		switch (particleSystemBuffer.second._modality)
 		{
 		case Storm::GraphicParticleSystemModality::Fluid:
-			shouldRender = true;
+			shouldRender = currentRenderModeState != Storm::RenderModeState::SolidOnly;
 			break;
 
 		case Storm::GraphicParticleSystemModality::RbNoWall:
 			shouldRender = 
 				currentRenderModeState == Storm::RenderModeState::AllParticle ||
-				currentRenderModeState == Storm::RenderModeState::NoWallParticles
+				currentRenderModeState == Storm::RenderModeState::NoWallParticles ||
+				currentRenderModeState == Storm::RenderModeState::SolidOnly
 				;
 			break;
 
 		case Storm::GraphicParticleSystemModality::RbWall:
-			shouldRender = currentRenderModeState == Storm::RenderModeState::AllParticle;
+			shouldRender =
+				currentRenderModeState == Storm::RenderModeState::AllParticle ||
+				currentRenderModeState == Storm::RenderModeState::SolidOnly
+				;
 			break;
 
 		default:

@@ -49,6 +49,7 @@ namespace Storm
 		void setAllParticleState();
 		void setRenderNoWallParticle();
 		void setRenderNoWallSolid();
+		void setRenderSolidOnly();
 
 		void setEnableZBuffer(bool enable);
 		void setEnableBlendAlpha(bool enable);

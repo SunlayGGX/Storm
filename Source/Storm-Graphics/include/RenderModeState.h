@@ -11,5 +11,6 @@ namespace Storm
 		AllParticle,
 		NoWallParticles,
 		NoWallSolid,
+		SolidOnly,
 	};
 }

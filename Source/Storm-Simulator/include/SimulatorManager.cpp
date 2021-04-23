@@ -830,7 +830,7 @@ void Storm::SimulatorManager::initialize_Implementation()
 	inputMgr.bindKey(Storm::SpecialKey::KC_C, [this]() { this->executeAllForcesCheck(); });
 	inputMgr.bindKey(Storm::SpecialKey::KC_N, [this]() { this->advanceOneFrame(); });
 	inputMgr.bindKey(Storm::SpecialKey::KC_X, [this]() { this->saveSimulationState(); });
-	inputMgr.bindKey(Storm::SpecialKey::KC_F3, [this]() { this->requestCycleColoredSetting(); });
+	inputMgr.bindKey(Storm::SpecialKey::KC_3, [this]() { this->requestCycleColoredSetting(); });
 
 	if (configMgr.userCanModifyTimestep())
 	{

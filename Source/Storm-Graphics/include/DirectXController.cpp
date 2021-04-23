@@ -264,6 +264,7 @@ void Storm::DirectXController::renderElements(const Storm::Camera &currentCamera
 	switch (_currentRenderModeState)
 	{
 	case Storm::RenderModeState::Solid:
+	//case Storm::RenderModeState::SolidOnly:
 	case Storm::RenderModeState::SolidCullNone:
 	case Storm::RenderModeState::Wireframe:
 	case Storm::RenderModeState::NoWallSolid:
@@ -335,6 +336,11 @@ void Storm::DirectXController::setRenderNoWallSolid()
 {
 	_immediateContext->RSSetState(_solidCullNoneRS.Get());
 	_currentRenderModeState = Storm::RenderModeState::NoWallSolid;
+}
+
+void Storm::DirectXController::setRenderSolidOnly()
+{
+	_currentRenderModeState = Storm::RenderModeState::SolidOnly;
 }
 
 void Storm::DirectXController::setEnableZBuffer(bool enable)
