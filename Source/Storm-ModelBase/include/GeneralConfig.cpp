@@ -23,7 +23,8 @@ Storm::GeneralGraphicConfig::GeneralGraphicConfig() :
 	_wantedApplicationYPos{ std::numeric_limits<int>::max() },
 	_fixNearFarPlanesWhenTranslating{ true },
 	_selectedParticleShouldBeTopMost{ false },
-	_selectedParticleForceShouldBeTopMost{ true }
+	_selectedParticleForceShouldBeTopMost{ true },
+	_spinCameraToGravityUp{ false }
 {}
 
 Storm::GeneralSimulationConfig::GeneralSimulationConfig() :

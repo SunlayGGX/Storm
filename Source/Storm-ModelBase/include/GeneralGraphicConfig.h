@@ -17,5 +17,6 @@ namespace Storm
 		bool _fixNearFarPlanesWhenTranslating;
 		bool _selectedParticleShouldBeTopMost;
 		bool _selectedParticleForceShouldBeTopMost;
+		bool _spinCameraToGravityUp;
 	};
 }

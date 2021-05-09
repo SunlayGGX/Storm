@@ -282,6 +282,7 @@ Note that the maximum value you can set is Fatal, it means that no matter what l
 - **nearFarPlaneFixed (boolean, faculative)**: Specify if the normal behavior of the near and far plane should be to NOT translate along the camera moves. Default is true.
 - **selectedParticleAlwaysOnTop (boolean, faculative)**: Specify if the selected particle should be displayed on top of all particles (on the near plane). Default is false.
 - **selectedParticleForceAlwaysOnTop (boolean, faculative)**: Specify if the selected particle force should be displayed on top of all particles (on the near plane). Default is true.
+- **spinCameraToGravity (boolean, faculative)**: If true, the camera will spin for the gravity to go down. Default is false.
 
 
 #### Simulation (faculative)

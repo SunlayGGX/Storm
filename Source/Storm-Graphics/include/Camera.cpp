@@ -5,6 +5,7 @@
 
 #include "GeneralGraphicConfig.h"
 #include "SceneGraphicConfig.h"
+#include "SceneSimulationConfig.h"
 
 #include "UIFieldBase.h"
 #include "UIFieldContainer.h"
@@ -233,6 +234,7 @@ void Storm::Camera::reset()
 
 	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
 	const Storm::SceneGraphicConfig &sceneGraphicConfig = configMgr.getSceneGraphicConfig();
+	const Storm::GeneralGraphicConfig &generalGraphicConfig = configMgr.getGeneralGraphicConfig();
 
 	_nearPlane = sceneGraphicConfig._zNear;
 	_farPlane = sceneGraphicConfig._zFar;
@@ -240,8 +242,16 @@ void Storm::Camera::reset()
 	this->setPositionInternal(sceneGraphicConfig._cameraPosition.x(), sceneGraphicConfig._cameraPosition.y(), sceneGraphicConfig._cameraPosition.z());
 	this->setTargetInternal(sceneGraphicConfig._cameraLookAt.x(), sceneGraphicConfig._cameraLookAt.y(), sceneGraphicConfig._cameraLookAt.z());
 
-	DirectX::XMFLOAT3 upFloat3{ 0.f, 1.f, 0.f };
-	_up = DirectX::XMLoadFloat3(&upFloat3);
+	if (generalGraphicConfig._spinCameraToGravityUp)
+	{
+		_up = Storm::convertToXM(-configMgr.getSceneSimulationConfig()._gravity);
+		_up.m128_f32[3] = 0.f;
+	}
+	else
+	{
+		DirectX::XMFLOAT3 upFloat3{ 0.f, 1.f, 0.f };
+		_up = DirectX::XMLoadFloat3(&upFloat3);
+	}
 
 	this->buildProjectionMatrix();
 	this->buildOrthoMatrix();
