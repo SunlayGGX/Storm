@@ -498,6 +498,7 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 			!Storm::XmlReader::handleXml(graphicXmlElement, "forceThickness", graphicConfig._forceThickness) &&
 			!Storm::XmlReader::handleXml(graphicXmlElement, "forceColor", graphicConfig._forceColor, parseColor4Element) &&
 			!Storm::XmlReader::handleXml(graphicXmlElement, "blowerAlpha", graphicConfig._blowerAlpha) &&
+			!Storm::XmlReader::handleXml(graphicXmlElement, "watchRbId", graphicConfig._rbWatchId) &&
 			!Storm::XmlReader::handleXml(graphicXmlElement, "grid", graphicConfig._grid, parseVector3Element)
 			)
 		{
@@ -839,6 +840,8 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 
 	auto &rigidBodiesConfigArray = _sceneConfig->_rigidBodiesConfig;
 	float rbConfigAngularVelocityDampingTmp = -1.f;
+	
+	bool foundWatchedRb = graphicConfig._rbWatchId == std::numeric_limits<decltype(graphicConfig._rbWatchId)>::max();
 
 	Storm::XmlReader::readDataInList(srcTree, "RigidBodies", "RigidBody", rigidBodiesConfigArray,
 		[&rbConfigAngularVelocityDampingTmp](const auto &rigidBodyConfigXml, Storm::SceneRigidBodyConfig &rbConfig)
@@ -870,7 +873,7 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "color", rbConfig._color, parseColor4Element)
 			;
 	},
-		[&animationsKeeper, &macroConfig, &rigidBodiesConfigArray, &fluidConfig, &rbConfigAngularVelocityDampingTmp, &param](Storm::SceneRigidBodyConfig &rbConfig)
+		[&animationsKeeper, &macroConfig, &rigidBodiesConfigArray, &fluidConfig, &rbConfigAngularVelocityDampingTmp, &param, &foundWatchedRb, rbWatchedId = graphicConfig._rbWatchId](Storm::SceneRigidBodyConfig &rbConfig)
 	{
 		macroConfig(rbConfig._meshFilePath);
 		macroConfig(rbConfig._animationXmlPath);
@@ -880,6 +883,8 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 		{
 			Storm::throwException<Storm::Exception>("Rigid body id should be set using 'id' tag!");
 		}
+
+		foundWatchedRb |= rbWatchedId == rbConfig._rigidBodyID;
 
 		// Minus 1 because of course, the rbConfig that we are currently filling has the same id than itself... 
 		const auto lastToCheck = std::end(rigidBodiesConfigArray) - 1;
@@ -1050,6 +1055,11 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 			}
 		}
 	});
+
+	if (!foundWatchedRb)
+	{
+		Storm::throwException<Storm::Exception>("We cannot find the specified Rigid body to watch (watched id was " + std::to_string(graphicConfig._rbWatchId) + ')');
+	}
 
 	/* Contraints */
 	unsigned int contraintsIndex = 0;

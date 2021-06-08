@@ -333,6 +333,7 @@ Unlike the others config files, it can be named as you want. Here the xml tags y
 - **cameraLookAt (vector3, facultative)**: This is the initial position of the target the camera look at. Each coordinate are meters. Default value is { x=0.0, y=0.0, z=0.0 }.
 - **zNear (float, facultative)**: This is the initial distance in meter from the camera which everything that is nearer than this distance won't be rendered. Default value is 0.01.
 - **zFar (float, facultative)**: Same as zNear except that we skip displaying all objects farer than this distance value. Default value is 20.0.
+- **watchRbId (positive integer, facultative)**: Specify which rb we should lock the near plane on. Default value is unset (no rb locked).
 - **minVelocityColorValue (float, facultative)**: Set the minimum velocity value for the watched value to display the coldest color. This is to be expressed as a squared norm. Default value is 0.01.
 - **maxVelocityColorValue (float, facultative)**: Set the maximum velocity value for the watched value to display the hotest color. This is to be expressed as a squared norm. Default value is 100.
 - **minPressureColorValue (float, facultative)**: Set the minimum pressure value for the watched value to display the coldest color. Default value is 0.

@@ -29,7 +29,7 @@ namespace Storm
 
 		std::unique_ptr<Storm::MeshShader> _shader;
 
-		std::vector<Storm::Vector3> _tmpVertices; 
+		std::vector<Storm::Vector3> _tmpVertices;
 		std::vector<unsigned int> _tmpIndexes;
 	};
 }

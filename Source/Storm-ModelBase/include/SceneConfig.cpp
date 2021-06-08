@@ -140,7 +140,8 @@ Storm::SceneGraphicConfig::SceneGraphicConfig() :
 	//_constraintThickness{}, => Defined from Storm::SceneSimulationConfig::_particleRadius
 	_constraintColor{ 1.f, 0.1f, 0.1f, 0.8f },
 	// _forceThickness{}, => Defined from Storm::SceneSimulationConfig::_particleRadius
-	_forceColor{ 0.f, 1.f, 1.f, 0.8f }
+	_forceColor{ 0.f, 1.f, 1.f, 0.8f },
+	_rbWatchId{ std::numeric_limits<std::size_t>::max() }
 {
 
 }
