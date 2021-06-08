@@ -25,6 +25,11 @@ Storm::Vector3 Storm::convertToStorm(const DirectX::XMVECTOR &vect)
 	return Storm::Vector3{ vect.m128_f32[0], vect.m128_f32[1], vect.m128_f32[2] };
 }
 
+Storm::Vector3 Storm::convertToStorm(const DirectX::XMFLOAT3 &vect)
+{
+	return Storm::Vector3{ vect.x, vect.y, vect.z };
+}
+
 DirectX::XMMATRIX Storm::makeTransform(const Storm::Vector3 &trans, const Storm::Quaternion &rot, const Storm::Vector3 &scaling)
 {
 	return makeTransformImpl(Storm::convertToXM(trans), DirectX::XMVECTOR{ rot.x(), rot.y(), rot.z(), rot.w() }, Storm::convertToXM(scaling));
