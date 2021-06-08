@@ -258,6 +258,31 @@ void Storm::Camera::reset()
 	this->buildViewMatrix();
 }
 
+void Storm::Camera::updateWatchedRb(const Storm::Vector3 &watchedRbPosition)
+{
+	const DirectX::XMVECTOR watchedRbPositionAsDX = Storm::convertToXM(watchedRbPosition);
+	const DirectX::XMVECTOR currentCamPosition = DirectX::XMLoadFloat3(&_position);
+	const DirectX::XMVECTOR targetPosition = DirectX::XMLoadFloat3(&_target);
+
+	const DirectX::XMVECTOR eyeDir = DirectX::XMVector3Normalize(DirectX::XMVectorSubtract(targetPosition, currentCamPosition));
+	const DirectX::XMVECTOR camToWatchedRb = DirectX::XMVectorSubtract(watchedRbPositionAsDX, currentCamPosition);
+
+	const float newExpectedNearPlane = DirectX::XMVector3Dot(eyeDir, camToWatchedRb).m128_f32[0];
+
+	constexpr float nearPlaneEpsilon = getMinimalNearPlaneValue();
+	if (newExpectedNearPlane > nearPlaneEpsilon)
+	{
+		if (newExpectedNearPlane < _farPlane)
+		{
+			this->setNearPlane(newExpectedNearPlane);
+		}
+		else
+		{
+			this->setNearAndFarPlane(newExpectedNearPlane, newExpectedNearPlane + nearPlaneEpsilon);
+		}
+	}
+}
+
 float Storm::Camera::getNearPlane() const noexcept
 {
 	return _nearPlane;

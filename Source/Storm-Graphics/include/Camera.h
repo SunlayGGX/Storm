@@ -15,6 +15,8 @@ namespace Storm
 	public:
 		void reset();
 
+		void updateWatchedRb(const Storm::Vector3 &watchedRbPosition);
+
 		float getNearPlane() const noexcept;
 		float getFarPlane() const noexcept;
 		float getFieldOfView() const noexcept;
