@@ -54,7 +54,8 @@ Storm::GraphicManager::GraphicManager() :
 	_directXController{ std::make_unique<Storm::DirectXController>() },
 	_selectedParticle{ std::numeric_limits<decltype(_selectedParticle.first)>::max(), 0 },
 	_hasUI{ false },
-	_dirty{ true }
+	_dirty{ true },
+	_watchedRbNonOwningPtr{ nullptr }
 {
 
 }
@@ -143,6 +144,7 @@ void Storm::GraphicManager::initialize_Implementation(void* hwnd)
 
 	const auto &device = _directXController->getDirectXDevice();
 	const Storm::SceneGraphicConfig &sceneGraphicConfig = configMgr.getSceneGraphicConfig();
+
 	_renderedElements.emplace_back(std::make_unique<Storm::Grid>(device, sceneGraphicConfig._grid));
 	_coordSystemNonOwningPtr = static_cast<Storm::GraphicCoordinateSystem*>(_renderedElements.emplace_back(std::make_unique<Storm::GraphicCoordinateSystem>(device)).get());
 
@@ -157,6 +159,11 @@ void Storm::GraphicManager::initialize_Implementation(void* hwnd)
 	for (auto &meshesPair : _meshesMap)
 	{
 		meshesPair.second->initializeRendering(device);
+	}
+
+	if (sceneGraphicConfig._rbWatchId != std::numeric_limits<decltype(sceneGraphicConfig._rbWatchId)>::max())
+	{
+		_watchedRbNonOwningPtr = _meshesMap.find(static_cast<unsigned int>(sceneGraphicConfig._rbWatchId))->second.get();
 	}
 
 	if (sceneGraphicConfig._displaySolidAsParticles)
@@ -188,8 +195,8 @@ void Storm::GraphicManager::initialize_Implementation(void* hwnd)
 			inputMgr.bindKey(Storm::SpecialKey::KC_W, [this]() { _camera->negativeRotateXAxis(); _dirty = true; });
 			inputMgr.bindKey(Storm::SpecialKey::KC_A, [this]() { _camera->negativeRotateYAxis(); _dirty = true; });
 			inputMgr.bindKey(Storm::SpecialKey::KC_NUMPAD0, [this]() { _camera->reset(); _dirty = true; });
-			inputMgr.bindKey(Storm::SpecialKey::KC_ADD, [this]() { _camera->increaseNearPlane(); _dirty = true;});
-			inputMgr.bindKey(Storm::SpecialKey::KC_SUBTRACT, [this]() { _camera->decreaseNearPlane(); _dirty = true;});
+			inputMgr.bindKey(Storm::SpecialKey::KC_ADD, [this]() { this->checkUserCanChangeNearPlane(); _camera->increaseNearPlane(); _dirty = true; });
+			inputMgr.bindKey(Storm::SpecialKey::KC_SUBTRACT, [this]() { this->checkUserCanChangeNearPlane(); _camera->decreaseNearPlane(); _dirty = true;});
 			inputMgr.bindKey(Storm::SpecialKey::KC_MULTIPLY, [this]() { _camera->increaseFarPlane(); _dirty = true; });
 			inputMgr.bindKey(Storm::SpecialKey::KC_DIVIDE, [this]() { _camera->decreaseFarPlane(); _dirty = true; });
 			inputMgr.bindKey(Storm::SpecialKey::KC_F2, [this]() { _coordSystemNonOwningPtr->switchShow(); _dirty = true; });
@@ -263,14 +270,22 @@ void Storm::GraphicManager::cleanUp_Implementation(const Storm::NoUI &)
 
 void Storm::GraphicManager::update()
 {
-	SingletonHolder::instance().getSingleton<Storm::IThreadManager>().processCurrentThreadActions();
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	singletonHolder.getSingleton<Storm::IThreadManager>().processCurrentThreadActions();
 
 	if (_renderCounter++ % 2 == 0 && _dirty)
 	{
+		Storm::Camera &currentCamera = *_camera;
+
+		if (_watchedRbNonOwningPtr != nullptr)
+		{
+			currentCamera.updateWatchedRb(_watchedRbNonOwningPtr->getRbPosition());
+		}
+
 		_directXController->clearView(g_defaultColor);
 		_directXController->initView();
 
-		_directXController->renderElements(this->getCamera(), _renderedElements, _meshesMap, *_graphicParticlesSystem, _blowersMap, *_graphicConstraintsSystem, *_forceRenderer, *_kernelEffectArea);
+		_directXController->renderElements(currentCamera, _renderedElements, _meshesMap, *_graphicParticlesSystem, _blowersMap, *_graphicConstraintsSystem, *_forceRenderer, *_kernelEffectArea);
 
 		_directXController->drawUI(_fieldsMap);
 
@@ -333,7 +348,7 @@ void Storm::GraphicManager::pushParticlesData(const Storm::PushedParticleSystemD
 		const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 
 		singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(ThreadEnumeration::GraphicsThread,
-			[this, particleSystemId = param._particleSystemId, particlePosDataCopy = _pipe->fastOptimizedTransCopy(param), isFluids = param._isFluids, isWall = param._isWall]() mutable
+			[this, particleSystemId = param._particleSystemId, particlePosDataCopy = _pipe->fastOptimizedTransCopy(param), isFluids = param._isFluids, isWall = param._isWall, pos = param._position]() mutable
 		{
 			if (_forceRenderer->prepareData(particleSystemId, particlePosDataCopy, _selectedParticle))
 			{
@@ -342,6 +357,12 @@ void Storm::GraphicManager::pushParticlesData(const Storm::PushedParticleSystemD
 				if (this->hasSelectedParticle() && particleSystemId == _selectedParticle.first)
 				{
 					_kernelEffectArea->setAreaPosition(particlePosDataCopy[_selectedParticle.second]);
+				}
+
+				if (!isFluids && !isWall)
+				{
+					Storm::GraphicRigidBody &currentGraphicRb = *_meshesMap.find(particleSystemId)->second;
+					currentGraphicRb.setRbPosition(pos);
 				}
 
 				_dirty = true;
@@ -586,4 +607,12 @@ void Storm::GraphicManager::setKernelAreaRadius(const float radius)
 		_kernelEffectArea->setAreaRadius(radius);
 		_dirty = true;
 	});
+}
+
+void Storm::GraphicManager::checkUserCanChangeNearPlane() const
+{
+	if (_watchedRbNonOwningPtr != nullptr)
+	{
+		Storm::throwException<Storm::Exception>("User cannot change the near plane value because it is locked on a rigid body!");
+	}
 }

@@ -22,3 +22,14 @@ const std::shared_ptr<Storm::IRigidBody>& Storm::RigidBodyHolder::getRbParent() 
 {
 	return _boundParentRb;
 }
+
+const Storm::Vector3& Storm::RigidBodyHolder::getRbPosition() const
+{
+	// Do not query the one inside _boundParentRb because it isn't thread safe.
+	return _cachedPosition;
+}
+
+void Storm::RigidBodyHolder::setRbPosition(const Storm::Vector3 &pos)
+{
+	_cachedPosition = pos;
+}

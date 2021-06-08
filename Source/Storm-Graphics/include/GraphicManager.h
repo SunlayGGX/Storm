@@ -103,11 +103,16 @@ namespace Storm
 	public:
 		void setKernelAreaRadius(const float radius) final override;
 
+	public:
+		void checkUserCanChangeNearPlane() const;
+
 	private:
 		unsigned char _renderCounter;
 
 		bool _hasUI;
 		bool _dirty;
+
+		Storm::GraphicRigidBody* _watchedRbNonOwningPtr;
 
 		std::unique_ptr<Storm::DirectXController> _directXController;
 		std::unique_ptr<Storm::Camera> _camera;

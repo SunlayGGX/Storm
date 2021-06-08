@@ -538,8 +538,8 @@ Note : If the term in the parenthesis is "Numpad", then the keybinding is the va
 
 - **Escape key (ESC)**: Leave the application.
 - **Space bar**: Pause application if it is running. Unpause if it is paused.
-- **+ (Numpad)**: Move near clipping plane forward.
-- **- (Numpad)**: Move near clipping plane backward.
+- **+ (Numpad)**: Move near clipping plane forward. This input is not allowed if the near plane is locked on a rigid body to watch.
+- **- (Numpad)**: Move near clipping plane backward. This input is not allowed if the near plane is locked on a rigid body to watch.
 - **/ (Numpad)**: Move far clipping plane backward.
 - **\* (Numpad)**: Move far clipping plane forward.
 - **Up Arrow**: Move camera up.

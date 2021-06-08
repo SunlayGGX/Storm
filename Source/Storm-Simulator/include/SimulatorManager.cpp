@@ -2085,6 +2085,9 @@ void Storm::SimulatorManager::pushParticlesToGraphicModule(bool ignoreDirty) con
 			{
 				param._pressureData = nullptr;
 				param._densityData = nullptr;
+
+				const Storm::RigidBodyParticleSystem &currentPSystemAsRb = static_cast<const Storm::RigidBodyParticleSystem &>(currentParticleSystem);
+				param._position = currentPSystemAsRb.getRbPosition();
 			}
 
 			graphicMgr.pushParticlesData(param);

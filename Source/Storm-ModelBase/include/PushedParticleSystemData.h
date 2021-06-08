@@ -16,5 +16,8 @@ namespace Storm
 
 		bool _isFluids;
 		bool _isWall;
+
+		// Only relevant for rigid bodies
+		Storm::Vector3 _position;
 	};
 }
