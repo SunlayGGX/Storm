@@ -104,6 +104,9 @@ namespace Storm
 		void setKernelAreaRadius(const float radius) final override;
 
 	public:
+		void lockNearPlaneOnWatchedRb(unsigned int watchedRbId) final override;
+		void unlockNearPlaneOnWatchedRb() final override;
+
 		void checkUserCanChangeNearPlane() const;
 
 	private:

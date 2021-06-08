@@ -668,6 +668,8 @@ Here the list of available commands :
 - **void setUseColorSetting(const ColoredSetting selectedColoredSetting)**: Set the setting to display.
 - **void showCoordinateSystemAxis(const bool shouldShow)**: Display the axis coordinate system if true, hide it otherwise.
 - **void setUIFieldEnabled(bool enable)**: Set if we should display the UI fields (enabled to true) or hide it (enabled to false).
+- **void lockNearPlaneOnWatchedRb(unsigned int rbId)**: Set (or change) the rigid body specified by its id (rbId) to lock the near plane on.
+- **void unlockNearPlaneOnWatchedRb()**: Clear the near plane lock to a rigid body. The near plane will be freed for the user to move it manually.
 
 
 #### - PhysicsManager (physicsMgr)

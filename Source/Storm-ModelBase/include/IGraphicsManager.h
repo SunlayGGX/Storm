@@ -62,5 +62,9 @@ namespace Storm
 
 	public:
 		virtual void setKernelAreaRadius(const float radius) = 0;
+
+	public:
+		virtual void lockNearPlaneOnWatchedRb(unsigned int watchedRbId) = 0;
+		virtual void unlockNearPlaneOnWatchedRb() = 0;
 	};
 }

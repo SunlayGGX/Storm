@@ -609,6 +609,30 @@ void Storm::GraphicManager::setKernelAreaRadius(const float radius)
 	});
 }
 
+void Storm::GraphicManager::lockNearPlaneOnWatchedRb(unsigned int watchedRbId)
+{
+	Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::GraphicsThread, [this, watchedRbId]()
+	{
+		if (const auto found = _meshesMap.find(static_cast<unsigned int>(watchedRbId)); found != std::end(_meshesMap))
+		{
+			_watchedRbNonOwningPtr = found->second.get();
+			_dirty = true;
+		}
+		else
+		{
+			Storm::throwException<Storm::Exception>("Cannot find the rigid body to lock the near plane on. Requested id was " + std::to_string(watchedRbId));
+		}
+	});
+}
+
+void Storm::GraphicManager::unlockNearPlaneOnWatchedRb()
+{
+	Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::GraphicsThread, [this]()
+	{
+		_watchedRbNonOwningPtr = nullptr;
+	});
+}
+
 void Storm::GraphicManager::checkUserCanChangeNearPlane() const
 {
 	if (_watchedRbNonOwningPtr != nullptr)

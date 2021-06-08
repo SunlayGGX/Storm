@@ -129,6 +129,9 @@ void STORM_CURRENT_REGISTERED_TYPE::registerCurrentOnScript(IScriptWrapperInterf
 
 		STORM_DECLARE_SCRIPTED_METHOD(showCoordinateSystemAxis),
 
+		STORM_DECLARE_SCRIPTED_METHOD(lockNearPlaneOnWatchedRb),
+		STORM_DECLARE_SCRIPTED_METHOD(unlockNearPlaneOnWatchedRb),
+
 		STORM_DECLARE_SCRIPTED_METHOD(setUIFieldEnabled)
 
 	).registerCurrentInstance("graphicMgr");
