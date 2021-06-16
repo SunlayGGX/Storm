@@ -222,7 +222,7 @@ namespace
 		const float currentStepX = static_cast<float>(frameIter + 1) / static_cast<float>(k_finalSmoothFrameIter + 2);
 
 		// We want a formula that starts with a smooth velocity (start from 0 and increase gradually until the climax),
-		// then climax in the middle (max speed at the 15th sample), then goes back to 0 at the 31th sample.
+		// then climax in the middle (max speed at the 15th sample), then goes back to 0 at the 61th sample.
 		// Plus, we want to have 0 displacement remaining at the 60th sample.
 		// In addition, we pose that there should be no remaining displacement.
 		// 
