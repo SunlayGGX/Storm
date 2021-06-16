@@ -169,6 +169,7 @@ bool Storm::GeneralConfigHolder::read(const std::string &generalConfigFilePathSt
 						!Storm::XmlReader::handleXml(graphicXmlElement, "selectedParticleAlwaysOnTop", generalGraphicConfig._selectedParticleShouldBeTopMost) &&
 						!Storm::XmlReader::handleXml(graphicXmlElement, "selectedParticleForceAlwaysOnTop", generalGraphicConfig._selectedParticleForceShouldBeTopMost) &&
 						!Storm::XmlReader::handleXml(graphicXmlElement, "spinCameraToGravity", generalGraphicConfig._spinCameraToGravityUp) &&
+						!Storm::XmlReader::handleXml(graphicXmlElement, "smoothCameraTransition", generalGraphicConfig._smoothCameraTransition) &&
 						!Storm::XmlReader::handleXml(graphicXmlElement, "fontSize", generalGraphicConfig._fontSize)
 						)
 					{

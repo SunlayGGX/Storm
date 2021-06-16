@@ -24,7 +24,8 @@ Storm::GeneralGraphicConfig::GeneralGraphicConfig() :
 	_fixNearFarPlanesWhenTranslating{ true },
 	_selectedParticleShouldBeTopMost{ false },
 	_selectedParticleForceShouldBeTopMost{ true },
-	_spinCameraToGravityUp{ false }
+	_spinCameraToGravityUp{ false },
+	_smoothCameraTransition{ true }
 {}
 
 Storm::GeneralSimulationConfig::GeneralSimulationConfig() :
