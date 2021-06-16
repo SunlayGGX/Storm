@@ -16,6 +16,7 @@ namespace Storm
 		void reset();
 
 		void updateWatchedRb(const Storm::Vector3 &watchedRbPosition);
+		void update();
 
 		float getNearPlane() const noexcept;
 		float getFarPlane() const noexcept;
@@ -78,6 +79,7 @@ namespace Storm
 		void setCameraRotateSpeed(float newSpeed);
 		void setCameraPlaneSpeed(float newSpeed);
 
+		void translateRelative(const Storm::Vector3 &deltaTranslation, bool shouldSmooth);
 		void translateRelative(const Storm::Vector3 &deltaTranslation);
 
 		void buildProjectionMatrix();
@@ -114,6 +116,10 @@ namespace Storm
 		float _rescaledScreenHeight;
 
 		bool _planesFixedFromTranslatMoves;
+
+		bool _shouldMoveSmooth;
+		int _startSmoothMoveFramePos;
+		Storm::Vector3 _deltaTranslationSmooth;
 
 		std::unique_ptr<Storm::UIFieldContainer> _fields;
 	};

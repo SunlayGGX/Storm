@@ -198,6 +198,44 @@ namespace
 			return result;
 		}
 	};
+
+	enum
+	{
+		k_noFrame = -1,
+		k_finalSmoothFrameIter = 60
+	};
+
+	__forceinline bool isValidFrame(const int frameIter)
+	{
+		return frameIter != k_noFrame;
+	}
+
+	__forceinline bool isNearZero(const float value)
+	{
+		return std::fabs(value) < 0.000001f;
+	}
+
+	Storm::Vector3 extractSmoothedDisplacement(const Storm::Vector3 &srcDisplacement, const int frameIter)
+	{
+		// The step x from 0 to 1 is divided by 62 samples. The 2 samples are to prevent the start 0th and last frame iteration to have a complete speed of 0.
+		// So this is a sampling of 30 ticks + the 2 ticks at the beginning and ending of the domain.
+		const float currentStepX = static_cast<float>(frameIter + 1) / static_cast<float>(k_finalSmoothFrameIter + 2);
+
+		// We want a formula that starts with a smooth velocity (start from 0 and increase gradually until the climax),
+		// then climax in the middle (max speed at the 15th sample), then goes back to 0 at the 31th sample.
+		// Plus, we want to have 0 displacement remaining at the 60th sample.
+		// In addition, we pose that there should be no remaining displacement.
+		// 
+		// The function is 6(x - x²) => To find this function, we posed f(0) = 0, f(1) = 0, f(0.5) = 1. And this is a degree 2 polynomial function.
+		// Those values are temporaries and just express that the climax is at 50% of the curve, and we start and end with no velocity.
+		// Making the formula : 4(x - x²). Plus another assumption is that we would like to have no displacement remaining : the integral of such function should be equal to 1.
+		// Except the integral between 0 and 1 of 4(x - x²) is 2/3, then the normalization coefficient is 3/2.
+		// 3/2 * 4(x - x²) <=> 6(x-x²)
+
+		const float normalizationCoeff = 6.f * (currentStepX - currentStepX * currentStepX);
+
+		return srcDisplacement * normalizationCoeff;
+	}
 }
 
 
@@ -221,7 +259,9 @@ Storm::Camera::Camera(float viewportWidth, float viewportHeight) :
 		;
 
 	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
-	_planesFixedFromTranslatMoves = configMgr.getGeneralGraphicConfig()._fixNearFarPlanesWhenTranslating;
+	const Storm::GeneralGraphicConfig &generalGraphicConfig = configMgr.getGeneralGraphicConfig();
+	_planesFixedFromTranslatMoves = generalGraphicConfig._fixNearFarPlanesWhenTranslating;
+	_shouldMoveSmooth = generalGraphicConfig._smoothCameraTransition;
 }
 
 Storm::Camera::~Camera() = default;
@@ -231,6 +271,9 @@ void Storm::Camera::reset()
 	this->setCameraMoveSpeed(1.f);
 	this->setCameraPlaneSpeed(1.f);
 	this->setCameraRotateSpeed(10.f);
+
+	_deltaTranslationSmooth = Storm::Vector3::Zero();
+	_startSmoothMoveFramePos = k_noFrame;
 
 	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
 	const Storm::SceneGraphicConfig &sceneGraphicConfig = configMgr.getSceneGraphicConfig();
@@ -279,6 +322,38 @@ void Storm::Camera::updateWatchedRb(const Storm::Vector3 &watchedRbPosition)
 		else
 		{
 			this->setNearAndFarPlane(newExpectedNearPlane, newExpectedNearPlane + nearPlaneEpsilon);
+		}
+	}
+}
+
+void Storm::Camera::update()
+{
+	if (_shouldMoveSmooth)
+	{
+		if (isValidFrame(_startSmoothMoveFramePos))
+		{
+			if (_deltaTranslationSmooth != Storm::Vector3::Zero())
+			{
+				++_startSmoothMoveFramePos;
+
+				const Storm::Vector3 partTranslation = extractSmoothedDisplacement(_deltaTranslationSmooth, _startSmoothMoveFramePos);
+
+				this->translateRelative(partTranslation, false);
+
+				// It adds another level of smoothness and allows a smaller object ;). But it is not part of the explanation on the mathematical formula described inside extractSmoothedDisplacement.
+				// This makes the mathematical abstraction a little off, but the visual effect is really really good.
+				_deltaTranslationSmooth -= partTranslation;
+
+				if (isNearZero(_deltaTranslationSmooth.x()) && isNearZero(_deltaTranslationSmooth.y()) && isNearZero(_deltaTranslationSmooth.z()))
+				{
+					_deltaTranslationSmooth = Storm::Vector3::Zero();
+					_startSmoothMoveFramePos = k_noFrame;
+				}
+			}
+			else
+			{
+				_startSmoothMoveFramePos = k_noFrame;
+			}
 		}
 	}
 }
@@ -675,12 +750,25 @@ void Storm::Camera::setCameraPlaneSpeed(float newSpeed)
 	_cameraPlaneSpeed = newSpeed;
 }
 
+void Storm::Camera::translateRelative(const Storm::Vector3 &deltaTranslation, bool shouldSmooth)
+{
+	if (shouldSmooth)
+	{
+		_deltaTranslationSmooth += deltaTranslation;
+		_startSmoothMoveFramePos = 0;
+	}
+	else
+	{
+		this->setPositionInternal(_position.x + deltaTranslation.x(), _position.y + deltaTranslation.y(), _position.z + deltaTranslation.z());
+		this->setTargetInternal(_target.x + deltaTranslation.x(), _target.y + deltaTranslation.y(), _target.z + deltaTranslation.z());
+
+		this->buildViewMatrix();
+	}
+}
+
 void Storm::Camera::translateRelative(const Storm::Vector3 &deltaTranslation)
 {
-	this->setPositionInternal(_position.x + deltaTranslation.x(), _position.y + deltaTranslation.y(), _position.z + deltaTranslation.z());
-	this->setTargetInternal(_target.x + deltaTranslation.x(), _target.y + deltaTranslation.y(), _target.z + deltaTranslation.z());
-
-	this->buildViewMatrix();
+	this->translateRelative(deltaTranslation, _shouldMoveSmooth);
 }
 
 void Storm::Camera::buildProjectionMatrix()

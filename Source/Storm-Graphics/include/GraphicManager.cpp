@@ -273,28 +273,32 @@ void Storm::GraphicManager::update()
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 	singletonHolder.getSingleton<Storm::IThreadManager>().processCurrentThreadActions();
 
-	if (_renderCounter++ % 2 == 0 && _dirty)
+	if (_renderCounter++ % 2 == 0)
 	{
 		Storm::Camera &currentCamera = *_camera;
+		currentCamera.update();
 
-		if (_watchedRbNonOwningPtr != nullptr)
+		if (_dirty)
 		{
-			currentCamera.updateWatchedRb(_watchedRbNonOwningPtr->getRbPosition());
+			if (_watchedRbNonOwningPtr != nullptr)
+			{
+				currentCamera.updateWatchedRb(_watchedRbNonOwningPtr->getRbPosition());
+			}
+
+			_directXController->clearView(g_defaultColor);
+			_directXController->initView();
+
+			_directXController->renderElements(currentCamera, _renderedElements, _meshesMap, *_graphicParticlesSystem, _blowersMap, *_graphicConstraintsSystem, *_forceRenderer, *_kernelEffectArea);
+
+			_directXController->drawUI(_fieldsMap);
+
+			_directXController->unbindTargetView();
+			_directXController->presentToDisplay();
+
+			_directXController->reportDeviceMessages();
+
+			_dirty = false;
 		}
-
-		_directXController->clearView(g_defaultColor);
-		_directXController->initView();
-
-		_directXController->renderElements(currentCamera, _renderedElements, _meshesMap, *_graphicParticlesSystem, _blowersMap, *_graphicConstraintsSystem, *_forceRenderer, *_kernelEffectArea);
-
-		_directXController->drawUI(_fieldsMap);
-
-		_directXController->unbindTargetView();
-		_directXController->presentToDisplay();
-
-		_directXController->reportDeviceMessages();
-
-		_dirty = false;
 	}
 }
 
