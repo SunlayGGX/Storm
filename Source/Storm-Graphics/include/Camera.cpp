@@ -202,7 +202,11 @@ namespace
 	enum
 	{
 		k_noFrame = -1,
-		k_finalSmoothFrameIter = 60
+		k_finalSmoothFrameIter = 120,
+
+		// The step x from 0 to 1 is divided by 62 samples. The 2 samples are to prevent the start 0th and last frame iteration to have a complete speed of 0.
+		// So this is a sampling of k_finalSmoothFrameIter ticks + the 2 ticks at the beginning and ending of the domain.
+		k_smoothFrameCountNormalized = k_finalSmoothFrameIter + 2,
 	};
 
 	__forceinline bool isValidFrame(const int frameIter)
@@ -217,12 +221,10 @@ namespace
 
 	Storm::Vector3 extractSmoothedDisplacement(const Storm::Vector3 &srcDisplacement, const int frameIter)
 	{
-		// The step x from 0 to 1 is divided by 62 samples. The 2 samples are to prevent the start 0th and last frame iteration to have a complete speed of 0.
-		// So this is a sampling of 30 ticks + the 2 ticks at the beginning and ending of the domain.
-		const float currentStepX = static_cast<float>(frameIter + 1) / static_cast<float>(k_finalSmoothFrameIter + 2);
+		const float currentStepX = static_cast<float>(frameIter + 1) / static_cast<float>(k_smoothFrameCountNormalized);
 
 		// We want a formula that starts with a smooth velocity (start from 0 and increase gradually until the climax),
-		// then climax in the middle (max speed at the 15th sample), then goes back to 0 at the 61th sample.
+		// then climax in the middle (max speed at the (k_finalSmoothFrameIter/2)th sample), then goes back to 0 at the k_smoothFrameCountNormalized th sample.
 		// Plus, we want to have 0 displacement remaining at the 60th sample.
 		// In addition, we pose that there should be no remaining displacement.
 		// 
@@ -346,6 +348,8 @@ void Storm::Camera::update()
 
 				if (isNearZero(_deltaTranslationSmooth.x()) && isNearZero(_deltaTranslationSmooth.y()) && isNearZero(_deltaTranslationSmooth.z()))
 				{
+					this->translateRelative(_deltaTranslationSmooth, false);
+
 					_deltaTranslationSmooth = Storm::Vector3::Zero();
 					_startSmoothMoveFramePos = k_noFrame;
 				}
