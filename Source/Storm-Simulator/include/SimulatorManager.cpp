@@ -2509,7 +2509,7 @@ void Storm::SimulatorManager::executeAllForcesCheck()
 	}
 
 	const Storm::Vector3 allForceSum{ xSum, ySum, zSum };
-	constexpr float epsilon = 0.0000001f;
+	constexpr float epsilon = 0.000001f;
 	if (std::fabs(allForceSum.x()) > epsilon || std::fabs(allForceSum.y()) > epsilon || std::fabs(allForceSum.z()) > epsilon)
 	{
 		LOG_ERROR << "All force sum are not equal to 0! Resulting force is " << allForceSum;

@@ -37,7 +37,7 @@ namespace
 	public:
 		bool isPointInside(const Storm::Vector3 &ptToCheck) const
 		{
-			constexpr const float k_epsilon = 0.001f;
+			constexpr const float k_epsilon = 0.000001f;
 
 			// If a point is inside a Triangle (in 2D), then total area A == A0 + A1 + A2 with Ax the area of the triangle made by replacing the point x of the triangle by the point we check.
 			const float A2 = computeTriangleArea(ptToCheck - *_v[0], _vect01);
@@ -137,7 +137,7 @@ namespace
 		// DiskArea = pi * r²
 		const float personalParticleSpaceArea = static_cast<float>(M_PI) * minDistSquared;
 
-		constexpr float epsilon = 0.0001f;
+		constexpr float epsilon = 0.000001f;
 		return static_cast<std::size_t>(std::max(std::ceilf(totalArea / personalParticleSpaceArea) + epsilon, 0.f));
 	}
 

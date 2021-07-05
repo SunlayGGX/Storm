@@ -354,8 +354,8 @@ void Storm::FluidParticleSystem::updatePosition(float deltaTimeInSec, bool)
 
 		if (!_isDirty)
 		{
-			// Displacement under 0.1mm won't be considered... 
-			constexpr const float k_epsilon = 0.0001f;
+			// Displacement under 0.001mm won't be considered... 
+			constexpr const float k_epsilon = 0.000001f;
 
 			if (fabs(solver._positionDisplacment.x()) > k_epsilon ||
 				fabs(solver._positionDisplacment.y()) > k_epsilon ||

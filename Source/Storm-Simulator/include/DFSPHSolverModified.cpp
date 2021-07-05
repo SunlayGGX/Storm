@@ -616,8 +616,6 @@ void Storm::DFSPHSolverModified::divergenceSolve(const Storm::IterationParameter
 
 	bool chk;
 
-	constexpr const float k_epsilon = 0.00001f;
-
 	do
 	{
 		outAverageError = 0.f;
@@ -673,12 +671,12 @@ void Storm::DFSPHSolverModified::divergenceSolve(const Storm::IterationParameter
 						const float kj = b_j * neighborData._kCoeff;
 
 						const float kSum = ki + lastNeighborFluidSystem->getRestDensity() / density0 * kj;
-						if (std::fabs(kSum) > k_epsilon)
+						if (std::fabs(kSum) > Storm::SPHSolverPrivateLogic::k_epsilon)
 						{
 							v_i += (iterationParameter._deltaTime * kSum * lastNeighborFluidSystem->getParticleVolume()) * neighbor._gradWij;
 						}
 					}
-					else if (std::fabs(ki) > k_epsilon)
+					else if (std::fabs(ki) > Storm::SPHSolverPrivateLogic::k_epsilon)
 					{
 						Storm::RigidBodyParticleSystem* neighborPSystemAsBoundary = static_cast<Storm::RigidBodyParticleSystem*>(neighbor._containingParticleSystem);
 
@@ -801,8 +799,6 @@ void Storm::DFSPHSolverModified::pressureSolve(const Storm::IterationParameter &
 
 	bool chk;
 
-	constexpr const float k_epsilon = 0.00001f;
-
 	do
 	{
 		chk = true;
@@ -853,13 +849,13 @@ void Storm::DFSPHSolverModified::pressureSolve(const Storm::IterationParameter &
 						const float b_j = neighborData._predictedDensity - 1.f;
 						const float kj = b_j * neighborData._kCoeff;
 						const float kSum = ki + lastNeighborFluidSystem->getRestDensity() / density0 * kj;
-						if (std::fabs(kSum) > k_epsilon)
+						if (std::fabs(kSum) > Storm::SPHSolverPrivateLogic::k_epsilon)
 						{
 							// Directly update velocities instead of storing pressure accelerations
 							v_i += (iterationParameter._deltaTime * kSum * lastNeighborFluidSystem->getParticleVolume()) * neighbor._gradWij;	// ki, kj already contain inverse density
 						}
 					}
-					else if (std::fabs(ki) > k_epsilon)
+					else if (std::fabs(ki) > Storm::SPHSolverPrivateLogic::k_epsilon)
 					{
 						Storm::RigidBodyParticleSystem* neighborPSystemAsBoundary = static_cast<Storm::RigidBodyParticleSystem*>(neighbor._containingParticleSystem);
 
@@ -920,8 +916,6 @@ void Storm::DFSPHSolverModified::computeDFSPHFactor(const Storm::IterationParame
 
 	const std::vector<Storm::ParticleNeighborhoodArray> &neighborhoodArrays = fluidPSystem.getNeighborhoodArrays();
 
-	constexpr const float k_epsilon = 0.00001f;
-
 	//////////////////////////////////////////////////////////////////////////
 	// Compute pressure stiffness denominator
 	//////////////////////////////////////////////////////////////////////////
@@ -957,7 +951,7 @@ void Storm::DFSPHSolverModified::computeDFSPHFactor(const Storm::IterationParame
 		//////////////////////////////////////////////////////////////////////////
 		// Compute pressure stiffness denominator
 		//////////////////////////////////////////////////////////////////////////
-		if (sum_grad_p_k > k_epsilon)
+		if (sum_grad_p_k > Storm::SPHSolverPrivateLogic::k_epsilon)
 		{
 			currentPData._kCoeff = static_cast<float>(kMultiplicationCoeff / sum_grad_p_k);
 		}
