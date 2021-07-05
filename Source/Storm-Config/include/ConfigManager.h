@@ -62,6 +62,7 @@ namespace Storm
 		const Storm::SceneCageConfig* getSceneOptionalCageConfig() const final override;
 
 		bool isInReplayMode() const noexcept final override;
+		bool isInRecordMode() const noexcept final override;
 		bool userCanModifyTimestep() const noexcept final override;
 		const std::string& getSceneName() const final override;
 		const std::string& getSimulationTypeName() const final override;

@@ -76,6 +76,7 @@ namespace Storm
 
 		// Special highly used method
 		virtual bool isInReplayMode() const noexcept = 0;
+		virtual bool isInRecordMode() const noexcept = 0;
 		virtual bool userCanModifyTimestep() const noexcept = 0;
 		virtual const std::string& getSceneName() const = 0;
 		virtual const std::string& getSimulationTypeName() const = 0;
