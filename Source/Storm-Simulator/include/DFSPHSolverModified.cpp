@@ -211,6 +211,11 @@ void Storm::DFSPHSolverModified::execute(const Storm::IterationParameter & itera
 
 	this->onSubIterationStart(particleSystems);
 
+	if (!this->shouldContinue()) STORM_UNLIKELY
+	{
+		return;
+	}
+
 	// 2nd : Compute the base density
 	for (auto &particleSystemPair : particleSystems)
 	{
@@ -269,6 +274,11 @@ void Storm::DFSPHSolverModified::execute(const Storm::IterationParameter & itera
 		}
 	}
 
+	if (!this->shouldContinue()) STORM_UNLIKELY
+	{
+		return;
+	}
+
 	// 3rd : Compute k_dfsph coeff
 	const double kPressurePredictFinalCoeff = static_cast<double>(-dfsphFluidConfig._kPressurePredictedCoeff);
 	for (auto &dataFieldPair : _data)
@@ -281,12 +291,22 @@ void Storm::DFSPHSolverModified::execute(const Storm::IterationParameter & itera
 		);
 	}
 
+	if (!this->shouldContinue()) STORM_UNLIKELY
+	{
+		return;
+	}
+
 	// 5th : Divergence solve
 	unsigned int iterationV;
 	float averageErrorV;
 	if (_enableDivergenceSolve)
 	{
 		this->divergenceSolve(iterationParameter, iterationV, averageErrorV);
+
+		if (!this->shouldContinue()) STORM_UNLIKELY
+		{
+			return;
+		}
 	}
 	else
 	{
@@ -311,6 +331,11 @@ void Storm::DFSPHSolverModified::execute(const Storm::IterationParameter & itera
 				currentPMass = currentPDensity * particleVolume;
 			});
 		}
+	}
+
+	if (!this->shouldContinue()) STORM_UNLIKELY
+	{
+		return;
 	}
 
 	// 7th : Compute the non pressure forces (viscosity)
@@ -413,6 +438,11 @@ void Storm::DFSPHSolverModified::execute(const Storm::IterationParameter & itera
 		}
 	}
 
+	if (!this->shouldContinue()) STORM_UNLIKELY
+	{
+		return;
+	}
+
 	if (sceneSimulationConfig._midUpdateViscosity)
 	{
 		// Update Rb velocities with viscosity (experimental)
@@ -454,6 +484,11 @@ void Storm::DFSPHSolverModified::execute(const Storm::IterationParameter & itera
 	this->pressureSolve(iterationParameter, iteration, averageError);
 
 	this->updateCurrentPredictionIter(iteration, sceneSimulationConfig._maxPredictIteration, averageError, sceneSimulationConfig._maxDensityError, 1);
+
+	if (!this->shouldContinue()) STORM_UNLIKELY
+	{
+		return;
+	}
 
 	///////////////////////////////////////////////////
 
@@ -699,6 +734,12 @@ void Storm::DFSPHSolverModified::divergenceSolve(const Storm::IterationParameter
 		}
 
 		++outIteration;
+
+		if (!this->shouldContinue()) STORM_UNLIKELY
+		{
+			return;
+		}
+
 	} while ((!chk || (outIteration < minIter)) && (outIteration < maxIter));
 
 	outAverageError /= static_cast<float>(_data.size());
@@ -862,6 +903,12 @@ void Storm::DFSPHSolverModified::pressureSolve(const Storm::IterationParameter &
 		}
 
 		++outIteration;
+
+		if (!this->shouldContinue()) STORM_UNLIKELY
+		{
+			return;
+		}
+
 	} while ((!chk || (outIteration < minIter)) && (outIteration < maxIter));
 }
 

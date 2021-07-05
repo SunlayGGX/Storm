@@ -248,6 +248,11 @@ void Storm::PCISPHSolver::execute(const Storm::IterationParameter &iterationPara
 	simulMgr.refreshParticleNeighborhood();
 	simulMgr.subIterationStart();
 
+	if (!this->shouldContinue()) STORM_UNLIKELY
+	{
+		return;
+	}
+
 	// 2nd : compute stiffness constant coeff kPCI.
 	const float k_templatePStiffnessCoeffK = _kUniformStiffnessConstCoefficient / deltaTimeSquared;
 
@@ -308,6 +313,11 @@ void Storm::PCISPHSolver::execute(const Storm::IterationParameter &iterationPara
 				currentPMass = currentPDensity * particleVolume;
 			});
 		}
+	}
+
+	if (!this->shouldContinue()) STORM_UNLIKELY
+	{
+		return;
 	}
 
 	// 4th : Compute the non pressure forces (viscosity)
@@ -409,6 +419,11 @@ void Storm::PCISPHSolver::execute(const Storm::IterationParameter &iterationPara
 				currentPDataField._predictedPressure = 0.f;
 			});
 		}
+	}
+
+	if (!this->shouldContinue()) STORM_UNLIKELY
+	{
+		return;
 	}
 
 	const float totalParticleCountFl = static_cast<float>(_totalParticleCount);
@@ -524,6 +539,11 @@ void Storm::PCISPHSolver::execute(const Storm::IterationParameter &iterationPara
 
 		averageDensityError /= totalParticleCountFl;
 
+		if (!this->shouldContinue()) STORM_UNLIKELY
+		{
+			return;
+		}
+
 		// Compute the acceleration field
 		for (auto &dataFieldPair : _data)
 		{
@@ -630,6 +650,11 @@ void Storm::PCISPHSolver::execute(const Storm::IterationParameter &iterationPara
 		}
 
 		++currentPredictionIter;
+
+		if (!this->shouldContinue()) STORM_UNLIKELY
+		{
+			return;
+		}
 
 	} while (currentPredictionIter < sceneSimulationConfig._minPredictIteration || (currentPredictionIter < sceneSimulationConfig._maxPredictIteration && averageDensityError > sceneSimulationConfig._maxDensityError));
 

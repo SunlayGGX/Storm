@@ -138,6 +138,9 @@
     <ClCompile Include="..\include\DFSPHSolverModified.cpp">
       <Filter>Source Files\Solver\SPHSolvers</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\SPHSolverPrivateLogic.cpp">
+      <Filter>Source Files\Solver\SPHSolvers\Base</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-SimulatorPCH.h">
@@ -259,6 +262,9 @@
     </ClInclude>
     <ClInclude Include="..\include\SelectedParticleData.h">
       <Filter>Header Files\General</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SPHSolverPrivateLogic.h">
+      <Filter>Header Files\Solver\SPHSolvers\Base</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

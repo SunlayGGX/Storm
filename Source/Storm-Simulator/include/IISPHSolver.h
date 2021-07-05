@@ -2,6 +2,7 @@
 
 #include "SPHBaseSolver.h"
 #include "PredictiveSolverHandler.h"
+#include "SPHSolverPrivateLogic.h"
 
 
 namespace Storm
@@ -10,7 +11,8 @@ namespace Storm
 
 	class IISPHSolver :
 		public Storm::ISPHBaseSolver,
-		private Storm::PredictiveSolverHandler
+		private Storm::PredictiveSolverHandler,
+		private Storm::SPHSolverPrivateLogic
 	{
 	public:
 		IISPHSolver(const float k_kernelLength, const Storm::ParticleSystemContainer &particleSystemsMap);

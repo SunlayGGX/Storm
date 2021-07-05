@@ -2,6 +2,7 @@
 
 #include "SPHBaseSolver.h"
 #include "PredictiveSolverHandler.h"
+#include "SPHSolverPrivateLogic.h"
 
 
 namespace Storm
@@ -11,7 +12,8 @@ namespace Storm
 
 	class DFSPHSolver :
 		public Storm::ISPHBaseSolver,
-		private Storm::PredictiveSolverHandler
+		private Storm::PredictiveSolverHandler,
+		private Storm::SPHSolverPrivateLogic
 	{
 	private:
 		using DFSPHSolverDataArray = std::vector<Storm::DFSPHSolverData>;

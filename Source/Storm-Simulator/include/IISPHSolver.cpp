@@ -195,6 +195,11 @@ void Storm::IISPHSolver::execute(const Storm::IterationParameter &iterationParam
 	simulMgr.refreshParticleNeighborhood();
 	simulMgr.subIterationStart();
 
+	if (!this->shouldContinue()) STORM_UNLIKELY
+	{
+		return;
+	}
+
 	// 2nd : Compute the base density
 	for (auto &particleSystemPair : particleSystems)
 	{
@@ -235,6 +240,11 @@ void Storm::IISPHSolver::execute(const Storm::IterationParameter &iterationParam
 				currentPMass = currentPDensity * particleVolume;
 			});
 		}
+	}
+
+	if (!this->shouldContinue()) STORM_UNLIKELY
+	{
+		return;
 	}
 
 	// 3rd : Compute the non pressure forces (viscosity)
@@ -338,6 +348,11 @@ void Storm::IISPHSolver::execute(const Storm::IterationParameter &iterationParam
 		}
 	}
 
+	if (!this->shouldContinue()) STORM_UNLIKELY
+	{
+		return;
+	}
+
 	// 4th : compute advection coefficients
 	for (auto &dataFieldPair : _data)
 	{
@@ -434,6 +449,11 @@ void Storm::IISPHSolver::execute(const Storm::IterationParameter &iterationParam
 		});
 	}
 
+	if (!this->shouldContinue()) STORM_UNLIKELY
+	{
+		return;
+	}
+
 	// 5th : start prediction
 	float averageDensityError;
 
@@ -472,6 +492,11 @@ void Storm::IISPHSolver::execute(const Storm::IterationParameter &iterationParam
 					}
 				}
 			});
+		}
+
+		if (!this->shouldContinue()) STORM_UNLIKELY
+		{
+			return;
 		}
 
 		// Compute new advected pressure
@@ -560,6 +585,11 @@ void Storm::IISPHSolver::execute(const Storm::IterationParameter &iterationParam
 
 		averageDensityError /= _totalParticleCountFl;
 
+		if (!this->shouldContinue()) STORM_UNLIKELY
+		{
+			return;
+		}
+
 		// Post iteration updates
 		for (auto &dataFieldPair : _data)
 		{
@@ -575,11 +605,21 @@ void Storm::IISPHSolver::execute(const Storm::IterationParameter &iterationParam
 			});
 		}
 
+		if (!this->shouldContinue()) STORM_UNLIKELY
+		{
+			return;
+		}
+
 		++currentPredictionIter;
 
 	} while (currentPredictionIter < sceneSimulationConfig._minPredictIteration || (currentPredictionIter < sceneSimulationConfig._maxPredictIteration && averageDensityError > sceneSimulationConfig._maxDensityError));
 
 	this->updateCurrentPredictionIter(currentPredictionIter, sceneSimulationConfig._maxPredictIteration, averageDensityError, sceneSimulationConfig._maxDensityError, 0);
+
+	if (!this->shouldContinue()) STORM_UNLIKELY
+	{
+		return;
+	}
 
 	// 6th : Compute the pressure force
 	for (auto &dataFieldPair : _data)
@@ -639,6 +679,11 @@ void Storm::IISPHSolver::execute(const Storm::IterationParameter &iterationParam
 				currentPData._predictedAcceleration -= tmpAccel;
 			}
 		});
+	}
+
+	if (!this->shouldContinue()) STORM_UNLIKELY
+	{
+		return;
 	}
 
 	this->transfertEndDataToSystems(particleSystems, iterationParameter, &_data, [](void* data, const unsigned int pSystemId, Storm::FluidParticleSystem &fluidParticleSystem, const Storm::IterationParameter &iterationParameter)

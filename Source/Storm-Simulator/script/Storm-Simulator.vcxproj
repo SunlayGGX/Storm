@@ -34,6 +34,7 @@
     <ClCompile Include="..\include\SimulatorManager.cpp" />
     <ClCompile Include="..\include\SolverParameterChange.cpp" />
     <ClCompile Include="..\include\SPHBaseSolver.cpp" />
+    <ClCompile Include="..\include\SPHSolverPrivateLogic.cpp" />
     <ClCompile Include="..\include\StateSaverHelper.cpp" />
     <ClCompile Include="..\include\Storm-SimulatorPCH.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -78,6 +79,7 @@
     <ClInclude Include="..\include\SolverCreationParameter.h" />
     <ClInclude Include="..\include\SolverParameterChange.h" />
     <ClInclude Include="..\include\SPHBaseSolver.h" />
+    <ClInclude Include="..\include\SPHSolverPrivateLogic.h" />
     <ClInclude Include="..\include\SPHSolverUtils.h" />
     <ClInclude Include="..\include\SplishSplashCubicSplineKernel.h" />
     <ClInclude Include="..\include\StateSaverHelper.h" />

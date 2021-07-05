@@ -185,6 +185,11 @@ void Storm::WCSPHSolver::execute(const Storm::IterationParameter &iterationParam
 	simulMgr.refreshParticleNeighborhood();
 	simulMgr.subIterationStart();
 
+	if (!this->shouldContinue()) STORM_UNLIKELY
+	{
+		return;
+	}
+
 	// 2nd : compute densities and pressure data
 	for (auto &particleSystemPair : particleSystems)
 	{
@@ -238,6 +243,11 @@ void Storm::WCSPHSolver::execute(const Storm::IterationParameter &iterationParam
 				currentPMass = currentPDensity * particleVolume;
 			});
 		}
+	}
+
+	if (!this->shouldContinue()) STORM_UNLIKELY
+	{
+		return;
 	}
 
 	const float k_kernelLengthSquared = iterationParameter._kernelLength * iterationParameter._kernelLength;
@@ -324,6 +334,11 @@ void Storm::WCSPHSolver::execute(const Storm::IterationParameter &iterationParam
 				currentPForce += currentPTmpViscoForce;
 			});
 		}
+	}
+
+	if (!this->shouldContinue()) STORM_UNLIKELY
+	{
+		return;
 	}
 
 	// 4th : flush physics state (rigid bodies)
