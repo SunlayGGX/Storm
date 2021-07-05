@@ -9,6 +9,7 @@
 #include "ISimulatorManager.h"
 #include "IConfigManager.h"
 #include "IBibliographyManager.h"
+#include "IOSManager.h"
 
 #include "GeneralGraphicConfig.h"
 #include "GeneralApplicationConfig.h"
@@ -35,6 +36,31 @@
 
 namespace
 {
+	void handleShutdown()
+	{
+		bool mustQuitApplication;
+
+		const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+		const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
+		if (configMgr.isInRecordMode())
+		{
+			LOG_WARNING << "We're currently recording, therefore we should not shutdown the computer before the recording is completed or we would corrupt the recording.";
+			Storm::IOSManager &osMgr = singletonHolder.getSingleton<Storm::IOSManager>();
+
+			mustQuitApplication = !osMgr.preventShutdown();
+		}
+		else
+		{
+			mustQuitApplication = true;
+		}
+
+		if (mustQuitApplication)
+		{
+			Storm::WindowsManager::instance().callQuitCallback();
+			std::this_thread::sleep_for(std::chrono::milliseconds{ 2500 });
+		}
+	}
+
 	LRESULT CALLBACK wndProcCallback(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	{
 		PAINTSTRUCT ps;
@@ -148,6 +174,12 @@ namespace
 		}
 		break;
 
+		case WM_QUERYENDSESSION:
+		{
+			handleShutdown();
+		}
+		break;
+
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
 		}
@@ -160,10 +192,15 @@ namespace
 		{
 		case CTRL_C_EVENT:
 		case CTRL_CLOSE_EVENT:
-		case CTRL_SHUTDOWN_EVENT:
 			Storm::WindowsManager::instance().callQuitCallback();
-			std::this_thread::sleep_for(std::chrono::seconds{ 2 });
+			std::this_thread::sleep_for(std::chrono::milliseconds{ 2500 });
 			return TRUE;
+
+		case CTRL_SHUTDOWN_EVENT:
+		{
+			handleShutdown();
+			return TRUE;
+		}
 
 		default:
 			return FALSE;

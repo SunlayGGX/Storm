@@ -39,6 +39,9 @@ namespace Storm
 	public:
 		void makeBipSound(const std::chrono::milliseconds bipDuration) final override;
 
+	public:
+		bool preventShutdown() final override;
+
 	private:
 		std::unique_ptr<Storm::details::ProcessesHolder> _processHolder;
 	};

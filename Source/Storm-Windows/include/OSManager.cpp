@@ -379,3 +379,17 @@ void Storm::OSManager::makeBipSound(const std::chrono::milliseconds bipDuration)
 	enum : DWORD { k_frequencyHz = 523 };
 	::Beep(k_frequencyHz, static_cast<DWORD>(bipDuration.count()));
 }
+
+bool Storm::OSManager::preventShutdown()
+{
+	if (!::AbortSystemShutdown(NULL))
+	{
+		LOG_DEBUG << "System shutdown prevented.";
+		return true;
+	}
+	else
+	{
+		LOG_ERROR << generateComError(GetLastError(), "We failed to prevent system shutdown.");
+		return false;
+	}
+}
