@@ -78,8 +78,8 @@ void particleForceGeometryShader(line GeometryInputType inputRaw[2], inout Trian
 		corner3._position = float4(pos1.xy + thicknessVect, pos1.zw);
 		corner4._position = float4(pos1.xy - thicknessVect, pos1.zw);
 
-		thicknessVect *= 2.f;
-		const float2 shiftVect = lineVect.xy / 10.f;
+		thicknessVect *= 3.f;
+		const float2 shiftVect = lineVect.xy / 4.f;
 
 		head1._position = corner3._position;
 		head1._position.xy += thicknessVect;
