@@ -38,7 +38,7 @@ GeometryInputType particleForceVertexShader(VertexInputType input)
 	return output;
 }
 
-[maxvertexcount(6)]
+[maxvertexcount(9)]
 void particleForceGeometryShader(line GeometryInputType inputRaw[2], inout TriangleStream<PixelInputType> outputStream)
 {
 	GeometryInputType p0 = inputRaw[0];
@@ -65,6 +65,10 @@ void particleForceGeometryShader(line GeometryInputType inputRaw[2], inout Trian
 	PixelInputType corner3;
 	PixelInputType corner4;
 
+	PixelInputType head1;
+	PixelInputType head2;
+	PixelInputType head3;
+
 	if (thicknessNorm > 0.00001f)
 	{
 		thicknessVect *= (_midThickness / thicknessNorm);
@@ -73,6 +77,19 @@ void particleForceGeometryShader(line GeometryInputType inputRaw[2], inout Trian
 		corner2._position = float4(pos0.xy - thicknessVect, pos0.zw);
 		corner3._position = float4(pos1.xy + thicknessVect, pos1.zw);
 		corner4._position = float4(pos1.xy - thicknessVect, pos1.zw);
+
+		thicknessVect *= 2.f;
+		const float2 shiftVect = lineVect.xy / 10.f;
+
+		head1._position = corner3._position;
+		head1._position.xy += thicknessVect;
+		head1._position.xy -= shiftVect;
+
+		head2._position = corner4._position;
+		head2._position.xy -= thicknessVect;
+		head2._position.xy -= shiftVect;
+
+		head3._position = pos1;
 	}
 	else
 	{
@@ -80,6 +97,10 @@ void particleForceGeometryShader(line GeometryInputType inputRaw[2], inout Trian
 		corner2._position = pos0;
 		corner3._position = pos1;
 		corner4._position = pos1;
+
+		head1._position = pos1;
+		head2._position = pos1;
+		head3._position = pos1;
 	}
 
 	outputStream.Append(corner2);
@@ -90,6 +111,11 @@ void particleForceGeometryShader(line GeometryInputType inputRaw[2], inout Trian
 	outputStream.Append(corner2);
 	outputStream.Append(corner3);
 	outputStream.Append(corner4);
+	outputStream.RestartStrip();
+
+	outputStream.Append(head2);
+	outputStream.Append(head1);
+	outputStream.Append(head3);
 	outputStream.RestartStrip();
 }
 
