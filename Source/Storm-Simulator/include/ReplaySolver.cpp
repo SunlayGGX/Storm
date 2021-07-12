@@ -93,7 +93,7 @@ namespace
 			std::vector<Storm::Vector3> &allForces = currentPSystem.getForces();
 			std::vector<Storm::Vector3> &allPressureForce = currentPSystem.getTemporaryPressureForces();
 			std::vector<Storm::Vector3> &allViscosityForce = currentPSystem.getTemporaryViscosityForces();
-			std::vector<Storm::Vector3> &allDragForce = currentPSystem.getTemporaryViscosityForces();
+			std::vector<Storm::Vector3> &allDragForce = currentPSystem.getTemporaryDragForces();
 
 			if (currentPSystem.isFluids())
 			{
