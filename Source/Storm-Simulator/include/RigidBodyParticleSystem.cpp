@@ -14,7 +14,6 @@
 
 #include "SceneSimulationConfig.h"
 #include "SceneRigidBodyConfig.h"
-#include "CollisionType.h"
 #include "VolumeComputationTechnique.h"
 
 #include "RunnerHelper.h"
@@ -22,7 +21,6 @@
 
 #include "ParticleSystemUtils.h"
 
-#include "MacroConfig.h"
 
 namespace
 {
