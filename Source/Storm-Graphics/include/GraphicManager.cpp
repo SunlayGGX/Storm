@@ -12,6 +12,7 @@
 #include "GraphicParticleData.h"
 #include "GraphicConstraintSystem.h"
 #include "GraphicBlower.h"
+#include "GraphicGravity.h"
 #include "ParticleForceRenderer.h"
 #include "GraphicKernelEffectArea.h"
 
@@ -147,6 +148,7 @@ void Storm::GraphicManager::initialize_Implementation(void* hwnd)
 
 	_renderedElements.emplace_back(std::make_unique<Storm::Grid>(device, sceneGraphicConfig._grid));
 	_coordSystemNonOwningPtr = static_cast<Storm::GraphicCoordinateSystem*>(_renderedElements.emplace_back(std::make_unique<Storm::GraphicCoordinateSystem>(device)).get());
+	_gravityNonOwningPtr = static_cast<Storm::GraphicGravity*>(_renderedElements.emplace_back(std::make_unique<Storm::GraphicGravity>(device)).get());
 
 	_graphicParticlesSystem = std::make_unique<Storm::GraphicParticleSystem>(device);
 
