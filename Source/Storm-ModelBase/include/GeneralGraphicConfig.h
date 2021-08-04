@@ -19,5 +19,6 @@ namespace Storm
 		bool _selectedParticleForceShouldBeTopMost;
 		bool _spinCameraToGravityUp;
 		bool _smoothCameraTransition;
+		bool _showGravityArrow;
 	};
 }

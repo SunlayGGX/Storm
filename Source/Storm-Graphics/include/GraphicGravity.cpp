@@ -3,8 +3,10 @@
 #include "GravityShader.h"
 
 #include "IConfigManager.h"
-#include "SceneSimulationConfig.h"
 #include "SingletonHolder.h"
+
+#include "GeneralGraphicConfig.h"
+#include "SceneSimulationConfig.h"
 
 
 namespace
@@ -25,13 +27,15 @@ namespace
 }
 
 
-Storm::GraphicGravity::GraphicGravity(const ComPtr<ID3D11Device> &device) :
-	_visible{ true }
+Storm::GraphicGravity::GraphicGravity(const ComPtr<ID3D11Device> &device)
 {
 	enum { k_vertexCount = 1 };
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
-
+	
+	const Storm::GeneralGraphicConfig &generalGraphicConfig = configMgr.getGeneralGraphicConfig();
+	_visible = generalGraphicConfig._showGravityArrow;
+	
 	const Storm::SceneSimulationConfig &generalSimulConfig = configMgr.getSceneSimulationConfig();
 	
 	// Index and vertex CPU buffers

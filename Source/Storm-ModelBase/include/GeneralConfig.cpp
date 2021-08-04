@@ -25,7 +25,8 @@ Storm::GeneralGraphicConfig::GeneralGraphicConfig() :
 	_selectedParticleShouldBeTopMost{ false },
 	_selectedParticleForceShouldBeTopMost{ true },
 	_spinCameraToGravityUp{ false },
-	_smoothCameraTransition{ true }
+	_smoothCameraTransition{ true },
+	_showGravityArrow{ true }
 {}
 
 Storm::GeneralSimulationConfig::GeneralSimulationConfig() :
