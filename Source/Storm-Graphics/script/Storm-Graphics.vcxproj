@@ -26,6 +26,7 @@
     <ClCompile Include="..\include\GraphicBlower.cpp" />
     <ClCompile Include="..\include\GraphicConstraintSystem.cpp" />
     <ClCompile Include="..\include\GraphicCoordinateSystem.cpp" />
+    <ClCompile Include="..\include\GraphicGravity.cpp" />
     <ClCompile Include="..\include\GraphicHelpers.cpp" />
     <ClCompile Include="..\include\GraphicKernelEffectArea.cpp" />
     <ClCompile Include="..\include\GraphicManager.cpp" />
@@ -33,6 +34,7 @@
     <ClCompile Include="..\include\GraphicParticleSystem.cpp" />
     <ClCompile Include="..\include\GraphicPipe.cpp" />
     <ClCompile Include="..\include\GraphicRigidBody.cpp" />
+    <ClCompile Include="..\include\GravityShader.cpp" />
     <ClCompile Include="..\include\Grid.cpp" />
     <ClCompile Include="..\include\GridShader.cpp" />
     <ClCompile Include="..\include\MeshShader.cpp" />
@@ -61,6 +63,7 @@
     <ClInclude Include="..\include\DirectXController.h" />
     <ClInclude Include="..\include\DirectXHardwareInfo.h" />
     <ClInclude Include="..\include\GraphicConstraintSystem.h" />
+    <ClInclude Include="..\include\GraphicGravity.h" />
     <ClInclude Include="..\include\GraphicHelpers.h" />
     <ClInclude Include="..\include\GraphicKernelEffectArea.h" />
     <ClInclude Include="..\include\GraphicManager.h" />
@@ -70,6 +73,7 @@
     <ClInclude Include="..\include\GraphicPipe.h" />
     <ClInclude Include="..\include\GraphicRigidBody.h" />
     <ClInclude Include="..\include\GraphicBlower.h" />
+    <ClInclude Include="..\include\GravityShader.h" />
     <ClInclude Include="..\include\Grid.h" />
     <ClInclude Include="..\include\GridShader.h" />
     <ClInclude Include="..\include\IRenderedElement.h" />

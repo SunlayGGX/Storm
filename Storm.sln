@@ -39,6 +39,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shaders", "Shaders", "{1C8B
 		Source\Shaders\AreaDraw.hlsl = Source\Shaders\AreaDraw.hlsl
 		Source\Shaders\ConstraintsDraw.hlsl = Source\Shaders\ConstraintsDraw.hlsl
 		Source\Shaders\CoordinateSystem.hlsl = Source\Shaders\CoordinateSystem.hlsl
+		Source\Shaders\GravityArrow.hlsl = Source\Shaders\GravityArrow.hlsl
 		Source\Shaders\Grid.hlsl = Source\Shaders\Grid.hlsl
 		Source\Shaders\MeshDraw.hlsl = Source\Shaders\MeshDraw.hlsl
 		Source\Shaders\ParticleDraw.hlsl = Source\Shaders\ParticleDraw.hlsl
