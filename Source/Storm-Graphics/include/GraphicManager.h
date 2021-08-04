@@ -18,6 +18,7 @@ namespace Storm
 	class ParticleForceRenderer;
 	class GraphicPipe;
 	class GraphicCoordinateSystem;
+	class GraphicGravity;
 	class GraphicKernelEffectArea;
 
 	enum class ColoredSetting : uint8_t;
@@ -140,5 +141,6 @@ namespace Storm
 		unsigned short _windowsMovedCallbackId;
 
 		Storm::GraphicCoordinateSystem* _coordSystemNonOwningPtr;
+		Storm::GraphicGravity* _gravityNonOwningPtr;
 	};
 }

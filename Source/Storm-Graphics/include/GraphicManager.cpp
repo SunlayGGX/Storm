@@ -202,6 +202,7 @@ void Storm::GraphicManager::initialize_Implementation(void* hwnd)
 			inputMgr.bindKey(Storm::SpecialKey::KC_MULTIPLY, [this]() { _camera->increaseFarPlane(); _dirty = true; });
 			inputMgr.bindKey(Storm::SpecialKey::KC_DIVIDE, [this]() { _camera->decreaseFarPlane(); _dirty = true; });
 			inputMgr.bindKey(Storm::SpecialKey::KC_F2, [this]() { _coordSystemNonOwningPtr->switchShow(); _dirty = true; });
+			inputMgr.bindKey(Storm::SpecialKey::KC_F2, [this]() { _gravityNonOwningPtr->switchShow(); _dirty = true; });
 			inputMgr.bindKey(Storm::SpecialKey::KC_F3, [this]() { _directXController->setRenderSolidOnly(); _dirty = true; });
 			inputMgr.bindKey(Storm::SpecialKey::KC_F4, [this]() { _forceRenderer->tweekAlwaysOnTop(); _dirty = true; });
 			inputMgr.bindKey(Storm::SpecialKey::KC_F5, [this]() { _directXController->setWireFrameState(); _dirty = true; });

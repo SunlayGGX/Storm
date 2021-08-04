@@ -568,7 +568,7 @@ Note : If the term in the parenthesis is "Numpad", then the keybinding is the va
 - **2 (Key)**: Increase the physics delta time. Valid only if we are not in replay mode, or if CFL is disabled.
 - **3 (Key)**: Cycle the color setting of the fluid particle data displayed from ... -> Velocity -> Pressure -> Density -> ... .
 - **F1**: Show/Hide the kernel effect area of the selected particle. Does nothing if no particle has been selected.
-- **F2**: Show/Hide the axis coordinate system displayed on the UI.
+- **F2**: Show/Hide the axis coordinate system and the gravity vector displayed on the UI HUD.
 - **F3**: Set rendering to only display rigidbodies, no fluids.
 - **F4**: Set selected particle forces always on top flag to true if false, false otherwise. But note that if it is true, you'll always see the particle force if it is in front of the view point, but you'll lose the depth information of the vector.
 - **F5**: Set wireframe.
