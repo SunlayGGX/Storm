@@ -187,7 +187,7 @@ Storm::DFSPHSolverModified::DFSPHSolverModified(const float k_kernelLength, cons
 
 Storm::DFSPHSolverModified::~DFSPHSolverModified() = default;
 
-void Storm::DFSPHSolverModified::execute(const Storm::IterationParameter & iterationParameter)
+void Storm::DFSPHSolverModified::execute(const Storm::IterationParameter &iterationParameter)
 {
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
@@ -549,7 +549,7 @@ void Storm::DFSPHSolverModified::removeRawEndData(const unsigned int pSystemId, 
 	Storm::SPHSolverUtils::removeRawEndData(pSystemId, toRemoveCount, _data);
 }
 
-void Storm::DFSPHSolverModified::onSubIterationStart(const Storm::ParticleSystemContainer & particleSystems)
+void Storm::DFSPHSolverModified::onSubIterationStart(const Storm::ParticleSystemContainer &particleSystems)
 {
 	for (auto &dataFieldPair : _data)
 	{
@@ -572,7 +572,7 @@ void Storm::DFSPHSolverModified::setNeighborThresholdDensity(std::size_t neighbo
 	_neighborThresholdDensity = neighborCount;
 }
 
-void Storm::DFSPHSolverModified::divergenceSolve(const Storm::IterationParameter & iterationParameter, unsigned int &outIteration, float &outAverageError)
+void Storm::DFSPHSolverModified::divergenceSolve(const Storm::IterationParameter &iterationParameter, unsigned int &outIteration, float &outAverageError)
 {
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
@@ -757,7 +757,7 @@ void Storm::DFSPHSolverModified::divergenceSolve(const Storm::IterationParameter
 	}
 }
 
-void Storm::DFSPHSolverModified::pressureSolve(const Storm::IterationParameter & iterationParameter, unsigned int &outIteration, float &outAverageError)
+void Storm::DFSPHSolverModified::pressureSolve(const Storm::IterationParameter &iterationParameter, unsigned int &outIteration, float &outAverageError)
 {
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
@@ -908,7 +908,7 @@ void Storm::DFSPHSolverModified::pressureSolve(const Storm::IterationParameter &
 	} while ((!chk || (outIteration < minIter)) && (outIteration < maxIter));
 }
 
-void Storm::DFSPHSolverModified::computeDFSPHFactor(const Storm::IterationParameter & iterationParameter, Storm::FluidParticleSystem & fluidPSystem, Storm::DFSPHSolverModified::DFSPHSolverDataArray & pSystemData, const double kMultiplicationCoeff)
+void Storm::DFSPHSolverModified::computeDFSPHFactor(const Storm::IterationParameter &iterationParameter, Storm::FluidParticleSystem &fluidPSystem, Storm::DFSPHSolverModified::DFSPHSolverDataArray &pSystemData, const double kMultiplicationCoeff)
 {
 	//////////////////////////////////////////////////////////////////////////
 	// Init parameters
@@ -962,10 +962,10 @@ void Storm::DFSPHSolverModified::computeDFSPHFactor(const Storm::IterationParame
 	});
 }
 
-void Storm::DFSPHSolverModified::computeDensityAdv(const Storm::IterationParameter & iterationParameter, Storm::FluidParticleSystem & fluidPSystem, const Storm::DFSPHSolverModified::DFSPHSolverDataArray * currentSystemData, Storm::DFSPHSolverData & currentPData, const std::size_t currentPIndex)
+void Storm::DFSPHSolverModified::computeDensityAdv(const Storm::IterationParameter &iterationParameter, Storm::FluidParticleSystem &fluidPSystem, const Storm::DFSPHSolverModified::DFSPHSolverDataArray* currentSystemData, Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex)
 {
 	const float density = fluidPSystem.getDensities()[currentPIndex];
-	float &densityAdv = currentPData._predictedDensity;
+	float densityAdv = currentPData._predictedDensity;
 
 	const float density0 = fluidPSystem.getRestDensity();
 
@@ -1001,16 +1001,13 @@ void Storm::DFSPHSolverModified::computeDensityAdv(const Storm::IterationParamet
 	}
 
 	densityAdv = density / density0 + iterationParameter._deltaTime * delta;
-	densityAdv = std::max(densityAdv, 1.f);
+	currentPData._predictedDensity = std::max(currentPData._predictedDensity + densityAdv, 1.f);
 }
 
-void Storm::DFSPHSolverModified::computeDensityChange(const Storm::IterationParameter & iterationParameter, Storm::FluidParticleSystem & fluidPSystem, const Storm::DFSPHSolverModified::DFSPHSolverDataArray * currentSystemData, Storm::DFSPHSolverData & currentPData, const std::size_t currentPIndex)
+void Storm::DFSPHSolverModified::computeDensityChange(const Storm::IterationParameter &iterationParameter, Storm::FluidParticleSystem &fluidPSystem, const Storm::DFSPHSolverModified::DFSPHSolverDataArray* currentSystemData, Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex)
 {
 	const Storm::ParticleNeighborhoodArray &currentPNeighborhood = fluidPSystem.getNeighborhoodArrays()[currentPIndex];
-
-	float &densityAdv = currentPData._predictedDensity;
-	densityAdv = 0.f;
-
+	
 	// in case of particle deficiency do not perform a divergence solve
 	if (!_enableThresholdDensity || currentPNeighborhood.size() >= _neighborThresholdDensity)
 	{
@@ -1019,6 +1016,7 @@ void Storm::DFSPHSolverModified::computeDensityChange(const Storm::IterationPara
 
 		const Storm::Vector3 &vi = currentPData._predictedVelocity;
 
+		float densityAdv = 0.f;
 		for (const Storm::NeighborParticleInfo &neighbor : currentPNeighborhood)
 		{
 			if (neighbor._isFluidParticle)
@@ -1043,6 +1041,10 @@ void Storm::DFSPHSolverModified::computeDensityChange(const Storm::IterationPara
 		}
 
 		// only correct positive divergence
-		densityAdv = isnan(densityAdv) ? 0.f : std::max(densityAdv, 0.f);
+		currentPData._predictedDensity = isnan(densityAdv) ? 0.f : std::max(densityAdv, 0.f);
+	}
+	else
+	{
+		currentPData._predictedDensity = 0.f;
 	}
 }
