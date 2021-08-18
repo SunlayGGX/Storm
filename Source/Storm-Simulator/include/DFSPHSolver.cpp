@@ -33,6 +33,7 @@
 #include "RunnerHelper.h"
 #include "SPHSolverUtils.h"
 
+#define STORM_TRY_FIX true
 
 namespace
 {
@@ -278,6 +279,24 @@ void Storm::DFSPHSolver::execute(const Storm::IterationParameter &iterationParam
 		return;
 	}
 
+#if STORM_TRY_FIX
+	for (auto &dataFieldPair : _data)
+	{
+		// Since data field was made from fluid particles, no need to check.
+		const Storm::FluidParticleSystem &fluidPSystem = static_cast<const Storm::FluidParticleSystem &>(*particleSystems.find(dataFieldPair.first)->second);
+		const std::vector<Storm::Vector3> &velocities = fluidPSystem.getVelocity();
+		Storm::runParallel(dataFieldPair.second, [this, &velocities](Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex)
+		{
+			currentPData._predictedVelocity = velocities[currentPIndex];
+		});
+	}
+
+	if (!this->shouldContinue()) STORM_UNLIKELY
+	{
+		return;
+	}
+#endif
+
 	// 5th : Divergence solve
 	unsigned int iterationV;
 	float averageErrorV;
@@ -413,7 +432,11 @@ void Storm::DFSPHSolver::execute(const Storm::IterationParameter &iterationParam
 				Storm::DFSPHSolverData &currentPDataField = dataField[currentPIndex];
 
 				currentPDataField._nonPressureAcceleration = currentPForce / currentPMass;
+#if STORM_TRY_FIX
+				currentPDataField._predictedVelocity += currentPDataField._nonPressureAcceleration * iterationParameter._deltaTime;
+#else
 				currentPDataField._predictedVelocity = vi + currentPDataField._nonPressureAcceleration * iterationParameter._deltaTime;
+#endif
 
 				// Note : Maybe we should also compute a prediction of the position ?
 			});
