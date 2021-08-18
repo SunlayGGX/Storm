@@ -212,7 +212,7 @@ void Storm::DFSPHSolver::execute(const Storm::IterationParameter &iterationParam
 	simulMgr.subIterationStart();
 
 	// 2nd : refresh particle neighborhood
-	simulMgr.refreshParticleNeighborhood();
+	//simulMgr.refreshParticleNeighborhood();
 
 	if (!this->shouldContinue()) STORM_UNLIKELY
 	{
