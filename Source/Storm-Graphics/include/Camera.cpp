@@ -202,7 +202,7 @@ namespace
 	enum
 	{
 		k_noFrame = -1,
-		k_finalSmoothFrameIter = 120,
+		k_finalSmoothFrameIter = 120 * 12,
 
 		// The step x from 0 to 1 is divided by 62 samples. The 2 samples are to prevent the start 0th and last frame iteration to have a complete speed of 0.
 		// So this is a sampling of k_finalSmoothFrameIter ticks + the 2 ticks at the beginning and ending of the domain.
