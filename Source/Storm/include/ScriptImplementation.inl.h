@@ -67,6 +67,7 @@ void STORM_CURRENT_REGISTERED_TYPE::registerCurrentOnScript(IScriptWrapperInterf
 		// Solver manip
 		STORM_DECLARE_SCRIPTED_METHOD(setEnableThresholdDensity_DFSPH),
 		STORM_DECLARE_SCRIPTED_METHOD(setNeighborThresholdDensity_DFSPH),
+		STORM_DECLARE_SCRIPTED_METHOD(setUseRotationFix_DFSPH),
 
 
 		// Frame advance manip

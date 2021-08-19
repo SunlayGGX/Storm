@@ -51,6 +51,23 @@ void Storm::SolverParameterChange::setEnableThresholdDensity_DFSPH(Storm::ISPHBa
 	}
 }
 
+void Storm::SolverParameterChange::setUseRotationFix_DFSPH(Storm::ISPHBaseSolver* currentSolver, bool enable)
+{
+	assert(Storm::isSimulationThread() && "Cannot change Sph solvers values outside the simulation thread!");
+
+	if (applyIfPossible<Storm::DFSPHSolver>(currentSolver, [&enable](auto &solver)
+	{
+		solver.setUseRotationFix(enable);
+	}))
+	{
+		LOG_DEBUG << "Rotation fix " << (enable ? "enabled" : "disabled");
+	}
+	else
+	{
+		logChangeIgnored();
+	}
+}
+
 void Storm::SolverParameterChange::setNeighborThresholdDensity_DFSPH(Storm::ISPHBaseSolver* currentSolver, std::size_t neighborCount)
 {
 	assert(Storm::isSimulationThread() && "Cannot change Sph solvers values outside the simulation thread!");

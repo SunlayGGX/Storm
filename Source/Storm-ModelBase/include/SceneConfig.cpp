@@ -163,7 +163,8 @@ Storm::SceneFluidUnitParticleConfig::SceneFluidUnitParticleConfig() :
 Storm::SceneFluidCustomDFSPHConfig::SceneFluidCustomDFSPHConfig() :
 	_neighborThresholdDensity{ 20 },
 	_kPressurePredictedCoeff{ 1.f },
-	_enableThresholdDensity{ true }
+	_enableThresholdDensity{ true },
+	_useFixRotation{ true }
 {
 
 }

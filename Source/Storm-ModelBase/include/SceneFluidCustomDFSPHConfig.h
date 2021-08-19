@@ -13,6 +13,7 @@ namespace Storm
 	public:
 		std::size_t _neighborThresholdDensity;
 		bool _enableThresholdDensity;
+		bool _useFixRotation;
 
 		float _kPressurePredictedCoeff; // This one is for testing... This is the multiplication factor for the kDFSPH and co. It doesn't exist inside the true formula (therefore should be 1.f in the real DFSPH method)
 	};

@@ -404,6 +404,7 @@ This element is all setting appartaining to a fluid. Here the tag you can set in
 	+ **pressurePredictKCoeff (positive zero-able float, falcultative)**: This is a multiplication coefficient for the predicted pressure coefficient we compute inside DFSPH. This parameter doesn't exist in the real formula (is 1.0) but was introduced to balance pressure forces against viscosity forces. Default is 1.0.
 	+ **neighborThresholdDensity (positive integer, falcultative)**: Neighbor count threshold used for DFSPH. If the neighbor count is below this value, then we won't advect density for the current particle. It should be an non zero positive integer. Default is 20.
 	+ **enableThresholdDensity (boolean, falcultative)**: Enable the neighbor threshold density. Maybe for simulation that are with a filled domain (no void). Default is true.
+	+ **useRotationFix (boolean, falcultative)**: Specify if we should use the last rotation fix. Default is true.
 
 
 #### RigidBodies
@@ -655,6 +656,7 @@ Here the list of available commands :
 - **void logTotalVolume()**: Log the total volume taken by all particles contained inside the domain.
 - **void setEnableThresholdDensity_DFSPH(bool enable)**: Enable/Disable the neighbor threshold on density solver. Enabled means that we'll use a threshold. Disabled means that the density solving won't use a neighborhood threshold and solve the density whatever the neighbor count is. This method is only available if the solver is DFSPH.
 - **void setNeighborThresholdDensity_DFSPH(size_t neighborCount)**: Set the neighbor threshold value on density solver. This method is only available if the solver is DFSPH.
+- **void setUseRotationFix_DFSPH(size_t neighborCount)**: Enable rotation fix. This method is only available if the solver is DFSPH.
 
 
 #### - TimeManager (timeMgr)

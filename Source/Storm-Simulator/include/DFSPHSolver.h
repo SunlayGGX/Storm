@@ -28,6 +28,7 @@ namespace Storm
 
 	public:
 		void setEnableThresholdDensity(bool enable);
+		void setUseRotationFix(bool useFix);
 		void setNeighborThresholdDensity(std::size_t neighborCount);
 
 	private:
@@ -42,6 +43,7 @@ namespace Storm
 		float _totalParticleCountFl;
 		bool _enableDivergenceSolve;
 		bool _enableThresholdDensity;
+		bool _useRotationFix;
 		std::size_t _neighborThresholdDensity;
 	};
 }

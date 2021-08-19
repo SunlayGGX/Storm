@@ -2010,6 +2010,15 @@ void Storm::SimulatorManager::setEnableThresholdDensity_DFSPH(bool enable)
 	});
 }
 
+void Storm::SimulatorManager::setUseRotationFix_DFSPH(bool enable)
+{
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::MainThread, [this, enable]()
+	{
+		Storm::SolverParameterChange::setUseRotationFix_DFSPH(_sphSolver.get(), enable);
+	});
+}
+
 void Storm::SimulatorManager::setNeighborThresholdDensity_DFSPH(std::size_t neighborCount)
 {
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();

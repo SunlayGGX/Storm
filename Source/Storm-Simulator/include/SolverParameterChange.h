@@ -11,6 +11,7 @@ namespace Storm
 	{
 	public:
 		static void setEnableThresholdDensity_DFSPH(Storm::ISPHBaseSolver* currentSolver, bool enable);
+		static void setUseRotationFix_DFSPH(Storm::ISPHBaseSolver* currentSolver, bool enable);
 		static void setNeighborThresholdDensity_DFSPH(Storm::ISPHBaseSolver* currentSolver, std::size_t neighborCount);
 	};
 }

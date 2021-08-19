@@ -742,6 +742,7 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 					if (
 						!Storm::XmlReader::handleXml(fluidParticleCustomSimulConfigXml, "pressurePredictKCoeff", fluidDfsphConfig._kPressurePredictedCoeff) &&
 						!Storm::XmlReader::handleXml(fluidParticleCustomSimulConfigXml, "enableThresholdDensity", fluidDfsphConfig._enableThresholdDensity) &&
+						!Storm::XmlReader::handleXml(fluidParticleCustomSimulConfigXml, "useRotationFix", fluidDfsphConfig._useFixRotation) &&
 						!Storm::XmlReader::handleXml(fluidParticleCustomSimulConfigXml, "neighborThresholdDensity", fluidDfsphConfig._neighborThresholdDensity)
 						)
 					{

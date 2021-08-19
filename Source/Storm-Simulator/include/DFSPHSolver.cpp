@@ -33,7 +33,6 @@
 #include "RunnerHelper.h"
 #include "SPHSolverUtils.h"
 
-#define STORM_TRY_FIX true
 
 namespace
 {
@@ -185,6 +184,7 @@ Storm::DFSPHSolver::DFSPHSolver(const float k_kernelLength, const Storm::Particl
 	const Storm::SceneFluidCustomDFSPHConfig &dfsphFluidConfig = static_cast<const Storm::SceneFluidCustomDFSPHConfig &>(*sceneFluidConfig._customSimulationSettings);
 	_enableThresholdDensity = dfsphFluidConfig._enableThresholdDensity;
 	_neighborThresholdDensity = dfsphFluidConfig._neighborThresholdDensity;
+	_useRotationFix = dfsphFluidConfig._useFixRotation;
 }
 
 Storm::DFSPHSolver::~DFSPHSolver() = default;
@@ -279,23 +279,24 @@ void Storm::DFSPHSolver::execute(const Storm::IterationParameter &iterationParam
 		return;
 	}
 
-#if STORM_TRY_FIX
-	for (auto &dataFieldPair : _data)
+	if (_useRotationFix)
 	{
-		// Since data field was made from fluid particles, no need to check.
-		const Storm::FluidParticleSystem &fluidPSystem = static_cast<const Storm::FluidParticleSystem &>(*particleSystems.find(dataFieldPair.first)->second);
-		const std::vector<Storm::Vector3> &velocities = fluidPSystem.getVelocity();
-		Storm::runParallel(dataFieldPair.second, [this, &velocities](Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex)
+		for (auto &dataFieldPair : _data)
 		{
-			currentPData._predictedVelocity = velocities[currentPIndex];
-		});
-	}
+			// Since data field was made from fluid particles, no need to check.
+			const Storm::FluidParticleSystem &fluidPSystem = static_cast<const Storm::FluidParticleSystem &>(*particleSystems.find(dataFieldPair.first)->second);
+			const std::vector<Storm::Vector3> &velocities = fluidPSystem.getVelocity();
+			Storm::runParallel(dataFieldPair.second, [this, &velocities](Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex)
+			{
+				currentPData._predictedVelocity = velocities[currentPIndex];
+			});
+		}
 
-	if (!this->shouldContinue()) STORM_UNLIKELY
-	{
-		return;
+		if (!this->shouldContinue()) STORM_UNLIKELY
+		{
+			return;
+		}
 	}
-#endif
 
 	// 5th : Divergence solve
 	unsigned int iterationV;
@@ -432,11 +433,14 @@ void Storm::DFSPHSolver::execute(const Storm::IterationParameter &iterationParam
 				Storm::DFSPHSolverData &currentPDataField = dataField[currentPIndex];
 
 				currentPDataField._nonPressureAcceleration = currentPForce / currentPMass;
-#if STORM_TRY_FIX
-				currentPDataField._predictedVelocity += currentPDataField._nonPressureAcceleration * iterationParameter._deltaTime;
-#else
-				currentPDataField._predictedVelocity = vi + currentPDataField._nonPressureAcceleration * iterationParameter._deltaTime;
-#endif
+				if (_useRotationFix)
+				{
+					currentPDataField._predictedVelocity += currentPDataField._nonPressureAcceleration * iterationParameter._deltaTime;
+				}
+				else
+				{
+					currentPDataField._predictedVelocity = vi + currentPDataField._nonPressureAcceleration * iterationParameter._deltaTime;
+				}
 
 				// Note : Maybe we should also compute a prediction of the position ?
 			});
@@ -557,6 +561,11 @@ void Storm::DFSPHSolver::removeRawEndData(const unsigned int pSystemId, std::siz
 void Storm::DFSPHSolver::setEnableThresholdDensity(bool enable)
 {
 	_enableThresholdDensity = enable;
+}
+
+void Storm::DFSPHSolver::setUseRotationFix(bool useFix)
+{
+	_useRotationFix = useFix;
 }
 
 void Storm::DFSPHSolver::setNeighborThresholdDensity(std::size_t neighborCount)

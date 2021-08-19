@@ -98,6 +98,7 @@ namespace Storm
 
 	public:
 		void setEnableThresholdDensity_DFSPH(bool enable);
+		void setUseRotationFix_DFSPH(bool enable);
 		void setNeighborThresholdDensity_DFSPH(std::size_t neighborCount);
 
 	public:
