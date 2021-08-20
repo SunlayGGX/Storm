@@ -797,10 +797,6 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 		{
 			Storm::throwException<Storm::Exception>("Fluid " + std::to_string(fluidConfig._fluidId) + " particle volume should be left unset or should be strictly greater than 0.0! Value was " + std::to_string(fluidConfig._particleVolume) + "m^3.");
 		}
-		else if (fluidConfig._kPressureStiffnessCoeff < 0.f)
-		{
-			Storm::throwException<Storm::Exception>("Fluid " + std::to_string(fluidConfig._fluidId) + " pressure stiffness of " + std::to_string(fluidConfig._kPressureStiffnessCoeff) + " is invalid!");
-		}
 		else if (fluidConfig._kPressureExponentCoeff < 0.f)
 		{
 			Storm::throwException<Storm::Exception>("Fluid " + std::to_string(fluidConfig._fluidId) + " pressure exponent of " + std::to_string(fluidConfig._kPressureExponentCoeff) + " is invalid!");
@@ -824,6 +820,18 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 		else if (fluidConfig._uniformDragCoefficient < 0.f)
 		{
 			Storm::throwException<Storm::Exception>("Fluid " + std::to_string(fluidConfig._fluidId) + " uniform drag coefficient should be positive or 0 (disabled). Value was " + std::to_string(fluidConfig._uniformDragCoefficient));
+		}
+		else if (fluidConfig._kPressureStiffnessCoeff < 0.f)
+		{
+			if (fluidConfig._kPressureStiffnessCoeff == -1.f)
+			{
+				LOG_COMMENT << "Since user did not set the pressure stiffness coefficient k1, we'll use WCSPH automatic computation.";
+				fluidConfig._kPressureStiffnessCoeff = fluidConfig._density * fluidConfig._soundSpeed * fluidConfig._soundSpeed / 7.f;
+			}
+			else
+			{
+				Storm::throwException<Storm::Exception>("Fluid " + std::to_string(fluidConfig._fluidId) + " pressure stiffness of " + std::to_string(fluidConfig._kPressureStiffnessCoeff) + " is invalid!");
+			}
 		}
 
 		fluidConfig._cinematicViscosity = fluidConfig._dynamicViscosity / fluidConfig._density;

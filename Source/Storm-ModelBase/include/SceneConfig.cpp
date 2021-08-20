@@ -164,7 +164,8 @@ Storm::SceneFluidCustomDFSPHConfig::SceneFluidCustomDFSPHConfig() :
 	_neighborThresholdDensity{ 20 },
 	_kPressurePredictedCoeff{ 1.f },
 	_enableThresholdDensity{ true },
-	_useFixRotation{ true }
+	_useFixRotation{ true },
+	_enableDensitySolve{ true }
 {
 
 }
@@ -175,7 +176,7 @@ Storm::SceneFluidConfig::SceneFluidConfig() :
 	_dynamicViscosity{ 0.00001715f }, // Dry air dynamic viscosity at 0 °C degrees and normal ATM pressure. https://www.engineeringtoolbox.com/air-absolute-kinematic-viscosity-d_601.html.
 	_soundSpeed{ 331.4f }, // Sound speed in air at 0 °C degrees and normal ATM pressure. https://www.engineeringtoolbox.com/air-speed-sound-d_603.html,
 	_particleVolume{ -1.f },
-	_kPressureStiffnessCoeff{ 50000.f },
+	_kPressureStiffnessCoeff{ -1.f },
 	_kPressureExponentCoeff{ 7.f },
 	_relaxationCoefficient{ 0.5f },
 	_pressureInitRelaxationCoefficient{ 0.5f },
