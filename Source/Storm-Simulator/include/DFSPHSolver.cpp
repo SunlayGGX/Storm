@@ -144,8 +144,7 @@ namespace
 
 
 Storm::DFSPHSolver::DFSPHSolver(const float k_kernelLength, const Storm::ParticleSystemContainer &particleSystemsMap) :
-	Storm::PredictiveSolverHandler{ g_solverIterationNames, g_solverErrorsNames },
-	_enableDivergenceSolve{ true }
+	Storm::PredictiveSolverHandler{ g_solverIterationNames, g_solverErrorsNames }
 {
 	Storm::SimulatorManager &simulMgr = Storm::SimulatorManager::instance();
 	simulMgr.refreshParticleNeighborhood();
@@ -185,6 +184,7 @@ Storm::DFSPHSolver::DFSPHSolver(const float k_kernelLength, const Storm::Particl
 	_enableThresholdDensity = dfsphFluidConfig._enableThresholdDensity;
 	_neighborThresholdDensity = dfsphFluidConfig._neighborThresholdDensity;
 	_useRotationFix = dfsphFluidConfig._useFixRotation;
+	_enableDensitySolve = dfsphFluidConfig._enableDensitySolve;
 }
 
 Storm::DFSPHSolver::~DFSPHSolver() = default;
@@ -301,7 +301,7 @@ void Storm::DFSPHSolver::execute(const Storm::IterationParameter &iterationParam
 	// 5th : Divergence solve
 	unsigned int iterationV;
 	float averageErrorV;
-	if (_enableDivergenceSolve)
+	if (_enableDensitySolve)
 	{
 		this->divergenceSolve(iterationParameter, iterationV, averageErrorV);
 

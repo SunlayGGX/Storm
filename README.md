@@ -405,6 +405,7 @@ This element is all setting appartaining to a fluid. Here the tag you can set in
 	+ **neighborThresholdDensity (positive integer, falcultative)**: Neighbor count threshold used for DFSPH. If the neighbor count is below this value, then we won't advect density for the current particle. It should be an non zero positive integer. Default is 20.
 	+ **enableThresholdDensity (boolean, falcultative)**: Enable the neighbor threshold density. Maybe for simulation that are with a filled domain (no void). Default is true.
 	+ **useRotationFix (boolean, falcultative)**: Specify if we should use the last rotation fix. Default is true.
+	+ **enableDensitySolve (boolean, falcultative)**: Specify if we should enable the invariant PPE (Pressure Poisson Equation) density solver. Default is true.
 
 
 #### RigidBodies

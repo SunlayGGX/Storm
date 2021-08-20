@@ -41,7 +41,7 @@ namespace Storm
 	private:
 		std::map<unsigned int, Storm::DFSPHSolver::DFSPHSolverDataArray> _data;
 		float _totalParticleCountFl;
-		bool _enableDivergenceSolve;
+		bool _enableDensitySolve;
 		bool _enableThresholdDensity;
 		bool _useRotationFix;
 		std::size_t _neighborThresholdDensity;
