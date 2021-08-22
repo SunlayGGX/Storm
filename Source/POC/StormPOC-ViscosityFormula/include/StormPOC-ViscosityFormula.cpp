@@ -247,6 +247,7 @@ namespace
 		{
 			Viscosity::reserveCsvData(_rValues, "r");
 			Viscosity::reserveCsvData(_normValues, "norm");
+			Viscosity::reserveCsvData(_angleValues, "angles");
 			Viscosity::reserveCsvData(_normCoeffValues, "dotCoeff");
 			Viscosity::reserveCsvData(_xjValues, "xj");
 			Viscosity::reserveCsvData(_kernelValues, "kernelGrad");
@@ -256,6 +257,7 @@ namespace
 		{
 			this->writeCsvData(_rValues);
 			this->writeCsvData(_xjValues);
+			this->writeCsvData(_angleValues);
 			this->writeCsvData(_normValues);
 			this->writeCsvData(_normCoeffValues);
 			this->writeCsvData(_kernelValues);
@@ -304,10 +306,15 @@ namespace
 			// The real value I want a graph of is the part of the formula with the kernel and the dot product.
 			const Vector forceApprox = gradValue * dotCoeff;
 
+			const float forceNorm = forceApprox.norm();
+
+			constexpr float radToDegreeCoeff = static_cast<float>(180.0 / M_PI);
+
 			Viscosity::appendCsvData(_rValues, xijNorm);
+			Viscosity::appendCsvData(_angleValues, std::sinf(pj._position._x / xijNorm) * radToDegreeCoeff);
 			Viscosity::appendCsvData(_xjValues, pj._position._x);
 			Viscosity::appendCsvData(_normCoeffValues, dotCoeff);
-			Viscosity::appendCsvData(_normValues, forceApprox.norm());
+			Viscosity::appendCsvData(_normValues, forceNorm);
 			Viscosity::appendCsvData(_kernelValues, gradValue.norm());
 		}
 
@@ -315,6 +322,7 @@ namespace
 		const Kernel _kernel;
 
 		std::string _rValues;
+		std::string _angleValues;
 		std::string _normValues;
 		std::string _normCoeffValues;
 		std::string _xjValues;
