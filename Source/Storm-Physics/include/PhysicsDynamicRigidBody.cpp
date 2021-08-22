@@ -124,9 +124,9 @@ void Storm::PhysicsDynamicRigidBody::resetForce()
 
 void Storm::PhysicsDynamicRigidBody::applyForce(const Storm::Vector3 &location, const Storm::Vector3 &force)
 {
-#if false
+#if true
 	physx::PxRigidBodyExt::addForceAtLocalPos(*_internalRb, Storm::convertToPx(force), Storm::convertToPx(location));
-#elif true
+#elif false
 	physx::PxRigidBodyExt::addLocalForceAtLocalPos(*_internalRb, Storm::convertToPx(force), Storm::convertToPx(location));
 #else
 	const physx::PxVec3 forcePx = Storm::convertToPx(force);
