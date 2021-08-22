@@ -14,14 +14,14 @@ namespace
 
 		if (radius > 0.f)
 		{
-			float deltaRad = std::asin(separationDistance / radius);
+			float deltaRad = std::fabs(std::asin(separationDistance / radius));
 
 			for (float tetha = static_cast<float>(-M_PI / 2) + deltaRad; tetha < static_cast<float>(M_PI / 2); tetha += deltaRad)
 			{
 				const float currentY = std::cos(tetha) * radius;
 
 				const float littleCircleRadius = std::sinf(tetha) * radius;
-				const float anglePhi = std::asin(separationDistance / littleCircleRadius);
+				const float anglePhi = std::fabs(std::asin(separationDistance / littleCircleRadius));
 				for (float phi = static_cast<float>(-M_PI); phi < static_cast<float>(M_PI); phi += anglePhi)
 				{
 					result.emplace_back(std::cos(phi) * littleCircleRadius, currentY, std::sin(phi) * littleCircleRadius);
