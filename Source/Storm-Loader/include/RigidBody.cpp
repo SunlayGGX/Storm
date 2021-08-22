@@ -1,6 +1,8 @@
 #include "RigidBody.h"
 
 #include "PoissonDiskSampler.h"
+#include "UniformSampler.h"
+
 #include "SceneRigidBodyConfig.h"
 #include "SceneSimulationConfig.h"
 
@@ -22,6 +24,8 @@
 #include "VolumeComputationTechnique.h"
 
 #include "AssetVolumeIntegrator.h"
+#include "LayeringGenerationTechnique.h"
+#include "GeometryType.h"
 
 #include <Assimp\Importer.hpp>
 #include <Assimp\scene.h>
@@ -46,8 +50,16 @@ namespace
 		suffix += std::to_string(particleRadius);
 		suffix += "_l";
 		suffix += Storm::toStdString(rbSceneConfig._layerGenerationMode);
-		suffix += "x";
-		suffix += std::to_string(rbSceneConfig._layerCount);
+		if (rbSceneConfig._layerGenerationMode == Storm::LayeringGenerationTechnique::Uniform)
+		{
+			suffix += "_type";
+			suffix += Storm::toStdString(rbSceneConfig._geometry);
+		}
+		else
+		{
+			suffix += "x";
+			suffix += std::to_string(rbSceneConfig._layerCount);
+		}
 
 		boost::algorithm::replace_all(suffix, ".", "_");
 
@@ -385,7 +397,24 @@ void Storm::RigidBody::load(const Storm::SceneRigidBodyConfig &rbSceneConfig)
 			/* Generate the rb as if no cache data */
 
 			// Poisson Disk sampling
-			particlePos = Storm::PoissonDiskSampler::process_v2(30, currentParticleRadius, cachedDataPtr->getScaledVertices(), cachedDataPtr->getFinalBoundingBoxMax(), cachedDataPtr->getFinalBoundingBoxMin());
+			if (rbSceneConfig._layerGenerationMode == Storm::LayeringGenerationTechnique::Uniform)
+			{
+				const float sepDistance = currentParticleRadius * 2.f;
+				switch (rbSceneConfig._geometry)
+				{
+				case Storm::GeometryType::Cube:
+					particlePos = Storm::UniformSampler::process(rbSceneConfig._geometry, sepDistance, &rbSceneConfig._scale);
+					break;
+
+				case Storm::GeometryType::Sphere:
+					particlePos = Storm::UniformSampler::process(rbSceneConfig._geometry, sepDistance, &rbSceneConfig._scale.x());
+					break;
+				}
+			}
+			else
+			{
+				particlePos = Storm::PoissonDiskSampler::process_v2(30, currentParticleRadius, cachedDataPtr->getScaledVertices(), cachedDataPtr->getFinalBoundingBoxMax(), cachedDataPtr->getFinalBoundingBoxMin());
+			}
 
 			/* Cache writing */
 

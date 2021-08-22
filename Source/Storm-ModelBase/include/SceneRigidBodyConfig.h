@@ -4,6 +4,7 @@
 namespace Storm
 {
 	enum class CollisionType;
+	enum class GeometryType;
 	enum class InsideParticleRemovalTechnique;
 	enum class LayeringGenerationTechnique;
 	enum class VolumeComputationTechnique;
@@ -45,6 +46,7 @@ namespace Storm
 
 		unsigned int _layerCount;
 		Storm::LayeringGenerationTechnique _layerGenerationMode;
+		Storm::GeometryType _geometry;
 
 		bool _fixedSimulationVolume;
 		Storm::VolumeComputationTechnique _volumeComputationTechnique;

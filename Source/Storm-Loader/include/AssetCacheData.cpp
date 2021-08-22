@@ -587,6 +587,10 @@ void Storm::AssetCacheData::generateCurrentData(const float layerDistance)
 			this->generateDissociatedTriangleLayers(layerDistance);
 			break;
 
+		case Storm::LayeringGenerationTechnique::Uniform:
+			LOG_WARNING << "Uniform generation does not support multiple layer for now.";
+			break;
+
 		default:
 			Storm::throwException<Storm::Exception>("Unknown layering generation technique : " + Storm::toStdString(_rbConfig._layerGenerationMode));
 		}

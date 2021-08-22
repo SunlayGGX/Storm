@@ -536,5 +536,8 @@
     <ClInclude Include="..\include\ConstraintType.h">
       <Filter>Header Files\Modules\Physics</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\GeometryType.h">
+      <Filter>Header Files\Modules\Load</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

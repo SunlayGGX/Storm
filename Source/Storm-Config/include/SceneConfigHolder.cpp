@@ -24,6 +24,7 @@
 #include "SimulationMode.h"
 #include "KernelMode.h"
 #include "FluidParticleLoadDenseMode.h"
+#include "GeometryType.h"
 #include "BlowerType.h"
 #include "BlowerDef.h"
 #include "InsideParticleRemovalTechnique.h"
@@ -222,6 +223,10 @@ if (blowerTypeStr == BlowerTypeXmlName) return Storm::BlowerType::BlowerTypeName
 		{
 			return Storm::LayeringGenerationTechnique::DissociatedTriangle;
 		}
+		else if (layeringTechTypeStr == "uniform")
+		{
+			return Storm::LayeringGenerationTechnique::Uniform;
+		}
 		else
 		{
 			Storm::throwException<Storm::Exception>("Layering generation technique value is unknown : '" + layeringTechTypeStr + "'");
@@ -293,6 +298,23 @@ if (blowerTypeStr == BlowerTypeXmlName) return Storm::BlowerType::BlowerTypeName
 		else
 		{
 			Storm::throwException<Storm::Exception>("Constraint Type value is unknown : '" + constraintTypeStr + "'");
+		}
+	}
+
+	Storm::GeometryType parseGeometryType(std::string geometryTypeStr)
+	{
+		boost::algorithm::to_lower(geometryTypeStr);
+		if (geometryTypeStr == "cube")
+		{
+			return Storm::GeometryType::Cube;
+		}
+		else if (geometryTypeStr == "sphere")
+		{
+			return Storm::GeometryType::Sphere;
+		}
+		else
+		{
+			Storm::throwException<Storm::Exception>("Constraint Type value is unknown : '" + geometryTypeStr + "'");
 		}
 	}
 
@@ -825,8 +847,8 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 		{
 			if (fluidConfig._kPressureStiffnessCoeff == -1.f)
 			{
-				LOG_COMMENT << "Since user did not set the pressure stiffness coefficient k1, we'll use WCSPH automatic computation.";
 				fluidConfig._kPressureStiffnessCoeff = fluidConfig._density * fluidConfig._soundSpeed * fluidConfig._soundSpeed / 7.f;
+				LOG_COMMENT << "Since user did not set the pressure stiffness coefficient k1, we'll use WCSPH automatic computation. This one is set to " << fluidConfig._kPressureStiffnessCoeff;
 			}
 			else
 			{
@@ -879,6 +901,7 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "animationName", rbConfig._animationName) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "translation", rbConfig._translation, parseVector3Element) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "rotation", rbConfig._rotation, parseRotationElement) ||
+			Storm::XmlReader::handleXml(rigidBodyConfigXml, "geometry", rbConfig._geometry, parseGeometryType) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "scale", rbConfig._scale, parseVector3Element) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "color", rbConfig._color, parseColor4Element)
 			;
@@ -928,6 +951,10 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 		else if (Storm::ColorCheckerHelper::isInvalid(rbConfig._color))
 		{
 			Storm::throwException<Storm::Exception>("The rigid body " + std::to_string(rbConfig._rigidBodyID) + " color is invalid! Value was " + Storm::toStdString(rbConfig._color));
+		}
+		else if (rbConfig._layerGenerationMode == Storm::LayeringGenerationTechnique::Uniform && rbConfig._geometry == Storm::GeometryType::None)
+		{
+			Storm::throwException<Storm::Exception>("The rigid body " + std::to_string(rbConfig._rigidBodyID) + " has specified uniform generation but no geometry type was specified! This is illegal.");
 		}
 		
 		if (rbConfig._isTranslationFixed && (rbConfig._isWall || rbConfig._static))

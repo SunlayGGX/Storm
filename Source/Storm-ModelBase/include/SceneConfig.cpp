@@ -18,6 +18,7 @@
 #include "KernelMode.h"
 #include "FluidParticleLoadDenseMode.h"
 #include "BlowerType.h"
+#include "GeometryType.h"
 #include "InsideParticleRemovalTechnique.h"
 #include "RecordMode.h"
 #include "LayeringGenerationTechnique.h"
@@ -118,7 +119,8 @@ Storm::SceneRigidBodyConfig::SceneRigidBodyConfig() :
 	_viscosity{ 0.f },
 	_layerCount{ 1 },
 	_layerGenerationMode{ Storm::LayeringGenerationTechnique::Scaling },
-	_volumeComputationTechnique{ Storm::VolumeComputationTechnique::None }
+	_volumeComputationTechnique{ Storm::VolumeComputationTechnique::None },
+	_geometry{ Storm::GeometryType::None }
 {
 
 }

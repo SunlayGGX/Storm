@@ -63,6 +63,9 @@
     <ClCompile Include="..\include\AssetVolumeIntegrator.cpp">
       <Filter>Source Files\General</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\UniformSampler.cpp">
+      <Filter>Source Files\General</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-LoaderPCH.h">
@@ -93,6 +96,9 @@
       <Filter>Header Files\General\AssetCacheData</Filter>
     </ClInclude>
     <ClInclude Include="..\include\AssetVolumeIntegrator.h">
+      <Filter>Header Files\General</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\UniformSampler.h">
       <Filter>Header Files\General</Filter>
     </ClInclude>
   </ItemGroup>

@@ -7,5 +7,7 @@ namespace Storm
 	{
 		Scaling,
 		DissociatedTriangle,
+
+		Uniform,
 	};
 }
