@@ -50,6 +50,8 @@ namespace Storm
 		std::vector<Storm::Vector3>& getVelocityPreTimestep() noexcept;
 		const std::vector<Storm::Vector3>& getVelocityPreTimestep() const noexcept;
 
+		void setGravityEnabled(bool enabled) noexcept;
+
 	public:
 		void buildNeighborhoodOnParticleSystemUsingSpacePartition(const Storm::ParticleSystemContainer &allParticleSystems, const float kernelLength) final override;
 
@@ -72,5 +74,7 @@ namespace Storm
 
 		float _restDensity;
 		float _particleVolume;
+
+		bool _gravityEnabled;
 	};
 }

@@ -102,6 +102,9 @@ namespace Storm
 		void setNeighborThresholdDensity_DFSPH(std::size_t neighborCount);
 
 	public:
+		void setGravityEnabled(bool enableGravityOnFluids);
+
+	public:
 		void tweekRaycastEnabling();
 
 	public:

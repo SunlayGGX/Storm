@@ -75,6 +75,9 @@ void STORM_CURRENT_REGISTERED_TYPE::registerCurrentOnScript(IScriptWrapperInterf
 		STORM_DECLARE_SCRIPTED_METHOD(advanceByFrame),
 		STORM_DECLARE_SCRIPTED_METHOD(advanceToFrame),
 
+		// General
+		STORM_DECLARE_SCRIPTED_METHOD(setGravityEnabled),
+
 		// Debug
 		STORM_DECLARE_SCRIPTED_METHOD(printRigidBodyMoment),
 		STORM_DECLARE_SCRIPTED_METHOD(printRigidBodyGlobalDensity),

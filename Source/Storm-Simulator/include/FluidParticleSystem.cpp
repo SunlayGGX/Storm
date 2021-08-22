@@ -36,6 +36,7 @@ Storm::FluidParticleSystem::FluidParticleSystem(unsigned int particleSystemIndex
 	const Storm::SceneFluidConfig &fluidConfig = configMgr.getSceneFluidConfig();
 
 	_restDensity = fluidConfig._density;
+	_gravityEnabled = fluidConfig._gravityEnabled;
 
 	const std::size_t particleCount = this->getParticleCount();
 
@@ -94,9 +95,8 @@ void Storm::FluidParticleSystem::onSubIterationStart(const Storm::ParticleSystem
 	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
 
 	const Storm::SceneSimulationConfig &sceneSimulationConfig = configMgr.getSceneSimulationConfig();
-	const Storm::SceneFluidConfig &fluidConfig = configMgr.getSceneFluidConfig();
 
-	const Storm::Vector3 gravityAccel = fluidConfig._gravityEnabled ? sceneSimulationConfig._gravity : Storm::Vector3::Zero();
+	const Storm::Vector3 gravityAccel = _gravityEnabled ? sceneSimulationConfig._gravity : Storm::Vector3::Zero();
 
 	Storm::runParallel(_force, [this, &gravityAccel, &blowers](Storm::Vector3 &currentPForce, const std::size_t currentPIndex)
 	{
@@ -255,6 +255,11 @@ const std::vector<Storm::Vector3>& Storm::FluidParticleSystem::getVelocityPreTim
 	return _velocityPreTimestep;
 }
 
+void Storm::FluidParticleSystem::setGravityEnabled(bool enabled) noexcept
+{
+	_gravityEnabled = enabled;
+}
+
 void Storm::FluidParticleSystem::buildNeighborhoodOnParticleSystemUsingSpacePartition(const Storm::ParticleSystemContainer &allParticleSystems, const float kernelLength)
 {
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
@@ -373,7 +378,7 @@ void Storm::FluidParticleSystem::revertToCurrentTimestep(const std::vector<std::
 	const Storm::SceneSimulationConfig &sceneSimulationConfig = configMgr.getSceneSimulationConfig();
 	const Storm::SceneFluidConfig &fluidConfig = configMgr.getSceneFluidConfig();
 
-	const Storm::Vector3 gravityAccel = fluidConfig._gravityEnabled ? sceneSimulationConfig._gravity : Storm::Vector3::Zero();
+	const Storm::Vector3 gravityAccel = _gravityEnabled ? sceneSimulationConfig._gravity : Storm::Vector3::Zero();
 
 	Storm::runParallel(_force, [this, &blowers, &gravityAccel](Storm::Vector3 &force, const std::size_t currentPIndex)
 	{

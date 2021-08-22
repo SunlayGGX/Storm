@@ -655,6 +655,7 @@ Here the list of available commands :
 - **void logAverageDensity()**: Log the average density of the simulation.
 - **void logVelocityData()**: Log min and max velocity of each particle system.
 - **void logTotalVolume()**: Log the total volume taken by all particles contained inside the domain.
+- **void setGravityEnabled(bool enableGravityOnFluids)**: Enable/Disable gravity at runtime.
 - **void setEnableThresholdDensity_DFSPH(bool enable)**: Enable/Disable the neighbour threshold on density solver. Enabled means that we’ll use a threshold. Disabled means that the density solving won’t use a neighbourhood threshold and solve the density whatever the neighbour count is. This method is only available if the solver is DFSPH.
 - **void setNeighborThresholdDensity_DFSPH(size_t neighborCount)**: Set the neighbour threshold value on density solver. This method is only available if the solver is DFSPH.
 - **void setUseRotationFix_DFSPH(size_t neighborCount)**: Enable rotation fix. This method is only available if the solver is DFSPH.

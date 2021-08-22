@@ -2028,6 +2028,21 @@ void Storm::SimulatorManager::setNeighborThresholdDensity_DFSPH(std::size_t neig
 	});
 }
 
+void Storm::SimulatorManager::setGravityEnabled(bool enableGravityOnFluids)
+{
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::MainThread, [this, enableGravityOnFluids]()
+	{
+		for (auto &pSystemPair : _particleSystem)
+		{
+			if (pSystemPair.second->isFluids())
+			{
+				static_cast<Storm::FluidParticleSystem &>(*pSystemPair.second).setGravityEnabled(enableGravityOnFluids);
+			}
+		}
+	});
+}
+
 void Storm::SimulatorManager::tweekRaycastEnabling()
 {
 	if (_raycastFlag == Storm::RaycastEnablingFlag::Disabled)
