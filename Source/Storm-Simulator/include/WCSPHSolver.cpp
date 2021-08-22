@@ -28,14 +28,14 @@ namespace
 		RbOnly,
 		ForAll,
 	};
-
+	
 	template<Storm::ViscosityMethod viscosityMethodOnFluid, Storm::ViscosityMethod viscosityMethodOnRigidBody, DragComputeMode dragComputeMode>
 	void computeAll(const Storm::IterationParameter &iterationParameter, const Storm::SceneFluidConfig &fluidConfig, const float density0, const float currentPMass, const Storm::Vector3 &vi, const Storm::ParticleNeighborhoodArray &currentPNeighborhood, const float currentPDensity, const float currentPPressure, const float viscoPrecoeff, Storm::Vector3 &outTotalPressureForceOnParticle, Storm::Vector3 &outTotalViscosityForceOnParticle, Storm::Vector3 &outTotalDragForceOnParticle)
 	{
 		outTotalPressureForceOnParticle = Storm::Vector3::Zero();
 		outTotalViscosityForceOnParticle = Storm::Vector3::Zero();
 		outTotalDragForceOnParticle = Storm::Vector3::Zero();
-
+		
 		const float currentPFluidPressureCoeff = currentPPressure / (currentPDensity * currentPDensity);
 
 		const float restMassDensity = currentPMass * density0;
@@ -59,7 +59,7 @@ namespace
 				const float neighborDensity0 = neighborPSystemAsFluid->getRestDensity();
 				const float neighborMass = neighborPSystemAsFluid->getMasses()[neighbor._particleIndex];
 				const float neighborRawDensity = neighborPSystemAsFluid->getDensities()[neighbor._particleIndex];
-				const float neighborDensity = neighborRawDensity * density0 / neighborDensity0;
+				const float neighborDensity = neighborRawDensity * (density0 / neighborDensity0);
 				const float neighborVolume = neighborPSystemAsFluid->getParticleVolume();
 
 				// Pressure
@@ -231,7 +231,6 @@ void Storm::WCSPHSolver::execute(const Storm::IterationParameter &iterationParam
 				float &currentPPressure = pressures[currentPIndex];
 				if (currentPDensity < density0)
 				{
-					currentPDensity = density0;
 					currentPPressure = 0.f;
 				}
 				else
@@ -239,8 +238,8 @@ void Storm::WCSPHSolver::execute(const Storm::IterationParameter &iterationParam
 					currentPPressure = fluidConfig._kPressureStiffnessCoeff * (std::powf(currentPDensity / density0, fluidConfig._kPressureExponentCoeff) - 1.f);
 				}
 
-				float &currentPMass = masses[currentPIndex];
-				currentPMass = currentPDensity * particleVolume;
+				/*float &currentPMass = masses[currentPIndex];
+				currentPMass = currentPDensity * particleVolume;*/
 			});
 		}
 	}
