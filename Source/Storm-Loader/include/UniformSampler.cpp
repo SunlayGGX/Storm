@@ -16,7 +16,7 @@ namespace
 		{
 			float deltaRad = std::fabs(std::asin(separationDistance / radius));
 
-			for (float tetha = static_cast<float>(-M_PI / 2) + deltaRad; tetha < static_cast<float>(M_PI / 2); tetha += deltaRad)
+			for (float tetha = static_cast<float>(0) + deltaRad; tetha < static_cast<float>(2.0 * M_PI); tetha += deltaRad)
 			{
 				const float currentY = std::cos(tetha) * radius;
 
