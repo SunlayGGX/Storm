@@ -18,5 +18,6 @@ namespace Storm
 		bool _enableAveragePoint; // Enable physx::PxSceneFlag::eENABLE_AVERAGE_POINT
 		bool _enableEnhancedDeterminism; // Enable physx::PxSceneFlag::eENABLE_ENHANCED_DETERMINISM
 		bool _enableCCD; // Enable physx::PxSceneFlag::eENABLE_CCD
+		bool _removeDamping;
 	};
 }

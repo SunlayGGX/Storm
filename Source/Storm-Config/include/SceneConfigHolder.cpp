@@ -579,7 +579,8 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 				Storm::XmlReader::handleXml(physicsXmlElement, "enableKinematicStaticPairs", physicsConfig._enableKinematicStaticPairs) ||
 				Storm::XmlReader::handleXml(physicsXmlElement, "enableAveragePoint", physicsConfig._enableAveragePoint) ||
 				Storm::XmlReader::handleXml(physicsXmlElement, "enableEnhancedDeterminism", physicsConfig._enableEnhancedDeterminism) ||
-				Storm::XmlReader::handleXml(physicsXmlElement, "enableCCD", physicsConfig._enableCCD)
+				Storm::XmlReader::handleXml(physicsXmlElement, "enableCCD", physicsConfig._enableCCD) ||
+				Storm::XmlReader::handleXml(physicsXmlElement, "noBuiltinDamping", physicsConfig._removeDamping)
 				)
 			{
 				LOG_ERROR << "tag '" << physicsXmlElement.first << "' (inside Scene.Physics) is unknown, therefore it cannot be handled";

@@ -361,6 +361,7 @@ Unlike the other config files, it can be named as you want. Here the xml tags yo
 - **enableAveragePoint (boolean, facultative)**: Enables average points in contact manifolds. When set to true, this enables additional contacts to be generated per manifold to represent the average point in a manifold. This can stabilize stacking when only a small number of solver iterations is used. Default is true.
 - **enableEnhancedDeterminism (boolean, facultative)**: Provides improved determinism at the expense of performance. Default is false.
 - **enableCCD (boolean, facultative)**: Enables a second broad phase check after integration that makes it possible to prevent objects from tunnelling through each other. Default is true.
+- **noBuiltinDamping (boolean, facultative)**: Remove PhysX builtin angular damping (even though it does not works). Default is false.
 
 
 #### Record

@@ -94,7 +94,8 @@ Storm::ScenePhysicsConfig::ScenePhysicsConfig() :
 	_enableKinematicStaticPairs{ true },
 	_enableAveragePoint{ true },
 	_enableEnhancedDeterminism{ false },
-	_enableCCD{ true }
+	_enableCCD{ true },
+	_removeDamping{ false }
 {
 
 }

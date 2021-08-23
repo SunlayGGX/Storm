@@ -363,6 +363,15 @@ Storm::UniquePointer<physx::PxRigidDynamic> Storm::PhysXHandler::createDynamicRi
 
 	result->setStabilizationThreshold(1.f);
 #endif
+	
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
+	const Storm::ScenePhysicsConfig &physXConfig = configMgr.getScenePhysicsConfig();
+	if (physXConfig._removeDamping)
+	{
+		result->setAngularDamping(0.f);
+		result->setLinearDamping(0.f);
+	}
 
 	_scene->addActor(*result);
 
