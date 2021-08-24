@@ -3,6 +3,7 @@
 #include "LogLevel.h"
 #include "LogHelper.h"
 
+#include <boost/algorithm/string/trim.hpp>
 #include <boost\property_tree\detail\xml_parser_write.hpp>
 #include <boost\property_tree\xml_parser.hpp>
 
@@ -109,7 +110,7 @@ void Storm::LogItem::prepare(bool xmlToo, unsigned int processID)
 		logXml.add<decltype(threadIdStr)>("<xmlattr>.thread", threadIdStr);
 		logXml.add<decltype(codeLocationStr)>("<xmlattr>.codeLocation", codeLocationStr);
 		logXml.add<decltype(processID)>("<xmlattr>.PID", processID);
-		logXml.put_value(_msg);
+		logXml.put_value(boost::algorithm::trim_copy_if(_msg, [](const char charact) { return charact == '\0'; }));
 
 		boost::property_tree::xml_parser::write_xml_element(str, "log", logXml, 0, boost::property_tree::xml_writer_make_settings<std::string>('\n', 1));
 
