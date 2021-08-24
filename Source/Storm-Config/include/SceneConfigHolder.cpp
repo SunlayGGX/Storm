@@ -570,7 +570,7 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 		const auto &physicsTree = physicsTreeOpt.value();
 		for (const auto &physicsXmlElement : physicsTree)
 		{
-			if (
+			if (!(
 				Storm::XmlReader::handleXml(physicsXmlElement, "enablePCM", physicsConfig._enablePCM) ||
 				Storm::XmlReader::handleXml(physicsXmlElement, "enableAdaptiveForce", physicsConfig._enableAdaptiveForce) ||
 				Storm::XmlReader::handleXml(physicsXmlElement, "enableFrictionEveryIteration", physicsConfig._enableFrictionEveryIteration) ||
@@ -581,7 +581,7 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 				Storm::XmlReader::handleXml(physicsXmlElement, "enableEnhancedDeterminism", physicsConfig._enableEnhancedDeterminism) ||
 				Storm::XmlReader::handleXml(physicsXmlElement, "enableCCD", physicsConfig._enableCCD) ||
 				Storm::XmlReader::handleXml(physicsXmlElement, "noBuiltinDamping", physicsConfig._removeDamping)
-				)
+				))
 			{
 				LOG_ERROR << "tag '" << physicsXmlElement.first << "' (inside Scene.Physics) is unknown, therefore it cannot be handled";
 			}
