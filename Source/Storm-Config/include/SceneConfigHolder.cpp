@@ -797,6 +797,7 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 				!Storm::XmlReader::handleXml(fluidXmlElement, "removeOutDomainParticles", fluidConfig._removeOutDomainParticles) &&
 				!Storm::XmlReader::handleXml(fluidXmlElement, "uniformDragCoeff", fluidConfig._uniformDragCoefficient) &&
 				!Storm::XmlReader::handleXml(fluidXmlElement, "applyDragEffectOnFluid", fluidConfig._applyDragEffectOnFluid) &&
+				!Storm::XmlReader::handleXml(fluidXmlElement, "reducedMassCoeff", fluidConfig._reducedMassCoefficient) &&
 				!Storm::XmlReader::handleXml(fluidXmlElement, "density", fluidConfig._density)
 				)
 			{
@@ -819,6 +820,10 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 		else if (fluidConfig._particleVolume != -1.f && fluidConfig._particleVolume <= 0.f)
 		{
 			Storm::throwException<Storm::Exception>("Fluid " + std::to_string(fluidConfig._fluidId) + " particle volume should be left unset or should be strictly greater than 0.0! Value was " + std::to_string(fluidConfig._particleVolume) + "m^3.");
+		}
+		else if (fluidConfig._reducedMassCoefficient <= 0.f)
+		{
+			Storm::throwException<Storm::Exception>("Fluid " + std::to_string(fluidConfig._fluidId) + " reduced mass coeff must be a positive non nullable float! Value was " + std::to_string(fluidConfig._reducedMassCoefficient) + ".");
 		}
 		else if (fluidConfig._kPressureExponentCoeff < 0.f)
 		{

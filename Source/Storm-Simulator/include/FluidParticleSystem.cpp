@@ -44,7 +44,7 @@ Storm::FluidParticleSystem::FluidParticleSystem(unsigned int particleSystemIndex
 
 	if (fluidConfig._particleVolume == -1.f)
 	{
-		_particleVolume = 0.8f * particleDiameter * particleDiameter * particleDiameter;
+		_particleVolume = fluidConfig._reducedMassCoefficient * particleDiameter * particleDiameter * particleDiameter;
 	}
 	else
 	{
