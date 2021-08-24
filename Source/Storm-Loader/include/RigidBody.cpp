@@ -55,10 +55,17 @@ namespace
 			suffix += "_type";
 			suffix += Storm::toStdString(rbSceneConfig._geometry);
 		}
+
+		suffix += "x";
+		suffix += std::to_string(rbSceneConfig._layerCount);
+
+		if (rbSceneConfig._isWall)
+		{
+			suffix += "ext";
+		}
 		else
 		{
-			suffix += "x";
-			suffix += std::to_string(rbSceneConfig._layerCount);
+			suffix += "int";
 		}
 
 		boost::algorithm::replace_all(suffix, ".", "_");
@@ -400,14 +407,29 @@ void Storm::RigidBody::load(const Storm::SceneRigidBodyConfig &rbSceneConfig)
 			if (rbSceneConfig._layerGenerationMode == Storm::LayeringGenerationTechnique::Uniform)
 			{
 				const float sepDistance = currentParticleRadius * 2.f;
+				const bool internalLayer = !rbSceneConfig._isWall;
 				switch (rbSceneConfig._geometry)
 				{
 				case Storm::GeometryType::Cube:
-					particlePos = Storm::UniformSampler::process(rbSceneConfig._geometry, sepDistance, &rbSceneConfig._scale);
+					if (internalLayer)
+					{
+						particlePos = Storm::UniformSampler::process<true>(rbSceneConfig._geometry, sepDistance, rbSceneConfig._layerCount, &rbSceneConfig._scale);
+					}
+					else
+					{
+						particlePos = Storm::UniformSampler::process<false>(rbSceneConfig._geometry, sepDistance, rbSceneConfig._layerCount, &rbSceneConfig._scale);
+					}
 					break;
 
 				case Storm::GeometryType::Sphere:
-					particlePos = Storm::UniformSampler::process(rbSceneConfig._geometry, sepDistance, &rbSceneConfig._scale.x());
+					if (internalLayer)
+					{
+						particlePos = Storm::UniformSampler::process<true>(rbSceneConfig._geometry, sepDistance, rbSceneConfig._layerCount, &rbSceneConfig._scale.x());
+					}
+					else
+					{
+						particlePos = Storm::UniformSampler::process<false>(rbSceneConfig._geometry, sepDistance, rbSceneConfig._layerCount, &rbSceneConfig._scale.x());
+					}
 					break;
 				}
 			}

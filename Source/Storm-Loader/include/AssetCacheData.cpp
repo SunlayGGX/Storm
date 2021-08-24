@@ -588,7 +588,7 @@ void Storm::AssetCacheData::generateCurrentData(const float layerDistance)
 			break;
 
 		case Storm::LayeringGenerationTechnique::Uniform:
-			LOG_WARNING << "Uniform generation does not support multiple layer for now.";
+			// Uniform sampling generator handles the layering by itself. But the associated mesh will remain unlayered.
 			break;
 
 		default:
