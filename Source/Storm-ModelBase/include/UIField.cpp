@@ -21,6 +21,29 @@ const std::wstring_view& Storm::UIFieldBase::getFieldName() const noexcept
 	return _fieldName;
 }
 
+Storm::UIFieldContainer& Storm::UIFieldContainer::deleteFieldW(const std::wstring_view& fieldName)
+{
+	for (auto &fieldPtr : _fields)
+	{
+		if (fieldPtr->getFieldName() == fieldName)
+		{
+			if (&fieldPtr != &_fields.back())
+			{
+				std::swap(fieldPtr, _fields.back());
+			}
+
+			_fields.pop_back();
+			UIFieldContainer::deleteGraphicsField(fieldName);
+
+			return *this;
+		}
+	}
+
+	assert(false && "We cannot remove a field that does not exist!");
+	LOG_DEBUG_ERROR << "We cannot remove a field that does not exist!";
+	return *this;
+}
+
 void Storm::UIFieldContainer::push() const
 {
 	std::vector<std::pair<std::wstring_view, std::wstring>> tmp;

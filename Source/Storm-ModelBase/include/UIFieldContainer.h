@@ -19,28 +19,7 @@ namespace Storm
 			return *this;
 		}
 		
-		UIFieldContainer& deleteFieldW(const std::wstring_view &fieldName)
-		{
-			for (auto &fieldPtr : _fields)
-			{
-				if (fieldPtr->getFieldName() == fieldName)
-				{
-					if (&fieldPtr != &_fields.back())
-					{
-						std::swap(fieldPtr, _fields.back());
-					}
-
-					_fields.pop_back();
-					UIFieldContainer::deleteGraphicsField(fieldName);
-
-					return *this;
-				}
-			}
-
-			assert(false && "We cannot remove a field that does not exist!");
-			LOG_DEBUG_ERROR << "We cannot remove a field that does not exist!";
-			return *this;
-		}
+		UIFieldContainer& deleteFieldW(const std::wstring_view &fieldName);
 
 		void push() const;
 		void pushFieldW(const std::wstring_view &fieldName) const;
