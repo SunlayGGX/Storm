@@ -37,6 +37,8 @@
 
 #include "SpecialKey.h"
 
+#include "FuncMovePass.h"
+
 #include "RunnerHelper.h"
 
 
@@ -355,16 +357,16 @@ void Storm::GraphicManager::pushParticlesData(const Storm::PushedParticleSystemD
 		const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 
 		singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(ThreadEnumeration::GraphicsThread,
-			[this, particleSystemId = param._particleSystemId, particlePosDataCopy = _pipe->fastOptimizedTransCopy(param), isFluids = param._isFluids, isWall = param._isWall, pos = param._position]() mutable
+			[this, particleSystemId = param._particleSystemId, particlePosDataCopy = FuncMovePass<decltype(_pipe->fastOptimizedTransCopy(param))>{ _pipe->fastOptimizedTransCopy(param) }, isFluids = param._isFluids, isWall = param._isWall, pos = param._position]() mutable
 		{
-			if (_forceRenderer->prepareData(particleSystemId, particlePosDataCopy, _selectedParticle))
+			if (_forceRenderer->prepareData(particleSystemId, particlePosDataCopy._object, _selectedParticle))
 			{
-				_graphicParticlesSystem->refreshParticleSystemData(_directXController->getDirectXDevice(), particleSystemId, std::move(particlePosDataCopy), isFluids, isWall);
-
 				if (this->hasSelectedParticle() && particleSystemId == _selectedParticle.first)
 				{
-					_kernelEffectArea->setAreaPosition(particlePosDataCopy[_selectedParticle.second]);
+					_kernelEffectArea->setAreaPosition(particlePosDataCopy._object[_selectedParticle.second]);
 				}
+
+				_graphicParticlesSystem->refreshParticleSystemData(_directXController->getDirectXDevice(), particleSystemId, std::move(particlePosDataCopy._object), isFluids, isWall);
 
 				if (!isFluids && !isWall)
 				{

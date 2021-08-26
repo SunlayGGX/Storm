@@ -5,6 +5,8 @@
 #include "IGraphicsManager.h"
 #include "IThreadManager.h"
 
+#include "FuncMovePass.h"
+
 #include "ThreadEnumeration.h"
 
 
@@ -31,9 +33,9 @@ void Storm::UIFieldContainer::push() const
 
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 	Storm::IGraphicsManager &graphicMgr = singletonHolder.getSingleton<Storm::IGraphicsManager>();
-	singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::GraphicsThread, [&graphicMgr, fieldRawBuf = std::move(tmp)]() mutable
+	singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::GraphicsThread, [&graphicMgr, fieldRawBuf = Storm::FuncMovePass<decltype(tmp)>{ std::move(tmp) }]() mutable
 	{
-		graphicMgr.updateGraphicsField(std::move(fieldRawBuf));
+		graphicMgr.updateGraphicsField(std::move(fieldRawBuf._object));
 	});
 }
 
@@ -45,9 +47,9 @@ void Storm::UIFieldContainer::pushFieldW(const std::wstring_view &fieldName) con
 		if (field->getFieldName() == fieldName)
 		{
 			Storm::IGraphicsManager &graphicMgr = singletonHolder.getSingleton<Storm::IGraphicsManager>();
-			singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::GraphicsThread, [&graphicMgr, fieldName, fieldVal = field->getFieldValue()]() mutable
+			singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::GraphicsThread, [&graphicMgr, fieldName, fieldVal = Storm::FuncMovePass<std::wstring>{ std::move(field->getFieldValue()) }]() mutable
 			{
-				graphicMgr.updateGraphicsField(fieldName, std::move(fieldVal));
+				graphicMgr.updateGraphicsField(fieldName, std::move(fieldVal._object));
 			});
 			return;
 		}
