@@ -37,6 +37,10 @@
 
 #include "SpecialKey.h"
 
+#include "UIFieldBase.h"
+#include "UIFieldContainer.h"
+#include "UIField.h"
+
 #include "FuncMovePass.h"
 
 #include "RunnerHelper.h"
@@ -51,6 +55,7 @@ namespace
 #endif
 }
 
+#define STORM_WATCHED_RB_POSITION "Rb position"
 
 Storm::GraphicManager::GraphicManager() :
 	_renderCounter{ 0 },
@@ -141,6 +146,8 @@ void Storm::GraphicManager::initialize_Implementation(void* hwnd)
 	});
 
 	LOG_COMMENT << "HWND is valid so Windows was created, we can pursue the graphic initialization.";
+	_fields = std::make_unique<Storm::UIFieldContainer>();
+
 	_directXController->initialize(static_cast<HWND>(hwnd));
 
 	_camera = std::make_unique<Storm::Camera>(_directXController->getViewportWidth(), _directXController->getViewportHeight());
@@ -168,6 +175,7 @@ void Storm::GraphicManager::initialize_Implementation(void* hwnd)
 	if (sceneGraphicConfig._rbWatchId != std::numeric_limits<decltype(sceneGraphicConfig._rbWatchId)>::max())
 	{
 		_watchedRbNonOwningPtr = _meshesMap.find(static_cast<unsigned int>(sceneGraphicConfig._rbWatchId))->second.get();
+		_fields->bindField(STORM_WATCHED_RB_POSITION, _watchedRbNonOwningPtr->getRbPosition());
 	}
 
 	if (sceneGraphicConfig._displaySolidAsParticles)
@@ -288,6 +296,7 @@ void Storm::GraphicManager::update()
 			if (_watchedRbNonOwningPtr != nullptr)
 			{
 				currentCamera.updateWatchedRb(_watchedRbNonOwningPtr->getRbPosition());
+				_fields->pushField(STORM_WATCHED_RB_POSITION);
 			}
 
 			_directXController->clearView(g_defaultColor);
@@ -643,7 +652,14 @@ void Storm::GraphicManager::lockNearPlaneOnWatchedRb(unsigned int watchedRbId)
 	{
 		if (const auto found = _meshesMap.find(static_cast<unsigned int>(watchedRbId)); found != std::end(_meshesMap))
 		{
+			const auto* old = _watchedRbNonOwningPtr;
 			_watchedRbNonOwningPtr = found->second.get();
+			if (old != nullptr)
+			{
+				_fields->deleteField(STORM_WATCHED_RB_POSITION);
+			}
+
+			_fields->bindField(STORM_WATCHED_RB_POSITION, _watchedRbNonOwningPtr->getRbPosition());
 			_dirty = true;
 		}
 		else
@@ -657,7 +673,11 @@ void Storm::GraphicManager::unlockNearPlaneOnWatchedRb()
 {
 	Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::GraphicsThread, [this]()
 	{
-		_watchedRbNonOwningPtr = nullptr;
+		if (_watchedRbNonOwningPtr)
+		{
+			_watchedRbNonOwningPtr = nullptr;
+			_fields->deleteField(STORM_WATCHED_RB_POSITION);
+		}
 	});
 }
 

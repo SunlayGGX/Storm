@@ -20,6 +20,7 @@ namespace Storm
 	class GraphicCoordinateSystem;
 	class GraphicGravity;
 	class GraphicKernelEffectArea;
+	class UIFieldContainer;
 
 	enum class ColoredSetting : uint8_t;
 
@@ -132,6 +133,7 @@ namespace Storm
 
 		std::unique_ptr<Storm::GeneralReadOnlyUIDisplay> _readOnlyFields;
 		std::map<std::wstring_view, std::wstring> _fieldsMap;
+		std::unique_ptr<Storm::UIFieldContainer> _fields;
 
 		std::unique_ptr<Storm::GraphicPipe> _pipe;
 		std::pair<unsigned int, std::size_t> _selectedParticle;
