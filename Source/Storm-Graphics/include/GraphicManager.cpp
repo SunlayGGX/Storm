@@ -415,6 +415,25 @@ void Storm::GraphicManager::createGraphicsField(const std::wstring_view &fieldNa
 	}
 }
 
+void Storm::GraphicManager::removeGraphicsField(const std::wstring_view &fieldName)
+{
+	if (this->isActive())
+	{
+		if (const auto found = _fieldsMap.find(fieldName); found != std::end(_fieldsMap))
+		{
+			_fieldsMap.erase(found);
+
+			_directXController->notifyFieldCount(_fieldsMap.size());
+
+			_dirty = true;
+		}
+		else
+		{
+			assert(false && "We shouldn't remove a field that doesn't exist!");
+		}
+	}
+}
+
 void Storm::GraphicManager::updateGraphicsField(std::vector<std::pair<std::wstring_view, std::wstring>> &&rawFields)
 {
 	if (this->isActive())

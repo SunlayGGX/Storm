@@ -18,12 +18,36 @@ namespace Storm
 			UIFieldContainer::createGraphicsField(fieldName, std::move(initialValueStr));
 			return *this;
 		}
+		
+		UIFieldContainer& deleteFieldW(const std::wstring_view &fieldName)
+		{
+			for (auto &fieldPtr : _fields)
+			{
+				if (fieldPtr->getFieldName() == fieldName)
+				{
+					if (&fieldPtr != &_fields.back())
+					{
+						std::swap(fieldPtr, _fields.back());
+					}
+
+					_fields.pop_back();
+					UIFieldContainer::deleteGraphicsField(fieldName);
+
+					return *this;
+				}
+			}
+
+			assert(false && "We cannot remove a field that does not exist!");
+			LOG_DEBUG_ERROR << "We cannot remove a field that does not exist!";
+			return *this;
+		}
 
 		void push() const;
 		void pushFieldW(const std::wstring_view &fieldName) const;
 
 	private:
 		static void createGraphicsField(const std::wstring_view &fieldName, std::wstring &&fieldValueStr);
+		static void deleteGraphicsField(const std::wstring_view &fieldName);
 
 	private:
 		std::vector<std::unique_ptr<Storm::UIFieldBase>> _fields;
@@ -41,6 +65,7 @@ namespace Storm
 
 #ifndef bindField
 #	define bindField(fieldName, valueRef) bindFieldW(STORM_TEXT(fieldName), valueRef)
+#	define deleteField(fieldName) deleteFieldW(STORM_TEXT(fieldName))
 #	define pushField(fieldName) pushFieldW(STORM_TEXT(fieldName))
 #	define updateField(uiFields, fieldName, valueRef, newValue) Storm::updateFieldW(uiFields, valueRef, newValue, STORM_TEXT(fieldName))
 #endif

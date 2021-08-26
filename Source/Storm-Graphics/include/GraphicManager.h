@@ -60,6 +60,7 @@ namespace Storm
 
 	public:
 		void createGraphicsField(const std::wstring_view &fieldName, std::wstring &&fieldValueStr) final override;
+		void removeGraphicsField(const std::wstring_view &fieldName) final override;
 		void updateGraphicsField(std::vector<std::pair<std::wstring_view, std::wstring>> &&rawFields) final override;
 		void updateGraphicsField(const std::wstring_view &fieldName, std::wstring &&fieldValue) final override;
 

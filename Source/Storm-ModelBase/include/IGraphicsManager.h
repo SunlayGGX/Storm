@@ -35,6 +35,7 @@ namespace Storm
 
 	public:
 		virtual void createGraphicsField(const std::wstring_view &fieldName, std::wstring &&fieldValueStr) = 0;
+		virtual void removeGraphicsField(const std::wstring_view &fieldName) = 0;
 		virtual void updateGraphicsField(std::vector<std::pair<std::wstring_view, std::wstring>> &&rawFields) = 0;
 		virtual void updateGraphicsField(const std::wstring_view &fieldName, std::wstring &&fieldValue) = 0;
 

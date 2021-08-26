@@ -60,3 +60,8 @@ void Storm::UIFieldContainer::createGraphicsField(const std::wstring_view &field
 {
 	Storm::SingletonHolder::instance().getSingleton<Storm::IGraphicsManager>().createGraphicsField(fieldName, std::move(fieldValueStr));
 }
+
+void Storm::UIFieldContainer::deleteGraphicsField(const std::wstring_view &fieldName)
+{
+	Storm::SingletonHolder::instance().getSingleton<Storm::IGraphicsManager>().removeGraphicsField(fieldName);
+}
