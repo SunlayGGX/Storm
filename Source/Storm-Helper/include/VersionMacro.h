@@ -3,7 +3,7 @@
 
 #define STORM_MAJOR 1
 #define STORM_MINOR 0
-#define STORM_SUBMINOR 0
+#define STORM_SUBMINOR 1
 
 #ifndef STORM_STRINGIFY
 #	define STORM_STRINGIFY(val) #val
