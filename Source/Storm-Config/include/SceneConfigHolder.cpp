@@ -314,7 +314,7 @@ if (blowerTypeStr == BlowerTypeXmlName) return Storm::BlowerType::BlowerTypeName
 		}
 		else
 		{
-			Storm::throwException<Storm::Exception>("Constraint Type value is unknown : '" + geometryTypeStr + "'");
+			Storm::throwException<Storm::Exception>("Geometry Type value is unknown : '" + geometryTypeStr + "'");
 		}
 	}
 
