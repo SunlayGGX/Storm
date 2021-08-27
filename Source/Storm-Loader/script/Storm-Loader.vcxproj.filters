@@ -31,6 +31,12 @@
     <Filter Include="Header Files\General\AssetCacheData">
       <UniqueIdentifier>{c85a0d0e-c3c8-4969-8689-b877fe068f73}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\General\Sampler">
+      <UniqueIdentifier>{de100721-e260-4251-9885-94abbcc6d914}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\General\Sampler">
+      <UniqueIdentifier>{14a62e23-03b9-4fe7-b73b-9da86b1d395f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-LoaderPCH.cpp">
@@ -43,9 +49,6 @@
       <Filter>Source Files\General</Filter>
     </ClCompile>
     <ClCompile Include="..\include\RigidBody.cpp">
-      <Filter>Source Files\General</Filter>
-    </ClCompile>
-    <ClCompile Include="..\include\PoissonDiskSampler.cpp">
       <Filter>Source Files\General</Filter>
     </ClCompile>
     <ClCompile Include="..\include\BasicMeshGenerator.cpp">
@@ -63,8 +66,11 @@
     <ClCompile Include="..\include\AssetVolumeIntegrator.cpp">
       <Filter>Source Files\General</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\PoissonDiskSampler.cpp">
+      <Filter>Source Files\General\Sampler</Filter>
+    </ClCompile>
     <ClCompile Include="..\include\UniformSampler.cpp">
-      <Filter>Source Files\General</Filter>
+      <Filter>Source Files\General\Sampler</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -78,9 +84,6 @@
       <Filter>Header Files\General</Filter>
     </ClInclude>
     <ClInclude Include="..\include\RigidBody.h">
-      <Filter>Header Files\General</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\PoissonDiskSampler.h">
       <Filter>Header Files\General</Filter>
     </ClInclude>
     <ClInclude Include="..\include\BasicMeshGenerator.h">
@@ -98,8 +101,11 @@
     <ClInclude Include="..\include\AssetVolumeIntegrator.h">
       <Filter>Header Files\General</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\PoissonDiskSampler.h">
+      <Filter>Header Files\General\Sampler</Filter>
+    </ClInclude>
     <ClInclude Include="..\include\UniformSampler.h">
-      <Filter>Header Files\General</Filter>
+      <Filter>Header Files\General\Sampler</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
