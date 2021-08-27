@@ -254,6 +254,11 @@ const ComPtr<ID3D11DeviceContext>& Storm::DirectXController::getImmediateContext
 	return _immediateContext;
 }
 
+const ComPtr<ID2D1RenderTarget>& Storm::DirectXController::getUIRenderTarget() const noexcept
+{
+	return _direct2DRenderTarget;
+}
+
 void Storm::DirectXController::renderElements(const Storm::Camera &currentCamera, const std::vector<std::unique_ptr<Storm::IRenderedElement>> &renderedElementArrays, const std::map<unsigned int, std::unique_ptr<Storm::GraphicRigidBody>> &rbElementArrays, Storm::GraphicParticleSystem &particleSystem, const std::map<std::size_t, std::unique_ptr<Storm::GraphicBlower>> &blowersMap, Storm::GraphicConstraintSystem &constraintSystem, Storm::ParticleForceRenderer &selectedParticleForce, Storm::GraphicKernelEffectArea &kernelEffectArea) const
 {
 	for (const auto &renderedElement : renderedElementArrays)
@@ -354,8 +359,19 @@ void Storm::DirectXController::setEnableBlendAlpha(bool enable)
 	_immediateContext->OMSetBlendState(enable ? _alphaBlendEnable.Get() : _alphaBlendDisable.Get(), k_blendFactor, 0xFFFFFFFF);
 }
 
-void Storm::DirectXController::drawUI(const std::map<std::wstring_view, std::wstring> &texts)
+void Storm::DirectXController::drawUI(const std::vector<std::unique_ptr<Storm::IRenderedElement>> &renderedElementArrays, const std::map<std::wstring_view, std::wstring> &texts)
 {
+	ID2D1RenderTarget*const target = _direct2DRenderTarget.Get();
+	WriterAutoDrawer autoDrawerRAII{ target };
+
+	{
+		IDWriteTextFormat* textFormat = _textFormat.Get();
+		for (const auto &renderedElem : renderedElementArrays)
+		{
+			renderedElem->postRenderUI(target, textFormat, _viewportWidth, _viewportHeight);
+		}
+	}
+
 	if (_uiFieldWriteInfoEnabled)
 	{
 		D2D1_RECT_F writeRectPosition{
@@ -364,8 +380,6 @@ void Storm::DirectXController::drawUI(const std::map<std::wstring_view, std::wst
 		_writeRectRight,
 		_writeRectHeight
 		};
-
-		WriterAutoDrawer autoDrawerRAII{ _direct2DRenderTarget.Get() };
 
 		this->drawTextBackground(writeRectPosition);
 

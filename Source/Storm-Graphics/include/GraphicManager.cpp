@@ -157,7 +157,7 @@ void Storm::GraphicManager::initialize_Implementation(void* hwnd)
 
 	_renderedElements.emplace_back(std::make_unique<Storm::Grid>(device, sceneGraphicConfig._grid));
 	_coordSystemNonOwningPtr = static_cast<Storm::GraphicCoordinateSystem*>(_renderedElements.emplace_back(std::make_unique<Storm::GraphicCoordinateSystem>(device)).get());
-	_gravityNonOwningPtr = static_cast<Storm::GraphicGravity*>(_renderedElements.emplace_back(std::make_unique<Storm::GraphicGravity>(device)).get());
+	_gravityNonOwningPtr = static_cast<Storm::GraphicGravity*>(_renderedElements.emplace_back(std::make_unique<Storm::GraphicGravity>(device, _directXController->getUIRenderTarget())).get());
 
 	_graphicParticlesSystem = std::make_unique<Storm::GraphicParticleSystem>(device);
 
@@ -304,7 +304,7 @@ void Storm::GraphicManager::update()
 
 			_directXController->renderElements(currentCamera, _renderedElements, _meshesMap, *_graphicParticlesSystem, _blowersMap, *_graphicConstraintsSystem, *_forceRenderer, *_kernelEffectArea);
 
-			_directXController->drawUI(_fieldsMap);
+			_directXController->drawUI(_renderedElements, _fieldsMap);
 
 			_directXController->unbindTargetView();
 			_directXController->presentToDisplay();

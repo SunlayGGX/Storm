@@ -34,6 +34,7 @@ namespace Storm
 	public:
 		const ComPtr<ID3D11Device>& getDirectXDevice() const noexcept;
 		const ComPtr<ID3D11DeviceContext>& getImmediateContext() const noexcept;
+		const ComPtr<ID2D1RenderTarget>& getUIRenderTarget() const noexcept;
 
 	public:
 		void renderElements(const Storm::Camera &currentCamera, const std::vector<std::unique_ptr<Storm::IRenderedElement>> &renderedElementArrays, const std::map<unsigned int, std::unique_ptr<Storm::GraphicRigidBody>> &rbElementArrays, Storm::GraphicParticleSystem &particleSystem, const std::map<std::size_t, std::unique_ptr<Storm::GraphicBlower>> &blowersMap, Storm::GraphicConstraintSystem &constraintSystem, Storm::ParticleForceRenderer &selectedParticleForce, Storm::GraphicKernelEffectArea &kernelEffectArea) const;
@@ -55,7 +56,7 @@ namespace Storm
 		void setEnableBlendAlpha(bool enable);
 
 	public:
-		void drawUI(const std::map<std::wstring_view, std::wstring> &texts);
+		void drawUI(const std::vector<std::unique_ptr<Storm::IRenderedElement>> &renderedElementArrays, const std::map<std::wstring_view, std::wstring> &texts);
 		void notifyFieldCount(std::size_t fieldCount);
 		void setTextHeightCoeff(float textHeightCoeff);
 

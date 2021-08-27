@@ -87,10 +87,11 @@ void Storm::GravityShader::setup(const ComPtr<ID3D11Device>& device, const ComPt
 
 		// Since screen space coordinate are between -1,-1 (bottom-left) and 1,1 (top-right).
 		// We'll set the axis coordinate system to the bottom right of the screen.
-		// Then, the axis will be displayed in a R² domain between { x C [0.75, 0.95], y C [-0.75, -0.95] } 
-		ressourceDataPtr->_screenSpaceXOffset = -0.85f;
-		ressourceDataPtr->_screenSpaceYOffset = 0.85f;
-		ressourceDataPtr->_maxAxisLengthScreenUnit = 0.1f;
+		// Then, the axis will be displayed in a R² domain between { x C [-0.75, -0.95], y C [0.75, 0.95] }
+		const std::pair<float, float> drawLocation{ this->getDrawLocation() };
+		ressourceDataPtr->_screenSpaceXOffset = drawLocation.first;
+		ressourceDataPtr->_screenSpaceYOffset = drawLocation.second;
+		ressourceDataPtr->_maxAxisLengthScreenUnit = this->getAxisLengthUnit();
 
 		ressourceDataPtr->_midThickness = 0.0075f;
 	}
@@ -98,4 +99,14 @@ void Storm::GravityShader::setup(const ComPtr<ID3D11Device>& device, const ComPt
 	ID3D11Buffer*const constantBufferTmp = _constantBuffer.Get();
 	deviceContext->VSSetConstantBuffers(0, 1, &constantBufferTmp);
 	deviceContext->GSSetConstantBuffers(0, 1, &constantBufferTmp);
+}
+
+std::pair<float, float> Storm::GravityShader::getDrawLocation() const
+{
+	return { -0.85f, 0.85f };
+}
+
+float Storm::GravityShader::getAxisLengthUnit() const
+{
+	return 0.1f;
 }

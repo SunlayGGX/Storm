@@ -24,10 +24,15 @@ namespace
 	public:
 		PointType pt;
 	};
+
+	__forceinline float normalizedToViewportCoord(const float normalized, const float viewportDim)
+	{
+		return (normalized / 2.f + 0.5f) * viewportDim;
+	}
 }
 
 
-Storm::GraphicGravity::GraphicGravity(const ComPtr<ID3D11Device> &device)
+Storm::GraphicGravity::GraphicGravity(const ComPtr<ID3D11Device> &device, const ComPtr<ID2D1RenderTarget> &hudTarget)
 {
 	enum { k_vertexCount = 1 };
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
@@ -81,6 +86,9 @@ Storm::GraphicGravity::GraphicGravity(const ComPtr<ID3D11Device> &device)
 
 	Storm::throwIfFailed(device->CreateBuffer(&indexBufferDesc, &indexData, &_indexBuffer));
 
+	// For the HUD
+	Storm::throwIfFailed(hudTarget->CreateSolidColorBrush(D2D1::ColorF{ D2D1::ColorF::BlanchedAlmond }, &_direct2DTextSolidBrush));
+
 	_gravityShader = std::make_unique<Storm::GravityShader>(device);
 }
 
@@ -91,6 +99,36 @@ void Storm::GraphicGravity::render(const ComPtr<ID3D11Device> &device, const Com
 		_gravityShader->setup(device, deviceContext, currentCamera);
 		this->setup(deviceContext);
 		_gravityShader->draw(deviceContext);
+	}
+}
+
+void Storm::GraphicGravity::postRenderUI(const ComPtr<ID2D1RenderTarget>& hudTarget, IDWriteTextFormat*const textFormat, const float viewportWidth, const float viewportHeight)
+{
+	if (_visible)
+	{
+		Storm::IRenderedElement::postRenderUI(hudTarget, textFormat, viewportWidth, viewportHeight);
+
+		std::pair<float, float> beginRect = _gravityShader->getDrawLocation();
+		beginRect.first = normalizedToViewportCoord(beginRect.first, viewportWidth);
+		// Minus because the coordinates don't have the same origins. One (the uniform) starts at the top-left of the screen while the other starts at the bottom-left.
+		beginRect.second = normalizedToViewportCoord(-beginRect.second, viewportHeight);
+
+		const float rectDim = _gravityShader->getAxisLengthUnit();
+		D2D1_RECT_F writeRectPosition{
+			beginRect.first,
+			beginRect.second,
+			beginRect.first + normalizedToViewportCoord(rectDim, viewportWidth),
+			beginRect.second + normalizedToViewportCoord(rectDim, viewportHeight)
+		};
+
+		constexpr std::wstring_view gravityTag = STORM_TEXT("G");
+		hudTarget->DrawText(
+			gravityTag.data(),
+			static_cast<UINT32>(gravityTag.size()),
+			textFormat,
+			writeRectPosition,
+			_direct2DTextSolidBrush.Get()
+		);
 	}
 }
 

@@ -9,10 +9,11 @@ namespace Storm
 	class GraphicGravity : public Storm::IRenderedElement
 	{
 	public:
-		GraphicGravity(const ComPtr<ID3D11Device> &device);
+		GraphicGravity(const ComPtr<ID3D11Device> &device, const ComPtr<ID2D1RenderTarget> &renderTarget);
 
 	public:
 		void render(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera) final override;
+		void postRenderUI(const ComPtr<ID2D1RenderTarget> &target, IDWriteTextFormat*const textFormat, const float viewportWidth, const float viewportHeight) final override;
 
 	private:
 		void setup(const ComPtr<ID3D11DeviceContext> &deviceContext);
@@ -25,6 +26,8 @@ namespace Storm
 		
 		ComPtr<ID3D11Buffer> _vertexBuffer;
 		ComPtr<ID3D11Buffer> _indexBuffer;
+
+		ComPtr<ID2D1SolidColorBrush> _direct2DTextSolidBrush;
 
 		std::unique_ptr<Storm::GravityShader> _gravityShader;
 	};

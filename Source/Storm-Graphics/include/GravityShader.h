@@ -17,5 +17,8 @@ namespace Storm
 		void draw(const ComPtr<ID3D11DeviceContext> &deviceContext);
 
 		void setup(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera);
+
+		std::pair<float, float> getDrawLocation() const;
+		float getAxisLengthUnit() const;
 	};
 }
