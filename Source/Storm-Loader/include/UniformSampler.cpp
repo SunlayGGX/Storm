@@ -29,6 +29,8 @@ namespace
 		std::vector<Storm::Vector3> result;
 		result.reserve(static_cast<std::size_t>(std::ceilf((static_cast<float>(4.0 * M_PI) * radius * radius) / (separationDistance * separationDistance) + 0.000001f)) * layerCount);
 
+		constexpr float twoPi = static_cast<double>(2.0 * M_PI);
+
 		do
 		{
 			result.emplace_back(0.f, -radius, 0.f);
@@ -37,29 +39,18 @@ namespace
 			{
 				float deltaRad = computeAngleStep(separationDistance, radius);
 
-				for (float tetha = static_cast<float>(0) + deltaRad; tetha < static_cast<float>(2.0 * M_PI); tetha += deltaRad)
+				for (float tetha = static_cast<float>(-M_PI_2) + deltaRad; tetha < static_cast<float>(M_PI_2); tetha += deltaRad)
 				{
-#if false
-					const float currentY = std::cos(tetha) * radius;
+					const float currentY = std::sinf(tetha) * radius;
 
-					const float littleCircleRadius = std::sinf(tetha) * radius;
-					const float anglePhi = computeAngleStep(separationDistance, littleCircleRadius);
-					for (float phi = static_cast<float>(0); phi < static_cast<float>(M_PI); phi += anglePhi)
-					{
-						result.emplace_back(std::cos(phi) * littleCircleRadius, currentY, std::sin(phi) * littleCircleRadius);
-					}
-#else
-
-					const float currentY = std::cos(tetha) * radius;
-
-					const float littleCircleRadius = std::sinf(tetha) * radius;
+					const float littleCircleRadius = std::cosf(tetha) * radius;
 					float anglePhi = computeAngleStep(separationDistance, littleCircleRadius);
 					if (!std::isnan(anglePhi))
 					{
-						const std::size_t particleCountOnCircle = static_cast<std::size_t>(static_cast<float>(M_PI) / std::fabs(anglePhi));
+						const std::size_t particleCountOnCircle = static_cast<std::size_t>(static_cast<float>(twoPi) / std::fabs(anglePhi));
 						if (particleCountOnCircle != 0)
 						{
-							anglePhi = static_cast<float>((std::signbit(anglePhi) ? -M_PI : M_PI) / static_cast<double>(particleCountOnCircle));
+							anglePhi = static_cast<float>((std::signbit(anglePhi) ? -twoPi : twoPi) / static_cast<double>(particleCountOnCircle));
 
 							for (std::size_t iter = 0; iter < particleCountOnCircle; ++iter)
 							{
@@ -68,7 +59,6 @@ namespace
 							}
 						}
 					}
-#endif
 				}
 
 				result.emplace_back(0.f, radius, 0.f);
