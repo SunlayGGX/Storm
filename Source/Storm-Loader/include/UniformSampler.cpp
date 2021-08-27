@@ -29,7 +29,7 @@ namespace
 		std::vector<Storm::Vector3> result;
 		result.reserve(static_cast<std::size_t>(std::ceilf((static_cast<float>(4.0 * M_PI) * radius * radius) / (separationDistance * separationDistance) + 0.000001f)) * layerCount);
 
-		constexpr float twoPi = static_cast<double>(2.0 * M_PI);
+		constexpr float twoPi = static_cast<float>(2.0 * M_PI);
 
 		do
 		{
