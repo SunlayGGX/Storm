@@ -114,6 +114,7 @@ Storm::SceneRigidBodyConfig::SceneRigidBodyConfig() :
 	_dynamicFrictionCoefficient{ 0.f },
 	_restitutionCoefficient{ 0.1f },
 	_angularVelocityDamping{ 0.05f },
+	_sampleCountMDeserno{ 0 }, // Actually a stupid value
 	_isTranslationFixed{ false },
 	_fixedSimulationVolume{ false },
 	_mass{ -1.f },

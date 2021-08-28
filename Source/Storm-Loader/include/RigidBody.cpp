@@ -54,6 +54,12 @@ namespace
 		{
 			suffix += "_type";
 			suffix += Storm::toStdString(rbSceneConfig._geometry);
+
+			if (rbSceneConfig._geometry == Storm::GeometryType::EquiSphere_MarkusDeserno)
+			{
+				suffix += "x";
+				suffix += Storm::toStdString(rbSceneConfig._sampleCountMDeserno);
+			}
 		}
 
 		suffix += "x";
@@ -431,6 +437,23 @@ void Storm::RigidBody::load(const Storm::SceneRigidBodyConfig &rbSceneConfig)
 						particlePos = Storm::UniformSampler::process<false>(rbSceneConfig._geometry, sepDistance, rbSceneConfig._layerCount, &rbSceneConfig._scale.x());
 					}
 					break;
+
+				case Storm::GeometryType::EquiSphere_MarkusDeserno:
+				{
+					std::pair<float, std::size_t> data{ rbSceneConfig._scale.x(), rbSceneConfig._sampleCountMDeserno };
+					if (internalLayer)
+					{
+						particlePos = Storm::UniformSampler::process<true>(rbSceneConfig._geometry, sepDistance, rbSceneConfig._layerCount, &data);
+					}
+					else
+					{
+						particlePos = Storm::UniformSampler::process<false>(rbSceneConfig._geometry, sepDistance, rbSceneConfig._layerCount, &data);
+					}
+					break;
+				}
+
+				default:
+					Storm::throwException<Storm::Exception>("Unhandled Geometry Type : " + Storm::toStdString(rbSceneConfig._geometry));
 				}
 			}
 			else

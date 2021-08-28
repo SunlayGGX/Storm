@@ -62,7 +62,52 @@ namespace
 				}
 
 				result.emplace_back(0.f, radius, 0.f);
+	// How to generate equidistributed points on the surface of a sphere
+	// Markus Deserno - September 28, 2004
+	template<bool internalLayer>
+	std::vector<Storm::Vector3> sampleUniformEquiSphere_MarkusDeserno(const float separationDistance, int layerCount, std::pair<float, std::size_t> data)
+	{
+		double radius = static_cast<double>(data.first);
+		const std::size_t N = data.second;
+
+		std::vector<Storm::Vector3> result;
+		result.reserve(static_cast<std::size_t>(std::ceilf(static_cast<float>(4.0 * M_PI * radius * radius) / (separationDistance * separationDistance) + 0.000001f)) * layerCount);
+
+		constexpr float twoPi = static_cast<float>(2.0 * M_PI);
+
+		const int srcLayerCount = layerCount;
+
+		do
+		{
+			std::size_t nCount = result.size();
+			double a = 4.0 * M_PI * radius * radius / static_cast<double>(data.second);
+			double d = std::sqrt(a);
+			double mTetha = std::round(M_PI / d);
+			double dTetha = M_PI / mTetha;
+			double dPhi = a / dTetha;
+
+			std::size_t mTethaSz = static_cast<std::size_t>(mTetha + 0.00000001);
+			for (std::size_t m = 0; m < mTethaSz; ++m)
+			{
+				double tetha = M_PI * (m + 0.5) / mTetha;
+				double mPhi = std::round(twoPi * std::sin(tetha) / dPhi);
+
+				std::size_t mPhiSz = static_cast<std::size_t>(mPhi + 0.00000001);
+
+				for (std::size_t n = 0; n < mPhiSz; ++n)
+				{
+					double phi = twoPi * static_cast<double>(n) / mPhi;
+					result.emplace_back(
+						static_cast<float>(radius * std::sin(tetha) * std::cos(phi)),
+						static_cast<float>(radius * std::sin(tetha) * std::sin(phi)),
+						static_cast<float>(radius * std::cos(tetha))
+					);
+				}
 			}
+
+			nCount = result.size() - nCount;
+
+			LOG_DEBUG << "Created " << nCount << " samples using M. Deserno Algorithm for sphere layer " << srcLayerCount - layerCount;
 
 			--layerCount;
 
@@ -84,6 +129,11 @@ namespace
 			}
 
 		} while (layerCount > 0);
+
+		if (result.empty())
+		{
+			Storm::throwException<Storm::Exception>("No samples were created with Markus Deserno algorithm. Maybe the sample count was too much.");
+		}
 
 		return result;
 	}
@@ -193,7 +243,7 @@ namespace
 
 
 template<bool internalLayer>
-std::vector<Storm::Vector3> Storm::UniformSampler::process(const Storm::GeometryType geometry, const float separationDistance, const int layerCount, const void*const dimensions)
+std::vector<Storm::Vector3> Storm::UniformSampler::process(const Storm::GeometryType geometry, const float separationDistance, const int layerCount, const void*const samplerData)
 {
 	if (separationDistance <= 0.f)
 	{
@@ -207,10 +257,13 @@ std::vector<Storm::Vector3> Storm::UniformSampler::process(const Storm::Geometry
 	switch (geometry)
 	{
 	case Storm::GeometryType::Sphere:
-		return sampleUniformSphere<internalLayer>(separationDistance, layerCount, *reinterpret_cast<const float*const>(dimensions));
+		return sampleUniformSphere<internalLayer>(separationDistance, layerCount, *reinterpret_cast<const float*const>(samplerData));
+
+	case Storm::GeometryType::EquiSphere_MarkusDeserno:
+		return sampleUniformEquiSphere_MarkusDeserno<internalLayer>(separationDistance, layerCount, *reinterpret_cast<const std::pair<float, std::size_t>*const>(samplerData));
 
 	case Storm::GeometryType::Cube:
-		return sampleUniformCube<internalLayer>(separationDistance, layerCount, *reinterpret_cast<const Storm::Vector3*const>(dimensions));
+		return sampleUniformCube<internalLayer>(separationDistance, layerCount, *reinterpret_cast<const Storm::Vector3*const>(samplerData));
 
 	case Storm::GeometryType::None:
 	default:

@@ -312,6 +312,10 @@ if (blowerTypeStr == BlowerTypeXmlName) return Storm::BlowerType::BlowerTypeName
 		{
 			return Storm::GeometryType::Sphere;
 		}
+		else if (geometryTypeStr == "equispheremdeserno")
+		{
+			return Storm::GeometryType::EquiSphere_MarkusDeserno;
+		}
 		else
 		{
 			Storm::throwException<Storm::Exception>("Geometry Type value is unknown : '" + geometryTypeStr + "'");
@@ -899,6 +903,7 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "mass", rbConfig._mass) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "viscosity", rbConfig._viscosity) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "layerCount", rbConfig._layerCount) ||
+			Storm::XmlReader::handleXml(rigidBodyConfigXml, "sampleCountMDeserno", rbConfig._sampleCountMDeserno) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "layeringGeneration", rbConfig._layerGenerationMode, parseLayeringGenerationTechnique) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "volumeComputation", rbConfig._volumeComputationTechnique, parseVolumeComputationTechnique) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "pInsideRemovalTechnique", rbConfig._insideRbFluidDetectionMethodEnum, parseInsideRemovalTech) ||
@@ -958,9 +963,23 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 		{
 			Storm::throwException<Storm::Exception>("The rigid body " + std::to_string(rbConfig._rigidBodyID) + " color is invalid! Value was " + Storm::toStdString(rbConfig._color));
 		}
-		else if (rbConfig._layerGenerationMode == Storm::LayeringGenerationTechnique::Uniform && rbConfig._geometry == Storm::GeometryType::None)
+		else if (rbConfig._layerGenerationMode == Storm::LayeringGenerationTechnique::Uniform)
 		{
-			Storm::throwException<Storm::Exception>("The rigid body " + std::to_string(rbConfig._rigidBodyID) + " has specified uniform generation but no geometry type was specified! This is illegal.");
+			switch (rbConfig._geometry)
+			{
+			case Storm::GeometryType::None:
+				Storm::throwException<Storm::Exception>("The rigid body " + std::to_string(rbConfig._rigidBodyID) + " has specified uniform generation but no geometry type was specified! This is illegal.");
+
+			case Storm::GeometryType::EquiSphere_MarkusDeserno:
+				if (rbConfig._sampleCountMDeserno == 0)
+				{
+					Storm::throwException<Storm::Exception>("The rigid body " + std::to_string(rbConfig._rigidBodyID) + " has specified uniform generation of a sphere with M. Deserno algorithm but has not specified an input sample count value! This is illegal.");
+				}
+				break;
+
+			default:
+				break;
+			}
 		}
 		
 		if (rbConfig._isTranslationFixed && (rbConfig._isWall || rbConfig._static))

@@ -7,6 +7,7 @@ namespace Storm
 	{
 		Cube,
 		Sphere,
+		EquiSphere_MarkusDeserno,
 		None,
 	};
 }

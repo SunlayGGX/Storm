@@ -48,6 +48,9 @@ namespace Storm
 		Storm::LayeringGenerationTechnique _layerGenerationMode;
 		Storm::GeometryType _geometry;
 
+		// The sample count used as input for MDeserno Algorithm. Only useful if chosen sampler is the uniform one and _geometry is Storm::GeometryType::EquiSphere_MarkusDeserno.
+		std::size_t _sampleCountMDeserno;
+
 		bool _fixedSimulationVolume;
 		Storm::VolumeComputationTechnique _volumeComputationTechnique;
 
