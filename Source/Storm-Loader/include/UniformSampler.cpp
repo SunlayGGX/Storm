@@ -5,23 +5,25 @@
 
 namespace
 {
-	float computeAngleStep(const float separationDistance, const float circleRadius)
+	double computeAngleStep(const double separationDistance, const double circleRadius)
 	{
-		float res;
+		double res;
 #if true
 		// Cosine law (Al Kashi Theorem)
 		//	   c²=a²+b²-2ab cos(tetha)
 		// <=> tetha = acos((a²+b²-c²) / (2ab))
 		// <=> tetha = acos((2r² - sep²) / (2r²)) since a=b=r and c=sep=separationDistance
 
-		const float circleRadiusSquaredCoeff = 2.f * circleRadius * circleRadius;
-		res = std::acosf((circleRadiusSquaredCoeff - (separationDistance * separationDistance)) / circleRadiusSquaredCoeff);
+		const double circleRadiusSquaredCoeff = 2.0 * circleRadius * circleRadius;
+		res = std::acos((circleRadiusSquaredCoeff - (separationDistance * separationDistance)) / circleRadiusSquaredCoeff);
 #else
 		res = std::asin(separationDistance / radius);
 #endif
 
-		return std::fabs(res);
+		return std::abs(res);
 	}
+
+#define STORM_USE_COMPLEXE_BUT_EXACT_ALGO false
 
 	template<bool internalLayer>
 	std::vector<Storm::Vector3> sampleUniformSphere(const float separationDistance, int layerCount, float radius)
@@ -29,39 +31,118 @@ namespace
 		std::vector<Storm::Vector3> result;
 		result.reserve(static_cast<std::size_t>(std::ceilf((static_cast<float>(4.0 * M_PI) * radius * radius) / (separationDistance * separationDistance) + 0.000001f)) * layerCount);
 
-		constexpr float twoPi = static_cast<float>(2.0 * M_PI);
+		constexpr double twoPi = 2.0 * M_PI;
 
 		do
 		{
+#if !STORM_USE_COMPLEXE_BUT_EXACT_ALGO
 			result.emplace_back(0.f, -radius, 0.f);
+#endif
 
 			if (radius > 0.f)
 			{
-				float deltaRad = computeAngleStep(separationDistance, radius);
-
-				for (float tetha = static_cast<float>(-M_PI_2) + deltaRad; tetha < static_cast<float>(M_PI_2); tetha += deltaRad)
+				// I think this implementation is more exact than the other part of the #if #else #endif... But the visual result are hard to compare and both looks the same to me... Therefore I prefer to keep the simpler one as the active code path (easier to troubleshoot if an issue arise).
+#if STORM_USE_COMPLEXE_BUT_EXACT_ALGO
+				double deltaRad = computeAngleStep(separationDistance, radius);
+				if (!std::isnan(deltaRad))
 				{
-					const float currentY = std::sinf(tetha) * radius;
-
-					const float littleCircleRadius = std::cosf(tetha) * radius;
-					float anglePhi = computeAngleStep(separationDistance, littleCircleRadius);
-					if (!std::isnan(anglePhi))
+					const std::size_t circleRowCount = static_cast<std::size_t>(M_PI / deltaRad + 0.000000001);
+					if (circleRowCount > 0)
 					{
-						const std::size_t particleCountOnCircle = static_cast<std::size_t>(static_cast<float>(twoPi) / std::fabs(anglePhi));
-						if (particleCountOnCircle != 0)
-						{
-							anglePhi = static_cast<float>((std::signbit(anglePhi) ? -twoPi : twoPi) / static_cast<double>(particleCountOnCircle));
+						deltaRad = M_PI / static_cast<double>(circleRowCount);
 
-							for (std::size_t iter = 0; iter < particleCountOnCircle; ++iter)
+						double offset = (M_PI - static_cast<double>(circleRowCount - 1) * deltaRad) / 2.0;
+
+						for (std::size_t tethaIter = 0; tethaIter < circleRowCount; ++tethaIter)
+						{
+							double tetha = (static_cast<double>(tethaIter) * deltaRad) - M_PI_2 + offset;
+							if (tetha > M_PI) STORM_UNLIKELY
 							{
-								const float phi = static_cast<float>(iter) * anglePhi;
-								result.emplace_back(std::cosf(phi) * littleCircleRadius, currentY, std::sinf(phi) * littleCircleRadius);
+								break;
+							}
+
+							const double currentY = std::sin(tetha) * radius;
+
+							const double littleCircleRadius = std::cos(tetha) * radius;
+							double anglePhi = computeAngleStep(separationDistance, littleCircleRadius);
+							if (!std::isnan(anglePhi))
+							{
+								const std::size_t particleCountOnCircle = static_cast<std::size_t>(static_cast<double>(twoPi) / std::abs(anglePhi) + 0.000000001);
+								if (particleCountOnCircle != 0)
+								{
+									anglePhi = static_cast<double>((std::signbit(anglePhi) ? -twoPi : twoPi) / static_cast<double>(particleCountOnCircle));
+
+									for (std::size_t iter = 0; iter < particleCountOnCircle; ++iter)
+									{
+										const double phi = static_cast<double>(iter) * anglePhi;
+										result.emplace_back(
+											static_cast<float>(std::cos(phi) * littleCircleRadius),
+											static_cast<float>(currentY),
+											static_cast<float>(std::sin(phi) * littleCircleRadius)
+										);
+									}
+								}
 							}
 						}
 					}
 				}
+#else
+				double deltaRad = computeAngleStep(separationDistance, radius);
 
-				result.emplace_back(0.f, radius, 0.f);
+				for (double tetha = -M_PI_2 + deltaRad; tetha < M_PI_2; tetha += deltaRad)
+				{
+					const double currentY = std::sin(tetha) * radius;
+
+					const double littleCircleRadius = std::cos(tetha) * radius;
+					double anglePhi = computeAngleStep(separationDistance, littleCircleRadius);
+					if (!std::isnan(anglePhi))
+					{
+						const std::size_t particleCountOnCircle = static_cast<std::size_t>(twoPi / std::abs(anglePhi));
+						if (particleCountOnCircle != 0)
+						{
+							anglePhi = (std::signbit(anglePhi) ? -twoPi : twoPi) / static_cast<double>(particleCountOnCircle);
+
+							for (std::size_t iter = 0; iter < particleCountOnCircle; ++iter)
+							{
+								const double phi = static_cast<double>(iter) * anglePhi;
+								result.emplace_back(
+									static_cast<float>(std::cos(phi) * littleCircleRadius),
+									static_cast<float>(currentY),
+									static_cast<float>(std::sin(phi) * littleCircleRadius));
+							}
+						}
+					}
+				}
+#endif
+			}
+
+			--layerCount;
+
+			if constexpr (internalLayer)
+			{
+				radius -= separationDistance;
+				if (radius <= 0.f)
+				{
+					if (layerCount > 0)
+					{
+						LOG_DEBUG_WARNING << "Too much layer to fit inside sphere geometry. Skipped " << layerCount << " layers";
+					}
+					break;
+				}
+			}
+			else
+			{
+				radius += separationDistance;
+			}
+
+		} while (layerCount > 0);
+
+		return result;
+	}
+
+#undef STORM_USE_COMPLEXE_BUT_EXACT_ALGO
+
+
 	// How to generate equidistributed points on the surface of a sphere
 	// Markus Deserno - September 28, 2004
 	template<bool internalLayer>
