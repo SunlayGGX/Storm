@@ -55,6 +55,8 @@ Storm::PhysicsDynamicRigidBody::PhysicsDynamicRigidBody(const Storm::SceneRigidB
 		Storm::throwException<Storm::Exception>("We failed to attach the created shape to the rigid body " + std::to_string(rbSceneConfig._rigidBodyID));
 	}
 
+	_internalRb->setName(_physicsName.c_str());
+
 	if (_translationFixed)
 	{
 		_fixedPos = _internalRb->getGlobalPose().p;

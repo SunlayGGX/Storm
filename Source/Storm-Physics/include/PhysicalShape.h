@@ -19,5 +19,8 @@ namespace Storm
 		unsigned int _id;
 		Storm::UniquePointer<physx::PxShape> _internalRbShape;
 		Storm::UniquePointer<physx::PxMaterial> _internalRbMaterial;
+
+		// For Debugging purposes.
+		std::string _physicsName;
 	};
 }

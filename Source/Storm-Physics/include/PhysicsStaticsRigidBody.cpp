@@ -34,6 +34,8 @@ Storm::PhysicsStaticsRigidBody::PhysicsStaticsRigidBody(const Storm::SceneRigidB
 		Storm::throwException<Storm::Exception>("We failed to attach the created shape to the rigid body " + std::to_string(rbSceneConfig._rigidBodyID));
 	}
 
+	_internalRb->setName(_physicsName.c_str());
+
 	const physx::PxQuat physXQuatRot = Storm::convertToPxRotation(rbSceneConfig._rotation);
 	_quatRotation = Storm::convertToStorm<Storm::Quaternion>(physXQuatRot);
 }
