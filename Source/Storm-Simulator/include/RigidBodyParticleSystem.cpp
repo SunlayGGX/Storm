@@ -25,7 +25,7 @@
 namespace
 {
 	template<class NeighborhoodArray>
-	float computeParticleDeltaVolume(const NeighborhoodArray &currentPNeighborhood, float delta)
+	float computeParticleDeltaVolume(const NeighborhoodArray &currentPNeighborhood, const Storm::RigidBodyParticleSystem*const currentRbPSystem, float delta)
 	{
 		for (const Storm::NeighborParticleInfo &boundaryNeighbor : currentPNeighborhood)
 		{
@@ -158,7 +158,7 @@ void Storm::RigidBodyParticleSystem::initializePreSimulation(const Storm::Partic
 
 				// Initialize the static volume.
 				float &currentPStaticVolumeDelta = _staticVolumesInitValue[particleIndex];
-				currentPStaticVolumeDelta = computeParticleDeltaVolume(currentPStaticNeighborhood, currentKernelZero);
+				currentPStaticVolumeDelta = computeParticleDeltaVolume(currentPStaticNeighborhood, this, currentKernelZero);
 			});
 
 			if (_volumeFixed)
@@ -248,7 +248,7 @@ void Storm::RigidBodyParticleSystem::initializePreSimulation(const Storm::Partic
 
 				// Initialize the static volume.
 				float &currentPVolume = _volumes[particleIndex];
-				currentPVolume = 1.f / computeParticleDeltaVolume(currentPStaticNeighborhood, initialDeltaVolume);
+				currentPVolume = 1.f / computeParticleDeltaVolume(currentPStaticNeighborhood, this, initialDeltaVolume);
 			});
 		}
 	}
@@ -293,7 +293,7 @@ void Storm::RigidBodyParticleSystem::onSubIterationStart(const Storm::ParticleSy
 			{
 				// Compute the current boundary particle volume.
 				const float initialVolumeValue = _staticVolumesInitValue[currentPIndex];
-				currentPVolume = 1.f / computeParticleDeltaVolume(_neighborhood[currentPIndex], initialVolumeValue); // ???
+				currentPVolume = 1.f / computeParticleDeltaVolume(_neighborhood[currentPIndex], this, initialVolumeValue); // ???
 			});
 		}
 	}
@@ -325,7 +325,7 @@ void Storm::RigidBodyParticleSystem::onSubIterationStart(const Storm::ParticleSy
 				const float initialVolumeValue = currentKernelZero;
 
 				float &currentPVolume = _volumes[currentPIndex];
-				currentPVolume = 1.f / computeParticleDeltaVolume(_neighborhood[currentPIndex], initialVolumeValue); // ???
+				currentPVolume = 1.f / computeParticleDeltaVolume(_neighborhood[currentPIndex], this, initialVolumeValue); // ???
 			});
 		}
 	}
