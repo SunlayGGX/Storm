@@ -156,6 +156,8 @@ namespace Storm
 		void printRigidBodyGlobalDensity(const unsigned int id) const;
 		void printMassForRbDensity(const unsigned int id, const float wantedDensity);
 
+		void writeCurrentFrameSystemForcesToCsv(const unsigned int id, const std::string &filePath) const;
+
 	private:
 		void logAverageDensity() const;
 		void logVelocityData() const;

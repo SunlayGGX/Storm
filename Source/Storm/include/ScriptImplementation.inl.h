@@ -85,7 +85,8 @@ void STORM_CURRENT_REGISTERED_TYPE::registerCurrentOnScript(IScriptWrapperInterf
 		STORM_DECLARE_SCRIPTED_METHOD(printMassForRbDensity),
 		STORM_DECLARE_SCRIPTED_METHOD(logAverageDensity),
 		STORM_DECLARE_SCRIPTED_METHOD(logVelocityData),
-		STORM_DECLARE_SCRIPTED_METHOD(logTotalVolume)
+		STORM_DECLARE_SCRIPTED_METHOD(logTotalVolume),
+		STORM_DECLARE_SCRIPTED_METHOD(writeCurrentFrameSystemForcesToCsv)
 
 	).registerCurrentInstance("simulMgr");
 }

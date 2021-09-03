@@ -95,6 +95,10 @@
 
 #include "ParticleRemovalMode.h"
 
+#include "CSVWriter.h"
+
+#include "FuncMovePass.h"
+
 #define STORM_HIJACKED_TYPE float
 #	include "VectHijack.h"
 #undef STORM_HIJACKED_TYPE
@@ -2625,6 +2629,53 @@ void Storm::SimulatorManager::printMassForRbDensity(const unsigned int id, const
 	{
 		LOG_ERROR << "Rigidbody " << id << " cannot compute mass from density because no valid volume computation technique was specified.";
 	}
+}
+
+void Storm::SimulatorManager::writeCurrentFrameSystemForcesToCsv(const unsigned id, const std::string &filePath) const
+{
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+
+	std::string FilePathCpy = filePath;
+	singletonHolder.getSingleton<Storm::IConfigManager>().getMacroizedConvertedValue(FilePathCpy);
+
+	singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::MainThread, [this, filePathUnMacroized = FuncMovePass<std::string>{ std::move(FilePathCpy) }, id]()
+	{
+		const std::string pSystemIdStr = std::to_string(id);
+
+		for (const auto &particleSystemPair : _particleSystem)
+		{
+			if (particleSystemPair.first == id)
+			{
+				LOG_DEBUG << "Writing forces of particle system " << pSystemIdStr << " to csv.";
+				Storm::CSVWriter writer{ filePathUnMacroized._object };
+
+				const Storm::ParticleSystem &pSystemToPrint = *particleSystemPair.second;
+
+				std::pair<std::string_view, const std::vector<Storm::Vector3>*const> forcesMapping[] = {
+					{ "Position", &pSystemToPrint.getPositions() },
+					{ "Velocity", &pSystemToPrint.getVelocity() },
+					{ "Force", &pSystemToPrint.getForces() },
+					{ "Pressure", &pSystemToPrint.getTemporaryPressureForces() },
+					{ "Viscosity", &pSystemToPrint.getTemporaryViscosityForces() },
+					{ "Drag", &pSystemToPrint.getTemporaryDragForces() }
+				};
+
+				writer.reserve(forcesMapping[0].second->size());
+
+				for (const auto &forces : forcesMapping)
+				{
+					for (const auto &force : *forces.second)
+					{
+						writer(forces.first, force);
+					}
+				}
+
+				return;
+			}
+		}
+
+		Storm::throwException<Storm::Exception>("We did not find particle system (fluid or rb) with id " + pSystemIdStr);
+	});
 }
 
 void Storm::SimulatorManager::logAverageDensity() const
