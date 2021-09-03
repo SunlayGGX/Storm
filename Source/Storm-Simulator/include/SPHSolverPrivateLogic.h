@@ -13,6 +13,6 @@ namespace Storm
 		bool shouldContinue() const;
 
 	protected:
-		static constexpr const float k_epsilon = 0.000001f;
+		static constexpr const float k_epsilon = 0.0000000001f;
 	};
 }
