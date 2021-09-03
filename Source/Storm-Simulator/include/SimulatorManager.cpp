@@ -887,30 +887,7 @@ void Storm::SimulatorManager::initialize_Implementation()
 						"Raycast touched particle " << firstHit._particleId << " inside system id " << firstHit._systemId << "\n"
 						"Hit Position : " << firstHit._hitPosition;
 
-					hasMadeSelectionChanges = _particleSelector.setParticleSelection(firstHit._systemId, firstHit._particleId);
-					if (hasMadeSelectionChanges)
-					{
-						const Storm::ParticleSystem &selectedPSystem = *_particleSystem[firstHit._systemId];
-
-						_particleSelector.setSelectedParticleSumForce(selectedPSystem.getForces()[firstHit._particleId]);
-						_particleSelector.setSelectedParticleVelocity(selectedPSystem.getVelocity()[firstHit._particleId]);
-						_particleSelector.setSelectedParticlePressureForce(selectedPSystem.getTemporaryPressureForces()[firstHit._particleId]);
-						_particleSelector.setSelectedParticleViscosityForce(selectedPSystem.getTemporaryViscosityForces()[firstHit._particleId]);
-						_particleSelector.setSelectedParticleDragForce(selectedPSystem.getTemporaryDragForces()[firstHit._particleId]);
-
-						if (!selectedPSystem.isFluids())
-						{
-							const Storm::RigidBodyParticleSystem &pSystemAsRb = static_cast<const Storm::RigidBodyParticleSystem &>(selectedPSystem);
-							_particleSelector.setRbPosition(pSystemAsRb.getRbPosition());
-							_particleSelector.setRbTotalForce(pSystemAsRb.getRbTotalForce());
-						}
-						else
-						{
-							_particleSelector.clearRbTotalForce();
-						}
-
-						_particleSelector.logForceComponents();
-					}
+					hasMadeSelectionChanges = this->selectSpecificParticle_Internal(firstHit._systemId, firstHit._particleId);
 				}
 
 				if (hasMadeSelectionChanges && timeMgr.simulationIsPaused())
@@ -2793,5 +2770,71 @@ void Storm::SimulatorManager::logTotalVolume() const
 	{
 		const float totalVolume = queryTotalVolume(_particleSystem, [](const Storm::SceneRigidBodyConfig &) {});
 		LOG_ALWAYS << "Total volume involved in the domain is " << totalVolume;
+	});
+}
+
+bool Storm::SimulatorManager::selectSpecificParticle_Internal(const unsigned pSystemId, const std::size_t particleIndex)
+{
+	assert(Storm::isSimulationThread() && "This method can only be called from simulation thread.");
+
+	if (auto found = _particleSystem.find(pSystemId); found != std::end(_particleSystem))
+	{
+		if (_particleSelector.setParticleSelection(pSystemId, particleIndex))
+		{
+			const Storm::ParticleSystem &selectedPSystem = *found->second;
+			if (particleIndex < selectedPSystem.getParticleCount())
+			{
+				_particleSelector.setSelectedParticleSumForce(selectedPSystem.getForces()[particleIndex]);
+				_particleSelector.setSelectedParticleVelocity(selectedPSystem.getVelocity()[particleIndex]);
+				_particleSelector.setSelectedParticlePressureForce(selectedPSystem.getTemporaryPressureForces()[particleIndex]);
+				_particleSelector.setSelectedParticleViscosityForce(selectedPSystem.getTemporaryViscosityForces()[particleIndex]);
+				_particleSelector.setSelectedParticleDragForce(selectedPSystem.getTemporaryDragForces()[particleIndex]);
+
+				if (!selectedPSystem.isFluids())
+				{
+					const Storm::RigidBodyParticleSystem &pSystemAsRb = static_cast<const Storm::RigidBodyParticleSystem &>(selectedPSystem);
+					_particleSelector.setRbPosition(pSystemAsRb.getRbPosition());
+					_particleSelector.setRbTotalForce(pSystemAsRb.getRbTotalForce());
+				}
+				else
+				{
+					_particleSelector.clearRbTotalForce();
+				}
+
+				_particleSelector.logForceComponents();
+
+				return true;
+			}
+			else
+			{
+				LOG_ERROR << "Cannot select the particle " << particleIndex << " inside the particle system " << pSystemId << " because the index is out of range.";
+			}
+		}
+	}
+	else
+	{
+		LOG_ERROR << "Cannot select the particle " << particleIndex << " because we cannot find the particle system " << pSystemId;
+	}
+
+	return false;
+}
+
+void Storm::SimulatorManager::selectSpecificParticle(const unsigned pSystemId, const std::size_t particleIndex)
+{
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::MainThread, [this, pSystemId, particleIndex, &singletonHolder]()
+	{
+		if (this->selectSpecificParticle_Internal(pSystemId, particleIndex))
+		{
+			const Storm::ITimeManager &timeMgr = singletonHolder.getSingleton<Storm::ITimeManager>();
+			if (timeMgr.simulationIsPaused())
+			{
+				this->pushParticlesToGraphicModule(true);
+			}
+		}
+		else
+		{
+			LOG_ERROR << "Cannot select the particle " << particleIndex << " from the particle system " << pSystemId;
+		}
 	});
 }

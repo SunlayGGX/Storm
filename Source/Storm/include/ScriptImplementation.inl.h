@@ -77,6 +77,7 @@ void STORM_CURRENT_REGISTERED_TYPE::registerCurrentOnScript(IScriptWrapperInterf
 
 		// General
 		STORM_DECLARE_SCRIPTED_METHOD(setGravityEnabled),
+		STORM_DECLARE_SCRIPTED_METHOD(selectSpecificParticle),
 
 		// Debug
 		STORM_DECLARE_SCRIPTED_METHOD(printRigidBodyMoment),

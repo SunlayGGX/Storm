@@ -164,6 +164,10 @@ namespace Storm
 		void logTotalVolume() const;
 
 	private:
+		bool selectSpecificParticle_Internal(const unsigned int pSystemId, const std::size_t particleIndex);
+		void selectSpecificParticle(const unsigned int pSystemId, const std::size_t particleIndex);
+
+	private:
 		Storm::ParticleSystemContainer _particleSystem;
 		std::vector<std::unique_ptr<Storm::IBlower>> _blowers;
 
