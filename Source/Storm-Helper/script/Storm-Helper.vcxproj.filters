@@ -103,6 +103,12 @@
     <Filter Include="Header Files\General\Math">
       <UniqueIdentifier>{ca3fd4c8-61fa-45a3-83b5-e3632608547a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\General\CSV">
+      <UniqueIdentifier>{8da4e7a7-d0c4-44cc-95ff-2d7cb135cef6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\General\CSV">
+      <UniqueIdentifier>{d0f9221a-1ff7-4594-ba31-1ed643ba251f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-HelperPCH.cpp">
@@ -140,6 +146,9 @@
     </ClCompile>
     <ClCompile Include="..\include\Exception.cpp">
       <Filter>Source Files\General\Exception</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\CSVWriter.cpp">
+      <Filter>Source Files\General\CSV</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -322,6 +331,12 @@
     </ClInclude>
     <ClInclude Include="..\include\Average.h">
       <Filter>Header Files\General\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\CSVWriter.h">
+      <Filter>Header Files\General\CSV</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\CSVMode.h">
+      <Filter>Header Files\General\CSV</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
