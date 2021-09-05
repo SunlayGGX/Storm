@@ -7,7 +7,7 @@
 namespace
 {
 	template<Storm::CSVMode mode, bool mismatch>
-	void write(std::map<std::string_view, std::vector<std::string>> &allElements, const std::string &filePath, const std::size_t maxElementCount)
+	void write(std::map<std::string, std::vector<std::string>> &allElements, const std::string &filePath, const std::size_t maxElementCount)
 	{
 		std::filesystem::create_directories(std::filesystem::path{ filePath }.parent_path());
 
@@ -151,14 +151,19 @@ Storm::CSVWriter::~CSVWriter()
 	}
 }
 
-void Storm::CSVWriter::append(const std::string_view keyName, const std::string &value)
+void Storm::CSVWriter::append(const std::string &keyName, const std::string &value)
 {
-	_elements[keyName].emplace_back('"' + value + '"');
-}
+	std::string &elem = _elements[keyName].emplace_back();
 
-void Storm::CSVWriter::operator()(const std::string_view keyName, const std::string &value)
-{
-	this->append(keyName, value);
+	const std::size_t valueStrLength = value.size();
+	if (valueStrLength > 0)
+	{
+		elem.reserve(valueStrLength + 2);
+
+		elem += '"';
+		elem += value;
+		elem += '"';
+	}
 }
 
 void Storm::CSVWriter::clear(const bool keepKeys /*= false*/)

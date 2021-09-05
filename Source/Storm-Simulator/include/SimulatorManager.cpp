@@ -2628,7 +2628,7 @@ void Storm::SimulatorManager::writeCurrentFrameSystemForcesToCsv(const unsigned 
 
 				const Storm::ParticleSystem &pSystemToPrint = *particleSystemPair.second;
 
-				std::pair<std::string_view, const std::vector<Storm::Vector3>*const> forcesMapping[] = {
+				std::pair<std::string, const std::vector<Storm::Vector3>*const> mappings[] = {
 					{ "Position", &pSystemToPrint.getPositions() },
 					{ "Velocity", &pSystemToPrint.getVelocity() },
 					{ "Force", &pSystemToPrint.getForces() },
@@ -2636,15 +2636,16 @@ void Storm::SimulatorManager::writeCurrentFrameSystemForcesToCsv(const unsigned 
 					{ "Viscosity", &pSystemToPrint.getTemporaryViscosityForces() },
 					{ "Drag", &pSystemToPrint.getTemporaryDragForces() }
 				};
+				
+				writer.reserve(mappings[0].second->size());
 
-				writer.reserve(forcesMapping[0].second->size());
-
-				for (const auto &forces : forcesMapping)
+				for (const auto &mapping : mappings)
 				{
-					for (const auto &force : *forces.second)
-					{
-						writer(forces.first, force);
-					}
+					const auto &mappingElements = *mapping.second;
+					writer(mapping.first, mappingElements);
+					writer(mapping.first + "_x", mappingElements, [](auto &value) -> auto& { return value.x(); });
+					writer(mapping.first + "_y", mappingElements, [](auto &value) -> auto& { return value.y(); });
+					writer(mapping.first + "_z", mappingElements, [](auto &value) -> auto& { return value.z(); });
 				}
 
 				return;
