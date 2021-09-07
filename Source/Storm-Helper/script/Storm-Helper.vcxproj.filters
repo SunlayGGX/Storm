@@ -150,6 +150,9 @@
     <ClCompile Include="..\include\CSVWriter.cpp">
       <Filter>Source Files\General\CSV</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\CSVHelpers.cpp">
+      <Filter>Source Files\General\CSV</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-HelperPCH.h">
@@ -336,6 +339,12 @@
       <Filter>Header Files\General\CSV</Filter>
     </ClInclude>
     <ClInclude Include="..\include\CSVMode.h">
+      <Filter>Header Files\General\CSV</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\CSVFormulaType.h">
+      <Filter>Header Files\General\CSV</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\CSVHelpers.h">
       <Filter>Header Files\General\CSV</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,4 +1,7 @@
 #include "CSVWriter.h"
+
+#include "CSVFormulaType.h"
+#include "CSVHelpers.h"
 #include "CSVMode.h"
 
 #include <fstream>
@@ -6,8 +9,61 @@
 
 namespace
 {
+	template<const char skipChar, const char returnChar>
+	void csvBlankSkip(std::ofstream &file, std::size_t allElementsCount)
+	{
+		file << returnChar;
+		while (allElementsCount != 0)
+		{
+			file << skipChar;
+			--allElementsCount;
+		}
+		file << returnChar;
+	}
+
+	template<Storm::CSVMode mode>
+	void writeFormula(std::ofstream &file, const Storm::CSVFormulaType formula, const std::size_t valuesCount, const std::size_t position)
+	{
+		if constexpr (mode == Storm::CSVMode::Row)
+		{
+			switch (formula)
+			{
+			case Storm::CSVFormulaType::Sum:
+				file <<
+					"=SOMME(A" << position << ':' <<
+					Storm::CSVHelpers::transcriptLetterPosition(valuesCount) << position << ')'
+					;
+				return;
+
+			default:
+				break;
+			}
+		}
+		else if constexpr (mode == Storm::CSVMode::Columns)
+		{
+			const std::string letter = Storm::CSVHelpers::transcriptLetterPosition(position);
+			switch (formula)
+			{
+			case Storm::CSVFormulaType::Sum:
+				file << "=SOMME(" << letter << "1:" << letter << valuesCount << ')';
+				return;
+
+			default:
+				break;
+			}
+		}
+		else
+		{
+			assert(false && "Unknown csv mode! We should have not come here!");
+			Storm::throwException<Storm::Exception>("Unknown csv mode! We should not come here!");
+		}
+
+		assert(false && "Unhandled formula type! We should have not come here!");
+		Storm::throwException<Storm::Exception>("Unhandled formula type! We should have not come here!");
+	}
+
 	template<Storm::CSVMode mode, bool mismatch>
-	void write(std::map<std::string, std::vector<std::string>> &allElements, const std::string &filePath, const std::size_t maxElementCount)
+	void write(std::map<std::string, std::vector<std::string>> &allElements, std::map<std::string, Storm::CSVFormulaType> &allFormulasRequests, const std::string &filePath, const std::size_t maxElementCount)
 	{
 		std::filesystem::create_directories(std::filesystem::path{ filePath }.parent_path());
 
@@ -23,6 +79,7 @@ namespace
 				LOG_WARNING << "Mismatch between row and columns in csv to be written. Some row won't have the same element count, therefore shifting could happen.";
 			}
 
+			std::size_t rowIter = 0;
 			for (const auto &elements : allElements)
 			{
 				file << elements.first;
@@ -30,6 +87,20 @@ namespace
 				for (const auto &element : elements.second)
 				{
 					file << ',' << element;
+				}
+
+				if (!allFormulasRequests.empty())
+				{
+					csvBlankSkip<',', ','>(file, maxElementCount - elements.second.size());
+
+					if (auto found = allFormulasRequests.find(elements.first); found != std::end(allFormulasRequests))
+					{
+						// Csv cells start at index 1 (isn't 0-based index)
+						writeFormula<mode>(file, found->second, maxElementCount + 1, rowIter);
+						allFormulasRequests.erase(found);
+					}
+
+					++rowIter;
 				}
 
 				file << '\n';
@@ -71,6 +142,29 @@ namespace
 					}
 				}
 			}
+
+			if (!allFormulasRequests.empty())
+			{
+				csvBlankSkip<',', '\n'>(file, allElementsCount);
+
+				std::size_t columnIter = 0;
+				for (auto &elements : allElements)
+				{
+					if (!allFormulasRequests.empty())
+					{
+						if (auto found = allFormulasRequests.find(elements.first); found != std::end(allFormulasRequests))
+						{
+							// Csv cells start at index 1 (isn't 0-based index)
+							writeFormula<mode>(file, found->second, maxElementCount + 1, columnIter);
+							allFormulasRequests.erase(found);
+						}
+						
+						++columnIter;
+					}
+
+					file << ',';
+				}
+			}
 		}
 		else
 		{
@@ -84,6 +178,7 @@ namespace
 			"Total elements written : " << maxElementCount * allElementsCount << " elements.";
 
 		allElements.clear();
+		allFormulasRequests.clear();
 	}
 }
 
@@ -125,22 +220,22 @@ Storm::CSVWriter::~CSVWriter()
 		case Storm::CSVMode::Row:
 			if (mismatch)
 			{
-				write<Storm::CSVMode::Row, true>(_elements, _filePath, maxElementCount);
+				write<Storm::CSVMode::Row, true>(_elements, _formulas, _filePath, maxElementCount);
 			}
 			else
 			{
-				write<Storm::CSVMode::Row, false>(_elements, _filePath, maxElementCount);
+				write<Storm::CSVMode::Row, false>(_elements, _formulas, _filePath, maxElementCount);
 			}
 			break;
 
 		case Storm::CSVMode::Columns:
 			if (mismatch)
 			{
-				write<Storm::CSVMode::Columns, true>(_elements, _filePath, maxElementCount);
+				write<Storm::CSVMode::Columns, true>(_elements, _formulas, _filePath, maxElementCount);
 			}
 			else
 			{
-				write<Storm::CSVMode::Columns, false>(_elements, _filePath, maxElementCount);
+				write<Storm::CSVMode::Columns, false>(_elements, _formulas, _filePath, maxElementCount);
 			}
 			break;
 
@@ -164,6 +259,11 @@ void Storm::CSVWriter::append(const std::string &keyName, const std::string &val
 		elem += value;
 		elem += '"';
 	}
+}
+
+void Storm::CSVWriter::addFormula(const std::string &keyName, Storm::CSVFormulaType formula)
+{
+	_formulas[keyName] = formula;
 }
 
 void Storm::CSVWriter::clear(const bool keepKeys /*= false*/)

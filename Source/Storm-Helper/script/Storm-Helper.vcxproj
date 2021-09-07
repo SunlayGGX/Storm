@@ -16,6 +16,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\CoInitializerRAII.cpp" />
+    <ClCompile Include="..\include\CSVHelpers.cpp" />
     <ClCompile Include="..\include\CSVWriter.cpp" />
     <ClCompile Include="..\include\DebuggerHelper.cpp" />
     <ClCompile Include="..\include\Logging.cpp" />
@@ -42,6 +43,8 @@
     <ClInclude Include="..\include\CommaSeparatedPolicy.h" />
     <ClInclude Include="..\include\CorrectSettingChecker.h" />
     <ClInclude Include="..\include\CRTPHierarchy.h" />
+    <ClInclude Include="..\include\CSVFormulaType.h" />
+    <ClInclude Include="..\include\CSVHelpers.h" />
     <ClInclude Include="..\include\CSVMode.h" />
     <ClInclude Include="..\include\CSVWriter.h" />
     <ClInclude Include="..\include\DebuggerHelper.h" />

@@ -4,6 +4,7 @@
 namespace Storm
 {
 	enum class CSVMode;
+	enum class CSVFormulaType;
 
 	class CSVWriter
 	{
@@ -42,6 +43,9 @@ namespace Storm
 		}
 
 	public:
+		void addFormula(const std::string &keyName, Storm::CSVFormulaType formula);
+
+	public:
 		void clear(const bool keepKeys = false);
 		void reserve(const std::size_t count);
 		bool empty() const;
@@ -50,5 +54,6 @@ namespace Storm
 		std::map<std::string, std::vector<std::string>> _elements;
 		const std::string _filePath;
 		const Storm::CSVMode _mode;
+		std::map<std::string, Storm::CSVFormulaType> _formulas;
 	};
 }
