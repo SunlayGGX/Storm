@@ -103,6 +103,8 @@
 #	include "VectHijack.h"
 #undef STORM_HIJACKED_TYPE
 
+#include "CSVFormulaType.h"
+
 #include <fstream>
 #include <future>
 
@@ -2628,24 +2630,59 @@ void Storm::SimulatorManager::writeCurrentFrameSystemForcesToCsv(const unsigned 
 
 				const Storm::ParticleSystem &pSystemToPrint = *particleSystemPair.second;
 
-				std::pair<std::string, const std::vector<Storm::Vector3>*const> mappings[] = {
-					{ "Position", &pSystemToPrint.getPositions() },
-					{ "Velocity", &pSystemToPrint.getVelocity() },
-					{ "Force", &pSystemToPrint.getForces() },
-					{ "Pressure", &pSystemToPrint.getTemporaryPressureForces() },
-					{ "Viscosity", &pSystemToPrint.getTemporaryViscosityForces() },
-					{ "Drag", &pSystemToPrint.getTemporaryDragForces() }
+				using MakeSumFormula = std::true_type;
+				using NoSumFormula = std::false_type;
+
+				std::tuple<std::string, const std::vector<Storm::Vector3>*const, bool> mappings[] = {
+					{ "Position", &pSystemToPrint.getPositions(), NoSumFormula::value },
+					{ "Velocity", &pSystemToPrint.getVelocity(), NoSumFormula::value },
+					{ "Force", &pSystemToPrint.getForces(), MakeSumFormula::value },
+					{ "Pressure", &pSystemToPrint.getTemporaryPressureForces(), MakeSumFormula::value },
+					{ "Viscosity", &pSystemToPrint.getTemporaryViscosityForces(), MakeSumFormula::value },
+					{ "Drag", &pSystemToPrint.getTemporaryDragForces(), MakeSumFormula::value },
+					{ "BernoulliDynamicQ", &pSystemToPrint.getTemporaryBernoulliDynamicPressureForces(), MakeSumFormula::value }
 				};
 				
-				writer.reserve(mappings[0].second->size());
+				writer.reserve(std::get<1>(mappings[0])->size());
+
+				auto registerVectorsInCsvLambda = [&writer]<bool withSumFormula>(const std::string &baseKey, const auto &mappingElements)
+				{
+					writer(baseKey, mappingElements);
+
+					std::string componentKey = baseKey + "_x";
+					writer(componentKey, mappingElements, [](auto &value) -> auto& { return value.x(); });
+					if constexpr (withSumFormula)
+					{
+						writer.addFormula(componentKey, Storm::CSVFormulaType::Sum);
+					}
+
+					componentKey.back() = 'y';
+					writer(componentKey, mappingElements, [](auto &value) -> auto& { return value.y(); });
+					if constexpr (withSumFormula)
+					{
+						writer.addFormula(componentKey, Storm::CSVFormulaType::Sum);
+					}
+
+					componentKey.back() = 'z';
+					writer(componentKey, mappingElements, [](auto &value) -> auto& { return value.z(); });
+					if constexpr (withSumFormula)
+					{
+						writer.addFormula(componentKey, Storm::CSVFormulaType::Sum);
+					}
+				};
 
 				for (const auto &mapping : mappings)
 				{
-					const auto &mappingElements = *mapping.second;
-					writer(mapping.first, mappingElements);
-					writer(mapping.first + "_x", mappingElements, [](auto &value) -> auto& { return value.x(); });
-					writer(mapping.first + "_y", mappingElements, [](auto &value) -> auto& { return value.y(); });
-					writer(mapping.first + "_z", mappingElements, [](auto &value) -> auto& { return value.z(); });
+					const bool withSumFormula = std::get<2>(mapping);
+
+					if (withSumFormula)
+					{
+						registerVectorsInCsvLambda.operator()<true>(std::get<0>(mapping), *std::get<1>(mapping));
+					}
+					else
+					{
+						registerVectorsInCsvLambda.operator()<false>(std::get<0>(mapping), *std::get<1>(mapping));
+					}
 				}
 
 				return;
