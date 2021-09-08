@@ -109,6 +109,12 @@
     <Filter Include="Source Files\General\CSV">
       <UniqueIdentifier>{d0f9221a-1ff7-4594-ba31-1ed643ba251f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\OS\Material">
+      <UniqueIdentifier>{bf2c4364-7c52-4aff-8f3d-3ce322112d33}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\OS\Material">
+      <UniqueIdentifier>{1e778b79-e5e4-461c-98b0-ba60f422957c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-HelperPCH.cpp">
@@ -152,6 +158,9 @@
     </ClCompile>
     <ClCompile Include="..\include\CSVHelpers.cpp">
       <Filter>Source Files\General\CSV</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\InstructionSet.cpp">
+      <Filter>Source Files\OS\Material</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -346,6 +355,9 @@
     </ClInclude>
     <ClInclude Include="..\include\CSVHelpers.h">
       <Filter>Header Files\General\CSV</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\InstructionSet.h">
+      <Filter>Header Files\OS\Material</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
