@@ -52,15 +52,13 @@ namespace
 
 				if (remaining > 0)
 				{
-					std::size_t iter = 0;
 					const std::size_t alignedArrayCount = arrayCount - k_shift;
-					for (; iter < alignedArrayCount; iter += k_shift)
+					for (std::size_t iter = 0; iter < alignedArrayCount; iter += k_shift)
 					{
 						fastLerp(iter);
 					}
 
-					iter -= remaining;
-					fastLerp(iter);
+					fastLerp(alignedArrayCount);
 				}
 				else
 				{
@@ -104,15 +102,13 @@ namespace
 
 				if (remaining > 0)
 				{
-					std::size_t iter = 0;
 					const std::size_t alignedArrayCount = arrayCount - k_shift;
-					for (; iter < alignedArrayCount; iter += k_shift)
+					for (std::size_t iter = 0; iter < alignedArrayCount; iter += k_shift)
 					{
 						fastLerp(iter);
 					}
 
-					iter -= remaining;
-					fastLerp(iter);
+					fastLerp(alignedArrayCount);
 				}
 				else
 				{
@@ -145,15 +141,13 @@ namespace
 
 			if (remaining > 0)
 			{
-				std::size_t iter = 0;
 				const std::size_t alignedArrayCount = arrayCount - k_shift;
-				for (; iter < alignedArrayCount; iter += k_shift)
+				for (std::size_t iter = 0; iter < alignedArrayCount; iter += k_shift)
 				{
 					fastCpy(iter);
 				}
 
-				iter -= remaining;
-				fastCpy(iter);
+				fastCpy(alignedArrayCount);
 			}
 			else
 			{
@@ -181,15 +175,13 @@ namespace
 
 			if (remaining > 0)
 			{
-				std::size_t iter = 0;
 				const std::size_t alignedArrayCount = arrayCount - k_shift;
-				for (; iter < alignedArrayCount; iter += k_shift)
+				for (std::size_t iter = 0; iter < alignedArrayCount; iter += k_shift)
 				{
 					fastCpy(iter);
 				}
 
-				iter -= remaining;
-				fastCpy(iter);
+				fastCpy(alignedArrayCount);
 			}
 			else
 			{
