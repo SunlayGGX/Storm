@@ -435,16 +435,16 @@ namespace
 				framePSystemElementData._systemId = particleSystemPair.first;
 
 #define STORM_COPY_ARRAYS(cpyLambda, memberName, srcArray)																								\
-	fillerFuturesExecutor.emplace_back(std::async(std::launch::async, [&cpyLambda, dst = &framePSystemElementData.memberName, src = &srcArray]()		\
+	fillerFuturesExecutor.emplace_back(std::async(std::launch::async, [&cpyLambda, &dst = framePSystemElementData.memberName, &src = srcArray]()		\
 	{																																					\
-		setNumUninitializedIfCountMismatch(*dst, src->size());																							\
-		cpyLambda(*src, *dst);																															\
+		setNumUninitializedIfCountMismatch(dst, src.size());																							\
+		cpyLambda(src, dst);																															\
 	}))
 
 #define STORM_MAKE_SIMPLE_COPY_ARRAY(memberName, srcArray)																				\
-	fillerFuturesExecutor.emplace_back(std::async(std::launch::async, [dst = &framePSystemElementData.memberName, src = &srcArray]()	\
+	fillerFuturesExecutor.emplace_back(std::async(std::launch::async, [&dst = framePSystemElementData.memberName, &src = srcArray]()	\
 	{																																	\
-		*dst = *src;																													\
+		dst = src;																														\
 	}))
 
 				if (pSystemRef.isFluids())
