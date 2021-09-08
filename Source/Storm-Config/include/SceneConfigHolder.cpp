@@ -771,6 +771,7 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 						!Storm::XmlReader::handleXml(fluidParticleCustomSimulConfigXml, "enableThresholdDensity", fluidDfsphConfig._enableThresholdDensity) &&
 						!Storm::XmlReader::handleXml(fluidParticleCustomSimulConfigXml, "useRotationFix", fluidDfsphConfig._useFixRotation) &&
 						!Storm::XmlReader::handleXml(fluidParticleCustomSimulConfigXml, "enableDensitySolve", fluidDfsphConfig._enableDensitySolve) &&
+						!Storm::XmlReader::handleXml(fluidParticleCustomSimulConfigXml, "useBernouilliPrinciple", fluidDfsphConfig._useBernoulliPrinciple) &&
 						!Storm::XmlReader::handleXml(fluidParticleCustomSimulConfigXml, "neighborThresholdDensity", fluidDfsphConfig._neighborThresholdDensity)
 						)
 					{

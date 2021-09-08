@@ -13,6 +13,7 @@ namespace Storm
 		Storm::Vector3 _pressureForce;
 		Storm::Vector3 _viscosityForce;
 		Storm::Vector3 _dragForce;
+		Storm::Vector3 _dynamicPressureForce;
 		Storm::Vector3 _externalSumForces;
 
 		bool _hasRbTotalForce;

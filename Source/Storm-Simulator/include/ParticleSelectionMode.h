@@ -12,6 +12,7 @@ namespace Storm
 		Pressure,
 		Viscosity,
 		Drag,
+		DynamicPressure,
 		AllOnParticle,
 
 		RbForce,

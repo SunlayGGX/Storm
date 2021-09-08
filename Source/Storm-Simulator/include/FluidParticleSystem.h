@@ -30,6 +30,7 @@ namespace Storm
 		void setTmpPressureForces(std::vector<Storm::Vector3> &&tmpPressureForces) final override;
 		void setTmpViscosityForces(std::vector<Storm::Vector3> &&tmpViscoForces) final override;
 		void setTmpDragForces(std::vector<Storm::Vector3> &&tmpDragForces) final override;
+		void setTmpBernoulliDynamicPressureForces(std::vector<Storm::Vector3> &&tmpDynamicQForces) final override;
 		void setParticleSystemPosition(const Storm::Vector3 &pSystemPosition) final override;
 		void setParticleSystemTotalForce(const Storm::Vector3 &pSystemTotalForce) final override;
 

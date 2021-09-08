@@ -101,7 +101,16 @@ void Storm::PredictiveSolverHandler::transfertEndDataToSystems(Storm::ParticleSy
 			{
 				Storm::runParallel(particleSystem.getForces(), [&particleSystem](Storm::Vector3 &forces, const std::size_t currentPIndex)
 				{
-					forces = particleSystem.getTemporaryViscosityForces()[currentPIndex] + particleSystem.getTemporaryPressureForces()[currentPIndex];
+					forces =
+#if true
+						particleSystem.getTemporaryViscosityForces()[currentPIndex] +
+#endif
+#if true
+						particleSystem.getTemporaryPressureForces()[currentPIndex] +
+#endif
+						particleSystem.getTemporaryDragForces()[currentPIndex] +
+						particleSystem.getTemporaryBernoulliDynamicPressureForces()[currentPIndex]
+						;
 				});
 			}
 			else

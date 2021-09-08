@@ -307,7 +307,7 @@ void Storm::RigidBodyParticleSystem::onSubIterationStart(const Storm::ParticleSy
 				force.setZero();
 				_tmpPressureForce[currentPIndex].setZero();
 				_tmpViscosityForce[currentPIndex].setZero();
-				_tmpDragForce[currentPIndex].setZero();
+				_tmpBernoulliDynamicPressureForce[currentPIndex].setZero();
 			});
 		}
 		else
@@ -320,6 +320,7 @@ void Storm::RigidBodyParticleSystem::onSubIterationStart(const Storm::ParticleSy
 				_tmpPressureForce[currentPIndex].setZero();
 				_tmpViscosityForce[currentPIndex].setZero();
 				_tmpDragForce[currentPIndex].setZero();
+				_tmpBernoulliDynamicPressureForce[currentPIndex].setZero();
 
 				// Compute the current boundary particle volume.
 				const float initialVolumeValue = currentKernelZero;
@@ -437,6 +438,14 @@ void Storm::RigidBodyParticleSystem::setTmpDragForces(std::vector<Storm::Vector3
 	if (!this->isStatic())
 	{
 		_tmpDragForce = std::move(tmpDragForces);
+	}
+}
+
+void Storm::RigidBodyParticleSystem::setTmpBernoulliDynamicPressureForces(std::vector<Storm::Vector3>&& tmpDynamicQForces)
+{
+	if (!this->isStatic())
+	{
+		_tmpBernoulliDynamicPressureForce = std::move(tmpDynamicQForces);
 	}
 }
 
@@ -632,6 +641,7 @@ void Storm::RigidBodyParticleSystem::revertToCurrentTimestep(const std::vector<s
 			_tmpPressureForce[currentPIndex].setZero();
 			_tmpViscosityForce[currentPIndex].setZero();
 			_tmpDragForce[currentPIndex].setZero();
+			_tmpBernoulliDynamicPressureForce[currentPIndex].setZero();
 		});
 	}
 }

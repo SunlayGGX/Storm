@@ -45,6 +45,11 @@ namespace
 			{
 				frameData._dragComponentforces.resize(framePCount, Storm::Vector3::Zero());
 			}
+
+			if constexpr (currentVersion < Storm::Version{ 1, 6, 0 })
+			{
+				frameData._dynamicPressureQForces.resize(framePCount, Storm::Vector3::Zero());
+			}
 		}
 	}
 }
@@ -77,6 +82,10 @@ Storm::RecordReader::RecordReader() :
 	else if (currentRecordVersion == Storm::Version{ 1, 5, 0 })
 	{
 		_readMethodToUse = &Storm::RecordReader::readNextFrame_v1_5_0;
+	}
+	else if (currentRecordVersion == Storm::Version{ 1, 6, 0 })
+	{
+		_readMethodToUse = &Storm::RecordReader::readNextFrame_v1_6_0;
 	}
 	else
 	{
@@ -144,6 +153,10 @@ void Storm::RecordReader::correctVersionMismatch(Storm::SerializeRecordPendingDa
 	else if (currentRecordVersion == Storm::Version{ 1, 5, 0 })
 	{
 		correctVersionMismatchImpl<1, 5, 0>(outPendingData);
+	}
+	else if (currentRecordVersion == Storm::Version{ 1, 6, 0 })
+	{
+		correctVersionMismatchImpl<1, 6, 0>(outPendingData);
 	}
 }
 
@@ -432,6 +445,62 @@ bool Storm::RecordReader::readNextFrame_v1_5_0(Storm::SerializeRecordPendingData
 			frameData._pressureComponentforces <<
 			frameData._viscosityComponentforces <<
 			frameData._dragComponentforces
+			;
+	}
+
+	outPendingData._constraintElements.resize(_header._contraintLayouts.size());
+	for (Storm::SerializeRecordContraintsData &constraintData : outPendingData._constraintElements)
+	{
+		_package <<
+			constraintData._id <<
+			constraintData._position1 <<
+			constraintData._position2
+			;
+	}
+
+	return true;
+}
+
+bool Storm::RecordReader::readNextFrame_v1_6_0(Storm::SerializeRecordPendingData &outPendingData)
+{
+	uint64_t frameNumber = std::numeric_limits<uint64_t>::max();
+	_package << frameNumber;
+
+	_noMoreFrame = frameNumber >= _header._frameCount;
+	if (_noMoreFrame)
+	{
+		return false;
+	}
+
+	_package << outPendingData._physicsTime;
+
+	if (frameNumber == 0)
+	{
+		// If it is the first frame, then we would have all particles from all rigid bodies (static rigid bodies included).
+		outPendingData._particleSystemElements.resize(_header._particleSystemLayouts.size());
+	}
+	else
+	{
+		// The other frame have only the particle system that are allowed to move (gain some spaces).
+		outPendingData._particleSystemElements.resize(_movingSystemCount);
+	}
+
+	for (Storm::SerializeRecordParticleSystemData &frameData : outPendingData._particleSystemElements)
+	{
+		_package <<
+			frameData._systemId <<
+			frameData._pSystemPosition <<
+			frameData._pSystemGlobalForce <<
+			frameData._positions <<
+			frameData._velocities <<
+			frameData._forces <<
+			frameData._densities <<
+			frameData._pressures <<
+			frameData._volumes <<
+			frameData._pressureComponentforces <<
+			frameData._viscosityComponentforces <<
+			frameData._dragComponentforces <<
+			frameData._dynamicPressureQForces
 			;
 	}
 

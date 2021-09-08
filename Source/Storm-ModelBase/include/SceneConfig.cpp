@@ -169,7 +169,8 @@ Storm::SceneFluidCustomDFSPHConfig::SceneFluidCustomDFSPHConfig() :
 	_kPressurePredictedCoeff{ 1.f },
 	_enableThresholdDensity{ true },
 	_useFixRotation{ true },
-	_enableDensitySolve{ true }
+	_enableDensitySolve{ true },
+	_useBernoulliPrinciple{ false }
 {
 
 }

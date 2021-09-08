@@ -1322,6 +1322,7 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 							removeRawParticles(fluidPSystem.getTemporaryPressureForces(), toRemoveCount);
 							removeRawParticles(fluidPSystem.getTemporaryViscosityForces(), toRemoveCount);
 							removeRawParticles(fluidPSystem.getTemporaryDragForces(), toRemoveCount);
+							removeRawParticles(fluidPSystem.getTemporaryBernoulliDynamicPressureForces(), toRemoveCount);
 							removeRawParticles(fluidPSystem.getPositions(), toRemoveCount);
 							removeRawParticles(fluidPSystem.getVelocity(), toRemoveCount);
 							removeRawParticles(fluidPSystem.getVelocityPreTimestep(), toRemoveCount);
@@ -2135,6 +2136,7 @@ void Storm::SimulatorManager::refreshParticleSelection()
 			_particleSelector.setSelectedParticlePressureForce(pSystem.getTemporaryPressureForces()[selectedParticleIndex]);
 			_particleSelector.setSelectedParticleViscosityForce(pSystem.getTemporaryViscosityForces()[selectedParticleIndex]);
 			_particleSelector.setSelectedParticleDragForce(pSystem.getTemporaryDragForces()[selectedParticleIndex]);
+			_particleSelector.setSelectedParticleBernoulliDynamicPressureForce(pSystem.getTemporaryBernoulliDynamicPressureForces()[selectedParticleIndex]);
 			_particleSelector.setSelectedParticleSumForce(pSystem.getForces()[selectedParticleIndex]);
 
 			if (!pSystem.isFluids())
@@ -2241,6 +2243,7 @@ void Storm::SimulatorManager::pushRecord(float currentPhysicsTime, bool pushStat
 			framePSystemElementData._pressureComponentforces = pSystemRef.getTemporaryPressureForces();
 			framePSystemElementData._viscosityComponentforces = pSystemRef.getTemporaryViscosityForces();
 			framePSystemElementData._dragComponentforces = pSystemRef.getTemporaryDragForces();
+			framePSystemElementData._dynamicPressureQForces = pSystemRef.getTemporaryBernoulliDynamicPressureForces();
 		}
 	}
 
@@ -2827,6 +2830,7 @@ bool Storm::SimulatorManager::selectSpecificParticle_Internal(const unsigned pSy
 				_particleSelector.setSelectedParticlePressureForce(selectedPSystem.getTemporaryPressureForces()[particleIndex]);
 				_particleSelector.setSelectedParticleViscosityForce(selectedPSystem.getTemporaryViscosityForces()[particleIndex]);
 				_particleSelector.setSelectedParticleDragForce(selectedPSystem.getTemporaryDragForces()[particleIndex]);
+				_particleSelector.setSelectedParticleBernoulliDynamicPressureForce(selectedPSystem.getTemporaryBernoulliDynamicPressureForces()[particleIndex]);
 
 				if (!selectedPSystem.isFluids())
 				{

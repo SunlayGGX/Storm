@@ -140,6 +140,101 @@ namespace
 
 		return totalViscosityForceOnParticle;
 	}
+
+	Storm::Vector3 computeBernouilliPrinciple(const Storm::FluidParticleSystem &fluidParticleSystem, const std::size_t currentPIndex, const Storm::ParticleNeighborhoodArray &currentPNeighborhood)
+	{
+		// Explanation :
+		// SPH computes static pressure in the fluids. But total pressure is given by the sum between static and dynamic pressure.
+		// Plus, SPH clamps static pressure at 0 when density is below rest density, therefore, no static pressure forces allow to correct dilatation (just the compression of the flow).
+		// Dynamic pressure is the one that pulls the ball in the blower flow thus the need to compute it.
+		// From Bernoulli's equations given for Incompressible flow (Bernoulli's principle), dynamic pressure is given by : q = 1/2 * rho * v². This has a dimension of a pressure (N.m^-2). Therefore Acceleration from dynamic pressure is given by aq = 1/2 * rho / rho0 * v²
+
+
+		Storm::Vector3 dynamicPressureForce = Storm::Vector3::Zero();
+
+		const float density0 = fluidParticleSystem.getRestDensity();
+		const float currentPMass = fluidParticleSystem.getMasses()[currentPIndex];
+		const float currentPDensity = fluidParticleSystem.getDensities()[currentPIndex];
+		const float qi = fluidParticleSystem.getPressures()[currentPIndex];
+
+		const float currentPFluidPressureCoeff = qi / (currentPDensity * currentPDensity);
+
+		const float restMassDensity = currentPMass * density0;
+		const float currentPRestMassDensityBoundaryPressureCoeff = restMassDensity * (currentPFluidPressureCoeff + (qi / (density0 * density0)));
+
+		for (const Storm::NeighborParticleInfo &neighbor : currentPNeighborhood)
+		{
+#if true
+			if (neighbor._isFluidParticle)
+			{
+				const Storm::FluidParticleSystem* neighborPSystemAsFluid = static_cast<Storm::FluidParticleSystem*>(neighbor._containingParticleSystem);
+				const float neighborDensity0 = neighborPSystemAsFluid->getRestDensity();
+				const float neighborMass = neighborPSystemAsFluid->getMasses()[neighbor._particleIndex];
+				const float neighborRawDensity = neighborPSystemAsFluid->getDensities()[neighbor._particleIndex];
+				const float neighborDensity = neighborRawDensity * (density0 / neighborDensity0);
+				const float neighborVolume = neighborPSystemAsFluid->getParticleVolume();
+
+				const float neighborPressureCoeff = neighborPSystemAsFluid->getPressures()[neighbor._particleIndex] / (neighborDensity * neighborDensity);
+				dynamicPressureForce += (restMassDensity * neighborVolume * (currentPFluidPressureCoeff + neighborPressureCoeff)) * neighbor._gradWij;
+			}
+			else
+			{
+				const Storm::RigidBodyParticleSystem* neighborPSystemAsBoundary = static_cast<Storm::RigidBodyParticleSystem*>(neighbor._containingParticleSystem);
+
+				const float neighborVolume = neighborPSystemAsBoundary->getVolumes()[neighbor._particleIndex];
+
+				// Pressure
+				const Storm::Vector3 currentDynamicPressureQComponent = (currentPRestMassDensityBoundaryPressureCoeff * neighborVolume) * neighbor._gradWij;
+				dynamicPressureForce += currentDynamicPressureQComponent;
+
+				// Mirror the force on the boundary solid following the 3rd newton law
+				if (!neighborPSystemAsBoundary->isStatic())
+				{
+					Storm::Vector3 &boundaryNeighborTmpDynamicQForce = neighbor._containingParticleSystem->getTemporaryBernoulliDynamicPressureForces()[neighbor._particleIndex];
+
+					std::lock_guard<std::mutex> lock{ neighbor._containingParticleSystem->_mutex };
+					boundaryNeighborTmpDynamicQForce -= currentDynamicPressureQComponent;
+				}
+			}
+#else
+
+			if (neighbor._isFluidParticle)
+			{
+				const Storm::FluidParticleSystem*const neighborPSystemAsFluid = static_cast<Storm::FluidParticleSystem*>(neighbor._containingParticleSystem);
+				const float neighborMass = neighborPSystemAsFluid->getMasses()[neighbor._particleIndex];
+				const float neighborRawDensity = neighborPSystemAsFluid->getDensities()[neighbor._particleIndex];
+				const float particleVolume = neighborPSystemAsFluid->getParticleVolume();
+
+				const Storm::Vector3 currentDynamicPressureQComponent = (particleVolume * neighborMass / neighborRawDensity * (qi - neighborPSystemAsFluid->getPressures()[neighbor._particleIndex])) * neighbor._gradWij;
+
+				dynamicPressureForce -= currentDynamicPressureQComponent;
+			}
+			else
+			{
+				const Storm::RigidBodyParticleSystem*const neighborPSystemAsBoundary = static_cast<Storm::RigidBodyParticleSystem*>(neighbor._containingParticleSystem);
+				const float neighborVolume = neighborPSystemAsBoundary->getVolumes()[neighbor._particleIndex];
+
+				const float qj = density0 * neighborPSystemAsBoundary->getVelocity()[neighbor._particleIndex].squaredNorm() / 2.f;
+
+				const Storm::Vector3 currentDynamicPressureQComponent = (neighborVolume * neighborVolume * (qj - qi)) * neighbor._gradWij;
+
+				dynamicPressureForce -= currentDynamicPressureQComponent;
+
+				// Mirror the force on the boundary solid following the 3rd newton law
+				if (!neighborPSystemAsBoundary->isStatic())
+				{
+					Storm::Vector3 &boundaryNeighborTmpDynamicQForce = neighbor._containingParticleSystem->getTemporaryBernoulliDynamicPressureForces()[neighbor._particleIndex];
+
+					std::lock_guard<std::mutex> lock{ neighbor._containingParticleSystem->_mutex };
+					boundaryNeighborTmpDynamicQForce += currentDynamicPressureQComponent;
+				}
+			}
+
+#endif
+		}
+
+		return dynamicPressureForce;
+	}
 }
 
 
@@ -253,7 +348,65 @@ void Storm::DFSPHSolver::execute(const Storm::IterationParameter &iterationParam
 
 				// Volume * density is mass...
 				currentPDensity *= density0;
+
+				/*const std::vector<Storm::Vector3> &velocities = fluidParticleSystem.getVelocity();
+				const Storm::Vector3 &vi = velocities[currentPIndex];
+				fluidParticleSystem.getPressures()[currentPIndex] = vi.squaredNorm() / 2.f * particleVolume * k_kernelZero;*/
+
 			});
+		}
+	}
+
+	if (dfsphFluidConfig._useBernoulliPrinciple)
+	{
+		for (auto &particleSystemPair : particleSystems)
+		{
+			Storm::ParticleSystem &currentParticleSystem = *particleSystemPair.second;
+			if (currentParticleSystem.isFluids())
+			{
+				Storm::FluidParticleSystem &fluidPSystem = static_cast<Storm::FluidParticleSystem &>(currentParticleSystem);
+
+				const std::vector<Storm::ParticleNeighborhoodArray> &neighborhoodArrays = fluidPSystem.getNeighborhoodArrays();
+				const std::vector<Storm::Vector3> &velocities = fluidPSystem.getVelocity();
+				const std::vector<float> &densities = fluidPSystem.getDensities();
+
+				Storm::runParallel(fluidPSystem.getPressures(), [this, &neighborhoodArrays, &velocities, &densities, density0 = fluidPSystem.getRestDensity()](float &currentPQ, const std::size_t currentPIndex)
+				{
+					const Storm::ParticleNeighborhoodArray &currentPNeighborhood = neighborhoodArrays[currentPIndex];
+					const Storm::Vector3 &vi = velocities[currentPIndex];
+
+#if false
+					currentPQ = vi.squaredNorm() / 2.f * densities[currentPIndex];
+#else
+					currentPQ = 0.f;
+					for (const Storm::NeighborParticleInfo &neighbor : currentPNeighborhood)
+					{
+						const Storm::Vector3 &vj = neighbor._containingParticleSystem->getVelocity()[neighbor._particleIndex];
+						if (neighbor._isFluidParticle)
+						{
+							const Storm::FluidParticleSystem* neighborPSystemAsFluid = static_cast<Storm::FluidParticleSystem*>(neighbor._containingParticleSystem);
+							const float neighborMass = neighborPSystemAsFluid->getMasses()[neighbor._particleIndex];
+
+							const float addDynamicQ = vj.squaredNorm() / 2.f * neighborMass * neighbor._Wij;
+							currentPQ += addDynamicQ;
+						}
+						else
+						{
+							const Storm::RigidBodyParticleSystem* neighborPSystemAsBoundary = static_cast<Storm::RigidBodyParticleSystem*>(neighbor._containingParticleSystem);
+							const float neighborVolume = neighborPSystemAsBoundary->getVolumes()[neighbor._particleIndex];
+							const float addDynamicQ = vj.squaredNorm() / 2.f * neighborVolume * density0 * neighbor._Wij;
+
+							currentPQ += addDynamicQ;
+						}
+					}
+
+					if (currentPQ < 0.f)
+					{
+						currentPQ = 0.f;
+					}
+#endif
+				});
+			}
 		}
 	}
 
@@ -427,6 +580,15 @@ void Storm::DFSPHSolver::execute(const Storm::IterationParameter &iterationParam
 					}
 
 					currentPForce += currentPTmpDragForceComponent;
+				}
+
+				if (dfsphFluidConfig._useBernoulliPrinciple)
+				{
+					Storm::Vector3 &dynamicPressureForce = fluidParticleSystem.getTemporaryBernoulliDynamicPressureForces()[currentPIndex];
+					dynamicPressureForce = computeBernouilliPrinciple(fluidParticleSystem, currentPIndex, currentPNeighborhood);
+
+					Storm::Vector3 &currentPForce = fluidParticleSystem.getForces()[currentPIndex];
+					currentPForce += dynamicPressureForce;
 				}
 
 				// We should also initialize the data field now (avoid to restart the threads).
@@ -679,7 +841,7 @@ void Storm::DFSPHSolver::divergenceSolve(const Storm::IterationParameter &iterat
 
 						v_i += velChange;
 
-#if false
+#if true
 						if (!neighborPSystemAsBoundary->isStatic())
 						{
 							Storm::Vector3 addedPressureForce = (-currentPMass * invertDeltaTime) * velChange;

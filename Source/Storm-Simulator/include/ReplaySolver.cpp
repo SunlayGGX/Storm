@@ -94,6 +94,7 @@ namespace
 			std::vector<Storm::Vector3> &allPressureForce = currentPSystem.getTemporaryPressureForces();
 			std::vector<Storm::Vector3> &allViscosityForce = currentPSystem.getTemporaryViscosityForces();
 			std::vector<Storm::Vector3> &allDragForce = currentPSystem.getTemporaryDragForces();
+			std::vector<Storm::Vector3> &allDynamicQForce = currentPSystem.getTemporaryBernoulliDynamicPressureForces();
 
 			if (currentPSystem.isFluids())
 			{
@@ -111,6 +112,7 @@ namespace
 					lerp(frameBeforeElements._pressureComponentforces[currentPIndex], frameAfterElements._pressureComponentforces[currentPIndex], coefficient, allPressureForce[currentPIndex]);
 					lerp(frameBeforeElements._viscosityComponentforces[currentPIndex], frameAfterElements._viscosityComponentforces[currentPIndex], coefficient, allViscosityForce[currentPIndex]);
 					lerp(frameBeforeElements._dragComponentforces[currentPIndex], frameAfterElements._dragComponentforces[currentPIndex], coefficient, allDragForce[currentPIndex]);
+					lerp(frameBeforeElements._dynamicPressureQForces[currentPIndex], frameAfterElements._dynamicPressureQForces[currentPIndex], coefficient, allDynamicQForce[currentPIndex]);
 				});
 			}
 			else
@@ -127,6 +129,7 @@ namespace
 					lerp(frameBeforeElements._pressureComponentforces[currentPIndex], frameAfterElements._pressureComponentforces[currentPIndex], coefficient, allPressureForce[currentPIndex]);
 					lerp(frameBeforeElements._viscosityComponentforces[currentPIndex], frameAfterElements._viscosityComponentforces[currentPIndex], coefficient, allViscosityForce[currentPIndex]);
 					lerp(frameBeforeElements._dragComponentforces[currentPIndex], frameAfterElements._dragComponentforces[currentPIndex], coefficient, allDragForce[currentPIndex]);
+					lerp(frameBeforeElements._dynamicPressureQForces[currentPIndex], frameAfterElements._dynamicPressureQForces[currentPIndex], coefficient, allDynamicQForce[currentPIndex]);
 				});
 			}
 		}
@@ -203,6 +206,7 @@ void Storm::ReplaySolver::transferFrameToParticleSystem_move(Storm::ParticleSyst
 		particleSystem.setTmpPressureForces(std::move(currentFrameElement._pressureComponentforces));
 		particleSystem.setTmpViscosityForces(std::move(currentFrameElement._viscosityComponentforces));
 		particleSystem.setTmpDragForces(std::move(currentFrameElement._dragComponentforces));
+		particleSystem.setTmpBernoulliDynamicPressureForces(std::move(currentFrameElement._dynamicPressureQForces));
 	}
 }
 
@@ -217,6 +221,7 @@ void Storm::ReplaySolver::transferFrameToParticleSystem_copy(Storm::ParticleSyst
 		std::vector<Storm::Vector3> &allPressureForce = currentPSystem.getTemporaryPressureForces();
 		std::vector<Storm::Vector3> &allViscosityForce = currentPSystem.getTemporaryViscosityForces();
 		std::vector<Storm::Vector3> &allDragForce = currentPSystem.getTemporaryDragForces();
+		std::vector<Storm::Vector3> &allDynamicQForce = currentPSystem.getTemporaryBernoulliDynamicPressureForces();
 
 		if (currentPSystem.isFluids())
 		{
@@ -238,6 +243,7 @@ void Storm::ReplaySolver::transferFrameToParticleSystem_copy(Storm::ParticleSyst
 				allPressureForce[currentPIndex] = frameElement._pressureComponentforces[currentPIndex];
 				allViscosityForce[currentPIndex] = frameElement._viscosityComponentforces[currentPIndex];
 				allDragForce[currentPIndex] = frameElement._dragComponentforces[currentPIndex];
+				allDynamicQForce[currentPIndex] = frameElement._dynamicPressureQForces[currentPIndex];
 			});
 		}
 		else
@@ -254,6 +260,7 @@ void Storm::ReplaySolver::transferFrameToParticleSystem_copy(Storm::ParticleSyst
 				allPressureForce[currentPIndex] = frameElement._pressureComponentforces[currentPIndex];
 				allViscosityForce[currentPIndex] = frameElement._viscosityComponentforces[currentPIndex];
 				allDragForce[currentPIndex] = frameElement._dragComponentforces[currentPIndex];
+				allDynamicQForce[currentPIndex] = frameElement._dynamicPressureQForces[currentPIndex];
 			});
 		}
 

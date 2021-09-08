@@ -173,6 +173,11 @@ void Storm::FluidParticleSystem::setTmpDragForces(std::vector<Storm::Vector3> &&
 	_tmpDragForce = std::move(tmpDragForces);
 }
 
+void Storm::FluidParticleSystem::setTmpBernoulliDynamicPressureForces(std::vector<Storm::Vector3>&& tmpDynamicQForces)
+{
+	_tmpBernoulliDynamicPressureForce = std::move(_tmpBernoulliDynamicPressureForce);
+}
+
 void Storm::FluidParticleSystem::setParticleSystemPosition(const Storm::Vector3 &pSystemPosition)
 {
 
@@ -401,4 +406,5 @@ void Storm::FluidParticleSystem::internalInitializeForce(const Storm::Vector3 &g
 	_tmpPressureForce[currentPIndex].setZero();
 	_tmpViscosityForce[currentPIndex].setZero();
 	_tmpDragForce[currentPIndex].setZero();
+	_tmpBernoulliDynamicPressureForce[currentPIndex].setZero();
 }

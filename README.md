@@ -409,6 +409,7 @@ This element is all setting appertaining to a fluid. Here the tag you can set in
  + **enableThresholdDensity (boolean, facultative)**: Enable the neighbour threshold density. Maybe for simulation that is with a filled domain (no void). Default is true.
  + **useRotationFix (boolean, facultative)**: Specify if we should use the last rotation fix. Default is true.
  + **enableDensitySolve (boolean, facultative)**: Specify if we should enable the invariant PPE (Pressure Poisson Equation) density solver. Default is true.
+ + **useBernouilliPrinciple (boolean, facultative)**: Compute dynamic pressure along the fluid to produce additional pressure forces in the fluid using Bernoulli's principle. This is experimental. Default is false.
 
 
 #### RigidBodies

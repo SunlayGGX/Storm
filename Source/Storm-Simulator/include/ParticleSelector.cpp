@@ -3,8 +3,15 @@
 
 #include "SingletonHolder.h"
 #include "IGraphicsManager.h"
+#include "IConfigManager.h"
+
+#include "SceneFluidConfig.h"
+#include "SceneSimulationConfig.h"
+#include "SceneFluidCustomDFSPHConfig.h"
 
 #include "ParticleSelectionMode.h"
+
+#include "SimulationMode.h"
 
 #include "UIField.h"
 #include "UIFieldContainer.h"
@@ -22,6 +29,7 @@ namespace
 		case Storm::ParticleSelectionMode::Pressure: return STORM_TEXT("Pressure");
 		case Storm::ParticleSelectionMode::Viscosity: return STORM_TEXT("Viscosity");
 		case Storm::ParticleSelectionMode::Drag: return STORM_TEXT("Drag");
+		case Storm::ParticleSelectionMode::DynamicPressure: return STORM_TEXT("DynamicQ");
 		case Storm::ParticleSelectionMode::AllOnParticle: return STORM_TEXT("All");
 		case Storm::ParticleSelectionMode::RbForce: return STORM_TEXT("Rb Total force");
 		case Storm::ParticleSelectionMode::AverageRbForce: return STORM_TEXT("Rb Average Total force");
@@ -51,6 +59,7 @@ namespace
 	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Pressure)				\
 	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Viscosity)				\
 	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Drag)					\
+	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, DynamicPressure)			\
 	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, AllOnParticle)			\
 
 #define STORM_XMACRO_SELECTION_RB_MODE_BINDINGS(SelectionMode)					\
@@ -58,6 +67,7 @@ namespace
 	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Pressure)				\
 	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Viscosity)				\
 	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Drag)					\
+	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, DynamicPressure)			\
 	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, AllOnParticle)			\
 	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, RbForce)					\
 	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, AverageRbForce)			\
@@ -79,20 +89,74 @@ namespace
 
 #define STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, BindingValueName) case SelectionMode::BindingValueName: return Storm::ParticleSelectionMode::BindingValueName;
 #define STORM_XMACRO_ELEM_SELECTION_MODE(SelectionMode, ...) \
-	template<> Storm::ParticleSelectionMode retrieveSelectionMode<SelectionMode>(uint8_t selectionModeAgnostic) \
-	{																											\
-		switch (static_cast<SelectionMode>(selectionModeAgnostic))												\
-		{																										\
-			__VA_ARGS__																							\
-																												\
-		default:																								\
-			return static_cast<Storm::ParticleSelectionMode>(0);												\
-		};																										\
+	template<> Storm::ParticleSelectionMode retrieveSelectionMode<SelectionMode>(uint8_t selectionModeAgnostic)	\
+	{																														\
+		switch (static_cast<SelectionMode>(selectionModeAgnostic))															\
+		{																													\
+			__VA_ARGS__																										\
+																															\
+		default:																											\
+			return static_cast<Storm::ParticleSelectionMode>(0);															\
+		};																													\
 	}
 
 	STORM_XMACRO_SELECTION_MODE
 #undef STORM_XMACRO_ELEM_SELECTION_MODE
 #undef STORM_XMACRO_ELEM_SELECTION_BINDING
+
+
+	template<class UsedSelectionMode>
+	bool checkSkippedSelectionMode(Storm::ParticleSelectionMode selectionMode)
+	{
+		switch (selectionMode)
+		{
+		case Storm::ParticleSelectionMode::DynamicPressure:
+		{
+			const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+			const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
+
+			const Storm::SceneSimulationConfig &simulConfig = configMgr.getSceneSimulationConfig();
+			switch (simulConfig._simulationMode)
+			{
+			case Storm::SimulationMode::DFSPH:
+			case Storm::SimulationMode::DFSPHModified:
+			{
+				const Storm::SceneFluidConfig &fluidConfig = configMgr.getSceneFluidConfig();
+				const Storm::SceneFluidCustomDFSPHConfig &dfsphFluidConfig = static_cast<const Storm::SceneFluidCustomDFSPHConfig &>(*fluidConfig._customSimulationSettings);
+				return dfsphFluidConfig._useBernoulliPrinciple;
+			}
+
+			default:
+				return true;
+			}
+		}
+
+		case Storm::ParticleSelectionMode::AllOnParticle:
+		case Storm::ParticleSelectionMode::Velocity:
+		case Storm::ParticleSelectionMode::Pressure:
+		case Storm::ParticleSelectionMode::Viscosity:
+		case Storm::ParticleSelectionMode::Drag:
+		case Storm::ParticleSelectionMode::RbForce:
+		case Storm::ParticleSelectionMode::AverageRbForce:
+		case Storm::ParticleSelectionMode::SelectionModeCount:
+		default:
+			return true;
+		}
+	}
+
+	template<class UsedSelectionMode>
+	Storm::ParticleSelectionMode cycleSelectionMode(Storm::ParticleSelectionMode currentSelectionMode)
+	{
+		do
+		{
+			const uint8_t cycledValue = (static_cast<uint8_t>(currentSelectionMode) + 1) % static_cast<uint8_t>(Storm::ParticleSelectionMode::SelectionModeCount);
+			currentSelectionMode = retrieveSelectionMode<UsedSelectionMode>(cycledValue);
+
+		} while (!checkSkippedSelectionMode<UsedSelectionMode>(currentSelectionMode));
+
+		return currentSelectionMode;
+	}
+
 }
 
 
@@ -164,16 +228,14 @@ void Storm::ParticleSelector::setParticleSelectionDisplayMode(const Storm::Parti
 
 void Storm::ParticleSelector::cycleParticleSelectionDisplayMode()
 {
-	const uint8_t cycledValue = (static_cast<uint8_t>(_currentParticleSelectionMode) + 1) % static_cast<uint8_t>(Storm::ParticleSelectionMode::SelectionModeCount);
-
 	Storm::ParticleSelectionMode newMode;
 	if (_selectedParticleData->_hasRbTotalForce)
 	{
-		newMode = retrieveSelectionMode<RbParticleSelectionMode>(cycledValue);
+		newMode = cycleSelectionMode<RbParticleSelectionMode>(_currentParticleSelectionMode);
 	}
 	else
 	{
-		newMode = retrieveSelectionMode<FluidParticleSelectionMode>(cycledValue);
+		newMode = cycleSelectionMode<FluidParticleSelectionMode>(_currentParticleSelectionMode);
 	}
 
 	this->setParticleSelectionDisplayMode(newMode);
@@ -197,6 +259,11 @@ void Storm::ParticleSelector::setSelectedParticleViscosityForce(const Storm::Vec
 void Storm::ParticleSelector::setSelectedParticleDragForce(const Storm::Vector3 &dragForce)
 {
 	_selectedParticleData->_dragForce = dragForce;
+}
+
+void Storm::ParticleSelector::setSelectedParticleBernoulliDynamicPressureForce(const Storm::Vector3& qForce)
+{
+	_selectedParticleData->_dynamicPressureForce = qForce;
 }
 
 void Storm::ParticleSelector::setSelectedParticleSumForce(const Storm::Vector3 &sumForce)
@@ -230,6 +297,7 @@ const Storm::Vector3& Storm::ParticleSelector::getSelectedVectorToDisplay() cons
 	case Storm::ParticleSelectionMode::Pressure:				return _selectedParticleData->_pressureForce;
 	case Storm::ParticleSelectionMode::Viscosity:				return _selectedParticleData->_viscosityForce;
 	case Storm::ParticleSelectionMode::Drag:					return _selectedParticleData->_dragForce;
+	case Storm::ParticleSelectionMode::DynamicPressure:			return _selectedParticleData->_dynamicPressureForce;
 	case Storm::ParticleSelectionMode::AllOnParticle:			return _selectedParticleData->_externalSumForces;
 	case Storm::ParticleSelectionMode::RbForce:					return _selectedParticleData->_totalForcesOnRb;
 	case Storm::ParticleSelectionMode::AverageRbForce:			return _selectedParticleData->_averageForcesOnRb.getAverage();
@@ -297,6 +365,7 @@ void Storm::ParticleSelector::logForceComponents() const
 		"Pressure: " << selectedParticleDataRef._pressureForce << ". Norm: " << selectedParticleDataRef._pressureForce.norm() << " N.\n"
 		"Viscosity: " << selectedParticleDataRef._viscosityForce << ". Norm: " << selectedParticleDataRef._viscosityForce.norm() << " N.\n"
 		"Drag: " << selectedParticleDataRef._dragForce << ". Norm: " << selectedParticleDataRef._dragForce.norm() << " N.\n"
+		"DynamicPressure: " << selectedParticleDataRef._dynamicPressureForce << ". Norm: " << selectedParticleDataRef._dynamicPressureForce.norm() << " N.\n"
 		"Sum : " << selectedParticleDataRef._externalSumForces << ". Norm: " << selectedParticleDataRef._externalSumForces.norm() << " N." <<
 		rbSpecificInfosStr
 		;
