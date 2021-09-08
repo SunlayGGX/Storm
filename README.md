@@ -85,6 +85,7 @@ Some tools were developed to ease our life. The main tools are :
 - **Storm-Restarter**: This tool isn’t made to be manipulated directly by the user. It is used by the application itself to restart from the menu, therefore you need to build it if you want to use this feature.
 - **Storm-ScriptSender**: Like the log viewer, it is a UI C#/WPF tool made in a weekend. It was made to send, save and sort easily scripts. It is an alternative to the shared script file.
 - **Storm-Packager**: This tool packages the minimum needed to run Storm and/or any other tools. Then you can deploy the resulting zip folder and run any Storm application on another station. It is also able to request to package automatically for another branch (it will switch branches, build the solution, package it and revert to the old branch afterward).
+- **Storm-MaterialAvailability**: This tool prints the availabilities of the materials found on the current station it is runned on.
 
 
 
