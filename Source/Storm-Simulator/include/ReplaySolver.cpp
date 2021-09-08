@@ -17,6 +17,9 @@
 #define STORM_HIJACKED_TYPE float
 #	include "VectHijack.h"
 #undef STORM_HIJACKED_TYPE
+#define STORM_HIJACKED_TYPE Storm::Vector3
+#	include "VectHijack.h"
+#undef STORM_HIJACKED_TYPE
 
 #include "InstructionSet.h"
 
@@ -407,6 +410,129 @@ namespace
 			Storm::setNumUninitialized_hijack(inOutVect, Storm::VectorHijacker{ count });
 		}
 	}
+
+	template<bool useSIMD, bool useAVX512>
+	void fillRecordFromSystemsImpl(const bool pushStatics, const Storm::ParticleSystemContainer &particleSystems, Storm::SerializeRecordPendingData &currentFrameData)
+	{
+		enum { k_pSystemArrayMaxCount = 10 };
+		const std::size_t particleSystemCount = particleSystems.size();
+
+		currentFrameData._particleSystemElements.reserve(particleSystemCount);
+		std::vector<std::future<void>> fillerFuturesExecutor;
+		fillerFuturesExecutor.reserve(particleSystemCount * k_pSystemArrayMaxCount);
+
+		const auto sseCpyLambda = makeSSECpyArrayLambda();
+		const auto avx512CpyLambda = makeAVX512CpyArrayLambda();
+
+		for (const auto &particleSystemPair : particleSystems)
+		{
+			const Storm::ParticleSystem &pSystemRef = *particleSystemPair.second;
+
+			if (!pSystemRef.isStatic() || pushStatics)
+			{
+				Storm::SerializeRecordParticleSystemData &framePSystemElementData = currentFrameData._particleSystemElements.emplace_back();
+
+				framePSystemElementData._systemId = particleSystemPair.first;
+
+#define STORM_COPY_ARRAYS(cpyLambda, memberName, srcArray)																								\
+	fillerFuturesExecutor.emplace_back(std::async(std::launch::async, [&cpyLambda, dst = &framePSystemElementData.memberName, src = &srcArray]()		\
+	{																																					\
+		setNumUninitializedIfCountMismatch(*dst, src->size());																							\
+		cpyLambda(*src, *dst);																															\
+	}))
+
+#define STORM_MAKE_SIMPLE_COPY_ARRAY(memberName, srcArray)																				\
+	fillerFuturesExecutor.emplace_back(std::async(std::launch::async, [dst = &framePSystemElementData.memberName, src = &srcArray]()	\
+	{																																	\
+		*dst = *src;																													\
+	}))
+
+				if (pSystemRef.isFluids())
+				{
+					const Storm::FluidParticleSystem &pSystemRefAsFluid = static_cast<const Storm::FluidParticleSystem &>(pSystemRef);
+
+					if constexpr (useSIMD)
+					{
+						if constexpr (useAVX512)
+						{
+							STORM_COPY_ARRAYS(avx512CpyLambda, _densities, pSystemRefAsFluid.getDensities());
+							STORM_COPY_ARRAYS(avx512CpyLambda, _pressures, pSystemRefAsFluid.getPressures());
+						}
+						else
+						{
+							STORM_COPY_ARRAYS(sseCpyLambda, _densities, pSystemRefAsFluid.getDensities());
+							STORM_COPY_ARRAYS(sseCpyLambda, _pressures, pSystemRefAsFluid.getPressures());
+						}
+					}
+					else
+					{
+						STORM_MAKE_SIMPLE_COPY_ARRAY(_densities, pSystemRefAsFluid.getDensities());
+						STORM_MAKE_SIMPLE_COPY_ARRAY(_pressures, pSystemRefAsFluid.getPressures());
+					}
+				}
+				else
+				{
+					const Storm::RigidBodyParticleSystem &pSystemRefAsRb = static_cast<const Storm::RigidBodyParticleSystem &>(pSystemRef);
+					if constexpr (useSIMD)
+					{
+						if constexpr (useAVX512)
+						{
+							STORM_COPY_ARRAYS(avx512CpyLambda, _volumes, pSystemRefAsRb.getVolumes());
+						}
+						else
+						{
+							STORM_COPY_ARRAYS(sseCpyLambda, _volumes, pSystemRefAsRb.getVolumes());
+						}
+					}
+					else
+					{
+						STORM_MAKE_SIMPLE_COPY_ARRAY(_volumes, pSystemRefAsRb.getVolumes());
+					}
+
+					framePSystemElementData._pSystemPosition = pSystemRefAsRb.getRbPosition();
+					framePSystemElementData._pSystemGlobalForce = pSystemRefAsRb.getRbTotalForce();
+				}
+
+				if constexpr (useSIMD)
+				{
+					if constexpr (useAVX512)
+					{
+						STORM_COPY_ARRAYS(avx512CpyLambda, _positions, pSystemRef.getPositions());
+						STORM_COPY_ARRAYS(avx512CpyLambda, _velocities, pSystemRef.getVelocity());
+						STORM_COPY_ARRAYS(avx512CpyLambda, _forces, pSystemRef.getForces());
+						STORM_COPY_ARRAYS(avx512CpyLambda, _pressureComponentforces, pSystemRef.getTemporaryPressureForces());
+						STORM_COPY_ARRAYS(avx512CpyLambda, _viscosityComponentforces, pSystemRef.getTemporaryViscosityForces());
+						STORM_COPY_ARRAYS(avx512CpyLambda, _dragComponentforces, pSystemRef.getTemporaryDragForces());
+						STORM_COPY_ARRAYS(avx512CpyLambda, _dynamicPressureQForces, pSystemRef.getTemporaryBernoulliDynamicPressureForces());
+					}
+					else
+					{
+						STORM_COPY_ARRAYS(sseCpyLambda, _positions, pSystemRef.getPositions());
+						STORM_COPY_ARRAYS(sseCpyLambda, _velocities, pSystemRef.getVelocity());
+						STORM_COPY_ARRAYS(sseCpyLambda, _forces, pSystemRef.getForces());
+						STORM_COPY_ARRAYS(sseCpyLambda, _pressureComponentforces, pSystemRef.getTemporaryPressureForces());
+						STORM_COPY_ARRAYS(sseCpyLambda, _viscosityComponentforces, pSystemRef.getTemporaryViscosityForces());
+						STORM_COPY_ARRAYS(sseCpyLambda, _dragComponentforces, pSystemRef.getTemporaryDragForces());
+						STORM_COPY_ARRAYS(sseCpyLambda, _dynamicPressureQForces, pSystemRef.getTemporaryBernoulliDynamicPressureForces());
+					}
+				}
+				else
+				{
+					STORM_MAKE_SIMPLE_COPY_ARRAY(_positions, pSystemRef.getPositions());
+					STORM_MAKE_SIMPLE_COPY_ARRAY(_velocities, pSystemRef.getVelocity());
+					STORM_MAKE_SIMPLE_COPY_ARRAY(_forces, pSystemRef.getForces());
+					STORM_MAKE_SIMPLE_COPY_ARRAY(_pressureComponentforces, pSystemRef.getTemporaryPressureForces());
+					STORM_MAKE_SIMPLE_COPY_ARRAY(_viscosityComponentforces, pSystemRef.getTemporaryViscosityForces());
+					STORM_MAKE_SIMPLE_COPY_ARRAY(_dragComponentforces, pSystemRef.getTemporaryDragForces());
+					STORM_MAKE_SIMPLE_COPY_ARRAY(_dynamicPressureQForces, pSystemRef.getTemporaryBernoulliDynamicPressureForces());
+				}
+#undef STORM_COPY_ARRAYS
+#undef STORM_MAKE_SIMPLE_COPY_ARRAY
+			}
+		}
+
+		fillerFuturesExecutor.clear();
+	}
 }
 
 
@@ -655,4 +781,27 @@ bool Storm::ReplaySolver::replayCurrentNextFrame(Storm::ParticleSystemContainer 
 	}
 
 	return true;
+}
+
+void Storm::ReplaySolver::fillRecordFromSystems(const bool pushStatics, const Storm::ParticleSystemContainer &particleSystems, Storm::SerializeRecordPendingData &currentFrameData)
+{
+	const bool useSIMD = Storm::InstructionSet::SSE() && Storm::InstructionSet::SSE2();
+	const bool useAVX512 = useSIMD && Storm::InstructionSet::AVX512F();
+
+	if (useSIMD)
+	{
+		if (useAVX512)
+		{
+			fillRecordFromSystemsImpl<true, true>(pushStatics, particleSystems, currentFrameData);
+		}
+		else
+		{
+			fillRecordFromSystemsImpl<true, false>(pushStatics, particleSystems, currentFrameData);
+		}
+		
+	}
+	else
+	{
+		fillRecordFromSystemsImpl<false, false>(pushStatics, particleSystems, currentFrameData);
+	}
 }

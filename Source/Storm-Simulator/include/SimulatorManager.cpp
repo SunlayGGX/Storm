@@ -2213,39 +2213,7 @@ void Storm::SimulatorManager::pushRecord(float currentPhysicsTime, bool pushStat
 	Storm::SerializeRecordPendingData currentFrameData;
 	currentFrameData._physicsTime = currentPhysicsTime;
 
-	for (const auto &particleSystemPair : _particleSystem)
-	{
-		const Storm::ParticleSystem &pSystemRef = *particleSystemPair.second;
-
-		if (pushStatics || !pSystemRef.isStatic())
-		{
-			Storm::SerializeRecordParticleSystemData &framePSystemElementData = currentFrameData._particleSystemElements.emplace_back();
-
-			framePSystemElementData._systemId = particleSystemPair.first;
-
-			if (pSystemRef.isFluids())
-			{
-				const Storm::FluidParticleSystem &pSystemRefAsFluid = static_cast<const Storm::FluidParticleSystem &>(pSystemRef);
-				framePSystemElementData._densities = pSystemRefAsFluid.getDensities();
-				framePSystemElementData._pressures = pSystemRefAsFluid.getPressures();
-			}
-			else
-			{
-				const Storm::RigidBodyParticleSystem &pSystemRefAsRb = static_cast<const Storm::RigidBodyParticleSystem &>(pSystemRef);
-				framePSystemElementData._pSystemPosition = pSystemRefAsRb.getRbPosition();
-				framePSystemElementData._pSystemGlobalForce = pSystemRefAsRb.getRbTotalForce();
-				framePSystemElementData._volumes = pSystemRefAsRb.getVolumes();
-			}
-
-			framePSystemElementData._positions = pSystemRef.getPositions();
-			framePSystemElementData._velocities = pSystemRef.getVelocity();
-			framePSystemElementData._forces = pSystemRef.getForces();
-			framePSystemElementData._pressureComponentforces = pSystemRef.getTemporaryPressureForces();
-			framePSystemElementData._viscosityComponentforces = pSystemRef.getTemporaryViscosityForces();
-			framePSystemElementData._dragComponentforces = pSystemRef.getTemporaryDragForces();
-			framePSystemElementData._dynamicPressureQForces = pSystemRef.getTemporaryBernoulliDynamicPressureForces();
-		}
-	}
+	Storm::ReplaySolver::fillRecordFromSystems(pushStatics, _particleSystem, currentFrameData);
 
 	const Storm::IPhysicsManager &physicsMgr = singletonHolder.getSingleton<Storm::IPhysicsManager>();
 	physicsMgr.getConstraintsRecordFrameData(currentFrameData._constraintElements);
