@@ -15,116 +15,44 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\include\CoInitializerRAII.cpp" />
-    <ClCompile Include="..\include\CSVHelpers.cpp" />
-    <ClCompile Include="..\include\CSVWriter.cpp" />
-    <ClCompile Include="..\include\DebuggerHelper.cpp" />
-    <ClCompile Include="..\include\InstructionSet.cpp" />
-    <ClCompile Include="..\include\Logging.cpp" />
-    <ClCompile Include="..\include\LogHelper.cpp" />
-    <ClCompile Include="..\include\OSHelper.cpp" />
-    <ClCompile Include="..\include\SerializePackage.cpp" />
-    <ClCompile Include="..\include\SingletonHolder.cpp" />
-    <ClCompile Include="..\include\Storm-HelperPCH.cpp">
+    <ClCompile Include="..\include\Storm-MaterialAvailability.cpp" />
+    <ClCompile Include="..\include\Storm-MaterialAvailabilityPCH.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\include\Exception.cpp" />
-    <ClCompile Include="..\include\StormPathHelper.cpp" />
-    <ClCompile Include="..\include\TimeHelper.cpp" />
-    <ClCompile Include="..\include\Version.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\include\ArchitectureMacros.h" />
-    <ClInclude Include="..\include\Average.h" />
-    <ClInclude Include="..\include\BitField.h" />
-    <ClInclude Include="..\include\CallbackIdType.h" />
-    <ClInclude Include="..\include\CoInitializerRAII.h" />
-    <ClInclude Include="..\include\CommaSeparatedPolicy.h" />
-    <ClInclude Include="..\include\CorrectSettingChecker.h" />
-    <ClInclude Include="..\include\CRTPHierarchy.h" />
-    <ClInclude Include="..\include\CSVFormulaType.h" />
-    <ClInclude Include="..\include\CSVHelpers.h" />
-    <ClInclude Include="..\include\CSVMode.h" />
-    <ClInclude Include="..\include\CSVWriter.h" />
-    <ClInclude Include="..\include\DebuggerHelper.h" />
-    <ClInclude Include="..\include\ExitCode.h" />
-    <ClInclude Include="..\include\Facets.h" />
-    <ClInclude Include="..\include\FacetsContainer.h" />
-    <ClInclude Include="..\include\FuncMovePass.h" />
-    <ClInclude Include="..\include\ILoggerManager.h" />
-    <ClInclude Include="..\include\InstructionSet.h" />
-    <ClInclude Include="..\include\InvertPeriod.h" />
-    <ClInclude Include="..\include\LeanWindowsInclude.h" />
-    <ClInclude Include="..\include\Logging.h" />
-    <ClInclude Include="..\include\LogHelper.h" />
-    <ClInclude Include="..\include\LogLevel.h" />
-    <ClInclude Include="..\include\MacroConfig.h" />
-    <ClInclude Include="..\include\MemoryHelper.h" />
-    <ClInclude Include="..\include\MethodEnsurerMacro.h" />
-    <ClInclude Include="..\include\MultiCallback.h" />
-    <ClInclude Include="..\include\NonInstanciable.h" />
-    <ClInclude Include="..\include\OSHelper.h" />
-    <ClInclude Include="..\include\RAII.h" />
-    <ClInclude Include="..\include\RunnerHelper.h" />
-    <ClInclude Include="..\include\SearchAlgo.h" />
-    <ClInclude Include="..\include\SerializePackage.h" />
-    <ClInclude Include="..\include\SerializePackageCreationModality.h" />
-    <ClInclude Include="..\include\Singleton.h" />
-    <ClInclude Include="..\include\SingletonAllocator.h" />
-    <ClInclude Include="..\include\SingletonDefaultImplementation.h" />
-    <ClInclude Include="..\include\SingletonHolder.h" />
-    <ClInclude Include="..\include\SingletonHeldInterfaceBase.h" />
-    <ClInclude Include="..\include\SizeCounter.h" />
-    <ClInclude Include="..\include\StaticAssertionsMacros.h" />
-    <ClInclude Include="..\include\Storm-HelperPCH.h" />
-    <ClInclude Include="..\include\Exception.h" />
-    <ClInclude Include="..\include\StormHelperPrerequisite.h" />
-    <ClInclude Include="..\include\StormMacro.h" />
-    <ClInclude Include="..\include\StormPathHelper.h" />
-    <ClInclude Include="..\include\StormStdPrerequisite.h" />
-    <ClInclude Include="..\include\StringAlgo.h" />
-    <ClInclude Include="..\include\StringHijack.h" />
-    <ClInclude Include="..\include\StringOperator.h" />
-    <ClInclude Include="..\include\ThreadHelper.h" />
-    <ClInclude Include="..\include\ThrowException.h" />
-    <ClInclude Include="..\include\TimeHelper.h" />
-    <ClInclude Include="..\include\TraitsHelper.h" />
-    <ClInclude Include="..\include\NameExtractor.h" />
-    <ClInclude Include="..\include\UniquePointer.h" />
-    <ClInclude Include="..\include\UniversalString.h" />
-    <ClInclude Include="..\include\ValueGuard.h" />
-    <ClInclude Include="..\include\VectHijack.h" />
-    <ClInclude Include="..\include\VectoredExceptionDisplayMode.h" />
-    <ClInclude Include="..\include\VectorHijacker.h" />
-    <ClInclude Include="..\include\Version.h" />
-    <ClInclude Include="..\include\VersionMacro.h" />
-    <ClInclude Include="..\include\XmlReader.h" />
+    <ClInclude Include="..\include\Storm-MaterialAvailabilityPCH.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Storm-Helper\script\Storm-Helper.vcxproj">
+      <Project>{30709355-d527-4faa-9c02-1f64129968e5}</Project>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
-    <ProjectGuid>{30709355-D527-4FAA-9C02-1F64129968E5}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>StormHelper</RootNamespace>
+    <ProjectGuid>{59673C98-FC2D-4393-8B1C-C08B694CDE22}</ProjectGuid>
+    <RootNamespace>StormMaterialAvailability</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Profile|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -163,36 +91,36 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>
-      <PrecompiledHeaderFile>Storm-HelperPCH.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpplatest</LanguageStandard>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>Storm-MaterialAvailabilityPCH.h</PrecompiledHeaderFile>
       <ForcedIncludeFiles>%(PrecompiledHeaderFile);%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>
-      <PrecompiledHeaderFile>Storm-HelperPCH.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpplatest</LanguageStandard>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>Storm-MaterialAvailabilityPCH.h</PrecompiledHeaderFile>
       <ForcedIncludeFiles>%(PrecompiledHeaderFile);%(ForcedIncludeFiles)</ForcedIncludeFiles>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -200,19 +128,19 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>
-      <PrecompiledHeaderFile>Storm-HelperPCH.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpplatest</LanguageStandard>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>Storm-MaterialAvailabilityPCH.h</PrecompiledHeaderFile>
       <ForcedIncludeFiles>%(PrecompiledHeaderFile);%(ForcedIncludeFiles)</ForcedIncludeFiles>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>

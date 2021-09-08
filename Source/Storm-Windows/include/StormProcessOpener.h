@@ -21,6 +21,7 @@ namespace Storm
 	public:
 		static bool openStormScriptSender(const Storm::StormProcessOpener::OpenParameter &param, std::size_t &outProcessUID);
 		static bool openStormLogViewer(const Storm::StormProcessOpener::OpenParameter &param, std::size_t &outProcessUID);
+		static bool openStormMaterialAvailability(const Storm::StormProcessOpener::OpenParameter &param, std::size_t &outProcessUID);
 		static bool openRuntimeScript(const Storm::StormProcessOpener::OpenParameter &param, std::size_t &outProcessUID);
 		static bool openCurrentConfigFile(const Storm::StormProcessOpener::OpenParameter &param, std::size_t &outProcessUID);
 		static bool openReadmeFile(const Storm::StormProcessOpener::OpenParameter &param, std::size_t &outProcessUID);

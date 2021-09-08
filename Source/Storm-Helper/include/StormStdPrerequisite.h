@@ -12,6 +12,7 @@
 #include <chrono>
 #include <functional>
 #include <filesystem>
+#include <bitset>
 
 // Algorithm
 #include <algorithm>

@@ -133,6 +133,22 @@ bool Storm::StormProcessOpener::openStormLogViewer(const Storm::StormProcessOpen
 	});
 }
 
+bool Storm::StormProcessOpener::openStormMaterialAvailability(const Storm::StormProcessOpener::OpenParameter& param, std::size_t& outProcessUID)
+{
+	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
+
+	const std::filesystem::path exeFolderPath = std::filesystem::path{ configMgr.getExePath() }.parent_path();
+
+	return tryOpenProcess(param, outProcessUID, defaultOpenProcess, Storm::StormProcessStartup{
+		._exePath = (exeFolderPath / STORM_EXECUTABLE_NAME("Storm-MaterialAvailability")).string(),
+		._workingDirectoryPath = exeFolderPath.string(),
+		._commandLine = "--calledAsTool",
+		._bindIO = true,
+		._shareLife = true,
+		._isCmd = false
+	});
+}
+
 bool Storm::StormProcessOpener::openRuntimeScript(const Storm::StormProcessOpener::OpenParameter &param, std::size_t &outProcessUID)
 {
 	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
