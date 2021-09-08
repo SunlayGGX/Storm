@@ -582,22 +582,7 @@ void Storm::ReplaySolver::transferFrameToParticleSystem_copy(Storm::ParticleSyst
 			setNumUninitializedIfCountMismatch(frameElement._densities, framePCount);
 			setNumUninitializedIfCountMismatch(frameElement._pressures, framePCount);
 
-			if (!useSIMD)
-			{
-				Storm::runParallel(frameElement._positions, [&](const Storm::Vector3 &currentPPosition, const std::size_t currentPIndex)
-				{
-					allPositions[currentPIndex] = currentPPosition;
-					allVelocities[currentPIndex] = frameElement._velocities[currentPIndex];
-					allForces[currentPIndex] = frameElement._forces[currentPIndex];
-					allDensities[currentPIndex] = frameElement._densities[currentPIndex];
-					allPressures[currentPIndex] = frameElement._pressures[currentPIndex];
-					allPressureForce[currentPIndex] = frameElement._pressureComponentforces[currentPIndex];
-					allViscosityForce[currentPIndex] = frameElement._viscosityComponentforces[currentPIndex];
-					allDragForce[currentPIndex] = frameElement._dragComponentforces[currentPIndex];
-					allDynamicQForce[currentPIndex] = frameElement._dynamicPressureQForces[currentPIndex];
-				});
-			}
-			else
+			if (useSIMD)
 			{
 #define STORM_LAUNCH_CPY_ARRAY_FUTURE(memberName, resultArray) std::async(std::launch::async, [&cpyArray, &frameElement, &resultArray]() { cpyArray(frameElement.memberName, resultArray); })
 
@@ -627,26 +612,29 @@ void Storm::ReplaySolver::transferFrameToParticleSystem_copy(Storm::ParticleSyst
 				}
 #undef STORM_MAKE_PARALLEL_FLUID_CPY
 			}
+			else
+			{
+				Storm::runParallel(frameElement._positions, [&](const Storm::Vector3 &currentPPosition, const std::size_t currentPIndex)
+				{
+					allPositions[currentPIndex] = currentPPosition;
+					allVelocities[currentPIndex] = frameElement._velocities[currentPIndex];
+					allForces[currentPIndex] = frameElement._forces[currentPIndex];
+					allDensities[currentPIndex] = frameElement._densities[currentPIndex];
+					allPressures[currentPIndex] = frameElement._pressures[currentPIndex];
+					allPressureForce[currentPIndex] = frameElement._pressureComponentforces[currentPIndex];
+					allViscosityForce[currentPIndex] = frameElement._viscosityComponentforces[currentPIndex];
+					allDragForce[currentPIndex] = frameElement._dragComponentforces[currentPIndex];
+					allDynamicQForce[currentPIndex] = frameElement._dynamicPressureQForces[currentPIndex];
+				});
+			}
 		}
 		else
 		{
 			Storm::RigidBodyParticleSystem &currentPSystemAsRb = static_cast<Storm::RigidBodyParticleSystem &>(currentPSystem);
 			std::vector<float> &allVolumes = currentPSystemAsRb.getVolumes();
 
-			Storm::runParallel(frameElement._positions, [&](const Storm::Vector3 &currentPPosition, const std::size_t currentPIndex)
+			if (useSIMD)
 			{
-				allPositions[currentPIndex] = currentPPosition;
-				allVelocities[currentPIndex] = frameElement._velocities[currentPIndex];
-				allForces[currentPIndex] = frameElement._forces[currentPIndex];
-				allVolumes[currentPIndex] = frameElement._volumes[currentPIndex];
-				allPressureForce[currentPIndex] = frameElement._pressureComponentforces[currentPIndex];
-				allViscosityForce[currentPIndex] = frameElement._viscosityComponentforces[currentPIndex];
-				allDragForce[currentPIndex] = frameElement._dragComponentforces[currentPIndex];
-				allDynamicQForce[currentPIndex] = frameElement._dynamicPressureQForces[currentPIndex];
-			});
-
-
-
 #define STORM_MAKE_PARALLEL_RB_CPY																\
 	std::future<void> cpysComputators[] =														\
 	{																							\
@@ -660,22 +648,39 @@ void Storm::ReplaySolver::transferFrameToParticleSystem_copy(Storm::ParticleSyst
 		STORM_LAUNCH_CPY_ARRAY_FUTURE(_dynamicPressureQForces, allDynamicQForce)				\
 	}
 
-			if (useAVX512)
-			{
-				auto cpyArray = makeAVX512CpyArrayLambda();
-				STORM_MAKE_PARALLEL_RB_CPY;
+				if (useAVX512)
+				{
+					auto cpyArray = makeAVX512CpyArrayLambda();
+					STORM_MAKE_PARALLEL_RB_CPY;
+				}
+				else
+				{
+					auto cpyArray = makeSSECpyArrayLambda();
+					STORM_MAKE_PARALLEL_RB_CPY;
+				}
+#undef STORM_MAKE_PARALLEL_RB_CPY
+
 			}
 			else
 			{
-				auto cpyArray = makeSSECpyArrayLambda();
-				STORM_MAKE_PARALLEL_RB_CPY;
+				Storm::runParallel(frameElement._positions, [&](const Storm::Vector3 &currentPPosition, const std::size_t currentPIndex)
+				{
+					allPositions[currentPIndex] = currentPPosition;
+					allVelocities[currentPIndex] = frameElement._velocities[currentPIndex];
+					allForces[currentPIndex] = frameElement._forces[currentPIndex];
+					allVolumes[currentPIndex] = frameElement._volumes[currentPIndex];
+					allPressureForce[currentPIndex] = frameElement._pressureComponentforces[currentPIndex];
+					allViscosityForce[currentPIndex] = frameElement._viscosityComponentforces[currentPIndex];
+					allDragForce[currentPIndex] = frameElement._dragComponentforces[currentPIndex];
+					allDynamicQForce[currentPIndex] = frameElement._dynamicPressureQForces[currentPIndex];
+				});
 			}
-#undef STORM_MAKE_PARALLEL_RB_CPY
-		}
-#undef STORM_LAUNCH_CPY_ARRAY_FUTURE
 
-		currentPSystem.setParticleSystemPosition(frameElement._pSystemPosition);
-		currentPSystem.setParticleSystemTotalForce(frameElement._pSystemGlobalForce);
+			currentPSystem.setParticleSystemPosition(frameElement._pSystemPosition);
+			currentPSystem.setParticleSystemTotalForce(frameElement._pSystemGlobalForce);
+		}
+
+#undef STORM_LAUNCH_CPY_ARRAY_FUTURE
 	}
 }
 
