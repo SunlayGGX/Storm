@@ -105,6 +105,8 @@ namespace
 
 int main(int argc, const char*const argv[]) try
 {
+	const bool calledAsTool = argc == 2 && !::strcmp(argv[1], "--calledAsTool");
+
 	std::cout << "Welcome to Storm-MaterialAvailability.exe.\nWe will now print all avalaibalities on the current station.\n\n";
 	auto supportMessageLambda = [](const std::string_view feature, const bool isSupported)
 	{
@@ -183,7 +185,12 @@ int main(int argc, const char*const argv[]) try
 	);
 
 	std::cout << std::endl;
-	::system("pause");
+	std::cout << "Storm-MaterialAvailability.exe finished.\n";
+
+	if (!calledAsTool)
+	{
+		::system("pause");
+	}
 
 	return static_cast<int>(Storm::ExitCode::k_success);
 }

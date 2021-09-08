@@ -109,6 +109,13 @@ namespace
 				}, outProcessUID);
 				break;
 
+			case ID_TOOLS_STORM_MATERIALAVAILABILITY:
+				Storm::StormProcessOpener::openStormMaterialAvailability(Storm::StormProcessOpener::OpenParameter{
+					._failureQuit = false
+				}, outProcessUID);
+				break;
+
+
 			case ID_TOOLS_SCRIPT:
 			case ID_STORM_SCRIPT:
 			case ID_NOTEPAD_SCRIPT:
