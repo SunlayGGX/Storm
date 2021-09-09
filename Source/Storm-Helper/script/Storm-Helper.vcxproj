@@ -19,6 +19,7 @@
     <ClCompile Include="..\include\CSVHelpers.cpp" />
     <ClCompile Include="..\include\CSVWriter.cpp" />
     <ClCompile Include="..\include\DebuggerHelper.cpp" />
+    <ClCompile Include="..\include\FastOperation.cpp" />
     <ClCompile Include="..\include\InstructionSet.cpp" />
     <ClCompile Include="..\include\Logging.cpp" />
     <ClCompile Include="..\include\LogHelper.cpp" />
@@ -52,6 +53,7 @@
     <ClInclude Include="..\include\ExitCode.h" />
     <ClInclude Include="..\include\Facets.h" />
     <ClInclude Include="..\include\FacetsContainer.h" />
+    <ClInclude Include="..\include\FastOperation.h" />
     <ClInclude Include="..\include\FuncMovePass.h" />
     <ClInclude Include="..\include\ILoggerManager.h" />
     <ClInclude Include="..\include\InstructionSet.h" />
