@@ -9,7 +9,7 @@ namespace
 	{
 		// This is the version we'll write when saving the state file.
 		// Always increment it, never decrement !
-		return Storm::Version{ 1, 0, 0 };
+		return Storm::Version{ 1, 1, 0 };
 	}
 
 	// Never modify those or retrocompatibility issues will happen.

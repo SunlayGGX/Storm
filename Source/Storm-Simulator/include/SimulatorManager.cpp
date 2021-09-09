@@ -1909,6 +1909,7 @@ void Storm::SimulatorManager::addRigidBodyParticleSystem(Storm::SystemSimulation
 	newPSystem.setVelocity(std::move(state._velocities));
 	newPSystem.setForces(std::move(state._forces));
 	newPSystem.setVolumes(std::move(state._volumes));
+	newPSystem.setNormals(std::move(state._normals));
 	newPSystem.setParticleSystemPosition(state._globalPosition);
 
 	LOG_DEBUG << "Rigid body particle system " << state._id << " was created and successfully registered in simulator!";

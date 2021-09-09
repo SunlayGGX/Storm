@@ -94,6 +94,7 @@ void Storm::StateSaverHelper::saveIntoState(Storm::SimulationState &state, const
 			pSystemState._isStatic = pSystemAsRb.isStatic();
 
 			const std::vector<float> &volumes = pSystemAsRb.getVolumes();
+			const std::vector<Storm::Vector3> &normals = pSystemAsRb.getNormals();
 
 			pSystemState._globalPosition = pSystemAsRb.getRbPosition();
 			reserveResizeUnitialized(pSystemState._volumes, hijacker);
@@ -104,6 +105,7 @@ void Storm::StateSaverHelper::saveIntoState(Storm::SimulationState &state, const
 				pSystemState._velocities[currentPIndex] = velocities[currentPIndex];
 				pSystemState._forces[currentPIndex] = forces[currentPIndex];
 				pSystemState._volumes[currentPIndex] = volumes[currentPIndex];
+				pSystemState._normals[currentPIndex] = normals[currentPIndex];
 			});
 		}
 	}

@@ -170,7 +170,8 @@ namespace
 			{
 				package <<
 					pState._globalPosition <<
-					pState._volumes
+					pState._volumes <<
+					pState._normals
 					;
 			}
 		}

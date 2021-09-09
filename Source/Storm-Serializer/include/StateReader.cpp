@@ -154,6 +154,10 @@ namespace
 			{
 				this->serialize_v1_0_0(package);
 			}
+			else if (_stateFileVersion < Storm::Version{ 1, 2, 0 })
+			{
+				this->serialize_v1_1_0(package);
+			}
 			else
 			{
 				Storm::throwException<Storm::Exception>("Cannot read the current state because the version " + Storm::toStdString(_stateFileVersion) + " isn't handled ");
@@ -170,6 +174,7 @@ namespace
 
 	private:
 		void serialize_v1_0_0(Storm::SerializePackage &package);
+		void serialize_v1_1_0(Storm::SerializePackage &package);
 
 	private:
 		Storm::StateLoadingOrders &_loadingOrder;
@@ -210,6 +215,47 @@ namespace
 				package <<
 					pState._globalPosition <<
 					pState._volumes
+					;
+			}
+		}
+	}
+
+	void StateReaderImpl::serialize_v1_1_0(Storm::SerializePackage &package)
+	{
+		Storm::SimulationState &simulationState = *_loadingOrder._simulationState;
+
+		package << simulationState._currentPhysicsTime;
+
+		uint64_t pSystemCount = 0;
+		package << pSystemCount;
+
+		simulationState._pSystemStates.resize(pSystemCount);
+
+		for (Storm::SystemSimulationStateObject &pState : simulationState._pSystemStates)
+		{
+			package <<
+				pState._id <<
+				pState._isFluid <<
+				pState._isStatic <<
+				pState._positions <<
+				pState._velocities <<
+				pState._forces
+				;
+
+			if (pState._isFluid)
+			{
+				package <<
+					pState._densities <<
+					pState._pressures <<
+					pState._masses
+					;
+			}
+			else
+			{
+				package <<
+					pState._globalPosition <<
+					pState._volumes <<
+					pState._normals
 					;
 			}
 		}

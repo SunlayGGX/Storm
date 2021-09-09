@@ -19,5 +19,6 @@ namespace Storm
 		std::vector<float> _pressures;
 		std::vector<float> _masses;
 		std::vector<float> _volumes;
+		std::vector<Storm::Vector3> _normals;
 	};
 }
