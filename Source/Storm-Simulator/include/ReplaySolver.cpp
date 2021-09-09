@@ -310,6 +310,7 @@ namespace
 			{
 				Storm::RigidBodyParticleSystem &currentPSystemAsRb = static_cast<Storm::RigidBodyParticleSystem &>(currentPSystem);
 				std::vector<float> &allVolumes = currentPSystemAsRb.getVolumes();
+				std::vector<Storm::Vector3> &allNormals = currentPSystemAsRb.getNormals();
 
 				if constexpr (!useSIMD)
 				{
@@ -319,6 +320,7 @@ namespace
 						lerp(frameBeforeElements._velocities[currentPIndex], frameAfterElements._velocities[currentPIndex], coefficient, allVelocities[currentPIndex]);
 						lerp(frameBeforeElements._forces[currentPIndex], frameAfterElements._forces[currentPIndex], coefficient, allForces[currentPIndex]);
 						lerp(frameBeforeElements._volumes[currentPIndex], frameAfterElements._volumes[currentPIndex], coefficient, allVolumes[currentPIndex]);
+						lerp(frameBeforeElements._normals[currentPIndex], frameAfterElements._normals[currentPIndex], coefficient, allNormals[currentPIndex]);
 						lerp(frameBeforeElements._pressureComponentforces[currentPIndex], frameAfterElements._pressureComponentforces[currentPIndex], coefficient, allPressureForce[currentPIndex]);
 						lerp(frameBeforeElements._viscosityComponentforces[currentPIndex], frameAfterElements._viscosityComponentforces[currentPIndex], coefficient, allViscosityForce[currentPIndex]);
 						lerp(frameBeforeElements._dragComponentforces[currentPIndex], frameAfterElements._dragComponentforces[currentPIndex], coefficient, allDragForce[currentPIndex]);
@@ -334,6 +336,7 @@ namespace
 		STORM_LAUNCH_LERP_ARRAY_FUTURE(_velocities, allVelocities),								\
 		STORM_LAUNCH_LERP_ARRAY_FUTURE(_forces, allForces),										\
 		STORM_LAUNCH_LERP_ARRAY_FUTURE(_volumes, allVolumes),									\
+		STORM_LAUNCH_LERP_ARRAY_FUTURE(_normals, allNormals),									\
 		STORM_LAUNCH_LERP_ARRAY_FUTURE(_pressureComponentforces, allPressureForce),				\
 		STORM_LAUNCH_LERP_ARRAY_FUTURE(_viscosityComponentforces, allViscosityForce),			\
 		STORM_LAUNCH_LERP_ARRAY_FUTURE(_dragComponentforces, allDragForce),						\
@@ -632,6 +635,7 @@ void Storm::ReplaySolver::transferFrameToParticleSystem_copy(Storm::ParticleSyst
 		{
 			Storm::RigidBodyParticleSystem &currentPSystemAsRb = static_cast<Storm::RigidBodyParticleSystem &>(currentPSystem);
 			std::vector<float> &allVolumes = currentPSystemAsRb.getVolumes();
+			std::vector<Storm::Vector3> &allNormals = currentPSystemAsRb.getNormals();
 
 			if (useSIMD)
 			{
@@ -642,6 +646,7 @@ void Storm::ReplaySolver::transferFrameToParticleSystem_copy(Storm::ParticleSyst
 		STORM_LAUNCH_CPY_ARRAY_FUTURE(_velocities, allVelocities),								\
 		STORM_LAUNCH_CPY_ARRAY_FUTURE(_forces, allForces),										\
 		STORM_LAUNCH_CPY_ARRAY_FUTURE(_volumes, allVolumes),									\
+		STORM_LAUNCH_CPY_ARRAY_FUTURE(_normals, allNormals),									\
 		STORM_LAUNCH_CPY_ARRAY_FUTURE(_pressureComponentforces, allPressureForce),				\
 		STORM_LAUNCH_CPY_ARRAY_FUTURE(_viscosityComponentforces, allViscosityForce),			\
 		STORM_LAUNCH_CPY_ARRAY_FUTURE(_dragComponentforces, allDragForce),						\
@@ -669,6 +674,7 @@ void Storm::ReplaySolver::transferFrameToParticleSystem_copy(Storm::ParticleSyst
 					allVelocities[currentPIndex] = frameElement._velocities[currentPIndex];
 					allForces[currentPIndex] = frameElement._forces[currentPIndex];
 					allVolumes[currentPIndex] = frameElement._volumes[currentPIndex];
+					allNormals[currentPIndex] = frameElement._normals[currentPIndex];
 					allPressureForce[currentPIndex] = frameElement._pressureComponentforces[currentPIndex];
 					allViscosityForce[currentPIndex] = frameElement._viscosityComponentforces[currentPIndex];
 					allDragForce[currentPIndex] = frameElement._dragComponentforces[currentPIndex];

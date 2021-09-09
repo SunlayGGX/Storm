@@ -148,7 +148,7 @@ void Storm::FluidParticleSystem::setPressures(std::vector<float> &&pressures)
 	_pressure = std::move(pressures);
 }
 
-void Storm::FluidParticleSystem::setVolumes(std::vector<float> &&volumes)
+void Storm::FluidParticleSystem::setVolumes(std::vector<float> &&/*volumes*/)
 {
 
 }
@@ -156,6 +156,11 @@ void Storm::FluidParticleSystem::setVolumes(std::vector<float> &&volumes)
 void Storm::FluidParticleSystem::setMasses(std::vector<float> &&masses)
 {
 	_masses = std::move(masses);
+}
+
+void Storm::FluidParticleSystem::setNormals(std::vector<Storm::Vector3> &&/*normals*/)
+{
+	
 }
 
 void Storm::FluidParticleSystem::setTmpPressureForces(std::vector<Storm::Vector3> &&tmpPressureForces)
@@ -178,12 +183,12 @@ void Storm::FluidParticleSystem::setTmpBernoulliDynamicPressureForces(std::vecto
 	_tmpBernoulliDynamicPressureForce = std::move(_tmpBernoulliDynamicPressureForce);
 }
 
-void Storm::FluidParticleSystem::setParticleSystemPosition(const Storm::Vector3 &pSystemPosition)
+void Storm::FluidParticleSystem::setParticleSystemPosition(const Storm::Vector3 &/*pSystemPosition*/)
 {
 
 }
 
-void Storm::FluidParticleSystem::setParticleSystemTotalForce(const Storm::Vector3 &pSystemTotalForce)
+void Storm::FluidParticleSystem::setParticleSystemTotalForce(const Storm::Vector3 &/*pSystemTotalForce*/)
 {
 
 }

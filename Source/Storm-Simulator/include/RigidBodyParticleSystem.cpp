@@ -74,6 +74,7 @@ Storm::RigidBodyParticleSystem::RigidBodyParticleSystem(unsigned int particleSys
 
 	// Will be ignored if another resize was made before.
 	_volumes.resize(particleCount);
+	_normals.resize(particleCount);
 }
 
 Storm::RigidBodyParticleSystem::RigidBodyParticleSystem(unsigned int particleSystemIndex, const std::size_t particleCount) :
@@ -88,6 +89,7 @@ Storm::RigidBodyParticleSystem::RigidBodyParticleSystem(unsigned int particleSys
 	_isStatic = _isWall || currentRbConfig._static;
 
 	_volumes.resize(particleCount);
+	_normals.resize(particleCount);
 
 	// No need to initialize the other arrays since we won't use them in replay mode.
 }
@@ -333,14 +335,29 @@ void Storm::RigidBodyParticleSystem::onSubIterationStart(const Storm::ParticleSy
 	}
 }
 
+float Storm::RigidBodyParticleSystem::getViscosity() const noexcept
+{
+	return _viscosity;
+}
+
 const std::vector<float>& Storm::RigidBodyParticleSystem::getVolumes() const noexcept
 {
 	return _volumes;
 }
 
-float Storm::RigidBodyParticleSystem::getViscosity() const noexcept
+std::vector<float>& Storm::RigidBodyParticleSystem::getVolumes() noexcept
 {
-	return _viscosity;
+	return _volumes;
+}
+
+const std::vector<Storm::Vector3>& Storm::RigidBodyParticleSystem::getNormals() const noexcept
+{
+	return _normals;
+}
+
+std::vector<Storm::Vector3>& Storm::RigidBodyParticleSystem::getNormals() noexcept
+{
+	return _normals;
 }
 
 const Storm::Vector3& Storm::RigidBodyParticleSystem::getRbPosition() const noexcept
@@ -351,11 +368,6 @@ const Storm::Vector3& Storm::RigidBodyParticleSystem::getRbPosition() const noex
 const Storm::Vector3& Storm::RigidBodyParticleSystem::getRbTotalForce() const noexcept
 {
 	return _rbTotalForce;
-}
-
-std::vector<float>& Storm::RigidBodyParticleSystem::getVolumes() noexcept
-{
-	return _volumes;
 }
 
 bool Storm::RigidBodyParticleSystem::isFluids() const noexcept
@@ -416,6 +428,11 @@ void Storm::RigidBodyParticleSystem::setVolumes(std::vector<float> &&volumes)
 void Storm::RigidBodyParticleSystem::setMasses(std::vector<float> &&masses)
 {
 
+}
+
+void Storm::RigidBodyParticleSystem::setNormals(std::vector<Storm::Vector3> &&normals)
+{
+	_normals = std::move(normals);
 }
 
 void Storm::RigidBodyParticleSystem::setTmpPressureForces(std::vector<Storm::Vector3> &&tmpPressureForces)

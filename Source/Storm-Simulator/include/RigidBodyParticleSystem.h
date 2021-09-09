@@ -29,6 +29,7 @@ namespace Storm
 		void setPressures(std::vector<float> &&pressures) final override;
 		void setVolumes(std::vector<float> &&volumes) final override;
 		void setMasses(std::vector<float> &&masses) final override;
+		void setNormals(std::vector<Storm::Vector3> &&normals) final override;
 		void setTmpPressureForces(std::vector<Storm::Vector3> &&tmpPressureForces) final override;
 		void setTmpViscosityForces(std::vector<Storm::Vector3> &&tmpViscoForces) final override;
 		void setTmpDragForces(std::vector<Storm::Vector3> &&tmpDragForces) final override;
@@ -39,6 +40,9 @@ namespace Storm
 	public:
 		const std::vector<float>& getVolumes() const noexcept;
 		std::vector<float>& getVolumes() noexcept;
+
+		const std::vector<Storm::Vector3>& getNormals() const noexcept;
+		std::vector<Storm::Vector3>& getNormals() noexcept;
 
 		float getViscosity() const noexcept;
 
@@ -62,6 +66,8 @@ namespace Storm
 		std::vector<float> _staticVolumesInitValue;
 
 		std::vector<float> _volumes;
+
+		std::vector<Storm::Vector3> _normals;
 
 		float _viscosity;
 

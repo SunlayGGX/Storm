@@ -57,6 +57,7 @@ namespace Storm
 		virtual void setPressures(std::vector<float> &&pressures) = 0;
 		virtual void setVolumes(std::vector<float> &&volumes) = 0;
 		virtual void setMasses(std::vector<float> &&masses) = 0;
+		virtual void setNormals(std::vector<Storm::Vector3> &&normals) = 0;
 		virtual void setTmpPressureForces(std::vector<Storm::Vector3> &&tmpPressureForces) = 0;
 		virtual void setTmpViscosityForces(std::vector<Storm::Vector3> &&tmpViscoForces) = 0;
 		virtual void setTmpDragForces(std::vector<Storm::Vector3> &&tmpDragForces) = 0;
