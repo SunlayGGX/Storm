@@ -187,7 +187,7 @@ namespace
 
 Storm::SamplingResult Storm::PoissonDiskSampler::process(const int kTryConst, const float diskRadius, const std::vector<Storm::Vector3> &vertices)
 {
-	std::vector<Storm::Vector3> samplingResult;
+	Storm::SamplingResult samplingResult;
 
 	Storm::IRandomManager &randMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IRandomManager>();
 
@@ -209,34 +209,32 @@ Storm::SamplingResult Storm::PoissonDiskSampler::process(const int kTryConst, co
 	const std::size_t sampleCount = computeExpectedSampleCount(diskRadius, totalArea);
 
 	// No optimization for now... I'll think about it later.
-	samplingResult.reserve(sampleCount);
+	samplingResult._position.reserve(sampleCount);
+	samplingResult._normals.reserve(sampleCount);
 	for (const Triangle &currentTriangle : triangles)
 	{
-		std::size_t activeBeginPointIndex = samplingResult.size();
-
-		Storm::Vector3 dummyNormal;
+		std::size_t activeBeginPointIndex = samplingResult._position.size();
+		
 		// The first point to begin populating the triangle
-		currentTriangle.producePoint(randMgr, samplingResult.emplace_back(), dummyNormal);
+		currentTriangle.producePoint(randMgr, samplingResult._position.emplace_back(), samplingResult._normals.emplace_back());
 
 		do
 		{
 			Storm::Vector3 candidate;
-			if (currentTriangle.producePoint(randMgr, samplingResult, kTryConst, diskRadius, maxDist, activeBeginPointIndex, candidate))
+			if (currentTriangle.producePoint(randMgr, samplingResult._position, kTryConst, diskRadius, maxDist, activeBeginPointIndex, candidate))
 			{
-				samplingResult.emplace_back(candidate);
+				samplingResult._position.emplace_back(candidate);
+				samplingResult._normals.emplace_back(currentTriangle._normal);
 			}
 			else
 			{
 				++activeBeginPointIndex;
 			}
 
-		} while (samplingResult.size() != activeBeginPointIndex);
+		} while (samplingResult._position.size() != activeBeginPointIndex);
 	}
-
-	Storm::SamplingResult result;
-	result._position = std::move(samplingResult);
-
-	return result;
+	
+	return samplingResult;
 }
 
 Storm::SamplingResult Storm::PoissonDiskSampler::process_v2(const int kTryConst, const float diskRadius, const std::vector<Storm::Vector3> &vertices, const Storm::Vector3 &upCorner, const Storm::Vector3 &downCorner)
