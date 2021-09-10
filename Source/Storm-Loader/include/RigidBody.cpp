@@ -470,6 +470,11 @@ void Storm::RigidBody::load(const Storm::SceneRigidBodyConfig &rbSceneConfig)
 				samplingResult = Storm::PoissonDiskSampler::process_v2(30, currentParticleRadius, cachedDataPtr->getScaledVertices(), cachedDataPtr->getFinalBoundingBoxMax(), cachedDataPtr->getFinalBoundingBoxMin());
 			}
 
+			if (samplingResult._position.size() != samplingResult._normals.size())
+			{
+				Storm::throwException<Storm::Exception>("Mismatch between normals and positions. Something went wrong while sampling the rigidbody " + std::to_string(_rbId) + " !");
+			}
+
 			/* Cache writing */
 
 			std::ofstream cacheFileStream{ cachedPathStr, std::ios_base::out | std::ios_base::binary };
