@@ -284,18 +284,28 @@ Storm::SamplingResult Storm::PoissonDiskSampler::process_v2(const int kTryConst,
 	Storm::ISpacePartitionerManager &spacePartitionMgr = singletonHolder.getSingleton<Storm::ISpacePartitionerManager>();
 	std::shared_ptr<Storm::IDistanceSpacePartitionProxy> distanceSearchProxy = spacePartitionMgr.makeDistancePartitionProxy(upCorner, downCorner, maxDist);
 
-	Storm::SamplingResult result;
-
 	const std::vector<Storm::Vector3>* containingBundlePtr;
 	const std::vector<Storm::Vector3>* neighborBundlePtr[Storm::k_neighborLinkedBunkCount];
 
 	// Now, remove the points that couldn't be in the final sample count...
 	const float minDistSquared = diskRadius * diskRadius;
+
+	const std::size_t allSampleCount = allPossibleSamples._position.size();
+
+	Storm::SamplingResult result;
+	result._normals.reserve(allSampleCount);
+
+	
 	for (const Storm::Vector3 &maybeSample : allPossibleSamples)
 	{
-		distanceSearchProxy->addDataIfDistanceUnique(maybeSample, minDistSquared, containingBundlePtr, neighborBundlePtr);
+		if (distanceSearchProxy->addDataIfDistanceUnique(maybeSample, minDistSquared, containingBundlePtr, neighborBundlePtr))
+		{
+			result._normals.emplace_back(Storm::Vector3::Zero());
+		}
 	}
 
 	result._position = distanceSearchProxy->getCompleteData();
+	result._normals.shrink_to_fit();
+
 	return result;
 }
