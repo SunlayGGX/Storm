@@ -290,7 +290,7 @@ Storm::SamplingResult Storm::PoissonDiskSampler::process_v2(const int kTryConst,
 	// Now, remove the points that couldn't be in the final sample count...
 	const float minDistSquared = diskRadius * diskRadius;
 
-	const std::size_t allSampleCount = allPossibleSamples._position.size();
+	const std::size_t allSampleCount = allPossibleSamples.size();
 
 	Storm::SamplingResult result;
 	result._normals.reserve(allSampleCount);
