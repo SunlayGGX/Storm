@@ -277,7 +277,8 @@ Storm::SamplingResult Storm::PoissonDiskSampler::process_v2(const int kTryConst,
 	// Produce a set of point sampling the mesh...
 	const float maxDist = 2.f * diskRadius;
 	std::size_t sampleCount = computeExpectedSampleCount(diskRadius, totalArea);
-	std::vector<Storm::Vector3> allPossibleSamples = produceRandomPointsAllOverMesh(randMgr, triangles, maxArea, sampleCount);
+	Storm::SamplingResult allPossibleSamples;
+	allPossibleSamples._position = produceRandomPointsAllOverMesh(randMgr, triangles, maxArea, sampleCount);
 
 	Storm::ISpacePartitionerManager &spacePartitionMgr = singletonHolder.getSingleton<Storm::ISpacePartitionerManager>();
 	std::shared_ptr<Storm::IDistanceSpacePartitionProxy> distanceSearchProxy = spacePartitionMgr.makeDistancePartitionProxy(upCorner, downCorner, maxDist);
@@ -288,14 +289,14 @@ Storm::SamplingResult Storm::PoissonDiskSampler::process_v2(const int kTryConst,
 	// Now, remove the points that couldn't be in the final sample count...
 	const float minDistSquared = diskRadius * diskRadius;
 
-	const std::size_t allSampleCount = allPossibleSamples.size();
+	const std::size_t allSampleCount = allPossibleSamples._position.size();
 
 	Storm::SamplingResult result;
 	result._normals.reserve(allSampleCount);
 
-	
-	for (const Storm::Vector3 &maybeSample : allPossibleSamples)
+	for (std::size_t iter = 0; iter < allSampleCount; ++iter)
 	{
+		const Storm::Vector3 &maybeSample = allPossibleSamples._position[iter];
 		if (distanceSearchProxy->addDataIfDistanceUnique(maybeSample, minDistSquared, containingBundlePtr, neighborBundlePtr))
 		{
 			result._normals.emplace_back(Storm::Vector3::Zero());
