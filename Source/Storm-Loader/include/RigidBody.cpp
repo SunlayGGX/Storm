@@ -497,7 +497,7 @@ void Storm::RigidBody::load(const Storm::SceneRigidBodyConfig &rbSceneConfig)
 	Storm::ISimulatorManager &simulMgr = singletonHolder.getSingleton<Storm::ISimulatorManager>();
 	
 	std::lock_guard<std::mutex> addingLock{ assetLoaderMgr.getAddingMutex() };
-	simulMgr.addRigidBodyParticleSystem(_rbId, std::move(particlePos));
+	simulMgr.addRigidBodyParticleSystem(_rbId, std::move(particlePos), {});
 }
 
 void Storm::RigidBody::loadForReplay(const Storm::SceneRigidBodyConfig &rbSceneConfig)

@@ -79,7 +79,7 @@ namespace Storm
 
 	public:
 		void addFluidParticleSystem(unsigned int id, std::vector<Storm::Vector3> particlePositions) final override;
-		void addRigidBodyParticleSystem(unsigned int id, std::vector<Storm::Vector3> particlePositions) final override;
+		void addRigidBodyParticleSystem(unsigned int id, std::vector<Storm::Vector3> particlePositions, std::vector<Storm::Vector3> particleNormals) final override;
 
 		void addFluidParticleSystem(Storm::SystemSimulationStateObject &&state) final override;
 		void addRigidBodyParticleSystem(Storm::SystemSimulationStateObject &&state) final override;

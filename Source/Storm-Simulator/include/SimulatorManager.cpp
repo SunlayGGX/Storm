@@ -1792,11 +1792,12 @@ void Storm::SimulatorManager::addFluidParticleSystem(unsigned int id, std::vecto
 	LOG_DEBUG << "Fluid particle system " << id << " was created and successfully registered in simulator!";
 }
 
-void Storm::SimulatorManager::addRigidBodyParticleSystem(unsigned int id, std::vector<Storm::Vector3> particlePositions)
+void Storm::SimulatorManager::addRigidBodyParticleSystem(unsigned int id, std::vector<Storm::Vector3> particlePositions, std::vector<Storm::Vector3> particleNormals)
 {
 	LOG_COMMENT << "Creating rigid body particle system with " << particlePositions.size() << " particles.";
 
-	addParticleSystemToMap<Storm::RigidBodyParticleSystem>(_particleSystem, id, std::move(particlePositions));
+	Storm::RigidBodyParticleSystem &rbSystem = addParticleSystemToMap<Storm::RigidBodyParticleSystem>(_particleSystem, id, std::move(particlePositions));
+	rbSystem.setNormals(std::move(particleNormals));
 
 	LOG_DEBUG << "Rigid body particle system " << id << " was created and successfully registered in simulator!";
 }
