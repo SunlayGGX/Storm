@@ -55,12 +55,14 @@ namespace
 			return v12.cross(v13).norm() / 2.f;
 		}
 
-		void producePoint(Storm::IRandomManager &randMgr, Storm::Vector3 &outPoint) const
+		void producePoint(Storm::IRandomManager &randMgr, Storm::Vector3 &outPoint, Storm::Vector3 &outNormals) const
 		{
 			do
 			{
 				outPoint = *_v[0] + randMgr.randomizeFloat() * _vect01 + (randMgr.randomizeFloat() * _vect02);
 			} while (!this->isPointInside(outPoint));
+
+			outNormals = _normal;
 		}
 
 		bool producePoint(Storm::IRandomManager &randMgr, const std::vector<Storm::Vector3> &registeredPts, int kTry, float minDist, float maxDist, const std::size_t activePtIndex, Storm::Vector3 &outPoint) const
@@ -170,7 +172,8 @@ namespace
 					const Triangle &triangle = allTriangles[selectedTriangleIndex];
 					if (randMgr.randomizeFloat() < (triangle._area / maxArea))
 					{
-						triangle.producePoint(randMgr, currentPointSample);
+						Storm::Vector3 dummyNormal;
+						triangle.producePoint(randMgr, currentPointSample, dummyNormal);
 						return;
 					}
 
@@ -211,8 +214,9 @@ std::vector<Storm::Vector3> Storm::PoissonDiskSampler::process(const int kTryCon
 	{
 		std::size_t activeBeginPointIndex = samplingResult.size();
 
+		Storm::Vector3 dummyNormal;
 		// The first point to begin populating the triangle
-		currentTriangle.producePoint(randMgr, samplingResult.emplace_back());
+		currentTriangle.producePoint(randMgr, samplingResult.emplace_back(), dummyNormal);
 
 		do
 		{
