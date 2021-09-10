@@ -203,10 +203,12 @@ void Storm::FluidParticleSystem::prepareSaving(const bool replayMode)
 
 		const std::vector<float> &densities = this->getDensities();
 
+#if false
 		Storm::runParallel(_masses, [&densities, pVolume = this->getParticleVolume()](float &currentPMass, const std::size_t currentPIndex)
 		{
 			currentPMass = densities[currentPIndex] * pVolume;
 		});
+#endif
 	}
 }
 
