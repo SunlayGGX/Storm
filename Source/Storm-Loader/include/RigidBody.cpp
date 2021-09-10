@@ -1,6 +1,5 @@
 #include "RigidBody.h"
 
-#include "SamplingResult.h"
 #include "PoissonDiskSampler.h"
 #include "UniformSampler.h"
 
@@ -397,7 +396,15 @@ void Storm::RigidBody::load(const Storm::SceneRigidBodyConfig &rbSceneConfig)
 					Storm::binaryRead(cacheReadStream, currentPos.x());
 					Storm::binaryRead(cacheReadStream, currentPos.y());
 					Storm::binaryRead(cacheReadStream, currentPos.z());
+				}
 
+				samplingResult._normals.reserve(particleCount);
+				for (uint64_t iter = 0; iter < particleCount; ++iter)
+				{
+					Storm::Vector3 &currentNormal = samplingResult._normals.emplace_back();
+					Storm::binaryRead(cacheReadStream, currentNormal.x());
+					Storm::binaryRead(cacheReadStream, currentNormal.y());
+					Storm::binaryRead(cacheReadStream, currentNormal.z());
 				}
 			}
 			else
@@ -480,6 +487,13 @@ void Storm::RigidBody::load(const Storm::SceneRigidBodyConfig &rbSceneConfig)
 				Storm::binaryWrite(cacheFileStream, particlePos.x());
 				Storm::binaryWrite(cacheFileStream, particlePos.y());
 				Storm::binaryWrite(cacheFileStream, particlePos.z());
+			}
+			
+			for (const Storm::Vector3 &particleNormal : samplingResult._normals)
+			{
+				Storm::binaryWrite(cacheFileStream, particleNormal.x());
+				Storm::binaryWrite(cacheFileStream, particleNormal.y());
+				Storm::binaryWrite(cacheFileStream, particleNormal.z());
 			}
 
 			// Replace the placeholder checksum by the right one to finalize the writing
