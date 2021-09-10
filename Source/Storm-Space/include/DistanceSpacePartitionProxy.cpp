@@ -40,14 +40,14 @@ void Storm::DistanceSpacePartitionProxy::getBundleAtPosition(const std::vector<S
 	getVoxelsDataAtPositionImpl(*this, _voxelEdgeLength, _gridShiftOffset, outContainingBundlePtr, outNeighborBundle, particlePosition);
 }
 
-void Storm::DistanceSpacePartitionProxy::addDataIfDistanceUnique(const Storm::Vector3 &data, const float distanceSquared)
+bool Storm::DistanceSpacePartitionProxy::addDataIfDistanceUnique(const Storm::Vector3 &data, const float distanceSquared)
 {
 	const std::vector<Storm::Vector3>* containingBundlePtr;
 	const std::vector<Storm::Vector3>* neighborBundlePtr[Storm::k_neighborLinkedBunkCount];
-	this->addDataIfDistanceUnique(data, distanceSquared, containingBundlePtr, neighborBundlePtr);
+	return this->addDataIfDistanceUnique(data, distanceSquared, containingBundlePtr, neighborBundlePtr);
 }
 
-void Storm::DistanceSpacePartitionProxy::addDataIfDistanceUnique(const Storm::Vector3 &data, const float distanceSquared, const std::vector<Storm::Vector3>* &containingBundlePtr, const std::vector<Storm::Vector3>* (&neighborBundlePtr)[Storm::k_neighborLinkedBunkCount])
+bool Storm::DistanceSpacePartitionProxy::addDataIfDistanceUnique(const Storm::Vector3 &data, const float distanceSquared, const std::vector<Storm::Vector3>* &containingBundlePtr, const std::vector<Storm::Vector3>* (&neighborBundlePtr)[Storm::k_neighborLinkedBunkCount])
 {
 	this->getBundleAtPosition(containingBundlePtr, neighborBundlePtr, data);
 
@@ -84,14 +84,14 @@ void Storm::DistanceSpacePartitionProxy::addDataIfDistanceUnique(const Storm::Ve
 
 	if (searchLambda(*containingBundlePtr))
 	{
-		return;
+		return false;
 	}
 
 	for (const std::vector<Storm::Vector3>*const* iter = neighborBundlePtr; *iter != nullptr; ++iter)
 	{
 		if (searchLambda(**iter))
 		{
-			return;
+			return false;
 		}
 	}
 
@@ -102,6 +102,8 @@ void Storm::DistanceSpacePartitionProxy::addDataIfDistanceUnique(const Storm::Ve
 	const std::size_t voxelIndex = static_cast<std::size_t>(this->computeRawIndexFromPosition(_gridBoundary, _voxelEdgeLength, _gridShiftOffset, data, dummy1, dummy2, dummy3));
 	Storm::PositionVoxel &voxel = _voxels[voxelIndex];
 	voxel.addData(data);
+
+	return true;
 }
 
 std::vector<Storm::Vector3> Storm::DistanceSpacePartitionProxy::getCompleteData() const

@@ -18,8 +18,8 @@ namespace Storm
 	public:
 		void getBundleAtPosition(const std::vector<Storm::Vector3>* &outContainingBundlePtr, const std::vector<Storm::Vector3>*(&outNeighborBundle)[Storm::k_neighborLinkedBunkCount], const Storm::Vector3 &particlePosition) const;
 
-		void addDataIfDistanceUnique(const Storm::Vector3 &data, const float distanceSquared) final override;
-		void addDataIfDistanceUnique(const Storm::Vector3 &data, const float distanceSquared, const std::vector<Storm::Vector3>* &containingBundlePtr, const std::vector<Storm::Vector3>* (&neighborBundlePtr)[Storm::k_neighborLinkedBunkCount]) final override;
+		bool addDataIfDistanceUnique(const Storm::Vector3 &data, const float distanceSquared) final override;
+		bool addDataIfDistanceUnique(const Storm::Vector3 &data, const float distanceSquared, const std::vector<Storm::Vector3>* &containingBundlePtr, const std::vector<Storm::Vector3>* (&neighborBundlePtr)[Storm::k_neighborLinkedBunkCount]) final override;
 		std::vector<Storm::Vector3> getCompleteData() const final override;
 
 	public:
