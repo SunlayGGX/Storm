@@ -26,17 +26,24 @@ namespace
 #define STORM_USE_COMPLEXE_BUT_EXACT_ALGO false
 
 	template<bool internalLayer>
-	std::vector<Storm::Vector3> sampleUniformSphere(const float separationDistance, int layerCount, float radius)
+	Storm::SamplingResult sampleUniformSphere(const float separationDistance, int layerCount, float radius)
 	{
-		std::vector<Storm::Vector3> result;
-		result.reserve(static_cast<std::size_t>(std::ceilf((static_cast<float>(4.0 * M_PI) * radius * radius) / (separationDistance * separationDistance) + 0.000001f)) * layerCount);
+		Storm::SamplingResult result;
+
+		const std::size_t expectedCount = static_cast<std::size_t>(std::ceilf((static_cast<float>(4.0 * M_PI) * radius * radius) / (separationDistance * separationDistance) + 0.000001f)) * layerCount;
+
+		result._position.reserve(expectedCount);
+		result._normals.reserve(expectedCount);
 
 		constexpr double twoPi = 2.0 * M_PI;
 
 		do
 		{
 #if !STORM_USE_COMPLEXE_BUT_EXACT_ALGO
-			result.emplace_back(0.f, -radius, 0.f);
+			{
+				const Storm::Vector3 &pos = result._position.emplace_back(0.f, -radius, 0.f);
+				result._normals.emplace_back(pos.normalized());
+			}
 #endif
 
 			if (radius > 0.f)
@@ -75,11 +82,13 @@ namespace
 									for (std::size_t iter = 0; iter < particleCountOnCircle; ++iter)
 									{
 										const double phi = static_cast<double>(iter) * anglePhi;
-										result.emplace_back(
+										const Storm::Vector3 &pos = result._position.emplace_back(
 											static_cast<float>(std::cos(phi) * littleCircleRadius),
 											static_cast<float>(currentY),
 											static_cast<float>(std::sin(phi) * littleCircleRadius)
 										);
+
+										result._normals.emplace_back(pos.normalized());
 									}
 								}
 							}
@@ -105,10 +114,13 @@ namespace
 							for (std::size_t iter = 0; iter < particleCountOnCircle; ++iter)
 							{
 								const double phi = static_cast<double>(iter) * anglePhi;
-								result.emplace_back(
+								const Storm::Vector3 &pos = result._position.emplace_back(
 									static_cast<float>(std::cos(phi) * littleCircleRadius),
 									static_cast<float>(currentY),
-									static_cast<float>(std::sin(phi) * littleCircleRadius));
+									static_cast<float>(std::sin(phi) * littleCircleRadius)
+								);
+
+								result._normals.emplace_back(pos.normalized());
 							}
 						}
 					}
@@ -146,13 +158,17 @@ namespace
 	// How to generate equidistributed points on the surface of a sphere
 	// Markus Deserno - September 28, 2004
 	template<bool internalLayer>
-	std::vector<Storm::Vector3> sampleUniformEquiSphere_MarkusDeserno(const float separationDistance, int layerCount, std::pair<float, std::size_t> data)
+	Storm::SamplingResult sampleUniformEquiSphere_MarkusDeserno(const float separationDistance, int layerCount, std::pair<float, std::size_t> data)
 	{
+		Storm::SamplingResult result;
+
 		double radius = static_cast<double>(data.first);
 		const std::size_t N = data.second;
 
-		std::vector<Storm::Vector3> result;
-		result.reserve(static_cast<std::size_t>(std::ceilf(static_cast<float>(4.0 * M_PI * radius * radius) / (separationDistance * separationDistance) + 0.000001f)) * layerCount);
+		const std::size_t expectedCount = static_cast<std::size_t>(std::ceilf(static_cast<float>(4.0 * M_PI * radius * radius) / (separationDistance * separationDistance) + 0.000001f)) * layerCount;
+
+		result._position.reserve(expectedCount);
+		result._normals.reserve(expectedCount);
 
 		constexpr float twoPi = static_cast<float>(2.0 * M_PI);
 
@@ -160,7 +176,7 @@ namespace
 
 		do
 		{
-			std::size_t nCount = result.size();
+			std::size_t nCount = result._position.size();
 			double a = 4.0 * M_PI * radius * radius / static_cast<double>(data.second);
 			double d = std::sqrt(a);
 			double mTetha = std::round(M_PI / d);
@@ -178,15 +194,17 @@ namespace
 				for (std::size_t n = 0; n < mPhiSz; ++n)
 				{
 					double phi = twoPi * static_cast<double>(n) / mPhi;
-					result.emplace_back(
+					const Storm::Vector3 &pos = result._position.emplace_back(
 						static_cast<float>(radius * std::sin(tetha) * std::cos(phi)),
 						static_cast<float>(radius * std::sin(tetha) * std::sin(phi)),
 						static_cast<float>(radius * std::cos(tetha))
 					);
+
+					result._normals.emplace_back(pos.normalized());
 				}
 			}
 
-			nCount = result.size() - nCount;
+			nCount = result._position.size() - nCount;
 
 			LOG_DEBUG << "Created " << nCount << " samples using M. Deserno Algorithm for sphere layer " << srcLayerCount - layerCount;
 
@@ -211,19 +229,26 @@ namespace
 
 		} while (layerCount > 0);
 
-		if (result.empty())
+		if (result._position.empty())
 		{
 			Storm::throwException<Storm::Exception>("No samples were created with Markus Deserno algorithm. Maybe the sample count was too much.");
+		}
+		else if (result._normals.size() != result._position.size())
+		{
+			Storm::throwException<Storm::Exception>("Mismatch between generated normals and positions while sampling using Uniform sampler.");
 		}
 
 		return result;
 	}
 
 	template<bool internalLayer>
-	std::vector<Storm::Vector3> sampleUniformCube(const float separationDistance, int layerCount, Storm::Vector3 dimensions)
+	Storm::SamplingResult sampleUniformCube(const float separationDistance, int layerCount, Storm::Vector3 dimensions)
 	{
-		std::vector<Storm::Vector3> result;
-		result.reserve(static_cast<std::size_t>(std::ceilf(2.f * (dimensions.x() * dimensions.y() + dimensions.y() * dimensions.z() + dimensions.z() * dimensions.x()) / (separationDistance * separationDistance)) + 0.000001f) * layerCount);
+		Storm::SamplingResult result;
+
+		const std::size_t expectedCount = static_cast<std::size_t>(std::ceilf(2.f * (dimensions.x() * dimensions.y() + dimensions.y() * dimensions.z() + dimensions.z() * dimensions.x()) / (separationDistance * separationDistance)) + 0.000001f) * layerCount;
+		result._position.reserve(expectedCount);
+		result._normals.reserve(expectedCount);
 
 		const float midSepDist = separationDistance / 2.f;
 		const float offsetLayerCoord = separationDistance * 2.f;
@@ -241,7 +266,8 @@ namespace
 			{
 				for (float z = begin.z(); z <= end.z(); z += separationDistance)
 				{
-					result.emplace_back(currentX, y, z);
+					result._position.emplace_back(currentX, y, z);
+					result._normals.emplace_back(-1.f, 0.f, 0.f);
 				}
 			}
 			currentX += separationDistance;
@@ -250,36 +276,40 @@ namespace
 			// Scan plane
 			for (; currentX < endX; currentX += separationDistance)
 			{
-				std::size_t firstPScanlineIdx = result.size();
+				std::size_t firstPScanlineIdx = result._position.size();
 
 				for (float y = begin.y(); y < end.y(); y += separationDistance)
 				{
-					result.emplace_back(currentX, y, begin.z());
+					result._position.emplace_back(currentX, y, begin.z());
+					result._normals.emplace_back(0.f, 0.f, -1.f);
 				}
 
-				float last = end.y() - result.back().y();
+				float last = end.y() - result._position.back().y();
 				float offset = std::sqrtf(sepDistanceSquared - last * last);
 
 				for (float z = begin.z() /*+ offset*/; z < end.z(); z += separationDistance)
 				{
-					result.emplace_back(currentX, end.y(), z);
+					result._position.emplace_back(currentX, end.y(), z);
+					result._normals.emplace_back(0.f, 1.f, 0.f);
 				}
 
-				last = end.z() - result.back().z();
+				last = end.z() - result._position.back().z();
 				offset = std::sqrtf(sepDistanceSquared - last * last);
 
 				for (float y = end.y() /*- offset*/; y > begin.y(); y -= separationDistance)
 				{
-					result.emplace_back(currentX, y, end.z());
+					result._position.emplace_back(currentX, y, end.z());
+					result._normals.emplace_back(0.f, 0.f, 1.f);
 				}
 
-				last = begin.y() - result.back().y();
+				last = begin.y() - result._position.back().y();
 				offset = std::sqrtf(sepDistanceSquared - last * last);
-				const Storm::Vector3 &firstP = result[firstPScanlineIdx];
+				const Storm::Vector3 &firstP = result._position[firstPScanlineIdx];
 
 				for (float z = end.z() /*- offset*/; z > firstP.z(); z -= separationDistance)
 				{
-					result.emplace_back(currentX, begin.y(), z);
+					result._position.emplace_back(currentX, begin.y(), z);
+					result._normals.emplace_back(0.f, -1.f, 0.f);
 				}
 			}
 
@@ -287,7 +317,8 @@ namespace
 			{
 				for (float z = begin.z(); z <= end.z(); z += separationDistance)
 				{
-					result.emplace_back(currentX, y, z);
+					result._position.emplace_back(currentX, y, z);
+					result._normals.emplace_back(1.f, 0.f, 0.f);
 				}
 			}
 
@@ -324,7 +355,7 @@ namespace
 
 
 template<bool internalLayer>
-std::vector<Storm::Vector3> Storm::UniformSampler::process(const Storm::GeometryType geometry, const float separationDistance, const int layerCount, const void*const samplerData)
+Storm::SamplingResult Storm::UniformSampler::process(const Storm::GeometryType geometry, const float separationDistance, const int layerCount, const void*const samplerData)
 {
 	if (separationDistance <= 0.f)
 	{
@@ -352,5 +383,5 @@ std::vector<Storm::Vector3> Storm::UniformSampler::process(const Storm::Geometry
 	}
 }
 
-template std::vector<Storm::Vector3> Storm::UniformSampler::process<true>(const Storm::GeometryType, const float, const int, const void*const);
-template std::vector<Storm::Vector3> Storm::UniformSampler::process<false>(const Storm::GeometryType, const float, const int, const void*const);
+template Storm::SamplingResult Storm::UniformSampler::process<true>(const Storm::GeometryType, const float, const int, const void*const);
+template Storm::SamplingResult Storm::UniformSampler::process<false>(const Storm::GeometryType, const float, const int, const void*const);

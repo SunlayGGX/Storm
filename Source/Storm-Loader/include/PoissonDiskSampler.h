@@ -1,5 +1,7 @@
 #pragma once
 
+#include "SamplingResult.h"
+
 
 namespace Storm
 {
@@ -7,7 +9,7 @@ namespace Storm
 	class PoissonDiskSampler
 	{
 	public:
-		static std::vector<Storm::Vector3> process(const int kTryConst, const float diskRadius, const std::vector<Storm::Vector3> &vertices);
-		static std::vector<Storm::Vector3> process_v2(const int kTryConst, const float diskRadius, const std::vector<Storm::Vector3> &vertices, const Storm::Vector3 &upCorner, const Storm::Vector3 &downCorner);
+		static Storm::SamplingResult process(const int kTryConst, const float diskRadius, const std::vector<Storm::Vector3> &vertices);
+		static Storm::SamplingResult process_v2(const int kTryConst, const float diskRadius, const std::vector<Storm::Vector3> &vertices, const Storm::Vector3 &upCorner, const Storm::Vector3 &downCorner);
 	};
 }

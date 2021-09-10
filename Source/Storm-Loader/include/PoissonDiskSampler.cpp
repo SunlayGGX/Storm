@@ -185,7 +185,7 @@ namespace
 	}
 }
 
-std::vector<Storm::Vector3> Storm::PoissonDiskSampler::process(const int kTryConst, const float diskRadius, const std::vector<Storm::Vector3> &vertices)
+Storm::SamplingResult Storm::PoissonDiskSampler::process(const int kTryConst, const float diskRadius, const std::vector<Storm::Vector3> &vertices)
 {
 	std::vector<Storm::Vector3> samplingResult;
 
@@ -233,10 +233,13 @@ std::vector<Storm::Vector3> Storm::PoissonDiskSampler::process(const int kTryCon
 		} while (samplingResult.size() != activeBeginPointIndex);
 	}
 
-	return samplingResult;
+	Storm::SamplingResult result;
+	result._position = std::move(samplingResult);
+
+	return result;
 }
 
-std::vector<Storm::Vector3> Storm::PoissonDiskSampler::process_v2(const int kTryConst, const float diskRadius, const std::vector<Storm::Vector3> &vertices, const Storm::Vector3 &upCorner, const Storm::Vector3 &downCorner)
+Storm::SamplingResult Storm::PoissonDiskSampler::process_v2(const int kTryConst, const float diskRadius, const std::vector<Storm::Vector3> &vertices, const Storm::Vector3 &upCorner, const Storm::Vector3 &downCorner)
 {
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 
@@ -281,6 +284,8 @@ std::vector<Storm::Vector3> Storm::PoissonDiskSampler::process_v2(const int kTry
 	Storm::ISpacePartitionerManager &spacePartitionMgr = singletonHolder.getSingleton<Storm::ISpacePartitionerManager>();
 	std::shared_ptr<Storm::IDistanceSpacePartitionProxy> distanceSearchProxy = spacePartitionMgr.makeDistancePartitionProxy(upCorner, downCorner, maxDist);
 
+	Storm::SamplingResult result;
+
 	const std::vector<Storm::Vector3>* containingBundlePtr;
 	const std::vector<Storm::Vector3>* neighborBundlePtr[Storm::k_neighborLinkedBunkCount];
 
@@ -291,5 +296,6 @@ std::vector<Storm::Vector3> Storm::PoissonDiskSampler::process_v2(const int kTry
 		distanceSearchProxy->addDataIfDistanceUnique(maybeSample, minDistSquared, containingBundlePtr, neighborBundlePtr);
 	}
 
-	return distanceSearchProxy->getCompleteData();
+	result._position = distanceSearchProxy->getCompleteData();
+	return result;
 }
