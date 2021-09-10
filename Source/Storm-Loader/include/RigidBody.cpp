@@ -1,5 +1,6 @@
 #include "RigidBody.h"
 
+#include "SamplingResult.h"
 #include "PoissonDiskSampler.h"
 #include "UniformSampler.h"
 
@@ -281,7 +282,7 @@ void Storm::RigidBody::load(const Storm::SceneRigidBodyConfig &rbSceneConfig)
 		break;
 	}
 
-	std::vector<Storm::Vector3> particlePos;
+	Storm::SamplingResult samplingResult;
 	Storm::AssetLoaderManager &assetLoaderMgr = Storm::AssetLoaderManager::instance();
 
 	if (!isAloneParticle)
@@ -388,14 +389,15 @@ void Storm::RigidBody::load(const Storm::SceneRigidBodyConfig &rbSceneConfig)
 
 				uint64_t particleCount;
 				Storm::binaryRead(cacheReadStream, particleCount);
-				particlePos.reserve(particleCount);
+
+				samplingResult._position.reserve(particleCount);
 				for (uint64_t iter = 0; iter < particleCount; ++iter)
 				{
-					Storm::Vector3 &currentVect = particlePos.emplace_back();
+					Storm::Vector3 &currentPos = samplingResult._position.emplace_back();
+					Storm::binaryRead(cacheReadStream, currentPos.x());
+					Storm::binaryRead(cacheReadStream, currentPos.y());
+					Storm::binaryRead(cacheReadStream, currentPos.z());
 
-					Storm::binaryRead(cacheReadStream, currentVect.x());
-					Storm::binaryRead(cacheReadStream, currentVect.y());
-					Storm::binaryRead(cacheReadStream, currentVect.z());
 				}
 			}
 			else
@@ -419,22 +421,22 @@ void Storm::RigidBody::load(const Storm::SceneRigidBodyConfig &rbSceneConfig)
 				case Storm::GeometryType::Cube:
 					if (internalLayer)
 					{
-						particlePos = Storm::UniformSampler::process<true>(rbSceneConfig._geometry, sepDistance, rbSceneConfig._layerCount, &rbSceneConfig._scale);
+						samplingResult._position = Storm::UniformSampler::process<true>(rbSceneConfig._geometry, sepDistance, rbSceneConfig._layerCount, &rbSceneConfig._scale);
 					}
 					else
 					{
-						particlePos = Storm::UniformSampler::process<false>(rbSceneConfig._geometry, sepDistance, rbSceneConfig._layerCount, &rbSceneConfig._scale);
+						samplingResult._position = Storm::UniformSampler::process<false>(rbSceneConfig._geometry, sepDistance, rbSceneConfig._layerCount, &rbSceneConfig._scale);
 					}
 					break;
 
 				case Storm::GeometryType::Sphere:
 					if (internalLayer)
 					{
-						particlePos = Storm::UniformSampler::process<true>(rbSceneConfig._geometry, sepDistance, rbSceneConfig._layerCount, &rbSceneConfig._scale.x());
+						samplingResult._position = Storm::UniformSampler::process<true>(rbSceneConfig._geometry, sepDistance, rbSceneConfig._layerCount, &rbSceneConfig._scale.x());
 					}
 					else
 					{
-						particlePos = Storm::UniformSampler::process<false>(rbSceneConfig._geometry, sepDistance, rbSceneConfig._layerCount, &rbSceneConfig._scale.x());
+						samplingResult._position = Storm::UniformSampler::process<false>(rbSceneConfig._geometry, sepDistance, rbSceneConfig._layerCount, &rbSceneConfig._scale.x());
 					}
 					break;
 
@@ -443,11 +445,11 @@ void Storm::RigidBody::load(const Storm::SceneRigidBodyConfig &rbSceneConfig)
 					std::pair<float, std::size_t> data{ rbSceneConfig._scale.x(), rbSceneConfig._sampleCountMDeserno };
 					if (internalLayer)
 					{
-						particlePos = Storm::UniformSampler::process<true>(rbSceneConfig._geometry, sepDistance, rbSceneConfig._layerCount, &data);
+						samplingResult._position = Storm::UniformSampler::process<true>(rbSceneConfig._geometry, sepDistance, rbSceneConfig._layerCount, &data);
 					}
 					else
 					{
-						particlePos = Storm::UniformSampler::process<false>(rbSceneConfig._geometry, sepDistance, rbSceneConfig._layerCount, &data);
+						samplingResult._position = Storm::UniformSampler::process<false>(rbSceneConfig._geometry, sepDistance, rbSceneConfig._layerCount, &data);
 					}
 					break;
 				}
@@ -458,7 +460,7 @@ void Storm::RigidBody::load(const Storm::SceneRigidBodyConfig &rbSceneConfig)
 			}
 			else
 			{
-				particlePos = Storm::PoissonDiskSampler::process_v2(30, currentParticleRadius, cachedDataPtr->getScaledVertices(), cachedDataPtr->getFinalBoundingBoxMax(), cachedDataPtr->getFinalBoundingBoxMin());
+				samplingResult._position = Storm::PoissonDiskSampler::process_v2(30, currentParticleRadius, cachedDataPtr->getScaledVertices(), cachedDataPtr->getFinalBoundingBoxMax(), cachedDataPtr->getFinalBoundingBoxMin());
 			}
 
 			/* Cache writing */
@@ -472,8 +474,8 @@ void Storm::RigidBody::load(const Storm::SceneRigidBodyConfig &rbSceneConfig)
 			Storm::binaryWrite(cacheFileStream, meshPathLowerStr);
 			Storm::binaryWrite(cacheFileStream, static_cast<std::string>(currentVersion));
 
-			Storm::binaryWrite(cacheFileStream, static_cast<uint64_t>(particlePos.size()));
-			for (const Storm::Vector3 &particlePos : particlePos)
+			Storm::binaryWrite(cacheFileStream, static_cast<uint64_t>(samplingResult._position.size()));
+			for (const Storm::Vector3 &particlePos : samplingResult._position)
 			{
 				Storm::binaryWrite(cacheFileStream, particlePos.x());
 				Storm::binaryWrite(cacheFileStream, particlePos.y());
@@ -491,13 +493,13 @@ void Storm::RigidBody::load(const Storm::SceneRigidBodyConfig &rbSceneConfig)
 	}
 	else
 	{
-		particlePos.emplace_back(Storm::Vector3::Zero());
+		samplingResult._position.emplace_back(Storm::Vector3::Zero());
 	}
 
 	Storm::ISimulatorManager &simulMgr = singletonHolder.getSingleton<Storm::ISimulatorManager>();
 	
 	std::lock_guard<std::mutex> addingLock{ assetLoaderMgr.getAddingMutex() };
-	simulMgr.addRigidBodyParticleSystem(_rbId, std::move(particlePos), {});
+	simulMgr.addRigidBodyParticleSystem(_rbId, std::move(samplingResult._position), std::move(samplingResult._normals));
 }
 
 void Storm::RigidBody::loadForReplay(const Storm::SceneRigidBodyConfig &rbSceneConfig)
