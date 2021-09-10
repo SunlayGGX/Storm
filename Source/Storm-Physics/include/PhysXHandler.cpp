@@ -210,6 +210,8 @@ Storm::PhysXHandler::PhysXHandler() :
 #endif
 
 	physx::PxTolerancesScale toleranceScale;
+	toleranceScale.length = 1.0f;
+	toleranceScale.speed = 0.000001f;
 	_physics = PxCreatePhysics(PX_PHYSICS_VERSION, *_foundationInstance, toleranceScale, recordMemoryAlloc, _physXDebugger->getPvd());
 	if (!_physics)
 	{
@@ -220,7 +222,8 @@ Storm::PhysXHandler::PhysXHandler() :
 
 	// Create the cooking object.
 	physx::PxTolerancesScale scale;
-	scale.length = 0.00001f;
+	scale.length = 1.0f;
+	scale.speed = 0.000001f;
 
 	physx::PxCookingParams cookingParams{ scale };
 	_cooking = PxCreateCooking(PX_PHYSICS_VERSION, *_foundationInstance, cookingParams);
@@ -372,6 +375,9 @@ Storm::UniquePointer<physx::PxRigidDynamic> Storm::PhysXHandler::createDynamicRi
 		result->setAngularDamping(0.f);
 		result->setLinearDamping(0.f);
 	}
+
+	result->setStabilizationThreshold(0.f);
+	result->setSleepThreshold(0.f);
 
 	_scene->addActor(*result);
 
