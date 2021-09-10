@@ -19,8 +19,10 @@ namespace Storm
 #if STORM_USE_OPENMP
 		if constexpr (useOpenMPWhenEnabled)
 		{
+			const int64_t containerSz = static_cast<int64_t>(container.size());
+
 #			pragma omp parallel for
-			for (int iter = 0; iter < container.size(); ++iter)
+			for (int64_t iter = 0; iter < containerSz; ++iter)
 			{
 				func(container[iter], iter);
 			}
