@@ -146,23 +146,24 @@ namespace
 		return static_cast<std::size_t>(std::max(std::ceilf(totalArea / personalParticleSpaceArea) + epsilon, 0.f));
 	}
 
-	std::vector<Storm::Vector3> produceRandomPointsAllOverMesh(Storm::IRandomManager &randMgr, const std::vector<Triangle> &allTriangles, const float maxArea, const std::size_t expectedSampleFinalCount)
+	Storm::SamplingResult produceRandomPointsAllOverMesh(Storm::IRandomManager &randMgr, const std::vector<Triangle> &allTriangles, const float maxArea, const std::size_t expectedSampleFinalCount)
 	{
 		enum : std::size_t
 		{
 			k_allParticleCluteringCoefficient = 45
 		};
 
-		std::vector<Storm::Vector3> denseSamplingResult;
+		Storm::SamplingResult denseSamplingResult;
 
 		if (!allTriangles.empty())
 		{
 			const Storm::VectorHijacker expectedPopulationCount{ k_allParticleCluteringCoefficient * expectedSampleFinalCount };
+			
+			Storm::setNumUninitialized_safeHijack(denseSamplingResult._position, expectedPopulationCount);
+			Storm::setNumUninitialized_safeHijack(denseSamplingResult._normals, expectedPopulationCount);
 
-			denseSamplingResult.reserve(expectedPopulationCount._newSize);
-			Storm::setNumUninitialized_hijack(denseSamplingResult, expectedPopulationCount);
-
-			Storm::runParallel(denseSamplingResult, [&randMgr, &allTriangles, &maxArea, triangleLastIndex = static_cast<int64_t>(allTriangles.size() - 1)](Storm::Vector3 &currentPointSample)
+			// OpenMP is bugged. So we force it to NOT use openMP here.
+			Storm::runParallel<false>(denseSamplingResult._position, [&randMgr, &allTriangles, &maxArea, &normals = denseSamplingResult._normals, triangleLastIndex = static_cast<int64_t>(allTriangles.size() - 1)](Storm::Vector3 &currentPointSample, const std::size_t currentPIndex)
 			{
 				std::size_t selectedTriangleIndex;
 				do
@@ -172,8 +173,7 @@ namespace
 					const Triangle &triangle = allTriangles[selectedTriangleIndex];
 					if (randMgr.randomizeFloat() < (triangle._area / maxArea))
 					{
-						Storm::Vector3 dummyNormal;
-						triangle.producePoint(randMgr, currentPointSample, dummyNormal);
+						triangle.producePoint(randMgr, currentPointSample, normals[currentPIndex]);
 						return;
 					}
 
@@ -277,8 +277,8 @@ Storm::SamplingResult Storm::PoissonDiskSampler::process_v2(const int kTryConst,
 	// Produce a set of point sampling the mesh...
 	const float maxDist = 2.f * diskRadius;
 	std::size_t sampleCount = computeExpectedSampleCount(diskRadius, totalArea);
-	Storm::SamplingResult allPossibleSamples;
-	allPossibleSamples._position = produceRandomPointsAllOverMesh(randMgr, triangles, maxArea, sampleCount);
+
+	Storm::SamplingResult allPossibleSamples = produceRandomPointsAllOverMesh(randMgr, triangles, maxArea, sampleCount);
 
 	Storm::ISpacePartitionerManager &spacePartitionMgr = singletonHolder.getSingleton<Storm::ISpacePartitionerManager>();
 	std::shared_ptr<Storm::IDistanceSpacePartitionProxy> distanceSearchProxy = spacePartitionMgr.makeDistancePartitionProxy(upCorner, downCorner, maxDist);
@@ -299,7 +299,7 @@ Storm::SamplingResult Storm::PoissonDiskSampler::process_v2(const int kTryConst,
 		const Storm::Vector3 &maybeSample = allPossibleSamples._position[iter];
 		if (distanceSearchProxy->addDataIfDistanceUnique(maybeSample, minDistSquared, containingBundlePtr, neighborBundlePtr))
 		{
-			result._normals.emplace_back(Storm::Vector3::Zero());
+			result._normals.emplace_back(allPossibleSamples._normals[iter]);
 		}
 	}
 
