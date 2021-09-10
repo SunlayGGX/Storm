@@ -234,8 +234,6 @@ std::vector<Storm::Vector3> Storm::PoissonDiskSampler::process(const int kTryCon
 
 std::vector<Storm::Vector3> Storm::PoissonDiskSampler::process_v2(const int kTryConst, const float diskRadius, const std::vector<Storm::Vector3> &vertices, const Storm::Vector3 &upCorner, const Storm::Vector3 &downCorner)
 {
-	std::vector<Storm::Vector3> samplingResult;
-
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 
 	Storm::IRandomManager &randMgr = singletonHolder.getSingleton<Storm::IRandomManager>();
