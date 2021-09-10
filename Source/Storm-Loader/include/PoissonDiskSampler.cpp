@@ -29,9 +29,11 @@ namespace
 			_normalizedVect01 = _vect01.normalized();
 			_normalizedVect02 = _vect02.normalized();
 
-			Storm::Vector3 perpVect = _vect01.cross(_vect02);
+			_normal = _vect01.cross(_vect02);
+			const float norm = _normal.norm();
+			_normal /= norm;
 
-			_area = perpVect.norm() / 2.f;
+			_area = norm / 2.f;
 		}
 
 	public:
@@ -127,6 +129,7 @@ namespace
 		Storm::Vector3 _vect12;
 		Storm::Vector3 _normalizedVect01;
 		Storm::Vector3 _normalizedVect02;
+		Storm::Vector3 _normal;
 		float _area;
 	};
 
