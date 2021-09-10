@@ -20,6 +20,7 @@ namespace Storm
 
 	public:
 		void onIterationStart() noexcept;
+		void onPreUpdate(const float deltaTime) noexcept;
 		void onPostUpdate(const float currentTime) noexcept;
 
 	public:
@@ -56,5 +57,8 @@ namespace Storm
 		bool _translationFixed;
 
 		bool _isAnimated;
+
+		Storm::Vector3 _totalForce;
+		Storm::Vector3 _totalTorque;
 	};
 }

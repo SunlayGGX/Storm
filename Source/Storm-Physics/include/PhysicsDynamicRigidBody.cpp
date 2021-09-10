@@ -74,11 +74,47 @@ void Storm::PhysicsDynamicRigidBody::onIterationStart() noexcept
 	{
 		_internalRb->clearForce();
 		_internalRb->clearTorque();
-	
-		// PhysX angular damping coeff default value of 0.05 is a lie, therefore I'm doing the damping myself.
-		physx::PxVec3 currentAngularVelocity = _internalRb->getAngularVelocity();
-		currentAngularVelocity *= _currentAngularVelocityDampingCoefficient;
-		_internalRb->setAngularVelocity(currentAngularVelocity);
+
+		_totalForce.setZero();
+		_totalTorque.setZero();
+
+		if (_currentAngularVelocityDampingCoefficient != 1.f)
+		{
+			// PhysX angular damping coeff default value of 0.05 is a lie, therefore I'm doing the damping myself.
+			physx::PxVec3 currentAngularVelocity = _internalRb->getAngularVelocity();
+			currentAngularVelocity *= _currentAngularVelocityDampingCoefficient;
+			_internalRb->setAngularVelocity(currentAngularVelocity);
+		}
+	}
+}
+
+void Storm::PhysicsDynamicRigidBody::onPreUpdate(const float deltaTime) noexcept
+{
+	if (!_isAnimated)
+	{
+		const float rbMass = _internalRb->getMass();
+		if (!_translationFixed)
+		{
+			const Storm::Vector3 rbVelocityChange = _totalForce * (deltaTime / rbMass);
+			_internalRb->setLinearVelocity(_internalRb->getLinearVelocity() + Storm::convertToPx(rbVelocityChange));
+		}
+
+#if false
+		auto inertiaTensor = _internalRb->getMassSpaceInertiaTensor();
+		const physx::PxVec3 rbAngularVelocityChange{
+			_totalTorque.x() * deltaTime / (inertiaTensor.x * rbMass),
+			_totalTorque.y() * deltaTime / (inertiaTensor.y * rbMass),
+			_totalTorque.z() * deltaTime / (inertiaTensor.z * rbMass)
+		};
+
+		_internalRb->setAngularVelocity(_internalRb->getAngularVelocity() + rbAngularVelocityChange);
+#else
+		auto invInertiaTensor = Storm::convertToStorm(_internalRb->getMassSpaceInvInertiaTensor() * rbMass).asDiagonal();
+		const Storm::Vector3 rbAngularVelocityChange = invInertiaTensor * _totalTorque * deltaTime;
+
+		_internalRb->setAngularVelocity(_internalRb->getAngularVelocity() + Storm::convertToPx(rbAngularVelocityChange));
+#endif
+
 	}
 }
 
@@ -126,15 +162,23 @@ void Storm::PhysicsDynamicRigidBody::resetForce()
 
 void Storm::PhysicsDynamicRigidBody::applyForce(const Storm::Vector3 &location, const Storm::Vector3 &force)
 {
-#if true
+#if false
 	physx::PxRigidBodyExt::addForceAtLocalPos(*_internalRb, Storm::convertToPx(force), Storm::convertToPx(location));
 #elif false
 	physx::PxRigidBodyExt::addLocalForceAtLocalPos(*_internalRb, Storm::convertToPx(force), Storm::convertToPx(location));
-#else
+#elif false
 	const physx::PxVec3 forcePx = Storm::convertToPx(force);
 	_internalRb->addForce(forcePx);
-	// Normally it is location cross force, but it seems some coordinate systems aren't uniform everywhere.
-	_internalRb->addTorque(Storm::convertToPx(force.cross(location)));
+
+	const Storm::Vector3 locationRel = location - this->getRbPosition();
+
+	_internalRb->addTorque(Storm::convertToPx(locationRel.cross(force)));
+#else
+	_totalForce += force;
+
+	const Storm::Vector3 locationRel = location - this->getRbPosition();
+	_totalTorque += locationRel.cross(force);
+
 #endif
 }
 

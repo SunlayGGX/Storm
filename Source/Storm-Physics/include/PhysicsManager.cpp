@@ -95,6 +95,11 @@ void Storm::PhysicsManager::update(const float currentTime, float deltaTime)
 {
 	if (!_rigidBodiesFixated)
 	{
+		Storm::SearchAlgo::executeOnContainer([deltaTime](auto &rb)
+		{
+			rb.onPreUpdate(deltaTime);
+		}, _dynamicsRbMap);
+
 		_physXHandler->update(_simulationMutex, deltaTime);
 
 		Storm::SearchAlgo::executeOnContainer([](auto &constraint)
