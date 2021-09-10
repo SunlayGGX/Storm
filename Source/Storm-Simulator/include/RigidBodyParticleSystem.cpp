@@ -307,6 +307,7 @@ void Storm::RigidBodyParticleSystem::onSubIterationStart(const Storm::ParticleSy
 				force.setZero();
 				_tmpPressureForce[currentPIndex].setZero();
 				_tmpViscosityForce[currentPIndex].setZero();
+				_tmpDragForce[currentPIndex].setZero();
 				_tmpBernoulliDynamicPressureForce[currentPIndex].setZero();
 			});
 		}

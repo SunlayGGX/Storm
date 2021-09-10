@@ -115,6 +115,9 @@
     <Filter Include="Source Files\OS\Material">
       <UniqueIdentifier>{1e778b79-e5e4-461c-98b0-ba60f422957c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\General\Algorithm">
+      <UniqueIdentifier>{c799a01e-e010-4d23-94cc-5d845afa7d4a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-HelperPCH.cpp">
@@ -161,6 +164,9 @@
     </ClCompile>
     <ClCompile Include="..\include\InstructionSet.cpp">
       <Filter>Source Files\OS\Material</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\FastOperation.cpp">
+      <Filter>Source Files\General\Algorithm</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -358,6 +364,9 @@
     </ClInclude>
     <ClInclude Include="..\include\InstructionSet.h">
       <Filter>Header Files\OS\Material</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\FastOperation.h">
+      <Filter>Header Files\General\Algorithm</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

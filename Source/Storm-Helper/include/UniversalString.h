@@ -230,7 +230,7 @@ namespace Storm
 					result += "us";
 				}
 
-				if (result.back() == ' ')
+				if (!result.empty() && result.back() == ' ')
 				{
 					result.pop_back();
 				}

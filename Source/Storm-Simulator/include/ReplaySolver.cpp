@@ -17,42 +17,198 @@
 #define STORM_HIJACKED_TYPE float
 #	include "VectHijack.h"
 #undef STORM_HIJACKED_TYPE
+#define STORM_HIJACKED_TYPE Storm::Vector3
+#	include "VectHijack.h"
+#undef STORM_HIJACKED_TYPE
+
+#include "InstructionSet.h"
+
+#include <future>
 
 
 namespace
 {
-#if STORM_USE_INTRINSICS
-	void lerp(const Storm::Vector3 &vectBefore, const Storm::Vector3 &vectAfter, const __m128 &coeff, Storm::Vector3 &result)
+	auto makeSSELerpArrayLambda(float coefficient)
 	{
-		const __m128 tmpBefore = _mm_loadu_ps(&vectBefore[0]);
-		const __m128 tmpAfter = _mm_loadu_ps(&vectAfter[0]);
+		return [coefficient]<class ValueType>(const std::vector<ValueType> &inBeforeArray, const std::vector<ValueType> &inAfterArray, std::vector<ValueType> &outResultArray)
+		{
+			const __m128 coeff = _mm_set1_ps(coefficient);
 
-		const __m128 res = _mm_add_ps(tmpBefore, _mm_mul_ss(_mm_sub_ps(tmpAfter, tmpBefore), coeff));
+			if constexpr (std::is_same_v<ValueType, float> || (std::is_same_v<ValueType, Storm::Vector3> && std::is_same_v<float, Storm::Vector3::Scalar>))
+			{
+				enum : std::size_t { k_shift = 4 };
+				const std::size_t arrayCount = outResultArray.size() * (sizeof(ValueType) / sizeof(float));
+				const std::size_t remaining = arrayCount % k_shift;
+				
+				auto fastLerp = [
+					&coeff,
+					beforePtr = reinterpret_cast<const float*>(inBeforeArray.data()),
+					afterPtr = reinterpret_cast<const float*>(inAfterArray.data()),
+					resultPtr = reinterpret_cast<float*>(outResultArray.data())
+				](const std::size_t iter)
+				{
+					const __m128 tmpBefore = _mm_loadu_ps(beforePtr + iter);
+					const __m128 tmpAfter = _mm_loadu_ps(afterPtr + iter);
 
-		result.x() = res.m128_f32[0];
-		result.y() = res.m128_f32[1];
-		result.z() = res.m128_f32[2];
+					_mm_storeu_ps(resultPtr + iter, _mm_add_ps(tmpBefore, _mm_mul_ps(_mm_sub_ps(tmpAfter, tmpBefore), coeff)));
+				};
+
+				if (remaining > 0)
+				{
+					const std::size_t alignedArrayCount = arrayCount - k_shift;
+					for (std::size_t iter = 0; iter < alignedArrayCount; iter += k_shift)
+					{
+						fastLerp(iter);
+					}
+
+					fastLerp(alignedArrayCount);
+				}
+				else
+				{
+					for (std::size_t iter = 0; iter < arrayCount; iter += k_shift)
+					{
+						fastLerp(iter);
+					}
+				}
+			}
+			else
+			{
+				STORM_COMPILE_ERROR("Unhandled lerp mode");
+			}
+		};
 	}
 
-	void lerp(const float valBefore, const float valAfter, const __m128 &coeff, float &result)
+	auto makeAVX512LerpArrayLambda(float coefficient)
 	{
-		result = std::lerp(valBefore, valAfter, coeff.m128_f32[0]);
+		return [coefficient]<class ValueType>(const std::vector<ValueType> &inBeforeArray, const std::vector<ValueType> &inAfterArray, std::vector<ValueType> &outResultArray)
+		{
+			const __m512 coeff = _mm512_set1_ps(coefficient);
+
+			if constexpr (std::is_same_v<ValueType, float> || (std::is_same_v<ValueType, Storm::Vector3> && std::is_same_v<float, Storm::Vector3::Scalar>))
+			{
+				enum : std::size_t { k_shift = 16 };
+				const std::size_t arrayCount = outResultArray.size() * (sizeof(ValueType) / sizeof(float));
+				const std::size_t remaining = arrayCount % k_shift;
+
+				auto fastLerp = [
+					&coeff,
+					beforePtr = reinterpret_cast<const float*>(inBeforeArray.data()),
+					afterPtr = reinterpret_cast<const float*>(inAfterArray.data()),
+					resultPtr = reinterpret_cast<float*>(outResultArray.data())
+				](const std::size_t iter)
+				{
+					const __m512 tmpBefore = _mm512_loadu_ps(beforePtr + iter);
+					const __m512 tmpAfter = _mm512_loadu_ps(afterPtr + iter);
+
+					_mm512_storeu_ps(resultPtr + iter, _mm512_add_ps(tmpBefore, _mm512_mul_ps(_mm512_sub_ps(tmpAfter, tmpBefore), coeff)));
+				};
+
+				if (remaining > 0)
+				{
+					const std::size_t alignedArrayCount = arrayCount - k_shift;
+					for (std::size_t iter = 0; iter < alignedArrayCount; iter += k_shift)
+					{
+						fastLerp(iter);
+					}
+
+					fastLerp(alignedArrayCount);
+				}
+				else
+				{
+					for (std::size_t iter = 0; iter < arrayCount; iter += k_shift)
+					{
+						fastLerp(iter);
+					}
+				}
+			}
+			else
+			{
+				STORM_COMPILE_ERROR("Unhandled lerp mode");
+			}
+		};
 	}
-#else
-	void lerp(const Storm::Vector3 &vectBefore, const Storm::Vector3 &vectAfter, const float coeff, Storm::Vector3 &result)
+	
+	auto makeSSECpyArrayLambda()
+	{
+		return []<class ValueType>(const std::vector<ValueType> &srcArray, std::vector<ValueType> &dstArray)
+		{
+			enum : std::size_t { k_shift = 4 };
+
+			const std::size_t arrayCount = dstArray.size() * (sizeof(ValueType) / sizeof(float));
+			const std::size_t remaining = arrayCount % k_shift;
+			
+			auto fastCpy = [srcPtr = reinterpret_cast<const float*>(srcArray.data()), dstPtr = reinterpret_cast<float*>(dstArray.data())](const std::size_t iter)
+			{
+				_mm_storeu_ps(dstPtr + iter, _mm_loadu_ps(srcPtr + iter));
+			};
+
+			if (remaining > 0)
+			{
+				const std::size_t alignedArrayCount = arrayCount - k_shift;
+				for (std::size_t iter = 0; iter < alignedArrayCount; iter += k_shift)
+				{
+					fastCpy(iter);
+				}
+
+				fastCpy(alignedArrayCount);
+			}
+			else
+			{
+				for (std::size_t iter = 0; iter < arrayCount; iter += k_shift)
+				{
+					fastCpy(iter);
+				}
+			}
+		};
+	}
+	
+	auto makeAVX512CpyArrayLambda()
+	{
+		return[]<class ValueType>(const std::vector<ValueType> &srcArray, std::vector<ValueType> &dstArray)
+		{
+			enum : std::size_t { k_shift = 16 };
+
+			const std::size_t arrayCount = dstArray.size() * (sizeof(ValueType) / sizeof(float));
+			const std::size_t remaining = arrayCount % k_shift;
+			
+			auto fastCpy = [srcPtr = reinterpret_cast<const float*>(srcArray.data()), dstPtr = reinterpret_cast<float*>(dstArray.data())](const std::size_t iter)
+			{
+				_mm512_storeu_ps(dstPtr + iter, _mm512_loadu_ps(srcPtr + iter));
+			};
+
+			if (remaining > 0)
+			{
+				const std::size_t alignedArrayCount = arrayCount - k_shift;
+				for (std::size_t iter = 0; iter < alignedArrayCount; iter += k_shift)
+				{
+					fastCpy(iter);
+				}
+
+				fastCpy(alignedArrayCount);
+			}
+			else
+			{
+				for (std::size_t iter = 0; iter < arrayCount; iter += k_shift)
+				{
+					fastCpy(iter);
+				}
+			}
+		};
+	}
+
+	__forceinline void lerp(const Storm::Vector3 &vectBefore, const Storm::Vector3 &vectAfter, const float coeff, Storm::Vector3 &result)
 	{
 		result = vectBefore + (vectAfter - vectBefore) * coeff;
 	}
 
-	void lerp(const float valBefore, const float valAfter, const float coeff, float &result)
+	__forceinline void lerp(const float valBefore, const float valAfter, const float coeff, float &result)
 	{
 		result = std::lerp(valBefore, valAfter, coeff);
 	}
-#endif
 
 
-	template<bool remap, class CoefficientType>
-	void lerpParticleSystemsFrames(Storm::ParticleSystemContainer &particleSystems, Storm::SerializeRecordPendingData &frameBefore, Storm::SerializeRecordPendingData &frameAfter, const CoefficientType &coefficient)
+	template<bool remap, bool useSIMD, bool useAVX512>
+	void lerpParticleSystemsFrames(Storm::ParticleSystemContainer &particleSystems, Storm::SerializeRecordPendingData &frameBefore, Storm::SerializeRecordPendingData &frameAfter, const float coefficient)
 	{
 		Storm::Vector3 tmp;
 
@@ -96,42 +252,109 @@ namespace
 			std::vector<Storm::Vector3> &allDragForce = currentPSystem.getTemporaryDragForces();
 			std::vector<Storm::Vector3> &allDynamicQForce = currentPSystem.getTemporaryBernoulliDynamicPressureForces();
 
+
+#define STORM_LAUNCH_LERP_ARRAY_FUTURE(memberName, resultArray) std::async(std::launch::async, [&lerpArray, &frameBeforeElements, &frameAfterElements, &resultArray]() { lerpArray(frameAfterElements.memberName, frameAfterElements.memberName, resultArray); })
+
 			if (currentPSystem.isFluids())
 			{
 				Storm::FluidParticleSystem &currentPSystemAsFluid = static_cast<Storm::FluidParticleSystem &>(currentPSystem);
 				std::vector<float> &allDensities = currentPSystemAsFluid.getDensities();
 				std::vector<float> &allPressures = currentPSystemAsFluid.getPressures();
 
-				Storm::runParallel(frameBeforeElements._positions, [&](const Storm::Vector3 &currentPPosition, const std::size_t currentPIndex)
+				if constexpr (!useSIMD)
 				{
-					lerp(currentPPosition, frameAfterElements._positions[currentPIndex], coefficient, allPositions[currentPIndex]);
-					lerp(frameBeforeElements._velocities[currentPIndex], frameAfterElements._velocities[currentPIndex], coefficient, allVelocities[currentPIndex]);
-					lerp(frameBeforeElements._forces[currentPIndex], frameAfterElements._forces[currentPIndex], coefficient, allForces[currentPIndex]);
-					lerp(frameBeforeElements._densities[currentPIndex], frameAfterElements._densities[currentPIndex], coefficient, allDensities[currentPIndex]);
-					lerp(frameBeforeElements._pressures[currentPIndex], frameAfterElements._pressures[currentPIndex], coefficient, allPressures[currentPIndex]);
-					lerp(frameBeforeElements._pressureComponentforces[currentPIndex], frameAfterElements._pressureComponentforces[currentPIndex], coefficient, allPressureForce[currentPIndex]);
-					lerp(frameBeforeElements._viscosityComponentforces[currentPIndex], frameAfterElements._viscosityComponentforces[currentPIndex], coefficient, allViscosityForce[currentPIndex]);
-					lerp(frameBeforeElements._dragComponentforces[currentPIndex], frameAfterElements._dragComponentforces[currentPIndex], coefficient, allDragForce[currentPIndex]);
-					lerp(frameBeforeElements._dynamicPressureQForces[currentPIndex], frameAfterElements._dynamicPressureQForces[currentPIndex], coefficient, allDynamicQForce[currentPIndex]);
-				});
+					Storm::runParallel(frameBeforeElements._positions, [&](const Storm::Vector3 &currentPPosition, const std::size_t currentPIndex)
+					{
+						lerp(currentPPosition, frameAfterElements._positions[currentPIndex], coefficient, allPositions[currentPIndex]);
+						lerp(frameBeforeElements._velocities[currentPIndex], frameAfterElements._velocities[currentPIndex], coefficient, allVelocities[currentPIndex]);
+						lerp(frameBeforeElements._forces[currentPIndex], frameAfterElements._forces[currentPIndex], coefficient, allForces[currentPIndex]);
+						lerp(frameBeforeElements._densities[currentPIndex], frameAfterElements._densities[currentPIndex], coefficient, allDensities[currentPIndex]);
+						lerp(frameBeforeElements._pressures[currentPIndex], frameAfterElements._pressures[currentPIndex], coefficient, allPressures[currentPIndex]);
+						lerp(frameBeforeElements._pressureComponentforces[currentPIndex], frameAfterElements._pressureComponentforces[currentPIndex], coefficient, allPressureForce[currentPIndex]);
+						lerp(frameBeforeElements._viscosityComponentforces[currentPIndex], frameAfterElements._viscosityComponentforces[currentPIndex], coefficient, allViscosityForce[currentPIndex]);
+						lerp(frameBeforeElements._dragComponentforces[currentPIndex], frameAfterElements._dragComponentforces[currentPIndex], coefficient, allDragForce[currentPIndex]);
+						lerp(frameBeforeElements._dynamicPressureQForces[currentPIndex], frameAfterElements._dynamicPressureQForces[currentPIndex], coefficient, allDynamicQForce[currentPIndex]);
+					});
+				}
+				else
+				{
+#define STORM_MAKE_PARALLEL_FLUID_LERPS															\
+	std::future<void> lerpsComputators[] =														\
+	{																							\
+		STORM_LAUNCH_LERP_ARRAY_FUTURE(_positions, allPositions),								\
+		STORM_LAUNCH_LERP_ARRAY_FUTURE(_velocities, allVelocities),								\
+		STORM_LAUNCH_LERP_ARRAY_FUTURE(_forces, allForces),										\
+		STORM_LAUNCH_LERP_ARRAY_FUTURE(_densities, allDensities),								\
+		STORM_LAUNCH_LERP_ARRAY_FUTURE(_pressures, allPressures),								\
+		STORM_LAUNCH_LERP_ARRAY_FUTURE(_pressureComponentforces, allPressureForce),				\
+		STORM_LAUNCH_LERP_ARRAY_FUTURE(_viscosityComponentforces, allViscosityForce),			\
+		STORM_LAUNCH_LERP_ARRAY_FUTURE(_dragComponentforces, allDragForce),						\
+		STORM_LAUNCH_LERP_ARRAY_FUTURE(_dynamicPressureQForces, allDynamicQForce)				\
+	}
+
+					if constexpr (useAVX512)
+					{
+						auto lerpArray = makeAVX512LerpArrayLambda(coefficient);
+						STORM_MAKE_PARALLEL_FLUID_LERPS;
+					}
+					else
+					{
+						auto lerpArray = makeSSELerpArrayLambda(coefficient);
+						STORM_MAKE_PARALLEL_FLUID_LERPS;
+					}
+#undef STORM_MAKE_PARALLEL_FLUID_LERPS
+				}
+
 			}
 			else
 			{
 				Storm::RigidBodyParticleSystem &currentPSystemAsRb = static_cast<Storm::RigidBodyParticleSystem &>(currentPSystem);
 				std::vector<float> &allVolumes = currentPSystemAsRb.getVolumes();
 
-				Storm::runParallel(frameBeforeElements._positions, [&](const Storm::Vector3 &currentPPosition, const std::size_t currentPIndex)
+				if constexpr (!useSIMD)
 				{
-					lerp(currentPPosition, frameAfterElements._positions[currentPIndex], coefficient, allPositions[currentPIndex]);
-					lerp(frameBeforeElements._velocities[currentPIndex], frameAfterElements._velocities[currentPIndex], coefficient, allVelocities[currentPIndex]);
-					lerp(frameBeforeElements._forces[currentPIndex], frameAfterElements._forces[currentPIndex], coefficient, allForces[currentPIndex]);
-					lerp(frameBeforeElements._volumes[currentPIndex], frameAfterElements._volumes[currentPIndex], coefficient, allVolumes[currentPIndex]);
-					lerp(frameBeforeElements._pressureComponentforces[currentPIndex], frameAfterElements._pressureComponentforces[currentPIndex], coefficient, allPressureForce[currentPIndex]);
-					lerp(frameBeforeElements._viscosityComponentforces[currentPIndex], frameAfterElements._viscosityComponentforces[currentPIndex], coefficient, allViscosityForce[currentPIndex]);
-					lerp(frameBeforeElements._dragComponentforces[currentPIndex], frameAfterElements._dragComponentforces[currentPIndex], coefficient, allDragForce[currentPIndex]);
-					lerp(frameBeforeElements._dynamicPressureQForces[currentPIndex], frameAfterElements._dynamicPressureQForces[currentPIndex], coefficient, allDynamicQForce[currentPIndex]);
-				});
+					Storm::runParallel(frameBeforeElements._positions, [&](const Storm::Vector3 &currentPPosition, const std::size_t currentPIndex)
+					{
+						lerp(currentPPosition, frameAfterElements._positions[currentPIndex], coefficient, allPositions[currentPIndex]);
+						lerp(frameBeforeElements._velocities[currentPIndex], frameAfterElements._velocities[currentPIndex], coefficient, allVelocities[currentPIndex]);
+						lerp(frameBeforeElements._forces[currentPIndex], frameAfterElements._forces[currentPIndex], coefficient, allForces[currentPIndex]);
+						lerp(frameBeforeElements._volumes[currentPIndex], frameAfterElements._volumes[currentPIndex], coefficient, allVolumes[currentPIndex]);
+						lerp(frameBeforeElements._pressureComponentforces[currentPIndex], frameAfterElements._pressureComponentforces[currentPIndex], coefficient, allPressureForce[currentPIndex]);
+						lerp(frameBeforeElements._viscosityComponentforces[currentPIndex], frameAfterElements._viscosityComponentforces[currentPIndex], coefficient, allViscosityForce[currentPIndex]);
+						lerp(frameBeforeElements._dragComponentforces[currentPIndex], frameAfterElements._dragComponentforces[currentPIndex], coefficient, allDragForce[currentPIndex]);
+						lerp(frameBeforeElements._dynamicPressureQForces[currentPIndex], frameAfterElements._dynamicPressureQForces[currentPIndex], coefficient, allDynamicQForce[currentPIndex]);
+					});
+				}
+				else
+				{
+#define STORM_MAKE_PARALLEL_RB_LERPS															\
+	std::future<void> lerpsComputators[] =														\
+	{																							\
+		STORM_LAUNCH_LERP_ARRAY_FUTURE(_positions, allPositions),								\
+		STORM_LAUNCH_LERP_ARRAY_FUTURE(_velocities, allVelocities),								\
+		STORM_LAUNCH_LERP_ARRAY_FUTURE(_forces, allForces),										\
+		STORM_LAUNCH_LERP_ARRAY_FUTURE(_volumes, allVolumes),									\
+		STORM_LAUNCH_LERP_ARRAY_FUTURE(_pressureComponentforces, allPressureForce),				\
+		STORM_LAUNCH_LERP_ARRAY_FUTURE(_viscosityComponentforces, allViscosityForce),			\
+		STORM_LAUNCH_LERP_ARRAY_FUTURE(_dragComponentforces, allDragForce),						\
+		STORM_LAUNCH_LERP_ARRAY_FUTURE(_dynamicPressureQForces, allDynamicQForce)				\
+	}
+
+					if constexpr (useAVX512)
+					{
+						auto lerpArray = makeAVX512LerpArrayLambda(coefficient);
+						STORM_MAKE_PARALLEL_RB_LERPS;
+					}
+					else
+					{
+						auto lerpArray = makeSSELerpArrayLambda(coefficient);
+						STORM_MAKE_PARALLEL_RB_LERPS;
+					}
+
+#undef STORM_MAKE_PARALLEL_RB_LERPS
+				}
 			}
+#undef STORM_LAUNCH_LERP_ARRAY_FUTURE
 		}
 	}
 
@@ -187,6 +410,129 @@ namespace
 			Storm::setNumUninitialized_hijack(inOutVect, Storm::VectorHijacker{ count });
 		}
 	}
+
+	template<bool useSIMD, bool useAVX512>
+	void fillRecordFromSystemsImpl(const bool pushStatics, const Storm::ParticleSystemContainer &particleSystems, Storm::SerializeRecordPendingData &currentFrameData)
+	{
+		enum { k_pSystemArrayMaxCount = 10 };
+		const std::size_t particleSystemCount = particleSystems.size();
+
+		currentFrameData._particleSystemElements.reserve(particleSystemCount);
+		std::vector<std::future<void>> fillerFuturesExecutor;
+		fillerFuturesExecutor.reserve(particleSystemCount * k_pSystemArrayMaxCount);
+
+		const auto sseCpyLambda = makeSSECpyArrayLambda();
+		const auto avx512CpyLambda = makeAVX512CpyArrayLambda();
+
+		for (const auto &particleSystemPair : particleSystems)
+		{
+			const Storm::ParticleSystem &pSystemRef = *particleSystemPair.second;
+
+			if (!pSystemRef.isStatic() || pushStatics)
+			{
+				Storm::SerializeRecordParticleSystemData &framePSystemElementData = currentFrameData._particleSystemElements.emplace_back();
+
+				framePSystemElementData._systemId = particleSystemPair.first;
+
+#define STORM_COPY_ARRAYS(cpyLambda, memberName, srcArray)																								\
+	fillerFuturesExecutor.emplace_back(std::async(std::launch::async, [&cpyLambda, &dst = framePSystemElementData.memberName, &src = srcArray]()		\
+	{																																					\
+		setNumUninitializedIfCountMismatch(dst, src.size());																							\
+		cpyLambda(src, dst);																															\
+	}))
+
+#define STORM_MAKE_SIMPLE_COPY_ARRAY(memberName, srcArray)																				\
+	fillerFuturesExecutor.emplace_back(std::async(std::launch::async, [&dst = framePSystemElementData.memberName, &src = srcArray]()	\
+	{																																	\
+		dst = src;																														\
+	}))
+
+				if (pSystemRef.isFluids())
+				{
+					const Storm::FluidParticleSystem &pSystemRefAsFluid = static_cast<const Storm::FluidParticleSystem &>(pSystemRef);
+
+					if constexpr (useSIMD)
+					{
+						if constexpr (useAVX512)
+						{
+							STORM_COPY_ARRAYS(avx512CpyLambda, _densities, pSystemRefAsFluid.getDensities());
+							STORM_COPY_ARRAYS(avx512CpyLambda, _pressures, pSystemRefAsFluid.getPressures());
+						}
+						else
+						{
+							STORM_COPY_ARRAYS(sseCpyLambda, _densities, pSystemRefAsFluid.getDensities());
+							STORM_COPY_ARRAYS(sseCpyLambda, _pressures, pSystemRefAsFluid.getPressures());
+						}
+					}
+					else
+					{
+						STORM_MAKE_SIMPLE_COPY_ARRAY(_densities, pSystemRefAsFluid.getDensities());
+						STORM_MAKE_SIMPLE_COPY_ARRAY(_pressures, pSystemRefAsFluid.getPressures());
+					}
+				}
+				else
+				{
+					const Storm::RigidBodyParticleSystem &pSystemRefAsRb = static_cast<const Storm::RigidBodyParticleSystem &>(pSystemRef);
+					if constexpr (useSIMD)
+					{
+						if constexpr (useAVX512)
+						{
+							STORM_COPY_ARRAYS(avx512CpyLambda, _volumes, pSystemRefAsRb.getVolumes());
+						}
+						else
+						{
+							STORM_COPY_ARRAYS(sseCpyLambda, _volumes, pSystemRefAsRb.getVolumes());
+						}
+					}
+					else
+					{
+						STORM_MAKE_SIMPLE_COPY_ARRAY(_volumes, pSystemRefAsRb.getVolumes());
+					}
+
+					framePSystemElementData._pSystemPosition = pSystemRefAsRb.getRbPosition();
+					framePSystemElementData._pSystemGlobalForce = pSystemRefAsRb.getRbTotalForce();
+				}
+
+				if constexpr (useSIMD)
+				{
+					if constexpr (useAVX512)
+					{
+						STORM_COPY_ARRAYS(avx512CpyLambda, _positions, pSystemRef.getPositions());
+						STORM_COPY_ARRAYS(avx512CpyLambda, _velocities, pSystemRef.getVelocity());
+						STORM_COPY_ARRAYS(avx512CpyLambda, _forces, pSystemRef.getForces());
+						STORM_COPY_ARRAYS(avx512CpyLambda, _pressureComponentforces, pSystemRef.getTemporaryPressureForces());
+						STORM_COPY_ARRAYS(avx512CpyLambda, _viscosityComponentforces, pSystemRef.getTemporaryViscosityForces());
+						STORM_COPY_ARRAYS(avx512CpyLambda, _dragComponentforces, pSystemRef.getTemporaryDragForces());
+						STORM_COPY_ARRAYS(avx512CpyLambda, _dynamicPressureQForces, pSystemRef.getTemporaryBernoulliDynamicPressureForces());
+					}
+					else
+					{
+						STORM_COPY_ARRAYS(sseCpyLambda, _positions, pSystemRef.getPositions());
+						STORM_COPY_ARRAYS(sseCpyLambda, _velocities, pSystemRef.getVelocity());
+						STORM_COPY_ARRAYS(sseCpyLambda, _forces, pSystemRef.getForces());
+						STORM_COPY_ARRAYS(sseCpyLambda, _pressureComponentforces, pSystemRef.getTemporaryPressureForces());
+						STORM_COPY_ARRAYS(sseCpyLambda, _viscosityComponentforces, pSystemRef.getTemporaryViscosityForces());
+						STORM_COPY_ARRAYS(sseCpyLambda, _dragComponentforces, pSystemRef.getTemporaryDragForces());
+						STORM_COPY_ARRAYS(sseCpyLambda, _dynamicPressureQForces, pSystemRef.getTemporaryBernoulliDynamicPressureForces());
+					}
+				}
+				else
+				{
+					STORM_MAKE_SIMPLE_COPY_ARRAY(_positions, pSystemRef.getPositions());
+					STORM_MAKE_SIMPLE_COPY_ARRAY(_velocities, pSystemRef.getVelocity());
+					STORM_MAKE_SIMPLE_COPY_ARRAY(_forces, pSystemRef.getForces());
+					STORM_MAKE_SIMPLE_COPY_ARRAY(_pressureComponentforces, pSystemRef.getTemporaryPressureForces());
+					STORM_MAKE_SIMPLE_COPY_ARRAY(_viscosityComponentforces, pSystemRef.getTemporaryViscosityForces());
+					STORM_MAKE_SIMPLE_COPY_ARRAY(_dragComponentforces, pSystemRef.getTemporaryDragForces());
+					STORM_MAKE_SIMPLE_COPY_ARRAY(_dynamicPressureQForces, pSystemRef.getTemporaryBernoulliDynamicPressureForces());
+				}
+#undef STORM_COPY_ARRAYS
+#undef STORM_MAKE_SIMPLE_COPY_ARRAY
+			}
+		}
+
+		fillerFuturesExecutor.clear();
+	}
 }
 
 
@@ -212,6 +558,9 @@ void Storm::ReplaySolver::transferFrameToParticleSystem_move(Storm::ParticleSyst
 
 void Storm::ReplaySolver::transferFrameToParticleSystem_copy(Storm::ParticleSystemContainer &particleSystems, Storm::SerializeRecordPendingData &frameFrom)
 {
+	const bool useSIMD = Storm::InstructionSet::SSE() && Storm::InstructionSet::SSE2();
+	const bool useAVX512 = useSIMD && Storm::InstructionSet::AVX512F();
+
 	for (auto &frameElement : frameFrom._particleSystemElements)
 	{
 		Storm::ParticleSystem &currentPSystem = *particleSystems[frameElement._systemId];
@@ -233,39 +582,105 @@ void Storm::ReplaySolver::transferFrameToParticleSystem_copy(Storm::ParticleSyst
 			setNumUninitializedIfCountMismatch(frameElement._densities, framePCount);
 			setNumUninitializedIfCountMismatch(frameElement._pressures, framePCount);
 
-			Storm::runParallel(frameElement._positions, [&](const Storm::Vector3 &currentPPosition, const std::size_t currentPIndex)
+			if (useSIMD)
 			{
-				allPositions[currentPIndex] = currentPPosition;
-				allVelocities[currentPIndex] = frameElement._velocities[currentPIndex];
-				allForces[currentPIndex] = frameElement._forces[currentPIndex];
-				allDensities[currentPIndex] = frameElement._densities[currentPIndex];
-				allPressures[currentPIndex] = frameElement._pressures[currentPIndex];
-				allPressureForce[currentPIndex] = frameElement._pressureComponentforces[currentPIndex];
-				allViscosityForce[currentPIndex] = frameElement._viscosityComponentforces[currentPIndex];
-				allDragForce[currentPIndex] = frameElement._dragComponentforces[currentPIndex];
-				allDynamicQForce[currentPIndex] = frameElement._dynamicPressureQForces[currentPIndex];
-			});
+#define STORM_LAUNCH_CPY_ARRAY_FUTURE(memberName, resultArray) std::async(std::launch::async, [&cpyArray, &frameElement, &resultArray]() { cpyArray(frameElement.memberName, resultArray); })
+
+#define STORM_MAKE_PARALLEL_FLUID_CPY															\
+	std::future<void> cpysComputators[] =														\
+	{																							\
+		STORM_LAUNCH_CPY_ARRAY_FUTURE(_positions, allPositions),								\
+		STORM_LAUNCH_CPY_ARRAY_FUTURE(_velocities, allVelocities),								\
+		STORM_LAUNCH_CPY_ARRAY_FUTURE(_forces, allForces),										\
+		STORM_LAUNCH_CPY_ARRAY_FUTURE(_densities, allDensities),								\
+		STORM_LAUNCH_CPY_ARRAY_FUTURE(_pressures, allPressures),								\
+		STORM_LAUNCH_CPY_ARRAY_FUTURE(_pressureComponentforces, allPressureForce),				\
+		STORM_LAUNCH_CPY_ARRAY_FUTURE(_viscosityComponentforces, allViscosityForce),			\
+		STORM_LAUNCH_CPY_ARRAY_FUTURE(_dragComponentforces, allDragForce),						\
+		STORM_LAUNCH_CPY_ARRAY_FUTURE(_dynamicPressureQForces, allDynamicQForce)				\
+	}
+
+				if (useAVX512)
+				{
+					auto cpyArray = makeAVX512CpyArrayLambda();
+					STORM_MAKE_PARALLEL_FLUID_CPY;
+				}
+				else
+				{
+					auto cpyArray = makeSSECpyArrayLambda();
+					STORM_MAKE_PARALLEL_FLUID_CPY;
+				}
+#undef STORM_MAKE_PARALLEL_FLUID_CPY
+			}
+			else
+			{
+				Storm::runParallel(frameElement._positions, [&](const Storm::Vector3 &currentPPosition, const std::size_t currentPIndex)
+				{
+					allPositions[currentPIndex] = currentPPosition;
+					allVelocities[currentPIndex] = frameElement._velocities[currentPIndex];
+					allForces[currentPIndex] = frameElement._forces[currentPIndex];
+					allDensities[currentPIndex] = frameElement._densities[currentPIndex];
+					allPressures[currentPIndex] = frameElement._pressures[currentPIndex];
+					allPressureForce[currentPIndex] = frameElement._pressureComponentforces[currentPIndex];
+					allViscosityForce[currentPIndex] = frameElement._viscosityComponentforces[currentPIndex];
+					allDragForce[currentPIndex] = frameElement._dragComponentforces[currentPIndex];
+					allDynamicQForce[currentPIndex] = frameElement._dynamicPressureQForces[currentPIndex];
+				});
+			}
 		}
 		else
 		{
 			Storm::RigidBodyParticleSystem &currentPSystemAsRb = static_cast<Storm::RigidBodyParticleSystem &>(currentPSystem);
 			std::vector<float> &allVolumes = currentPSystemAsRb.getVolumes();
 
-			Storm::runParallel(frameElement._positions, [&](const Storm::Vector3 &currentPPosition, const std::size_t currentPIndex)
+			if (useSIMD)
 			{
-				allPositions[currentPIndex] = currentPPosition;
-				allVelocities[currentPIndex] = frameElement._velocities[currentPIndex];
-				allForces[currentPIndex] = frameElement._forces[currentPIndex];
-				allVolumes[currentPIndex] = frameElement._volumes[currentPIndex];
-				allPressureForce[currentPIndex] = frameElement._pressureComponentforces[currentPIndex];
-				allViscosityForce[currentPIndex] = frameElement._viscosityComponentforces[currentPIndex];
-				allDragForce[currentPIndex] = frameElement._dragComponentforces[currentPIndex];
-				allDynamicQForce[currentPIndex] = frameElement._dynamicPressureQForces[currentPIndex];
-			});
+#define STORM_MAKE_PARALLEL_RB_CPY																\
+	std::future<void> cpysComputators[] =														\
+	{																							\
+		STORM_LAUNCH_CPY_ARRAY_FUTURE(_positions, allPositions),								\
+		STORM_LAUNCH_CPY_ARRAY_FUTURE(_velocities, allVelocities),								\
+		STORM_LAUNCH_CPY_ARRAY_FUTURE(_forces, allForces),										\
+		STORM_LAUNCH_CPY_ARRAY_FUTURE(_volumes, allVolumes),									\
+		STORM_LAUNCH_CPY_ARRAY_FUTURE(_pressureComponentforces, allPressureForce),				\
+		STORM_LAUNCH_CPY_ARRAY_FUTURE(_viscosityComponentforces, allViscosityForce),			\
+		STORM_LAUNCH_CPY_ARRAY_FUTURE(_dragComponentforces, allDragForce),						\
+		STORM_LAUNCH_CPY_ARRAY_FUTURE(_dynamicPressureQForces, allDynamicQForce)				\
+	}
+
+				if (useAVX512)
+				{
+					auto cpyArray = makeAVX512CpyArrayLambda();
+					STORM_MAKE_PARALLEL_RB_CPY;
+				}
+				else
+				{
+					auto cpyArray = makeSSECpyArrayLambda();
+					STORM_MAKE_PARALLEL_RB_CPY;
+				}
+#undef STORM_MAKE_PARALLEL_RB_CPY
+
+			}
+			else
+			{
+				Storm::runParallel(frameElement._positions, [&](const Storm::Vector3 &currentPPosition, const std::size_t currentPIndex)
+				{
+					allPositions[currentPIndex] = currentPPosition;
+					allVelocities[currentPIndex] = frameElement._velocities[currentPIndex];
+					allForces[currentPIndex] = frameElement._forces[currentPIndex];
+					allVolumes[currentPIndex] = frameElement._volumes[currentPIndex];
+					allPressureForce[currentPIndex] = frameElement._pressureComponentforces[currentPIndex];
+					allViscosityForce[currentPIndex] = frameElement._viscosityComponentforces[currentPIndex];
+					allDragForce[currentPIndex] = frameElement._dragComponentforces[currentPIndex];
+					allDynamicQForce[currentPIndex] = frameElement._dynamicPressureQForces[currentPIndex];
+				});
+			}
+
+			currentPSystem.setParticleSystemPosition(frameElement._pSystemPosition);
+			currentPSystem.setParticleSystemTotalForce(frameElement._pSystemGlobalForce);
 		}
 
-		currentPSystem.setParticleSystemPosition(frameElement._pSystemPosition);
-		currentPSystem.setParticleSystemTotalForce(frameElement._pSystemGlobalForce);
+#undef STORM_LAUNCH_CPY_ARRAY_FUTURE
 	}
 }
 
@@ -321,21 +736,48 @@ bool Storm::ReplaySolver::replayCurrentNextFrame(Storm::ParticleSystemContainer 
 		const float frameDiffTime = frameAfter._physicsTime - frameBefore._physicsTime;
 
 		// Lerp coeff
-#if STORM_USE_INTRINSICS
-		const __m128 coefficient = _mm_set1_ps(1.f - ((frameAfter._physicsTime - currentTime) / frameDiffTime));
-#else
 		const float coefficient = 1.f - ((frameAfter._physicsTime - currentTime) / frameDiffTime);
-#endif
+
+		const bool useSIMD = Storm::InstructionSet::SSE() && Storm::InstructionSet::SSE2();
+		const bool useAVX512 = useSIMD && Storm::InstructionSet::AVX512F();
 
 		// The first frame is different because it contains static rigid bodies while the other frames doesn't contains them.
 		// It results in a mismatch of index when reading the frames element by their index in the array. Therefore, we should remap in case of a size mismatch.
 		if (frameBefore._particleSystemElements.size() == frameAfter._particleSystemElements.size())
 		{
-			lerpParticleSystemsFrames<false>(particleSystems, frameBefore, frameAfter, coefficient);
+			if (useSIMD)
+			{
+				if (useAVX512)
+				{
+					lerpParticleSystemsFrames<false, true, true>(particleSystems, frameBefore, frameAfter, coefficient);
+				}
+				else
+				{
+					lerpParticleSystemsFrames<false, true, false>(particleSystems, frameBefore, frameAfter, coefficient);
+				}
+			}
+			else
+			{
+				lerpParticleSystemsFrames<false, false, false>(particleSystems, frameBefore, frameAfter, coefficient);
+			}
 		}
 		else
 		{
-			lerpParticleSystemsFrames<true>(particleSystems, frameBefore, frameAfter, coefficient);
+			if (useSIMD)
+			{
+				if (useAVX512)
+				{
+					lerpParticleSystemsFrames<true, true, true>(particleSystems, frameBefore, frameAfter, coefficient);
+				}
+				else
+				{
+					lerpParticleSystemsFrames<true, true, false>(particleSystems, frameBefore, frameAfter, coefficient);
+				}
+			}
+			else
+			{
+				lerpParticleSystemsFrames<true, false, false>(particleSystems, frameBefore, frameAfter, coefficient);
+			}
 		}
 
 		lerpConstraintsFrames(frameBefore, frameAfter, coefficient, outFrameConstraintData);
@@ -344,4 +786,27 @@ bool Storm::ReplaySolver::replayCurrentNextFrame(Storm::ParticleSystemContainer 
 	}
 
 	return true;
+}
+
+void Storm::ReplaySolver::fillRecordFromSystems(const bool pushStatics, const Storm::ParticleSystemContainer &particleSystems, Storm::SerializeRecordPendingData &currentFrameData)
+{
+	const bool useSIMD = Storm::InstructionSet::SSE() && Storm::InstructionSet::SSE2();
+	const bool useAVX512 = useSIMD && Storm::InstructionSet::AVX512F();
+
+	if (useSIMD)
+	{
+		if (useAVX512)
+		{
+			fillRecordFromSystemsImpl<true, true>(pushStatics, particleSystems, currentFrameData);
+		}
+		else
+		{
+			fillRecordFromSystemsImpl<true, false>(pushStatics, particleSystems, currentFrameData);
+		}
+		
+	}
+	else
+	{
+		fillRecordFromSystemsImpl<false, false>(pushStatics, particleSystems, currentFrameData);
+	}
 }
