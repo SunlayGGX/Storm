@@ -40,6 +40,7 @@
     <ClInclude Include="..\include\BlowerMeshMaker.h" />
     <ClInclude Include="..\include\PoissonDiskSampler.h" />
     <ClInclude Include="..\include\RigidBody.h" />
+    <ClInclude Include="..\include\SamplingResult.h" />
     <ClInclude Include="..\include\Storm-LoaderPCH.h" />
     <ClInclude Include="..\include\AssetVolumeIntegrator.h" />
     <ClInclude Include="..\include\UniformSampler.h" />

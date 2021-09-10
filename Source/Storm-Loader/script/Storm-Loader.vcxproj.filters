@@ -107,5 +107,8 @@
     <ClInclude Include="..\include\UniformSampler.h">
       <Filter>Header Files\General\Sampler</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\SamplingResult.h">
+      <Filter>Header Files\General\Sampler</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
