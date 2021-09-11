@@ -6,14 +6,9 @@ using D2D1_RECT_F = D2D_RECT_F;
 
 namespace Storm
 {
-	class Camera;
 	class IRenderedElement;
-	class GraphicRigidBody;
-	class GraphicParticleSystem;
-	class GraphicBlower;
-	class GraphicConstraintSystem;
-	class ParticleForceRenderer;
-	class GraphicKernelEffectArea;
+	struct RenderedElementProxy;
+	class Camera;
 	enum class RenderModeState;
 
 	class DirectXController
@@ -37,7 +32,7 @@ namespace Storm
 		const ComPtr<ID2D1RenderTarget>& getUIRenderTarget() const noexcept;
 
 	public:
-		void renderElements(const Storm::Camera &currentCamera, const std::vector<std::unique_ptr<Storm::IRenderedElement>> &renderedElementArrays, const std::map<unsigned int, std::unique_ptr<Storm::GraphicRigidBody>> &rbElementArrays, Storm::GraphicParticleSystem &particleSystem, const std::map<std::size_t, std::unique_ptr<Storm::GraphicBlower>> &blowersMap, Storm::GraphicConstraintSystem &constraintSystem, Storm::ParticleForceRenderer &selectedParticleForce, Storm::GraphicKernelEffectArea &kernelEffectArea) const;
+		void renderElements(const Storm::Camera &currentCamera, const Storm::RenderedElementProxy &paramToRender) const;
 
 	public:
 		float getViewportWidth() const noexcept;

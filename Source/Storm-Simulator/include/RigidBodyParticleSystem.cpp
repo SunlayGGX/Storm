@@ -596,20 +596,26 @@ void Storm::RigidBodyParticleSystem::updatePosition(float deltaTimeInSec, bool f
 			Storm::runParallel(_positions, [&](Storm::Vector3 &currentPPosition, const std::size_t currentPIndex)
 			{
 				Storm::Vector3 &currentPVelocity = _velocity[currentPIndex];
+				Storm::Vector3 &currentPNormal = _normals[currentPIndex];
 
 				/* First, remove the current world space coordinate to revert to the object space coordinate (where particle were defined initially and on which PhysX was initialized). */
 
 				// 1- Remove the translation
 				Storm::Quaternion currentPosAsPureQuat{ 0.f, currentPPosition.x() - _cachedTrackedRbPosition.x(), currentPPosition.y() - _cachedTrackedRbPosition.y(), currentPPosition.z() - _cachedTrackedRbPosition.z() };
 
+				Storm::Quaternion currentNormalsAsPureQuat{ 0.f, currentPNormal.x(), currentPNormal.y() , currentPNormal.z() };
+
+
 				// 2- Remove the rotation
 				currentPosAsPureQuat = oldRbRotationConjugateQuat * currentPosAsPureQuat * _cachedTrackedRbRotationQuat;
+				currentNormalsAsPureQuat = oldRbRotationConjugateQuat * currentNormalsAsPureQuat * _cachedTrackedRbRotationQuat;
 
 
 				/* Finally, once we're in object space coordinate, reapply the correct transformation to go back to the world coordinate (with correct transformation) */
 
 				// 1- Apply the rotation
 				currentPosAsPureQuat = currentQuatRotation * currentPosAsPureQuat * currentConjugateQuatRotation;
+				currentNormalsAsPureQuat = currentQuatRotation * currentNormalsAsPureQuat * currentConjugateQuatRotation;
 
 				// 2- Apply the translation
 				const Storm::Vector3 newPPosition = currentPosAsPureQuat.vec() + currentRbPosition;
@@ -618,6 +624,7 @@ void Storm::RigidBodyParticleSystem::updatePosition(float deltaTimeInSec, bool f
 				currentPVelocity /= deltaTimeInSec;
 
 				currentPPosition = newPPosition;
+				currentPNormal = currentNormalsAsPureQuat.vec();
 			});
 
 			this->setParticleSystemPosition(currentRbPosition);

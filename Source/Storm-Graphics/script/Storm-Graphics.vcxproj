@@ -30,6 +30,7 @@
     <ClCompile Include="..\include\GraphicHelpers.cpp" />
     <ClCompile Include="..\include\GraphicKernelEffectArea.cpp" />
     <ClCompile Include="..\include\GraphicManager.cpp" />
+    <ClCompile Include="..\include\GraphicNormals.cpp" />
     <ClCompile Include="..\include\GraphicParticleData.cpp" />
     <ClCompile Include="..\include\GraphicParticleSystem.cpp" />
     <ClCompile Include="..\include\GraphicPipe.cpp" />
@@ -38,6 +39,7 @@
     <ClCompile Include="..\include\Grid.cpp" />
     <ClCompile Include="..\include\GridShader.cpp" />
     <ClCompile Include="..\include\MeshShader.cpp" />
+    <ClCompile Include="..\include\NormalsShader.cpp" />
     <ClCompile Include="..\include\ParticleForceRenderer.cpp" />
     <ClCompile Include="..\include\ParticleForceShader.cpp" />
     <ClCompile Include="..\include\ParticleShader.cpp" />
@@ -67,6 +69,7 @@
     <ClInclude Include="..\include\GraphicHelpers.h" />
     <ClInclude Include="..\include\GraphicKernelEffectArea.h" />
     <ClInclude Include="..\include\GraphicManager.h" />
+    <ClInclude Include="..\include\GraphicNormals.h" />
     <ClInclude Include="..\include\GraphicParticleData.h" />
     <ClInclude Include="..\include\GraphicParticleSystem.h" />
     <ClInclude Include="..\include\GraphicParticleSystemModality.h" />
@@ -78,9 +81,11 @@
     <ClInclude Include="..\include\GridShader.h" />
     <ClInclude Include="..\include\IRenderedElement.h" />
     <ClInclude Include="..\include\MeshShader.h" />
+    <ClInclude Include="..\include\NormalsShader.h" />
     <ClInclude Include="..\include\ParticleForceRenderer.h" />
     <ClInclude Include="..\include\ParticleForceShader.h" />
     <ClInclude Include="..\include\ParticleShader.h" />
+    <ClInclude Include="..\include\RenderedElementProxy.h" />
     <ClInclude Include="..\include\RenderModeState.h" />
     <ClInclude Include="..\include\ResourceMapperGuard.h" />
     <ClInclude Include="..\include\ShaderManager.h" />

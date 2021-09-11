@@ -8,6 +8,8 @@
 #include "GeneralGraphicConfig.h"
 #include "SceneGraphicConfig.h"
 
+#include "ShaderMacroItem.h"
+
 #include "MemoryHelper.h"
 #include "ResourceMapperGuard.h"
 
@@ -52,11 +54,20 @@ namespace
 
 		return particleForceVertexDataLayoutDesc;
 	}
+
+	Storm::ShaderMacroContainer retrieveParticleForceShaderMacro()
+	{
+		const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
+
+		return Storm::ShaderMacroContainer{}
+			.addMacro("STORM_HAS_ON_TOP", true)
+			;
+	}
 }
 
 
 Storm::ParticleForceShader::ParticleForceShader(const ComPtr<ID3D11Device> &device) :
-	Storm::VPShaderBase{ device, k_particleForceShaderFilePath, k_particleForceVertexShaderFuncName, k_particleForceShaderFilePath, k_particleForceGeometryShaderFuncName, k_particleForceShaderFilePath, k_particleForcePixelShaderFuncName, retrieveParticleForceInputLayoutElementDesc(), k_particleForceVertexDataLayoutDescCount }
+	Storm::VPShaderBase{ device, k_particleForceShaderFilePath, k_particleForceVertexShaderFuncName, k_particleForceShaderFilePath, k_particleForceGeometryShaderFuncName, k_particleForceShaderFilePath, k_particleForcePixelShaderFuncName, retrieveParticleForceInputLayoutElementDesc(), k_particleForceVertexDataLayoutDescCount, retrieveParticleForceShaderMacro() }
 {
 	Storm::ConstantBufferHolder::initialize<ConstantBuffer>(device);
 
@@ -97,5 +108,10 @@ void Storm::ParticleForceShader::setup(const ComPtr<ID3D11Device> &device, const
 
 void Storm::ParticleForceShader::tweekAlwaysOnTopFlag() noexcept
 {
-	_alwaysOnTop = !_alwaysOnTop;
+	this->setAlwaysOnTopFlag(!_alwaysOnTop);
+}
+
+void Storm::ParticleForceShader::setAlwaysOnTopFlag(const bool value) noexcept
+{
+	_alwaysOnTop = value;
 }

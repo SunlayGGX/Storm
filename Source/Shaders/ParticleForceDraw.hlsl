@@ -7,7 +7,9 @@ cbuffer ConstantBuffer
 	float4 _color;
 	float _midThickness;
 
+#ifdef STORM_HAS_ON_TOP
 	bool _displayOnTop;
+#endif
 };
 
 struct VertexInputType
@@ -52,11 +54,13 @@ void particleForceGeometryShader(line GeometryInputType inputRaw[2], inout Trian
 	// 90 degrees rotation of the force line
 	float2 thicknessVect = float2(-lineVect.y, lineVect.x);
 
+#ifdef STORM_HAS_ON_TOP
 	if (_displayOnTop)
 	{
 		pos0.z = 0.f;
 		pos1.z = 0.f;
 	}
+#endif
 
 	const float thicknessNorm = length(thicknessVect);
 

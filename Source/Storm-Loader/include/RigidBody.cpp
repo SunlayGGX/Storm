@@ -27,6 +27,8 @@
 #include "LayeringGenerationTechnique.h"
 #include "GeometryType.h"
 
+#include "RunnerHelper.h"
+
 #include <Assimp\Importer.hpp>
 #include <Assimp\scene.h>
 
@@ -467,7 +469,26 @@ void Storm::RigidBody::load(const Storm::SceneRigidBodyConfig &rbSceneConfig)
 			}
 			else
 			{
-				samplingResult = Storm::PoissonDiskSampler::process_v2(30, currentParticleRadius, cachedDataPtr->getScaledVertices(), cachedDataPtr->getFinalBoundingBoxMax(), cachedDataPtr->getFinalBoundingBoxMin());
+				switch (rbSceneConfig._collisionShape)
+				{
+				case Storm::CollisionType::Sphere:
+					samplingResult = Storm::PoissonDiskSampler::process_v2(30, currentParticleRadius, cachedDataPtr->getScaledVertices(), cachedDataPtr->getFinalBoundingBoxMax(), cachedDataPtr->getFinalBoundingBoxMin(), true);
+					// Smooth them
+					Storm::runParallel(samplingResult._position, [&samplingResult](const Storm::Vector3 &currentPPosition, const std::size_t currentPIndex)
+					{
+						// The center is { 0, 0, 0 } in object coordinate
+						samplingResult._normals[currentPIndex] = currentPPosition.normalized();
+					});
+					break;
+
+				case CollisionType::None:
+				case CollisionType::Cube:
+				case CollisionType::IndividualParticle:
+				case CollisionType::Custom:
+				default:
+					samplingResult = Storm::PoissonDiskSampler::process_v2(30, currentParticleRadius, cachedDataPtr->getScaledVertices(), cachedDataPtr->getFinalBoundingBoxMax(), cachedDataPtr->getFinalBoundingBoxMin(), false);
+					break;
+				}
 			}
 
 			if (samplingResult._position.size() != samplingResult._normals.size())

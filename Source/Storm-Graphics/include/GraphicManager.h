@@ -20,6 +20,7 @@ namespace Storm
 	class GraphicCoordinateSystem;
 	class GraphicGravity;
 	class GraphicKernelEffectArea;
+	class GraphicNormals;
 	class UIFieldContainer;
 
 	enum class ColoredSetting : uint8_t;
@@ -58,6 +59,7 @@ namespace Storm
 		void pushParticlesData(const Storm::PushedParticleSystemDataParameter &param) final override;
 		void pushConstraintData(const std::vector<Storm::Vector3> &constraintsVisuData) final override;
 		void pushParticleSelectionForceData(const Storm::Vector3 &selectedParticlePos, const Storm::Vector3 &selectedParticleForce) final override;
+		void pushNormalsData(const std::vector<Storm::Vector3> &positions, const std::vector<Storm::Vector3> &normals) final override;
 
 	public:
 		void createGraphicsField(const std::wstring_view &fieldName, std::wstring &&fieldValueStr) final override;
@@ -78,6 +80,9 @@ namespace Storm
 	public:
 		void safeSetSelectedParticle(unsigned int particleSystemId, std::size_t particleIndex) final override;
 		void safeClearSelectedParticle() final override;
+
+	public:
+		void clearNormalsData() final override;
 
 	public:
 		const Storm::Camera& getCamera() const;
@@ -130,6 +135,9 @@ namespace Storm
 		std::unique_ptr<Storm::GraphicConstraintSystem> _graphicConstraintsSystem;
 		std::unique_ptr<Storm::ParticleForceRenderer> _forceRenderer;
 		std::unique_ptr<Storm::GraphicKernelEffectArea> _kernelEffectArea;
+
+		std::unique_ptr<Storm::GraphicNormals> _graphicNormals;
+		bool _displayNormals;
 
 		std::unique_ptr<Storm::GeneralReadOnlyUIDisplay> _readOnlyFields;
 		std::map<std::wstring_view, std::wstring> _fieldsMap;

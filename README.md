@@ -351,6 +351,7 @@ Unlike the other config files, it can be named as you want. Here the xml tags yo
 - **constraintColor (RGBAcolor, facultative)**: Specify the colour of the line when visualizing the constraint. Default is { r=1.0, g=0.1, b=0.1, a=0.8 }.
 - **forceThickness (positive float, facultative)**: Specify the thickness of the line when visualizing the selected particle force. It should be a positive non-zero value. Default is “General.particleRadius / 3.0”.
 - **forceColor (RGBAcolor, facultative)**: Specify the colour of the line when visualizing the selected particle force. Default is { r=0.0, g=1.0, b=1.0, a=0.8 }.
+- **normalsColor (RGBAcolor, facultative)**: Specify the colour of the line when visualizing the selected rigidbody normals. Default is { r=1.0, g=0.0, b=1.0, a=0.8 }.
 
 
 #### Physics
@@ -669,6 +670,8 @@ Here the list of available commands :
 - **void setEnableThresholdDensity_DFSPH(bool enable)**: Enable/Disable the neighbour threshold on density solver. Enabled means that we’ll use a threshold. Disabled means that the density solving won’t use a neighbourhood threshold and solve the density whatever the neighbour count is. This method is only available if the solver is DFSPH.
 - **void setNeighborThresholdDensity_DFSPH(size_t neighborCount)**: Set the neighbour threshold value on density solver. This method is only available if the solver is DFSPH.
 - **void setUseRotationFix_DFSPH(size_t neighborCount)**: Enable rotation fix. This method is only available if the solver is DFSPH.
+- **void selectRigidbodyToDisplayNormals(const unsigned int rbId)**: Select a rigidbody to display its normals.
+- **void clearRigidbodyToDisplayNormals()**: Clear the rigidbody to display its normals selection.
 
 
 #### - TimeManager (timeMgr)

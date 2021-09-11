@@ -29,11 +29,22 @@ namespace
 			_normalizedVect01 = _vect01.normalized();
 			_normalizedVect02 = _vect02.normalized();
 
-			_normal = _vect01.cross(_vect02);
-			const float norm = _normal.norm();
-			_normal /= norm;
+			_normals[0] = _vect01.cross(_vect02);
+			const float norm = _normals[0].norm();
+			_normals[0] /= norm;
+			_normals[1] = _normals[0];
+			_normals[2] = _normals[1];
 
 			_area = norm / 2.f;
+
+			auto normalJunctionInitializer = [this](const std::size_t index)
+			{
+				_normalsJunction[index].first = _normals[index];
+				_normalsJunction[index].second = 1;
+			};
+			normalJunctionInitializer(0);
+			normalJunctionInitializer(1);
+			normalJunctionInitializer(2);
 		}
 
 	public:
@@ -59,10 +70,10 @@ namespace
 		{
 			do
 			{
-				outPoint = *_v[0] + randMgr.randomizeFloat() * _vect01 + (randMgr.randomizeFloat() * _vect02);
+				outPoint = *_v[0] + randMgr.randomizeFloat() * _vect01 + randMgr.randomizeFloat() * _vect02;
 			} while (!this->isPointInside(outPoint));
-
-			outNormals = _normal;
+			
+			outNormals = _normals[0];
 		}
 
 		bool producePoint(Storm::IRandomManager &randMgr, const std::vector<Storm::Vector3> &registeredPts, int kTry, float minDist, float maxDist, const std::size_t activePtIndex, Storm::Vector3 &outPoint) const
@@ -131,7 +142,8 @@ namespace
 		Storm::Vector3 _vect12;
 		Storm::Vector3 _normalizedVect01;
 		Storm::Vector3 _normalizedVect02;
-		Storm::Vector3 _normal;
+		Storm::Vector3 _normals[3];
+		std::pair<Storm::Vector3, std::size_t> _normalsJunction[3];
 		float _area;
 	};
 
@@ -224,7 +236,9 @@ Storm::SamplingResult Storm::PoissonDiskSampler::process(const int kTryConst, co
 			if (currentTriangle.producePoint(randMgr, samplingResult._position, kTryConst, diskRadius, maxDist, activeBeginPointIndex, candidate))
 			{
 				samplingResult._position.emplace_back(candidate);
-				samplingResult._normals.emplace_back(currentTriangle._normal);
+
+				// TODO : Smooth it, but since this is a retrocompatibility method, I don't care.
+				samplingResult._normals.emplace_back(currentTriangle._normals[0]);
 			}
 			else
 			{
@@ -237,7 +251,7 @@ Storm::SamplingResult Storm::PoissonDiskSampler::process(const int kTryConst, co
 	return samplingResult;
 }
 
-Storm::SamplingResult Storm::PoissonDiskSampler::process_v2(const int kTryConst, const float diskRadius, const std::vector<Storm::Vector3> &vertices, const Storm::Vector3 &upCorner, const Storm::Vector3 &downCorner)
+Storm::SamplingResult Storm::PoissonDiskSampler::process_v2(const int kTryConst, const float diskRadius, const std::vector<Storm::Vector3> &vertices, const Storm::Vector3 &upCorner, const Storm::Vector3 &downCorner, const bool smoothNormals)
 {
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 
@@ -273,6 +287,61 @@ Storm::SamplingResult Storm::PoissonDiskSampler::process_v2(const int kTryConst,
 	{
 		Storm::throwException<Storm::Exception>("A mesh to convert into particles must have a positive non zero area!");
 	}
+
+#if false
+	// Smooth the triangles normals if specified
+	if (smoothNormals)
+	{
+		const std::size_t triangleCount = triangles.size();
+		for (std::size_t iter = 0; iter < triangleCount; ++iter)
+		{
+			Triangle &currentTriangle = triangles[iter];
+			for (std::size_t jiter = iter + 1; jiter < triangleCount; ++jiter)
+			{
+				Triangle &triangleToCompare = triangles[jiter];
+
+				const auto triangleRegisterLambda = [&currentTriangle, &triangleToCompare](const std::size_t currentIndex, const std::size_t indexToCompare)
+				{
+					const Storm::Vector3 &currentVertex = *currentTriangle._v[currentIndex];
+					const Storm::Vector3 &vertexToCompare = *triangleToCompare._v[currentIndex];
+					if (
+						std::fabs(currentVertex.x() - vertexToCompare.x()) < 0.00000001f &&
+						std::fabs(currentVertex.y() - vertexToCompare.y()) < 0.00000001f &&
+						std::fabs(currentVertex.z() - vertexToCompare.z()) < 0.00000001f
+						)
+					{
+						currentTriangle._normalsJunction[currentIndex].first += triangleToCompare._normals[indexToCompare];
+						++currentTriangle._normalsJunction[currentIndex].second;
+						triangleToCompare._normalsJunction[indexToCompare].first += currentTriangle._normals[currentIndex];
+						++triangleToCompare._normalsJunction[indexToCompare].second;
+					}
+				};
+
+				triangleRegisterLambda(0, 0);
+				triangleRegisterLambda(0, 1);
+				triangleRegisterLambda(0, 2);
+				triangleRegisterLambda(1, 0);
+				triangleRegisterLambda(1, 1);
+				triangleRegisterLambda(1, 2);
+				triangleRegisterLambda(2, 0);
+				triangleRegisterLambda(2, 1);
+				triangleRegisterLambda(2, 2);
+			}
+		}
+
+		const auto smoother = [](const std::pair<Storm::Vector3, std::size_t> &normalJunction)
+		{
+			return (normalJunction.first / static_cast<float>(normalJunction.second)).normalized();
+		};
+
+		Storm::runParallel(triangles, [&smoother](Triangle &triangle)
+		{
+			triangle._normals[0] = smoother(triangle._normalsJunction[0]);
+			triangle._normals[1] = smoother(triangle._normalsJunction[1]);
+			triangle._normals[2] = smoother(triangle._normalsJunction[2]);
+		});
+	}
+#endif
 
 	// Produce a set of point sampling the mesh...
 	const float maxDist = 2.f * diskRadius;

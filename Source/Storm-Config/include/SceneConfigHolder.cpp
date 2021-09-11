@@ -523,6 +523,7 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 			!Storm::XmlReader::handleXml(graphicXmlElement, "constraintColor", graphicConfig._constraintColor, parseColor4Element) &&
 			!Storm::XmlReader::handleXml(graphicXmlElement, "forceThickness", graphicConfig._forceThickness) &&
 			!Storm::XmlReader::handleXml(graphicXmlElement, "forceColor", graphicConfig._forceColor, parseColor4Element) &&
+			!Storm::XmlReader::handleXml(graphicXmlElement, "normalsColor", graphicConfig._normalsColor, parseColor4Element) &&
 			!Storm::XmlReader::handleXml(graphicXmlElement, "blowerAlpha", graphicConfig._blowerAlpha) &&
 			!Storm::XmlReader::handleXml(graphicXmlElement, "watchRbId", graphicConfig._rbWatchId) &&
 			!Storm::XmlReader::handleXml(graphicXmlElement, "grid", graphicConfig._grid, parseVector3Element)

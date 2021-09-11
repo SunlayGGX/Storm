@@ -32,6 +32,7 @@ namespace Storm
 		virtual void pushParticlesData(const Storm::PushedParticleSystemDataParameter &param) = 0;
 		virtual void pushConstraintData(const std::vector<Storm::Vector3> &constraintsVisuData) = 0;
 		virtual void pushParticleSelectionForceData(const Storm::Vector3 &selectedParticlePos, const Storm::Vector3 &selectedParticleForce) = 0;
+		virtual void pushNormalsData(const std::vector<Storm::Vector3> &positions, const std::vector<Storm::Vector3> &normals) = 0;
 
 	public:
 		virtual void createGraphicsField(const std::wstring_view &fieldName, std::wstring &&fieldValueStr) = 0;
@@ -50,6 +51,9 @@ namespace Storm
 	public:
 		virtual void safeSetSelectedParticle(unsigned int particleSystemId, std::size_t particleIndex) = 0;
 		virtual void safeClearSelectedParticle() = 0;
+
+	public:
+		virtual void clearNormalsData() = 0;
 
 	public:
 		virtual void setTargetPositionTo(const Storm::Vector3 &newTargetPosition) = 0;

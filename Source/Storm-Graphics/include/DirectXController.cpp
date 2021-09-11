@@ -7,6 +7,7 @@
 #include "GraphicConstraintSystem.h"
 #include "ParticleForceRenderer.h"
 #include "GraphicKernelEffectArea.h"
+#include "RenderedElementProxy.h"
 
 #include "SingletonHolder.h"
 #include "IConfigManager.h"
@@ -17,6 +18,7 @@
 
 #include "MemoryHelper.h"
 #include "DirectXHardwareInfo.h"
+#include "GraphicNormals.h"
 #include "ResourceMapperGuard.h"
 
 #include "RenderModeState.h"
@@ -259,9 +261,9 @@ const ComPtr<ID2D1RenderTarget>& Storm::DirectXController::getUIRenderTarget() c
 	return _direct2DRenderTarget;
 }
 
-void Storm::DirectXController::renderElements(const Storm::Camera &currentCamera, const std::vector<std::unique_ptr<Storm::IRenderedElement>> &renderedElementArrays, const std::map<unsigned int, std::unique_ptr<Storm::GraphicRigidBody>> &rbElementArrays, Storm::GraphicParticleSystem &particleSystem, const std::map<std::size_t, std::unique_ptr<Storm::GraphicBlower>> &blowersMap, Storm::GraphicConstraintSystem &constraintSystem, Storm::ParticleForceRenderer &selectedParticleForce, Storm::GraphicKernelEffectArea &kernelEffectArea) const
+void Storm::DirectXController::renderElements(const Storm::Camera &currentCamera, const Storm::RenderedElementProxy &paramToRender) const
 {
-	for (const auto &renderedElement : renderedElementArrays)
+	for (const auto &renderedElement : paramToRender._renderedElementArrays)
 	{
 		renderedElement->render(_device, _immediateContext, currentCamera);
 	}
@@ -273,7 +275,7 @@ void Storm::DirectXController::renderElements(const Storm::Camera &currentCamera
 	case Storm::RenderModeState::SolidCullNone:
 	case Storm::RenderModeState::Wireframe:
 	case Storm::RenderModeState::NoWallSolid:
-		for (const auto &rbElementPair : rbElementArrays)
+		for (const auto &rbElementPair : paramToRender._rbElementArrays)
 		{
 			rbElementPair.second->render(_device, _immediateContext, currentCamera);
 		}
@@ -285,18 +287,24 @@ void Storm::DirectXController::renderElements(const Storm::Camera &currentCamera
 		break;
 	}
 
-	particleSystem.render(_device, _immediateContext, currentCamera, _currentRenderModeState);
+	// This one is facultative
+	if (paramToRender._graphicNormals)
+	{
+		paramToRender._graphicNormals->render(_device, _immediateContext, currentCamera);
+	}
 
-	for (const auto &graphicBlower : blowersMap)
+	paramToRender._selectedParticleForce.render(_device, _immediateContext, currentCamera);
+
+	paramToRender._particleSystem.render(_device, _immediateContext, currentCamera, _currentRenderModeState);
+
+	for (const auto &graphicBlower : paramToRender._blowersMap)
 	{
 		graphicBlower.second->render(_device, _immediateContext, currentCamera);
 	}
 
-	constraintSystem.render(_device, _immediateContext, currentCamera);
+	paramToRender._constraintSystem.render(_device, _immediateContext, currentCamera);
 
-	selectedParticleForce.render(_device, _immediateContext, currentCamera);
-
-	kernelEffectArea.render(_device, _immediateContext, currentCamera);
+	paramToRender._kernelEffectArea.render(_device, _immediateContext, currentCamera);
 }
 
 float Storm::DirectXController::getViewportWidth() const noexcept

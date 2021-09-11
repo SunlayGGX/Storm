@@ -35,6 +35,9 @@ namespace Storm
 		float _forceThickness;
 		Storm::Vector4 _forceColor;
 
+		// Normals
+		Storm::Vector4 _normalsColor;
+
 		std::size_t _rbWatchId;
 	};
 }

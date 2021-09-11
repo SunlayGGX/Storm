@@ -751,7 +751,8 @@ Storm::SimulatorManager::SimulatorManager() :
 	_frameAdvanceCount{ -1 },
 	_currentFrameNumber{ 0 },
 	_currentSimulationSystemsState{ Storm::SimulationSystemsState::Normal },
-	_maxVelocitySquaredLastStateCheck{ 0.f }
+	_maxVelocitySquaredLastStateCheck{ 0.f },
+	_rigidBodySelectedNormalsNonOwningPtr{ nullptr }
 {
 	(*_uiFields)
 		.bindField(STORM_FRAME_NUMBER_FIELD_NAME, _currentFrameNumber);
@@ -1117,6 +1118,7 @@ Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 		else
 		{
 			this->refreshParticleSelection();
+			this->pushNormalsToGraphicModuleIfNeeded(false);
 
 			if (autoEndSimulation)
 			{
@@ -2107,6 +2109,21 @@ void Storm::SimulatorManager::pushParticlesToGraphicModule(bool ignoreDirty) con
 	Storm::runParallel(_particleSystem, pushActionLambda);
 }
 
+void Storm::SimulatorManager::pushNormalsToGraphicModuleIfNeeded(bool ignoreDirty) const
+{
+	assert(Storm::isSimulationThread() && "This method should only be executed inside the simulation thread!");
+
+	if (_rigidBodySelectedNormalsNonOwningPtr)
+	{
+		const Storm::RigidBodyParticleSystem &pSystemAsRb = *_rigidBodySelectedNormalsNonOwningPtr;
+		if (ignoreDirty || pSystemAsRb.isDirty())
+		{
+			Storm::IGraphicsManager &graphicMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IGraphicsManager>();
+			graphicMgr.pushNormalsData(pSystemAsRb.getPositions(), pSystemAsRb.getNormals());
+		}
+	}
+}
+
 void Storm::SimulatorManager::cycleSelectedParticleDisplayMode()
 {
 	assert(Storm::isSimulationThread() && "This method should only be executed inside the simulation thread!");
@@ -2848,5 +2865,52 @@ void Storm::SimulatorManager::selectSpecificParticle(const unsigned pSystemId, c
 		{
 			LOG_ERROR << "Cannot select the particle " << particleIndex << " from the particle system " << pSystemId;
 		}
+	});
+}
+
+void Storm::SimulatorManager::selectRigidbodyToDisplayNormals(const unsigned rbId)
+{
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::MainThread, [this, rbId, &singletonHolder]()
+	{
+		if (const auto found = _particleSystem.find(rbId); found != std::end(_particleSystem))
+		{
+			if (!found->second->isFluids())
+			{
+				_rigidBodySelectedNormalsNonOwningPtr = static_cast<Storm::RigidBodyParticleSystem *>(found->second.get());
+				
+				const Storm::ITimeManager &timeMgr = singletonHolder.getSingleton<Storm::ITimeManager>();
+				if (timeMgr.simulationIsPaused())
+				{
+					this->pushNormalsToGraphicModuleIfNeeded(true);
+				}
+
+				LOG_COMMENT << "Requested to display normals for rigid body " << rbId << '.';
+			}
+			else
+			{
+				LOG_ERROR <<
+					"Cannot display normals of fluid particles!\n"
+					"We could only display normals on the surface particle, therefore on rigidbody particles.";
+			}
+		}
+		else
+		{
+			LOG_ERROR << "Cannot find rigidbody " << rbId << " to display the normals.";
+		}
+	});
+}
+
+void Storm::SimulatorManager::clearRigidbodyToDisplayNormals()
+{
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::MainThread, [this, &singletonHolder]()
+	{
+		_rigidBodySelectedNormalsNonOwningPtr = nullptr;
+		
+		Storm::IGraphicsManager &graphicMgr = singletonHolder.getSingleton<Storm::IGraphicsManager>();
+		graphicMgr.clearNormalsData();
+
+		LOG_COMMENT << "Cleared normals data display.";
 	});
 }

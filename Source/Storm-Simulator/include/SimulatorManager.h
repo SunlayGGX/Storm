@@ -15,6 +15,7 @@
 
 namespace Storm
 {
+	class RigidBodyParticleSystem;
 	class ParticleSystem;
 	class IBlower;
 	class ISPHBaseSolver;
@@ -115,6 +116,8 @@ namespace Storm
 
 	private:
 		void pushParticlesToGraphicModule(bool ignoreDirty) const;
+		
+		void pushNormalsToGraphicModuleIfNeeded(bool ignoreDirty) const;
 
 	private:
 		void cycleSelectedParticleDisplayMode();
@@ -167,6 +170,9 @@ namespace Storm
 		bool selectSpecificParticle_Internal(const unsigned int pSystemId, const std::size_t particleIndex);
 		void selectSpecificParticle(const unsigned int pSystemId, const std::size_t particleIndex);
 
+		void selectRigidbodyToDisplayNormals(const unsigned int rbId);
+		void clearRigidbodyToDisplayNormals();
+
 	private:
 		Storm::ParticleSystemContainer _particleSystem;
 		std::vector<std::unique_ptr<Storm::IBlower>> _blowers;
@@ -176,6 +182,8 @@ namespace Storm
 
 		Storm::ParticleSelector _particleSelector;
 		Storm::RaycastEnablingFlag _raycastFlag;
+
+		const Storm::RigidBodyParticleSystem* _rigidBodySelectedNormalsNonOwningPtr;
 
 		std::unique_ptr<Storm::Cage> _cage;
 

@@ -15,6 +15,9 @@
 #include "GraphicGravity.h"
 #include "ParticleForceRenderer.h"
 #include "GraphicKernelEffectArea.h"
+#include "GraphicNormals.h"
+
+#include "RenderedElementProxy.h"
 
 #include "PushedParticleSystemData.h"
 #include "GraphicPipe.h"
@@ -63,7 +66,8 @@ Storm::GraphicManager::GraphicManager() :
 	_selectedParticle{ std::numeric_limits<decltype(_selectedParticle.first)>::max(), 0 },
 	_hasUI{ false },
 	_dirty{ true },
-	_watchedRbNonOwningPtr{ nullptr }
+	_watchedRbNonOwningPtr{ nullptr },
+	_displayNormals{ false }
 {
 
 }
@@ -166,6 +170,8 @@ void Storm::GraphicManager::initialize_Implementation(void* hwnd)
 	_forceRenderer = std::make_unique<Storm::ParticleForceRenderer>(device);
 
 	_kernelEffectArea = std::make_unique<Storm::GraphicKernelEffectArea>(device);
+
+	_graphicNormals = std::make_unique<Storm::GraphicNormals>(device);
 
 	for (auto &meshesPair : _meshesMap)
 	{
@@ -302,7 +308,16 @@ void Storm::GraphicManager::update()
 			_directXController->clearView(g_defaultColor);
 			_directXController->initView();
 
-			_directXController->renderElements(currentCamera, _renderedElements, _meshesMap, *_graphicParticlesSystem, _blowersMap, *_graphicConstraintsSystem, *_forceRenderer, *_kernelEffectArea);
+			_directXController->renderElements(currentCamera, Storm::RenderedElementProxy{
+				._renderedElementArrays = _renderedElements,
+				._rbElementArrays = _meshesMap,
+				._particleSystem = *_graphicParticlesSystem,
+				._blowersMap = _blowersMap,
+				._constraintSystem = *_graphicConstraintsSystem,
+				._selectedParticleForce = *_forceRenderer,
+				._kernelEffectArea = *_kernelEffectArea,
+				._graphicNormals = _displayNormals ? _graphicNormals.get() : nullptr
+			});
 
 			_directXController->drawUI(_renderedElements, _fieldsMap);
 
@@ -406,6 +421,21 @@ void Storm::GraphicManager::pushParticleSelectionForceData(const Storm::Vector3 
 			[this, selectedParticlePos, selectedParticleForce]() mutable
 		{
 			_forceRenderer->refreshForceData(_directXController->getDirectXDevice(), selectedParticlePos, selectedParticleForce);
+			_dirty = true;
+		});
+	}
+}
+
+void Storm::GraphicManager::pushNormalsData(const std::vector<Storm::Vector3>& positions, const std::vector<Storm::Vector3>& normals)
+{
+	if (this->isActive())
+	{
+		const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+		singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(ThreadEnumeration::GraphicsThread,
+			[this, positions, normals]()
+		{
+			_graphicNormals->refreshNormalsData(_directXController->getDirectXDevice(), positions, normals);
+			_displayNormals = true;
 			_dirty = true;
 		});
 	}
@@ -534,6 +564,18 @@ void Storm::GraphicManager::safeClearSelectedParticle()
 		{
 			_selectedParticle.first = std::numeric_limits<decltype(_selectedParticle.first)>::max();
 			_kernelEffectArea->setHasParticleHook(false);
+			_dirty = true;
+		});
+	}
+}
+
+void Storm::GraphicManager::clearNormalsData()
+{
+	if (this->isActive())
+	{
+		Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(ThreadEnumeration::GraphicsThread, [this]()
+		{
+			_displayNormals = false;
 			_dirty = true;
 		});
 	}

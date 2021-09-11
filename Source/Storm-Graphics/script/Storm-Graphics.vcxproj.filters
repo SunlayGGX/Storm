@@ -156,6 +156,12 @@
     <ClCompile Include="..\include\GravityShader.cpp">
       <Filter>Source Files\Shaders\Component</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\GraphicNormals.cpp">
+      <Filter>Source Files\Rendered</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\NormalsShader.cpp">
+      <Filter>Source Files\Shaders\Component</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-GraphicsPCH.h">
@@ -264,6 +270,15 @@
       <Filter>Header Files\Rendered</Filter>
     </ClInclude>
     <ClInclude Include="..\include\GravityShader.h">
+      <Filter>Header Files\Shaders\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\GraphicNormals.h">
+      <Filter>Header Files\Rendered</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\RenderedElementProxy.h">
+      <Filter>Source Files\DirectX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\NormalsShader.h">
       <Filter>Header Files\Shaders\Component</Filter>
     </ClInclude>
   </ItemGroup>
