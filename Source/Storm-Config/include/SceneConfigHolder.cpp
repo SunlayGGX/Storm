@@ -403,7 +403,8 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 			!Storm::XmlReader::handleXml(generalXmlElement, "removeFluidForVolumeConsistency", sceneSimulationConfig._removeFluidForVolumeConsistency) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "fluidParticleRemovalMode", sceneSimulationConfig._fluidParticleRemovalMode, parseParticleRemovalMode) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "startFixRigidBodies", sceneSimulationConfig._fixRigidBodyAtStartTime) &&
-			!Storm::XmlReader::handleXml(generalXmlElement, "freeRbAtTime", sceneSimulationConfig._freeRbAtPhysicsTime)
+			!Storm::XmlReader::handleXml(generalXmlElement, "freeRbAtTime", sceneSimulationConfig._freeRbAtPhysicsTime) &&
+			!Storm::XmlReader::handleXml(generalXmlElement, "noStickConstraint", sceneSimulationConfig._noStickConstraint)
 			)
 		{
 			LOG_ERROR << "tag '" << generalXmlElement.first << "' (inside Scene.General) is unknown, therefore it cannot be handled";

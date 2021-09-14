@@ -80,7 +80,8 @@ Storm::SceneSimulationConfig::SceneSimulationConfig() :
 	_considerRbWallAtCollingingPStateFileLoad{ true },
 	_fluidParticleRemovalMode{ Storm::ParticleRemovalMode::Sphere },
 	_removeFluidForVolumeConsistency{ false },
-	_freeRbAtPhysicsTime{ -1.f }
+	_freeRbAtPhysicsTime{ -1.f },
+	_noStickConstraint{ false }
 {
 
 }

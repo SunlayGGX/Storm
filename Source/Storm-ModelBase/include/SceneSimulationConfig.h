@@ -61,5 +61,7 @@ namespace Storm
 		bool _removeFluidForVolumeConsistency;
 
 		Storm::ParticleRemovalMode _fluidParticleRemovalMode;
+
+		bool _noStickConstraint;
 	};
 }
