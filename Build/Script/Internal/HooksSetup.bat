@@ -10,6 +10,10 @@ set copyCmd=call :makeCopyCmd
 
 %copyCmd% "%STORM_BUILD_SCRIPT_ROOT%\Hooks" "%STORM_REPO_ROOT%\.git\hooks"
 
+:: Force the call to the hook
+if not errorlevel 1 (
+	git checkout develop
+)
 
 exit /B %errorlevel%
 
