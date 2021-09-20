@@ -44,6 +44,7 @@ void Storm::ParticleSystem::initParticlesCount(const std::size_t particleCount)
 	_tmpViscosityForce.resize(particleCount, Storm::Vector3::Zero());
 	_tmpDragForce.resize(particleCount, Storm::Vector3::Zero());
 	_tmpBernoulliDynamicPressureForce.resize(particleCount, Storm::Vector3::Zero());
+	_tmpNoStickForce.resize(particleCount, Storm::Vector3::Zero());
 
 	const bool replayMode = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().isInReplayMode();
 	if (!replayMode)
@@ -131,6 +132,18 @@ std::vector<Storm::Vector3>& Storm::ParticleSystem::getTemporaryBernoulliDynamic
 std::vector<Storm::Vector3>& Storm::ParticleSystem::getForces() noexcept
 {
 	return _force;
+}
+
+
+const std::vector<Storm::Vector3>& Storm::ParticleSystem::getTemporaryNoStickForces() const noexcept
+{
+	return _tmpNoStickForce;
+}
+
+
+std::vector<Storm::Vector3>& Storm::ParticleSystem::getTemporaryNoStickForces() noexcept
+{
+	return _tmpNoStickForce;
 }
 
 const std::vector<Storm::ParticleNeighborhoodArray>& Storm::ParticleSystem::getNeighborhoodArrays() const noexcept

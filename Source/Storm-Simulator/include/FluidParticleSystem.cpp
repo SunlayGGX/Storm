@@ -183,6 +183,12 @@ void Storm::FluidParticleSystem::setTmpBernoulliDynamicPressureForces(std::vecto
 	_tmpBernoulliDynamicPressureForce = std::move(_tmpBernoulliDynamicPressureForce);
 }
 
+
+void Storm::FluidParticleSystem::setTmpNoStickForces(std::vector<Storm::Vector3> &&tmpNoStick)
+{
+	_tmpNoStickForce = std::move(tmpNoStick);
+}
+
 void Storm::FluidParticleSystem::setParticleSystemPosition(const Storm::Vector3 &/*pSystemPosition*/)
 {
 

@@ -100,7 +100,8 @@ void Storm::RecordWriter::write(/*const*/ Storm::SerializeRecordPendingData &dat
 			frameData._pressureComponentforces <<
 			frameData._viscosityComponentforces <<
 			frameData._dragComponentforces <<
-			frameData._dynamicPressureQForces
+			frameData._dynamicPressureQForces <<
+			frameData._noStickForces
 			;
 	}
 
@@ -145,13 +146,15 @@ void Storm::RecordWriter::ensureFrameDataCoherency(const Storm::SerializeRecordP
 	const std::size_t viscosityTmpForceCount = frameData._viscosityComponentforces.size();
 	const std::size_t dragTmpForceCount = frameData._dragComponentforces.size();
 	const std::size_t dynamicPressureQTmpForceCount = frameData._dynamicPressureQForces.size();
+	const std::size_t noStickForceCount = frameData._noStickForces.size();
 	if (
 		positionsCount != velocitiesCount ||
 		positionsCount != forcesCount ||
 		positionsCount != pressureTmpForceCount ||
 		positionsCount != viscosityTmpForceCount ||
 		positionsCount != dragTmpForceCount ||
-		positionsCount != dynamicPressureQTmpForceCount
+		positionsCount != dynamicPressureQTmpForceCount ||
+		positionsCount != noStickForceCount
 		)
 	{
 		Storm::throwException<Storm::Exception>("Frame " + std::to_string(_frameNumber) + " data particle count mismatches!");

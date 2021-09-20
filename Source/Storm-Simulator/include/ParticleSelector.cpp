@@ -30,6 +30,7 @@ namespace
 		case Storm::ParticleSelectionMode::Viscosity: return STORM_TEXT("Viscosity");
 		case Storm::ParticleSelectionMode::Drag: return STORM_TEXT("Drag");
 		case Storm::ParticleSelectionMode::DynamicPressure: return STORM_TEXT("DynamicQ");
+		case Storm::ParticleSelectionMode::NoStick: return STORM_TEXT("NoStick");
 		case Storm::ParticleSelectionMode::AllOnParticle: return STORM_TEXT("All");
 		case Storm::ParticleSelectionMode::RbForce: return STORM_TEXT("Rb Total force");
 		case Storm::ParticleSelectionMode::AverageRbForce: return STORM_TEXT("Rb Average Total force");
@@ -60,6 +61,7 @@ namespace
 	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Viscosity)				\
 	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Drag)					\
 	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, DynamicPressure)			\
+	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, NoStick)					\
 	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, AllOnParticle)			\
 
 #define STORM_XMACRO_SELECTION_RB_MODE_BINDINGS(SelectionMode)					\
@@ -68,6 +70,7 @@ namespace
 	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Viscosity)				\
 	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Drag)					\
 	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, DynamicPressure)			\
+	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, NoStick)					\
 	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, AllOnParticle)			\
 	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, RbForce)					\
 	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, AverageRbForce)			\
@@ -135,6 +138,7 @@ namespace
 		case Storm::ParticleSelectionMode::Velocity:
 		case Storm::ParticleSelectionMode::Pressure:
 		case Storm::ParticleSelectionMode::Viscosity:
+		case Storm::ParticleSelectionMode::NoStick:
 		case Storm::ParticleSelectionMode::Drag:
 		case Storm::ParticleSelectionMode::RbForce:
 		case Storm::ParticleSelectionMode::AverageRbForce:
@@ -266,6 +270,12 @@ void Storm::ParticleSelector::setSelectedParticleBernoulliDynamicPressureForce(c
 	_selectedParticleData->_dynamicPressureForce = qForce;
 }
 
+
+void Storm::ParticleSelector::setSelectedParticleNoStickForce(const Storm::Vector3 &noStickForce)
+{
+	_selectedParticleData->_noStickForce = noStickForce;
+}
+
 void Storm::ParticleSelector::setSelectedParticleSumForce(const Storm::Vector3 &sumForce)
 {
 	_selectedParticleData->_externalSumForces = sumForce;
@@ -298,6 +308,7 @@ const Storm::Vector3& Storm::ParticleSelector::getSelectedVectorToDisplay() cons
 	case Storm::ParticleSelectionMode::Viscosity:				return _selectedParticleData->_viscosityForce;
 	case Storm::ParticleSelectionMode::Drag:					return _selectedParticleData->_dragForce;
 	case Storm::ParticleSelectionMode::DynamicPressure:			return _selectedParticleData->_dynamicPressureForce;
+	case Storm::ParticleSelectionMode::NoStick:					return _selectedParticleData->_noStickForce;
 	case Storm::ParticleSelectionMode::AllOnParticle:			return _selectedParticleData->_externalSumForces;
 	case Storm::ParticleSelectionMode::RbForce:					return _selectedParticleData->_totalForcesOnRb;
 	case Storm::ParticleSelectionMode::AverageRbForce:			return _selectedParticleData->_averageForcesOnRb.getAverage();
@@ -366,6 +377,7 @@ void Storm::ParticleSelector::logForceComponents() const
 		"Viscosity: " << selectedParticleDataRef._viscosityForce << ". Norm: " << selectedParticleDataRef._viscosityForce.norm() << " N.\n"
 		"Drag: " << selectedParticleDataRef._dragForce << ". Norm: " << selectedParticleDataRef._dragForce.norm() << " N.\n"
 		"DynamicPressure: " << selectedParticleDataRef._dynamicPressureForce << ". Norm: " << selectedParticleDataRef._dynamicPressureForce.norm() << " N.\n"
+		"NoStick: " << selectedParticleDataRef._noStickForce << ". Norm: " << selectedParticleDataRef._noStickForce.norm() << " N.\n"
 		"Sum : " << selectedParticleDataRef._externalSumForces << ". Norm: " << selectedParticleDataRef._externalSumForces.norm() << " N." <<
 		rbSpecificInfosStr
 		;

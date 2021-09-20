@@ -1325,6 +1325,7 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 							removeRawParticles(fluidPSystem.getTemporaryViscosityForces(), toRemoveCount);
 							removeRawParticles(fluidPSystem.getTemporaryDragForces(), toRemoveCount);
 							removeRawParticles(fluidPSystem.getTemporaryBernoulliDynamicPressureForces(), toRemoveCount);
+							removeRawParticles(fluidPSystem.getTemporaryNoStickForces(), toRemoveCount);
 							removeRawParticles(fluidPSystem.getPositions(), toRemoveCount);
 							removeRawParticles(fluidPSystem.getVelocity(), toRemoveCount);
 							removeRawParticles(fluidPSystem.getVelocityPreTimestep(), toRemoveCount);
@@ -2156,6 +2157,7 @@ void Storm::SimulatorManager::refreshParticleSelection()
 			_particleSelector.setSelectedParticleViscosityForce(pSystem.getTemporaryViscosityForces()[selectedParticleIndex]);
 			_particleSelector.setSelectedParticleDragForce(pSystem.getTemporaryDragForces()[selectedParticleIndex]);
 			_particleSelector.setSelectedParticleBernoulliDynamicPressureForce(pSystem.getTemporaryBernoulliDynamicPressureForces()[selectedParticleIndex]);
+			_particleSelector.setSelectedParticleNoStickForce(pSystem.getTemporaryNoStickForces()[selectedParticleIndex]);
 			_particleSelector.setSelectedParticleSumForce(pSystem.getForces()[selectedParticleIndex]);
 
 			if (!pSystem.isFluids())
@@ -2630,7 +2632,8 @@ void Storm::SimulatorManager::writeCurrentFrameSystemForcesToCsv(const unsigned 
 					{ "Pressure", &pSystemToPrint.getTemporaryPressureForces(), MakeSumFormula::value },
 					{ "Viscosity", &pSystemToPrint.getTemporaryViscosityForces(), MakeSumFormula::value },
 					{ "Drag", &pSystemToPrint.getTemporaryDragForces(), MakeSumFormula::value },
-					{ "BernoulliDynamicQ", &pSystemToPrint.getTemporaryBernoulliDynamicPressureForces(), MakeSumFormula::value }
+					{ "BernoulliDynamicQ", &pSystemToPrint.getTemporaryBernoulliDynamicPressureForces(), MakeSumFormula::value },
+					{ "NoStick", &pSystemToPrint.getTemporaryNoStickForces(), MakeSumFormula::value },
 				};
 				
 				writer.reserve(std::get<1>(mappings[0])->size());
@@ -2818,6 +2821,7 @@ bool Storm::SimulatorManager::selectSpecificParticle_Internal(const unsigned pSy
 				_particleSelector.setSelectedParticleViscosityForce(selectedPSystem.getTemporaryViscosityForces()[particleIndex]);
 				_particleSelector.setSelectedParticleDragForce(selectedPSystem.getTemporaryDragForces()[particleIndex]);
 				_particleSelector.setSelectedParticleBernoulliDynamicPressureForce(selectedPSystem.getTemporaryBernoulliDynamicPressureForces()[particleIndex]);
+				_particleSelector.setSelectedParticleNoStickForce(selectedPSystem.getTemporaryNoStickForces()[particleIndex]);
 
 				if (!selectedPSystem.isFluids())
 				{

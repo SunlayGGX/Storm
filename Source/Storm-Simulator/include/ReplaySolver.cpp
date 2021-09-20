@@ -251,6 +251,7 @@ namespace
 			std::vector<Storm::Vector3> &allViscosityForce = currentPSystem.getTemporaryViscosityForces();
 			std::vector<Storm::Vector3> &allDragForce = currentPSystem.getTemporaryDragForces();
 			std::vector<Storm::Vector3> &allDynamicQForce = currentPSystem.getTemporaryBernoulliDynamicPressureForces();
+			std::vector<Storm::Vector3> &allNoStickForce = currentPSystem.getTemporaryNoStickForces();
 
 
 #define STORM_LAUNCH_LERP_ARRAY_FUTURE(memberName, resultArray) std::async(std::launch::async, [&lerpArray, &frameBeforeElements, &frameAfterElements, &resultArray]() { lerpArray(frameAfterElements.memberName, frameAfterElements.memberName, resultArray); })
@@ -274,6 +275,7 @@ namespace
 						lerp(frameBeforeElements._viscosityComponentforces[currentPIndex], frameAfterElements._viscosityComponentforces[currentPIndex], coefficient, allViscosityForce[currentPIndex]);
 						lerp(frameBeforeElements._dragComponentforces[currentPIndex], frameAfterElements._dragComponentforces[currentPIndex], coefficient, allDragForce[currentPIndex]);
 						lerp(frameBeforeElements._dynamicPressureQForces[currentPIndex], frameAfterElements._dynamicPressureQForces[currentPIndex], coefficient, allDynamicQForce[currentPIndex]);
+						lerp(frameBeforeElements._noStickForces[currentPIndex], frameAfterElements._noStickForces[currentPIndex], coefficient, allNoStickForce[currentPIndex]);
 					});
 				}
 				else
@@ -289,7 +291,8 @@ namespace
 		STORM_LAUNCH_LERP_ARRAY_FUTURE(_pressureComponentforces, allPressureForce),				\
 		STORM_LAUNCH_LERP_ARRAY_FUTURE(_viscosityComponentforces, allViscosityForce),			\
 		STORM_LAUNCH_LERP_ARRAY_FUTURE(_dragComponentforces, allDragForce),						\
-		STORM_LAUNCH_LERP_ARRAY_FUTURE(_dynamicPressureQForces, allDynamicQForce)				\
+		STORM_LAUNCH_LERP_ARRAY_FUTURE(_dynamicPressureQForces, allDynamicQForce),				\
+		STORM_LAUNCH_LERP_ARRAY_FUTURE(_noStickForces, allNoStickForce),						\
 	}
 
 					if constexpr (useAVX512)
@@ -325,6 +328,7 @@ namespace
 						lerp(frameBeforeElements._viscosityComponentforces[currentPIndex], frameAfterElements._viscosityComponentforces[currentPIndex], coefficient, allViscosityForce[currentPIndex]);
 						lerp(frameBeforeElements._dragComponentforces[currentPIndex], frameAfterElements._dragComponentforces[currentPIndex], coefficient, allDragForce[currentPIndex]);
 						lerp(frameBeforeElements._dynamicPressureQForces[currentPIndex], frameAfterElements._dynamicPressureQForces[currentPIndex], coefficient, allDynamicQForce[currentPIndex]);
+						lerp(frameBeforeElements._noStickForces[currentPIndex], frameAfterElements._noStickForces[currentPIndex], coefficient, allNoStickForce[currentPIndex]);
 					});
 				}
 				else
@@ -340,7 +344,8 @@ namespace
 		STORM_LAUNCH_LERP_ARRAY_FUTURE(_pressureComponentforces, allPressureForce),				\
 		STORM_LAUNCH_LERP_ARRAY_FUTURE(_viscosityComponentforces, allViscosityForce),			\
 		STORM_LAUNCH_LERP_ARRAY_FUTURE(_dragComponentforces, allDragForce),						\
-		STORM_LAUNCH_LERP_ARRAY_FUTURE(_dynamicPressureQForces, allDynamicQForce)				\
+		STORM_LAUNCH_LERP_ARRAY_FUTURE(_dynamicPressureQForces, allDynamicQForce),				\
+		STORM_LAUNCH_LERP_ARRAY_FUTURE(_noStickForces, allNoStickForce),						\
 	}
 
 					if constexpr (useAVX512)
@@ -507,6 +512,7 @@ namespace
 						STORM_COPY_ARRAYS(avx512CpyLambda, _viscosityComponentforces, pSystemRef.getTemporaryViscosityForces());
 						STORM_COPY_ARRAYS(avx512CpyLambda, _dragComponentforces, pSystemRef.getTemporaryDragForces());
 						STORM_COPY_ARRAYS(avx512CpyLambda, _dynamicPressureQForces, pSystemRef.getTemporaryBernoulliDynamicPressureForces());
+						STORM_COPY_ARRAYS(avx512CpyLambda, _noStickForces, pSystemRef.getTemporaryNoStickForces());
 					}
 					else
 					{
@@ -517,6 +523,7 @@ namespace
 						STORM_COPY_ARRAYS(sseCpyLambda, _viscosityComponentforces, pSystemRef.getTemporaryViscosityForces());
 						STORM_COPY_ARRAYS(sseCpyLambda, _dragComponentforces, pSystemRef.getTemporaryDragForces());
 						STORM_COPY_ARRAYS(sseCpyLambda, _dynamicPressureQForces, pSystemRef.getTemporaryBernoulliDynamicPressureForces());
+						STORM_COPY_ARRAYS(sseCpyLambda, _noStickForces, pSystemRef.getTemporaryNoStickForces());
 					}
 				}
 				else
@@ -528,6 +535,7 @@ namespace
 					STORM_MAKE_SIMPLE_COPY_ARRAY(_viscosityComponentforces, pSystemRef.getTemporaryViscosityForces());
 					STORM_MAKE_SIMPLE_COPY_ARRAY(_dragComponentforces, pSystemRef.getTemporaryDragForces());
 					STORM_MAKE_SIMPLE_COPY_ARRAY(_dynamicPressureQForces, pSystemRef.getTemporaryBernoulliDynamicPressureForces());
+					STORM_MAKE_SIMPLE_COPY_ARRAY(_noStickForces, pSystemRef.getTemporaryNoStickForces());
 				}
 #undef STORM_COPY_ARRAYS
 #undef STORM_MAKE_SIMPLE_COPY_ARRAY
@@ -556,6 +564,7 @@ void Storm::ReplaySolver::transferFrameToParticleSystem_move(Storm::ParticleSyst
 		particleSystem.setTmpViscosityForces(std::move(currentFrameElement._viscosityComponentforces));
 		particleSystem.setTmpDragForces(std::move(currentFrameElement._dragComponentforces));
 		particleSystem.setTmpBernoulliDynamicPressureForces(std::move(currentFrameElement._dynamicPressureQForces));
+		particleSystem.setTmpNoStickForces(std::move(currentFrameElement._noStickForces));
 	}
 }
 
@@ -574,6 +583,7 @@ void Storm::ReplaySolver::transferFrameToParticleSystem_copy(Storm::ParticleSyst
 		std::vector<Storm::Vector3> &allViscosityForce = currentPSystem.getTemporaryViscosityForces();
 		std::vector<Storm::Vector3> &allDragForce = currentPSystem.getTemporaryDragForces();
 		std::vector<Storm::Vector3> &allDynamicQForce = currentPSystem.getTemporaryBernoulliDynamicPressureForces();
+		std::vector<Storm::Vector3> &allNoStickForce = currentPSystem.getTemporaryNoStickForces();
 
 		if (currentPSystem.isFluids())
 		{
@@ -600,7 +610,8 @@ void Storm::ReplaySolver::transferFrameToParticleSystem_copy(Storm::ParticleSyst
 		STORM_LAUNCH_CPY_ARRAY_FUTURE(_pressureComponentforces, allPressureForce),				\
 		STORM_LAUNCH_CPY_ARRAY_FUTURE(_viscosityComponentforces, allViscosityForce),			\
 		STORM_LAUNCH_CPY_ARRAY_FUTURE(_dragComponentforces, allDragForce),						\
-		STORM_LAUNCH_CPY_ARRAY_FUTURE(_dynamicPressureQForces, allDynamicQForce)				\
+		STORM_LAUNCH_CPY_ARRAY_FUTURE(_dynamicPressureQForces, allDynamicQForce),				\
+		STORM_LAUNCH_CPY_ARRAY_FUTURE(_noStickForces, allNoStickForce),							\
 	}
 
 				if (useAVX512)
@@ -628,6 +639,7 @@ void Storm::ReplaySolver::transferFrameToParticleSystem_copy(Storm::ParticleSyst
 					allViscosityForce[currentPIndex] = frameElement._viscosityComponentforces[currentPIndex];
 					allDragForce[currentPIndex] = frameElement._dragComponentforces[currentPIndex];
 					allDynamicQForce[currentPIndex] = frameElement._dynamicPressureQForces[currentPIndex];
+					allNoStickForce[currentPIndex] = frameElement._noStickForces[currentPIndex];
 				});
 			}
 		}
@@ -650,7 +662,8 @@ void Storm::ReplaySolver::transferFrameToParticleSystem_copy(Storm::ParticleSyst
 		STORM_LAUNCH_CPY_ARRAY_FUTURE(_pressureComponentforces, allPressureForce),				\
 		STORM_LAUNCH_CPY_ARRAY_FUTURE(_viscosityComponentforces, allViscosityForce),			\
 		STORM_LAUNCH_CPY_ARRAY_FUTURE(_dragComponentforces, allDragForce),						\
-		STORM_LAUNCH_CPY_ARRAY_FUTURE(_dynamicPressureQForces, allDynamicQForce)				\
+		STORM_LAUNCH_CPY_ARRAY_FUTURE(_dynamicPressureQForces, allDynamicQForce),				\
+		STORM_LAUNCH_CPY_ARRAY_FUTURE(_noStickForces, allNoStickForce),							\
 	}
 
 				if (useAVX512)
@@ -679,6 +692,7 @@ void Storm::ReplaySolver::transferFrameToParticleSystem_copy(Storm::ParticleSyst
 					allViscosityForce[currentPIndex] = frameElement._viscosityComponentforces[currentPIndex];
 					allDragForce[currentPIndex] = frameElement._dragComponentforces[currentPIndex];
 					allDynamicQForce[currentPIndex] = frameElement._dynamicPressureQForces[currentPIndex];
+					allNoStickForce[currentPIndex] = frameElement._noStickForces[currentPIndex];
 				});
 			}
 

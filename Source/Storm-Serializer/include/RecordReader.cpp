@@ -54,6 +54,7 @@ namespace
 			if constexpr (currentVersion < Storm::Version{ 1, 7, 0 })
 			{
 				frameData._normals.resize(framePCount, Storm::Vector3::Zero());
+				frameData._noStickForces.resize(framePCount, Storm::Vector3::Zero());
 			}
 		}
 	}
@@ -570,7 +571,8 @@ bool Storm::RecordReader::readNextFrame_v1_7_0(Storm::SerializeRecordPendingData
 			frameData._pressureComponentforces <<
 			frameData._viscosityComponentforces <<
 			frameData._dragComponentforces <<
-			frameData._dynamicPressureQForces
+			frameData._dynamicPressureQForces <<
+			frameData._noStickForces
 			;
 	}
 
