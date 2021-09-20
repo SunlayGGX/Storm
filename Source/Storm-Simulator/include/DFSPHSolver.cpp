@@ -235,6 +235,39 @@ namespace
 
 		return dynamicPressureForce;
 	}
+
+	Storm::Vector3 produceNoStickConditionForces(const Storm::IterationParameter &iterationParameter, const Storm::FluidParticleSystem &fluidParticleSystem, const Storm::Vector3 &vi, const float currentPMass, const Storm::ParticleNeighborhoodArray &currentPNeighborhood)
+	{
+		Storm::Vector3 result = Storm::Vector3::Zero();
+
+		for (const Storm::NeighborParticleInfo &neighbor : currentPNeighborhood)
+		{
+			if (!neighbor._isFluidParticle)
+			{
+				Storm::RigidBodyParticleSystem &pSystemAsRb = static_cast<Storm::RigidBodyParticleSystem &>(*neighbor._containingParticleSystem);
+
+				const Storm::Vector3 velDiff = vi - pSystemAsRb.getVelocity()[neighbor._particleIndex];
+				const Storm::Vector3 &rbPNormal = pSystemAsRb.getNormals()[neighbor._particleIndex];
+
+				Storm::Vector3 addedForce = velDiff * (iterationParameter._deltaTime * currentPMass);
+
+				// Make it the component that removes the normal component of the velocity.
+				addedForce = -addedForce.dot(rbPNormal) * rbPNormal;
+				result += addedForce;
+
+				// Mirror the force on the boundary solid following the 3rd newton law
+				if (!pSystemAsRb.isStatic())
+				{
+					Storm::Vector3 &boundaryNeighborTmpNoStickForce = neighbor._containingParticleSystem->getTemporaryNoStickForces()[neighbor._particleIndex];
+
+					std::lock_guard<std::mutex> lock{ neighbor._containingParticleSystem->_mutex };
+					boundaryNeighborTmpNoStickForce -= addedForce;
+				}
+			}
+		}
+
+		return result;
+	}
 }
 
 
@@ -586,9 +619,14 @@ void Storm::DFSPHSolver::execute(const Storm::IterationParameter &iterationParam
 				{
 					Storm::Vector3 &dynamicPressureForce = fluidParticleSystem.getTemporaryBernoulliDynamicPressureForces()[currentPIndex];
 					dynamicPressureForce = computeBernouilliPrinciple(fluidParticleSystem, currentPIndex, currentPNeighborhood);
-
-					Storm::Vector3 &currentPForce = fluidParticleSystem.getForces()[currentPIndex];
 					currentPForce += dynamicPressureForce;
+				}
+
+				if (sceneSimulationConfig._noStickConstraint)
+				{
+					Storm::Vector3 &currentPTmpNoStickForce = fluidParticleSystem.getTemporaryNoStickForces()[currentPIndex];
+					currentPTmpNoStickForce = produceNoStickConditionForces(iterationParameter, fluidParticleSystem, vi, currentPMass, currentPNeighborhood);
+					currentPForce += currentPTmpNoStickForce;
 				}
 
 				// We should also initialize the data field now (avoid to restart the threads).

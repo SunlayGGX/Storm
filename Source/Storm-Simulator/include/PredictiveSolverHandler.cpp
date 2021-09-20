@@ -109,7 +109,8 @@ void Storm::PredictiveSolverHandler::transfertEndDataToSystems(Storm::ParticleSy
 						particleSystem.getTemporaryPressureForces()[currentPIndex] +
 #endif
 						particleSystem.getTemporaryDragForces()[currentPIndex] +
-						particleSystem.getTemporaryBernoulliDynamicPressureForces()[currentPIndex]
+						particleSystem.getTemporaryBernoulliDynamicPressureForces()[currentPIndex] +
+						particleSystem.getTemporaryNoStickForces()[currentPIndex]
 						;
 				});
 			}
