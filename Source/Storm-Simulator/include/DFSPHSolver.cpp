@@ -249,10 +249,8 @@ namespace
 				const Storm::Vector3 velDiff = vi - pSystemAsRb.getVelocity()[neighbor._particleIndex];
 				const Storm::Vector3 &rbPNormal = pSystemAsRb.getNormals()[neighbor._particleIndex];
 
-				Storm::Vector3 addedForce = velDiff * (iterationParameter._deltaTime * currentPMass);
-
 				// Make it the component that removes the normal component of the velocity.
-				addedForce = -addedForce.dot(rbPNormal) * rbPNormal;
+				const Storm::Vector3 addedForce = -(velDiff.dot(rbPNormal) * iterationParameter._deltaTime * currentPMass) * rbPNormal;
 				result += addedForce;
 
 				// Mirror the force on the boundary solid following the 3rd newton law
