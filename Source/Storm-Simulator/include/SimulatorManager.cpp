@@ -2584,11 +2584,14 @@ void Storm::SimulatorManager::printMassForRbDensity(const unsigned int id, const
 void Storm::SimulatorManager::writeCurrentFrameSystemForcesToCsv(const unsigned id, const std::string &filePath) const
 {
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
 
 	std::string FilePathCpy = filePath;
-	singletonHolder.getSingleton<Storm::IConfigManager>().getMacroizedConvertedValue(FilePathCpy);
+	configMgr.getMacroizedConvertedValue(FilePathCpy);
 
-	singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::MainThread, [this, filePathUnMacroized = FuncMovePass<std::string>{ std::move(FilePathCpy) }, id]()
+	const Storm::Language osLanguage = configMgr.getGeneralApplicationConfig()._language;
+
+	singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::MainThread, [this, filePathUnMacroized = FuncMovePass<std::string>{ std::move(FilePathCpy) }, id, osLanguage]()
 	{
 		const std::string pSystemIdStr = std::to_string(id);
 
@@ -2597,7 +2600,7 @@ void Storm::SimulatorManager::writeCurrentFrameSystemForcesToCsv(const unsigned 
 			if (particleSystemPair.first == id)
 			{
 				LOG_DEBUG << "Writing forces of particle system " << pSystemIdStr << " to csv.";
-				Storm::CSVWriter writer{ filePathUnMacroized._object };
+				Storm::CSVWriter writer{ filePathUnMacroized._object, osLanguage };
 
 				const Storm::ParticleSystem &pSystemToPrint = *particleSystemPair.second;
 

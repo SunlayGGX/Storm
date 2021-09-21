@@ -12,6 +12,8 @@
 
 #include "SocketSetting.h"
 
+#include "Language.h"
+
 #include "Network/NetworkConstants.cs"
 
 
@@ -62,7 +64,8 @@ Storm::GeneralDebugConfig::GeneralDebugConfig() :
 
 Storm::GeneralApplicationConfig::GeneralApplicationConfig() :
 	_showBranchInTitle{ false },
-	_bipSoundOnFinish{ false }
+	_bipSoundOnFinish{ false },
+	_language{ Storm::retrieveDefaultOSLanguage() }
 {
 
 }

@@ -12,6 +12,8 @@
 #include "VectoredExceptionDisplayMode.h"
 #include "PreferredBrowser.h"
 
+#include "Language.h"
+
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 #include <boost/algorithm/string.hpp>
@@ -142,7 +144,8 @@ bool Storm::GeneralConfigHolder::read(const std::string &generalConfigFilePathSt
 				{
 					if (
 						!Storm::XmlReader::handleXml(applicationXmlElement, "displayBranch", generalApplicationConfig._showBranchInTitle) &&
-						!Storm::XmlReader::handleXml(applicationXmlElement, "beepOnFinish", generalApplicationConfig._bipSoundOnFinish)
+						!Storm::XmlReader::handleXml(applicationXmlElement, "beepOnFinish", generalApplicationConfig._bipSoundOnFinish) &&
+						!Storm::XmlReader::handleXml(applicationXmlElement, "language", generalApplicationConfig._language, Storm::parseLanguage)
 						)
 					{
 						LOG_ERROR << applicationXmlElement.first << " (inside General.Application) is unknown, therefore it cannot be handled";
