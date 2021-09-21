@@ -539,5 +539,11 @@
     <ClInclude Include="..\include\GeometryType.h">
       <Filter>Header Files\Modules\Load</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\SceneFluidCustomIISPHConfig.h">
+      <Filter>Header Files\Modules\Config\Scene\SimulationElement</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SceneFluidCustomPCISPHConfig.h">
+      <Filter>Header Files\Modules\Config\Scene\SimulationElement</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

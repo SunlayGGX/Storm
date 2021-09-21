@@ -18,6 +18,7 @@
 
 #include "SceneSimulationConfig.h"
 #include "SceneFluidConfig.h"
+#include "SceneFluidCustomIISPHConfig.h"
 
 #include "IterationParameter.h"
 
@@ -177,12 +178,13 @@ void Storm::IISPHSolver::execute(const Storm::IterationParameter &iterationParam
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
 	const Storm::SceneSimulationConfig &sceneSimulationConfig = configMgr.getSceneSimulationConfig();
 	const Storm::SceneFluidConfig &fluidConfig = configMgr.getSceneFluidConfig();
+	const Storm::SceneFluidCustomIISPHConfig &sceneIisphFluidConfig = static_cast<const Storm::SceneFluidCustomIISPHConfig &>(*fluidConfig._customSimulationSettings);
 	
 	Storm::SimulatorManager &simulMgr = Storm::SimulatorManager::instance();
 
 	const float k_kernelZero = Storm::retrieveKernelZeroValue(sceneSimulationConfig._kernelMode);
 
-	const float k_maxDensityError = sceneSimulationConfig._maxDensityError;
+	const float k_maxDensityError = sceneIisphFluidConfig._maxError;
 	unsigned int currentPredictionIter = 0;
 
 	const float deltaTimeSquared = iterationParameter._deltaTime * iterationParameter._deltaTime;
@@ -612,9 +614,9 @@ void Storm::IISPHSolver::execute(const Storm::IterationParameter &iterationParam
 
 		++currentPredictionIter;
 
-	} while (currentPredictionIter < sceneSimulationConfig._minPredictIteration || (currentPredictionIter < sceneSimulationConfig._maxPredictIteration && averageDensityError > sceneSimulationConfig._maxDensityError));
+	} while (currentPredictionIter < sceneIisphFluidConfig._minPredictIteration || (currentPredictionIter < sceneIisphFluidConfig._maxPredictIteration && averageDensityError > sceneIisphFluidConfig._maxError));
 
-	this->updateCurrentPredictionIter(currentPredictionIter, sceneSimulationConfig._maxPredictIteration, averageDensityError, sceneSimulationConfig._maxDensityError, 0);
+	this->updateCurrentPredictionIter(currentPredictionIter, sceneIisphFluidConfig._maxPredictIteration, averageDensityError, sceneIisphFluidConfig._maxError, 0);
 
 	if (!this->shouldContinue()) STORM_UNLIKELY
 	{

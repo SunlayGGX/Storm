@@ -326,10 +326,6 @@ void Storm::DFSPHSolver::execute(const Storm::IterationParameter &iterationParam
 
 	Storm::SimulatorManager &simulMgr = Storm::SimulatorManager::instance();
 
-	const float k_kernelZero = Storm::retrieveKernelZeroValue(sceneSimulationConfig._kernelMode);
-
-	const float k_kernelLengthSquared = iterationParameter._kernelLength * iterationParameter._kernelLength;
-
 	Storm::ParticleSystemContainer &particleSystems = *iterationParameter._particleSystems;
 
 	// 1st : Initialize iteration
@@ -346,6 +342,185 @@ void Storm::DFSPHSolver::execute(const Storm::IterationParameter &iterationParam
 	}
 
 	// 3rd : Compute the base density
+	this->initializeStepDensities(iterationParameter, sceneSimulationConfig, dfsphFluidConfig);
+	if (!this->shouldContinue()) STORM_UNLIKELY
+	{
+		return;
+	}
+
+	// 4th : Compute k_dfsph coeff
+	const double kPressurePredictFinalCoeff = static_cast<double>(-dfsphFluidConfig._kPressurePredictedCoeff);
+	for (auto &dataFieldPair : _data)
+	{
+		this->computeDFSPHFactor(
+			iterationParameter,
+			static_cast<Storm::FluidParticleSystem &>(*particleSystems.find(dataFieldPair.first)->second), // Since data field was made from fluid particles, no need to check.
+			dataFieldPair.second,
+			kPressurePredictFinalCoeff
+		);
+	}
+
+	if (!this->shouldContinue()) STORM_UNLIKELY
+	{
+		return;
+	}
+
+	if (_useRotationFix)
+	{
+		for (auto &dataFieldPair : _data)
+		{
+			// Since data field was made from fluid particles, no need to check.
+			const Storm::FluidParticleSystem &fluidPSystem = static_cast<const Storm::FluidParticleSystem &>(*particleSystems.find(dataFieldPair.first)->second);
+			const std::vector<Storm::Vector3> &velocities = fluidPSystem.getVelocity();
+			Storm::runParallel(dataFieldPair.second, [this, &velocities](Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex)
+			{
+				currentPData._predictedVelocity = velocities[currentPIndex];
+			});
+		}
+
+		if (!this->shouldContinue()) STORM_UNLIKELY
+		{
+			return;
+		}
+	}
+
+	// 5th : Divergence solve
+	this->fullDensityInvariantSolve_Internal(iterationParameter, dfsphFluidConfig);
+	if (!this->shouldContinue()) STORM_UNLIKELY
+	{
+		return;
+	}
+
+	// 7th : Compute the non pressure forces (viscosity)
+	// Compute accelerations: a(t)
+	this->computeNonPressureForces_Internal(iterationParameter, sceneSimulationConfig, fluidConfig);
+	if (!this->shouldContinue()) STORM_UNLIKELY
+	{
+		return;
+	}
+
+	if (sceneSimulationConfig._midUpdateViscosity)
+	{
+		// Update Rb velocities with viscosity (experimental)
+		for (auto &particleSystemPair : particleSystems)
+		{
+			Storm::ParticleSystem &currentParticleSystem = *particleSystemPair.second;
+			if (!currentParticleSystem.isFluids())
+			{
+				Storm::RigidBodyParticleSystem &rbParticleSystem = static_cast<Storm::RigidBodyParticleSystem &>(currentParticleSystem);
+
+				const std::vector<Storm::Vector3> &viscoForces = rbParticleSystem.getTemporaryViscosityForces();
+				std::vector<Storm::Vector3> &forces = rbParticleSystem.getForces();
+
+				std::copy(std::execution::par, std::begin(viscoForces), std::end(viscoForces), std::begin(forces));
+			}
+		}
+
+		simulMgr.flushPhysics(iterationParameter._deltaTime);
+		for (auto &particleSystemPair : particleSystems)
+		{
+			Storm::ParticleSystem &currentParticleSystem = *particleSystemPair.second;
+			if (!currentParticleSystem.isFluids())
+			{
+				Storm::RigidBodyParticleSystem &rbParticleSystem = static_cast<Storm::RigidBodyParticleSystem &>(currentParticleSystem);
+
+				rbParticleSystem.updatePosition(iterationParameter._deltaTime, false);
+			}
+		}
+
+		simulMgr.refreshParticleNeighborhood();
+	}
+
+	// 8th : TODO : CFL
+	// ...
+
+	// 9th : Solve pressure
+	this->fullVelocityDivergenceSolve_Internal(iterationParameter, dfsphFluidConfig);
+	if (!this->shouldContinue()) STORM_UNLIKELY
+	{
+		return;
+	}
+
+	///////////////////////////////////////////////////
+
+	// 10th : compute final positions
+	this->transfertEndDataToSystems(particleSystems, iterationParameter, &_data, [](void* data, const unsigned int pSystemId, Storm::FluidParticleSystem &fluidParticleSystem, const Storm::IterationParameter &iterationParameter)
+	{
+		auto &dataField = reinterpret_cast<decltype(_data)*>(data)->find(pSystemId)->second;
+
+		const std::vector<float> &masses = fluidParticleSystem.getMasses();
+		std::vector<Storm::Vector3> &forces = fluidParticleSystem.getForces();
+		std::vector<Storm::Vector3> &velocities = fluidParticleSystem.getVelocity();
+		std::vector<Storm::Vector3> &positions = fluidParticleSystem.getPositions();
+		std::vector<Storm::Vector3> &tmpPressureForces = fluidParticleSystem.getTemporaryPressureForces();
+
+		std::atomic<bool> dirtyTmp = false;
+		constexpr const float minForceDirtyEpsilon = 0.0001f;
+
+		Storm::runParallel(dataField, [&](const Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex)
+		{
+			// Euler integration
+			Storm::Vector3 &currentPVelocity = velocities[currentPIndex];
+			Storm::Vector3 &currentPPositions = positions[currentPIndex];
+
+			const float currentPMass = masses[currentPIndex];
+
+			// Since all pressure computation was done on currentPData._predictedVelocity, then the difference is the velocity delta that was added from the pressure effect.
+			const Storm::Vector3 pressureVelocityAccel = (currentPData._predictedVelocity - currentPVelocity) / iterationParameter._deltaTime;
+			tmpPressureForces[currentPIndex] = pressureVelocityAccel * currentPMass;
+
+			const Storm::Vector3 totalAccel = currentPData._nonPressureAcceleration + pressureVelocityAccel;
+			forces[currentPIndex] = totalAccel * currentPMass;
+
+			currentPVelocity = currentPData._predictedVelocity;
+			currentPPositions += currentPVelocity * iterationParameter._deltaTime;
+
+			if (!dirtyTmp)
+			{
+				if (
+					std::fabs(currentPVelocity.x()) > minForceDirtyEpsilon ||
+					std::fabs(currentPVelocity.y()) > minForceDirtyEpsilon ||
+					std::fabs(currentPVelocity.z()) > minForceDirtyEpsilon
+					)
+				{
+					dirtyTmp = true;
+				}
+			}
+		});
+
+		fluidParticleSystem.setIsDirty(dirtyTmp);
+	}, !sceneSimulationConfig._midUpdateViscosity);
+
+	// 11th : flush physics state (rigid bodies)
+	simulMgr.flushPhysics(iterationParameter._deltaTime);
+}
+
+void Storm::DFSPHSolver::removeRawEndData(const unsigned int pSystemId, std::size_t toRemoveCount)
+{
+	Storm::SPHSolverUtils::removeRawEndData(pSystemId, toRemoveCount, _data);
+}
+
+void Storm::DFSPHSolver::setEnableThresholdDensity(bool enable)
+{
+	_enableThresholdDensity = enable;
+}
+
+void Storm::DFSPHSolver::setUseRotationFix(bool useFix)
+{
+	_useRotationFix = useFix;
+}
+
+void Storm::DFSPHSolver::setNeighborThresholdDensity(std::size_t neighborCount)
+{
+	_neighborThresholdDensity = neighborCount;
+}
+
+
+void Storm::DFSPHSolver::initializeStepDensities(const Storm::IterationParameter &iterationParameter, const Storm::SceneSimulationConfig &sceneSimulationConfig, const Storm::SceneFluidCustomDFSPHConfig &sceneDFSPHSimulationConfig)
+{
+	const float k_kernelZero = Storm::retrieveKernelZeroValue(sceneSimulationConfig._kernelMode);
+	Storm::ParticleSystemContainer &particleSystems = *iterationParameter._particleSystems;
+
 	for (auto &particleSystemPair : particleSystems)
 	{
 		Storm::ParticleSystem &currentParticleSystem = *particleSystemPair.second;
@@ -383,12 +558,11 @@ void Storm::DFSPHSolver::execute(const Storm::IterationParameter &iterationParam
 				/*const std::vector<Storm::Vector3> &velocities = fluidParticleSystem.getVelocity();
 				const Storm::Vector3 &vi = velocities[currentPIndex];
 				fluidParticleSystem.getPressures()[currentPIndex] = vi.squaredNorm() / 2.f * particleVolume * k_kernelZero;*/
-
 			});
 		}
 	}
 
-	if (dfsphFluidConfig._useBernoulliPrinciple)
+	if (sceneDFSPHSimulationConfig._useBernoulliPrinciple)
 	{
 		for (auto &particleSystemPair : particleSystems)
 		{
@@ -440,54 +614,15 @@ void Storm::DFSPHSolver::execute(const Storm::IterationParameter &iterationParam
 			}
 		}
 	}
+}
 
-	if (!this->shouldContinue()) STORM_UNLIKELY
-	{
-		return;
-	}
-
-	// 4th : Compute k_dfsph coeff
-	const double kPressurePredictFinalCoeff = static_cast<double>(-dfsphFluidConfig._kPressurePredictedCoeff);
-	for (auto &dataFieldPair : _data)
-	{
-		this->computeDFSPHFactor(
-			iterationParameter,
-			static_cast<Storm::FluidParticleSystem &>(*particleSystems.find(dataFieldPair.first)->second), // Since data field was made from fluid particles, no need to check.
-			dataFieldPair.second,
-			kPressurePredictFinalCoeff
-		);
-	}
-
-	if (!this->shouldContinue()) STORM_UNLIKELY
-	{
-		return;
-	}
-
-	if (_useRotationFix)
-	{
-		for (auto &dataFieldPair : _data)
-		{
-			// Since data field was made from fluid particles, no need to check.
-			const Storm::FluidParticleSystem &fluidPSystem = static_cast<const Storm::FluidParticleSystem &>(*particleSystems.find(dataFieldPair.first)->second);
-			const std::vector<Storm::Vector3> &velocities = fluidPSystem.getVelocity();
-			Storm::runParallel(dataFieldPair.second, [this, &velocities](Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex)
-			{
-				currentPData._predictedVelocity = velocities[currentPIndex];
-			});
-		}
-
-		if (!this->shouldContinue()) STORM_UNLIKELY
-		{
-			return;
-		}
-	}
-
-	// 5th : Divergence solve
+void Storm::DFSPHSolver::fullDensityInvariantSolve_Internal(const Storm::IterationParameter &iterationParameter, const Storm::SceneFluidCustomDFSPHConfig &sceneDFSPHSimulationConfig)
+{
 	unsigned int iterationV;
 	float averageErrorV;
 	if (_enableDensitySolve)
 	{
-		this->divergenceSolve(iterationParameter, iterationV, averageErrorV);
+		this->divergenceSolve(iterationParameter, sceneDFSPHSimulationConfig, iterationV, averageErrorV);
 
 		if (!this->shouldContinue()) STORM_UNLIKELY
 		{
@@ -500,8 +635,9 @@ void Storm::DFSPHSolver::execute(const Storm::IterationParameter &iterationParam
 		averageErrorV = 0.f;
 	}
 
-	this->updateCurrentPredictionIter(iterationV, sceneSimulationConfig._maxPredictIteration, averageErrorV, sceneSimulationConfig._maxDensityError, 0);
+	this->updateCurrentPredictionIter(iterationV, sceneDFSPHSimulationConfig._maxPredictIteration, averageErrorV, sceneDFSPHSimulationConfig._maxDensityError, 0);
 
+	Storm::ParticleSystemContainer &particleSystems = *iterationParameter._particleSystems;
 	for (auto &particleSystemPair : particleSystems)
 	{
 		Storm::ParticleSystem &currentParticleSystem = *particleSystemPair.second;
@@ -518,14 +654,25 @@ void Storm::DFSPHSolver::execute(const Storm::IterationParameter &iterationParam
 			});
 		}
 	}
+}
 
-	if (!this->shouldContinue()) STORM_UNLIKELY
-	{
-		return;
-	}
 
-	// 7th : Compute the non pressure forces (viscosity)
-	// Compute accelerations: a(t)
+void Storm::DFSPHSolver::fullVelocityDivergenceSolve_Internal(const Storm::IterationParameter &iterationParameter, const Storm::SceneFluidCustomDFSPHConfig &sceneDFSPHSimulationConfig)
+{
+	unsigned int iteration;
+	float averageError;
+	this->pressureSolve(iterationParameter, sceneDFSPHSimulationConfig, iteration, averageError);
+
+	this->updateCurrentPredictionIter(iteration, sceneDFSPHSimulationConfig._maxPredictIteration, averageError, sceneDFSPHSimulationConfig._maxPressureError, 1);
+}
+
+
+void Storm::DFSPHSolver::computeNonPressureForces_Internal(const Storm::IterationParameter &iterationParameter, const Storm::SceneSimulationConfig &sceneSimulationConfig, const Storm::SceneFluidConfig &fluidConfig)
+{
+	const float k_kernelLengthSquared = iterationParameter._kernelLength * iterationParameter._kernelLength;
+	Storm::ParticleSystemContainer &particleSystems = *iterationParameter._particleSystems;
+	const Storm::SceneFluidCustomDFSPHConfig &dfsphFluidConfig = static_cast<const Storm::SceneFluidCustomDFSPHConfig &>(*fluidConfig._customSimulationSettings);
+
 	for (auto &particleSystemPair : particleSystems)
 	{
 		Storm::ParticleSystem &currentParticleSystem = *particleSystemPair.second;
@@ -644,134 +791,9 @@ void Storm::DFSPHSolver::execute(const Storm::IterationParameter &iterationParam
 			});
 		}
 	}
-
-	if (!this->shouldContinue()) STORM_UNLIKELY
-	{
-		return;
-	}
-
-	if (sceneSimulationConfig._midUpdateViscosity)
-	{
-		// Update Rb velocities with viscosity (experimental)
-		for (auto &particleSystemPair : particleSystems)
-		{
-			Storm::ParticleSystem &currentParticleSystem = *particleSystemPair.second;
-			if (!currentParticleSystem.isFluids())
-			{
-				Storm::RigidBodyParticleSystem &rbParticleSystem = static_cast<Storm::RigidBodyParticleSystem &>(currentParticleSystem);
-
-				const std::vector<Storm::Vector3> &viscoForces = rbParticleSystem.getTemporaryViscosityForces();
-				std::vector<Storm::Vector3> &forces = rbParticleSystem.getForces();
-
-				std::copy(std::execution::par, std::begin(viscoForces), std::end(viscoForces), std::begin(forces));
-			}
-		}
-
-		simulMgr.flushPhysics(iterationParameter._deltaTime);
-		for (auto &particleSystemPair : particleSystems)
-		{
-			Storm::ParticleSystem &currentParticleSystem = *particleSystemPair.second;
-			if (!currentParticleSystem.isFluids())
-			{
-				Storm::RigidBodyParticleSystem &rbParticleSystem = static_cast<Storm::RigidBodyParticleSystem &>(currentParticleSystem);
-
-				rbParticleSystem.updatePosition(iterationParameter._deltaTime, false);
-			}
-		}
-
-		simulMgr.refreshParticleNeighborhood();
-	}
-
-	// 8th : TODO : CFL
-	// ...
-
-	// 9th : Solve pressure
-	unsigned int iteration;
-	float averageError;
-	this->pressureSolve(iterationParameter, iteration, averageError);
-
-	this->updateCurrentPredictionIter(iteration, sceneSimulationConfig._maxPredictIteration, averageError, sceneSimulationConfig._maxDensityError, 1);
-
-	if (!this->shouldContinue()) STORM_UNLIKELY
-	{
-		return;
-	}
-
-	///////////////////////////////////////////////////
-
-	// 10th : compute final positions
-	this->transfertEndDataToSystems(particleSystems, iterationParameter, &_data, [](void* data, const unsigned int pSystemId, Storm::FluidParticleSystem &fluidParticleSystem, const Storm::IterationParameter &iterationParameter)
-	{
-		auto &dataField = reinterpret_cast<decltype(_data)*>(data)->find(pSystemId)->second;
-
-		const std::vector<float> &masses = fluidParticleSystem.getMasses();
-		std::vector<Storm::Vector3> &forces = fluidParticleSystem.getForces();
-		std::vector<Storm::Vector3> &velocities = fluidParticleSystem.getVelocity();
-		std::vector<Storm::Vector3> &positions = fluidParticleSystem.getPositions();
-		std::vector<Storm::Vector3> &tmpPressureForces = fluidParticleSystem.getTemporaryPressureForces();
-
-		std::atomic<bool> dirtyTmp = false;
-		constexpr const float minForceDirtyEpsilon = 0.0001f;
-
-		Storm::runParallel(dataField, [&](const Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex)
-		{
-			// Euler integration
-			Storm::Vector3 &currentPVelocity = velocities[currentPIndex];
-			Storm::Vector3 &currentPPositions = positions[currentPIndex];
-
-			const float currentPMass = masses[currentPIndex];
-
-			// Since all pressure computation was done on currentPData._predictedVelocity, then the difference is the velocity delta that was added from the pressure effect.
-			const Storm::Vector3 pressureVelocityAccel = (currentPData._predictedVelocity - currentPVelocity) / iterationParameter._deltaTime;
-			tmpPressureForces[currentPIndex] = pressureVelocityAccel * currentPMass;
-
-			const Storm::Vector3 totalAccel = currentPData._nonPressureAcceleration + pressureVelocityAccel;
-			forces[currentPIndex] = totalAccel * currentPMass;
-
-			currentPVelocity = currentPData._predictedVelocity;
-			currentPPositions += currentPVelocity * iterationParameter._deltaTime;
-
-			if (!dirtyTmp)
-			{
-				if (
-					std::fabs(currentPVelocity.x()) > minForceDirtyEpsilon ||
-					std::fabs(currentPVelocity.y()) > minForceDirtyEpsilon ||
-					std::fabs(currentPVelocity.z()) > minForceDirtyEpsilon
-					)
-				{
-					dirtyTmp = true;
-				}
-			}
-		});
-
-		fluidParticleSystem.setIsDirty(dirtyTmp);
-	}, !sceneSimulationConfig._midUpdateViscosity);
-
-	// 11th : flush physics state (rigid bodies)
-	simulMgr.flushPhysics(iterationParameter._deltaTime);
 }
 
-void Storm::DFSPHSolver::removeRawEndData(const unsigned int pSystemId, std::size_t toRemoveCount)
-{
-	Storm::SPHSolverUtils::removeRawEndData(pSystemId, toRemoveCount, _data);
-}
-
-void Storm::DFSPHSolver::setEnableThresholdDensity(bool enable)
-{
-	_enableThresholdDensity = enable;
-}
-
-void Storm::DFSPHSolver::setUseRotationFix(bool useFix)
-{
-	_useRotationFix = useFix;
-}
-
-void Storm::DFSPHSolver::setNeighborThresholdDensity(std::size_t neighborCount)
-{
-	_neighborThresholdDensity = neighborCount;
-}
-
-void Storm::DFSPHSolver::divergenceSolve(const Storm::IterationParameter &iterationParameter, unsigned int &outIteration, float &outAverageError)
+void Storm::DFSPHSolver::divergenceSolve(const Storm::IterationParameter &iterationParameter, const Storm::SceneFluidCustomDFSPHConfig &sceneDFSPHSimulationConfig, unsigned int &outIteration, float &outAverageError)
 {
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
@@ -789,9 +811,9 @@ void Storm::DFSPHSolver::divergenceSolve(const Storm::IterationParameter &iterat
 
 	const float invertDeltaTime = 1.f / iterationParameter._deltaTime;
 
-	const unsigned int minIter = sceneSimulationConfig._minPredictIteration;
-	const unsigned int maxIter = sceneSimulationConfig._maxPredictIteration;
-	const float etaCoeff = invertDeltaTime * sceneSimulationConfig._maxDensityError * 0.01f;
+	const unsigned int minIter = sceneDFSPHSimulationConfig._minPredictIteration;
+	const unsigned int maxIter = sceneDFSPHSimulationConfig._maxPredictIteration;
+	const float etaCoeff = invertDeltaTime * sceneDFSPHSimulationConfig._maxDensityError * 0.01f;
 
 	//////////////////////////////////////////////////////////////////////////
 	// Compute velocity of density change
@@ -956,7 +978,7 @@ void Storm::DFSPHSolver::divergenceSolve(const Storm::IterationParameter &iterat
 	}
 }
 
-void Storm::DFSPHSolver::pressureSolve(const Storm::IterationParameter &iterationParameter, unsigned int &outIteration, float &outAverageError)
+void Storm::DFSPHSolver::pressureSolve(const Storm::IterationParameter &iterationParameter, const Storm::SceneFluidCustomDFSPHConfig &sceneDFSPHSimulationConfig, unsigned int &outIteration, float &outAverageError)
 {
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
@@ -967,9 +989,9 @@ void Storm::DFSPHSolver::pressureSolve(const Storm::IterationParameter &iteratio
 
 	Storm::ParticleSystemContainer &particleSystems = *iterationParameter._particleSystems;
 
-	const unsigned int minIter = sceneSimulationConfig._minPredictIteration;
-	const unsigned int maxIter = sceneSimulationConfig._maxPredictIteration;
-	const float etaCoeff = sceneSimulationConfig._maxPressureError * 0.01f;
+	const unsigned int minIter = sceneDFSPHSimulationConfig._minPredictIteration;
+	const unsigned int maxIter = sceneDFSPHSimulationConfig._maxPredictIteration;
+	const float etaCoeff = sceneDFSPHSimulationConfig._maxPressureError * 0.01f;
 
 	const float deltaTimeSquared = iterationParameter._deltaTime * iterationParameter._deltaTime;
 	const float invDeltaTime = 1.f / iterationParameter._deltaTime;

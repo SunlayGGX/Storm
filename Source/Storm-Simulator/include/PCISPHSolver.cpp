@@ -7,6 +7,7 @@
 
 #include "SceneSimulationConfig.h"
 #include "SceneFluidConfig.h"
+#include "SceneFluidCustomPCISPHConfig.h"
 
 #include "PCISPHSolverData.h"
 
@@ -230,6 +231,7 @@ void Storm::PCISPHSolver::execute(const Storm::IterationParameter &iterationPara
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
 	const Storm::SceneSimulationConfig &sceneSimulationConfig = configMgr.getSceneSimulationConfig();
 	const Storm::SceneFluidConfig &fluidConfig = configMgr.getSceneFluidConfig();
+	const Storm::SceneFluidCustomPCISPHConfig &scenePcisphFluidConfig = static_cast<const Storm::SceneFluidCustomPCISPHConfig &>(*fluidConfig._customSimulationSettings);
 
 	Storm::SimulatorManager &simulMgr = Storm::SimulatorManager::instance();
 
@@ -237,7 +239,7 @@ void Storm::PCISPHSolver::execute(const Storm::IterationParameter &iterationPara
 	const Storm::RawKernelMethodDelegate rawKernel = Storm::retrieveRawKernelMethod(sceneSimulationConfig._kernelMode);
 	const Storm::GradKernelMethodDelegate gradKernel = Storm::retrieveGradKernelMethod(sceneSimulationConfig._kernelMode);
 
-	const float k_maxDensityError = sceneSimulationConfig._maxDensityError;
+	const float k_maxDensityError = scenePcisphFluidConfig._maxError;
 	unsigned int currentPredictionIter = 0;
 
 	const float deltaTimeSquared = iterationParameter._deltaTime * iterationParameter._deltaTime;
@@ -656,9 +658,9 @@ void Storm::PCISPHSolver::execute(const Storm::IterationParameter &iterationPara
 			return;
 		}
 
-	} while (currentPredictionIter < sceneSimulationConfig._minPredictIteration || (currentPredictionIter < sceneSimulationConfig._maxPredictIteration && averageDensityError > sceneSimulationConfig._maxDensityError));
+	} while (currentPredictionIter < scenePcisphFluidConfig._minPredictIteration || (currentPredictionIter < scenePcisphFluidConfig._maxPredictIteration && averageDensityError > scenePcisphFluidConfig._maxError));
 
-	this->updateCurrentPredictionIter(currentPredictionIter, sceneSimulationConfig._maxPredictIteration, averageDensityError, sceneSimulationConfig._maxDensityError, 0);
+	this->updateCurrentPredictionIter(currentPredictionIter, scenePcisphFluidConfig._maxPredictIteration, averageDensityError, scenePcisphFluidConfig._maxError, 0);
 	this->transfertEndDataToSystems(particleSystems, iterationParameter, &_data, [](void* data, const unsigned int pSystemId, Storm::FluidParticleSystem &fluidParticleSystem, const Storm::IterationParameter &iterationParameter)
 	{
 		auto &dataField = reinterpret_cast<decltype(_data)*>(data)->find(pSystemId)->second;

@@ -10,6 +10,8 @@
 #include "SceneRecordConfig.h"
 #include "SceneScriptConfig.h"
 #include "SceneFluidCustomDFSPHConfig.h"
+#include "SceneFluidCustomPCISPHConfig.h"
+#include "SceneFluidCustomIISPHConfig.h"
 #include "SceneCageConfig.h"
 
 #include "CollisionType.h"
@@ -59,10 +61,6 @@ Storm::SceneSimulationConfig::SceneSimulationConfig() :
 	_physicsTimeInSec{ -1.f },
 	_expectedFps{ -1.f },
 	_simulationMode{ Storm::SimulationMode::None },
-	_minPredictIteration{ 2 },
-	_maxPredictIteration{ 150 },
-	_maxDensityError{ 0.01f },
-	_maxPressureError{ 0.01f },
 	_kernelMode{ Storm::KernelMode::CubicSpline },
 	_kernelIncrementSpeedInSeconds{ -1.f },
 	_maxKernelIncrementCoeff{ 0.f },
@@ -166,13 +164,33 @@ Storm::SceneFluidUnitParticleConfig::SceneFluidUnitParticleConfig() :
 
 }
 
+Storm::SceneFluidCustomPCISPHConfig::SceneFluidCustomPCISPHConfig() :
+	_minPredictIteration{ 2 },
+	_maxPredictIteration{ 150 },
+	_maxError{ 0.01f }
+{
+
+}
+
+Storm::SceneFluidCustomIISPHConfig::SceneFluidCustomIISPHConfig() :
+	_minPredictIteration{ 2 },
+	_maxPredictIteration{ 150 },
+	_maxError{ 0.01f }
+{
+
+}
+
 Storm::SceneFluidCustomDFSPHConfig::SceneFluidCustomDFSPHConfig() :
 	_neighborThresholdDensity{ 20 },
 	_kPressurePredictedCoeff{ 1.f },
 	_enableThresholdDensity{ true },
 	_useFixRotation{ true },
 	_enableDensitySolve{ true },
-	_useBernoulliPrinciple{ false }
+	_useBernoulliPrinciple{ false },
+	_minPredictIteration{ 2 },
+	_maxPredictIteration{ 150 },
+	_maxDensityError{ 0.01f },
+	_maxPressureError{ 0.01f }
 {
 
 }

@@ -9,6 +9,8 @@ namespace Storm
 {
 	struct DFSPHSolverData;
 	struct SceneFluidCustomDFSPHConfig;
+	struct SceneSimulationConfig;
+	struct SceneFluidConfig;
 
 	class DFSPHSolverModified :
 		public Storm::ISPHBaseSolver,
@@ -26,25 +28,30 @@ namespace Storm
 		void execute(const Storm::IterationParameter &iterationParameter) final override;
 		void removeRawEndData(const unsigned int pSystemId, std::size_t toRemoveCount) final override;
 
-	private:
-		void onSubIterationStart(const Storm::ParticleSystemContainer &particleSystems);
-
 	public:
 		void setEnableThresholdDensity(bool enable);
+		void setUseRotationFix(bool useFix);
 		void setNeighborThresholdDensity(std::size_t neighborCount);
 
 	private:
-		void divergenceSolve(const Storm::IterationParameter &iterationParameter, unsigned int &outIteration, float &outAverageError);
-		void pressureSolve(const Storm::IterationParameter &iterationParameter, unsigned int &outIteration, float &outAverageError);
+		void initializeStepDensities(const Storm::IterationParameter &iterationParameter, const Storm::SceneSimulationConfig &sceneSimulationConfig, const Storm::SceneFluidCustomDFSPHConfig &sceneDFSPHSimulationConfig);
+		void fullDensityInvariantSolve_Internal(const Storm::IterationParameter &iterationParameter, const Storm::SceneFluidCustomDFSPHConfig &sceneDFSPHSimulationConfig);
+		void fullVelocityDivergenceSolve_Internal(const Storm::IterationParameter &iterationParameter, const Storm::SceneFluidCustomDFSPHConfig &sceneDFSPHSimulationConfig);
+		void computeNonPressureForces_Internal(const Storm::IterationParameter &iterationParameter, const Storm::SceneSimulationConfig &sceneSimulationConfig, const Storm::SceneFluidConfig &fluidConfig);
+
+	private:
+		void divergenceSolve(const Storm::IterationParameter &iterationParameter, const Storm::SceneFluidCustomDFSPHConfig &sceneDFSPHSimulationConfig, unsigned int &outIteration, float &outAverageError);
+		void pressureSolve(const Storm::IterationParameter &iterationParameter, const Storm::SceneFluidCustomDFSPHConfig &sceneDFSPHSimulationConfig, unsigned int &outIteration, float &outAverageError);
 		void computeDFSPHFactor(const Storm::IterationParameter &iterationParameter, Storm::FluidParticleSystem &fluidPSystem, Storm::DFSPHSolverModified::DFSPHSolverDataArray &pSystemData, const double kMultiplicationCoeff);
 		void computeDensityAdv(const Storm::IterationParameter &iterationParameter, Storm::FluidParticleSystem &fluidPSystem, const Storm::DFSPHSolverModified::DFSPHSolverDataArray* currentSystemData, Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex);
 		void computeDensityChange(const Storm::IterationParameter &iterationParameter, Storm::FluidParticleSystem &fluidPSystem, const Storm::DFSPHSolverModified::DFSPHSolverDataArray* currentSystemData, Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex);
 
 	private:
 		std::map<unsigned int, Storm::DFSPHSolverModified::DFSPHSolverDataArray> _data;
-		double _totalParticleCountDb;
-		bool _enableDivergenceSolve;
+		float _totalParticleCountFl;
+		bool _enableDensitySolve;
 		bool _enableThresholdDensity;
+		bool _useRotationFix;
 		std::size_t _neighborThresholdDensity;
 	};
 }

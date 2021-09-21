@@ -16,6 +16,8 @@
 #include "SceneScriptConfig.h"
 #include "SceneCageConfig.h"
 #include "SceneFluidCustomDFSPHConfig.h"
+#include "SceneFluidCustomIISPHConfig.h"
+#include "SceneFluidCustomPCISPHConfig.h"
 
 #include "GeneralConfig.h"
 
@@ -389,10 +391,6 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 			!Storm::XmlReader::handleXml(generalXmlElement, "CFLIteration", sceneSimulationConfig._maxCFLIteration) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "physicsTime", sceneSimulationConfig._physicsTimeInSec) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "fps", sceneSimulationConfig._expectedFps) &&
-			!Storm::XmlReader::handleXml(generalXmlElement, "minPredictIteration", sceneSimulationConfig._minPredictIteration) &&
-			!Storm::XmlReader::handleXml(generalXmlElement, "maxPredictIteration", sceneSimulationConfig._maxPredictIteration) &&
-			!Storm::XmlReader::handleXml(generalXmlElement, "maxDensityError", sceneSimulationConfig._maxDensityError) &&
-			!Storm::XmlReader::handleXml(generalXmlElement, "maxPressureError", sceneSimulationConfig._maxPressureError) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "midUpdateViscosity", sceneSimulationConfig._midUpdateViscosity) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "neighborCheckStep", sceneSimulationConfig._recomputeNeighborhoodStep) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "simulationNoWait", sceneSimulationConfig._simulationNoWait) &&
@@ -419,22 +417,6 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 	if (sceneSimulationConfig._simulationMode == Storm::SimulationMode::None)
 	{
 		Storm::throwException<Storm::Exception>("We expect to set a simulation mode, this is mandatory!");
-	}
-	else if (sceneSimulationConfig._maxDensityError <= 0.f)
-	{
-		Storm::throwException<Storm::Exception>("Max density error cannot be negative or equal to 0.f!");
-	}
-	else if (sceneSimulationConfig._maxPressureError <= 0.f)
-	{
-		Storm::throwException<Storm::Exception>("Max pressure error cannot be negative or equal to 0.f!");
-	}
-	else if (sceneSimulationConfig._minPredictIteration > sceneSimulationConfig._maxPredictIteration)
-	{
-		Storm::throwException<Storm::Exception>("Max prediction iteration (" + std::to_string(sceneSimulationConfig._maxPredictIteration) + ") should be greater or equal than min prediction iter (" + std::to_string(sceneSimulationConfig._minPredictIteration) + ")!");
-	}
-	else if (sceneSimulationConfig._maxPredictIteration == 0)
-	{
-		Storm::throwException<Storm::Exception>("Max prediction iteration shouldn't be equal to 0 (we should at least compute the iteration one time!");
 	}
 	else if (sceneSimulationConfig._physicsTimeInSec <= 0.f)
 	{
@@ -718,9 +700,15 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 		fluidConfig._customSimulationSettings = std::make_unique<Storm::SceneFluidCustomDFSPHConfig>();
 		break;
 
-	case Storm::SimulationMode::WCSPH:
 	case Storm::SimulationMode::PCISPH:
+		fluidConfig._customSimulationSettings = std::make_unique<Storm::SceneFluidCustomPCISPHConfig>();
+		break;
+
 	case Storm::SimulationMode::IISPH:
+		fluidConfig._customSimulationSettings = std::make_unique<Storm::SceneFluidCustomIISPHConfig>();
+		break;
+
+	case Storm::SimulationMode::WCSPH:
 	default:
 		fluidConfig._customSimulationSettings = std::make_unique<Storm::SceneFluidDefaultCustomConfig>();
 		break;
@@ -774,7 +762,11 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 						!Storm::XmlReader::handleXml(fluidParticleCustomSimulConfigXml, "useRotationFix", fluidDfsphConfig._useFixRotation) &&
 						!Storm::XmlReader::handleXml(fluidParticleCustomSimulConfigXml, "enableDensitySolve", fluidDfsphConfig._enableDensitySolve) &&
 						!Storm::XmlReader::handleXml(fluidParticleCustomSimulConfigXml, "useBernouilliPrinciple", fluidDfsphConfig._useBernoulliPrinciple) &&
-						!Storm::XmlReader::handleXml(fluidParticleCustomSimulConfigXml, "neighborThresholdDensity", fluidDfsphConfig._neighborThresholdDensity)
+						!Storm::XmlReader::handleXml(fluidParticleCustomSimulConfigXml, "neighborThresholdDensity", fluidDfsphConfig._neighborThresholdDensity) &&
+						!Storm::XmlReader::handleXml(fluidParticleCustomSimulConfigXml, "minPredictIteration", fluidDfsphConfig._minPredictIteration) &&
+						!Storm::XmlReader::handleXml(fluidParticleCustomSimulConfigXml, "maxPredictIteration", fluidDfsphConfig._maxPredictIteration) &&
+						!Storm::XmlReader::handleXml(fluidParticleCustomSimulConfigXml, "maxDensityError", fluidDfsphConfig._maxDensityError) &&
+						!Storm::XmlReader::handleXml(fluidParticleCustomSimulConfigXml, "maxPressureError", fluidDfsphConfig._maxPressureError)
 						)
 					{
 						LOG_ERROR << "tag '" << fluidParticleCustomSimulConfigXml.first << "' (inside Scene.Fluid.DFSPH) is unknown, therefore it cannot be handled";
@@ -788,6 +780,78 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 				else if (fluidDfsphConfig._enableThresholdDensity && fluidDfsphConfig._neighborThresholdDensity == 0)
 				{
 					Storm::throwException<Storm::Exception>("Fluid " + std::to_string(fluidConfig._fluidId) + " has enabled DFSPH density threshold but has an invalid threshold of 0!");
+				}
+				else if (fluidDfsphConfig._maxDensityError <= 0.f)
+				{
+					Storm::throwException<Storm::Exception>("Max density error cannot be negative or equal to 0.f!");
+				}
+				else if (fluidDfsphConfig._maxPressureError <= 0.f)
+				{
+					Storm::throwException<Storm::Exception>("Max pressure error cannot be negative or equal to 0.f!");
+				}
+				else if (fluidDfsphConfig._minPredictIteration > fluidDfsphConfig._maxPredictIteration)
+				{
+					Storm::throwException<Storm::Exception>("Max prediction iteration (" + std::to_string(fluidDfsphConfig._maxPredictIteration) + ") should be greater or equal than min prediction iter (" + std::to_string(fluidDfsphConfig._minPredictIteration) + ")!");
+				}
+				else if (fluidDfsphConfig._maxPredictIteration == 0)
+				{
+					Storm::throwException<Storm::Exception>("Max prediction iteration shouldn't be equal to 0 (we should at least compute the iteration one time!");
+				}
+			}
+			else if (sceneSimulationConfig._simulationMode == Storm::SimulationMode::IISPH && fluidXmlElement.first == "IISPH")
+			{
+				Storm::SceneFluidCustomIISPHConfig &fluidIisphConfig = static_cast<Storm::SceneFluidCustomIISPHConfig &>(*fluidConfig._customSimulationSettings);
+				for (const auto &fluidParticleCustomSimulConfigXml : fluidXmlElement.second)
+				{
+					if (
+						!Storm::XmlReader::handleXml(fluidParticleCustomSimulConfigXml, "minPredictIteration", fluidIisphConfig._minPredictIteration) &&
+						!Storm::XmlReader::handleXml(fluidParticleCustomSimulConfigXml, "maxPredictIteration", fluidIisphConfig._maxPredictIteration) &&
+						!Storm::XmlReader::handleXml(fluidParticleCustomSimulConfigXml, "maxError", fluidIisphConfig._maxError)
+						)
+					{
+						LOG_ERROR << "tag '" << fluidParticleCustomSimulConfigXml.first << "' (inside Scene.Fluid.IISPH) is unknown, therefore it cannot be handled";
+					}
+				}
+				
+				if (fluidIisphConfig._maxError <= 0.f)
+				{
+					Storm::throwException<Storm::Exception>("Max solver error cannot be negative or equal to 0.f!");
+				}
+				else if (fluidIisphConfig._minPredictIteration > fluidIisphConfig._maxPredictIteration)
+				{
+					Storm::throwException<Storm::Exception>("Max prediction iteration (" + std::to_string(fluidIisphConfig._maxPredictIteration) + ") should be greater or equal than min prediction iter (" + std::to_string(fluidIisphConfig._minPredictIteration) + ")!");
+				}
+				else if (fluidIisphConfig._maxPredictIteration == 0)
+				{
+					Storm::throwException<Storm::Exception>("Max prediction iteration shouldn't be equal to 0 (we should at least compute the iteration one time!");
+				}
+			}
+			else if (sceneSimulationConfig._simulationMode == Storm::SimulationMode::PCISPH && fluidXmlElement.first == "PCISPH")
+			{
+				Storm::SceneFluidCustomPCISPHConfig &fluidPcisphConfig = static_cast<Storm::SceneFluidCustomPCISPHConfig &>(*fluidConfig._customSimulationSettings);
+				for (const auto &fluidParticleCustomSimulConfigXml : fluidXmlElement.second)
+				{
+					if (
+						!Storm::XmlReader::handleXml(fluidParticleCustomSimulConfigXml, "minPredictIteration", fluidPcisphConfig._minPredictIteration) &&
+						!Storm::XmlReader::handleXml(fluidParticleCustomSimulConfigXml, "maxPredictIteration", fluidPcisphConfig._maxPredictIteration) &&
+						!Storm::XmlReader::handleXml(fluidParticleCustomSimulConfigXml, "maxError", fluidPcisphConfig._maxError)
+						)
+					{
+						LOG_ERROR << "tag '" << fluidParticleCustomSimulConfigXml.first << "' (inside Scene.Fluid.PCISPH) is unknown, therefore it cannot be handled";
+					}
+				}
+
+				if (fluidPcisphConfig._maxError <= 0.f)
+				{
+					Storm::throwException<Storm::Exception>("Max solver error cannot be negative or equal to 0.f!");
+				}
+				else if (fluidPcisphConfig._minPredictIteration > fluidPcisphConfig._maxPredictIteration)
+				{
+					Storm::throwException<Storm::Exception>("Max prediction iteration (" + std::to_string(fluidPcisphConfig._maxPredictIteration) + ") should be greater or equal than min prediction iter (" + std::to_string(fluidPcisphConfig._minPredictIteration) + ")!");
+				}
+				else if (fluidPcisphConfig._maxPredictIteration == 0)
+				{
+					Storm::throwException<Storm::Exception>("Max prediction iteration shouldn't be equal to 0 (we should at least compute the iteration one time!");
 				}
 			}
 			else if (

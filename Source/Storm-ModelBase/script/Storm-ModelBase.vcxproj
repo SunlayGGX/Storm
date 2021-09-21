@@ -66,6 +66,8 @@
     <ClInclude Include="..\include\SceneConstraintConfig.h" />
     <ClInclude Include="..\include\FluidParticleLoadDenseMode.h" />
     <ClInclude Include="..\include\SceneFluidCustomDFSPHConfig.h" />
+    <ClInclude Include="..\include\SceneFluidCustomIISPHConfig.h" />
+    <ClInclude Include="..\include\SceneFluidCustomPCISPHConfig.h" />
     <ClInclude Include="..\include\ScenePhysicsConfig.h" />
     <ClInclude Include="..\include\SceneSimulationConfig.h" />
     <ClInclude Include="..\include\GeneralWebConfig.h" />

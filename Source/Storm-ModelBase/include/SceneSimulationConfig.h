@@ -30,11 +30,6 @@ namespace Storm
 		float _physicsTimeInSec;
 		float _expectedFps;
 
-		unsigned int _maxPredictIteration;
-		unsigned int _minPredictIteration;
-		float _maxDensityError;
-		float _maxPressureError;
-
 		bool _midUpdateViscosity;
 
 		bool _startPaused;
