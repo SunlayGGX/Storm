@@ -5,6 +5,7 @@ namespace Storm
 {
 	enum class CSVMode;
 	enum class CSVFormulaType;
+	enum class Language;
 
 	class CSVWriter
 	{
@@ -19,8 +20,8 @@ namespace Storm
 		}
 
 	public:
-		CSVWriter(const std::string_view filePath);
-		CSVWriter(const std::string_view filePath, const Storm::CSVMode mode);
+		CSVWriter(const std::string_view filePath, const Storm::Language language);
+		CSVWriter(const std::string_view filePath, const Storm::Language language, const Storm::CSVMode mode);
 		~CSVWriter();
 
 	private:
@@ -55,5 +56,6 @@ namespace Storm
 		const std::string _filePath;
 		const Storm::CSVMode _mode;
 		std::map<std::string, Storm::CSVFormulaType> _formulas;
+		Storm::Language _language;
 	};
 }

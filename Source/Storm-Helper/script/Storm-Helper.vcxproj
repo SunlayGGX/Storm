@@ -21,6 +21,7 @@
     <ClCompile Include="..\include\DebuggerHelper.cpp" />
     <ClCompile Include="..\include\FastOperation.cpp" />
     <ClCompile Include="..\include\InstructionSet.cpp" />
+    <ClCompile Include="..\include\Language.cpp" />
     <ClCompile Include="..\include\Logging.cpp" />
     <ClCompile Include="..\include\LogHelper.cpp" />
     <ClCompile Include="..\include\OSHelper.cpp" />
@@ -58,6 +59,7 @@
     <ClInclude Include="..\include\ILoggerManager.h" />
     <ClInclude Include="..\include\InstructionSet.h" />
     <ClInclude Include="..\include\InvertPeriod.h" />
+    <ClInclude Include="..\include\Language.h" />
     <ClInclude Include="..\include\LeanWindowsInclude.h" />
     <ClInclude Include="..\include\Logging.h" />
     <ClInclude Include="..\include\LogHelper.h" />

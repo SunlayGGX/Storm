@@ -230,6 +230,7 @@ Unless explicited, the following settings do not accept macros.
 
 - **displayBranch (boolean, facultative)**: If true, the branch the application was built upon will be displayed as part as its title when starting the application. It is useful for when we want to compare runs built from many branches and we want to know which is which. Default is false (because it is not really graceful if I want the application to be a proper application in the future).
 - **beepOnFinish (boolean, facultative)**: If true, we’ll signal the user the end of the application with some Beep noise in case the simulation should stop automatically (i.e has an end time). Default is false.
+- **language (string, facultative)**: Specify manually the language of the operating system. This is needed for some feature like the generation of Csv data since excel keyword formulas are bound to the OS locality language. We retrieve automatically the current user OS language by default. Accepted values are "English" and "French".
 
 
 #### Debug (facultative)

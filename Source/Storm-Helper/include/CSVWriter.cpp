@@ -4,6 +4,8 @@
 #include "CSVHelpers.h"
 #include "CSVMode.h"
 
+#include "Language.h"
+
 #include <fstream>
 
 
@@ -21,7 +23,31 @@ namespace
 		file << returnChar;
 	}
 
-	template<Storm::CSVMode mode>
+	template<Storm::CSVFormulaType formula, Storm::Language language>
+	constexpr std::string_view retrieveFormulaKeyword()
+	{
+		if constexpr (formula == Storm::CSVFormulaType::Sum)
+		{
+			if constexpr (language == Storm::Language::English)
+			{
+				return "SUM";
+			}
+			else if constexpr (language == Storm::Language::French)
+			{
+				return "SOMME";
+			}
+			else
+			{
+				Storm::throwException<Storm::Exception>("Unknown language requested!");
+			}
+		}
+		else
+		{
+			Storm::throwException<Storm::Exception>("Unknown formula type requested!");
+		}
+	}
+
+	template<Storm::CSVMode mode, Storm::Language language>
 	void writeFormula(std::ofstream &file, const Storm::CSVFormulaType formula, const std::size_t valuesCount, const std::size_t position)
 	{
 		if constexpr (mode == Storm::CSVMode::Row)
@@ -30,7 +56,7 @@ namespace
 			{
 			case Storm::CSVFormulaType::Sum:
 				file <<
-					"=SOMME(A" << position << ':' <<
+					"=" << retrieveFormulaKeyword<Storm::CSVFormulaType::Sum, language>() << "(A" << position << ':' <<
 					Storm::CSVHelpers::transcriptLetterPosition(valuesCount) << position << ')'
 					;
 				return;
@@ -45,7 +71,7 @@ namespace
 			switch (formula)
 			{
 			case Storm::CSVFormulaType::Sum:
-				file << "=SOMME(" << letter << "1:" << letter << valuesCount << ')';
+				file << "=" << retrieveFormulaKeyword<Storm::CSVFormulaType::Sum, language>() << "(" << letter << "1:" << letter << valuesCount << ')';
 				return;
 
 			default:
@@ -62,7 +88,7 @@ namespace
 		Storm::throwException<Storm::Exception>("Unhandled formula type! We should have not come here!");
 	}
 
-	template<Storm::CSVMode mode, bool mismatch>
+	template<Storm::CSVMode mode, Storm::Language language, bool mismatch>
 	void write(std::map<std::string, std::vector<std::string>> &allElements, std::map<std::string, Storm::CSVFormulaType> &allFormulasRequests, const std::string &filePath, const std::size_t maxElementCount)
 	{
 		std::filesystem::create_directories(std::filesystem::path{ filePath }.parent_path());
@@ -96,7 +122,7 @@ namespace
 					if (auto found = allFormulasRequests.find(elements.first); found != std::end(allFormulasRequests))
 					{
 						// Csv cells start at index 1 (isn't 0-based index)
-						writeFormula<mode>(file, found->second, maxElementCount + 1, rowIter);
+						writeFormula<mode, language>(file, found->second, maxElementCount + 1, rowIter);
 						allFormulasRequests.erase(found);
 					}
 
@@ -155,7 +181,7 @@ namespace
 						if (auto found = allFormulasRequests.find(elements.first); found != std::end(allFormulasRequests))
 						{
 							// Csv cells start at index 1 (isn't 0-based index)
-							writeFormula<mode>(file, found->second, maxElementCount + 1, columnIter);
+							writeFormula<mode, language>(file, found->second, maxElementCount + 1, columnIter);
 							allFormulasRequests.erase(found);
 						}
 						
@@ -183,15 +209,16 @@ namespace
 }
 
 
-Storm::CSVWriter::CSVWriter(const std::string_view filePath) :
-	Storm::CSVWriter{ filePath, Storm::CSVMode::Columns }
+Storm::CSVWriter::CSVWriter(const std::string_view filePath, const Storm::Language language) :
+	Storm::CSVWriter{ filePath, language, Storm::CSVMode::Columns }
 {
 
 }
 
-Storm::CSVWriter::CSVWriter(const std::string_view filePath, const Storm::CSVMode mode) :
+Storm::CSVWriter::CSVWriter(const std::string_view filePath, const Storm::Language language, const Storm::CSVMode mode) :
 	_filePath{ Storm::toStdString(std::filesystem::path{ filePath }.replace_extension(".csv")) },
-	_mode{ mode }
+	_mode{ mode },
+	_language{ language }
 {
 	
 }
@@ -215,29 +242,34 @@ Storm::CSVWriter::~CSVWriter()
 			}
 		}
 
+#define STORM_WRITE_LANGUAGE_CASE(modeName, languageName, ...) case languageName: write<modeName, languageName, __VA_ARGS__>(_elements, _formulas, _filePath, maxElementCount)
+
+#define STORM_WRITE_MODE_CASE(modeName)														\
+	case modeName:																			\
+		if (mismatch)																		\
+		{																					\
+			switch (_language)																\
+			{																				\
+				STORM_WRITE_LANGUAGE_CASE(modeName, Storm::Language::French, true);			\
+			default:																		\
+				STORM_WRITE_LANGUAGE_CASE(modeName, Storm::Language::English, true);		\
+			}																				\
+		}																					\
+		else																				\
+		{																					\
+			switch (_language)																\
+			{																				\
+				STORM_WRITE_LANGUAGE_CASE(modeName, Storm::Language::French, false);		\
+			default:																		\
+				STORM_WRITE_LANGUAGE_CASE(modeName, Storm::Language::English, false);		\
+			}																				\
+		}																					\
+		break;
+
 		switch (_mode)
 		{
-		case Storm::CSVMode::Row:
-			if (mismatch)
-			{
-				write<Storm::CSVMode::Row, true>(_elements, _formulas, _filePath, maxElementCount);
-			}
-			else
-			{
-				write<Storm::CSVMode::Row, false>(_elements, _formulas, _filePath, maxElementCount);
-			}
-			break;
-
-		case Storm::CSVMode::Columns:
-			if (mismatch)
-			{
-				write<Storm::CSVMode::Columns, true>(_elements, _formulas, _filePath, maxElementCount);
-			}
-			else
-			{
-				write<Storm::CSVMode::Columns, false>(_elements, _formulas, _filePath, maxElementCount);
-			}
-			break;
+			STORM_WRITE_MODE_CASE(Storm::CSVMode::Row);
+			STORM_WRITE_MODE_CASE(Storm::CSVMode::Columns);
 
 		default:
 			assert(false && "Unknown CSV Mode!");

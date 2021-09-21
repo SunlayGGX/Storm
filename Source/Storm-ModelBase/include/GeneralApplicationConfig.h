@@ -3,6 +3,8 @@
 
 namespace Storm
 {
+	enum class Language;
+
 	struct GeneralApplicationConfig
 	{
 	public:
@@ -11,5 +13,6 @@ namespace Storm
 	public:
 		bool _showBranchInTitle;
 		bool _bipSoundOnFinish;
+		Storm::Language _language;
 	};
 }

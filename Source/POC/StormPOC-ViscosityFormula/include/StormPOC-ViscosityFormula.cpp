@@ -17,6 +17,8 @@
 #include "LogHelper.h"
 #include "LogLevel.h"
 
+#include "Language.h"
+
 #include <fstream>
 #include <filesystem>
 #include <string>
@@ -51,7 +53,7 @@ namespace
 	LoggerManager::LoggerManager() = default;
 	LoggerManager::~LoggerManager() = default;
 
-	void LoggerManager::log(const std::string_view & moduleName, Storm::LogLevel level, const std::string_view & function, const int line, std::string && msg)
+	void LoggerManager::log(const std::string_view &moduleName, Storm::LogLevel level, const std::string_view &function, const int line, std::string &&msg)
 	{
 		const std::string_view levelStr = Storm::parseLogLevel(level);
 
@@ -79,7 +81,7 @@ namespace
 		return Storm::LogLevel::Debug;
 	}
 
-	void LoggerManager::logToTempFile(const std::string & fileName, const std::string & msg) const
+	void LoggerManager::logToTempFile(const std::string &fileName, const std::string &msg) const
 	{
 		STORM_NOT_IMPLEMENTED;
 	}
@@ -323,9 +325,9 @@ namespace
 	class Viscosity
 	{
 	public:
-		Viscosity(const std::filesystem::path &csvFileName, ScalarValue h, KernelFunc func) :
+		Viscosity(const std::filesystem::path &csvFileName, ScalarValue h, KernelFunc func, Storm::Language language) :
 			_kernel{ h, func },
-			_csv{ csvFileName.string() },
+			_csv{ csvFileName.string(), language },
 			_monaghanStdOffset{ 0.01f * h * h }
 		{
 
@@ -368,8 +370,16 @@ namespace
 		const ScalarValue _monaghanStdOffset;
 	};
 
-	std::filesystem::path initPOC(int argc, char* argv[])
+	struct POCInitArgs
 	{
+		std::filesystem::path _currentTempPath;
+		Storm::Language _language;
+	};
+
+	POCInitArgs initPOC(int argc, char* argv[])
+	{
+		POCInitArgs args;
+
 		std::filesystem::path stormRootPath = Storm::StormPathHelper::findStormRootPath(argv[0]);
 
 #if defined(_DEBUG) || defined(DEBUG)
@@ -378,13 +388,22 @@ namespace
 		std::filesystem::current_path(stormRootPath / "bin" / "Release");
 #endif
 
-		std::filesystem::path currentTempPath = stormRootPath / "Intermediate" / "POC" / "ViscosityFormulaTest";
-		std::filesystem::create_directories(currentTempPath);
+		args._currentTempPath = stormRootPath / "Intermediate" / "POC" / "ViscosityFormulaTest";
+		std::filesystem::create_directories(args._currentTempPath);
 
-		return currentTempPath;
+		if (argc > 1)
+		{
+			args._language = Storm::parseLanguage(argv[1]);
+		}
+		else
+		{
+			args._language = Storm::retrieveDefaultOSLanguage();
+		}
+
+		return args;
 	}
 
-	void exec(const std::filesystem::path &tempFolderPathToWriteResult, const std::string &csvName, const KernelFunc func, unsigned int layer)
+	void exec(const POCInitArgs &initArgs, const std::string &csvName, const KernelFunc func, unsigned int layer)
 	{
 		constexpr ScalarValue h = 5.f;
 		constexpr ScalarValue particleRadius = h / 4.5f;
@@ -392,7 +411,7 @@ namespace
 		assert(layer < 2 && "If layer is equal or greater than 2, particle won't be in the influence radius if the kernel.");
 
 		// Radius of r=5m
-		Viscosity viscosity{ tempFolderPathToWriteResult / csvName, h, func };
+		Viscosity viscosity{ initArgs._currentTempPath / csvName, h, func, initArgs._language };
 
 		// Origin particle set at { 0.f, 0.f, 0.f }
 		Particle pi{ 0.0, 0.0, 0.0 };
@@ -422,11 +441,11 @@ namespace
 
 int main(int argc, char* argv[])
 {
-	const std::filesystem::path tempFolderPathToWriteResult = initPOC(argc, argv);
+	const POCInitArgs initArgs = initPOC(argc, argv);
 
 	for (unsigned int iter = 0; iter < 3; ++iter)
 	{
-#define STORM_POC_XMACRO_KERNEL_ELEM(Mode, Func, PrecoeffInit) exec(tempFolderPathToWriteResult, "visco" #Mode "_" + std::to_string(iter) + ".csv", KernelFunc::Mode, iter);
+#define STORM_POC_XMACRO_KERNEL_ELEM(Mode, Func, PrecoeffInit) exec(initArgs, "visco" #Mode "_" + std::to_string(iter) + ".csv", KernelFunc::Mode, iter);
 		STORM_POC_XMACRO_KERNELS
 #undef STORM_POC_XMACRO_KERNEL_ELEM
 	}

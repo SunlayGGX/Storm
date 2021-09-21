@@ -168,6 +168,9 @@
     <ClCompile Include="..\include\FastOperation.cpp">
       <Filter>Source Files\General\Algorithm</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\Language.cpp">
+      <Filter>Source Files\Application</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-HelperPCH.h">
@@ -367,6 +370,9 @@
     </ClInclude>
     <ClInclude Include="..\include\FastOperation.h">
       <Filter>Header Files\General\Algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Language.h">
+      <Filter>Header Files\Application</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
