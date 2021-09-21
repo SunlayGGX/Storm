@@ -28,7 +28,7 @@ Storm::Language Storm::retrieveDefaultOSLanguage()
 	if (int languageSz = ::GetUserDefaultLocaleName(name, LOCALE_NAME_MAX_LENGTH); languageSz > 0)
 	{
 		std::wstring_view language{ name, static_cast<std::size_t>(languageSz - 1) };
-		language = language.substr(0, language.find('-'));
+		language = language.substr(0, language.find(L'-'));
 		if (language == L"en")
 		{
 			return Storm::Language::English;
