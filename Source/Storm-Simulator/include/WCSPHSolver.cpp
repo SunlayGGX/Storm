@@ -213,9 +213,6 @@ void Storm::WCSPHSolver::execute(const Storm::IterationParameter &iterationParam
 				// Density
 				currentPDensity = particleVolume * k_kernelZero;
 
-				const Storm::ParticleNeighborhoodArray &currentPNeighborhood = neighborhoodArrays[currentPIndex];
-				const auto &currentPNeighborhoodPartitioner = neighborhoodPartitioner[currentPIndex];
-
 				Storm::FluidParticleSystemUtils::forEachNeighbor(fluidParticleSystem, currentPIndex, [&]<Storm::FluidParticleSystemUtils::NeighborType neighborType>(const Storm::NeighborParticleInfo &neighbor)
 				{
 					// Fluids

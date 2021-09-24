@@ -24,28 +24,34 @@ namespace Storm
 			const Storm::ParticleNeighborhoodArray &currentPNeighborhoods = fluidPSystem.getNeighborhoodArrays()[currentPIndex];
 			const Storm::FluidParticleSystem::ParticleNeighborhoodPartitioner &currentPPartitioner = fluidPSystem.getNeighborhoodPartitioner()[currentPIndex];
 
-			std::size_t neighborhoodIter = 0;
+			const auto* neighborPtr = currentPNeighborhoods.data();
 
 			// Fluids
-			for (; neighborhoodIter < currentPPartitioner._staticRbIndex; ++neighborhoodIter)
 			{
-				func.operator()<Storm::FluidParticleSystemUtils::NeighborType::Fluid>(currentPNeighborhoods[neighborhoodIter]);
+				const auto*const rbNeighborPtr = currentPNeighborhoods.data() + currentPPartitioner._staticRbIndex;
+				for (; neighborPtr < rbNeighborPtr; ++neighborPtr)
+				{
+					func.operator()<Storm::FluidParticleSystemUtils::NeighborType::Fluid>(*neighborPtr);
+				}
 			}
 
 			// RigidBodies
 			if (applyOnRbs)
 			{
 				// Statics
-				for (; neighborhoodIter < currentPPartitioner._dynamicRbIndex; ++neighborhoodIter)
 				{
-					func.operator()<Storm::FluidParticleSystemUtils::NeighborType::StaticRb>(currentPNeighborhoods[neighborhoodIter]);
+					const auto*const dynamicNeighborPtr = currentPNeighborhoods.data() + currentPPartitioner._dynamicRbIndex;
+					for (; neighborPtr < dynamicNeighborPtr; ++neighborPtr)
+					{
+						func.operator()<Storm::FluidParticleSystemUtils::NeighborType::StaticRb>(*neighborPtr);
+					}
 				}
 
 				// Dynamics
-				const std::size_t endNeighborhoods = currentPNeighborhoods.size();
-				for (; neighborhoodIter < endNeighborhoods; ++neighborhoodIter)
+				const auto*const endNeighborhoodsPtr = currentPNeighborhoods.data() + currentPNeighborhoods.size();
+				for (; neighborPtr < endNeighborhoodsPtr; ++neighborPtr)
 				{
-					func.operator()<Storm::FluidParticleSystemUtils::NeighborType::DynamicRb>(currentPNeighborhoods[neighborhoodIter]);
+					func.operator()<Storm::FluidParticleSystemUtils::NeighborType::DynamicRb>(*neighborPtr);
 				}
 			}
 		}
@@ -57,19 +63,22 @@ namespace Storm
 			const Storm::ParticleNeighborhoodArray &currentPNeighborhoods = fluidPSystem.getNeighborhoodArrays()[currentPIndex];
 			const Storm::FluidParticleSystem::ParticleNeighborhoodPartitioner &currentPPartitioner = fluidPSystem.getNeighborhoodPartitioner()[currentPIndex];
 
-			std::size_t neighborhoodIter = currentPPartitioner._staticRbIndex;
+			const auto* neighborPtr = currentPNeighborhoods.data();
 
 			// Statics
-			for (; neighborhoodIter < currentPPartitioner._dynamicRbIndex; ++neighborhoodIter)
 			{
-				func.operator()<Storm::FluidParticleSystemUtils::NeighborType::StaticRb>(currentPNeighborhoods[neighborhoodIter]);
+				const auto*const dynamicNeighborPtr = currentPNeighborhoods.data() + currentPPartitioner._dynamicRbIndex;
+				for (; neighborPtr < dynamicNeighborPtr; ++neighborPtr)
+				{
+					func.operator()<Storm::FluidParticleSystemUtils::NeighborType::StaticRb>(*neighborPtr);
+				}
 			}
 
 			// Dynamics
-			const std::size_t endNeighborhoods = currentPNeighborhoods.size();
-			for (; neighborhoodIter < endNeighborhoods; ++neighborhoodIter)
+			const auto*const endNeighborhoodsPtr = currentPNeighborhoods.data() + currentPNeighborhoods.size();
+			for (; neighborPtr < endNeighborhoodsPtr; ++neighborPtr)
 			{
-				func.operator()<Storm::FluidParticleSystemUtils::NeighborType::DynamicRb>(currentPNeighborhoods[neighborhoodIter]);
+				func.operator()<Storm::FluidParticleSystemUtils::NeighborType::DynamicRb>(*neighborPtr);
 			}
 		}
 	};
