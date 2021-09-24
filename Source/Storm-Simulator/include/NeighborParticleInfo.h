@@ -6,26 +6,24 @@ namespace Storm
 	class ParticleSystem;
 
 	// Just a structure to identify and retrieve the particle (neighborhood) from the data oriented architecture we took.
-	// It has some data we had when we build the neighborhood to help us not recomping them again.
+	// It has some data we had when we build the neighborhood to help us not recomputing them again.
 	struct NeighborParticleInfo
 	{
 	public:
-		NeighborParticleInfo(Storm::ParticleSystem*const containingParticleSystem, std::size_t particleIndex, const Storm::Vector3 &positionDifferenceVector, float squaredNorm, bool isFluidP) :
+		NeighborParticleInfo(Storm::ParticleSystem*const containingParticleSystem, std::size_t particleIndex, const Storm::Vector3 &positionDifferenceVector, float squaredNorm) :
 			_containingParticleSystem{ containingParticleSystem },
 			_particleIndex{ particleIndex },
 			_xij{ positionDifferenceVector },
 			_xijSquaredNorm{ squaredNorm },
-			_xijNorm{ std::sqrtf(squaredNorm) },
-			_isFluidParticle{ isFluidP }
+			_xijNorm{ std::sqrtf(squaredNorm) }
 		{}
 
-		NeighborParticleInfo(Storm::ParticleSystem*const containingParticleSystem, std::size_t particleIndex, const float xDiff, const float yDiff, const float zDiff, const float squaredNorm, const bool isFluidP) :
+		NeighborParticleInfo(Storm::ParticleSystem*const containingParticleSystem, std::size_t particleIndex, const float xDiff, const float yDiff, const float zDiff, const float squaredNorm) :
 			_containingParticleSystem{ containingParticleSystem },
 			_particleIndex{ particleIndex },
 			_xij{ xDiff, yDiff, zDiff },
 			_xijSquaredNorm{ squaredNorm },
-			_xijNorm{ std::sqrtf(squaredNorm) },
-			_isFluidParticle{ isFluidP }
+			_xijNorm{ std::sqrtf(squaredNorm) }
 		{}
 
 		~NeighborParticleInfo() = default;
@@ -36,7 +34,6 @@ namespace Storm
 		const Storm::Vector3 _xij; // currentP_position - neighborhoodP_Position
 		const float _xijSquaredNorm; // Norm squared of _positionDifferenceVector
 		const float _xijNorm; // the version non squared of _vectToParticleSquaredNorm
-		const bool _isFluidParticle;
 
 		// Making a cache of those value made an optimization of around 30% of the computational time
 		// (tested on 5 runs with and without those caches with the same settings and IISPH :

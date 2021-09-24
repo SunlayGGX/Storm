@@ -31,7 +31,9 @@
 #undef STORM_HIJACKED_TYPE
 
 #include "RunnerHelper.h"
+
 #include "SPHSolverUtils.h"
+#include "FluidParticleSystemUtils.h"
 
 
 namespace
@@ -59,24 +61,25 @@ namespace
 #undef STORM_SOLVER_NAMES_XMACRO
 
 	template<Storm::ViscosityMethod viscosityMethodOnFluid, Storm::ViscosityMethod viscosityMethodOnRigidBody>
-	Storm::Vector3 computeViscosity(const Storm::IterationParameter &iterationParameter, const Storm::SceneFluidConfig &fluidConfig, const Storm::FluidParticleSystem &fluidParticleSystem, const std::size_t currentPIndex, const float currentPMass, const Storm::Vector3 &vi, const Storm::ParticleNeighborhoodArray &currentPNeighborhood, const float currentPDensity, const float viscoPrecoeff)
+	Storm::Vector3 computeViscosity(const Storm::IterationParameter &iterationParameter, const Storm::SceneFluidConfig &fluidConfig, const Storm::FluidParticleSystem &fluidParticleSystem, const std::size_t currentPIndex, const float currentPMass, const Storm::Vector3 &vi, const float currentPDensity, const float viscoPrecoeff)
 	{
 		Storm::Vector3 totalViscosityForceOnParticle = Storm::Vector3::Zero();
 
 		const float density0 = fluidParticleSystem.getRestDensity();
 		const float restMassDensity = currentPMass * density0;
 
-		for (const Storm::NeighborParticleInfo &neighbor : currentPNeighborhood)
+		Storm::FluidParticleSystemUtils::forEachNeighbor(fluidParticleSystem, currentPIndex, [&]<Storm::FluidParticleSystemUtils::NeighborType neighborType>(const Storm::NeighborParticleInfo & neighbor)
 		{
-			const Storm::Vector3 vij = vi - neighbor._containingParticleSystem->getVelocity()[neighbor._particleIndex];
-
-			const float vijDotXij = vij.dot(neighbor._xij);
-			const float viscoGlobalCoeff = currentPMass * 10.f * vijDotXij / (neighbor._xijSquaredNorm + viscoPrecoeff);
-
-			Storm::Vector3 viscosityComponent;
-
-			if (neighbor._isFluidParticle)
+			// Fluids
+			if constexpr (neighborType == Storm::FluidParticleSystemUtils::NeighborType::Fluid)
 			{
+				const Storm::Vector3 vij = vi - neighbor._containingParticleSystem->getVelocity()[neighbor._particleIndex];
+
+				const float vijDotXij = vij.dot(neighbor._xij);
+				const float viscoGlobalCoeff = currentPMass * 10.f * vijDotXij / (neighbor._xijSquaredNorm + viscoPrecoeff);
+
+				Storm::Vector3 viscosityComponent;
+
 				const Storm::FluidParticleSystem* neighborPSystemAsFluid = static_cast<Storm::FluidParticleSystem*>(neighbor._containingParticleSystem);
 				const float neighborDensity0 = neighborPSystemAsFluid->getRestDensity();
 				const float neighborMass = neighborPSystemAsFluid->getMasses()[neighbor._particleIndex];
@@ -96,52 +99,56 @@ namespace
 				{
 					Storm::throwException<Storm::Exception>("Non implemented viscosity method to use on fluid!");
 				}
+
+				totalViscosityForceOnParticle += viscosityComponent;
 			}
+			// Rbs
 			else
 			{
 				const Storm::RigidBodyParticleSystem* neighborPSystemAsBoundary = static_cast<Storm::RigidBodyParticleSystem*>(neighbor._containingParticleSystem);
-
 				const float rbViscosity = neighborPSystemAsBoundary->getViscosity();
 
 				// Viscosity
 				if (rbViscosity > 0.f)
 				{
+					Storm::Vector3 addedForce;
+
+					const Storm::Vector3 vij = vi - neighbor._containingParticleSystem->getVelocity()[neighbor._particleIndex];
+
+					const float vijDotXij = vij.dot(neighbor._xij);
+					const float viscoGlobalCoeff = currentPMass * 10.f * vijDotXij / (neighbor._xijSquaredNorm + viscoPrecoeff);
+
 					const float neighborVolume = neighborPSystemAsBoundary->getVolumes()[neighbor._particleIndex];
 					if constexpr (viscosityMethodOnRigidBody == Storm::ViscosityMethod::Standard)
 					{
-						viscosityComponent = (viscoGlobalCoeff * rbViscosity * neighborVolume * density0 / currentPDensity) * neighbor._gradWij;
+						addedForce = (viscoGlobalCoeff * rbViscosity * neighborVolume * density0 / currentPDensity) * neighbor._gradWij;
 					}
 					else if constexpr (viscosityMethodOnRigidBody == Storm::ViscosityMethod::XSPH)
 					{
-						viscosityComponent = (-(currentPMass * rbViscosity * neighborVolume * density0 / (iterationParameter._deltaTime * currentPDensity)) * neighbor._Wij) * vij;
+						addedForce = (-(currentPMass * rbViscosity * neighborVolume * density0 / (iterationParameter._deltaTime * currentPDensity)) * neighbor._Wij) * vij;
 					}
 					else
 					{
 						Storm::throwException<Storm::Exception>("Non implemented viscosity method to use on rigid body!");
 					}
-				}
-				else
-				{
-					viscosityComponent = Storm::Vector3::Zero();
-				}
 
-				// Mirror the force on the boundary solid following the 3rd newton law
-				if (!neighborPSystemAsBoundary->isStatic())
-				{
-					Storm::Vector3 &boundaryNeighborTmpViscosityForce = neighbor._containingParticleSystem->getTemporaryViscosityForces()[neighbor._particleIndex];
+					totalViscosityForceOnParticle += addedForce;
 
-					std::lock_guard<std::mutex> lock{ neighbor._containingParticleSystem->_mutex };
-					boundaryNeighborTmpViscosityForce -= viscosityComponent;
+					if constexpr (neighborType == Storm::FluidParticleSystemUtils::NeighborType::DynamicRb)
+					{
+						Storm::Vector3 &boundaryNeighborTmpViscosityForce = neighbor._containingParticleSystem->getTemporaryViscosityForces()[neighbor._particleIndex];
+
+						std::lock_guard<std::mutex> lock{ neighbor._containingParticleSystem->_mutex };
+						boundaryNeighborTmpViscosityForce -= addedForce;
+					}
 				}
 			}
-
-			totalViscosityForceOnParticle += viscosityComponent;
-		}
+		});
 
 		return totalViscosityForceOnParticle;
 	}
 
-	Storm::Vector3 computeBernouilliPrinciple(const Storm::FluidParticleSystem &fluidParticleSystem, const std::size_t currentPIndex, const Storm::ParticleNeighborhoodArray &currentPNeighborhood)
+	Storm::Vector3 computeBernouilliPrinciple(const Storm::FluidParticleSystem &fluidParticleSystem, const std::size_t currentPIndex)
 	{
 		// Explanation :
 		// SPH computes static pressure in the fluids. But total pressure is given by the sum between static and dynamic pressure.
@@ -160,109 +167,88 @@ namespace
 		const float currentPFluidPressureCoeff = qi / (currentPDensity * currentPDensity);
 
 		const float restMassDensity = currentPMass * density0;
+
 		const float currentPRestMassDensityBoundaryPressureCoeff = restMassDensity * (currentPFluidPressureCoeff + (qi / (density0 * density0)));
 
-		for (const Storm::NeighborParticleInfo &neighbor : currentPNeighborhood)
+		Storm::FluidParticleSystemUtils::forEachNeighbor(fluidParticleSystem, currentPIndex, [&]<Storm::FluidParticleSystemUtils::NeighborType neighborType>(const Storm::NeighborParticleInfo & neighbor)
 		{
-#if true
-			if (neighbor._isFluidParticle)
+			// Fluids
+			if constexpr (neighborType == Storm::FluidParticleSystemUtils::NeighborType::Fluid)
 			{
 				const Storm::FluidParticleSystem* neighborPSystemAsFluid = static_cast<Storm::FluidParticleSystem*>(neighbor._containingParticleSystem);
-				const float neighborDensity0 = neighborPSystemAsFluid->getRestDensity();
 				const float neighborMass = neighborPSystemAsFluid->getMasses()[neighbor._particleIndex];
-				const float neighborRawDensity = neighborPSystemAsFluid->getDensities()[neighbor._particleIndex];
-				const float neighborDensity = neighborRawDensity * (density0 / neighborDensity0);
 				const float neighborVolume = neighborPSystemAsFluid->getParticleVolume();
+				const float neighborRawDensity = neighborPSystemAsFluid->getDensities()[neighbor._particleIndex];
+
+#if true
+				const float neighborDensity0 = neighborPSystemAsFluid->getRestDensity();
+				const float neighborDensity = neighborRawDensity * (density0 / neighborDensity0);
 
 				const float neighborPressureCoeff = neighborPSystemAsFluid->getPressures()[neighbor._particleIndex] / (neighborDensity * neighborDensity);
 				dynamicPressureForce += (restMassDensity * neighborVolume * (currentPFluidPressureCoeff + neighborPressureCoeff)) * neighbor._gradWij;
+#else
+
+				const Storm::Vector3 currentDynamicPressureQComponent = (particleVolume * neighborMass / neighborRawDensity * (qi - neighborPSystemAsFluid->getPressures()[neighbor._particleIndex])) * neighbor._gradWij;
+
+				dynamicPressureForce -= currentDynamicPressureQComponent;
+#endif
 			}
 			else
 			{
-				const Storm::RigidBodyParticleSystem* neighborPSystemAsBoundary = static_cast<Storm::RigidBodyParticleSystem*>(neighbor._containingParticleSystem);
-
+				Storm::RigidBodyParticleSystem* neighborPSystemAsBoundary = static_cast<Storm::RigidBodyParticleSystem*>(neighbor._containingParticleSystem);
 				const float neighborVolume = neighborPSystemAsBoundary->getVolumes()[neighbor._particleIndex];
-
+#if true
 				// Pressure
 				const Storm::Vector3 currentDynamicPressureQComponent = (currentPRestMassDensityBoundaryPressureCoeff * neighborVolume) * neighbor._gradWij;
+#else
+				const float qj = density0 * neighborPSystemAsBoundary->getVelocity()[neighbor._particleIndex].squaredNorm() / 2.f;
+
+				const Storm::Vector3 currentDynamicPressureQComponent = -(neighborVolume * neighborVolume * (qj - qi)) * neighbor._gradWij;
+#endif
+
 				dynamicPressureForce += currentDynamicPressureQComponent;
 
-				// Mirror the force on the boundary solid following the 3rd newton law
-				if (!neighborPSystemAsBoundary->isStatic())
+				if constexpr (neighborType == Storm::FluidParticleSystemUtils::NeighborType::DynamicRb)
 				{
-					Storm::Vector3 &boundaryNeighborTmpDynamicQForce = neighbor._containingParticleSystem->getTemporaryBernoulliDynamicPressureForces()[neighbor._particleIndex];
+					Storm::Vector3 &boundaryNeighborTmpDynamicQForce = neighborPSystemAsBoundary->getTemporaryBernoulliDynamicPressureForces()[currentPIndex];
 
 					std::lock_guard<std::mutex> lock{ neighbor._containingParticleSystem->_mutex };
 					boundaryNeighborTmpDynamicQForce -= currentDynamicPressureQComponent;
 				}
 			}
-#else
-
-			if (neighbor._isFluidParticle)
-			{
-				const Storm::FluidParticleSystem*const neighborPSystemAsFluid = static_cast<Storm::FluidParticleSystem*>(neighbor._containingParticleSystem);
-				const float neighborMass = neighborPSystemAsFluid->getMasses()[neighbor._particleIndex];
-				const float neighborRawDensity = neighborPSystemAsFluid->getDensities()[neighbor._particleIndex];
-				const float particleVolume = neighborPSystemAsFluid->getParticleVolume();
-
-				const Storm::Vector3 currentDynamicPressureQComponent = (particleVolume * neighborMass / neighborRawDensity * (qi - neighborPSystemAsFluid->getPressures()[neighbor._particleIndex])) * neighbor._gradWij;
-
-				dynamicPressureForce -= currentDynamicPressureQComponent;
-			}
-			else
-			{
-				const Storm::RigidBodyParticleSystem*const neighborPSystemAsBoundary = static_cast<Storm::RigidBodyParticleSystem*>(neighbor._containingParticleSystem);
-				const float neighborVolume = neighborPSystemAsBoundary->getVolumes()[neighbor._particleIndex];
-
-				const float qj = density0 * neighborPSystemAsBoundary->getVelocity()[neighbor._particleIndex].squaredNorm() / 2.f;
-
-				const Storm::Vector3 currentDynamicPressureQComponent = (neighborVolume * neighborVolume * (qj - qi)) * neighbor._gradWij;
-
-				dynamicPressureForce -= currentDynamicPressureQComponent;
-
-				// Mirror the force on the boundary solid following the 3rd newton law
-				if (!neighborPSystemAsBoundary->isStatic())
-				{
-					Storm::Vector3 &boundaryNeighborTmpDynamicQForce = neighbor._containingParticleSystem->getTemporaryBernoulliDynamicPressureForces()[neighbor._particleIndex];
-
-					std::lock_guard<std::mutex> lock{ neighbor._containingParticleSystem->_mutex };
-					boundaryNeighborTmpDynamicQForce += currentDynamicPressureQComponent;
-				}
-			}
-
-#endif
-		}
+		});
 
 		return dynamicPressureForce;
 	}
 
-	Storm::Vector3 produceNoStickConditionForces(const Storm::IterationParameter &iterationParameter, const Storm::FluidParticleSystem &fluidParticleSystem, const Storm::Vector3 &vi, const float currentPMass, const Storm::ParticleNeighborhoodArray &currentPNeighborhood)
+	Storm::Vector3 produceNoStickConditionForces(const Storm::IterationParameter &iterationParameter, const Storm::FluidParticleSystem &fluidParticleSystem, const Storm::Vector3 &vi, const std::size_t currentPIndex)
 	{
 		Storm::Vector3 result = Storm::Vector3::Zero();
 
-		for (const Storm::NeighborParticleInfo &neighbor : currentPNeighborhood)
+		const float currentPMass = fluidParticleSystem.getMasses()[currentPIndex];
+
+		Storm::FluidParticleSystemUtils::forEachRigidbodyNeighbor(fluidParticleSystem, currentPIndex, [&]<Storm::FluidParticleSystemUtils::NeighborType neighborType>(const Storm::NeighborParticleInfo & neighbor)
 		{
-			if (!neighbor._isFluidParticle)
+			STORM_STATIC_ASSERT(neighborType != Storm::FluidParticleSystemUtils::NeighborType::Fluid, "This method shouldn't be called on fluids!");
+
+			Storm::RigidBodyParticleSystem &pSystemAsRb = static_cast<Storm::RigidBodyParticleSystem &>(*neighbor._containingParticleSystem);
+
+			const Storm::Vector3 velDiff = vi - pSystemAsRb.getVelocity()[neighbor._particleIndex];
+			const Storm::Vector3 &rbPNormal = pSystemAsRb.getNormals()[neighbor._particleIndex];
+
+			// Make it the component that removes the normal component of the velocity.
+			const Storm::Vector3 addedForce = (velDiff.dot(rbPNormal) / iterationParameter._deltaTime * currentPMass) * rbPNormal;
+
+			result += addedForce;
+
+			if constexpr (neighborType == Storm::FluidParticleSystemUtils::NeighborType::DynamicRb)
 			{
-				Storm::RigidBodyParticleSystem &pSystemAsRb = static_cast<Storm::RigidBodyParticleSystem &>(*neighbor._containingParticleSystem);
+				Storm::Vector3 &boundaryNeighborTmpNoStickForce = neighbor._containingParticleSystem->getTemporaryNoStickForces()[neighbor._particleIndex];
 
-				const Storm::Vector3 velDiff = vi - pSystemAsRb.getVelocity()[neighbor._particleIndex];
-				const Storm::Vector3 &rbPNormal = pSystemAsRb.getNormals()[neighbor._particleIndex];
-
-				// Make it the component that removes the normal component of the velocity.
-				const Storm::Vector3 addedForce = -(velDiff.dot(rbPNormal) / iterationParameter._deltaTime * currentPMass) * rbPNormal;
-				result += addedForce;
-
-				// Mirror the force on the boundary solid following the 3rd newton law
-				if (!pSystemAsRb.isStatic())
-				{
-					Storm::Vector3 &boundaryNeighborTmpNoStickForce = neighbor._containingParticleSystem->getTemporaryNoStickForces()[neighbor._particleIndex];
-
-					std::lock_guard<std::mutex> lock{ neighbor._containingParticleSystem->_mutex };
-					boundaryNeighborTmpNoStickForce -= addedForce;
-				}
+				std::lock_guard<std::mutex> lock{ neighbor._containingParticleSystem->_mutex };
+				boundaryNeighborTmpNoStickForce -= addedForce;
 			}
-		}
+		});
 
 		return result;
 	}
@@ -365,24 +351,24 @@ void Storm::DFSPHSolverModified::execute(const Storm::IterationParameter & itera
 		return;
 	}
 
-	if (_useRotationFix)
-	{
-		for (auto &dataFieldPair : _data)
+		if (_useRotationFix)
 		{
-			// Since data field was made from fluid particles, no need to check.
-			const Storm::FluidParticleSystem &fluidPSystem = static_cast<const Storm::FluidParticleSystem &>(*particleSystems.find(dataFieldPair.first)->second);
-			const std::vector<Storm::Vector3> &velocities = fluidPSystem.getVelocity();
-			Storm::runParallel(dataFieldPair.second, [this, &velocities](Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex)
+			for (auto &dataFieldPair : _data)
 			{
-				currentPData._predictedVelocity = velocities[currentPIndex];
-			});
-		}
+				// Since data field was made from fluid particles, no need to check.
+				const Storm::FluidParticleSystem &fluidPSystem = static_cast<const Storm::FluidParticleSystem &>(*particleSystems.find(dataFieldPair.first)->second);
+				const std::vector<Storm::Vector3> &velocities = fluidPSystem.getVelocity();
+				Storm::runParallel(dataFieldPair.second, [this, &velocities](Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex)
+				{
+					currentPData._predictedVelocity = velocities[currentPIndex];
+				});
+			}
 
-		if (!this->shouldContinue()) STORM_UNLIKELY
-		{
-			return;
+			if (!this->shouldContinue()) STORM_UNLIKELY
+			{
+				return;
+			}
 		}
-	}
 
 	// 5th : Divergence solve
 	this->fullDensityInvariantSolve_Internal(iterationParameter, dfsphFluidConfig);
@@ -399,37 +385,37 @@ void Storm::DFSPHSolverModified::execute(const Storm::IterationParameter & itera
 		return;
 	}
 
-	if (sceneSimulationConfig._midUpdateViscosity)
-	{
-		// Update Rb velocities with viscosity (experimental)
-		for (auto &particleSystemPair : particleSystems)
+		if (sceneSimulationConfig._midUpdateViscosity)
 		{
-			Storm::ParticleSystem &currentParticleSystem = *particleSystemPair.second;
-			if (!currentParticleSystem.isFluids())
+			// Update Rb velocities with viscosity (experimental)
+			for (auto &particleSystemPair : particleSystems)
 			{
-				Storm::RigidBodyParticleSystem &rbParticleSystem = static_cast<Storm::RigidBodyParticleSystem &>(currentParticleSystem);
+				Storm::ParticleSystem &currentParticleSystem = *particleSystemPair.second;
+				if (!currentParticleSystem.isFluids())
+				{
+					Storm::RigidBodyParticleSystem &rbParticleSystem = static_cast<Storm::RigidBodyParticleSystem &>(currentParticleSystem);
 
-				const std::vector<Storm::Vector3> &viscoForces = rbParticleSystem.getTemporaryViscosityForces();
-				std::vector<Storm::Vector3> &forces = rbParticleSystem.getForces();
+					const std::vector<Storm::Vector3> &viscoForces = rbParticleSystem.getTemporaryViscosityForces();
+					std::vector<Storm::Vector3> &forces = rbParticleSystem.getForces();
 
-				std::copy(std::execution::par, std::begin(viscoForces), std::end(viscoForces), std::begin(forces));
+					std::copy(std::execution::par, std::begin(viscoForces), std::end(viscoForces), std::begin(forces));
+				}
 			}
-		}
 
-		simulMgr.flushPhysics(iterationParameter._deltaTime);
-		for (auto &particleSystemPair : particleSystems)
-		{
-			Storm::ParticleSystem &currentParticleSystem = *particleSystemPair.second;
-			if (!currentParticleSystem.isFluids())
+			simulMgr.flushPhysics(iterationParameter._deltaTime);
+			for (auto &particleSystemPair : particleSystems)
 			{
-				Storm::RigidBodyParticleSystem &rbParticleSystem = static_cast<Storm::RigidBodyParticleSystem &>(currentParticleSystem);
+				Storm::ParticleSystem &currentParticleSystem = *particleSystemPair.second;
+				if (!currentParticleSystem.isFluids())
+				{
+					Storm::RigidBodyParticleSystem &rbParticleSystem = static_cast<Storm::RigidBodyParticleSystem &>(currentParticleSystem);
 
-				rbParticleSystem.updatePosition(iterationParameter._deltaTime, false);
+					rbParticleSystem.updatePosition(iterationParameter._deltaTime, false);
+				}
 			}
-		}
 
-		simulMgr.refreshParticleNeighborhood();
-	}
+			simulMgr.refreshParticleNeighborhood();
+		}
 
 	// 8th : TODO : CFL
 	// ...
@@ -441,10 +427,10 @@ void Storm::DFSPHSolverModified::execute(const Storm::IterationParameter & itera
 		return;
 	}
 
-	///////////////////////////////////////////////////
+		///////////////////////////////////////////////////
 
-	// 10th : compute final positions
-	this->transfertEndDataToSystems(particleSystems, iterationParameter, &_data, [](void* data, const unsigned int pSystemId, Storm::FluidParticleSystem &fluidParticleSystem, const Storm::IterationParameter &iterationParameter)
+		// 10th : compute final positions
+		this->transfertEndDataToSystems(particleSystems, iterationParameter, &_data, [](void* data, const unsigned int pSystemId, Storm::FluidParticleSystem &fluidParticleSystem, const Storm::IterationParameter &iterationParameter)
 	{
 		auto &dataField = reinterpret_cast<decltype(_data)*>(data)->find(pSystemId)->second;
 
@@ -530,27 +516,27 @@ void Storm::DFSPHSolverModified::initializeStepDensities(const Storm::IterationP
 
 			const float particleVolume = fluidParticleSystem.getParticleVolume();
 			const float density0 = fluidParticleSystem.getRestDensity();
-			const std::vector<Storm::ParticleNeighborhoodArray> &neighborhoodArrays = fluidParticleSystem.getNeighborhoodArrays();
 
 			Storm::runParallel(fluidParticleSystem.getDensities(), [&](float &currentPDensity, const std::size_t currentPIndex)
 			{
 				// Density
 				currentPDensity = particleVolume * k_kernelZero;
 
-				const Storm::ParticleNeighborhoodArray &currentPNeighborhood = neighborhoodArrays[currentPIndex];
-				for (const Storm::NeighborParticleInfo &neighbor : currentPNeighborhood)
+				Storm::FluidParticleSystemUtils::forEachNeighbor(fluidParticleSystem, currentPIndex, [&currentPDensity]<Storm::FluidParticleSystemUtils::NeighborType neighborType>(const Storm::NeighborParticleInfo &neighbor)
 				{
-					float deltaDensity;
-					if (neighbor._isFluidParticle)
+					// Fluids
+					if constexpr (neighborType == Storm::FluidParticleSystemUtils::NeighborType::Fluid)
 					{
-						deltaDensity = static_cast<Storm::FluidParticleSystem*>(neighbor._containingParticleSystem)->getParticleVolume() * neighbor._Wij;
+						const float deltaDensity = static_cast<Storm::FluidParticleSystem*>(neighbor._containingParticleSystem)->getParticleVolume() * neighbor._Wij;
+						currentPDensity += deltaDensity;
 					}
+					// Rbs
 					else
 					{
-						deltaDensity = static_cast<Storm::RigidBodyParticleSystem*>(neighbor._containingParticleSystem)->getVolumes()[neighbor._particleIndex] * neighbor._Wij;
+						const float deltaDensity = static_cast<Storm::RigidBodyParticleSystem*>(neighbor._containingParticleSystem)->getVolumes()[neighbor._particleIndex] * neighbor._Wij;
+						currentPDensity += deltaDensity;
 					}
-					currentPDensity += deltaDensity;
-				}
+				});
 
 				// Volume * density is mass...
 				currentPDensity *= density0;
@@ -571,26 +557,27 @@ void Storm::DFSPHSolverModified::initializeStepDensities(const Storm::IterationP
 			{
 				Storm::FluidParticleSystem &fluidPSystem = static_cast<Storm::FluidParticleSystem &>(currentParticleSystem);
 
-				const std::vector<Storm::ParticleNeighborhoodArray> &neighborhoodArrays = fluidPSystem.getNeighborhoodArrays();
 				const std::vector<Storm::Vector3> &velocities = fluidPSystem.getVelocity();
 				const std::vector<float> &densities = fluidPSystem.getDensities();
 
-				Storm::runParallel(fluidPSystem.getPressures(), [this, &neighborhoodArrays, &velocities, &densities, density0 = fluidPSystem.getRestDensity()](float &currentPQ, const std::size_t currentPIndex)
+				Storm::runParallel(fluidPSystem.getPressures(), [this, &fluidPSystem, &velocities, &densities, density0 = fluidPSystem.getRestDensity()](float &currentPQ, const std::size_t currentPIndex)
 				{
-					const Storm::ParticleNeighborhoodArray &currentPNeighborhood = neighborhoodArrays[currentPIndex];
 					const Storm::Vector3 &vi = velocities[currentPIndex];
 
 #if false
 					currentPQ = vi.squaredNorm() / 2.f * densities[currentPIndex];
 #else
 					currentPQ = 0.f;
-					for (const Storm::NeighborParticleInfo &neighbor : currentPNeighborhood)
+
+					Storm::FluidParticleSystemUtils::forEachNeighbor(fluidPSystem, currentPIndex, [&]<Storm::FluidParticleSystemUtils::NeighborType neighborType>(const Storm::NeighborParticleInfo &neighbor)
 					{
-						const Storm::Vector3 &vj = neighbor._containingParticleSystem->getVelocity()[neighbor._particleIndex];
-						if (neighbor._isFluidParticle)
+						// Fluids
+						if constexpr (neighborType == Storm::FluidParticleSystemUtils::NeighborType::Fluid)
 						{
 							const Storm::FluidParticleSystem* neighborPSystemAsFluid = static_cast<Storm::FluidParticleSystem*>(neighbor._containingParticleSystem);
 							const float neighborMass = neighborPSystemAsFluid->getMasses()[neighbor._particleIndex];
+
+							const Storm::Vector3 &vj = neighborPSystemAsFluid->getVelocity()[neighbor._particleIndex];
 
 							const float addDynamicQ = vj.squaredNorm() / 2.f * neighborMass * neighbor._Wij;
 							currentPQ += addDynamicQ;
@@ -598,12 +585,14 @@ void Storm::DFSPHSolverModified::initializeStepDensities(const Storm::IterationP
 						else
 						{
 							const Storm::RigidBodyParticleSystem* neighborPSystemAsBoundary = static_cast<Storm::RigidBodyParticleSystem*>(neighbor._containingParticleSystem);
+
+							const Storm::Vector3 &vj = neighborPSystemAsBoundary->getVelocity()[neighbor._particleIndex];
+
 							const float neighborVolume = neighborPSystemAsBoundary->getVolumes()[neighbor._particleIndex];
 							const float addDynamicQ = vj.squaredNorm() / 2.f * neighborVolume * density0 * neighbor._Wij;
-
 							currentPQ += addDynamicQ;
 						}
-					}
+					});
 
 					if (currentPQ < 0.f)
 					{
@@ -673,6 +662,18 @@ void Storm::DFSPHSolverModified::computeNonPressureForces_Internal(const Storm::
 	Storm::ParticleSystemContainer &particleSystems = *iterationParameter._particleSystems;
 	const Storm::SceneFluidCustomDFSPHConfig &dfsphFluidConfig = static_cast<const Storm::SceneFluidCustomDFSPHConfig &>(*fluidConfig._customSimulationSettings);
 
+	for (auto &dataFieldPair : _data)
+	{
+		// Since data field was made from fluid particles, no need to check.
+		Storm::FluidParticleSystem &fluidPSystem = static_cast<Storm::FluidParticleSystem &>(*particleSystems.find(dataFieldPair.first)->second);
+		std::vector<Storm::Vector3> &velocities = fluidPSystem.getVelocity();
+
+		Storm::runParallel(dataFieldPair.second, [this, &velocities](const Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex)
+		{
+			velocities[currentPIndex] = currentPData._predictedVelocity;
+		});
+	}
+
 	for (auto &particleSystemPair : particleSystems)
 	{
 		Storm::ParticleSystem &currentParticleSystem = *particleSystemPair.second;
@@ -700,10 +701,9 @@ void Storm::DFSPHSolverModified::computeNonPressureForces_Internal(const Storm::
 				Storm::Vector3 &currentPTmpViscoForce = temporaryPViscoForces[currentPIndex];
 
 				const float currentPDensity = densities[currentPIndex];
-				const Storm::ParticleNeighborhoodArray &currentPNeighborhood = neighborhoodArrays[currentPIndex];
 
 #define STORM_COMPUTE_VISCOSITY(fluidMethod, rbMethod) \
-	computeViscosity<fluidMethod, rbMethod>(iterationParameter, fluidConfig, fluidParticleSystem, currentPIndex, currentPMass, vi, currentPNeighborhood, currentPDensity, viscoPrecoeff)
+	computeViscosity<fluidMethod, rbMethod>(iterationParameter, fluidConfig, fluidParticleSystem, currentPIndex, currentPMass, vi, currentPDensity, viscoPrecoeff)
 
 				switch (sceneSimulationConfig._fluidViscoMethod)
 				{
@@ -747,14 +747,13 @@ void Storm::DFSPHSolverModified::computeNonPressureForces_Internal(const Storm::
 				if (fluidConfig._uniformDragCoefficient > 0.f)
 				{
 					Storm::Vector3 &currentPTmpDragForceComponent = fluidParticleSystem.getTemporaryDragForces()[currentPIndex];
-
 					if (fluidConfig._applyDragEffectOnFluid)
 					{
-						currentPTmpDragForceComponent = Storm::SPHSolverUtils::computeSumDragForce<true>(iterationParameter, fluidConfig._uniformDragCoefficient, fluidParticleSystem, vi, currentPNeighborhood, currentPDensity);
+						currentPTmpDragForceComponent = Storm::SPHSolverUtils::computeSumDragForce<true>(iterationParameter, fluidConfig._uniformDragCoefficient, fluidParticleSystem, vi, currentPDensity, currentPIndex);
 					}
 					else
 					{
-						currentPTmpDragForceComponent = Storm::SPHSolverUtils::computeSumDragForce<false>(iterationParameter, fluidConfig._uniformDragCoefficient, fluidParticleSystem, vi, currentPNeighborhood, currentPDensity);
+						currentPTmpDragForceComponent = Storm::SPHSolverUtils::computeSumDragForce<false>(iterationParameter, fluidConfig._uniformDragCoefficient, fluidParticleSystem, vi, currentPDensity, currentPIndex);
 					}
 
 					currentPForce += currentPTmpDragForceComponent;
@@ -763,14 +762,14 @@ void Storm::DFSPHSolverModified::computeNonPressureForces_Internal(const Storm::
 				if (dfsphFluidConfig._useBernoulliPrinciple)
 				{
 					Storm::Vector3 &dynamicPressureForce = fluidParticleSystem.getTemporaryBernoulliDynamicPressureForces()[currentPIndex];
-					dynamicPressureForce = computeBernouilliPrinciple(fluidParticleSystem, currentPIndex, currentPNeighborhood);
+					dynamicPressureForce = computeBernouilliPrinciple(fluidParticleSystem, currentPIndex);
 					currentPForce += dynamicPressureForce;
 				}
 
 				if (sceneSimulationConfig._noStickConstraint)
 				{
 					Storm::Vector3 &currentPTmpNoStickForce = fluidParticleSystem.getTemporaryNoStickForces()[currentPIndex];
-					currentPTmpNoStickForce = produceNoStickConditionForces(iterationParameter, fluidParticleSystem, vi, currentPMass, currentPNeighborhood);
+					currentPTmpNoStickForce = produceNoStickConditionForces(iterationParameter, fluidParticleSystem, vi, currentPIndex);
 					currentPForce += currentPTmpNoStickForce;
 				}
 
@@ -850,15 +849,20 @@ void Storm::DFSPHSolverModified::divergenceSolve(const Storm::IterationParameter
 			Storm::FluidParticleSystem &fluidPSystem = static_cast<Storm::FluidParticleSystem &>(*particleSystems.find(dataFieldPair.first)->second);
 
 			const std::vector<float> &masses = fluidPSystem.getMasses();
-			const std::vector<Storm::ParticleNeighborhoodArray> &neighborhoodArrays = fluidPSystem.getNeighborhoodArrays();
 
 			const float density0 = fluidPSystem.getRestDensity();
 			avgDensityErrAtom = 0.f;
 
 			float density_error = 0.f;
 
-			auto lambda = [&]<bool computePressureForBoundary>(Storm::DFSPHSolverData & currentPData, const std::size_t currentPIndex, const float ki)
+			Storm::runParallel(dataFieldPair.second, [&](Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex)
 			{
+				//////////////////////////////////////////////////////////////////////////
+				// Evaluate rhs
+				//////////////////////////////////////////////////////////////////////////
+				const float b_i = currentPData._predictedDensity;
+				const float ki = b_i * currentPData._kCoeff;
+
 				const float currentPMass = masses[currentPIndex];
 
 				Storm::Vector3 &v_i = currentPData._predictedVelocity;
@@ -869,10 +873,11 @@ void Storm::DFSPHSolverModified::divergenceSolve(const Storm::IterationParameter
 				//////////////////////////////////////////////////////////////////////////
 				// Perform Jacobi iteration over all blocks
 				//////////////////////////////////////////////////////////////////////////	
-				const Storm::ParticleNeighborhoodArray &currentPNeighborhood = neighborhoodArrays[currentPIndex];
-				for (const Storm::NeighborParticleInfo &neighbor : currentPNeighborhood)
+
+				Storm::FluidParticleSystemUtils::forEachNeighbor(fluidPSystem, currentPIndex, [&]<Storm::FluidParticleSystemUtils::NeighborType neighborType>(const Storm::NeighborParticleInfo & neighbor)
 				{
-					if (neighbor._isFluidParticle)
+					// Fluids
+					if constexpr (neighborType == Storm::FluidParticleSystemUtils::NeighborType::Fluid)
 					{
 						if (neighbor._containingParticleSystem != lastNeighborFluidSystem)
 						{
@@ -891,7 +896,8 @@ void Storm::DFSPHSolverModified::divergenceSolve(const Storm::IterationParameter
 							v_i += (iterationParameter._deltaTime * kSum * lastNeighborFluidSystem->getParticleVolume()) * neighbor._gradWij;
 						}
 					}
-					else if constexpr (computePressureForBoundary)
+					// Rbs
+					else
 					{
 						Storm::RigidBodyParticleSystem* neighborPSystemAsBoundary = static_cast<Storm::RigidBodyParticleSystem*>(neighbor._containingParticleSystem);
 
@@ -899,8 +905,7 @@ void Storm::DFSPHSolverModified::divergenceSolve(const Storm::IterationParameter
 
 						v_i += velChange;
 
-#if true
-						if (!neighborPSystemAsBoundary->isStatic())
+						if constexpr (neighborType == Storm::FluidParticleSystemUtils::NeighborType::DynamicRb)
 						{
 							Storm::Vector3 addedPressureForce = (-currentPMass * invertDeltaTime) * velChange;
 
@@ -909,27 +914,8 @@ void Storm::DFSPHSolverModified::divergenceSolve(const Storm::IterationParameter
 							std::lock_guard<std::mutex> lock{ neighbor._containingParticleSystem->_mutex };
 							tmpPressureForce += addedPressureForce;
 						}
-#endif
 					}
-				}
-			};
-
-			Storm::runParallel(dataFieldPair.second, [&lambda](Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex)
-			{
-				//////////////////////////////////////////////////////////////////////////
-				// Evaluate rhs
-				//////////////////////////////////////////////////////////////////////////
-				const float b_i = currentPData._predictedDensity;
-				const float ki = b_i * currentPData._kCoeff;
-
-				if (std::fabs(ki) > Storm::SPHSolverPrivateLogic::k_epsilon)
-				{
-					lambda.template operator() < true > (currentPData, currentPIndex, ki);
-				}
-				else
-				{
-					lambda.template operator() < false > (currentPData, currentPIndex, ki);
-				}
+				}, std::fabs(ki) > Storm::SPHSolverPrivateLogic::k_epsilon);
 			});
 
 			//////////////////////////////////////////////////////////////////////////
@@ -1036,20 +1022,28 @@ void Storm::DFSPHSolverModified::pressureSolve(const Storm::IterationParameter &
 			float densityError = 0.f;
 
 			const std::vector<float> &masses = fluidPSystem.getMasses();
-			const std::vector<Storm::ParticleNeighborhoodArray> &neighborhoodArrays = fluidPSystem.getNeighborhoodArrays();
 
-			auto lambda = [&]<bool computePressureForBoundary>(Storm::DFSPHSolverData & currentPData, const std::size_t currentPIndex, const float ki)
+			//////////////////////////////////////////////////////////////////////////
+			// Compute pressure forces
+			//////////////////////////////////////////////////////////////////////////
+			Storm::runParallel(dataFieldPair.second, [&](Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex)
 			{
+				//////////////////////////////////////////////////////////////////////////
+				// Evaluate rhs
+				//////////////////////////////////////////////////////////////////////////
+				const float b_i = currentPData._predictedDensity - 1.f;
+				const float ki = b_i * currentPData._kCoeff;
+
 				const float currentPMass = masses[currentPIndex];
 				Storm::Vector3 &v_i = currentPData._predictedVelocity;
 
 				const Storm::DFSPHSolverModified::DFSPHSolverDataArray* neighborDataArray = &dataFieldPair.second;
 				const Storm::FluidParticleSystem* lastNeighborFluidSystem = &fluidPSystem;
 
-				const Storm::ParticleNeighborhoodArray &currentPNeighborhood = neighborhoodArrays[currentPIndex];
-				for (const Storm::NeighborParticleInfo &neighbor : currentPNeighborhood)
+				Storm::FluidParticleSystemUtils::forEachNeighbor(fluidPSystem, currentPIndex, [&]<Storm::FluidParticleSystemUtils::NeighborType neighborType>(const Storm::NeighborParticleInfo & neighbor)
 				{
-					if (neighbor._isFluidParticle)
+					// Fluids
+					if constexpr (neighborType == Storm::FluidParticleSystemUtils::NeighborType::Fluid)
 					{
 						if (neighbor._containingParticleSystem != lastNeighborFluidSystem)
 						{
@@ -1068,7 +1062,8 @@ void Storm::DFSPHSolverModified::pressureSolve(const Storm::IterationParameter &
 							v_i += (iterationParameter._deltaTime * kSum * lastNeighborFluidSystem->getParticleVolume()) * neighbor._gradWij;	// ki, kj already contain inverse density
 						}
 					}
-					else if constexpr (computePressureForBoundary)
+					// Rbs
+					else
 					{
 						Storm::RigidBodyParticleSystem* neighborPSystemAsBoundary = static_cast<Storm::RigidBodyParticleSystem*>(neighbor._containingParticleSystem);
 
@@ -1077,8 +1072,7 @@ void Storm::DFSPHSolverModified::pressureSolve(const Storm::IterationParameter &
 
 						v_i += velChange;
 
-#if true
-						if (!neighborPSystemAsBoundary->isStatic())
+						if constexpr (neighborType == Storm::FluidParticleSystemUtils::NeighborType::DynamicRb)
 						{
 							Storm::Vector3 addedPressureForce = (-currentPMass * invDeltaTime) * velChange;
 
@@ -1087,30 +1081,8 @@ void Storm::DFSPHSolverModified::pressureSolve(const Storm::IterationParameter &
 							std::lock_guard<std::mutex> lock{ neighbor._containingParticleSystem->_mutex };
 							tmpPressureForce += addedPressureForce;
 						}
-#endif
 					}
-				}
-			};
-
-			//////////////////////////////////////////////////////////////////////////
-			// Compute pressure forces
-			//////////////////////////////////////////////////////////////////////////
-			Storm::runParallel(dataFieldPair.second, [&lambda](Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex)
-			{
-				//////////////////////////////////////////////////////////////////////////
-				// Evaluate rhs
-				//////////////////////////////////////////////////////////////////////////
-				const float b_i = currentPData._predictedDensity - 1.f;
-				const float ki = b_i * currentPData._kCoeff;
-
-				if (std::fabs(ki) > Storm::SPHSolverPrivateLogic::k_epsilon)
-				{
-					lambda.template operator() < true > (currentPData, currentPIndex, ki);
-				}
-				else
-				{
-					lambda.template operator() < false > (currentPData, currentPIndex, ki);
-				}
+				}, std::fabs(ki) > Storm::SPHSolverPrivateLogic::k_epsilon);
 			});
 
 			//////////////////////////////////////////////////////////////////////////
@@ -1141,27 +1113,20 @@ void Storm::DFSPHSolverModified::pressureSolve(const Storm::IterationParameter &
 void Storm::DFSPHSolverModified::computeDFSPHFactor(const Storm::IterationParameter &iterationParameter, Storm::FluidParticleSystem &fluidPSystem, Storm::DFSPHSolverModified::DFSPHSolverDataArray &pSystemData, const double kMultiplicationCoeff)
 {
 	//////////////////////////////////////////////////////////////////////////
-	// Init parameters
-	//////////////////////////////////////////////////////////////////////////
-
-	const std::vector<Storm::ParticleNeighborhoodArray> &neighborhoodArrays = fluidPSystem.getNeighborhoodArrays();
-
-	//////////////////////////////////////////////////////////////////////////
 	// Compute pressure stiffness denominator
 	//////////////////////////////////////////////////////////////////////////
-	Storm::runParallel(pSystemData, [&iterationParameter, &neighborhoodArrays, kMultiplicationCoeff](Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex)
+	Storm::runParallel(pSystemData, [&iterationParameter, &fluidPSystem, kMultiplicationCoeff](Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex)
 	{
-		const Storm::ParticleNeighborhoodArray &currentPNeighborhood = neighborhoodArrays[currentPIndex];
-
 		//////////////////////////////////////////////////////////////////////////
 		// Compute gradient dp_i/dx_j * (1/k)  and dp_j/dx_j * (1/k)
 		//////////////////////////////////////////////////////////////////////////
 		double sum_grad_p_k = 0.f;
 		Storm::Vector3d grad_p_i = Storm::Vector3d::Zero();
 
-		for (const Storm::NeighborParticleInfo &neighbor : currentPNeighborhood)
+		Storm::FluidParticleSystemUtils::forEachNeighbor(fluidPSystem, currentPIndex, [&]<Storm::FluidParticleSystemUtils::NeighborType neighborType>(const Storm::NeighborParticleInfo & neighbor)
 		{
-			if (neighbor._isFluidParticle)
+			// Fluids
+			if constexpr (neighborType == Storm::FluidParticleSystemUtils::NeighborType::Fluid)
 			{
 				const Storm::FluidParticleSystem* neighborPSystemAsFluid = static_cast<const Storm::FluidParticleSystem*>(neighbor._containingParticleSystem);
 				const Storm::Vector3d grad_p_j = (-neighborPSystemAsFluid->getParticleVolume() * neighbor._gradWij).cast<double>();
@@ -1174,7 +1139,7 @@ void Storm::DFSPHSolverModified::computeDFSPHFactor(const Storm::IterationParame
 				const Storm::Vector3d grad_p_j = (-neighborPSystemAsBoundary->getVolumes()[neighbor._particleIndex] * neighbor._gradWij).cast<double>();
 				grad_p_i -= grad_p_j;
 			}
-		}
+		});
 
 		sum_grad_p_k += grad_p_i.squaredNorm();
 
@@ -1199,17 +1164,17 @@ void Storm::DFSPHSolverModified::computeDensityAdv(const Storm::IterationParamet
 
 	const float density0 = fluidPSystem.getRestDensity();
 
-	const Storm::ParticleNeighborhoodArray &currentPNeighborhood = fluidPSystem.getNeighborhoodArrays()[currentPIndex];
-
 	const Storm::Vector3 &vi = currentPData._predictedVelocity;
 
 	const Storm::DFSPHSolverModified::DFSPHSolverDataArray* neighborDataArray = currentSystemData;
 	const Storm::FluidParticleSystem* lastNeighborFluidSystem = &fluidPSystem;
 
 	float delta = 0.f;
-	for (const Storm::NeighborParticleInfo &neighbor : currentPNeighborhood)
+
+	Storm::FluidParticleSystemUtils::forEachNeighbor(fluidPSystem, currentPIndex, [&]<Storm::FluidParticleSystemUtils::NeighborType neighborType>(const Storm::NeighborParticleInfo & neighbor)
 	{
-		if (neighbor._isFluidParticle)
+		// Fluids
+		if constexpr (neighborType == Storm::FluidParticleSystemUtils::NeighborType::Fluid)
 		{
 			if (neighbor._containingParticleSystem != lastNeighborFluidSystem)
 			{
@@ -1222,13 +1187,14 @@ void Storm::DFSPHSolverModified::computeDensityAdv(const Storm::IterationParamet
 			const Storm::Vector3 &vj = neighborData._predictedVelocity;
 			delta += lastNeighborFluidSystem->getParticleVolume() * (vi - vj).dot(neighbor._gradWij);
 		}
+		// Rbs
 		else
 		{
 			const Storm::RigidBodyParticleSystem* neighborPSystemAsBoundary = static_cast<const Storm::RigidBodyParticleSystem*>(neighbor._containingParticleSystem);
 			const Storm::Vector3 &vj = neighborPSystemAsBoundary->getVelocity()[neighbor._particleIndex];
 			delta += neighborPSystemAsBoundary->getVolumes()[neighbor._particleIndex] * (vi - vj).dot(neighbor._gradWij);
 		}
-	}
+	});
 
 	densityAdv = density / density0 + iterationParameter._deltaTime * delta;
 	densityAdv = std::max(densityAdv, 1.f);
@@ -1249,9 +1215,10 @@ void Storm::DFSPHSolverModified::computeDensityChange(const Storm::IterationPara
 
 		const Storm::Vector3 &vi = currentPData._predictedVelocity;
 
-		for (const Storm::NeighborParticleInfo &neighbor : currentPNeighborhood)
+		Storm::FluidParticleSystemUtils::forEachNeighbor(fluidPSystem, currentPIndex, [&]<Storm::FluidParticleSystemUtils::NeighborType neighborType>(const Storm::NeighborParticleInfo & neighbor)
 		{
-			if (neighbor._isFluidParticle)
+			// Fluids
+			if constexpr (neighborType == Storm::FluidParticleSystemUtils::NeighborType::Fluid)
 			{
 				if (neighbor._containingParticleSystem != lastNeighborFluidSystem)
 				{
@@ -1264,13 +1231,14 @@ void Storm::DFSPHSolverModified::computeDensityChange(const Storm::IterationPara
 				const Storm::Vector3 &vj = neighborData._predictedVelocity;
 				densityAdv += lastNeighborFluidSystem->getParticleVolume() * (vi - vj).dot(neighbor._gradWij);
 			}
+			// Rbs
 			else
 			{
 				const Storm::RigidBodyParticleSystem* neighborPSystemAsBoundary = static_cast<const Storm::RigidBodyParticleSystem*>(neighbor._containingParticleSystem);
 				const Storm::Vector3 &vj = neighborPSystemAsBoundary->getVelocity()[neighbor._particleIndex];
 				densityAdv += neighborPSystemAsBoundary->getVolumes()[neighbor._particleIndex] * (vi - vj).dot(neighbor._gradWij);
 			}
-		}
+		});
 
 		// only correct positive divergence
 		densityAdv = std::max(densityAdv, 0.f);

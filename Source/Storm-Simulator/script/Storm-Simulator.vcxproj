@@ -53,6 +53,7 @@
     <ClInclude Include="..\include\DFSPHSolverData.h" />
     <ClInclude Include="..\include\DFSPHSolverModified.h" />
     <ClInclude Include="..\include\FluidParticleSystem.h" />
+    <ClInclude Include="..\include\FluidParticleSystemUtils.h" />
     <ClInclude Include="..\include\IBlower.h" />
     <ClInclude Include="..\include\IISPHSolver.h" />
     <ClInclude Include="..\include\IISPHSolverData.h" />

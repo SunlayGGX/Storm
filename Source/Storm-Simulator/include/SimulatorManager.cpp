@@ -147,7 +147,7 @@ namespace
 				inOutResult += "; xij=";
 				inOutResult += Storm::toStdString<PolicyType>(neighbor._xij);
 				inOutResult += "; fluid=";
-				inOutResult += Storm::toStdString<PolicyType>(neighbor._isFluidParticle);
+				inOutResult += Storm::toStdString<PolicyType>(neighbor._containingParticleSystem->isFluids());
 			}
 		}
 	};

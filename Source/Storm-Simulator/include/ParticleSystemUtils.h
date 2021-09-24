@@ -75,13 +75,13 @@ namespace Storm
 	}
 #endif
 
-	template<bool isFluid, class SearchParam>
+	template<class SearchParam>
 	__forceinline void addIfNeighbor(SearchParam &param, Storm::ParticleSystem*const particleSystem, const Storm::NeighborParticleReferral &particleReferral)
 	{
 		if (Storm::isNeighborhood(param))
 		{
 #if STORM_USE_INTRINSICS
-			Storm::NeighborParticleInfo &addedNeighbor = param._currentPNeighborhood.emplace_back(particleSystem, particleReferral._particleIndex, param._xij.m128_f32[0], param._xij.m128_f32[1], param._xij.m128_f32[2], param._normSquared, isFluid);
+			Storm::NeighborParticleInfo &addedNeighbor = param._currentPNeighborhood.emplace_back(particleSystem, particleReferral._particleIndex, param._xij.m128_f32[0], param._xij.m128_f32[1], param._xij.m128_f32[2], param._normSquared);
 #else
 			Storm::NeighborParticleInfo &addedNeighbor = param._currentPNeighborhood.emplace_back(particleSystem, particleReferral._particleIndex, param._xij, param._normSquared, isFluid);
 #endif
@@ -91,7 +91,7 @@ namespace Storm
 		}
 	}
 
-	template<bool isFluid, bool containingBundleIsSameTypeThanThisSystemP, class NeighborhoodArray, std::size_t outLinkedNeighborBundleSize, class RawKernelFunc, class GradKernelFunc>
+	template<bool containingBundleIsSameTypeThanThisSystemP, class NeighborhoodArray, std::size_t outLinkedNeighborBundleSize, class RawKernelFunc, class GradKernelFunc>
 	void searchForNeighborhood(Storm::ParticleSystem* thisParticleSystem, const Storm::ParticleSystemContainer &allParticleSystems, const float kernelLength, const float kernelLengthSquared, const unsigned int currentSystemId, NeighborhoodArray &currentPNeighborhood, const std::size_t particleIndex, const Storm::Vector3 &currentPPosition, const std::vector<Storm::NeighborParticleReferral> &containingBundleReferrals, const std::vector<Storm::NeighborParticleReferral>*(&outLinkedNeighborBundle)[outLinkedNeighborBundleSize], const RawKernelFunc &rawKernelFunc, const GradKernelFunc &gradKernelFunc)
 	{
 #if STORM_USE_INTRINSICS
@@ -135,7 +135,7 @@ namespace Storm
 					{
 						param._otherPPos = &thisSystemAllPPosition[particleReferral._particleIndex];
 
-						Storm::addIfNeighbor<isFluid>(param, thisParticleSystem, particleReferral);
+						Storm::addIfNeighbor(param, thisParticleSystem, particleReferral);
 					}
 					else
 					{
@@ -153,7 +153,7 @@ namespace Storm
 
 					param._otherPPos = &otherPSystem->getPositions()[particleReferral._particleIndex];
 
-					Storm::addIfNeighbor<isFluid>(param, otherPSystem, particleReferral);
+					Storm::addIfNeighbor(param, otherPSystem, particleReferral);
 				}
 			}
 
@@ -165,7 +165,7 @@ namespace Storm
 				{
 					param._otherPPos = &thisSystemAllPPosition[particleReferral._particleIndex];
 
-					Storm::addIfNeighbor<isFluid>(param, thisParticleSystem, particleReferral);
+					Storm::addIfNeighbor(param, thisParticleSystem, particleReferral);
 				}
 				else
 				{
@@ -177,7 +177,7 @@ namespace Storm
 
 					param._otherPPos = &otherPSystem->getPositions()[particleReferral._particleIndex];
 
-					Storm::addIfNeighbor<isFluid>(param, otherPSystem, particleReferral);
+					Storm::addIfNeighbor(param, otherPSystem, particleReferral);
 				}
 			}
 
@@ -189,7 +189,7 @@ namespace Storm
 					{
 						param._otherPPos = &thisSystemAllPPosition[particleReferral._particleIndex];
 
-						Storm::addIfNeighbor<isFluid>(param, thisParticleSystem, particleReferral);
+						Storm::addIfNeighbor(param, thisParticleSystem, particleReferral);
 					}
 					else
 					{
@@ -201,7 +201,7 @@ namespace Storm
 
 						param._otherPPos = &otherPSystem->getPositions()[particleReferral._particleIndex];
 
-						Storm::addIfNeighbor<isFluid>(param, otherPSystem, particleReferral);
+						Storm::addIfNeighbor(param, otherPSystem, particleReferral);
 					}
 				}
 			}
@@ -218,7 +218,7 @@ namespace Storm
 
 				param._otherPPos = &otherPSystem->getPositions()[particleReferral._particleIndex];
 
-				Storm::addIfNeighbor<isFluid>(param, otherPSystem, particleReferral);
+				Storm::addIfNeighbor(param, otherPSystem, particleReferral);
 			}
 
 			for (const std::vector<Storm::NeighborParticleReferral>** linkedNeighborReferralsIter = outLinkedNeighborBundle; *linkedNeighborReferralsIter != nullptr; ++linkedNeighborReferralsIter)
@@ -233,7 +233,7 @@ namespace Storm
 
 					param._otherPPos = &otherPSystem->getPositions()[particleReferral._particleIndex];
 
-					Storm::addIfNeighbor<isFluid>(param, otherPSystem, particleReferral);
+					Storm::addIfNeighbor(param, otherPSystem, particleReferral);
 				}
 			}
 		}

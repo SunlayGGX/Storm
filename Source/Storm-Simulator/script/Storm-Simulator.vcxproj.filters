@@ -266,5 +266,8 @@
     <ClInclude Include="..\include\SPHSolverPrivateLogic.h">
       <Filter>Header Files\Solver\SPHSolvers\Base</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\FluidParticleSystemUtils.h">
+      <Filter>Header Files\System</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -143,7 +143,7 @@ void Storm::RigidBodyParticleSystem::initializePreSimulation(const Storm::Partic
 
 				// Get all particles referrals that are near the current particle position.
 				spacePartitionerMgr.getAllBundles(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::StaticRigidBody);
-				Storm::searchForNeighborhood<false, true>(
+				Storm::searchForNeighborhood<true>(
 					this,
 					allParticleSystems,
 					kernelLength,
@@ -206,7 +206,7 @@ void Storm::RigidBodyParticleSystem::initializePreSimulation(const Storm::Partic
 
 				// Get all dynamic particles referrals that are near the current particle position. But we'll take only the current dynamic rb at the end...
 				spacePartitionerMgr.getAllBundles(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::DynamicRigidBody);
-				Storm::searchForNeighborhood<false, true>(
+				Storm::searchForNeighborhood<true>(
 					this,
 					allParticleSystems,
 					kernelLength,
@@ -233,7 +233,7 @@ void Storm::RigidBodyParticleSystem::initializePreSimulation(const Storm::Partic
 
 				// Get all static particles referrals that are near the current particle position.
 				spacePartitionerMgr.getAllBundles(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::StaticRigidBody);
-				Storm::searchForNeighborhood<false, false>(
+				Storm::searchForNeighborhood<false>(
 					this,
 					allParticleSystems,
 					kernelLength,
@@ -509,7 +509,7 @@ void Storm::RigidBodyParticleSystem::buildNeighborhoodOnParticleSystemUsingSpace
 
 			// Get all particles referrals that are near the current particle position. First, rigid bodies doesn't see fluids, so do not query them...
 			spacePartitionerMgr.getAllBundles(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::DynamicRigidBody);
-			Storm::searchForNeighborhood<false, false>(
+			Storm::searchForNeighborhood<false>(
 				this,
 				allParticleSystems,
 				kernelLength,
@@ -536,7 +536,7 @@ void Storm::RigidBodyParticleSystem::buildNeighborhoodOnParticleSystemUsingSpace
 
 			// Get all particles referrals that are near the current particle position. First, rigid bodies doesn't see fluids, so do not query them...
 			spacePartitionerMgr.getAllBundles(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::StaticRigidBody);
-			Storm::searchForNeighborhood<false, false>(
+			Storm::searchForNeighborhood<false>(
 				this,
 				allParticleSystems,
 				kernelLength,
@@ -552,7 +552,7 @@ void Storm::RigidBodyParticleSystem::buildNeighborhoodOnParticleSystemUsingSpace
 			);
 
 			spacePartitionerMgr.getAllBundles(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::DynamicRigidBody);
-			Storm::searchForNeighborhood<false, true>(
+			Storm::searchForNeighborhood<true>(
 				this,
 				allParticleSystems,
 				kernelLength,

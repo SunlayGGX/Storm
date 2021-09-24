@@ -56,6 +56,8 @@ Storm::FluidParticleSystem::FluidParticleSystem(unsigned int particleSystemIndex
 	_pressure.resize(particleCount);
 
 	_velocityPreTimestep.resize(particleCount);
+
+	_neighborhoodPartitioner.resize(_neighborhood.size());
 }
 
 Storm::FluidParticleSystem::FluidParticleSystem(unsigned int particleSystemIndex, std::size_t particleCount) :
@@ -63,6 +65,8 @@ Storm::FluidParticleSystem::FluidParticleSystem(unsigned int particleSystemIndex
 {
 	_densities.resize(particleCount);
 	_pressure.resize(particleCount);
+
+	_neighborhoodPartitioner.resize(_neighborhood.size());
 
 	// No need to init the other thing since this constructor is only to be used in replay mode and we won't use them.
 }
@@ -266,6 +270,12 @@ std::vector<Storm::Vector3>& Storm::FluidParticleSystem::getVelocityPreTimestep(
 	return _velocityPreTimestep;
 }
 
+
+const std::vector<Storm::FluidParticleSystem::ParticleNeighborhoodPartitioner>& Storm::FluidParticleSystem::getNeighborhoodPartitioner() const noexcept
+{
+	return _neighborhoodPartitioner;
+}
+
 const std::vector<Storm::Vector3>& Storm::FluidParticleSystem::getVelocityPreTimestep() const noexcept
 {
 	return _velocityPreTimestep;
@@ -293,10 +303,12 @@ void Storm::FluidParticleSystem::buildNeighborhoodOnParticleSystemUsingSpacePart
 		const std::vector<Storm::NeighborParticleReferral>* outLinkedNeighborBundle[Storm::k_neighborLinkedBunkCount];
 
 		const Storm::Vector3 &currentPPosition = _positions[particleIndex];
+		
+		Storm::FluidParticleSystem::ParticleNeighborhoodPartitioner &currentPNeighborhoodPartitioner = _neighborhoodPartitioner[particleIndex];
 
 		// Get all particles referrals that are near the current particle position. First, get all particles inside the fluid partitioned space...
 		spacePartitionerMgr.getAllBundles(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::Fluid);
-		Storm::searchForNeighborhood<true, true>(
+		Storm::searchForNeighborhood<true>(
 			this,
 			allParticleSystems,
 			kernelLength,
@@ -311,8 +323,9 @@ void Storm::FluidParticleSystem::buildNeighborhoodOnParticleSystemUsingSpacePart
 			gradKernel
 		);
 
+		currentPNeighborhoodPartitioner._staticRbIndex = currentPNeighborhood.size();
 		spacePartitionerMgr.getAllBundles(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::StaticRigidBody);
-		Storm::searchForNeighborhood<false, false>(
+		Storm::searchForNeighborhood<false>(
 			this,
 			allParticleSystems,
 			kernelLength,
@@ -327,8 +340,9 @@ void Storm::FluidParticleSystem::buildNeighborhoodOnParticleSystemUsingSpacePart
 			gradKernel
 		);
 
+		currentPNeighborhoodPartitioner._dynamicRbIndex = currentPNeighborhood.size();
 		spacePartitionerMgr.getAllBundles(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::DynamicRigidBody);
-		Storm::searchForNeighborhood<false, false>(
+		Storm::searchForNeighborhood<false>(
 			this,
 			allParticleSystems,
 			kernelLength,

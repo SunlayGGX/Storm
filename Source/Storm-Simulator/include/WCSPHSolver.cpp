@@ -18,6 +18,7 @@
 #include "ViscosityMethod.h"
 
 #include "RunnerHelper.h"
+#include "FluidParticleSystemUtils.h"
 
 
 namespace
@@ -30,12 +31,13 @@ namespace
 	};
 	
 	template<Storm::ViscosityMethod viscosityMethodOnFluid, Storm::ViscosityMethod viscosityMethodOnRigidBody, DragComputeMode dragComputeMode>
-	void computeAll(const Storm::IterationParameter &iterationParameter, const Storm::SceneFluidConfig &fluidConfig, const float density0, const float currentPMass, const Storm::Vector3 &vi, const Storm::ParticleNeighborhoodArray &currentPNeighborhood, const float currentPDensity, const float currentPPressure, const float viscoPrecoeff, Storm::Vector3 &outTotalPressureForceOnParticle, Storm::Vector3 &outTotalViscosityForceOnParticle, Storm::Vector3 &outTotalDragForceOnParticle)
+	void computeAll(const Storm::IterationParameter &iterationParameter, const Storm::SceneFluidConfig &fluidConfig, const Storm::FluidParticleSystem &fluidParticleSystem, const std::size_t currentPIndex, const float currentPMass, const Storm::Vector3 &vi, const float currentPDensity, const float currentPPressure, const float viscoPrecoeff, Storm::Vector3 &outTotalPressureForceOnParticle, Storm::Vector3 &outTotalViscosityForceOnParticle, Storm::Vector3 &outTotalDragForceOnParticle)
 	{
 		outTotalPressureForceOnParticle = Storm::Vector3::Zero();
 		outTotalViscosityForceOnParticle = Storm::Vector3::Zero();
 		outTotalDragForceOnParticle = Storm::Vector3::Zero();
-		
+
+		const float density0 = fluidParticleSystem.getRestDensity();
 		const float currentPFluidPressureCoeff = currentPPressure / (currentPDensity * currentPDensity);
 
 		const float restMassDensity = currentPMass * density0;
@@ -43,17 +45,19 @@ namespace
 
 		const float dragPreCoeff = -fluidConfig._uniformDragCoefficient * currentPDensity;
 
-		for (const Storm::NeighborParticleInfo &neighbor : currentPNeighborhood)
+		Storm::Vector3 pressureComponent;
+		Storm::Vector3 viscosityComponent;
+		Storm::Vector3 dragComponent;
+
+		Storm::FluidParticleSystemUtils::forEachNeighbor(fluidParticleSystem, currentPIndex, [&]<Storm::FluidParticleSystemUtils::NeighborType neighborType>(const Storm::NeighborParticleInfo &neighbor)
 		{
 			const Storm::Vector3 vij = vi - neighbor._containingParticleSystem->getVelocity()[neighbor._particleIndex];
 
 			const float vijDotXij = vij.dot(neighbor._xij);
 			const float viscoGlobalCoeff = currentPMass * 10.f * vijDotXij / (neighbor._xijSquaredNorm + viscoPrecoeff);
 
-			Storm::Vector3 pressureComponent;
-			Storm::Vector3 viscosityComponent;
-
-			if (neighbor._isFluidParticle)
+			// Fluids
+			if constexpr (neighborType == Storm::FluidParticleSystemUtils::NeighborType::Fluid)
 			{
 				const Storm::FluidParticleSystem* neighborPSystemAsFluid = static_cast<Storm::FluidParticleSystem*>(neighbor._containingParticleSystem);
 				const float neighborDensity0 = neighborPSystemAsFluid->getRestDensity();
@@ -86,6 +90,7 @@ namespace
 					outTotalDragForceOnParticle += (dragPreCoeff * neighbor._Wij * vij.norm()) * vij;
 				}
 			}
+			// Rbs
 			else
 			{
 				const Storm::RigidBodyParticleSystem* neighborPSystemAsBoundary = static_cast<Storm::RigidBodyParticleSystem*>(neighbor._containingParticleSystem);
@@ -118,7 +123,6 @@ namespace
 				}
 
 				//Drag
-				Storm::Vector3 dragComponent;
 				if constexpr (dragComputeMode != DragComputeMode::NoCompute)
 				{
 					dragComponent = (dragPreCoeff * neighbor._Wij * vij.norm()) * vij;
@@ -129,9 +133,9 @@ namespace
 					dragComponent = Storm::Vector3::Zero();
 				}
 
-				// Mirror the force on the boundary solid following the 3rd newton law
-				if (!neighborPSystemAsBoundary->isStatic())
+				if constexpr (neighborType == Storm::FluidParticleSystemUtils::NeighborType::DynamicRb)
 				{
+					// Mirror the force on the boundary solid following the 3rd newton law
 					Storm::Vector3 &boundaryNeighborForce = neighbor._containingParticleSystem->getForces()[neighbor._particleIndex];
 					Storm::Vector3 &boundaryNeighborTmpPressureForce = neighbor._containingParticleSystem->getTemporaryPressureForces()[neighbor._particleIndex];
 					Storm::Vector3 &boundaryNeighborTmpViscosityForce = neighbor._containingParticleSystem->getTemporaryViscosityForces()[neighbor._particleIndex];
@@ -163,7 +167,7 @@ namespace
 
 			outTotalPressureForceOnParticle += pressureComponent;
 			outTotalViscosityForceOnParticle += viscosityComponent;
-		}
+		});
 	}
 }
 
@@ -210,19 +214,23 @@ void Storm::WCSPHSolver::execute(const Storm::IterationParameter &iterationParam
 				currentPDensity = particleVolume * k_kernelZero;
 
 				const Storm::ParticleNeighborhoodArray &currentPNeighborhood = neighborhoodArrays[currentPIndex];
-				for (const Storm::NeighborParticleInfo &neighbor : currentPNeighborhood)
+				const auto &currentPNeighborhoodPartitioner = neighborhoodPartitioner[currentPIndex];
+
+				Storm::FluidParticleSystemUtils::forEachNeighbor(fluidParticleSystem, currentPIndex, [&]<Storm::FluidParticleSystemUtils::NeighborType neighborType>(const Storm::NeighborParticleInfo &neighbor)
 				{
-					float deltaDensity;
-					if (neighbor._isFluidParticle)
+					// Fluids
+					if constexpr (neighborType == Storm::FluidParticleSystemUtils::NeighborType::Fluid)
 					{
-						deltaDensity = static_cast<Storm::FluidParticleSystem*>(neighbor._containingParticleSystem)->getParticleVolume() * neighbor._Wij;
+						const float deltaDensity = static_cast<Storm::FluidParticleSystem*>(neighbor._containingParticleSystem)->getParticleVolume() * neighbor._Wij;
+						currentPDensity += deltaDensity;
 					}
+					// Rbs
 					else
 					{
-						deltaDensity = static_cast<Storm::RigidBodyParticleSystem*>(neighbor._containingParticleSystem)->getVolumes()[neighbor._particleIndex] * neighbor._Wij;
+						const float deltaDensity = static_cast<Storm::RigidBodyParticleSystem*>(neighbor._containingParticleSystem)->getVolumes()[neighbor._particleIndex] * neighbor._Wij;
+						currentPDensity += deltaDensity;
 					}
-					currentPDensity += deltaDensity;
-				}
+				});
 
 				// Volume * density is mass...
 				currentPDensity *= density0;
@@ -262,7 +270,6 @@ void Storm::WCSPHSolver::execute(const Storm::IterationParameter &iterationParam
 
 			const float density0 = fluidParticleSystem.getRestDensity();
 			const float density0Squared = density0 * density0;
-			const std::vector<Storm::ParticleNeighborhoodArray> &neighborhoodArrays = currentParticleSystem.getNeighborhoodArrays();
 			std::vector<float> &masses = fluidParticleSystem.getMasses();
 			const std::vector<float> &densities = fluidParticleSystem.getDensities();
 			const std::vector<float> &pressures = fluidParticleSystem.getPressures();
@@ -280,15 +287,15 @@ void Storm::WCSPHSolver::execute(const Storm::IterationParameter &iterationParam
 #define STORM_COMPUTE_ALL(fluidMethod, rbMethod)	\
 	if (fluidConfig._uniformDragCoefficient == 0.f)	\
 	{												\
-		computeAll<fluidMethod, rbMethod, DragComputeMode::NoCompute>(iterationParameter, fluidConfig, fluidParticleSystem.getRestDensity(), masses[currentPIndex], velocities[currentPIndex], neighborhoodArrays[currentPIndex], densities[currentPIndex], pressures[currentPIndex], k_kernelLengthSquared00_1, currentPTmpPressureForce, currentPTmpViscoForce, currentPTmpDragForce);					  \
+		computeAll<fluidMethod, rbMethod, DragComputeMode::NoCompute>(iterationParameter, fluidConfig, fluidParticleSystem, currentPIndex, masses[currentPIndex], velocities[currentPIndex], densities[currentPIndex], pressures[currentPIndex], k_kernelLengthSquared00_1, currentPTmpPressureForce, currentPTmpViscoForce, currentPTmpDragForce);					  \
 	}												\
 	else if (fluidConfig._applyDragEffectOnFluid)	\
 	{												\
-		computeAll<fluidMethod, rbMethod, DragComputeMode::ForAll>(iterationParameter, fluidConfig, fluidParticleSystem.getRestDensity(), masses[currentPIndex], velocities[currentPIndex], neighborhoodArrays[currentPIndex], densities[currentPIndex], pressures[currentPIndex], k_kernelLengthSquared00_1, currentPTmpPressureForce, currentPTmpViscoForce, currentPTmpDragForce);					  \
+		computeAll<fluidMethod, rbMethod, DragComputeMode::ForAll>(iterationParameter, fluidConfig, fluidParticleSystem, currentPIndex, masses[currentPIndex], velocities[currentPIndex], densities[currentPIndex], pressures[currentPIndex], k_kernelLengthSquared00_1, currentPTmpPressureForce, currentPTmpViscoForce, currentPTmpDragForce);					  \
 	}												\
 	else											\
 	{												\
-		computeAll<fluidMethod, rbMethod, DragComputeMode::RbOnly>(iterationParameter, fluidConfig, fluidParticleSystem.getRestDensity(), masses[currentPIndex], velocities[currentPIndex], neighborhoodArrays[currentPIndex], densities[currentPIndex], pressures[currentPIndex], k_kernelLengthSquared00_1, currentPTmpPressureForce, currentPTmpViscoForce, currentPTmpDragForce);					  \
+		computeAll<fluidMethod, rbMethod, DragComputeMode::RbOnly>(iterationParameter, fluidConfig, fluidParticleSystem, currentPIndex, masses[currentPIndex], velocities[currentPIndex], densities[currentPIndex], pressures[currentPIndex], k_kernelLengthSquared00_1, currentPTmpPressureForce, currentPTmpViscoForce, currentPTmpDragForce);					  \
 	}
 
 

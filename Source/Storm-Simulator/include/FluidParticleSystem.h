@@ -8,6 +8,13 @@ namespace Storm
 	class FluidParticleSystem : public Storm::ParticleSystem
 	{
 	public:
+		struct ParticleNeighborhoodPartitioner
+		{
+			std::size_t _staticRbIndex;
+			std::size_t _dynamicRbIndex;
+		};
+
+	public:
 		FluidParticleSystem(unsigned int particleSystemIndex, std::vector<Storm::Vector3> &&worldPositions);
 		FluidParticleSystem(unsigned int particleSystemIndex, std::size_t particleCount);
 
@@ -53,6 +60,8 @@ namespace Storm
 		std::vector<Storm::Vector3>& getVelocityPreTimestep() noexcept;
 		const std::vector<Storm::Vector3>& getVelocityPreTimestep() const noexcept;
 
+		const std::vector<Storm::FluidParticleSystem::ParticleNeighborhoodPartitioner>& getNeighborhoodPartitioner() const noexcept;
+
 		void setGravityEnabled(bool enabled) noexcept;
 
 	public:
@@ -74,6 +83,9 @@ namespace Storm
 		std::vector<float> _pressure;
 
 		std::vector<Storm::Vector3> _velocityPreTimestep;
+
+		// To optimize neighborhood processing
+		std::vector<Storm::FluidParticleSystem::ParticleNeighborhoodPartitioner> _neighborhoodPartitioner;
 
 		float _restDensity;
 		float _particleVolume;

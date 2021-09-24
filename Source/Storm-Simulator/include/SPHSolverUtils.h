@@ -1,6 +1,7 @@
 #pragma once
 
 #include "NonInstanciable.h"
+#include "FluidParticleSystemUtils.h"
 
 
 namespace Storm
@@ -33,39 +34,36 @@ namespace Storm
 		}
 
 		template<bool applyDragOnFluid>
-		static Storm::Vector3 computeSumDragForce(const Storm::IterationParameter &iterationParameter, const float uniformDragCoeff, const Storm::FluidParticleSystem &fluidParticleSystem, const Storm::Vector3 &vi, const Storm::ParticleNeighborhoodArray &currentPNeighborhood, const float currentPDensity)
+		static Storm::Vector3 computeSumDragForce(const Storm::IterationParameter &iterationParameter, const float uniformDragCoeff, const Storm::FluidParticleSystem &fluidParticleSystem, const Storm::Vector3 &vi, const float currentPDensity, const std::size_t currentPIndex)
 		{
 			Storm::Vector3 totalDragForce = Storm::Vector3::Zero();
 			Storm::Vector3 currentDragTmpComponent = Storm::Vector3::Zero();
 
 			const float dragPreCoeff = uniformDragCoeff * currentPDensity;
 
-			for (const Storm::NeighborParticleInfo &neighbor : currentPNeighborhood)
+			auto dragForceComputeLambda = [&]<Storm::FluidParticleSystemUtils::NeighborType neighborType>(const Storm::NeighborParticleInfo &neighbor)
 			{
-				if (neighbor._isFluidParticle)
-				{
-					if constexpr (applyDragOnFluid)
-					{
-						computeDragForce(vi, neighbor._containingParticleSystem->getVelocity()[neighbor._particleIndex], dragPreCoeff, neighbor._Wij, currentDragTmpComponent);
-						totalDragForce += currentDragTmpComponent;
-					}
-				}
-				else
-				{
-					computeDragForce(vi, neighbor._containingParticleSystem->getVelocity()[neighbor._particleIndex], dragPreCoeff, neighbor._Wij, currentDragTmpComponent);
-					totalDragForce += currentDragTmpComponent;
+				computeDragForce(vi, neighbor._containingParticleSystem->getVelocity()[neighbor._particleIndex], dragPreCoeff, neighbor._Wij, currentDragTmpComponent);
+				totalDragForce += currentDragTmpComponent;
 
-					Storm::RigidBodyParticleSystem* neighborPSystemAsBoundary = static_cast<Storm::RigidBodyParticleSystem*>(neighbor._containingParticleSystem);
-
+				if constexpr (neighborType == Storm::FluidParticleSystemUtils::NeighborType::DynamicRb)
+				{
 					// Mirror the force on the boundary solid following the 3rd newton law
-					if (!neighborPSystemAsBoundary->isStatic())
-					{
-						Storm::Vector3 &boundaryNeighborTmpDragForce = neighborPSystemAsBoundary->getTemporaryDragForces()[neighbor._particleIndex];
+					Storm::RigidBodyParticleSystem* neighborPSystemAsBoundary = static_cast<Storm::RigidBodyParticleSystem*>(neighbor._containingParticleSystem);
+					Storm::Vector3 &boundaryNeighborTmpDragForce = neighborPSystemAsBoundary->getTemporaryDragForces()[neighbor._particleIndex];
 
-						std::lock_guard<std::mutex> lock{ neighbor._containingParticleSystem->_mutex };
-						boundaryNeighborTmpDragForce -= currentDragTmpComponent;
-					}
+					std::lock_guard<std::mutex> lock{ neighbor._containingParticleSystem->_mutex };
+					boundaryNeighborTmpDragForce -= currentDragTmpComponent;
 				}
+			};
+
+			if constexpr (applyDragOnFluid)
+			{
+				Storm::FluidParticleSystemUtils::forEachNeighbor(fluidParticleSystem, currentPIndex, dragForceComputeLambda);
+			}
+			else
+			{
+				Storm::FluidParticleSystemUtils::forEachRigidbodyNeighbor(fluidParticleSystem, currentPIndex, dragForceComputeLambda);
 			}
 
 			return totalDragForce;
