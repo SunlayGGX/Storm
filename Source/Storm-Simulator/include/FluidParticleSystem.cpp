@@ -303,8 +303,6 @@ void Storm::FluidParticleSystem::buildNeighborhoodOnParticleSystemUsingSpacePart
 		const std::vector<Storm::NeighborParticleReferral>* outLinkedNeighborBundle[Storm::k_neighborLinkedBunkCount];
 
 		const Storm::Vector3 &currentPPosition = _positions[particleIndex];
-		
-		Storm::FluidParticleSystem::ParticleNeighborhoodPartitioner &currentPNeighborhoodPartitioner = _neighborhoodPartitioner[particleIndex];
 
 		// Get all particles referrals that are near the current particle position. First, get all particles inside the fluid partitioned space...
 		spacePartitionerMgr.getAllBundles(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::Fluid);
@@ -323,7 +321,7 @@ void Storm::FluidParticleSystem::buildNeighborhoodOnParticleSystemUsingSpacePart
 			gradKernel
 		);
 
-		currentPNeighborhoodPartitioner._staticRbIndex = currentPNeighborhood.size();
+		const std::size_t staticJunctionIter = currentPNeighborhood.size();
 		spacePartitionerMgr.getAllBundles(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::StaticRigidBody);
 		Storm::searchForNeighborhood<false>(
 			this,
@@ -340,7 +338,7 @@ void Storm::FluidParticleSystem::buildNeighborhoodOnParticleSystemUsingSpacePart
 			gradKernel
 		);
 
-		currentPNeighborhoodPartitioner._dynamicRbIndex = currentPNeighborhood.size();
+		const std::size_t dynamicJunctionIter = currentPNeighborhood.size();
 		spacePartitionerMgr.getAllBundles(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::DynamicRigidBody);
 		Storm::searchForNeighborhood<false>(
 			this,
@@ -356,6 +354,12 @@ void Storm::FluidParticleSystem::buildNeighborhoodOnParticleSystemUsingSpacePart
 			rawKernel,
 			gradKernel
 		);
+
+		Storm::FluidParticleSystem::ParticleNeighborhoodPartitioner &currentPNeighborhoodPartitioner = _neighborhoodPartitioner[particleIndex];
+		currentPNeighborhoodPartitioner._fluidIter = std::begin(currentPNeighborhood);
+		currentPNeighborhoodPartitioner._staticRbIter = currentPNeighborhoodPartitioner._fluidIter + staticJunctionIter;
+		currentPNeighborhoodPartitioner._dynamicRbIter = currentPNeighborhoodPartitioner._fluidIter + dynamicJunctionIter;
+		currentPNeighborhoodPartitioner._endIter = std::end(currentPNeighborhood);
 	});
 }
 

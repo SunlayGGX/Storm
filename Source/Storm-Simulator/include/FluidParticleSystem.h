@@ -10,8 +10,10 @@ namespace Storm
 	public:
 		struct ParticleNeighborhoodPartitioner
 		{
-			std::size_t _staticRbIndex;
-			std::size_t _dynamicRbIndex;
+			Storm::ParticleNeighborhoodArray::const_iterator _fluidIter;
+			Storm::ParticleNeighborhoodArray::const_iterator _staticRbIter;
+			Storm::ParticleNeighborhoodArray::const_iterator _dynamicRbIter;
+			Storm::ParticleNeighborhoodArray::const_iterator _endIter;
 		};
 
 	public:

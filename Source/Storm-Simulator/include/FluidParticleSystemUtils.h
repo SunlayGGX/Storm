@@ -21,37 +21,29 @@ namespace Storm
 		template<class Func>
 		static void forEachNeighbor(const Storm::FluidParticleSystem &fluidPSystem, const std::size_t currentPIndex, const Func &func, const bool applyOnRbs = true)
 		{
-			const Storm::ParticleNeighborhoodArray &currentPNeighborhoods = fluidPSystem.getNeighborhoodArrays()[currentPIndex];
 			const Storm::FluidParticleSystem::ParticleNeighborhoodPartitioner &currentPPartitioner = fluidPSystem.getNeighborhoodPartitioner()[currentPIndex];
 
-			const auto* neighborPtr = currentPNeighborhoods.data();
+			auto neighborIter = currentPPartitioner._fluidIter;
 
 			// Fluids
+			for (; neighborIter != currentPPartitioner._staticRbIter; ++neighborIter)
 			{
-				const auto*const rbNeighborPtr = currentPNeighborhoods.data() + currentPPartitioner._staticRbIndex;
-				for (; neighborPtr < rbNeighborPtr; ++neighborPtr)
-				{
-					func.operator()<Storm::FluidParticleSystemUtils::NeighborType::Fluid>(*neighborPtr);
-				}
+				func.operator()<Storm::FluidParticleSystemUtils::NeighborType::Fluid>(*neighborIter);
 			}
 
 			// RigidBodies
 			if (applyOnRbs)
 			{
 				// Statics
+				for (; neighborIter != currentPPartitioner._dynamicRbIter; ++neighborIter)
 				{
-					const auto*const dynamicNeighborPtr = currentPNeighborhoods.data() + currentPPartitioner._dynamicRbIndex;
-					for (; neighborPtr < dynamicNeighborPtr; ++neighborPtr)
-					{
-						func.operator()<Storm::FluidParticleSystemUtils::NeighborType::StaticRb>(*neighborPtr);
-					}
+					func.operator()<Storm::FluidParticleSystemUtils::NeighborType::StaticRb>(*neighborIter);
 				}
 
 				// Dynamics
-				const auto*const endNeighborhoodsPtr = currentPNeighborhoods.data() + currentPNeighborhoods.size();
-				for (; neighborPtr < endNeighborhoodsPtr; ++neighborPtr)
+				for (; neighborIter != currentPPartitioner._endIter; ++neighborIter)
 				{
-					func.operator()<Storm::FluidParticleSystemUtils::NeighborType::DynamicRb>(*neighborPtr);
+					func.operator()<Storm::FluidParticleSystemUtils::NeighborType::DynamicRb>(*neighborIter);
 				}
 			}
 		}
@@ -60,25 +52,20 @@ namespace Storm
 		template<class Func>
 		static void forEachRigidbodyNeighbor(const Storm::FluidParticleSystem &fluidPSystem, const std::size_t currentPIndex, const Func &func)
 		{
-			const Storm::ParticleNeighborhoodArray &currentPNeighborhoods = fluidPSystem.getNeighborhoodArrays()[currentPIndex];
 			const Storm::FluidParticleSystem::ParticleNeighborhoodPartitioner &currentPPartitioner = fluidPSystem.getNeighborhoodPartitioner()[currentPIndex];
 
-			const auto* neighborPtr = currentPNeighborhoods.data();
+			auto neighborIter = currentPPartitioner._staticRbIter;
 
 			// Statics
+			for (; neighborIter < currentPPartitioner._dynamicRbIter; ++neighborIter)
 			{
-				const auto*const dynamicNeighborPtr = currentPNeighborhoods.data() + currentPPartitioner._dynamicRbIndex;
-				for (; neighborPtr < dynamicNeighborPtr; ++neighborPtr)
-				{
-					func.operator()<Storm::FluidParticleSystemUtils::NeighborType::StaticRb>(*neighborPtr);
-				}
+				func.operator()<Storm::FluidParticleSystemUtils::NeighborType::StaticRb>(*neighborIter);
 			}
 
 			// Dynamics
-			const auto*const endNeighborhoodsPtr = currentPNeighborhoods.data() + currentPNeighborhoods.size();
-			for (; neighborPtr < endNeighborhoodsPtr; ++neighborPtr)
+			for (; neighborIter < currentPPartitioner._endIter; ++neighborIter)
 			{
-				func.operator()<Storm::FluidParticleSystemUtils::NeighborType::DynamicRb>(*neighborPtr);
+				func.operator()<Storm::FluidParticleSystemUtils::NeighborType::DynamicRb>(*neighborIter);
 			}
 		}
 	};

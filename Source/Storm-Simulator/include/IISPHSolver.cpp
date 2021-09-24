@@ -214,35 +214,28 @@ void Storm::IISPHSolver::execute(const Storm::IterationParameter &iterationParam
 
 			const float particleVolume = fluidParticleSystem.getParticleVolume();
 			const float density0 = fluidParticleSystem.getRestDensity();
-			const std::vector<Storm::ParticleNeighborhoodArray> &neighborhoodArrays = fluidParticleSystem.getNeighborhoodArrays();
 			std::vector<float> &masses = fluidParticleSystem.getMasses();
-			const auto &neighborhoodPartitioner = fluidParticleSystem.getNeighborhoodPartitioner();
 
 			Storm::runParallel(fluidParticleSystem.getDensities(), [&](float &currentPDensity, const std::size_t currentPIndex)
 			{
 				// Density
 				currentPDensity = particleVolume * k_kernelZero;
 
-				const Storm::ParticleNeighborhoodArray &currentPNeighborhood = neighborhoodArrays[currentPIndex];
-				const auto &currentPNeighborhoodPartitioner = neighborhoodPartitioner[currentPIndex];
-
-				// Fluids
-				std::size_t iter = 0;
-				for (; iter < currentPNeighborhoodPartitioner._staticRbIndex; ++iter)
+				Storm::FluidParticleSystemUtils::forEachNeighbor(fluidParticleSystem, currentPIndex, [&currentPDensity]<Storm::FluidParticleSystemUtils::NeighborType neighborType>(const Storm::NeighborParticleInfo &neighbor)
 				{
-					const Storm::NeighborParticleInfo &neighbor = currentPNeighborhood[iter];
-					const float deltaDensity = static_cast<Storm::FluidParticleSystem*>(neighbor._containingParticleSystem)->getParticleVolume() * neighbor._Wij;
-					currentPDensity += deltaDensity;
-				}
-
-				// Rbs
-				const std::size_t endNeighborhood = currentPNeighborhood.size();
-				for (; iter < endNeighborhood; ++iter)
-				{
-					const Storm::NeighborParticleInfo &neighbor = currentPNeighborhood[iter];
-					const float deltaDensity = static_cast<Storm::RigidBodyParticleSystem*>(neighbor._containingParticleSystem)->getVolumes()[neighbor._particleIndex] * neighbor._Wij;
-					currentPDensity += deltaDensity;
-				}
+					// Fluids
+					if constexpr (neighborType == Storm::FluidParticleSystemUtils::NeighborType::Fluid)
+					{
+						const float deltaDensity = static_cast<Storm::FluidParticleSystem*>(neighbor._containingParticleSystem)->getParticleVolume() * neighbor._Wij;
+						currentPDensity += deltaDensity;
+					}
+					// Rbs
+					else
+					{
+						const float deltaDensity = static_cast<Storm::RigidBodyParticleSystem*>(neighbor._containingParticleSystem)->getVolumes()[neighbor._particleIndex] * neighbor._Wij;
+						currentPDensity += deltaDensity;
+					}
+				});
 
 				// Volume * density is mass...
 				currentPDensity *= density0;
