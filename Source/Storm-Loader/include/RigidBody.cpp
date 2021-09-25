@@ -76,6 +76,9 @@ namespace
 			suffix += "int";
 		}
 
+		suffix += "_nc";
+		suffix += Storm::toStdString<Storm::NumericPolicy>(rbSceneConfig._enforceNormalsCoherency);
+
 		boost::algorithm::replace_all(suffix, ".", "_");
 
 		const std::filesystem::path meshFileName = std::filesystem::path{ meshPath.stem().string() + suffix }.replace_extension(".cPartRigidBody");
@@ -86,6 +89,37 @@ namespace
 	float computeLayerDistance(const float particleRadius)
 	{
 		return particleRadius * 2.f;
+	}
+
+	// We make the assumption the center of the rigid body bound to the passed normals is the origin of the domain { 0, 0, 0 }
+	template<bool toTheOutside>
+	void enforceNormalsCoherency(Storm::SamplingResult &inOutSamplingResult)
+	{
+		const std::vector<Storm::Vector3> &positions = inOutSamplingResult._position;
+		std::vector<Storm::Vector3> &normals = inOutSamplingResult._normals;
+
+		const std::size_t normalsCount = normals.size();
+		for (std::size_t iter = 0; iter < normalsCount; ++iter)
+		{
+			const Storm::Vector3 &currentPPosition = positions[iter];
+			Storm::Vector3 &currentPNormal = normals[iter];
+			const float scalar = currentPPosition.dot(currentPNormal);
+
+			bool normalWrongWay;
+			if constexpr (toTheOutside)
+			{
+				normalWrongWay = scalar < 0.f;
+			}
+			else
+			{
+				normalWrongWay = scalar > 0.f;
+			}
+
+			if (normalWrongWay)
+			{
+				currentPNormal = -currentPNormal;
+			}
+		}
 	}
 }
 
@@ -494,6 +528,18 @@ void Storm::RigidBody::load(const Storm::SceneRigidBodyConfig &rbSceneConfig)
 			if (samplingResult._position.size() != samplingResult._normals.size())
 			{
 				Storm::throwException<Storm::Exception>("Mismatch between normals and positions. Something went wrong while sampling the rigidbody " + std::to_string(_rbId) + " !");
+			}
+
+			if (rbSceneConfig._enforceNormalsCoherency)
+			{
+				if (rbSceneConfig._isWall)
+				{
+					enforceNormalsCoherency<false>(samplingResult);
+				}
+				else
+				{
+					enforceNormalsCoherency<true>(samplingResult);
+				}
 			}
 
 			/* Cache writing */

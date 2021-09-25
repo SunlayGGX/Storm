@@ -121,7 +121,8 @@ Storm::SceneRigidBodyConfig::SceneRigidBodyConfig() :
 	_layerCount{ 1 },
 	_layerGenerationMode{ Storm::LayeringGenerationTechnique::Scaling },
 	_volumeComputationTechnique{ Storm::VolumeComputationTechnique::None },
-	_geometry{ Storm::GeometryType::None }
+	_geometry{ Storm::GeometryType::None },
+	_enforceNormalsCoherency{ true }
 {
 
 }
