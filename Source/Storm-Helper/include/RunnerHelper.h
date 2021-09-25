@@ -12,7 +12,7 @@ namespace Storm
 		return &item - &container[0];
 	}
 
-	template<bool useOpenMPWhenEnabled = true, class ContainerType, class Func>
+	template<bool useOpenMPWhenEnabled = false, class ContainerType, class Func>
 	auto runParallel(ContainerType &container, Func &func)
 		-> decltype(func(*std::begin(container), Storm::retrieveItemIndex(container, *std::begin(container))), void())
 	{
@@ -21,7 +21,8 @@ namespace Storm
 		{
 			const int64_t containerSz = static_cast<int64_t>(container.size());
 
-#			pragma omp parallel for
+#			pragma omp parallel default(shared)
+#			pragma omp for schedule(static)
 			for (int64_t iter = 0; iter < containerSz; ++iter)
 			{
 				func(container[iter], iter);
