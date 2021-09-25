@@ -24,12 +24,22 @@
 
 namespace
 {
-	template<class NeighborhoodArray>
+	template<bool considerOnlyCurrent = false, class NeighborhoodArray>
 	float computeParticleDeltaVolume(const NeighborhoodArray &currentPNeighborhood, const Storm::RigidBodyParticleSystem*const currentRbPSystem, float delta)
 	{
 		for (const Storm::NeighborParticleInfo &boundaryNeighbor : currentPNeighborhood)
 		{
-			delta += boundaryNeighbor._Wij;
+			if constexpr (considerOnlyCurrent)
+			{
+				if (boundaryNeighbor._containingParticleSystem == currentRbPSystem)
+				{
+					delta += boundaryNeighbor._Wij;
+				}
+			}
+			else
+			{
+				delta += boundaryNeighbor._Wij;
+			}
 		}
 
 		return delta;
@@ -223,16 +233,12 @@ void Storm::RigidBodyParticleSystem::initializePreSimulation(const Storm::Partic
 
 				// Compute the volume with the current dynamic rigid body (since the internal particle to the dynamic rigid body are statics from each other, or we won't call it rigid...).
 				float initialDeltaVolume = currentKernelZero;
-				for (const Storm::NeighborParticleInfo &boundaryNeighbor : currentPStaticNeighborhood)
-				{
-					if (boundaryNeighbor._containingParticleSystem == this)
-					{
-						initialDeltaVolume += boundaryNeighbor._Wij;
-					}
-				}
+
+				float &currentPVolume = _volumes[particleIndex];
+				currentPVolume = 1.f / computeParticleDeltaVolume<true>(currentPStaticNeighborhood, this, initialDeltaVolume);
 
 				// Get all static particles referrals that are near the current particle position.
-				spacePartitionerMgr.getAllBundles(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::StaticRigidBody);
+				/*spacePartitionerMgr.getAllBundles(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::StaticRigidBody);
 				Storm::searchForNeighborhood<false, false>(
 					this,
 					allParticleSystems,
@@ -246,11 +252,11 @@ void Storm::RigidBodyParticleSystem::initializePreSimulation(const Storm::Partic
 					outLinkedNeighborBundle,
 					rawKernelMeth,
 					gradKernel
-				);
+				);*/
 
 				// Initialize the static volume.
-				float &currentPVolume = _volumes[particleIndex];
-				currentPVolume = 1.f / computeParticleDeltaVolume(currentPStaticNeighborhood, this, initialDeltaVolume);
+				//float &currentPVolume = _volumes[particleIndex];
+				//currentPVolume = 1.f / computeParticleDeltaVolume(currentPStaticNeighborhood, this, initialDeltaVolume);
 			});
 		}
 	}
