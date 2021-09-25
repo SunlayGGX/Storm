@@ -673,6 +673,18 @@ void Storm::DFSPHSolver::computeNonPressureForces_Internal(const Storm::Iteratio
 	Storm::ParticleSystemContainer &particleSystems = *iterationParameter._particleSystems;
 	const Storm::SceneFluidCustomDFSPHConfig &dfsphFluidConfig = static_cast<const Storm::SceneFluidCustomDFSPHConfig &>(*fluidConfig._customSimulationSettings);
 
+	for (auto &dataFieldPair : _data)
+	{
+		// Since data field was made from fluid particles, no need to check.
+		Storm::FluidParticleSystem &fluidPSystem = static_cast<Storm::FluidParticleSystem &>(*particleSystems.find(dataFieldPair.first)->second);
+		std::vector<Storm::Vector3> &velocities = fluidPSystem.getVelocity();
+
+		Storm::runParallel(dataFieldPair.second, [this, &velocities](const Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex)
+		{
+			velocities[currentPIndex] = currentPData._predictedVelocity;
+		});
+	}
+
 	for (auto &particleSystemPair : particleSystems)
 	{
 		Storm::ParticleSystem &currentParticleSystem = *particleSystemPair.second;
