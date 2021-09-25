@@ -398,6 +398,7 @@ Storm::SamplingResult Storm::PoissonDiskSampler::process_v2(const int kTryConst,
 	const std::size_t allSampleCount = allPossibleSamples._position.size();
 
 	Storm::SamplingResult result;
+	result._position.reserve(allSampleCount);
 	result._normals.reserve(allSampleCount);
 
 	for (std::size_t iter = 0; iter < allSampleCount; ++iter)
@@ -405,11 +406,12 @@ Storm::SamplingResult Storm::PoissonDiskSampler::process_v2(const int kTryConst,
 		const Storm::Vector3 &maybeSample = allPossibleSamples._position[iter];
 		if (distanceSearchProxy->addDataIfDistanceUnique(maybeSample, minDistSquared, containingBundlePtr, neighborBundlePtr))
 		{
+			result._position.emplace_back(allPossibleSamples._position[iter]);
 			result._normals.emplace_back(allPossibleSamples._normals[iter]);
 		}
 	}
 
-	result._position = distanceSearchProxy->getCompleteData();
+	result._position.shrink_to_fit();
 	result._normals.shrink_to_fit();
 
 	return result;
