@@ -18,9 +18,18 @@ namespace
 	}
 }
 
+Storm::BaseLoggerObject::BaseLoggerObject() :
+	_stream{ retrieveThreadLocalStream() }
+{
+
+}
+
+void Storm::BaseLoggerObject::clearStream()
+{
+	_stream.str(std::string{});
+}
 
 Storm::LoggerObject::LoggerObject(const std::string_view &moduleName, const Storm::LogLevel level, const std::string_view &function, const int line) :
-	_stream{ retrieveThreadLocalStream() },
 	_module{ moduleName },
 	_level{ level },
 	_function{ function },
@@ -35,6 +44,19 @@ Storm::LoggerObject::~LoggerObject()
 	if (_enabled)
 	{
 		retrieveLoggerManager().log(_module, _level, _function, _line, _stream.str());
-		_stream.str(std::string{});
+		Storm::BaseLoggerObject::clearStream();
 	}
+}
+
+
+Storm::FileLoggerObject::FileLoggerObject(std::string filename) :
+	_filename{ std::move(filename) }
+{
+
+}
+
+Storm::FileLoggerObject::~FileLoggerObject()
+{
+	retrieveLoggerManager().logToTempFile(_filename, _stream.str());
+	Storm::BaseLoggerObject::clearStream();
 }

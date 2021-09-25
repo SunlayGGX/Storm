@@ -6,13 +6,13 @@
 
 namespace Storm
 {
-	class LoggerObject
+	// No virtual destructor because the object is intended to be derived privately!
+	class BaseLoggerObject
 	{
-	public:
-		LoggerObject(const std::string_view &moduleName, Storm::LogLevel level, const std::string_view &function, const int line);
-		~LoggerObject();
+	protected:
+		BaseLoggerObject();
 
-	private:
+	protected:
 		// Customs for types that would be declared later
 		template<class ToWriteType>
 		static auto addToStream(std::stringstream &stream, const ToWriteType &toWrite, int)
@@ -33,25 +33,55 @@ namespace Storm
 			return stream << Storm::toStdString(toWrite);
 		}
 
+	protected:
+		void clearStream();
+
+	protected:
+		std::stringstream &_stream;
+	};
+
+	class LoggerObject : private Storm::BaseLoggerObject
+	{
+	public:
+		LoggerObject(const std::string_view &moduleName, Storm::LogLevel level, const std::string_view &function, const int line);
+		~LoggerObject();
+
 	public:
 		template<class ToWriteType>
 		LoggerObject& operator<<(const ToWriteType &toWrite)
 		{
 			if (_enabled)
 			{
-				addToStream(_stream, toWrite, 0);
+				Storm::BaseLoggerObject::addToStream(_stream, toWrite, 0);
 			}
 
 			return *this;
 		}
 
 	private:
+		const bool _enabled;
 		const std::string_view _module;
 		const Storm::LogLevel _level;
 		const std::string_view _function;
 		const int _line;
-		const bool _enabled;
-		std::stringstream &_stream;
+	};
+
+	class FileLoggerObject : private Storm::BaseLoggerObject
+	{
+	public:
+		FileLoggerObject(std::string filename);
+		~FileLoggerObject();
+
+	public:
+		template<class ToWriteType>
+		FileLoggerObject& operator<<(const ToWriteType &toWrite)
+		{
+			Storm::BaseLoggerObject::addToStream(_stream, toWrite, 0);
+			return *this;
+		}
+
+	private:
+		const std::string _filename;
 	};
 }
 
@@ -66,3 +96,5 @@ namespace Storm
 #define LOG_ERROR           STORM_LOG_BASE_IMPL(Storm::LogLevel::Error)
 #define LOG_FATAL           STORM_LOG_BASE_IMPL(Storm::LogLevel::Fatal)
 #define LOG_ALWAYS          STORM_LOG_BASE_IMPL(Storm::LogLevel::Always)
+
+#define DEBUG_LOG_UNTO_FILE(filename) Storm::FileLoggerObject{ filename }

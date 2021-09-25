@@ -167,6 +167,19 @@ lock.lock()														\
 		}
 	}
 
+	try
+	{
+		_tmpLogFolderPath = configMgr->getTemporaryPath();
+		_tmpLogFolderPath /= "TmpLogs";
+		std::filesystem::create_directories(_tmpLogFolderPath);
+	}
+	catch (const std::exception &ex)
+	{
+		STORM_PRODUCE_INIT_LOGGING_UNDER_LOCK(
+			LOG_ERROR << "Cannot create tmp log folder path. Reason was " << ex.what();
+		);
+	}
+
 	_currentPID = configMgr->getCurrentPID();
 
 	bool canLeaveTmp = false;
@@ -338,5 +351,5 @@ void Storm::LoggerManager::writeLogs(LogArray &logArray, const unsigned int curr
 
 void Storm::LoggerManager::logToTempFile(const std::string &fileName, const std::string &msg) const
 {
-	std::ofstream{ std::filesystem::path{ Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().getTemporaryPath() } / fileName } << msg;
+	std::ofstream{ _tmpLogFolderPath / fileName} << msg;
 }
