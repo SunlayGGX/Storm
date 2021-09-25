@@ -130,6 +130,11 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Storm-CsHelper", "Source\St
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Storm-MaterialAvailability", "Source\Storm-MaterialAvailability\script\Storm-MaterialAvailability.vcxproj", "{59673C98-FC2D-4393-8B1C-C08B694CDE22}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D0DCBCB4-071F-4C19-8427-241471F9751D}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Source\Storm-CsCppShared\script\Storm-CsCppShared.projitems*{30ae641c-fdd2-49b8-abd0-19ea070978d3}*SharedItemsImports = 13
