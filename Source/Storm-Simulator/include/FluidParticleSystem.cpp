@@ -414,8 +414,5 @@ void Storm::FluidParticleSystem::internalInitializeForce(const Storm::Vector3 &g
 		blowerUPtr->applyForce(currentPPosition, force);
 	}
 
-	_tmpPressureForce[currentPIndex].setZero();
-	_tmpViscosityForce[currentPIndex].setZero();
-	_tmpDragForce[currentPIndex].setZero();
-	_tmpBernoulliDynamicPressureForce[currentPIndex].setZero();
+	this->resetParticleTemporaryForces(currentPIndex);
 }

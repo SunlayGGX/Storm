@@ -214,6 +214,8 @@ void Storm::ParticleSystem::onIterationStart()
 		particleCount == _tmpPressureForce.size() &&
 		particleCount == _tmpViscosityForce.size() &&
 		particleCount == _tmpDragForce.size() &&
+		particleCount == _tmpBernoulliDynamicPressureForce.size() &&
+		particleCount == _tmpNoStickForce.size() &&
 		(replayMode || particleCount == _neighborhood.size()) &&
 		"Particle count mismatch detected! An array of particle property has not the same particle count than the other!"
 	);
@@ -238,4 +240,13 @@ float Storm::ParticleSystem::computeParticleDefaultVolume()
 bool Storm::ParticleSystem::isElligibleNeighborParticle(const float kernelLengthSquared, const float normSquared)
 {
 	return normSquared > 0.000001f && normSquared < kernelLengthSquared;
+}
+
+void Storm::ParticleSystem::resetParticleTemporaryForces(const std::size_t currentPIndex)
+{
+	_tmpPressureForce[currentPIndex].setZero();
+	_tmpViscosityForce[currentPIndex].setZero();
+	_tmpDragForce[currentPIndex].setZero();
+	_tmpBernoulliDynamicPressureForce[currentPIndex].setZero();
+	_tmpNoStickForce[currentPIndex].setZero();
 }

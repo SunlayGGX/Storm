@@ -313,10 +313,7 @@ void Storm::RigidBodyParticleSystem::onSubIterationStart(const Storm::ParticleSy
 			{
 				// Initialize forces to 0
 				force.setZero();
-				_tmpPressureForce[currentPIndex].setZero();
-				_tmpViscosityForce[currentPIndex].setZero();
-				_tmpDragForce[currentPIndex].setZero();
-				_tmpBernoulliDynamicPressureForce[currentPIndex].setZero();
+				this->resetParticleTemporaryForces(currentPIndex);
 			});
 		}
 		else
@@ -326,10 +323,7 @@ void Storm::RigidBodyParticleSystem::onSubIterationStart(const Storm::ParticleSy
 			{
 				// Initialize forces to 0
 				force.setZero();
-				_tmpPressureForce[currentPIndex].setZero();
-				_tmpViscosityForce[currentPIndex].setZero();
-				_tmpDragForce[currentPIndex].setZero();
-				_tmpBernoulliDynamicPressureForce[currentPIndex].setZero();
+				this->resetParticleTemporaryForces(currentPIndex);
 
 				// Compute the current boundary particle volume.
 				const float initialVolumeValue = currentKernelZero;

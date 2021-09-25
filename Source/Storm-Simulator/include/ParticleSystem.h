@@ -98,6 +98,9 @@ namespace Storm
 		virtual void revertToCurrentTimestep(const std::vector<std::unique_ptr<Storm::IBlower>> &blowers) = 0;
 
 	protected:
+		virtual void resetParticleTemporaryForces(const std::size_t currentPIndex);
+
+	protected:
 		std::vector<Storm::Vector3> _positions;
 		std::vector<Storm::Vector3> _velocity;
 		std::vector<Storm::Vector3> _force;
