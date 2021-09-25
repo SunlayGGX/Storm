@@ -13,7 +13,7 @@ namespace Storm
 	}
 
 	template<bool useOpenMPWhenEnabled = false, class ContainerType, class Func>
-	auto runParallel(ContainerType &container, Func &func)
+	auto runParallel(ContainerType &container, Func &&func)
 		-> decltype(func(*std::begin(container), Storm::retrieveItemIndex(container, *std::begin(container))), void())
 	{
 #if STORM_USE_OPENMP
@@ -39,7 +39,7 @@ namespace Storm
 	}
 
 	template<class ContainerType, class Func>
-	auto runParallel(ContainerType &container, Func &func)
+	auto runParallel(ContainerType &container, Func &&func)
 		-> decltype(func(*std::begin(container)), void())
 	{
 		std::for_each(std::execution::par, std::begin(container), std::end(container), func);
