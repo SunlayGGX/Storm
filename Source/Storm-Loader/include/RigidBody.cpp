@@ -91,7 +91,9 @@ namespace
 		return particleRadius * 2.f;
 	}
 
-	// We make the assumption the center of the rigid body bound to the passed normals is the origin of the domain { 0, 0, 0 }
+	// We make the assumption the center of the rigid body bound to the passed normals is the origin of the domain { 0, 0, 0 }.
+	// Note : this method purpose is to fix incoherency from good data. For example, to fix normals that points to the wrong way because a triangle normal was computed clockwise while another was computed counterclockwise.
+	// But we cannot correct a mesh those triangles are in a mess.
 	template<bool toTheOutside>
 	void enforceNormalsCoherency(Storm::SamplingResult &inOutSamplingResult)
 	{
