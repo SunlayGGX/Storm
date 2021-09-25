@@ -72,7 +72,7 @@ namespace
 			{
 				outPoint = *_v[0] + randMgr.randomizeFloat() * _vect01 + randMgr.randomizeFloat() * _vect02;
 			} while (!this->isPointInside(outPoint));
-			
+
 			outNormals = _normals[0];
 		}
 
@@ -135,6 +135,38 @@ namespace
 			return false;
 		}
 
+		// For debugging purpose
+		std::string toStdString() const
+		{
+			struct CommaSeparatedPolicy { static constexpr const char separator() { return ','; } };
+
+			std::string result;
+
+			const std::string positions = Storm::toStdString<CommaSeparatedPolicy>(_v);
+			const std::string v01Str = Storm::toStdString(_vect01);
+			const std::string v02Str = Storm::toStdString(_vect02);
+			const std::string v12Str = Storm::toStdString(_vect12);
+			const std::string normalsStr = Storm::toStdString<CommaSeparatedPolicy>(_normals);
+			const std::string areaStr = Storm::toStdString(_area);
+
+			result.reserve(v01Str.size() + v02Str.size() + v12Str.size() + positions.size() + normalsStr.size() + areaStr.size() + 41);
+
+			result += "pos=";
+			result += positions;
+			result += "; edge=01:";
+			result += v01Str;
+			result += ", 02:";
+			result += v02Str;
+			result += ", 12:";
+			result += v12Str;
+			result += "; normals=";
+			result += normalsStr;
+			result += "; area=";
+			result += areaStr;
+
+			return result;
+		}
+
 	public:
 		const Storm::Vector3* _v[3];
 		Storm::Vector3 _vect01;
@@ -170,7 +202,7 @@ namespace
 		if (!allTriangles.empty())
 		{
 			const Storm::VectorHijacker expectedPopulationCount{ k_allParticleCluteringCoefficient * expectedSampleFinalCount };
-			
+
 			Storm::setNumUninitialized_safeHijack(denseSamplingResult._position, expectedPopulationCount);
 			Storm::setNumUninitialized_safeHijack(denseSamplingResult._normals, expectedPopulationCount);
 
@@ -226,7 +258,7 @@ Storm::SamplingResult Storm::PoissonDiskSampler::process(const int kTryConst, co
 	for (const Triangle &currentTriangle : triangles)
 	{
 		std::size_t activeBeginPointIndex = samplingResult._position.size();
-		
+
 		// The first point to begin populating the triangle
 		currentTriangle.producePoint(randMgr, samplingResult._position.emplace_back(), samplingResult._normals.emplace_back());
 
@@ -247,7 +279,7 @@ Storm::SamplingResult Storm::PoissonDiskSampler::process(const int kTryConst, co
 
 		} while (samplingResult._position.size() != activeBeginPointIndex);
 	}
-	
+
 	return samplingResult;
 }
 
@@ -287,6 +319,11 @@ Storm::SamplingResult Storm::PoissonDiskSampler::process_v2(const int kTryConst,
 	{
 		Storm::throwException<Storm::Exception>("A mesh to convert into particles must have a positive non zero area!");
 	}
+
+#if false // To debug triangles
+	DEBUG_LOG_UNTO_FILE("triangle.txt") << Storm::toStdString(triangles);
+#endif
+
 
 #if false
 	// Smooth the triangles normals if specified
