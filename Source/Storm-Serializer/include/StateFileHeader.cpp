@@ -12,7 +12,7 @@ namespace
 		return Storm::Version{ 1, 1, 0 };
 	}
 
-	// Never modify those or retrocompatibility issues will happen.
+	// Never modify those or retro-compatibility issues will happen.
 	enum Checksum : uint64_t
 	{
 		k_badChecksum = 0xFFFFAABBCCDDE001,

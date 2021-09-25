@@ -107,7 +107,7 @@ int main(int argc, const char*const argv[]) try
 {
 	const bool calledAsTool = argc == 2 && !::strcmp(argv[1], "--calledAsTool");
 
-	std::cout << "Welcome to Storm-MaterialAvailability.exe.\nWe will now print all avalaibalities on the current station.\n\n";
+	std::cout << "Welcome to Storm-MaterialAvailability.exe.\nWe will now print all availabilities on the current station.\n\n";
 	auto supportMessageLambda = [](const std::string_view feature, const bool isSupported)
 	{
 		std::string lineToPrint;

@@ -17,7 +17,7 @@ bool StormPackager::BuildProcess::execute(const std::string &devenvPath, const s
 
 	LOG_DEBUG << "Building '" << sln << "'. This will take some time but please, do not stop the application.";
 
-	auto buildOutput = StormPackager::ExecHelper::execute(fullCommand);
+	const auto buildOutput = StormPackager::ExecHelper::execute(fullCommand);
 	if (buildOutput._success && buildOutput._commandExitCode == 0)
 	{
 		LOG_DEBUG << "'" << sln << "' was built successfully!";

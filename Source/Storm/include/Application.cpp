@@ -71,7 +71,7 @@ namespace
 		return !Storm::ConfigManager::instance().shouldDisplayHelp();
 	}
 
-	void initializeStormApplication(int argc, const char* argv[])
+	void initializeStormApplication(const int argc, const char* argv[])
 	{
 		g_singletonMaker = std::make_unique<SingletonAllocatorAlias>();
 
@@ -223,7 +223,7 @@ namespace
 	}
 }
 
-Storm::Application::Application(int argc, const char* argv[])
+Storm::Application::Application(const int argc, const char* argv[])
 {
 	Storm::setupFullAssertionBox();
 
@@ -254,7 +254,7 @@ Storm::ExitCode Storm::Application::run()
 	catch (const Storm::Exception &ex)
 	{
 		LOG_FATAL <<
-			"Catched an unhandled Storm exception in the Application main loop (run). Process will exit.\n"
+			"Caught an unhandled Storm exception in the Application main loop (run). Process will exit.\n"
 			"Reason : " << ex.what() << ".\n"
 			"Stack trace was :\n" << ex.stackTrace();
 			;
@@ -262,12 +262,12 @@ Storm::ExitCode Storm::Application::run()
 	}
 	catch (const std::exception &ex)
 	{
-		LOG_FATAL << "Catched an unhandled std exception in the Application main loop (run). Process will exit. Reason : " << ex.what();
+		LOG_FATAL << "Caught an unhandled std exception in the Application main loop (run). Process will exit. Reason : " << ex.what();
 		throw;
 	}
 	catch (...)
 	{
-		LOG_FATAL << "Catched an unhandled '...' exception (unknown) in the Application main loop (run). Process will exit.";
+		LOG_FATAL << "Caught an unhandled '...' exception (unknown) in the Application main loop (run). Process will exit.";
 		throw;
 	}
 

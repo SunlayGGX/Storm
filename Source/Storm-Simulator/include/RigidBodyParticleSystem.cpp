@@ -91,12 +91,15 @@ Storm::RigidBodyParticleSystem::RigidBodyParticleSystem(unsigned int particleSys
 	Storm::ParticleSystem{ particleSystemIndex, particleCount },
 	_cachedTrackedRbRotationQuat{ Storm::Quaternion::Identity() },
 	_rbTotalForce{ Storm::Vector3::Zero() },
-	_volumeFixed{ false }
+	_volumeFixed{ false },
+	_velocityDirtyInternal{ false }
 {
 	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
 	const Storm::SceneRigidBodyConfig &currentRbConfig = configMgr.getSceneRigidBodyConfig(particleSystemIndex);
 	_isWall = currentRbConfig._isWall;
 	_isStatic = _isWall || currentRbConfig._static;
+
+	_viscosity = currentRbConfig._viscosity;
 
 	_volumes.resize(particleCount);
 	_normals.resize(particleCount);
@@ -678,10 +681,7 @@ void Storm::RigidBodyParticleSystem::revertToCurrentTimestep(const std::vector<s
 		Storm::runParallel(_force, [this](Storm::Vector3 &force, const std::size_t currentPIndex) 
 		{
 			force.setZero();
-			_tmpPressureForce[currentPIndex].setZero();
-			_tmpViscosityForce[currentPIndex].setZero();
-			_tmpDragForce[currentPIndex].setZero();
-			_tmpBernoulliDynamicPressureForce[currentPIndex].setZero();
+			this->resetParticleTemporaryForces(currentPIndex);
 		});
 	}
 }

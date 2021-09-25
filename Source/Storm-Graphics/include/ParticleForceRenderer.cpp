@@ -6,7 +6,6 @@
 
 #include "ParticleForceShader.h"
 
-#include "XMStormHelpers.h"
 #include "ThrowIfFailed.h"
 
 

@@ -491,23 +491,23 @@ void Storm::Camera::setNearAndFarPlane(float nearPlane, float farPlane)
 		return;
 	}
 
-	bool rebuildMatrixes = false;
+	bool rebuildMatrices = false;
 
 	if (_nearPlane != nearPlane)
 	{
 		_nearPlane = nearPlane;
 		_fields->pushField(STORM_ZNEAR_FIELD_NAME);
-		rebuildMatrixes = true;
+		rebuildMatrices = true;
 	}
 
 	if (_farPlane != farPlane)
 	{
 		_farPlane = farPlane;
 		_fields->pushField(STORM_ZFAR_FIELD_NAME);
-		rebuildMatrixes = true;
+		rebuildMatrices = true;
 	}
 
-	if (rebuildMatrixes)
+	if (rebuildMatrices)
 	{
 		this->buildProjectionMatrix();
 		this->buildOrthoMatrix();
@@ -670,15 +670,15 @@ void Storm::Camera::convertScreenPositionToRay(const Storm::Vector2 &screenPos, 
 	const DirectX::XMMATRIX &matView = this->getViewMatrix();
 	const DirectX::XMMATRIX &matProj = this->getProjectionMatrix();
 
-	DirectX::XMMATRIX matVPInverse = DirectX::XMMatrixInverse(nullptr, matView * matProj);
+	const DirectX::XMMATRIX matVPInverse = DirectX::XMMatrixInverse(nullptr, matView * matProj);
 
 	const Storm::Vector2 rescaledPosition{ screenPos.x() / _rescaledScreenWidth * _screenWidth, screenPos.y() / _rescaledScreenHeight * _screenHeight };
 
-	DirectX::XMVECTOR screenPosTo3DPoint{ rescaledPosition.x(), rescaledPosition.y(), 0.f, 1.f };
+	const DirectX::XMVECTOR screenPosTo3DPoint{ rescaledPosition.x(), rescaledPosition.y(), 0.f, 1.f };
 	DirectX::XMVector4Transform(screenPosTo3DPoint, matVPInverse);
 	outRayOrigin = Storm::convertToStorm(screenPosTo3DPoint);
 
-	DirectX::XMVECTOR screenPosTo3DVector{ rescaledPosition.x(), rescaledPosition.y(), 1.f, 0.f };
+	const DirectX::XMVECTOR screenPosTo3DVector{ rescaledPosition.x(), rescaledPosition.y(), 1.f, 0.f };
 	DirectX::XMVector4Transform(screenPosTo3DVector, matVPInverse);
 	outRayDirection = Storm::convertToStorm(screenPosTo3DVector);
 }
@@ -689,7 +689,7 @@ Storm::Vector3 Storm::Camera::convertScreenPositionTo3DPosition(const Storm::Vec
 	const DirectX::XMMATRIX &matProj = this->getProjectionMatrix();
 
 	// The vector in 3D
-	DirectX::XMVECTOR vectClipSpace = Storm::convertToXM(screenPos3D);
+	const DirectX::XMVECTOR vectClipSpace = Storm::convertToXM(screenPos3D);
 
 #if false
 	// Revert the z coming from the Z-buffer (therefore a normalized value between (0.f (the near plane) and 1.f (the far plane)) into a real depth z.

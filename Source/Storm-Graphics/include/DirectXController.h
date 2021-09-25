@@ -24,7 +24,7 @@ namespace Storm
 		void presentToDisplay();
 		void reportLiveObject();
 
-		void reportDeviceMessages();
+		void reportDeviceMessages() const;
 
 	public:
 		const ComPtr<ID3D11Device>& getDirectXDevice() const noexcept;
@@ -77,7 +77,7 @@ namespace Storm
 		void internalCreateDirectWrite();
 
 	public:
-		float getDepthBufferAtPixel(int xPos, int yPos);
+		float getDepthBufferAtPixel(int xPos, int yPos) const;
 
 	private:
 		// 3D

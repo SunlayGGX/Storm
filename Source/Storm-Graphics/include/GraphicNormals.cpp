@@ -6,7 +6,6 @@
 #	include "VectHijack.h"
 #undef STORM_HIJACKED_TYPE
 
-#include "XMStormHelpers.h"
 
 
 namespace
@@ -70,7 +69,7 @@ void Storm::GraphicNormals::refreshNormalsData(const ComPtr<ID3D11Device> &devic
 
 	Storm::throwIfFailed(device->CreateBuffer(&vertexBufferDesc, &vertexData, &_vertexBuffer));
 
-	uint32_t indexCount = normalCount * 2;
+	const uint32_t indexCount = normalCount * 2;
 	if (_indexBuffer == nullptr || _lastSize != indexCount)
 	{
 		std::vector<uint32_t> indexes;

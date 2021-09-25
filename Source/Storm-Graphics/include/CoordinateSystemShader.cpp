@@ -2,9 +2,7 @@
 
 #include "MemoryHelper.h"
 #include "ResourceMapperGuard.h"
-#include "IConfigManager.h"
-#include "SingletonHolder.h"
-#include "SceneGraphicConfig.h"
+
 #include "Camera.h"
 
 

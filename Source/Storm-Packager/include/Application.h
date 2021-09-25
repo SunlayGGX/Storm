@@ -11,7 +11,7 @@ namespace StormPackager
 	class Application
 	{
 	public:
-		Application(int argc, const char*const argv[]);
+		Application(const int argc, const char*const argv[]);
 		~Application();
 
 	public:

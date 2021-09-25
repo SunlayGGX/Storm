@@ -152,7 +152,6 @@ const std::unique_ptr<Storm::VoxelGrid>& Storm::SpacePartitionerManager::getSpac
 	default:
 		assert(false && "Space partition referred to the PartitionSelection enum value doesn't exist!");
 		__assume(false);
-		return nullptr;
 	}
 }
 

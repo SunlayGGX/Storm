@@ -9,7 +9,7 @@ namespace Storm
 	class Application
 	{
 	public:
-		Application(int argc, const char* argv[]);
+		Application(const int argc, const char* argv[]);
 		~Application();
 
 		Storm::ExitCode run();

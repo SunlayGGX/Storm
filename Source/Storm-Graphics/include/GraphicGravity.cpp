@@ -114,7 +114,7 @@ void Storm::GraphicGravity::postRenderUI(const ComPtr<ID2D1RenderTarget>& hudTar
 		beginRect.second = normalizedToViewportCoord(-beginRect.second, viewportHeight);
 
 		const float rectDim = _gravityShader->getAxisLengthUnit();
-		D2D1_RECT_F writeRectPosition{
+		const D2D1_RECT_F writeRectPosition{
 			beginRect.first,
 			beginRect.second,
 			beginRect.first + normalizedToViewportCoord(rectDim, viewportWidth),

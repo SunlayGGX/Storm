@@ -24,7 +24,6 @@
 
 #include "SceneBlowerConfig.h"
 #include "SceneGraphicConfig.h"
-#include "SceneSimulationConfig.h"
 
 #include "SingletonHolder.h"
 #include "IWindowsManager.h"
@@ -35,8 +34,8 @@
 
 #include "ThreadHelper.h"
 #include "ThreadEnumeration.h"
-#include "ThreadingSafety.h"
 #include "ThreadFlaggerObject.h"
+#include "ThreadingSafety.h"
 
 #include "SpecialKey.h"
 
@@ -45,8 +44,6 @@
 #include "UIFieldContainer.h"
 
 #include "FuncMovePass.h"
-
-#include "RunnerHelper.h"
 
 
 namespace

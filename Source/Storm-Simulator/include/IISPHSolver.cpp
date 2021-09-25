@@ -1,3 +1,4 @@
+// ReSharper disable CppClangTidyCppcoreguidelinesProTypeStaticCastDowncast
 #include "IISPHSolver.h"
 
 #include "IISPHSolverData.h"

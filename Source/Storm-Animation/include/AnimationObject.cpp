@@ -3,14 +3,13 @@
 
 #include "SceneRigidBodyConfig.h"
 
-#include "XmlReader.h"
 #include "ThreadingSafety.h"
+
+#include "XmlReader.h"
 
 #include <boost\property_tree\ptree_fwd.hpp>
 #include <boost\property_tree\xml_parser.hpp>
 
-#include <unsupported\Eigen\src\EulerAngles\EulerSystem.h>
-#include <unsupported\Eigen\src\EulerAngles\EulerAngles.h>
 
 
 namespace

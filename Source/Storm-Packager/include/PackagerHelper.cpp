@@ -36,7 +36,7 @@ bool StormPackager::PackagerHelper::copy(const std::filesystem::path &from, cons
 
 bool StormPackager::PackagerHelper::erase(const std::filesystem::path &toRemove)
 {
-	std::size_t removedCount = std::filesystem::remove_all(toRemove);
+	const std::size_t removedCount = std::filesystem::remove_all(toRemove);
 	if (std::filesystem::exists(toRemove))
 	{
 		LOG_DEBUG << "'" << toRemove << "' deletion failed.";

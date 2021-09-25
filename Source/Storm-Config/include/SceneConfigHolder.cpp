@@ -577,7 +577,7 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 
 		if (physicsConfig._enableAdaptiveForce && physicsConfig._enableStabilization)
 		{
-			Storm::throwException<Storm::Exception>("Enable adaptice force and enable stabilization are incompatible settings!");
+			Storm::throwException<Storm::Exception>("Enable adaptive force and enable stabilization are incompatible settings!");
 		}
 	}
 
@@ -753,7 +753,7 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 			}
 			else if ((sceneSimulationConfig._simulationMode == Storm::SimulationMode::DFSPH || sceneSimulationConfig._simulationMode == Storm::SimulationMode::DFSPHModified) && fluidXmlElement.first == "DFSPH")
 			{
-				Storm::SceneFluidCustomDFSPHConfig &fluidDfsphConfig = static_cast<Storm::SceneFluidCustomDFSPHConfig &>(*fluidConfig._customSimulationSettings);
+				Storm::SceneFluidCustomDFSPHConfig &fluidDfsphConfig = static_cast<Storm::SceneFluidCustomDFSPHConfig &>(*fluidConfig._customSimulationSettings);  // NOLINT(cppcoreguidelines-pro-type-static-cast-downcast)
 				for (const auto &fluidParticleCustomSimulConfigXml : fluidXmlElement.second)
 				{
 					if (
@@ -800,7 +800,7 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 			}
 			else if (sceneSimulationConfig._simulationMode == Storm::SimulationMode::IISPH && fluidXmlElement.first == "IISPH")
 			{
-				Storm::SceneFluidCustomIISPHConfig &fluidIisphConfig = static_cast<Storm::SceneFluidCustomIISPHConfig &>(*fluidConfig._customSimulationSettings);
+				Storm::SceneFluidCustomIISPHConfig &fluidIisphConfig = static_cast<Storm::SceneFluidCustomIISPHConfig &>(*fluidConfig._customSimulationSettings);  // NOLINT(cppcoreguidelines-pro-type-static-cast-downcast)
 				for (const auto &fluidParticleCustomSimulConfigXml : fluidXmlElement.second)
 				{
 					if (
@@ -828,7 +828,7 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 			}
 			else if (sceneSimulationConfig._simulationMode == Storm::SimulationMode::PCISPH && fluidXmlElement.first == "PCISPH")
 			{
-				Storm::SceneFluidCustomPCISPHConfig &fluidPcisphConfig = static_cast<Storm::SceneFluidCustomPCISPHConfig &>(*fluidConfig._customSimulationSettings);
+				Storm::SceneFluidCustomPCISPHConfig &fluidPcisphConfig = static_cast<Storm::SceneFluidCustomPCISPHConfig &>(*fluidConfig._customSimulationSettings);  // NOLINT(cppcoreguidelines-pro-type-static-cast-downcast)
 				for (const auto &fluidParticleCustomSimulConfigXml : fluidXmlElement.second)
 				{
 					if (
@@ -1020,7 +1020,7 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 		}
 		else if (rbConfig._isWall && rbConfig._insideRbFluidDetectionMethodEnum != Storm::InsideParticleRemovalTechnique::None)
 		{
-			Storm::throwException<Storm::Exception>("Setting a insider particles removal technique for a wall rigidbody is forbidden (rigid body " + std::to_string(rbConfig._rigidBodyID) + ")!");
+			Storm::throwException<Storm::Exception>("Setting a insider particles removal technique for a wall rigid body is forbidden (rigid body " + std::to_string(rbConfig._rigidBodyID) + ")!");
 		}
 		else if (rbConfig._layerCount == 0)
 		{
@@ -1206,56 +1206,56 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 			Storm::XmlReader::handleXml(constraintConfigXml, "rb2LinkOffset", contraintConfig._rigidBody2LinkTranslationOffset, parseVector3Element)
 			;
 	},
-		[&rigidBodiesConfigArray, &contraintsIndex](Storm::SceneConstraintConfig &contraintConfig)
+		[&rigidBodiesConfigArray, &contraintsIndex](Storm::SceneConstraintConfig &constraintConfig)
 	{
-		contraintConfig._constraintId = contraintsIndex++;
+		constraintConfig._constraintId = contraintsIndex++;
 		const auto lastToCheck = std::end(rigidBodiesConfigArray);
 
-		if (contraintConfig._constraintsLength == -1.f)
+		if (constraintConfig._constraintsLength == -1.f)
 		{
 			Storm::throwException<Storm::Exception>("Constraints " + std::to_string(contraintsIndex) + " length isn't set but is a mandatory setting, please specify it with 'length' tag.");
 		}
-		else if (contraintConfig._constraintsLength <= 0.f)
+		else if (constraintConfig._constraintsLength <= 0.f)
 		{
-			Storm::throwException<Storm::Exception>("Constraints " + std::to_string(contraintsIndex) + " length should be a positive non zero value (was " + std::to_string(contraintConfig._constraintsLength) + ")!");
+			Storm::throwException<Storm::Exception>("Constraints " + std::to_string(contraintsIndex) + " length should be a positive non zero value (was " + std::to_string(constraintConfig._constraintsLength) + ")!");
 		}
-		else if (contraintConfig._type == Storm::ConstraintType::None)
+		else if (constraintConfig._type == Storm::ConstraintType::None)
 		{
 			Storm::throwException<Storm::Exception>("Constraints " + std::to_string(contraintsIndex) + " type should be set! It is a mandatory field.");
 		}
-		else if (contraintConfig._rigidBodyId1 == std::numeric_limits<decltype(contraintConfig._rigidBodyId1)>::max())
+		else if (constraintConfig._rigidBodyId1 == std::numeric_limits<decltype(constraintConfig._rigidBodyId1)>::max())
 		{
 			Storm::throwException<Storm::Exception>("Constraints " + std::to_string(contraintsIndex) + " rigid body 1 id wasn't set! It is a mandatory field.");
 		}
-		else if (contraintConfig._rigidBodyId2 == std::numeric_limits<decltype(contraintConfig._rigidBodyId2)>::max())
+		else if (constraintConfig._rigidBodyId2 == std::numeric_limits<decltype(constraintConfig._rigidBodyId2)>::max())
 		{
 			Storm::throwException<Storm::Exception>("Constraints " + std::to_string(contraintsIndex) + " rigid body 2 id wasn't set! It is a mandatory field.");
 		}
-		else if (const auto rb1Config = std::find_if(std::begin(rigidBodiesConfigArray), lastToCheck, [&contraintConfig](const Storm::SceneRigidBodyConfig &registeredRb)
+		else if (const auto rb1Config = std::find_if(std::begin(rigidBodiesConfigArray), lastToCheck, [&constraintConfig](const Storm::SceneRigidBodyConfig &registeredRb)
 		{
-			return registeredRb._rigidBodyID == contraintConfig._rigidBodyId1;
+			return registeredRb._rigidBodyID == constraintConfig._rigidBodyId1;
 		}); rb1Config == lastToCheck)
 		{
-			Storm::throwException<Storm::Exception>("Constraints " + std::to_string(contraintsIndex) + " rigid body 1 id wasn't found (" + std::to_string(contraintConfig._rigidBodyId1) + ")!");
+			Storm::throwException<Storm::Exception>("Constraints " + std::to_string(contraintsIndex) + " rigid body 1 id wasn't found (" + std::to_string(constraintConfig._rigidBodyId1) + ")!");
 		}
-		else if (const auto rb2Config = std::find_if(std::begin(rigidBodiesConfigArray), lastToCheck, [&contraintConfig](const Storm::SceneRigidBodyConfig &registeredRb)
+		else if (const auto rb2Config = std::find_if(std::begin(rigidBodiesConfigArray), lastToCheck, [&constraintConfig](const Storm::SceneRigidBodyConfig &registeredRb)
 		{
-			return registeredRb._rigidBodyID == contraintConfig._rigidBodyId2;
+			return registeredRb._rigidBodyID == constraintConfig._rigidBodyId2;
 		}); rb2Config == lastToCheck)
 		{
-			Storm::throwException<Storm::Exception>("Constraints " + std::to_string(contraintsIndex) + " rigid body 2 id wasn't found (" + std::to_string(contraintConfig._rigidBodyId2) + ")!");
+			Storm::throwException<Storm::Exception>("Constraints " + std::to_string(contraintsIndex) + " rigid body 2 id wasn't found (" + std::to_string(constraintConfig._rigidBodyId2) + ")!");
 		}
 		else
 		{
-			if (contraintConfig._type == Storm::ConstraintType::HardDistanceJoint)
+			if (constraintConfig._type == Storm::ConstraintType::HardDistanceJoint)
 			{
 				if (!(rb1Config->_static || rb1Config->_isWall))
 				{
-					Storm::throwException<Storm::Exception>("Constraints " + std::to_string(contraintsIndex) + " rigid body 1 (id : " + std::to_string(contraintConfig._rigidBodyId1) + ") is not static and the joint is hard! We took some shortcut in the implementation that supposes it is static!");
+					Storm::throwException<Storm::Exception>("Constraints " + std::to_string(contraintsIndex) + " rigid body 1 (id : " + std::to_string(constraintConfig._rigidBodyId1) + ") is not static and the joint is hard! We took some shortcut in the implementation that supposes it is static!");
 				}
 				else if (rb2Config->_static || rb2Config->_isWall)
 				{
-					Storm::throwException<Storm::Exception>("Constraints " + std::to_string(contraintsIndex) + " rigid body 2 (id : " + std::to_string(contraintConfig._rigidBodyId2) + ") is static and the joint is hard! We took some shortcut in the implementation that supposes it is dynamic!");
+					Storm::throwException<Storm::Exception>("Constraints " + std::to_string(contraintsIndex) + " rigid body 2 (id : " + std::to_string(constraintConfig._rigidBodyId2) + ") is static and the joint is hard! We took some shortcut in the implementation that supposes it is dynamic!");
 				}
 			}
 		}

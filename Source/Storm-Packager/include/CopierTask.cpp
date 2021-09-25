@@ -93,7 +93,7 @@ std::string StormPackager::CopierTask::execute()
 
 		if (copyFailureCount > 0)
 		{
-			result += "We failed to copy " + std::to_string(copyFailureCount) + " items and their subitems...";
+			result += "We failed to copy " + std::to_string(copyFailureCount) + " items and their sub-items...";
 		}
 	}
 

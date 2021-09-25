@@ -1,8 +1,5 @@
 #include "ExecHelper.h"
 
-#include "RAII.h"
-#include "MemoryHelper.h"
-
 #include "LeanWindowsInclude.h"
 
 #pragma warning(push)
@@ -51,7 +48,7 @@ StormPackager::ExecResult StormPackager::ExecHelper::checkout(const std::string 
 {
 	if (!checkoutPoint.empty())
 	{
-		std::string fullCommand = "git checkout " + checkoutPoint;
+		const std::string fullCommand = "git checkout " + checkoutPoint;
 		return StormPackager::ExecHelper::execute(fullCommand);
 	}
 	else

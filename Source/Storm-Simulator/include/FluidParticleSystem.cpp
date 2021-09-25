@@ -7,8 +7,6 @@
 #include "SceneSimulationConfig.h"
 #include "SceneFluidConfig.h"
 
-#include "SimulationMode.h"
-
 #include "PartitionSelection.h"
 #include "NeighborParticleReferral.h"
 

@@ -1,7 +1,5 @@
 #include "DebuggerHelper.h"
 
-#include "StormMacro.h"
-
 #include "LeanWindowsInclude.h"
 
 #include "VectoredExceptionDisplayMode.h"

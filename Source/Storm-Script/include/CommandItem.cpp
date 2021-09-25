@@ -39,7 +39,7 @@ namespace
 				{
 					Storm::throwException<Storm::Exception>(std::string_view{
 						"We detected a forbidden key!\n"
-						"We shouldn't use the key you see in the template parameter inside the logic of the current command (see details in the callstack).\n"
+						"We shouldn't use the key you see in the template parameter inside the logic of the current command (see details in the call stack).\n"
 						"All forbidden keys are : " } + allForbiddenKeys
 					);
 				}

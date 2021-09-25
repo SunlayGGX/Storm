@@ -5,5 +5,5 @@ namespace Storm
 {
 	enum class LogLevel;
 
-	std::string_view parseLogLevel(Storm::LogLevel logLevel);
+	std::string_view parseLogLevel(const Storm::LogLevel logLevel);
 }

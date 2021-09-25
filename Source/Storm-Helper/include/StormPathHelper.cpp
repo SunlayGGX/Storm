@@ -1,6 +1,5 @@
 #include "StormPathHelper.h"
 
-#include "MemoryHelper.h"
 
 
 namespace

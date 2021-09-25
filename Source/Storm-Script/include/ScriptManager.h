@@ -30,7 +30,7 @@ namespace Storm
 		void execute(std::string script) final override;
 
 	public:
-		Storm::ScriptManager::UsedScriptWrapper& getScriptWrapper();
+		Storm::ScriptManager::UsedScriptWrapper& getScriptWrapper() const;
 
 	private:
 		void rereadWatchedScriptFile();

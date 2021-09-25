@@ -16,7 +16,7 @@ namespace
 	}
 }
 
-int main(int argc, const char* argv[]) try
+int main(const int argc, const char* argv[]) try
 {
 	return static_cast<int>(Storm::Application{ argc, argv }.run());
 }

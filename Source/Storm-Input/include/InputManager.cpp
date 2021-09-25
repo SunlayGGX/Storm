@@ -10,7 +10,6 @@
 #include "ThreadEnumeration.h"
 #include "ThreadingSafety.h"
 
-#include "MemoryHelper.h"
 #include "RAII.h"
 
 #include "Version.h"
@@ -22,7 +21,6 @@
 #include <OISKeyboard.h>
 #include <OISMouse.h>
 #include <OISJoyStick.h>
-#include <OISEvents.h>
 
 
 namespace Storm

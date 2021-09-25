@@ -91,6 +91,8 @@ namespace
 		LoggerManager
 	>;
 
+	// Do not remove, this variable only purpose is to exist through its construction and destruction those scope is the lfetime of the application. This is an RAII variable.
+	// ReSharper disable once CppDeclaratorNeverUsed
 	SingletonAllocatorAlias g_singletonMaker;
 
 	struct Vector
@@ -113,9 +115,9 @@ namespace
 		}
 
 	public:
-		ScalarValue _x = 0.f;
-		ScalarValue _y = 0.f;
-		ScalarValue _z = 0.f;
+		ScalarValue _x = static_cast<ScalarValue>(0.0);
+		ScalarValue _y = static_cast<ScalarValue>(0.0);
+		ScalarValue _z = static_cast<ScalarValue>(0.0);
 	};
 
 
@@ -205,13 +207,13 @@ namespace
 				const ScalarValue q = norm / _h;
 				ScalarValue factor;
 
-				if (q < 0.5f)
+				if (q < static_cast<ScalarValue>(0.5))
 				{
-					factor = q * (3.f * q - 2.f);
+					factor = q * (static_cast<ScalarValue>(3.0) * q - static_cast<ScalarValue>(2.0));
 				}
 				else
 				{
-					const ScalarValue subfactor = 1.f - q;
+					const ScalarValue subfactor = static_cast<ScalarValue>(1.0) - q;
 					factor = -subfactor * subfactor;
 				}
 
@@ -233,16 +235,16 @@ namespace
 				// Then with a variable change (or variable substitution) :
 				// JJk = _h / 2
 				// q = norm / JJk	=>	q = norm / (_h / 2)		=>	q = norm * 2 / _h
-				const ScalarValue q = norm * 2.f / _h;
+				const ScalarValue q = norm * static_cast<ScalarValue>(2.0) / _h;
 				ScalarValue factor;
 
-				if (q < 1.f)
+				if (q < static_cast<ScalarValue>(1.0))
 				{
-					factor = q * (4.f - 3.f * q);
+					factor = q * (static_cast<ScalarValue>(4.0) - static_cast<ScalarValue>(3.0) * q);
 				}
 				else /*if (q < 2.f)*/ // q would always be under 2.f because it is per construction from the variable change
 				{
-					const ScalarValue twoMinusQ = 2.f - q;
+					const ScalarValue twoMinusQ = static_cast<ScalarValue>(2.0) - q;
 					factor = twoMinusQ * twoMinusQ;
 				}
 
@@ -265,23 +267,23 @@ namespace
 				// Then with a variable change (or variable substitution) :
 				// JJk = _h / 2
 				// q = norm / JJk	=>	q = norm / (_h / 2)		=>	q = norm * 2 / _h
-				const ScalarValue q = norm * 2.f / _h;
+				const ScalarValue q = norm * static_cast<ScalarValue>(2.0) / _h;
 				ScalarValue factor;
 
-				constexpr ScalarValue twoThird = 2.f / 3.f;
+				constexpr ScalarValue twoThird = static_cast<ScalarValue>(2.0 / 3.0);
 
 				if (q < twoThird)
 				{
 					// 2.0 was forwarded to the precoeff.
-					factor = 2.f * twoThird;
+					factor = static_cast<ScalarValue>(2.0) * twoThird;
 				}
-				else if (q < 1.f)
+				else if (q < static_cast<ScalarValue>(1.0))
 				{
-					factor = q * (4.f - 3.f * q);
+					factor = q * (static_cast<ScalarValue>(4.0) - static_cast<ScalarValue>(3.0) * q);
 				}
 				else /*if (q < 2.f)*/ // q would always be under 2.f because it is per construction from the variable change
 				{
-					const ScalarValue twoMinusQ = 2.f - q;
+					const ScalarValue twoMinusQ = static_cast<ScalarValue>(2.0) - q;
 					factor = twoMinusQ * twoMinusQ;
 				}
 
@@ -328,7 +330,7 @@ namespace
 		Viscosity(const std::filesystem::path &csvFileName, ScalarValue h, KernelFunc func, Storm::Language language) :
 			_kernel{ h, func },
 			_csv{ csvFileName.string(), language },
-			_monaghanStdOffset{ 0.01f * h * h }
+			_monaghanStdOffset{ static_cast<ScalarValue>(0.01) * h * h }
 		{
 
 		}
@@ -343,15 +345,15 @@ namespace
 			const ScalarValue xijNorm = xij.norm();
 			const ScalarValue vijDotXij = vij.dot(xij);
 
-			const ScalarValue dotCoeff = vijDotXij / (xijNormSquared + 0.01f * _kernel._hSquared);
+			const ScalarValue dotCoeff = vijDotXij / (xijNormSquared + static_cast<ScalarValue>(0.01) * _kernel._hSquared);
 
-			const Vector gradValue = _kernel.gradient(-1.f * xij, xijNorm);
+			const Vector gradValue = _kernel.gradient(static_cast<ScalarValue>(-1.0) * xij, xijNorm);
 
 			// This is not the real viscosity force. I removed the constant parts that are just here to confuse.
 			// The real value I want a graph of is the part of the formula with the kernel and the dot product.
 			const Vector forceApprox = gradValue * dotCoeff;
 
-			const ScalarValue forceNorm = 10.f * forceApprox.norm() / (xijNormSquared + _monaghanStdOffset);
+			const ScalarValue forceNorm = static_cast<ScalarValue>(10.0) * forceApprox.norm() / (xijNormSquared + _monaghanStdOffset);
 
 			constexpr ScalarValue radToDegreeCoeff = static_cast<ScalarValue>(180.0 / M_PI);
 
@@ -405,8 +407,8 @@ namespace
 
 	void exec(const POCInitArgs &initArgs, const std::string &csvName, const KernelFunc func, unsigned int layer)
 	{
-		constexpr ScalarValue h = 5.f;
-		constexpr ScalarValue particleRadius = h / 4.5f;
+		constexpr ScalarValue h = static_cast<ScalarValue>(5.0);
+		constexpr ScalarValue particleRadius = h / static_cast<ScalarValue>(4.5);
 
 		assert(layer < 2 && "If layer is equal or greater than 2, particle won't be in the influence radius if the kernel.");
 
@@ -421,7 +423,7 @@ namespace
 		// The max x is when y = 0 & z = 0 => x²=r² => x=r => x=5,
 		// therefore, I can initialize the position of pj with x C [-5, 5].
 		// I choose y = (layer + 1) * 2 * particleRadius, and z=0m => x²+y²+z²=r² => x²=25-y²-0 => x_max=sqrt(25 - ((layer + 1) * 2 * particleRadius)²) and x_min=-x_max.
-		const ScalarValue y = static_cast<ScalarValue>(layer + 1) * (2.f * particleRadius);
+		const ScalarValue y = static_cast<ScalarValue>(layer + 1) * (static_cast<ScalarValue>(2.0) * particleRadius);
 		const ScalarValue xMax = std::sqrt(25.0 - y * y);
 		const ScalarValue xMin = -xMax;
 
@@ -430,7 +432,7 @@ namespace
 		// Pj will have a velocity of { -1.f, 0.f, 0.f }, therefore will pass parallel to the x axis.
 		pj._velocity = Vector{ 1.0, 0.0, 0.0 };
 
-		const ScalarValue _xStep = 0.0005f;
+		const ScalarValue _xStep = static_cast<ScalarValue>(0.0005);
 		while (pj._position._x < xMax)
 		{
 			viscosity(pi, pj);

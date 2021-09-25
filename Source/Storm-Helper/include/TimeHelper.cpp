@@ -13,7 +13,7 @@ namespace
 }
 
 
-std::string_view Storm::TimeHelper::getWeekDay(int tmWday)
+std::string_view Storm::TimeHelper::getWeekDay(const int tmWday)
 {
 	switch (tmWday)
 	{
@@ -47,7 +47,7 @@ std::string Storm::TimeHelper::getCurrentDate()
 	return result;
 }
 
-std::string Storm::TimeHelper::getCurrentDateTime(bool considerMillisec)
+std::string Storm::TimeHelper::getCurrentDateTime(const bool considerMillisec)
 {
 	std::string result;
 	result.reserve(32);

@@ -28,7 +28,7 @@ HMENU Storm::MFCHelper::findMenuById(const HMENU mainMenu, const UINT menuID)
 
 HMENU Storm::MFCHelper::findMenuByName(const HMENU current, const std::wstring_view &menuName)
 {
-	int subItemCount = ::GetMenuItemCount(current);
+	const int subItemCount = ::GetMenuItemCount(current);
 	if (subItemCount == -1)
 	{
 		return nullptr;
@@ -61,7 +61,7 @@ HMENU Storm::MFCHelper::findMenuByName(const HMENU current, const std::wstring_v
 
 			if (childinfo.hSubMenu)
 			{
-				HMENU recursiveFound = Storm::MFCHelper::findMenuByName(childinfo.hSubMenu, menuName);
+				const HMENU recursiveFound = Storm::MFCHelper::findMenuByName(childinfo.hSubMenu, menuName);
 				if (recursiveFound != nullptr)
 				{
 					return recursiveFound;
@@ -96,7 +96,7 @@ bool Storm::MFCHelper::appendNewStringMenu(const HMENU parent, const std::wstrin
 
 HMENU Storm::MFCHelper::getChild(const HMENU parent, const int childIter)
 {
-	int subItemCount = ::GetMenuItemCount(parent);
+	const int subItemCount = ::GetMenuItemCount(parent);
 	if (subItemCount == -1)
 	{
 		LOG_DEBUG_ERROR << "Something went wrong when getting the subchild count of a menu. Ensure that the parent isn't null.";

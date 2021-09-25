@@ -200,7 +200,7 @@ void Storm::DirectXController::reportLiveObject()
 #endif // _DEBUG
 }
 
-void Storm::DirectXController::reportDeviceMessages()
+void Storm::DirectXController::reportDeviceMessages() const
 {
 	if (_logDeviceMessage)
 	{
@@ -542,7 +542,7 @@ void Storm::DirectXController::internalCreateDXDevices(HWND hwnd)
 		GetClientRect(hwnd, &rcClient);
 		GetWindowRect(hwnd, &rcWindow);
 
-		POINT ptDiff{ (rcWindow.right - rcWindow.left) - rcClient.right, (rcWindow.bottom - rcWindow.top) - rcClient.bottom };
+		const POINT ptDiff{ (rcWindow.right - rcWindow.left) - rcClient.right, (rcWindow.bottom - rcWindow.top) - rcClient.bottom };
 
 		MoveWindow(
 			hwnd,
@@ -750,7 +750,7 @@ void Storm::DirectXController::internalCreateDirect2DDevices(HWND hwnd)
 		D2D1::PixelFormat(DXGI_FORMAT::DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE::D2D1_ALPHA_MODE_PREMULTIPLIED),
 		dpiX, dpiY
 	);
-	const D2D1_HWND_RENDER_TARGET_PROPERTIES hwndProperties = D2D1::HwndRenderTargetProperties(hwnd, D2D1::Size(static_cast<UINT>(_viewportWidth), static_cast<UINT>(_viewportHeight)));
+	//const D2D1_HWND_RENDER_TARGET_PROPERTIES hwndProperties = D2D1::HwndRenderTargetProperties(hwnd, D2D1::Size(static_cast<UINT>(_viewportWidth), static_cast<UINT>(_viewportHeight)));
 
 	Storm::throwIfFailed(_direct2DFactory->CreateDxgiSurfaceRenderTarget(sharedSurface.Get(), renderTargetProperties, &_direct2DRenderTarget));
 
@@ -783,15 +783,15 @@ void Storm::DirectXController::internalCreateDirectWrite()
 	this->setTextHeightCoeff(_textHeightCoeff + 1.f);
 }
 
-float Storm::DirectXController::getDepthBufferAtPixel(int xPos, int yPos)
+float Storm::DirectXController::getDepthBufferAtPixel(int xPos, int yPos) const
 {
 	using DepthType = float;
 
 	_immediateContext->CopyResource(_depthTextureCpuSide.Get(), _depthTexture.Get());
 
-	D3D11_MAPPED_SUBRESOURCE mapSubressource;
-	Storm::ResourceMapperGuard mapper{ _immediateContext, _depthTextureCpuSide.Get(), 0, D3D11_MAP::D3D11_MAP_READ, 0, mapSubressource };
+	D3D11_MAPPED_SUBRESOURCE mapSubResource;
+	Storm::ResourceMapperGuard mapper{ _immediateContext, _depthTextureCpuSide.Get(), 0, D3D11_MAP::D3D11_MAP_READ, 0, mapSubResource };
 
-	std::size_t offset = yPos * static_cast<int>(_viewportWidth) + xPos;
-	return *(reinterpret_cast<float*>(mapSubressource.pData) + offset);
+	const std::size_t offset = yPos * static_cast<int>(_viewportWidth) + xPos;
+	return *(static_cast<float*>(mapSubResource.pData) + offset);
 }

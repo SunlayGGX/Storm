@@ -1,8 +1,9 @@
 #include "GravityShader.h"
 
 #include "Camera.h"
-#include "ResourceMapperGuard.h"
+
 #include "MemoryHelper.h"
+#include "ResourceMapperGuard.h"
 
 
 namespace

@@ -21,7 +21,7 @@ IFACEMETHODIMP_(ULONG) Storm::CDialogEventHandler::AddRef()
 
 IFACEMETHODIMP_(ULONG) Storm::CDialogEventHandler::Release()
 {
-	long cRef = InterlockedDecrement(&_cRef);
+	const long cRef = InterlockedDecrement(&_cRef);
 	if (!cRef)
 	{
 		delete this;

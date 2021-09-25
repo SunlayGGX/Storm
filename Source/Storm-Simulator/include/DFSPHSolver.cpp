@@ -5,6 +5,7 @@
 //
 //
 
+// ReSharper disable CppClangTidyCppcoreguidelinesProTypeStaticCastDowncast
 #include "DFSPHSolver.h"
 
 #include "ParticleSystem.h"
@@ -77,7 +78,7 @@ namespace
 
 			if (neighbor._isFluidParticle)
 			{
-				const Storm::FluidParticleSystem* neighborPSystemAsFluid = static_cast<Storm::FluidParticleSystem*>(neighbor._containingParticleSystem);
+				const Storm::FluidParticleSystem* neighborPSystemAsFluid = static_cast<Storm::FluidParticleSystem*>(neighbor._containingParticleSystem);  // NOLINT(cppcoreguidelines-pro-type-static-cast-downcast)
 				const float neighborDensity0 = neighborPSystemAsFluid->getRestDensity();
 				const float neighborMass = neighborPSystemAsFluid->getMasses()[neighbor._particleIndex];
 				const float neighborRawDensity = neighborPSystemAsFluid->getDensities()[neighbor._particleIndex];
@@ -446,7 +447,7 @@ void Storm::DFSPHSolver::execute(const Storm::IterationParameter &iterationParam
 	// 10th : compute final positions
 	this->transfertEndDataToSystems(particleSystems, iterationParameter, &_data, [](void* data, const unsigned int pSystemId, Storm::FluidParticleSystem &fluidParticleSystem, const Storm::IterationParameter &iterationParameter)
 	{
-		auto &dataField = reinterpret_cast<decltype(_data)*>(data)->find(pSystemId)->second;
+		auto &dataField = static_cast<decltype(_data)*>(data)->find(pSystemId)->second;
 
 		const std::vector<float> &masses = fluidParticleSystem.getMasses();
 		std::vector<Storm::Vector3> &forces = fluidParticleSystem.getForces();

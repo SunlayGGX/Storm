@@ -2,24 +2,24 @@
 #include "InvertPeriod.h"
 
 
-void Storm::FPSWatcher::registerCurrent(std::chrono::microseconds expectedRefreshTime)
+void Storm::FPSWatcher::registerCurrent(const std::chrono::microseconds expectedRefreshTime)
 {
-	std::chrono::nanoseconds _bufferizedTime = _timeBuffer[1] - _timeBuffer[0];
+	std::chrono::nanoseconds bufferizedTime = _timeBuffer[1] - _timeBuffer[0];
 	_timeBuffer[0] = _timeBuffer[1];
 
-	_bufferizedTime += _timeBuffer[2] - _timeBuffer[1];
+	bufferizedTime += _timeBuffer[2] - _timeBuffer[1];
 	_timeBuffer[1] = _timeBuffer[2];
 
-	_bufferizedTime += _timeBuffer[3] - _timeBuffer[2];
+	bufferizedTime += _timeBuffer[3] - _timeBuffer[2];
 	_timeBuffer[2] = _timeBuffer[3];
 
-	_bufferizedTime += _timeBuffer[4] - _timeBuffer[3];
+	bufferizedTime += _timeBuffer[4] - _timeBuffer[3];
 	_timeBuffer[3] = _timeBuffer[4];
 
 	_timeBuffer[4] = std::chrono::high_resolution_clock::now();
-	_bufferizedTime += _timeBuffer[4] - _timeBuffer[3];
+	bufferizedTime += _timeBuffer[4] - _timeBuffer[3];
 
-	_cachedFPS = Storm::ChronoHelper::toFps<5>(_bufferizedTime);
+	_cachedFPS = Storm::ChronoHelper::toFps<5>(bufferizedTime);
 
 	_expectedRefreshTime = expectedRefreshTime;
 }

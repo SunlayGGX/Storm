@@ -11,6 +11,7 @@
 #include "SerializeRecordPendingData.h"
 
 #define STORM_HIJACKED_TYPE Storm::Vector3
+// ReSharper disable once CppUnusedIncludeDirective
 #include "VectHijack.h"
 
 

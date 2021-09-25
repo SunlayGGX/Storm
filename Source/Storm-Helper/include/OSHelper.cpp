@@ -79,7 +79,7 @@ std::string Storm::OSHelper::getRawQuotedCommandline()
 void Storm::OSHelper::logOSEnvironmentInformation()
 {
 #ifdef environ
-	logEnvInformation((const char**)environ,
+	logEnvInformation(const_cast<const char**>(environ),
 		EnvLoggerArg{ "Computer name", "COMPUTERNAME" },
 		EnvLoggerArg{ "User name", "USERNAME" },
 		EnvLoggerArg{ "Os level", "OS" },

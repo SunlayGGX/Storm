@@ -95,6 +95,10 @@ namespace Storm
 			}
 
 		public:
+			ProcessesHolder() :
+				_referralId{ 0 }
+			{}
+
 			~ProcessesHolder()
 			{
 				Storm::details::ProcessesHolder::prepareDestroyAll(_processes);
@@ -382,14 +386,14 @@ void Storm::OSManager::makeBipSound(const std::chrono::milliseconds bipDuration)
 
 bool Storm::OSManager::preventShutdown()
 {
-	if (!::AbortSystemShutdown(NULL))
+	if (!::AbortSystemShutdown(nullptr))
 	{
 		LOG_DEBUG << "System shutdown prevented.";
 		return true;
 	}
 	else
 	{
-		LOG_ERROR << generateComError(GetLastError(), "We failed to prevent system shutdown.");
+		LOG_ERROR << generateComError(::GetLastError(), "We failed to prevent system shutdown.");
 		return false;
 	}
 }

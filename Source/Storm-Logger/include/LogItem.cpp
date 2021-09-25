@@ -10,7 +10,7 @@
 
 namespace
 {
-	const std::string timeStampToString(std::chrono::system_clock::time_point timeStamp)
+	std::string timeStampToString(std::chrono::system_clock::time_point timeStamp)
 	{
 		std::string result;
 		result.reserve(28);

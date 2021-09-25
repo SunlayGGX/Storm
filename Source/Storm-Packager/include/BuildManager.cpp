@@ -12,7 +12,7 @@ StormPackager::BuildManager::~BuildManager() = default;
 
 bool StormPackager::BuildManager::initialize_Implementation()
 {
-	StormPackager::ConfigManager &configMgr = StormPackager::ConfigManager::instance();
+	const StormPackager::ConfigManager &configMgr = StormPackager::ConfigManager::instance();
 
 	_branchToBuild = configMgr.getBuildBranch();
 	if (_branchToBuild.empty())
@@ -76,7 +76,7 @@ void StormPackager::BuildManager::cleanUp_Implementation()
 {
 	if (_oldBranch != _branchToBuild)
 	{
-		auto revertCheckoutResult = StormPackager::ExecHelper::checkout(_oldBranch);
+		const auto revertCheckoutResult = StormPackager::ExecHelper::checkout(_oldBranch);
 		if (!revertCheckoutResult._success && !revertCheckoutResult._error.empty())
 		{
 			LOG_ERROR <<
@@ -105,7 +105,7 @@ bool StormPackager::BuildManager::run()
 
 	if (_branchToBuild != _oldBranch)
 	{
-		auto gitCommandExecResult = StormPackager::ExecHelper::checkout(_branchToBuild);
+		const auto gitCommandExecResult = StormPackager::ExecHelper::checkout(_branchToBuild);
 		if (!gitCommandExecResult._success && !gitCommandExecResult._error.empty())
 		{
 			LOG_ERROR <<
@@ -128,7 +128,7 @@ bool StormPackager::BuildManager::run()
 		LOG_DEBUG << "Checkout to branch '" << _branchToBuild << "' skipped because we are already on this branch.";
 	}
 
-	StormPackager::ConfigManager &configMgr = StormPackager::ConfigManager::instance();
+	const StormPackager::ConfigManager &configMgr = StormPackager::ConfigManager::instance();
 	const std::filesystem::path slnToBuild = std::filesystem::path{ configMgr.getStormRootPath() } / "Storm.sln";
 
 	return

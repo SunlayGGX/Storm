@@ -170,7 +170,7 @@ namespace Storm
 		const std::fstream& getUnderlyingStream() const noexcept;
 		std::fstream& getUnderlyingStream() noexcept;
 
-		void seekAbsolute(std::size_t newPos);
+		void seekAbsolute(const std::size_t newPos);
 
 		const std::string& getFilePath() const noexcept;
 

@@ -203,7 +203,7 @@ std::fstream& Storm::SerializePackage::getUnderlyingStream() noexcept
 	return _file;
 }
 
-void Storm::SerializePackage::seekAbsolute(std::size_t newPos)
+void Storm::SerializePackage::seekAbsolute(const std::size_t newPos)
 {
 	_file.clear();
 	_file.seekp(newPos);

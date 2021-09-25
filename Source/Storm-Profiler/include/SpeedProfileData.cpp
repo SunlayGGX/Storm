@@ -1,7 +1,5 @@
 #include "SpeedProfileData.h"
 
-#include "MemoryHelper.h"
-
 #include "SingletonHolder.h"
 #include "ITimeManager.h"
 

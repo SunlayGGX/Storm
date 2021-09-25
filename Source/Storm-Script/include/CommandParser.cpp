@@ -174,7 +174,7 @@ std::vector<Storm::ScriptObject> Storm::CommandParser::parse(std::string &&total
 		// but here, we stopped with a command ready but no script.
 		if (!isEnteringCommands)
 		{
-			const std::string_view errorMsg{ "No script followed the last command!" };
+			constexpr std::string_view errorMsg{ "No script followed the last command!" };
 			const std::string errorStackTrace = Storm::obtainStackTrace(false);
 
 			addError(errors, errorMsg, errorStackTrace, errorIter);

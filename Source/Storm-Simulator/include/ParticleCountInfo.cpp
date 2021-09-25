@@ -16,7 +16,7 @@ Storm::ParticleCountInfo::ParticleCountInfo(const Storm::ParticleSystemContainer
 
 	for (const auto &pSystemPair : pSystemContainer)
 	{
-		const Storm::ParticleSystem &pSystem = static_cast<const Storm::ParticleSystem &>(*pSystemPair.second);
+		const Storm::ParticleSystem &pSystem = *pSystemPair.second;
 
 		const std::size_t currentPSystemPCount = pSystem.getParticleCount();
 

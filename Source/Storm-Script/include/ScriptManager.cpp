@@ -186,7 +186,7 @@ void Storm::ScriptManager::execute(std::string script)
 	}
 }
 
-Storm::ScriptManager::UsedScriptWrapper& Storm::ScriptManager::getScriptWrapper()
+Storm::ScriptManager::UsedScriptWrapper& Storm::ScriptManager::getScriptWrapper() const
 {
 	return *_scriptWrapper;
 }

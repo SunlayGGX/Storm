@@ -22,11 +22,11 @@ void Storm::CordJoint::getJointPositionToArray(Storm::Vector3 &outPos1, Storm::V
 	physx::PxRigidActor* actor1;
 	_internalDistanceJointPtr->getActors(actor0, actor1);
 
-	physx::PxTransform actor0GlobalPos = actor0->getGlobalPose();
-	physx::PxTransform actor1GlobalPos = actor1->getGlobalPose();
+	const physx::PxTransform actor0GlobalPos = actor0->getGlobalPose();
+	const physx::PxTransform actor1GlobalPos = actor1->getGlobalPose();
 
-	physx::PxTransform jointTransformActor0 = _internalDistanceJointPtr->getLocalPose(physx::PxJointActorIndex::Enum::eACTOR0);
-	physx::PxTransform jointTransformActor1 = _internalDistanceJointPtr->getLocalPose(physx::PxJointActorIndex::Enum::eACTOR1);
+	const physx::PxTransform jointTransformActor0 = _internalDistanceJointPtr->getLocalPose(physx::PxJointActorIndex::Enum::eACTOR0);
+	const physx::PxTransform jointTransformActor1 = _internalDistanceJointPtr->getLocalPose(physx::PxJointActorIndex::Enum::eACTOR1);
 
 	outPos1 = Storm::convertToStorm(actor0GlobalPos.p + jointTransformActor0.p);
 	outPos2 = Storm::convertToStorm(actor1GlobalPos.p + jointTransformActor1.p);

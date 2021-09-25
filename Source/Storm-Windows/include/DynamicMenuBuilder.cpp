@@ -11,7 +11,7 @@ void Storm::DynamicMenuBuilder::appendMenu(const HMENU parent, const std::wstrin
 	if (Storm::MFCHelper::appendNewStringMenu(parent, menuContentName, newMenuID))
 	{
 		const auto endCallbackRangesIter = std::end(_menuCallbacks);
-		if (auto found = std::find_if(std::begin(_menuCallbacks), endCallbackRangesIter, [newMenuID](const auto &rangesCallbackPair)
+		if (const auto found = std::find_if(std::begin(_menuCallbacks), endCallbackRangesIter, [newMenuID](const auto &rangesCallbackPair)
 		{
 			return newMenuID == rangesCallbackPair.first + static_cast<UINT>(rangesCallbackPair.second.size());
 		}); found != endCallbackRangesIter)
@@ -44,12 +44,12 @@ void Storm::DynamicMenuBuilder::appendMenu(const HMENU parent, const std::wstrin
 bool Storm::DynamicMenuBuilder::operator()(const UINT commandID)
 {
 	const auto endCallbackRangesIter = std::end(_menuCallbacks);
-	if (auto found = std::find_if(std::begin(_menuCallbacks), endCallbackRangesIter, [commandID](const auto &rangesCallbackPair)
+	if (const auto found = std::find_if(std::begin(_menuCallbacks), endCallbackRangesIter, [commandID](const auto &rangesCallbackPair)
 	{
 		return commandID >= rangesCallbackPair.first && commandID < (rangesCallbackPair.first + static_cast<UINT>(rangesCallbackPair.second.size()));
 	}); found != endCallbackRangesIter)
 	{
-		auto &rangesCallbackPair = *found;
+		const auto &rangesCallbackPair = *found;
 		rangesCallbackPair.second[commandID - rangesCallbackPair.first]();
 		return true;
 	}

@@ -4,14 +4,14 @@
 
 
 Storm::CoInitializerRAII::CoInitializerRAII() :
-	_result{ CoInitialize(NULL) },
+	_result{ ::CoInitialize(nullptr) },
 	_shouldCoUninitialize{ true }
 {
 
 }
 
 Storm::CoInitializerRAII::CoInitializerRAII(DWORD flag) :
-	_result{ CoInitializeEx(NULL, flag) },
+	_result{ ::CoInitializeEx(nullptr, flag) },
 	_shouldCoUninitialize{ true }
 {
 

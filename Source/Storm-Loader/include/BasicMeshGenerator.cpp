@@ -79,7 +79,7 @@ namespace
 
 		if (inOutNormals != nullptr)
 		{
-			const std::size_t vertexCount = inVertexes.size();
+			[[maybe_unused]] const std::size_t vertexCount = inVertexes.size();
 			const std::size_t indexCount = inIndexes.size();
 
 			assert(indexCount % 3 == 0 && "Indexes count should be a multiple of 3!");
@@ -276,17 +276,21 @@ void Storm::BasicMeshGenerator::generateSphere(const Storm::Vector3 &position, c
 	}
 
 	// For the 2 specific points that converges
-	const uint32_t downVertexIndex = static_cast<uint32_t>(k_vertexCount - 2);
-	const uint32_t upVertexIndex = static_cast<uint32_t>(downVertexIndex + 1);
-	const uint32_t lastRingStartOffset = static_cast<uint32_t>(downVertexIndex - k_ringsX);
+	enum
+	{
+		k_downVertexIndex = static_cast<uint32_t>(k_vertexCount - 2),
+		k_upVertexIndex = static_cast<uint32_t>(k_downVertexIndex + 1),
+		k_lastRingStartOffset = static_cast<uint32_t>(k_downVertexIndex - k_ringsX),
+	};
+
 	for (std::size_t jiter = 0; jiter < k_ringsXIteration; ++jiter)
 	{
-		STORM_REGISTER_TRIANGLE_INDEX(downVertexIndex, static_cast<uint32_t>(jiter), static_cast<uint32_t>(jiter + 1));
-		STORM_REGISTER_TRIANGLE_INDEX(upVertexIndex, static_cast<uint32_t>(lastRingStartOffset + jiter + 1), static_cast<uint32_t>(lastRingStartOffset + jiter));
+		STORM_REGISTER_TRIANGLE_INDEX(k_downVertexIndex, static_cast<uint32_t>(jiter), static_cast<uint32_t>(jiter + 1));
+		STORM_REGISTER_TRIANGLE_INDEX(k_upVertexIndex, static_cast<uint32_t>(k_lastRingStartOffset + jiter + 1), static_cast<uint32_t>(k_lastRingStartOffset + jiter));
 	}
 
-	STORM_REGISTER_TRIANGLE_INDEX(downVertexIndex, static_cast<uint32_t>(k_ringsXIteration), 0);
-	STORM_REGISTER_TRIANGLE_INDEX(upVertexIndex, static_cast<uint32_t>(lastRingStartOffset), static_cast<uint32_t>(lastRingStartOffset + k_ringsXIteration));
+	STORM_REGISTER_TRIANGLE_INDEX(k_downVertexIndex, static_cast<uint32_t>(k_ringsXIteration), 0);
+	STORM_REGISTER_TRIANGLE_INDEX(k_upVertexIndex, static_cast<uint32_t>(k_lastRingStartOffset), static_cast<uint32_t>(k_lastRingStartOffset + k_ringsXIteration));
 
 	// normals (if needed)
 	generateSmoothedNormalsIfNeeded(inOutVertexes, inOutIndexes, inOutNormals, inOutVertexes.size() - vertexStart, indexStart);

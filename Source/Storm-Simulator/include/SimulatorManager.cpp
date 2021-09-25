@@ -29,7 +29,6 @@
 #include "SceneRigidBodyConfig.h"
 #include "SceneCageConfig.h"
 
-#include "KernelMode.h"
 #include "RecordMode.h"
 #include "ReplaySolver.h"
 
@@ -37,7 +36,6 @@
 
 #include "ParticleCountInfo.h"
 
-#include "SemiImplicitEulerSolver.h"
 #include "Kernel.h"
 
 #include "SPHBaseSolver.h"
@@ -60,8 +58,8 @@
 
 #include "IRigidBody.h"
 
-#include "ThreadingSafety.h"
 #include "ThreadEnumeration.h"
+#include "ThreadingSafety.h"
 
 #include "RaycastQueryRequest.h"
 #include "RaycastHitResult.h"
@@ -2884,7 +2882,7 @@ void Storm::SimulatorManager::selectRigidbodyToDisplayNormals(const unsigned rbI
 		{
 			if (!found->second->isFluids())
 			{
-				_rigidBodySelectedNormalsNonOwningPtr = static_cast<Storm::RigidBodyParticleSystem *>(found->second.get());
+				_rigidBodySelectedNormalsNonOwningPtr = static_cast<Storm::RigidBodyParticleSystem *>(found->second.get());  // NOLINT(cppcoreguidelines-pro-type-static-cast-downcast)
 				
 				const Storm::ITimeManager &timeMgr = singletonHolder.getSingleton<Storm::ITimeManager>();
 				if (timeMgr.simulationIsPaused())

@@ -26,7 +26,6 @@
 
 #include "StringAlgo.h"
 #include "MFCHelper.h"
-#include "RAII.h"
 
 #include "UIModality.h"
 #include "StormExiter.h"

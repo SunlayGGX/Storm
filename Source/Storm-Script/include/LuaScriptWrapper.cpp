@@ -7,11 +7,11 @@ namespace
 {
 	static int luaPrintOverride(lua_State* luaState)
 	{
-		int argsCount = lua_gettop(luaState);
+		const int argsCount = lua_gettop(luaState);
 
 		if (argsCount > 0)
 		{
-			const std::string_view msgPrefix = "Lua output :\n";
+			constexpr std::string_view msgPrefix = "Lua output :\n";
 
 			std::string toPrint;
 			toPrint.reserve(msgPrefix.size() + argsCount * 32);

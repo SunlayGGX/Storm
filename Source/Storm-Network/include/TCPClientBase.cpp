@@ -7,8 +7,9 @@
 
 #include "StringAlgo.h"
 #include "NetworkHelpers.h"
-#include "ThreadingSafety.h"
 #include "RAII.h"
+
+#include "ThreadingSafety.h"
 
 #include "Network/NetworkConstants.cs"
 #include "Network/NetworkMessageType.cs"

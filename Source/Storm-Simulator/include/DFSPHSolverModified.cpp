@@ -5,6 +5,7 @@
 //
 //
 
+// ReSharper disable CppClangTidyCppcoreguidelinesProTypeStaticCastDowncast
 #include "DFSPHSolverModified.h"
 
 #include "ParticleSystem.h"

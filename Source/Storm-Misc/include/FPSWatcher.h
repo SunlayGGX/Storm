@@ -8,7 +8,7 @@ namespace Storm
 	public:
 		constexpr FPSWatcher() = default;
 
-		void registerCurrent(std::chrono::microseconds expectedRefreshTime);
+		void registerCurrent(const std::chrono::microseconds expectedRefreshTime);
 		float getFps() const;
 
 		float getExpectedFps() const;

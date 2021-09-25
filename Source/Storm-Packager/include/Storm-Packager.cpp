@@ -7,7 +7,7 @@
 #include <iostream>
 
 
-int main(int argc, const char*const argv[]) try
+int main(const int argc, const char*const argv[]) try
 {
 	return static_cast<int>(StormPackager::Application{ argc, argv }.run());
 }

@@ -5,11 +5,8 @@
 #include "SimulatorManager.h"
 
 #include "SceneSimulationConfig.h"
-#include "SceneFluidConfig.h"
 
 #include "RunnerHelper.h"
-
-#include "MacroConfig.h"
 
 #include "ThreadingSafety.h"
 

@@ -94,12 +94,12 @@ void Storm::AreaShader::setup(const ComPtr<ID3D11Device> &device, const ComPtr<I
 		D3D11_MAPPED_SUBRESOURCE areaConstantBufferRessource;
 		Storm::ResourceMapperGuard mapGuard{ deviceContext, _constantBuffer.Get(), 0, D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, areaConstantBufferRessource };
 
-		ConstantBuffer*const ressourceDataPtr = static_cast<ConstantBuffer*>(areaConstantBufferRessource.pData);
+		ConstantBuffer*const resourceDataPtr = static_cast<ConstantBuffer*>(areaConstantBufferRessource.pData);
 		
-		ressourceDataPtr->_worldMatrix = _worldMat;
-		ressourceDataPtr->_viewProjMatrix = currentCamera.getTransposedViewProjMatrix();
-		ressourceDataPtr->_eyePosition = DirectX::XMLoadFloat3(&currentCamera.getPosition());
-		ressourceDataPtr->_color = color;
+		resourceDataPtr->_worldMatrix = _worldMat;
+		resourceDataPtr->_viewProjMatrix = currentCamera.getTransposedViewProjMatrix();
+		resourceDataPtr->_eyePosition = DirectX::XMLoadFloat3(&currentCamera.getPosition());
+		resourceDataPtr->_color = color;
 	}
 
 	ID3D11Buffer*const constantBufferTmp = _constantBuffer.Get();

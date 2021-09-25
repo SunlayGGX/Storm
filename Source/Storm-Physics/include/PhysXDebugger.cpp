@@ -2,8 +2,6 @@
 
 #include "SingletonHolder.h"
 #include "IConfigManager.h"
-#include "IGraphicsManager.h"
-#include "IThreadManager.h"
 
 #include "GeneralDebugConfig.h"
 
@@ -12,9 +10,6 @@
 #include "UIField.h"
 #include "UIFieldContainer.h"
 
-#include "ThreadEnumeration.h"
-
-#include "PhysXCoordHelpers.h"
 
 
 #define STORM_PVD_CONNECTION_FIELD_NAME "PVD Connected"

@@ -87,12 +87,6 @@ namespace
 			}
 
 			const std::size_t positionsCount = pState._positions.size();
-			const std::size_t velocitiesCount = pState._velocities.size();
-			const std::size_t forcesCount = pState._forces.size();
-			const std::size_t densitiesCount = pState._densities.size();
-			const std::size_t pressuresCount = pState._pressures.size();
-			const std::size_t massesCount = pState._masses.size();
-			const std::size_t volumesCount = pState._volumes.size();
 
 #define STORM_VALIDATE_CONTAINER_SIZE_NO_MISMATCH(memberName)																															\
 			do if (positionsCount != pState.memberName.size())																															\

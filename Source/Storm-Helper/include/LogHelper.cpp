@@ -3,7 +3,7 @@
 #include "LogLevel.h"
 
 
-std::string_view Storm::parseLogLevel(Storm::LogLevel logLevel)
+std::string_view Storm::parseLogLevel(const Storm::LogLevel logLevel)
 {
 #define STORM_SWITCH_CASE_STRINGIFY(CaseStatement) case Storm::LogLevel::CaseStatement: return #CaseStatement;
 	switch (logLevel)

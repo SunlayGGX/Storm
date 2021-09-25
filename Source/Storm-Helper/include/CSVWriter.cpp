@@ -323,13 +323,5 @@ void Storm::CSVWriter::reserve(const std::size_t count)
 
 bool Storm::CSVWriter::empty() const
 {
-	for (const auto &elements : _elements)
-	{
-		if (!elements.second.empty())
-		{
-			return true;
-		}
-	}
-
-	return false;
+	return std::any_of(std::begin(_elements), std::end(_elements), [](const auto &elements) { return !elements.second.empty(); });
 }

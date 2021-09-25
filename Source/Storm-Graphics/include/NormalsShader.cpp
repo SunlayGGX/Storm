@@ -7,8 +7,6 @@
 
 #include "SceneGraphicConfig.h"
 
-#include "ShaderMacroItem.h"
-
 #include "MemoryHelper.h"
 #include "ResourceMapperGuard.h"
 
