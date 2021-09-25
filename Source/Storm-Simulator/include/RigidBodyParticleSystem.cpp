@@ -488,6 +488,12 @@ void Storm::RigidBodyParticleSystem::setParticleSystemTotalForce(const Storm::Ve
 
 void Storm::RigidBodyParticleSystem::buildNeighborhoodOnParticleSystemUsingSpacePartition(const Storm::ParticleSystemContainer &allParticleSystems, const float kernelLength)
 {
+	// Rb particle systems do not need for neighborhood when their volumes are fixed.
+	if (_volumeFixed)
+	{
+		return;
+	}
+
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 
 	const Storm::ISpacePartitionerManager &spacePartitionerMgr = singletonHolder.getSingleton<Storm::ISpacePartitionerManager>();
