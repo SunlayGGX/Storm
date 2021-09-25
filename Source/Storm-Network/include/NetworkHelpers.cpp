@@ -44,6 +44,8 @@ void Storm::NetworkHelpers::prepareMsg(std::string &inOutMsg, const Storm::Netwo
 
 	msgWithHeader += Storm::NetworkConstants::k_networkSeparator;
 	msgWithHeader += Storm::NetworkConstants::k_endOfMessageCommand;
+
+	inOutMsg = std::move(msgWithHeader);
 }
 
 bool Storm::NetworkHelpers::parseMsg(std::string &inOutMsg, std::vector<Storm::OnMessageReceivedParam> &params)
