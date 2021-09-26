@@ -11,6 +11,9 @@ namespace Storm
 		RigidBodyParticleSystem(unsigned int particleSystemIndex, std::vector<Storm::Vector3> &&worldPositions);
 		RigidBodyParticleSystem(unsigned int particleSystemIndex, const std::size_t particleCount);
 
+	private:
+		void loadRigidbodyConfig();
+
 	public:
 		void initializePreSimulation(const Storm::ParticleSystemContainer &allParticleSystems, const float kernelLength) final override;
 
@@ -46,6 +49,7 @@ namespace Storm
 		std::vector<Storm::Vector3>& getNormals() noexcept;
 
 		float getViscosity() const noexcept;
+		float getNoStickCoefficient() const noexcept;
 
 		const Storm::Vector3& getRbPosition() const noexcept;
 		const Storm::Vector3& getRbTotalForce() const noexcept;
@@ -71,6 +75,7 @@ namespace Storm
 		std::vector<Storm::Vector3> _normals;
 
 		float _viscosity;
+		float _noStickCoefficient;
 
 		// Those are particle global position and rotation that serves to update particles using the rigid body position and rotation owned by the physics engine.
 		// Beware because they are made to track the changes of position and rotation, it means that they are not forcefully up to date.

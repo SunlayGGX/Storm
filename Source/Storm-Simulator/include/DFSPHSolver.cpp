@@ -241,26 +241,32 @@ namespace
 	{
 		Storm::Vector3 result = Storm::Vector3::Zero();
 
+		const float velocityToForceCoeff = currentPMass / iterationParameter._deltaTime;
 		for (const Storm::NeighborParticleInfo &neighbor : currentPNeighborhood)
 		{
 			if (!neighbor._isFluidParticle)
 			{
 				Storm::RigidBodyParticleSystem &pSystemAsRb = static_cast<Storm::RigidBodyParticleSystem &>(*neighbor._containingParticleSystem);
 
-				const Storm::Vector3 velDiff = vi - pSystemAsRb.getVelocity()[neighbor._particleIndex];
-				const Storm::Vector3 &rbPNormal = pSystemAsRb.getNormals()[neighbor._particleIndex];
-
-				// Make it the component that removes the normal component of the velocity.
-				const Storm::Vector3 addedForce = -(velDiff.dot(rbPNormal) / iterationParameter._deltaTime * currentPMass) * rbPNormal;
-				result += addedForce;
-
-				// Mirror the force on the boundary solid following the 3rd newton law
-				if (!pSystemAsRb.isStatic())
+				const float noStickCoeff = pSystemAsRb.getNoStickCoefficient();
+				if (noStickCoeff > 0.f)
 				{
-					Storm::Vector3 &boundaryNeighborTmpNoStickForce = neighbor._containingParticleSystem->getTemporaryNoStickForces()[neighbor._particleIndex];
+					const Storm::Vector3 velDiff = vi - pSystemAsRb.getVelocity()[neighbor._particleIndex];
+					const Storm::Vector3 &rbPNormal = pSystemAsRb.getNormals()[neighbor._particleIndex];
 
-					std::lock_guard<std::mutex> lock{ neighbor._containingParticleSystem->_mutex };
-					boundaryNeighborTmpNoStickForce -= addedForce;
+					// Make it the component that removes the normal component of the velocity.
+					// Note : we suppose the rigid body normal at neighbor particle (rbPNormal) is normalized.
+					const Storm::Vector3 addedForce = (velDiff.dot(rbPNormal) * velocityToForceCoeff * noStickCoeff) * rbPNormal;
+					result -= addedForce;
+
+					// Mirror the force on the boundary solid following the 3rd newton law
+					if (!pSystemAsRb.isStatic())
+					{
+						Storm::Vector3 &boundaryNeighborTmpNoStickForce = neighbor._containingParticleSystem->getTemporaryNoStickForces()[neighbor._particleIndex];
+
+						std::lock_guard<std::mutex> lock{ neighbor._containingParticleSystem->_mutex };
+						boundaryNeighborTmpNoStickForce += addedForce;
+					}
 				}
 			}
 		}

@@ -969,6 +969,7 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "wall", rbConfig._isWall) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "mass", rbConfig._mass) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "viscosity", rbConfig._viscosity) ||
+			Storm::XmlReader::handleXml(rigidBodyConfigXml, "noStickCoeff", rbConfig._noStickCoeff) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "layerCount", rbConfig._layerCount) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "normalsCoherency", rbConfig._enforceNormalsCoherency) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "sampleCountMDeserno", rbConfig._sampleCountMDeserno) ||
@@ -1018,6 +1019,10 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 		else if (rbConfig._viscosity < 0.f)
 		{
 			Storm::throwException<Storm::Exception>("viscosity " + std::to_string(rbConfig._viscosity) + "Pa.s is invalid (rigid body " + std::to_string(rbConfig._rigidBodyID) + ")!");
+		}
+		else if (rbConfig._noStickCoeff < 0.f)
+		{
+			Storm::throwException<Storm::Exception>("no stick coefficient value " + std::to_string(rbConfig._noStickCoeff) + " is invalid (rigid body " + std::to_string(rbConfig._rigidBodyID) + "). This should be positive or zero!");
 		}
 		else if (rbConfig._isWall && rbConfig._insideRbFluidDetectionMethodEnum != Storm::InsideParticleRemovalTechnique::None)
 		{

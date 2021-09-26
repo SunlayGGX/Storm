@@ -65,16 +65,7 @@ Storm::RigidBodyParticleSystem::RigidBodyParticleSystem(unsigned int particleSys
 	_velocityDirtyInternal{ false },
 	_rbTotalForce{ Storm::Vector3::Zero() }
 {
-	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
-	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
-	const Storm::SceneRigidBodyConfig &currentRbConfig = configMgr.getSceneRigidBodyConfig(particleSystemIndex);
-
-	_viscosity = currentRbConfig._viscosity;
-
-	_volumeFixed = currentRbConfig._fixedSimulationVolume;
-
-	_isWall = currentRbConfig._isWall;
-	_isStatic = _isWall || currentRbConfig._static;
+	this->loadRigidbodyConfig();
 
 	const std::size_t particleCount = this->getParticleCount();
 	if (this->isStatic())
@@ -94,17 +85,27 @@ Storm::RigidBodyParticleSystem::RigidBodyParticleSystem(unsigned int particleSys
 	_volumeFixed{ false },
 	_velocityDirtyInternal{ false }
 {
-	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
-	const Storm::SceneRigidBodyConfig &currentRbConfig = configMgr.getSceneRigidBodyConfig(particleSystemIndex);
-	_isWall = currentRbConfig._isWall;
-	_isStatic = _isWall || currentRbConfig._static;
-
-	_viscosity = currentRbConfig._viscosity;
+	this->loadRigidbodyConfig();
 
 	_volumes.resize(particleCount);
 	_normals.resize(particleCount);
 
 	// No need to initialize the other arrays since we won't use them in replay mode.
+}
+
+void Storm::RigidBodyParticleSystem::loadRigidbodyConfig()
+{
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
+	const Storm::SceneRigidBodyConfig &currentRbConfig = configMgr.getSceneRigidBodyConfig(this->getId());
+
+	_viscosity = currentRbConfig._viscosity;
+	_noStickCoefficient = currentRbConfig._noStickCoeff;
+
+	_volumeFixed = currentRbConfig._fixedSimulationVolume;
+
+	_isWall = currentRbConfig._isWall;
+	_isStatic = _isWall || currentRbConfig._static;
 }
 
 void Storm::RigidBodyParticleSystem::initializePreSimulation(const Storm::ParticleSystemContainer &allParticleSystems, const float kernelLength)
@@ -341,6 +342,11 @@ void Storm::RigidBodyParticleSystem::onSubIterationStart(const Storm::ParticleSy
 float Storm::RigidBodyParticleSystem::getViscosity() const noexcept
 {
 	return _viscosity;
+}
+
+float Storm::RigidBodyParticleSystem::getNoStickCoefficient() const noexcept
+{
+	return _noStickCoefficient;
 }
 
 const std::vector<float>& Storm::RigidBodyParticleSystem::getVolumes() const noexcept

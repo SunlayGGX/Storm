@@ -118,6 +118,7 @@ Storm::SceneRigidBodyConfig::SceneRigidBodyConfig() :
 	_fixedSimulationVolume{ false },
 	_mass{ -1.f },
 	_viscosity{ 0.f },
+	_noStickCoeff{ 1.f },
 	_layerCount{ 1 },
 	_layerGenerationMode{ Storm::LayeringGenerationTechnique::Scaling },
 	_volumeComputationTechnique{ Storm::VolumeComputationTechnique::None },
