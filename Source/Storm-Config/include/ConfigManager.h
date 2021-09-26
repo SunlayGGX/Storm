@@ -73,6 +73,7 @@ namespace Storm
 		const std::string& getRestartCommandline() const final override;
 
 		void getUnsafeMacroizedConvertedValue(std::string &inOutValue) const final override;
+		bool getMaybeMacroizedConvertedValue(std::string &inOutValue) const final override;
 		void getMacroizedConvertedValue(std::string &inOutValue) const final override;
 
 	private:

@@ -596,14 +596,22 @@ void Storm::ConfigManager::getUnsafeMacroizedConvertedValue(std::string &inOutVa
 	_macroConfig(inOutValue);
 }
 
-void Storm::ConfigManager::getMacroizedConvertedValue(std::string &inOutValue) const
+
+bool Storm::ConfigManager::getMaybeMacroizedConvertedValue(std::string &inOutValue) const
 {
 	std::size_t firstTagPosHint;
 	if (_macroConfig.hasKnownMacro(inOutValue, firstTagPosHint))
 	{
 		_macroConfig(inOutValue, firstTagPosHint);
+		return true;
 	}
-	else
+
+	return false;
+}
+
+void Storm::ConfigManager::getMacroizedConvertedValue(std::string &inOutValue) const
+{
+	if (!this->getMaybeMacroizedConvertedValue(inOutValue))
 	{
 		Storm::throwException<Storm::Exception>("'" + inOutValue + "' has no known macros embedded into it!");
 	}

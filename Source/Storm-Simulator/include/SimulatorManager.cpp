@@ -2606,7 +2606,7 @@ void Storm::SimulatorManager::writeCurrentFrameSystemForcesToCsv(const unsigned 
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
 
 	std::string FilePathCpy = filePath;
-	configMgr.getMacroizedConvertedValue(FilePathCpy);
+	configMgr.getMaybeMacroizedConvertedValue(FilePathCpy);
 
 	const Storm::Language osLanguage = configMgr.getGeneralApplicationConfig()._language;
 

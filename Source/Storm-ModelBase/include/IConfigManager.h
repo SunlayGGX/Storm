@@ -87,6 +87,7 @@ namespace Storm
 		virtual const std::string& getRestartCommandline() const = 0;
 
 		virtual void getUnsafeMacroizedConvertedValue(std::string &inOutValue) const = 0;
+		virtual bool getMaybeMacroizedConvertedValue(std::string &inOutValue) const = 0;
 		virtual void getMacroizedConvertedValue(std::string &inOutValue) const = 0;
 	};
 }
