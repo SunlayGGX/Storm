@@ -287,9 +287,10 @@ void Storm::Camera::reset()
 	this->setPositionInternal(sceneGraphicConfig._cameraPosition.x(), sceneGraphicConfig._cameraPosition.y(), sceneGraphicConfig._cameraPosition.z());
 	this->setTargetInternal(sceneGraphicConfig._cameraLookAt.x(), sceneGraphicConfig._cameraLookAt.y(), sceneGraphicConfig._cameraLookAt.z());
 
-	if (generalGraphicConfig._spinCameraToGravityUp)
+	const Storm::Vector3 &gravity = configMgr.getSceneSimulationConfig()._gravity;
+	if (generalGraphicConfig._spinCameraToGravityUp && !gravity.isZero())
 	{
-		_up = Storm::convertToXM(-configMgr.getSceneSimulationConfig()._gravity);
+		_up = Storm::convertToXM(-gravity);
 		_up.m128_f32[3] = 0.f;
 	}
 	else
