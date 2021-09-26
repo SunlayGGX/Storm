@@ -168,7 +168,7 @@ namespace
 		{
 			enum : std::size_t { k_shift = 16 };
 
-			const std::size_t arrayCount = dstArray.size() * (sizeof(ValueType) / sizeof(float));
+			const std::size_t arrayCount = srcArray.size() * (sizeof(ValueType) / sizeof(float));
 			const std::size_t remaining = arrayCount % k_shift;
 			
 			auto fastCpy = [srcPtr = reinterpret_cast<const float*>(srcArray.data()), dstPtr = reinterpret_cast<float*>(dstArray.data())](const std::size_t iter)
@@ -485,15 +485,18 @@ namespace
 					{
 						if constexpr (useAVX512)
 						{
+							STORM_COPY_ARRAYS(avx512CpyLambda, _normals, pSystemRefAsRb.getNormals());
 							STORM_COPY_ARRAYS(avx512CpyLambda, _volumes, pSystemRefAsRb.getVolumes());
 						}
 						else
 						{
+							STORM_COPY_ARRAYS(sseCpyLambda, _normals, pSystemRefAsRb.getNormals());
 							STORM_COPY_ARRAYS(sseCpyLambda, _volumes, pSystemRefAsRb.getVolumes());
 						}
 					}
 					else
 					{
+						STORM_MAKE_SIMPLE_COPY_ARRAY(_normals, pSystemRefAsRb.getNormals());
 						STORM_MAKE_SIMPLE_COPY_ARRAY(_volumes, pSystemRefAsRb.getVolumes());
 					}
 
