@@ -160,6 +160,7 @@ namespace Storm
 		void printMassForRbDensity(const unsigned int id, const float wantedDensity);
 
 		void writeCurrentFrameSystemForcesToCsv(const unsigned int id, const std::string &filePath) const;
+		void writeParticleNeighborhood(const unsigned int id, const std::size_t pIndex, const std::string &filePath) const;
 
 	private:
 		void logAverageDensity() const;
