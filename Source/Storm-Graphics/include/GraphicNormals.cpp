@@ -46,7 +46,7 @@ void Storm::GraphicNormals::refreshNormalsData(const ComPtr<ID3D11Device> &devic
 
 		GraphicNormal &graphicNormal = normalsChanged[iter];
 		graphicNormal._base = currentPos;
-		graphicNormal._head = currentPos + (currentNormal * 0.01f);
+		graphicNormal._head = currentPos + (currentNormal * 0.05f);
 	}
 
 	// In case it has a vertex buffer set (most of the time)
