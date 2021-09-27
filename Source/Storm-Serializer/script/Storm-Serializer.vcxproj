@@ -15,6 +15,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\include\RecordArchiver.cpp" />
     <ClCompile Include="..\include\RecordHandlerBase.cpp" />
     <ClCompile Include="..\include\RecordPreHeaderSerializer.cpp" />
     <ClCompile Include="..\include\RecordReader.cpp" />
@@ -30,6 +31,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\include\RecordArchiver.h" />
     <ClInclude Include="..\include\RecordHandlerBase.h" />
     <ClInclude Include="..\include\RecordPreHeaderSerializer.h" />
     <ClInclude Include="..\include\RecordPreHeader.h" />

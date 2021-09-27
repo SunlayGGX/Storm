@@ -46,6 +46,12 @@
     <Filter Include="Source Files\State">
       <UniqueIdentifier>{b045714d-d364-4e68-bbb7-97a5b2c1c604}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Record\Archive">
+      <UniqueIdentifier>{bb72e9db-d736-4048-ac68-724613a3255b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Archive">
+      <UniqueIdentifier>{e7bb6922-f758-467f-bdb9-f6165abe48df}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-SerializerPCH.cpp">
@@ -74,6 +80,9 @@
     </ClCompile>
     <ClCompile Include="..\include\StateFileHeader.cpp">
       <Filter>Source Files\State</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\RecordArchiver.cpp">
+      <Filter>Source Files\Archive</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -106,6 +115,9 @@
     </ClInclude>
     <ClInclude Include="..\include\StateFileHeader.h">
       <Filter>Header Files\State</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\RecordArchiver.h">
+      <Filter>Header Files\Record\Archive</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
