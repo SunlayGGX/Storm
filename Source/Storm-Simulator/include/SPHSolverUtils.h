@@ -39,7 +39,8 @@ namespace Storm
 			Storm::Vector3 totalDragForce = Storm::Vector3::Zero();
 			Storm::Vector3 currentDragTmpComponent = Storm::Vector3::Zero();
 
-			const float currentPDensityRatio = fluidParticleSystem.getRestDensity() / currentPDensity;
+			const float dendity0 = fluidParticleSystem.getRestDensity();
+			const float currentPDensityRatio = dendity0 * dendity0 / currentPDensity;
 			const float fluidDragPreCoeff = uniformDragCoeff * currentPDensityRatio * fluidParticleSystem.getParticleVolume();
 
 			for (const Storm::NeighborParticleInfo &neighbor : currentPNeighborhood)
