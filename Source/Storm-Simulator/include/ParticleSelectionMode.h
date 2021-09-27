@@ -16,6 +16,7 @@ namespace Storm
 		NoStick,
 		AllOnParticle,
 
+		Normal,
 		RbForce,
 		AverageRbForce,
 

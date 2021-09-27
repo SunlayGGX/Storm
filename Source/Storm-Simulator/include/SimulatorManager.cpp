@@ -3000,6 +3000,7 @@ bool Storm::SimulatorManager::selectSpecificParticle_Internal(const unsigned pSy
 				{
 					const Storm::RigidBodyParticleSystem &pSystemAsRb = static_cast<const Storm::RigidBodyParticleSystem &>(selectedPSystem);
 					_particleSelector.setRbPosition(pSystemAsRb.getRbPosition());
+					_particleSelector.setRbParticleNormals(pSystemAsRb.getNormals()[particleIndex]);
 					_particleSelector.setRbTotalForce(pSystemAsRb.getRbTotalForce());
 				}
 				else

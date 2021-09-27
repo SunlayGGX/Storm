@@ -19,6 +19,7 @@ namespace Storm
 
 		bool _hasRbTotalForce;
 		Storm::Vector3 _rbPosition;
+		Storm::Vector3 _rbNormals;
 		Storm::Vector3 _totalForcesOnRb;
 
 		Storm::Average<Storm::Vector3, Storm::MovingAverageTraits<32>> _averageForcesOnRb;

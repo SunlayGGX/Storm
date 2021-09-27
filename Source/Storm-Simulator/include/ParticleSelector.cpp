@@ -32,6 +32,7 @@ namespace
 		case Storm::ParticleSelectionMode::DynamicPressure: return STORM_TEXT("DynamicQ");
 		case Storm::ParticleSelectionMode::NoStick: return STORM_TEXT("NoStick");
 		case Storm::ParticleSelectionMode::AllOnParticle: return STORM_TEXT("All");
+		case Storm::ParticleSelectionMode::Normal: return STORM_TEXT("Normal");
 		case Storm::ParticleSelectionMode::RbForce: return STORM_TEXT("Rb Total force");
 		case Storm::ParticleSelectionMode::AverageRbForce: return STORM_TEXT("Rb Average Total force");
 
@@ -72,6 +73,7 @@ namespace
 	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, DynamicPressure)			\
 	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, NoStick)					\
 	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, AllOnParticle)			\
+	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Normal)					\
 	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, RbForce)					\
 	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, AverageRbForce)			\
 
@@ -140,6 +142,7 @@ namespace
 		case Storm::ParticleSelectionMode::Viscosity:
 		case Storm::ParticleSelectionMode::NoStick:
 		case Storm::ParticleSelectionMode::Drag:
+		case Storm::ParticleSelectionMode::Normal:
 		case Storm::ParticleSelectionMode::RbForce:
 		case Storm::ParticleSelectionMode::AverageRbForce:
 		case Storm::ParticleSelectionMode::SelectionModeCount:
@@ -281,6 +284,13 @@ void Storm::ParticleSelector::setSelectedParticleSumForce(const Storm::Vector3 &
 	_selectedParticleData->_externalSumForces = sumForce;
 }
 
+
+void Storm::ParticleSelector::setRbParticleNormals(const Storm::Vector3 &normals)
+{
+	_selectedParticleData->_rbNormals = normals;
+	_selectedParticleData->_hasRbTotalForce = true;
+}
+
 void Storm::ParticleSelector::setRbPosition(const Storm::Vector3 &position)
 {
 	_selectedParticleData->_rbPosition = position;
@@ -310,6 +320,7 @@ const Storm::Vector3& Storm::ParticleSelector::getSelectedVectorToDisplay() cons
 	case Storm::ParticleSelectionMode::DynamicPressure:			return _selectedParticleData->_dynamicPressureForce;
 	case Storm::ParticleSelectionMode::NoStick:					return _selectedParticleData->_noStickForce;
 	case Storm::ParticleSelectionMode::AllOnParticle:			return _selectedParticleData->_externalSumForces;
+	case Storm::ParticleSelectionMode::Normal:					return _selectedParticleData->_rbNormals;
 	case Storm::ParticleSelectionMode::RbForce:					return _selectedParticleData->_totalForcesOnRb;
 	case Storm::ParticleSelectionMode::AverageRbForce:			return _selectedParticleData->_averageForcesOnRb.getAverage();
 
@@ -328,6 +339,7 @@ const Storm::Vector3& Storm::ParticleSelector::getSelectedVectorPosition(const S
 	case Storm::ParticleSelectionMode::AverageRbForce:
 		return _selectedParticleData->_rbPosition;
 
+	case Storm::ParticleSelectionMode::Normal:
 	default:
 		return particlePosition;
 	}
@@ -352,6 +364,8 @@ void Storm::ParticleSelector::logForceComponents() const
 	{
 		const Storm::Vector3 &averageTotalForce = selectedParticleDataRef._averageForcesOnRb.getAverage();
 
+		const std::string rbNormalStr = Storm::toStdString(selectedParticleDataRef._rbNormals);
+		const std::string rbNormalNormStr = Storm::toStdString(selectedParticleDataRef._rbNormals.norm());
 		const std::string rbForceStr = Storm::toStdString(selectedParticleDataRef._totalForcesOnRb);
 		const std::string rbForceNormStr = Storm::toStdString(selectedParticleDataRef._totalForcesOnRb.norm());
 		const std::string rbAverageForceStr = Storm::toStdString(averageTotalForce);
@@ -359,7 +373,11 @@ void Storm::ParticleSelector::logForceComponents() const
 		
 		rbSpecificInfosStr.reserve(64 + rbForceStr.size() + rbForceNormStr.size() + rbAverageForceStr.size() + rbAverageForceNormStr.size());
 
-		rbSpecificInfosStr += "\nRigidbody total force: ";
+		rbSpecificInfosStr += "\nRigidbody P normal : ";
+		rbSpecificInfosStr += rbNormalStr;
+		rbSpecificInfosStr += ". Norm: ";
+		rbSpecificInfosStr += rbNormalNormStr;
+		rbSpecificInfosStr += ". Total force: ";
 		rbSpecificInfosStr += rbForceStr;
 		rbSpecificInfosStr += ". Norm: ";
 		rbSpecificInfosStr += rbForceNormStr;
