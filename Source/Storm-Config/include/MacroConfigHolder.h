@@ -19,7 +19,7 @@ namespace Storm
 		bool read(const std::string &macroConfigFilePathStr);
 
 	private:
-		const std::pair<const MacroKey, MacroValue>& registerMacroInternal(const std::string &key, std::string value);
+		const std::pair<const MacroKey, MacroValue>& registerMacroInternal(const std::string_view key, std::string value);
 
 	public:
 		const std::string*const queryMacroValue(const std::string &key) const;

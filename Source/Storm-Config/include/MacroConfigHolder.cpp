@@ -4,6 +4,8 @@
 #include "TimeHelper.h"
 #include "StormPathHelper.h"
 
+#include "Config/MacroTags.cs"
+
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 
@@ -11,9 +13,16 @@
 namespace
 {
 	enum { k_macroTag = '$' };
-	std::string makeFinalMacroKey(const std::string &key)
+	std::string makeFinalMacroKey(const std::string_view key)
 	{
-		return std::string{ static_cast<char>(k_macroTag) } + '[' + key + ']';
+		std::string result;
+		result.reserve(3 + key.size());
+		result += static_cast<char>(k_macroTag);
+		result += '[';
+		result += key;
+		result += ']';
+
+		return result;
 	}
 
 	class MacroLogParserPolicy
@@ -61,23 +70,24 @@ void Storm::MacroConfigHolder::initialize()
 
 	const std::filesystem::path outputPath = rootPath / "Intermediate";
 
-	this->registerMacroInternal("StormExe", configMgr.getExePath());
-	this->registerMacroInternal("StormFolderExe", exeFolderPath.string());
-	this->registerMacroInternal("StormRoot", rootPath.string());
-	this->registerMacroInternal("StormConfig", (rootPath / "Config").string());
-	this->registerMacroInternal("StormResource", (rootPath / "Resource").string());
-	this->registerMacroInternal("StormIntermediate", outputPath.string());
-	this->registerMacroInternal("StormRecord", (outputPath / "Record").string());
-	this->registerMacroInternal("StormStates", (outputPath / "States").string());
-	this->registerMacroInternal("StormScripts", (outputPath / "Scripts").string());
-	this->registerMacroInternal("StormDebug", (outputPath / "Debug").string());
-	this->registerMacroInternal("DateTime", Storm::TimeHelper::getCurrentDateTime(false));
-	this->registerMacroInternal("Date", Storm::TimeHelper::getCurrentDate());
-	this->registerMacroInternal("PID", Storm::toStdString(configMgr.getCurrentPID()));
+	this->registerMacroInternal(Storm::MacroTags::k_builtInMacroKey_StormExe, configMgr.getExePath());
+	this->registerMacroInternal(Storm::MacroTags::k_builtInMacroKey_StormFolderExe, exeFolderPath.string());
+	this->registerMacroInternal(Storm::MacroTags::k_builtInMacroKey_StormRoot, rootPath.string());
+	this->registerMacroInternal(Storm::MacroTags::k_builtInMacroKey_StormConfig, (rootPath / "Config").string());
+	this->registerMacroInternal(Storm::MacroTags::k_builtInMacroKey_StormResource, (rootPath / "Resource").string());
+	this->registerMacroInternal(Storm::MacroTags::k_builtInMacroKey_StormIntermediate, outputPath.string());
+	this->registerMacroInternal(Storm::MacroTags::k_builtInMacroKey_StormRecord, (outputPath / "Record").string());
+	this->registerMacroInternal(Storm::MacroTags::k_builtInMacroKey_StormStates, (outputPath / "States").string());
+	this->registerMacroInternal(Storm::MacroTags::k_builtInMacroKey_StormScripts, (outputPath / "Scripts").string());
+	this->registerMacroInternal(Storm::MacroTags::k_builtInMacroKey_StormDebug, (outputPath / "Debug").string());
+	this->registerMacroInternal(Storm::MacroTags::k_builtInMacroKey_StormArchive, (outputPath / "Archive").string());
+	this->registerMacroInternal(Storm::MacroTags::k_builtInMacroKey_DateTime, Storm::TimeHelper::getCurrentDateTime(false));
+	this->registerMacroInternal(Storm::MacroTags::k_builtInMacroKey_Date, Storm::TimeHelper::getCurrentDate());
+	this->registerMacroInternal(Storm::MacroTags::k_builtInMacroKey_PID, Storm::toStdString(configMgr.getCurrentPID()));
 
 	if (std::filesystem::exists(outputPath))
 	{
-		this->registerMacroInternal("StormTmp", outputPath.string());
+		this->registerMacroInternal(Storm::MacroTags::k_builtInMacroKey_StormTmp, outputPath.string());
 	}
 	else
 	{
@@ -86,7 +96,7 @@ void Storm::MacroConfigHolder::initialize()
 		{
 			std::filesystem::create_directories(tmpPath);
 		}
-		this->registerMacroInternal("StormTmp", tmpPath.string());
+		this->registerMacroInternal(Storm::MacroTags::k_builtInMacroKey_StormTmp, tmpPath.string());
 	}
 
 	LOG_COMMENT << "Pre built-in macros registered:\n" << this->produceAllMacroLog();
@@ -178,9 +188,9 @@ bool Storm::MacroConfigHolder::read(const std::string &macroConfigFilePathStr)
 	return false;
 }
 
-const std::pair<const Storm::MacroConfigHolder::MacroKey, Storm::MacroConfigHolder::MacroValue>& Storm::MacroConfigHolder::registerMacroInternal(const std::string &key, std::string value)
+const std::pair<const Storm::MacroConfigHolder::MacroKey, Storm::MacroConfigHolder::MacroValue>& Storm::MacroConfigHolder::registerMacroInternal(const std::string_view key, std::string value)
 {
-	return *_macros.emplace(makeFinalMacroKey(key), std::move(value)).first;
+	return *_macros.insert_or_assign(makeFinalMacroKey(key), std::move(value)).first;
 }
 
 const std::string*const Storm::MacroConfigHolder::queryMacroValue(const std::string &key) const

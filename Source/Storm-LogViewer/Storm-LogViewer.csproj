@@ -116,6 +116,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <Import Project="..\Storm-CsHelper\Storm-CsHelper.projitems" Label="Shared" />
+  <Import Project="..\Storm-CsCppShared\script\Storm-CsCppShared.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>if "$(Configuration)" == "Debug" (

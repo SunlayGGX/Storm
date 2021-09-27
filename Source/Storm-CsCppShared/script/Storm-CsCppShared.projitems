@@ -9,6 +9,7 @@
     <Import_RootNamespace>Storm_CsCppShared</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Config\MacroTags.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Network\NetworkApplication.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Network\NetworkConstants.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Network\NetworkMessageType.cs" />

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Xml.Linq;
 
 namespace Storm_CsHelper.Source.Config
@@ -15,11 +16,22 @@ namespace Storm_CsHelper.Source.Config
             public string _value;
         }
 
-        #endregion
+		private class RawBuiltInMacroRequest : IEquatable<RawBuiltInMacroRequest>
+		{
+			public string _key;
+			public string _value;
 
-        #region Members
+			public bool Equals(RawBuiltInMacroRequest other)
+			{
+				return _key == other._key;
+			}
+		}
 
-        private List<Macro> _macros = new List<Macro>();
+		#endregion
+
+		#region Members
+
+		private List<Macro> _macros = new List<Macro>();
         public List<Macro> Macros
         {
             get => _macros;
@@ -122,7 +134,46 @@ namespace Storm_CsHelper.Source.Config
             }
         }
 
-        public void AddPrebuiltMacro()
+
+		private void AddPrebuiltMacroInternal(params RawBuiltInMacroRequest[] builtInMacros)
+		{
+			// If no duplicate
+			if (builtInMacros.Distinct().Count() != builtInMacros.Count())
+			{
+				throw new System.Exception("Macros requests should all be unique!");
+			}
+
+			foreach(RawBuiltInMacroRequest macroRequest in builtInMacros)
+			{
+				_macros.Add(new Macro { _key = MacroConfig.Macroify(macroRequest._key), _value = macroRequest._value });
+			}
+
+			// If all builtin macros were handled
+			var macroTagsCteType = typeof(Storm.MacroTags);
+			var allFields = macroTagsCteType.GetFields();
+			foreach (var field in allFields)
+			{
+				if(field.FieldType == typeof(string) && field.IsStatic && field.IsLiteral)
+				{
+					if(builtInMacros.FirstOrDefault(macro => macro._key == field.GetValue(null) as string) == null)
+					{
+						throw new System.Exception("Not all builtin macros were handled!");
+					}
+				}
+			}
+		}
+
+		private static string GetTmpPath(string outputPath)
+		{
+			return Directory.Exists(outputPath) ? outputPath : Path.Combine(Path.GetTempPath(), "Storm");
+		}
+
+		private static string GetCurrentLogViewerPID()
+		{
+			return System.Diagnostics.Process.GetCurrentProcess().Id.ToString();
+		}
+
+		public void AddPrebuiltMacro()
         {
             string exePath = System.Reflection.Assembly.GetExecutingAssembly().Location;
             string exeFolderPath = Path.GetDirectoryName(exePath);
@@ -135,16 +186,25 @@ namespace Storm_CsHelper.Source.Config
             string rootPath = rootPathDirInfo.FullName;
             string outputPath = Path.Combine(rootPath, "Intermediate");
 
-            _macros.Add(new Macro { _key = MacroConfig.Macroify("StormExe"), _value = exePath });
-            _macros.Add(new Macro { _key = MacroConfig.Macroify("StormFolderExe"), _value = exeFolderPath });
-            _macros.Add(new Macro { _key = MacroConfig.Macroify("StormRoot"), _value = rootPath });
-            _macros.Add(new Macro { _key = MacroConfig.Macroify("StormConfig"), _value = Path.Combine(rootPath, "Config") });
-            _macros.Add(new Macro { _key = MacroConfig.Macroify("StormResource"), _value = Path.Combine(rootPath, "Resource") });
-            _macros.Add(new Macro { _key = MacroConfig.Macroify("StormIntermediate"), _value = outputPath });
-            _macros.Add(new Macro { _key = MacroConfig.Macroify("DateTime"), _value = DateTime.Now.ToString() });
-            _macros.Add(new Macro { _key = MacroConfig.Macroify("Date"), _value = DateTime.Now.ToLongDateString() });
+			this.AddPrebuiltMacroInternal(
+				new RawBuiltInMacroRequest() { _key = Storm.MacroTags.k_builtInMacroKey_StormExe,			_value = exePath },
+				new RawBuiltInMacroRequest() { _key = Storm.MacroTags.k_builtInMacroKey_StormFolderExe,		_value = exeFolderPath },
+				new RawBuiltInMacroRequest() { _key = Storm.MacroTags.k_builtInMacroKey_StormRoot,			_value = rootPath },
+				new RawBuiltInMacroRequest() { _key = Storm.MacroTags.k_builtInMacroKey_StormConfig,		_value = Path.Combine(rootPath, "Config") },
+				new RawBuiltInMacroRequest() { _key = Storm.MacroTags.k_builtInMacroKey_StormResource,		_value = Path.Combine(rootPath, "Resource") },
+				new RawBuiltInMacroRequest() { _key = Storm.MacroTags.k_builtInMacroKey_StormIntermediate,	_value = outputPath },
+				new RawBuiltInMacroRequest() { _key = Storm.MacroTags.k_builtInMacroKey_StormRecord,		_value = Path.Combine(outputPath, "Record") },
+				new RawBuiltInMacroRequest() { _key = Storm.MacroTags.k_builtInMacroKey_StormStates,		_value = Path.Combine(outputPath, "States") },
+				new RawBuiltInMacroRequest() { _key = Storm.MacroTags.k_builtInMacroKey_StormScripts,		_value = Path.Combine(outputPath, "Scripts") },
+				new RawBuiltInMacroRequest() { _key = Storm.MacroTags.k_builtInMacroKey_StormDebug,			_value = Path.Combine(outputPath, "Debug") },
+				new RawBuiltInMacroRequest() { _key = Storm.MacroTags.k_builtInMacroKey_StormArchive,		_value = Path.Combine(outputPath, "Archive") },
+				new RawBuiltInMacroRequest() { _key = Storm.MacroTags.k_builtInMacroKey_StormTmp,			_value = MacroConfig.GetTmpPath(outputPath) },
+				new RawBuiltInMacroRequest() { _key = Storm.MacroTags.k_builtInMacroKey_DateTime,			_value = DateTime.Now.ToString() },
+				new RawBuiltInMacroRequest() { _key = Storm.MacroTags.k_builtInMacroKey_Date,				_value = DateTime.Now.ToLongDateString() },
+				new RawBuiltInMacroRequest() { _key = Storm.MacroTags.k_builtInMacroKey_PID,				_value = MacroConfig.GetCurrentLogViewerPID() }
+			);
 
-            if (Directory.Exists(outputPath))
+			if (Directory.Exists(outputPath))
             {
                 _macros.Add(new Macro { _key = MacroConfig.Macroify("StormTmp"), _value = outputPath });
             }

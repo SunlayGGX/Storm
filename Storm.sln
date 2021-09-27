@@ -138,6 +138,7 @@ EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Source\Storm-CsCppShared\script\Storm-CsCppShared.projitems*{30ae641c-fdd2-49b8-abd0-19ea070978d3}*SharedItemsImports = 13
+		Source\Storm-CsCppShared\script\Storm-CsCppShared.projitems*{5b489712-203d-4e22-817c-89244dcf9434}*SharedItemsImports = 4
 		Source\Storm-CsHelper\Storm-CsHelper.projitems*{5b489712-203d-4e22-817c-89244dcf9434}*SharedItemsImports = 4
 		Source\Storm-CsCppShared\script\Storm-CsCppShared.projitems*{a1dc8dd9-aebe-49c5-9530-ca4eba5681cf}*SharedItemsImports = 4
 		Source\Storm-CsHelper\Storm-CsHelper.projitems*{a1dc8dd9-aebe-49c5-9530-ca4eba5681cf}*SharedItemsImports = 4

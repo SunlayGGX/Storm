@@ -24,6 +24,7 @@ set provideDependencyFile=call :ProvideFileDependency
 echo Uniformize Storm code files
 %createFolderIfNeeded% "%STORM_SOURCES%\Storm-CsCppShared\include"
 %makeFolderLink% "%STORM_SOURCES%\Storm-CsCppShared\include\Network" "%STORM_SOURCES%\Storm-CsCppShared\script\Network"
+%makeFolderLink% "%STORM_SOURCES%\Storm-CsCppShared\include\Config" "%STORM_SOURCES%\Storm-CsCppShared\script\Config"
 
 
 if not errorlevel 1 (

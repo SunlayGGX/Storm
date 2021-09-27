@@ -205,12 +205,13 @@ There are some pre-built-in macros that aren’t defined inside the macro file. 
 + **$[StormScripts]** will refer, in case StormRoot macro is valid, to where the “Scripts” folder is (where scripts will be put by default).
 + **$[StormStates]** will refer, in case StormRoot macro is valid, to where the “States” folder is.
 + **$[StormDebug]** will refer, in case StormRoot macro is valid, to where the “Debug” folder is.
++ **$[StormArchive]** will refer, in case StormRoot macro is valid, to where the “Archive” folder is.
 + **$[StormTmp]** will refer to the StormIntermediate if StormRoot macro is valid, or to OS defined temporary location.
 + **$[DateTime]** will refer to the current date at the time the application is started (in filesystem compatible format : Weekday_Year_Month_Day_Hour_Minute_Second ).
 + **$[Date]**, like DateTime, will refer to the current date at the time the application is started, but without hours and lesser time division (in filesystem compatible format : Weekday_Year_Month_Day ).
 + **$[PID]** will refer to the process unique ID (PID).
-+ **$[SceneName]** will refer to the chosen scene name. This is an exception to the pre-build-in macros which can be used anywhere. It can only be used after selecting a scene. Therefore, be cautious when using this prebuilt macro.
-+ **$[SceneStateFolder]** will refer to the default state folder path. Since this macro is made from SceneName macros, it is also an exception to the pre-build-in macros which can be used anywhere.
++ **$[SceneName]** will refer to the chosen scene name. This is an exception to the pre-build-in macros which can be used anywhere. It can only be used after selecting a scene. Therefore, be cautious when using this prebuilt macro. This settigs is only available for Storm application.
++ **$[SceneStateFolder]** will refer to the default state folder path. Since this macro is made from SceneName macros, it is also an exception to the pre-build-in macros which can be used anywhere. This settigs is only available for Storm application.
 
 
 Note : macros are also applied to command lines except for the path to the macro configuration. But you’re still safe to use the pre-built-in macros except for the exceptional one.
