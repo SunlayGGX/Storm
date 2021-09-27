@@ -963,7 +963,6 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "dynamicFrictionCoeff", rbConfig._dynamicFrictionCoefficient) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "restitutionCoeff", rbConfig._restitutionCoefficient) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "angularDamping", rbConfigAngularVelocityDampingTmp) ||
-			Storm::XmlReader::handleXml(rigidBodyConfigXml, "isStatic", rbConfig._static) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "fixTranslation", rbConfig._isTranslationFixed) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "fixedVolume", rbConfig._fixedSimulationVolume) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "wall", rbConfig._isWall) ||
