@@ -49,7 +49,6 @@ namespace Storm
 		bool _removeOutDomainParticles;
 
 		float _uniformDragCoefficient; // F = 1/2 rho * |vj - vi|(vj - vi) * Cd * Ai => _uniformDragCoefficient = 1/2 * Cd * Ai
-		bool _applyDragEffectOnFluid;
 
 		float _reducedMassCoefficient; // Apply reduced mass coefficient like SPlisHSPlasH does to prevent pressure spikes.
 

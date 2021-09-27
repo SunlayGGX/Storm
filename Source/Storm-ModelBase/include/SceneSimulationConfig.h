@@ -58,5 +58,6 @@ namespace Storm
 		Storm::ParticleRemovalMode _fluidParticleRemovalMode;
 
 		bool _noStickConstraint;
+		bool _applyDragEffect;
 	};
 }

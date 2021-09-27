@@ -323,11 +323,11 @@ void Storm::IISPHSolver::execute(const Storm::IterationParameter &iterationParam
 
 				currentPForce += currentPTmpViscoForce;
 
-				if (fluidConfig._uniformDragCoefficient > 0.f)
+				if (sceneSimulationConfig._applyDragEffect)
 				{
 					Storm::Vector3 &currentPTmpDragForceComponent = fluidParticleSystem.getTemporaryDragForces()[currentPIndex];
 
-					if (fluidConfig._applyDragEffectOnFluid)
+					if (fluidConfig._uniformDragCoefficient > 0.f)
 					{
 						currentPTmpDragForceComponent = Storm::SPHSolverUtils::computeSumDragForce<true>(iterationParameter, fluidConfig._uniformDragCoefficient, fluidParticleSystem, vi, currentPNeighborhood, currentPDensity);
 					}

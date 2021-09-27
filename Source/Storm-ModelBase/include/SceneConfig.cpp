@@ -79,7 +79,8 @@ Storm::SceneSimulationConfig::SceneSimulationConfig() :
 	_fluidParticleRemovalMode{ Storm::ParticleRemovalMode::Sphere },
 	_removeFluidForVolumeConsistency{ false },
 	_freeRbAtPhysicsTime{ -1.f },
-	_noStickConstraint{ false }
+	_noStickConstraint{ false },
+	_applyDragEffect{ false }
 {
 
 }
@@ -119,6 +120,7 @@ Storm::SceneRigidBodyConfig::SceneRigidBodyConfig() :
 	_mass{ -1.f },
 	_viscosity{ 0.f },
 	_noStickCoeff{ 1.f },
+	_dragCoefficient{ 0.f },
 	_layerCount{ 1 },
 	_layerGenerationMode{ Storm::LayeringGenerationTechnique::Scaling },
 	_volumeComputationTechnique{ Storm::VolumeComputationTechnique::None },
@@ -213,7 +215,6 @@ Storm::SceneFluidConfig::SceneFluidConfig() :
 	_customSimulationSettings{ nullptr }, // This will be filled when we'll read the config file to the right settings structure depending on our simulation mode.
 	_cinematicViscosity{ 0.f }, // Computed automatically once final _dynamicViscosity value will be determined.
 	_uniformDragCoefficient{ 0.f },
-	_applyDragEffectOnFluid{ false },
 	_reducedMassCoefficient{ 0.8f }
 {
 

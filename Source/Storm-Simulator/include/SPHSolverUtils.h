@@ -29,7 +29,8 @@ namespace Storm
 		__forceinline static void computeDragForce(const Storm::Vector3 &vi, const Storm::Vector3 &vj, const float dragPreCoeff, const float rij, Storm::Vector3 &outForce)
 		{
 			outForce = vj - vi;
-			outForce *= dragPreCoeff * rij * outForce.norm();
+			// Squared is when we're in a turbulent system, but since we're laminar (for incompressibility purpose), then no squared.
+			outForce *= dragPreCoeff * rij /** outForce.norm()*/;
 		}
 
 		template<bool applyDragOnFluid>
@@ -38,7 +39,8 @@ namespace Storm
 			Storm::Vector3 totalDragForce = Storm::Vector3::Zero();
 			Storm::Vector3 currentDragTmpComponent = Storm::Vector3::Zero();
 
-			const float dragPreCoeff = uniformDragCoeff * currentPDensity;
+			const float currentPDensityRatio = fluidParticleSystem.getRestDensity() / currentPDensity;
+			const float fluidDragPreCoeff = uniformDragCoeff * currentPDensityRatio * fluidParticleSystem.getParticleVolume();
 
 			for (const Storm::NeighborParticleInfo &neighbor : currentPNeighborhood)
 			{
@@ -46,24 +48,31 @@ namespace Storm
 				{
 					if constexpr (applyDragOnFluid)
 					{
-						computeDragForce(vi, neighbor._containingParticleSystem->getVelocity()[neighbor._particleIndex], dragPreCoeff, neighbor._Wij, currentDragTmpComponent);
+						computeDragForce(vi, neighbor._containingParticleSystem->getVelocity()[neighbor._particleIndex], fluidDragPreCoeff, neighbor._Wij, currentDragTmpComponent);
 						totalDragForce += currentDragTmpComponent;
 					}
 				}
 				else
 				{
-					computeDragForce(vi, neighbor._containingParticleSystem->getVelocity()[neighbor._particleIndex], dragPreCoeff, neighbor._Wij, currentDragTmpComponent);
-					totalDragForce += currentDragTmpComponent;
-
-					Storm::RigidBodyParticleSystem* neighborPSystemAsBoundary = static_cast<Storm::RigidBodyParticleSystem*>(neighbor._containingParticleSystem);
-
-					// Mirror the force on the boundary solid following the 3rd newton law
-					if (!neighborPSystemAsBoundary->isStatic())
+					Storm::RigidBodyParticleSystem*const neighborPSystemAsBoundary = static_cast<Storm::RigidBodyParticleSystem*>(neighbor._containingParticleSystem);
+					float rbDragPreCoeff = neighborPSystemAsBoundary->getDragCoefficient();
+					if (rbDragPreCoeff > 0.f)
 					{
-						Storm::Vector3 &boundaryNeighborTmpDragForce = neighborPSystemAsBoundary->getTemporaryDragForces()[neighbor._particleIndex];
+						rbDragPreCoeff *= currentPDensityRatio * neighborPSystemAsBoundary->getVolumes()[neighbor._particleIndex];
 
-						std::lock_guard<std::mutex> lock{ neighbor._containingParticleSystem->_mutex };
-						boundaryNeighborTmpDragForce -= currentDragTmpComponent;
+						const Storm::Vector3 &vj = neighborPSystemAsBoundary->getVelocity()[neighbor._particleIndex];
+
+						computeDragForce(vi, vj, rbDragPreCoeff, neighbor._Wij, currentDragTmpComponent);
+						totalDragForce += currentDragTmpComponent;
+
+						// Mirror the force on the boundary solid following the 3rd newton law
+						if (!neighborPSystemAsBoundary->isStatic())
+						{
+							Storm::Vector3 &boundaryNeighborTmpDragForce = neighborPSystemAsBoundary->getTemporaryDragForces()[neighbor._particleIndex];
+
+							std::lock_guard<std::mutex> lock{ neighbor._containingParticleSystem->_mutex };
+							boundaryNeighborTmpDragForce -= currentDragTmpComponent;
+						}
 					}
 				}
 			}

@@ -30,6 +30,7 @@ namespace Storm
 
 		float _viscosity;
 		float _noStickCoeff;
+		float _dragCoefficient;
 
 		bool _static;
 		bool _isWall;

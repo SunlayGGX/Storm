@@ -867,7 +867,6 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 				!Storm::XmlReader::handleXml(fluidXmlElement, "removeCollidingParticles", fluidConfig._removeParticlesCollidingWithRb) &&
 				!Storm::XmlReader::handleXml(fluidXmlElement, "removeOutDomainParticles", fluidConfig._removeOutDomainParticles) &&
 				!Storm::XmlReader::handleXml(fluidXmlElement, "uniformDragCoeff", fluidConfig._uniformDragCoefficient) &&
-				!Storm::XmlReader::handleXml(fluidXmlElement, "applyDragEffectOnFluid", fluidConfig._applyDragEffectOnFluid) &&
 				!Storm::XmlReader::handleXml(fluidXmlElement, "reducedMassCoeff", fluidConfig._reducedMassCoefficient) &&
 				!Storm::XmlReader::handleXml(fluidXmlElement, "density", fluidConfig._density)
 				)
@@ -969,6 +968,7 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "mass", rbConfig._mass) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "viscosity", rbConfig._viscosity) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "noStickCoeff", rbConfig._noStickCoeff) ||
+			Storm::XmlReader::handleXml(rigidBodyConfigXml, "dragCoeff", rbConfig._dragCoefficient) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "layerCount", rbConfig._layerCount) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "normalsCoherency", rbConfig._enforceNormalsCoherency) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "sampleCountMDeserno", rbConfig._sampleCountMDeserno) ||
@@ -1022,6 +1022,10 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 		else if (rbConfig._noStickCoeff < 0.f)
 		{
 			Storm::throwException<Storm::Exception>("no stick coefficient value " + std::to_string(rbConfig._noStickCoeff) + " is invalid (rigid body " + std::to_string(rbConfig._rigidBodyID) + "). This should be positive or zero!");
+		}
+		else if (rbConfig._dragCoefficient < 0.f)
+		{
+			Storm::throwException<Storm::Exception>("drag coefficient value " + std::to_string(rbConfig._dragCoefficient) + " is invalid (rigid body " + std::to_string(rbConfig._rigidBodyID) + "). This should be positive or zero!");
 		}
 		else if (rbConfig._isWall && rbConfig._insideRbFluidDetectionMethodEnum != Storm::InsideParticleRemovalTechnique::None)
 		{
@@ -1517,6 +1521,12 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 			Storm::throwException<Storm::Exception>("Blower " + std::to_string(blowerConfig._blowerId) + " check wasn't implemented!");
 		}
 	});
+
+	/*End init : the automatic values.*/
+	sceneSimulationConfig._applyDragEffect =
+		fluidConfig._uniformDragCoefficient > 0.f ||
+		std::ranges::any_of(rigidBodiesConfigArray, [](const Storm::SceneRigidBodyConfig &rbConfig) { return rbConfig._dragCoefficient > 0.f; })
+		;
 }
 
 const Storm::SceneConfig& Storm::SceneConfigHolder::getConfig() const

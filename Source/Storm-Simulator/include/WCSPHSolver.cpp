@@ -276,13 +276,13 @@ void Storm::WCSPHSolver::execute(const Storm::IterationParameter &iterationParam
 				Storm::Vector3 &currentPTmpPressureForce = temporaryPPressureForce[currentPIndex];
 				Storm::Vector3 &currentPTmpViscoForce = temporaryPViscoForce[currentPIndex];
 				Storm::Vector3 &currentPTmpDragForce = temporaryPDragForce[currentPIndex];
-
+				
 #define STORM_COMPUTE_ALL(fluidMethod, rbMethod)	\
-	if (fluidConfig._uniformDragCoefficient == 0.f)	\
+	if (!sceneSimulationConfig._applyDragEffect)	\
 	{												\
 		computeAll<fluidMethod, rbMethod, DragComputeMode::NoCompute>(iterationParameter, fluidConfig, fluidParticleSystem.getRestDensity(), masses[currentPIndex], velocities[currentPIndex], neighborhoodArrays[currentPIndex], densities[currentPIndex], pressures[currentPIndex], k_kernelLengthSquared00_1, currentPTmpPressureForce, currentPTmpViscoForce, currentPTmpDragForce);					  \
 	}												\
-	else if (fluidConfig._applyDragEffectOnFluid)	\
+	else if (fluidConfig._uniformDragCoefficient > 0.f)		\
 	{												\
 		computeAll<fluidMethod, rbMethod, DragComputeMode::ForAll>(iterationParameter, fluidConfig, fluidParticleSystem.getRestDensity(), masses[currentPIndex], velocities[currentPIndex], neighborhoodArrays[currentPIndex], densities[currentPIndex], pressures[currentPIndex], k_kernelLengthSquared00_1, currentPTmpPressureForce, currentPTmpViscoForce, currentPTmpDragForce);					  \
 	}												\
