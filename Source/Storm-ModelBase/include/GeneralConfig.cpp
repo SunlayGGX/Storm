@@ -65,7 +65,8 @@ Storm::GeneralDebugConfig::GeneralDebugConfig() :
 Storm::GeneralApplicationConfig::GeneralApplicationConfig() :
 	_showBranchInTitle{ false },
 	_bipSoundOnFinish{ false },
-	_language{ Storm::retrieveDefaultOSLanguage() }
+	_language{ Storm::retrieveDefaultOSLanguage() },
+	_empacketRecord{ false }
 {
 
 }

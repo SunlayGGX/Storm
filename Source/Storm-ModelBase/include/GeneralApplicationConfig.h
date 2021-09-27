@@ -14,5 +14,6 @@ namespace Storm
 		bool _showBranchInTitle;
 		bool _bipSoundOnFinish;
 		Storm::Language _language;
+		bool _empacketRecord;
 	};
 }

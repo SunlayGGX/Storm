@@ -145,6 +145,7 @@ bool Storm::GeneralConfigHolder::read(const std::string &generalConfigFilePathSt
 					if (
 						!Storm::XmlReader::handleXml(applicationXmlElement, "displayBranch", generalApplicationConfig._showBranchInTitle) &&
 						!Storm::XmlReader::handleXml(applicationXmlElement, "beepOnFinish", generalApplicationConfig._bipSoundOnFinish) &&
+						!Storm::XmlReader::handleXml(applicationXmlElement, "empacketRecord", generalApplicationConfig._empacketRecord) &&
 						!Storm::XmlReader::handleXml(applicationXmlElement, "language", generalApplicationConfig._language, Storm::parseLanguage)
 						)
 					{
