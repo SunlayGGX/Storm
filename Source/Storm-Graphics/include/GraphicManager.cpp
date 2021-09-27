@@ -669,55 +669,67 @@ void Storm::GraphicManager::setUseColorSetting(const Storm::ColoredSetting color
 
 void Storm::GraphicManager::showCoordinateSystemAxis(const bool shouldShow)
 {
-	Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::GraphicsThread, [this, shouldShow]()
+	if (this->isActive())
 	{
-		_coordSystemNonOwningPtr->show(shouldShow);
-		_dirty = true;
-	});
+		Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::GraphicsThread, [this, shouldShow]()
+		{
+			_coordSystemNonOwningPtr->show(shouldShow);
+			_dirty = true;
+		});
+	}
 }
 
 void Storm::GraphicManager::setKernelAreaRadius(const float radius)
 {
-	Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::GraphicsThread, [this, radius]()
+	if (this->isActive())
 	{
-		_kernelEffectArea->setAreaRadius(radius);
-		_dirty = true;
-	});
+		Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::GraphicsThread, [this, radius]()
+		{
+			_kernelEffectArea->setAreaRadius(radius);
+			_dirty = true;
+		});
+	}
 }
 
 void Storm::GraphicManager::lockNearPlaneOnWatchedRb(unsigned int watchedRbId)
 {
-	Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::GraphicsThread, [this, watchedRbId]()
+	if (this->isActive())
 	{
-		if (const auto found = _meshesMap.find(static_cast<unsigned int>(watchedRbId)); found != std::end(_meshesMap))
+		Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::GraphicsThread, [this, watchedRbId]()
 		{
-			const auto* old = _watchedRbNonOwningPtr;
-			_watchedRbNonOwningPtr = found->second.get();
-			if (old != nullptr)
+			if (const auto found = _meshesMap.find(static_cast<unsigned int>(watchedRbId)); found != std::end(_meshesMap))
 			{
-				_fields->deleteField(STORM_WATCHED_RB_POSITION);
-			}
+				const auto* old = _watchedRbNonOwningPtr;
+				_watchedRbNonOwningPtr = found->second.get();
+				if (old != nullptr)
+				{
+					_fields->deleteField(STORM_WATCHED_RB_POSITION);
+				}
 
-			_fields->bindField(STORM_WATCHED_RB_POSITION, _watchedRbNonOwningPtr->getRbPosition());
-			_dirty = true;
-		}
-		else
-		{
-			Storm::throwException<Storm::Exception>("Cannot find the rigid body to lock the near plane on. Requested id was " + std::to_string(watchedRbId));
-		}
-	});
+				_fields->bindField(STORM_WATCHED_RB_POSITION, _watchedRbNonOwningPtr->getRbPosition());
+				_dirty = true;
+			}
+			else
+			{
+				Storm::throwException<Storm::Exception>("Cannot find the rigid body to lock the near plane on. Requested id was " + std::to_string(watchedRbId));
+			}
+		});
+	}
 }
 
 void Storm::GraphicManager::unlockNearPlaneOnWatchedRb()
 {
-	Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::GraphicsThread, [this]()
+	if (this->isActive())
 	{
-		if (_watchedRbNonOwningPtr)
+		Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::GraphicsThread, [this]()
 		{
-			_watchedRbNonOwningPtr = nullptr;
-			_fields->deleteField(STORM_WATCHED_RB_POSITION);
-		}
-	});
+			if (_watchedRbNonOwningPtr)
+			{
+				_watchedRbNonOwningPtr = nullptr;
+				_fields->deleteField(STORM_WATCHED_RB_POSITION);
+			}
+		});
+	}
 }
 
 void Storm::GraphicManager::checkUserCanChangeNearPlane() const
