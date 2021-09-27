@@ -31,6 +31,7 @@
     <ClCompile Include="..\include\GraphicKernelEffectArea.cpp" />
     <ClCompile Include="..\include\GraphicManager.cpp" />
     <ClCompile Include="..\include\GraphicNormals.cpp" />
+    <ClCompile Include="..\include\GraphicParameters.cpp" />
     <ClCompile Include="..\include\GraphicParticleData.cpp" />
     <ClCompile Include="..\include\GraphicParticleSystem.cpp" />
     <ClCompile Include="..\include\GraphicPipe.cpp" />
@@ -70,6 +71,7 @@
     <ClInclude Include="..\include\GraphicKernelEffectArea.h" />
     <ClInclude Include="..\include\GraphicManager.h" />
     <ClInclude Include="..\include\GraphicNormals.h" />
+    <ClInclude Include="..\include\GraphicParameters.h" />
     <ClInclude Include="..\include\GraphicParticleData.h" />
     <ClInclude Include="..\include\GraphicParticleSystem.h" />
     <ClInclude Include="..\include\GraphicParticleSystemModality.h" />

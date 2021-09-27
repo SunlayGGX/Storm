@@ -6,6 +6,7 @@ namespace Storm
 	struct GraphicParticleData;
 	class ParticleForceShader;
 	class Camera;
+	class GraphicParameters;
 
 	class ParticleForceRenderer
 	{
@@ -16,7 +17,8 @@ namespace Storm
 	public:
 		bool prepareData(unsigned int particleSystemId, std::vector<Storm::GraphicParticleData> &particlePosition, const std::pair<unsigned int, std::size_t> &selectedParticle);
 
-		void refreshForceData(const ComPtr<ID3D11Device> &device, const Storm::Vector3 &selectedPosition, const Storm::Vector3 &selectedForce);
+		void refreshForceData(const ComPtr<ID3D11Device> &device, const Storm::GraphicParameters &params);
+		void updateForceData(const ComPtr<ID3D11Device> &device, const Storm::GraphicParameters &params, const Storm::Vector3 &selectedPosition, const Storm::Vector3 &selectedForce);
 
 	public:
 		void render(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera);

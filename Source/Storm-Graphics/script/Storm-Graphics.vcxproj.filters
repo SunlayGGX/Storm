@@ -162,6 +162,9 @@
     <ClCompile Include="..\include\NormalsShader.cpp">
       <Filter>Source Files\Shaders\Component</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\GraphicParameters.cpp">
+      <Filter>Source Files\GraphicComponent</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-GraphicsPCH.h">
@@ -280,6 +283,9 @@
     </ClInclude>
     <ClInclude Include="..\include\NormalsShader.h">
       <Filter>Header Files\Shaders\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\GraphicParameters.h">
+      <Filter>Header Files\GraphicComponent</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

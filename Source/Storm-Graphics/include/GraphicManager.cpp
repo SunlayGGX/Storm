@@ -417,7 +417,7 @@ void Storm::GraphicManager::pushParticleSelectionForceData(const Storm::Vector3 
 		singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(ThreadEnumeration::GraphicsThread,
 			[this, selectedParticlePos, selectedParticleForce]() mutable
 		{
-			_forceRenderer->refreshForceData(_directXController->getDirectXDevice(), selectedParticlePos, selectedParticleForce);
+			_forceRenderer->updateForceData(_directXController->getDirectXDevice(), _parameters, selectedParticlePos, selectedParticleForce);
 			_dirty = true;
 		});
 	}
@@ -431,7 +431,7 @@ void Storm::GraphicManager::pushNormalsData(const std::vector<Storm::Vector3>& p
 		singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(ThreadEnumeration::GraphicsThread,
 			[this, positions, normals]()
 		{
-			_graphicNormals->refreshNormalsData(_directXController->getDirectXDevice(), positions, normals);
+			_graphicNormals->updateNormalsData(_directXController->getDirectXDevice(), _parameters, positions, normals);
 			_displayNormals = true;
 			_dirty = true;
 		});
@@ -725,5 +725,30 @@ void Storm::GraphicManager::checkUserCanChangeNearPlane() const
 	if (_watchedRbNonOwningPtr != nullptr)
 	{
 		Storm::throwException<Storm::Exception>("User cannot change the near plane value because it is locked on a rigid body!");
+	}
+}
+
+void Storm::GraphicManager::setVectMultiplicatorCoeff(const float newCoeff)
+{
+	if (this->isActive())
+	{
+		if (newCoeff <= 0.f)
+		{
+			Storm::throwException<Storm::Exception>("Vectors multiplication coefficient must be strictly greater than 0! Received value was " + std::to_string(newCoeff) + ".");
+		}
+
+		Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::GraphicsThread, [this, newCoeff]()
+		{
+			if (_parameters._vectNormMultiplicator != newCoeff)
+			{
+				_parameters._vectNormMultiplicator = newCoeff;
+
+				const auto &device = _directXController->getDirectXDevice();
+				_graphicNormals->refreshNormalsData(device, _parameters);
+				_forceRenderer->refreshForceData(device, _parameters);
+
+				_dirty = true;
+			}
+		});
 	}
 }

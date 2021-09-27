@@ -2,23 +2,13 @@
 
 #include "NormalsShader.h"
 
+#include "GraphicParameters.h"
+
 #define STORM_HIJACKED_TYPE uint32_t
 #	include "VectHijack.h"
 #undef STORM_HIJACKED_TYPE
 
-
-
-namespace
-{
-	struct GraphicNormal
-	{
-	public:
-		Storm::Vector3 _base;
-		Storm::Vector3 _head;
-	};
-}
-
-#define STORM_HIJACKED_TYPE GraphicNormal
+#define STORM_HIJACKED_TYPE Storm::GraphicNormals::GraphicNormalInternal
 #	include "VectHijack.h"
 #undef STORM_HIJACKED_TYPE
 
@@ -32,23 +22,9 @@ Storm::GraphicNormals::GraphicNormals(const ComPtr<ID3D11Device> &device) :
 
 Storm::GraphicNormals::~GraphicNormals() = default;
 
-void Storm::GraphicNormals::refreshNormalsData(const ComPtr<ID3D11Device> &device, const std::vector<Storm::Vector3> &positions, const std::vector<Storm::Vector3> &normals)
+
+void Storm::GraphicNormals::refreshNormalsDataFromCachedInternal(const ComPtr<ID3D11Device> &device, const Storm::GraphicParameters &params, const uint32_t normalCount)
 {
-	const uint32_t normalCount = static_cast<uint32_t>(normals.size());
-
-	std::vector<GraphicNormal> normalsChanged;
-	Storm::setNumUninitialized_safeHijack(normalsChanged, Storm::VectorHijacker{ normalCount });
-
-	for (uint32_t iter = 0; iter < normalCount; ++iter)
-	{
-		const Storm::Vector3 &currentPos = positions[iter];
-		const Storm::Vector3 &currentNormal = normals[iter];
-
-		GraphicNormal &graphicNormal = normalsChanged[iter];
-		graphicNormal._base = currentPos;
-		graphicNormal._head = currentPos + (currentNormal * 0.05f);
-	}
-
 	// In case it has a vertex buffer set (most of the time)
 	_vertexBuffer.Reset();
 
@@ -57,13 +33,13 @@ void Storm::GraphicNormals::refreshNormalsData(const ComPtr<ID3D11Device> &devic
 	D3D11_SUBRESOURCE_DATA vertexData;
 
 	vertexBufferDesc.Usage = D3D11_USAGE::D3D11_USAGE_DEFAULT;
-	vertexBufferDesc.ByteWidth = sizeof(GraphicNormal) * normalCount;
+	vertexBufferDesc.ByteWidth = sizeof(Storm::GraphicNormals::GraphicNormalInternal) * normalCount;
 	vertexBufferDesc.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_VERTEX_BUFFER;
 	vertexBufferDesc.CPUAccessFlags = 0;
 	vertexBufferDesc.MiscFlags = 0;
 	vertexBufferDesc.StructureByteStride = 0;
 
-	vertexData.pSysMem = normalsChanged.data();
+	vertexData.pSysMem = _cached.data();
 	vertexData.SysMemPitch = 0;
 	vertexData.SysMemSlicePitch = 0;
 
@@ -75,11 +51,11 @@ void Storm::GraphicNormals::refreshNormalsData(const ComPtr<ID3D11Device> &devic
 		std::vector<uint32_t> indexes;
 		Storm::setNumUninitialized_safeHijack(indexes, Storm::VectorHijacker{ indexCount });
 
-		for(uint32_t iter = 0; iter < indexCount; ++iter)
+		for (uint32_t iter = 0; iter < indexCount; ++iter)
 		{
 			indexes[iter] = iter;
 		}
-		
+
 		// Create Indexes data
 		D3D11_BUFFER_DESC indexBufferDesc;
 		D3D11_SUBRESOURCE_DATA indexData;
@@ -99,6 +75,45 @@ void Storm::GraphicNormals::refreshNormalsData(const ComPtr<ID3D11Device> &devic
 
 		_lastSize = indexCount;
 	}
+}
+
+void Storm::GraphicNormals::refreshNormalsData(const ComPtr<ID3D11Device> &device, const Storm::GraphicParameters &params)
+{
+	const uint32_t cachedNormalCount = static_cast<uint32_t>(_cached.size());
+	if (cachedNormalCount > 0)
+	{
+		const float multCoeff = 0.05f * params._vectNormMultiplicator;
+		for (Storm::GraphicNormals::GraphicNormalInternal &normalInternal : _cached)
+		{
+			Storm::Vector3 unnormalizedNormal = normalInternal._head - normalInternal._base;
+			const float renormalizationCoeff = multCoeff / unnormalizedNormal.norm();
+			unnormalizedNormal *= renormalizationCoeff;
+
+			normalInternal._head = normalInternal._base + unnormalizedNormal;
+		}
+
+		this->refreshNormalsDataFromCachedInternal(device, params, cachedNormalCount);
+	}
+}
+
+void Storm::GraphicNormals::updateNormalsData(const ComPtr<ID3D11Device> &device, const Storm::GraphicParameters &params, const std::vector<Storm::Vector3> &positions, const std::vector<Storm::Vector3> &normals)
+{
+	const uint32_t normalCount = static_cast<uint32_t>(normals.size());
+
+	Storm::setNumUninitialized_safeHijack(_cached, Storm::VectorHijacker{ normalCount });
+
+	const float multCoeff = 0.05f * params._vectNormMultiplicator;
+	for (uint32_t iter = 0; iter < normalCount; ++iter)
+	{
+		const Storm::Vector3 &currentPos = positions[iter];
+		const Storm::Vector3 &currentNormal = normals[iter];
+
+		Storm::GraphicNormals::GraphicNormalInternal &graphicNormal = _cached[iter];
+		graphicNormal._base = currentPos;
+		graphicNormal._head = currentPos + (currentNormal * multCoeff);
+	}
+
+	this->refreshNormalsDataFromCachedInternal(device, params, normalCount);
 }
 
 void Storm::GraphicNormals::render(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera)

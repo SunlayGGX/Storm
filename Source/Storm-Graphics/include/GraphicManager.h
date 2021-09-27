@@ -3,6 +3,7 @@
 #include "Singleton.h"
 #include "IGraphicsManager.h"
 #include "DeclareScriptableItem.h"
+#include "GraphicParameters.h"
 
 
 namespace Storm
@@ -117,6 +118,9 @@ namespace Storm
 
 		void checkUserCanChangeNearPlane() const;
 
+	public:
+		void setVectMultiplicatorCoeff(const float newCoeff);
+
 	private:
 		unsigned char _renderCounter;
 
@@ -127,6 +131,8 @@ namespace Storm
 
 		std::unique_ptr<Storm::DirectXController> _directXController;
 		std::unique_ptr<Storm::Camera> _camera;
+
+		Storm::GraphicParameters _parameters;
 
 		std::vector<std::unique_ptr<Storm::IRenderedElement>> _renderedElements;
 		std::map<unsigned int, std::unique_ptr<Storm::GraphicRigidBody>> _meshesMap;
