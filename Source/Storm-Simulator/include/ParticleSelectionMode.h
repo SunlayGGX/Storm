@@ -15,6 +15,7 @@ namespace Storm
 		DynamicPressure,
 		NoStick,
 		AllOnParticle,
+		TotalEngineForce,
 
 		Normal,
 		RbForce,

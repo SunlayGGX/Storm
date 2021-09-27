@@ -86,6 +86,7 @@ namespace Storm
 		Storm::Vector3 _cachedTrackedRbPosition;
 		Storm::Quaternion _cachedTrackedRbRotationQuat;
 
+		// Account for PhysX
 		Storm::Vector3 _rbTotalForce;
 
 		bool _volumeFixed;

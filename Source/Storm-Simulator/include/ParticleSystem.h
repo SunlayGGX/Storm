@@ -40,6 +40,8 @@ namespace Storm
 		const std::vector<Storm::ParticleNeighborhoodArray>& getNeighborhoodArrays() const noexcept;
 		std::vector<Storm::ParticleNeighborhoodArray>& getNeighborhoodArrays() noexcept;
 
+		const Storm::Vector3& getTotalForceNonPhysX() const noexcept;
+
 		std::size_t getParticleCount() const noexcept;
 
 		unsigned int getId() const noexcept;
@@ -68,6 +70,9 @@ namespace Storm
 		virtual void setParticleSystemPosition(const Storm::Vector3 &pSystemPosition) = 0;
 		virtual void setParticleSystemTotalForce(const Storm::Vector3 &pSystemTotalForce) = 0;
 
+		virtual void setParticleSystemTotalForceNonPhysX(const Storm::Vector3 &pSystemTotalForce);
+
+	public:
 		virtual void prepareSaving(const bool replayMode);
 
 	public:
@@ -84,6 +89,7 @@ namespace Storm
 
 		virtual void onIterationStart();
 		virtual void onSubIterationStart(const Storm::ParticleSystemContainer &allParticleSystems, const std::vector<std::unique_ptr<Storm::IBlower>> &blowers);
+		virtual void onIterationEnd();
 
 	public:
 		virtual bool computeVelocityChange(float deltaTimeInSec, float highVelocityThresholdSquared) = 0;
@@ -111,6 +117,8 @@ namespace Storm
 		std::vector<Storm::Vector3> _tmpDragForce;
 		std::vector<Storm::Vector3> _tmpBernoulliDynamicPressureForce;
 		std::vector<Storm::Vector3> _tmpNoStickForce;
+
+		Storm::Vector3 _totalForceNonPhysX;
 
 		// This contains the neighborhood per particle.
 		// Note : For static rigid body, it does not contain the static particles neighborhood because we use it only one time (when initializing the volume) and this is a huge lost of computation time !

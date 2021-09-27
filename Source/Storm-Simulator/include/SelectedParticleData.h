@@ -16,6 +16,7 @@ namespace Storm
 		Storm::Vector3 _dynamicPressureForce;
 		Storm::Vector3 _noStickForce;
 		Storm::Vector3 _externalSumForces;
+		Storm::Vector3 _totalEngineForce;
 
 		bool _hasRbTotalForce;
 		Storm::Vector3 _rbPosition;

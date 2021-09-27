@@ -148,6 +148,12 @@ const std::vector<Storm::ParticleNeighborhoodArray>& Storm::ParticleSystem::getN
 	return _neighborhood;
 }
 
+
+const Storm::Vector3& Storm::ParticleSystem::getTotalForceNonPhysX() const noexcept
+{
+	return _totalForceNonPhysX;
+}
+
 std::vector<Storm::ParticleNeighborhoodArray>& Storm::ParticleSystem::getNeighborhoodArrays() noexcept
 {
 	return _neighborhood;
@@ -171,6 +177,12 @@ bool Storm::ParticleSystem::isDirty() const noexcept
 void Storm::ParticleSystem::setIsDirty(bool dirty)
 {
 	_isDirty = dirty;
+}
+
+
+void Storm::ParticleSystem::setParticleSystemTotalForceNonPhysX(const Storm::Vector3 &pSystemTotalForce)
+{
+	_totalForceNonPhysX = pSystemTotalForce;
 }
 
 void Storm::ParticleSystem::prepareSaving(const bool replayMode)
@@ -225,6 +237,15 @@ void Storm::ParticleSystem::onSubIterationStart(const Storm::ParticleSystemConta
 {
 	assert(Storm::isSimulationThread() && "This method should only be executed inside the simulation thread!");
 	_isDirty = false;
+}
+
+void Storm::ParticleSystem::onIterationEnd()
+{
+	_totalForceNonPhysX.setZero();
+	Storm::runParallel(_force, [&totalForceNonPhysX = _totalForceNonPhysX](const Storm::Vector3 &currentPForce)
+	{
+		totalForceNonPhysX += currentPForce;
+	});
 }
 
 float Storm::ParticleSystem::computeParticleDefaultVolume()

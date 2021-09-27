@@ -245,6 +245,9 @@ namespace
 			lerp(frameBeforeElements._pSystemGlobalForce, frameAfterElements._pSystemGlobalForce, coefficient, tmp);
 			currentPSystem.setParticleSystemTotalForce(tmp);
 
+			lerp(frameBeforeElements._pSystemTotalEngineForce, frameAfterElements._pSystemTotalEngineForce, coefficient, tmp);
+			currentPSystem.setParticleSystemTotalForceNonPhysX(tmp);
+
 			std::vector<Storm::Vector3> &allPositions = currentPSystem.getPositions();
 			std::vector<Storm::Vector3> &allVelocities = currentPSystem.getVelocity();
 			std::vector<Storm::Vector3> &allForces = currentPSystem.getForces();
@@ -525,6 +528,8 @@ namespace
 					STORM_MAKE_SIMPLE_COPY_ARRAY(_noStickForces, pSystemRef.getTemporaryNoStickForces());
 				}
 
+				framePSystemElementData._pSystemTotalEngineForce = pSystemRef.getTotalForceNonPhysX();
+
 #undef STORM_COPY_ARRAYS
 #undef STORM_MAKE_SIMPLE_COPY_ARRAY
 			}
@@ -554,6 +559,7 @@ void Storm::ReplaySolver::transferFrameToParticleSystem_move(Storm::ParticleSyst
 		particleSystem.setTmpDragForces(std::move(currentFrameElement._dragComponentforces));
 		particleSystem.setTmpBernoulliDynamicPressureForces(std::move(currentFrameElement._dynamicPressureQForces));
 		particleSystem.setTmpNoStickForces(std::move(currentFrameElement._noStickForces));
+		particleSystem.setParticleSystemTotalForceNonPhysX(currentFrameElement._pSystemTotalEngineForce);
 	}
 }
 
@@ -688,6 +694,8 @@ void Storm::ReplaySolver::transferFrameToParticleSystem_copy(Storm::ParticleSyst
 			currentPSystem.setParticleSystemPosition(frameElement._pSystemPosition);
 			currentPSystem.setParticleSystemTotalForce(frameElement._pSystemGlobalForce);
 		}
+
+		currentPSystem.setParticleSystemTotalForceNonPhysX(frameElement._pSystemTotalEngineForce);
 
 #undef STORM_LAUNCH_CPY_ARRAY_FUTURE
 	}

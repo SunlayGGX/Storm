@@ -192,9 +192,13 @@ void Storm::FluidParticleSystem::setParticleSystemPosition(const Storm::Vector3 
 
 }
 
-void Storm::FluidParticleSystem::setParticleSystemTotalForce(const Storm::Vector3 &/*pSystemTotalForce*/)
+void Storm::FluidParticleSystem::setParticleSystemTotalForce(const Storm::Vector3 &pSystemTotalForce)
 {
-
+	// Both are the same. The total force and the non physX one since physX does not handle the fluid.
+	// But to prevent any mistakes when reading recordings, we'll disable this method
+#if false
+	this->setParticleSystemTotalForceNonPhysX(pSystemTotalForce);
+#endif
 }
 
 void Storm::FluidParticleSystem::prepareSaving(const bool replayMode)

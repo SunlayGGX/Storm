@@ -1224,6 +1224,7 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 
 		_kernelHandler.update(timeMgr.getCurrentPhysicsElapsedTime());
 
+		// On iteration start
 		physicsMgr.notifyIterationStart();
 		for (auto &particleSystem : _particleSystem)
 		{
@@ -1240,6 +1241,12 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 		if (_cage)
 		{
 			_cage->doEnclose(_particleSystem);
+		}
+
+		// On iteration end
+		for (auto &particleSystem : _particleSystem)
+		{
+			particleSystem.second->onIterationEnd();
 		}
 
 		// Update the particle selector data with the external sum force.
@@ -2157,6 +2164,7 @@ void Storm::SimulatorManager::refreshParticleSelection()
 			_particleSelector.setSelectedParticleBernoulliDynamicPressureForce(pSystem.getTemporaryBernoulliDynamicPressureForces()[selectedParticleIndex]);
 			_particleSelector.setSelectedParticleNoStickForce(pSystem.getTemporaryNoStickForces()[selectedParticleIndex]);
 			_particleSelector.setSelectedParticleSumForce(pSystem.getForces()[selectedParticleIndex]);
+			_particleSelector.setTotalEngineSystemForce(pSystem.getTotalForceNonPhysX());
 
 			if (!pSystem.isFluids())
 			{
@@ -2995,6 +3003,7 @@ bool Storm::SimulatorManager::selectSpecificParticle_Internal(const unsigned pSy
 				_particleSelector.setSelectedParticleDragForce(selectedPSystem.getTemporaryDragForces()[particleIndex]);
 				_particleSelector.setSelectedParticleBernoulliDynamicPressureForce(selectedPSystem.getTemporaryBernoulliDynamicPressureForces()[particleIndex]);
 				_particleSelector.setSelectedParticleNoStickForce(selectedPSystem.getTemporaryNoStickForces()[particleIndex]);
+				_particleSelector.setTotalEngineSystemForce(selectedPSystem.getTotalForceNonPhysX());
 
 				if (!selectedPSystem.isFluids())
 				{
