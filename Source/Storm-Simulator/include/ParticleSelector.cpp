@@ -124,7 +124,6 @@ namespace
 			switch (simulConfig._simulationMode)
 			{
 			case Storm::SimulationMode::DFSPH:
-			case Storm::SimulationMode::DFSPHModified:
 			{
 				const Storm::SceneFluidConfig &fluidConfig = configMgr.getSceneFluidConfig();
 				const Storm::SceneFluidCustomDFSPHConfig &dfsphFluidConfig = static_cast<const Storm::SceneFluidCustomDFSPHConfig &>(*fluidConfig._customSimulationSettings);

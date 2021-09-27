@@ -140,10 +140,6 @@ namespace
 		{
 			return Storm::SimulationMode::DFSPH;
 		}
-		else if (inOutSimulModeStr == "DFSPHMODIFIED")
-		{
-			return Storm::SimulationMode::DFSPHModified;
-		}
 		else
 		{
 			Storm::throwException<Storm::Exception>("Simulation mode value is unknown : '" + inOutSimulModeStr + "'");
@@ -696,7 +692,6 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 	switch (sceneSimulationConfig._simulationMode)
 	{
 	case Storm::SimulationMode::DFSPH:
-	case Storm::SimulationMode::DFSPHModified:
 		fluidConfig._customSimulationSettings = std::make_unique<Storm::SceneFluidCustomDFSPHConfig>();
 		break;
 
@@ -751,7 +746,7 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 					}
 				}
 			}
-			else if ((sceneSimulationConfig._simulationMode == Storm::SimulationMode::DFSPH || sceneSimulationConfig._simulationMode == Storm::SimulationMode::DFSPHModified) && fluidXmlElement.first == "DFSPH")
+			else if (sceneSimulationConfig._simulationMode == Storm::SimulationMode::DFSPH && fluidXmlElement.first == "DFSPH")
 			{
 				Storm::SceneFluidCustomDFSPHConfig &fluidDfsphConfig = static_cast<Storm::SceneFluidCustomDFSPHConfig &>(*fluidConfig._customSimulationSettings);  // NOLINT(cppcoreguidelines-pro-type-static-cast-downcast)
 				for (const auto &fluidParticleCustomSimulConfigXml : fluidXmlElement.second)

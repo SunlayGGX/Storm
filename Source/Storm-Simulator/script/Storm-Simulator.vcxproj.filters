@@ -135,9 +135,6 @@
     <ClCompile Include="..\include\Cage.cpp">
       <Filter>Source Files\General</Filter>
     </ClCompile>
-    <ClCompile Include="..\include\DFSPHSolverModified.cpp">
-      <Filter>Source Files\Solver\SPHSolvers</Filter>
-    </ClCompile>
     <ClCompile Include="..\include\SPHSolverPrivateLogic.cpp">
       <Filter>Source Files\Solver\SPHSolvers\Base</Filter>
     </ClCompile>
@@ -256,9 +253,6 @@
     </ClInclude>
     <ClInclude Include="..\include\SPHSolverUtils.h">
       <Filter>Header Files\Solver\SPHSolvers\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\DFSPHSolverModified.h">
-      <Filter>Header Files\Solver\SPHSolvers</Filter>
     </ClInclude>
     <ClInclude Include="..\include\SelectedParticleData.h">
       <Filter>Header Files\General</Filter>

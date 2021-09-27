@@ -10,6 +10,5 @@ namespace Storm
 		PCISPH,
 		IISPH,
 		DFSPH,
-		DFSPHModified,
 	};
 }

@@ -18,7 +18,6 @@
     <ClCompile Include="..\include\Blower.cpp" />
     <ClCompile Include="..\include\Cage.cpp" />
     <ClCompile Include="..\include\DFSPHSolver.cpp" />
-    <ClCompile Include="..\include\DFSPHSolverModified.cpp" />
     <ClCompile Include="..\include\FluidParticleSystem.cpp" />
     <ClCompile Include="..\include\IISPHSolver.cpp" />
     <ClCompile Include="..\include\Kernel.cpp" />
@@ -51,7 +50,6 @@
     <ClInclude Include="..\include\CubicSplineKernel.h" />
     <ClInclude Include="..\include\DFSPHSolver.h" />
     <ClInclude Include="..\include\DFSPHSolverData.h" />
-    <ClInclude Include="..\include\DFSPHSolverModified.h" />
     <ClInclude Include="..\include\FluidParticleSystem.h" />
     <ClInclude Include="..\include\IBlower.h" />
     <ClInclude Include="..\include\IISPHSolver.h" />
