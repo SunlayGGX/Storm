@@ -121,6 +121,8 @@ namespace
 			{
 				currentPNormal = -currentPNormal;
 			}
+
+			currentPNormal.normalize();
 		}
 	}
 }
