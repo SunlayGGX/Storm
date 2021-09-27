@@ -547,6 +547,7 @@ void Storm::ReplaySolver::transferFrameToParticleSystem_move(Storm::ParticleSyst
 		particleSystem.setDensities(std::move(currentFrameElement._densities));
 		particleSystem.setPressures(std::move(currentFrameElement._pressures));
 		particleSystem.setVolumes(std::move(currentFrameElement._volumes));
+		particleSystem.setNormals(std::move(currentFrameElement._normals));
 		particleSystem.setForces(std::move(currentFrameElement._forces));
 		particleSystem.setTmpPressureForces(std::move(currentFrameElement._pressureComponentforces));
 		particleSystem.setTmpViscosityForces(std::move(currentFrameElement._viscosityComponentforces));
