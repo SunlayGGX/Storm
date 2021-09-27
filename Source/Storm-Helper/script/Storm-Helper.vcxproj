@@ -75,6 +75,7 @@
     <ClInclude Include="..\include\SearchAlgo.h" />
     <ClInclude Include="..\include\SerializePackage.h" />
     <ClInclude Include="..\include\SerializePackageCreationModality.h" />
+    <ClInclude Include="..\include\SIMDUsageMode.h" />
     <ClInclude Include="..\include\Singleton.h" />
     <ClInclude Include="..\include\SingletonAllocator.h" />
     <ClInclude Include="..\include\SingletonDefaultImplementation.h" />

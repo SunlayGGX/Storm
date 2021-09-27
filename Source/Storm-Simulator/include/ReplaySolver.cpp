@@ -22,6 +22,7 @@
 #undef STORM_HIJACKED_TYPE
 
 #include "InstructionSet.h"
+#include "SIMDUsageMode.h"
 
 #include <future>
 
@@ -207,7 +208,7 @@ namespace
 	}
 
 
-	template<bool remap, bool useSIMD, bool useAVX512>
+	template<bool remap, Storm::SIMDUsageMode simdMode>
 	void lerpParticleSystemsFrames(Storm::ParticleSystemContainer &particleSystems, Storm::SerializeRecordPendingData &frameBefore, Storm::SerializeRecordPendingData &frameAfter, const float coefficient)
 	{
 		Storm::Vector3 tmp;
@@ -262,24 +263,6 @@ namespace
 				std::vector<float> &allDensities = currentPSystemAsFluid.getDensities();
 				std::vector<float> &allPressures = currentPSystemAsFluid.getPressures();
 
-				if constexpr (!useSIMD)
-				{
-					Storm::runParallel(frameBeforeElements._positions, [&](const Storm::Vector3 &currentPPosition, const std::size_t currentPIndex)
-					{
-						lerp(currentPPosition, frameAfterElements._positions[currentPIndex], coefficient, allPositions[currentPIndex]);
-						lerp(frameBeforeElements._velocities[currentPIndex], frameAfterElements._velocities[currentPIndex], coefficient, allVelocities[currentPIndex]);
-						lerp(frameBeforeElements._forces[currentPIndex], frameAfterElements._forces[currentPIndex], coefficient, allForces[currentPIndex]);
-						lerp(frameBeforeElements._densities[currentPIndex], frameAfterElements._densities[currentPIndex], coefficient, allDensities[currentPIndex]);
-						lerp(frameBeforeElements._pressures[currentPIndex], frameAfterElements._pressures[currentPIndex], coefficient, allPressures[currentPIndex]);
-						lerp(frameBeforeElements._pressureComponentforces[currentPIndex], frameAfterElements._pressureComponentforces[currentPIndex], coefficient, allPressureForce[currentPIndex]);
-						lerp(frameBeforeElements._viscosityComponentforces[currentPIndex], frameAfterElements._viscosityComponentforces[currentPIndex], coefficient, allViscosityForce[currentPIndex]);
-						lerp(frameBeforeElements._dragComponentforces[currentPIndex], frameAfterElements._dragComponentforces[currentPIndex], coefficient, allDragForce[currentPIndex]);
-						lerp(frameBeforeElements._dynamicPressureQForces[currentPIndex], frameAfterElements._dynamicPressureQForces[currentPIndex], coefficient, allDynamicQForce[currentPIndex]);
-						lerp(frameBeforeElements._noStickForces[currentPIndex], frameAfterElements._noStickForces[currentPIndex], coefficient, allNoStickForce[currentPIndex]);
-					});
-				}
-				else
-				{
 #define STORM_MAKE_PARALLEL_FLUID_LERPS															\
 	std::future<void> lerpsComputators[] =														\
 	{																							\
@@ -295,18 +278,33 @@ namespace
 		STORM_LAUNCH_LERP_ARRAY_FUTURE(_noStickForces, allNoStickForce),						\
 	}
 
-					if constexpr (useAVX512)
-					{
-						auto lerpArray = makeAVX512LerpArrayLambda(coefficient);
-						STORM_MAKE_PARALLEL_FLUID_LERPS;
-					}
-					else
-					{
-						auto lerpArray = makeSSELerpArrayLambda(coefficient);
-						STORM_MAKE_PARALLEL_FLUID_LERPS;
-					}
-#undef STORM_MAKE_PARALLEL_FLUID_LERPS
+				if constexpr (simdMode == Storm::SIMDUsageMode::AVX512)
+				{
+					auto lerpArray = makeAVX512LerpArrayLambda(coefficient);
+					STORM_MAKE_PARALLEL_FLUID_LERPS;
 				}
+				else if constexpr (simdMode == Storm::SIMDUsageMode::SSE)
+				{
+					auto lerpArray = makeSSELerpArrayLambda(coefficient);
+					STORM_MAKE_PARALLEL_FLUID_LERPS;
+				}
+				else
+				{
+					Storm::runParallel(frameBeforeElements._positions, [&](const Storm::Vector3 &currentPPosition, const std::size_t currentPIndex)
+					{
+						lerp(currentPPosition, frameAfterElements._positions[currentPIndex], coefficient, allPositions[currentPIndex]);
+						lerp(frameBeforeElements._velocities[currentPIndex], frameAfterElements._velocities[currentPIndex], coefficient, allVelocities[currentPIndex]);
+						lerp(frameBeforeElements._forces[currentPIndex], frameAfterElements._forces[currentPIndex], coefficient, allForces[currentPIndex]);
+						lerp(frameBeforeElements._densities[currentPIndex], frameAfterElements._densities[currentPIndex], coefficient, allDensities[currentPIndex]);
+						lerp(frameBeforeElements._pressures[currentPIndex], frameAfterElements._pressures[currentPIndex], coefficient, allPressures[currentPIndex]);
+						lerp(frameBeforeElements._pressureComponentforces[currentPIndex], frameAfterElements._pressureComponentforces[currentPIndex], coefficient, allPressureForce[currentPIndex]);
+						lerp(frameBeforeElements._viscosityComponentforces[currentPIndex], frameAfterElements._viscosityComponentforces[currentPIndex], coefficient, allViscosityForce[currentPIndex]);
+						lerp(frameBeforeElements._dragComponentforces[currentPIndex], frameAfterElements._dragComponentforces[currentPIndex], coefficient, allDragForce[currentPIndex]);
+						lerp(frameBeforeElements._dynamicPressureQForces[currentPIndex], frameAfterElements._dynamicPressureQForces[currentPIndex], coefficient, allDynamicQForce[currentPIndex]);
+						lerp(frameBeforeElements._noStickForces[currentPIndex], frameAfterElements._noStickForces[currentPIndex], coefficient, allNoStickForce[currentPIndex]);
+					});
+				}
+#undef STORM_MAKE_PARALLEL_FLUID_LERPS
 
 			}
 			else
@@ -315,24 +313,6 @@ namespace
 				std::vector<float> &allVolumes = currentPSystemAsRb.getVolumes();
 				std::vector<Storm::Vector3> &allNormals = currentPSystemAsRb.getNormals();
 
-				if constexpr (!useSIMD)
-				{
-					Storm::runParallel(frameBeforeElements._positions, [&](const Storm::Vector3 &currentPPosition, const std::size_t currentPIndex)
-					{
-						lerp(currentPPosition, frameAfterElements._positions[currentPIndex], coefficient, allPositions[currentPIndex]);
-						lerp(frameBeforeElements._velocities[currentPIndex], frameAfterElements._velocities[currentPIndex], coefficient, allVelocities[currentPIndex]);
-						lerp(frameBeforeElements._forces[currentPIndex], frameAfterElements._forces[currentPIndex], coefficient, allForces[currentPIndex]);
-						lerp(frameBeforeElements._volumes[currentPIndex], frameAfterElements._volumes[currentPIndex], coefficient, allVolumes[currentPIndex]);
-						lerp(frameBeforeElements._normals[currentPIndex], frameAfterElements._normals[currentPIndex], coefficient, allNormals[currentPIndex]);
-						lerp(frameBeforeElements._pressureComponentforces[currentPIndex], frameAfterElements._pressureComponentforces[currentPIndex], coefficient, allPressureForce[currentPIndex]);
-						lerp(frameBeforeElements._viscosityComponentforces[currentPIndex], frameAfterElements._viscosityComponentforces[currentPIndex], coefficient, allViscosityForce[currentPIndex]);
-						lerp(frameBeforeElements._dragComponentforces[currentPIndex], frameAfterElements._dragComponentforces[currentPIndex], coefficient, allDragForce[currentPIndex]);
-						lerp(frameBeforeElements._dynamicPressureQForces[currentPIndex], frameAfterElements._dynamicPressureQForces[currentPIndex], coefficient, allDynamicQForce[currentPIndex]);
-						lerp(frameBeforeElements._noStickForces[currentPIndex], frameAfterElements._noStickForces[currentPIndex], coefficient, allNoStickForce[currentPIndex]);
-					});
-				}
-				else
-				{
 #define STORM_MAKE_PARALLEL_RB_LERPS															\
 	std::future<void> lerpsComputators[] =														\
 	{																							\
@@ -347,18 +327,31 @@ namespace
 		STORM_LAUNCH_LERP_ARRAY_FUTURE(_dynamicPressureQForces, allDynamicQForce),				\
 		STORM_LAUNCH_LERP_ARRAY_FUTURE(_noStickForces, allNoStickForce),						\
 	}
-
-					if constexpr (useAVX512)
+				if constexpr (simdMode == Storm::SIMDUsageMode::AVX512)
+				{
+					auto lerpArray = makeAVX512LerpArrayLambda(coefficient);
+					STORM_MAKE_PARALLEL_RB_LERPS;
+				}
+				else if constexpr (simdMode == Storm::SIMDUsageMode::SSE)
+				{
+					auto lerpArray = makeSSELerpArrayLambda(coefficient);
+					STORM_MAKE_PARALLEL_RB_LERPS;
+				}
+				else
+				{
+					Storm::runParallel(frameBeforeElements._positions, [&](const Storm::Vector3 &currentPPosition, const std::size_t currentPIndex)
 					{
-						auto lerpArray = makeAVX512LerpArrayLambda(coefficient);
-						STORM_MAKE_PARALLEL_RB_LERPS;
-					}
-					else
-					{
-						auto lerpArray = makeSSELerpArrayLambda(coefficient);
-						STORM_MAKE_PARALLEL_RB_LERPS;
-					}
-
+						lerp(currentPPosition, frameAfterElements._positions[currentPIndex], coefficient, allPositions[currentPIndex]);
+						lerp(frameBeforeElements._velocities[currentPIndex], frameAfterElements._velocities[currentPIndex], coefficient, allVelocities[currentPIndex]);
+						lerp(frameBeforeElements._forces[currentPIndex], frameAfterElements._forces[currentPIndex], coefficient, allForces[currentPIndex]);
+						lerp(frameBeforeElements._volumes[currentPIndex], frameAfterElements._volumes[currentPIndex], coefficient, allVolumes[currentPIndex]);
+						lerp(frameBeforeElements._normals[currentPIndex], frameAfterElements._normals[currentPIndex], coefficient, allNormals[currentPIndex]);
+						lerp(frameBeforeElements._pressureComponentforces[currentPIndex], frameAfterElements._pressureComponentforces[currentPIndex], coefficient, allPressureForce[currentPIndex]);
+						lerp(frameBeforeElements._viscosityComponentforces[currentPIndex], frameAfterElements._viscosityComponentforces[currentPIndex], coefficient, allViscosityForce[currentPIndex]);
+						lerp(frameBeforeElements._dragComponentforces[currentPIndex], frameAfterElements._dragComponentforces[currentPIndex], coefficient, allDragForce[currentPIndex]);
+						lerp(frameBeforeElements._dynamicPressureQForces[currentPIndex], frameAfterElements._dynamicPressureQForces[currentPIndex], coefficient, allDynamicQForce[currentPIndex]);
+						lerp(frameBeforeElements._noStickForces[currentPIndex], frameAfterElements._noStickForces[currentPIndex], coefficient, allNoStickForce[currentPIndex]);
+					});
 #undef STORM_MAKE_PARALLEL_RB_LERPS
 				}
 			}
@@ -419,7 +412,7 @@ namespace
 		}
 	}
 
-	template<bool useSIMD, bool useAVX512>
+	template<Storm::SIMDUsageMode simdMode>
 	void fillRecordFromSystemsImpl(const bool pushStatics, const Storm::ParticleSystemContainer &particleSystems, Storm::SerializeRecordPendingData &currentFrameData)
 	{
 		enum { k_pSystemArrayMaxCount = 10 };
@@ -459,18 +452,15 @@ namespace
 				{
 					const Storm::FluidParticleSystem &pSystemRefAsFluid = static_cast<const Storm::FluidParticleSystem &>(pSystemRef);
 
-					if constexpr (useSIMD)
+					if constexpr (simdMode == Storm::SIMDUsageMode::AVX512)
 					{
-						if constexpr (useAVX512)
-						{
-							STORM_COPY_ARRAYS(avx512CpyLambda, _densities, pSystemRefAsFluid.getDensities());
-							STORM_COPY_ARRAYS(avx512CpyLambda, _pressures, pSystemRefAsFluid.getPressures());
-						}
-						else
-						{
-							STORM_COPY_ARRAYS(sseCpyLambda, _densities, pSystemRefAsFluid.getDensities());
-							STORM_COPY_ARRAYS(sseCpyLambda, _pressures, pSystemRefAsFluid.getPressures());
-						}
+						STORM_COPY_ARRAYS(avx512CpyLambda, _densities, pSystemRefAsFluid.getDensities());
+						STORM_COPY_ARRAYS(avx512CpyLambda, _pressures, pSystemRefAsFluid.getPressures());
+					}
+					else if constexpr (simdMode == Storm::SIMDUsageMode::SSE)
+					{
+						STORM_COPY_ARRAYS(sseCpyLambda, _densities, pSystemRefAsFluid.getDensities());
+						STORM_COPY_ARRAYS(sseCpyLambda, _pressures, pSystemRefAsFluid.getPressures());
 					}
 					else
 					{
@@ -481,18 +471,15 @@ namespace
 				else
 				{
 					const Storm::RigidBodyParticleSystem &pSystemRefAsRb = static_cast<const Storm::RigidBodyParticleSystem &>(pSystemRef);
-					if constexpr (useSIMD)
+					if constexpr (simdMode == Storm::SIMDUsageMode::AVX512)
 					{
-						if constexpr (useAVX512)
-						{
-							STORM_COPY_ARRAYS(avx512CpyLambda, _normals, pSystemRefAsRb.getNormals());
-							STORM_COPY_ARRAYS(avx512CpyLambda, _volumes, pSystemRefAsRb.getVolumes());
-						}
-						else
-						{
-							STORM_COPY_ARRAYS(sseCpyLambda, _normals, pSystemRefAsRb.getNormals());
-							STORM_COPY_ARRAYS(sseCpyLambda, _volumes, pSystemRefAsRb.getVolumes());
-						}
+						STORM_COPY_ARRAYS(avx512CpyLambda, _normals, pSystemRefAsRb.getNormals());
+						STORM_COPY_ARRAYS(avx512CpyLambda, _volumes, pSystemRefAsRb.getVolumes());
+					}
+					else if constexpr (simdMode == Storm::SIMDUsageMode::SSE)
+					{
+						STORM_COPY_ARRAYS(sseCpyLambda, _normals, pSystemRefAsRb.getNormals());
+						STORM_COPY_ARRAYS(sseCpyLambda, _volumes, pSystemRefAsRb.getVolumes());
 					}
 					else
 					{
@@ -504,30 +491,27 @@ namespace
 					framePSystemElementData._pSystemGlobalForce = pSystemRefAsRb.getRbTotalForce();
 				}
 
-				if constexpr (useSIMD)
+				if constexpr (simdMode == Storm::SIMDUsageMode::AVX512)
 				{
-					if constexpr (useAVX512)
-					{
-						STORM_COPY_ARRAYS(avx512CpyLambda, _positions, pSystemRef.getPositions());
-						STORM_COPY_ARRAYS(avx512CpyLambda, _velocities, pSystemRef.getVelocity());
-						STORM_COPY_ARRAYS(avx512CpyLambda, _forces, pSystemRef.getForces());
-						STORM_COPY_ARRAYS(avx512CpyLambda, _pressureComponentforces, pSystemRef.getTemporaryPressureForces());
-						STORM_COPY_ARRAYS(avx512CpyLambda, _viscosityComponentforces, pSystemRef.getTemporaryViscosityForces());
-						STORM_COPY_ARRAYS(avx512CpyLambda, _dragComponentforces, pSystemRef.getTemporaryDragForces());
-						STORM_COPY_ARRAYS(avx512CpyLambda, _dynamicPressureQForces, pSystemRef.getTemporaryBernoulliDynamicPressureForces());
-						STORM_COPY_ARRAYS(avx512CpyLambda, _noStickForces, pSystemRef.getTemporaryNoStickForces());
-					}
-					else
-					{
-						STORM_COPY_ARRAYS(sseCpyLambda, _positions, pSystemRef.getPositions());
-						STORM_COPY_ARRAYS(sseCpyLambda, _velocities, pSystemRef.getVelocity());
-						STORM_COPY_ARRAYS(sseCpyLambda, _forces, pSystemRef.getForces());
-						STORM_COPY_ARRAYS(sseCpyLambda, _pressureComponentforces, pSystemRef.getTemporaryPressureForces());
-						STORM_COPY_ARRAYS(sseCpyLambda, _viscosityComponentforces, pSystemRef.getTemporaryViscosityForces());
-						STORM_COPY_ARRAYS(sseCpyLambda, _dragComponentforces, pSystemRef.getTemporaryDragForces());
-						STORM_COPY_ARRAYS(sseCpyLambda, _dynamicPressureQForces, pSystemRef.getTemporaryBernoulliDynamicPressureForces());
-						STORM_COPY_ARRAYS(sseCpyLambda, _noStickForces, pSystemRef.getTemporaryNoStickForces());
-					}
+					STORM_COPY_ARRAYS(avx512CpyLambda, _positions, pSystemRef.getPositions());
+					STORM_COPY_ARRAYS(avx512CpyLambda, _velocities, pSystemRef.getVelocity());
+					STORM_COPY_ARRAYS(avx512CpyLambda, _forces, pSystemRef.getForces());
+					STORM_COPY_ARRAYS(avx512CpyLambda, _pressureComponentforces, pSystemRef.getTemporaryPressureForces());
+					STORM_COPY_ARRAYS(avx512CpyLambda, _viscosityComponentforces, pSystemRef.getTemporaryViscosityForces());
+					STORM_COPY_ARRAYS(avx512CpyLambda, _dragComponentforces, pSystemRef.getTemporaryDragForces());
+					STORM_COPY_ARRAYS(avx512CpyLambda, _dynamicPressureQForces, pSystemRef.getTemporaryBernoulliDynamicPressureForces());
+					STORM_COPY_ARRAYS(avx512CpyLambda, _noStickForces, pSystemRef.getTemporaryNoStickForces());
+				}
+				else if constexpr (simdMode == Storm::SIMDUsageMode::SSE)
+				{
+					STORM_COPY_ARRAYS(sseCpyLambda, _positions, pSystemRef.getPositions());
+					STORM_COPY_ARRAYS(sseCpyLambda, _velocities, pSystemRef.getVelocity());
+					STORM_COPY_ARRAYS(sseCpyLambda, _forces, pSystemRef.getForces());
+					STORM_COPY_ARRAYS(sseCpyLambda, _pressureComponentforces, pSystemRef.getTemporaryPressureForces());
+					STORM_COPY_ARRAYS(sseCpyLambda, _viscosityComponentforces, pSystemRef.getTemporaryViscosityForces());
+					STORM_COPY_ARRAYS(sseCpyLambda, _dragComponentforces, pSystemRef.getTemporaryDragForces());
+					STORM_COPY_ARRAYS(sseCpyLambda, _dynamicPressureQForces, pSystemRef.getTemporaryBernoulliDynamicPressureForces());
+					STORM_COPY_ARRAYS(sseCpyLambda, _noStickForces, pSystemRef.getTemporaryNoStickForces());
 				}
 				else
 				{
@@ -540,6 +524,7 @@ namespace
 					STORM_MAKE_SIMPLE_COPY_ARRAY(_dynamicPressureQForces, pSystemRef.getTemporaryBernoulliDynamicPressureForces());
 					STORM_MAKE_SIMPLE_COPY_ARRAY(_noStickForces, pSystemRef.getTemporaryNoStickForces());
 				}
+
 #undef STORM_COPY_ARRAYS
 #undef STORM_MAKE_SIMPLE_COPY_ARRAY
 			}
@@ -772,16 +757,16 @@ bool Storm::ReplaySolver::replayCurrentNextFrame(Storm::ParticleSystemContainer 
 			{
 				if (useAVX512)
 				{
-					lerpParticleSystemsFrames<false, true, true>(particleSystems, frameBefore, frameAfter, coefficient);
+					lerpParticleSystemsFrames<false, Storm::SIMDUsageMode::AVX512>(particleSystems, frameBefore, frameAfter, coefficient);
 				}
 				else
 				{
-					lerpParticleSystemsFrames<false, true, false>(particleSystems, frameBefore, frameAfter, coefficient);
+					lerpParticleSystemsFrames<false, Storm::SIMDUsageMode::SSE>(particleSystems, frameBefore, frameAfter, coefficient);
 				}
 			}
 			else
 			{
-				lerpParticleSystemsFrames<false, false, false>(particleSystems, frameBefore, frameAfter, coefficient);
+				lerpParticleSystemsFrames<false, Storm::SIMDUsageMode::SISD>(particleSystems, frameBefore, frameAfter, coefficient);
 			}
 		}
 		else
@@ -790,16 +775,16 @@ bool Storm::ReplaySolver::replayCurrentNextFrame(Storm::ParticleSystemContainer 
 			{
 				if (useAVX512)
 				{
-					lerpParticleSystemsFrames<true, true, true>(particleSystems, frameBefore, frameAfter, coefficient);
+					lerpParticleSystemsFrames<true, Storm::SIMDUsageMode::AVX512>(particleSystems, frameBefore, frameAfter, coefficient);
 				}
 				else
 				{
-					lerpParticleSystemsFrames<true, true, false>(particleSystems, frameBefore, frameAfter, coefficient);
+					lerpParticleSystemsFrames<true, Storm::SIMDUsageMode::SSE>(particleSystems, frameBefore, frameAfter, coefficient);
 				}
 			}
 			else
 			{
-				lerpParticleSystemsFrames<true, false, false>(particleSystems, frameBefore, frameAfter, coefficient);
+				lerpParticleSystemsFrames<true, Storm::SIMDUsageMode::SISD>(particleSystems, frameBefore, frameAfter, coefficient);
 			}
 		}
 
@@ -820,16 +805,15 @@ void Storm::ReplaySolver::fillRecordFromSystems(const bool pushStatics, const St
 	{
 		if (useAVX512)
 		{
-			fillRecordFromSystemsImpl<true, true>(pushStatics, particleSystems, currentFrameData);
+			fillRecordFromSystemsImpl<Storm::SIMDUsageMode::AVX512>(pushStatics, particleSystems, currentFrameData);
 		}
 		else
 		{
-			fillRecordFromSystemsImpl<true, false>(pushStatics, particleSystems, currentFrameData);
+			fillRecordFromSystemsImpl<Storm::SIMDUsageMode::SSE>(pushStatics, particleSystems, currentFrameData);
 		}
-		
 	}
 	else
 	{
-		fillRecordFromSystemsImpl<false, false>(pushStatics, particleSystems, currentFrameData);
+		fillRecordFromSystemsImpl<Storm::SIMDUsageMode::SISD>(pushStatics, particleSystems, currentFrameData);
 	}
 }

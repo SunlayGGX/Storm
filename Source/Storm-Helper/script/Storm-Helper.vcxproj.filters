@@ -374,5 +374,8 @@
     <ClInclude Include="..\include\Language.h">
       <Filter>Header Files\Application</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\SIMDUsageMode.h">
+      <Filter>Header Files\OS\Material</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
