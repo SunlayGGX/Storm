@@ -77,16 +77,15 @@ void Storm::GraphicNormals::refreshNormalsDataFromCachedInternal(const ComPtr<ID
 	}
 }
 
-void Storm::GraphicNormals::refreshNormalsData(const ComPtr<ID3D11Device> &device, const Storm::GraphicParameters &params)
+void Storm::GraphicNormals::refreshNormalsData(const ComPtr<ID3D11Device> &device, const Storm::GraphicParameters &params, const float oldNormalizationCoeff)
 {
 	const uint32_t cachedNormalCount = static_cast<uint32_t>(_cached.size());
 	if (cachedNormalCount > 0)
 	{
-		const float multCoeff = 0.05f * params._vectNormMultiplicator;
+		const float renormalizationCoeff = 0.05f * params._vectNormMultiplicator / oldNormalizationCoeff;
 		for (Storm::GraphicNormals::GraphicNormalInternal &normalInternal : _cached)
 		{
 			Storm::Vector3 unnormalizedNormal = normalInternal._head - normalInternal._base;
-			const float renormalizationCoeff = multCoeff / unnormalizedNormal.norm();
 			unnormalizedNormal *= renormalizationCoeff;
 
 			normalInternal._head = normalInternal._base + unnormalizedNormal;

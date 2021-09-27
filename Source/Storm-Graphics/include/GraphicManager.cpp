@@ -753,11 +753,12 @@ void Storm::GraphicManager::setVectMultiplicatorCoeff(const float newCoeff)
 		{
 			if (_parameters._vectNormMultiplicator != newCoeff)
 			{
+				const float oldCoeff = _parameters._vectNormMultiplicator;
 				_parameters._vectNormMultiplicator = newCoeff;
 
 				const auto &device = _directXController->getDirectXDevice();
-				_graphicNormals->refreshNormalsData(device, _parameters);
 				_forceRenderer->refreshForceData(device, _parameters);
+				_graphicNormals->refreshNormalsData(device, _parameters, oldCoeff);
 
 				_dirty = true;
 			}

@@ -25,7 +25,7 @@ namespace Storm
 		void refreshNormalsDataFromCachedInternal(const ComPtr<ID3D11Device> &device, const Storm::GraphicParameters &params, const uint32_t normalCount);
 
 	public:
-		void refreshNormalsData(const ComPtr<ID3D11Device> &device, const Storm::GraphicParameters &params);
+		void refreshNormalsData(const ComPtr<ID3D11Device> &device, const Storm::GraphicParameters &params, const float oldNormalizationCoeff);
 		void updateNormalsData(const ComPtr<ID3D11Device> &device, const Storm::GraphicParameters &params, const std::vector<Storm::Vector3> &positions, const std::vector<Storm::Vector3> &normals);
 
 	public:
