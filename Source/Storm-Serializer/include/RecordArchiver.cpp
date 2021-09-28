@@ -46,7 +46,7 @@ namespace
 		std::ofstream batFile{ endFolder / runnerFileName };
 		batFile <<
 			"echo off\n"
-			"cd % ~dp0\n\n"
+			"cd %~dp0\n\n"
 
 			"call \"../Base/LauncherSetup.bat\" Release\n\n\n"
 
