@@ -302,6 +302,19 @@ const Storm::SerializeRecordHeader& Storm::SerializerManager::getRecordHeader() 
 	}
 }
 
+std::shared_ptr<Storm::SerializeSupportedFeatureLayout> Storm::SerializerManager::getRecordSupportedFeature() const
+{
+	std::lock_guard<std::mutex> lock{ _mutex };
+	if (_recordReader)
+	{
+		return _recordReader->getHeader()._supportedFeaturesLayout;
+	}
+	else
+	{
+		Storm::throwException<Storm::Exception>("We cannot query SupportedFeature except in a replay mode!");
+	}
+}
+
 bool Storm::SerializerManager::resetReplay()
 {
 	assert(Storm::isSimulationThread() && "this method should only be called from simulation thread.");

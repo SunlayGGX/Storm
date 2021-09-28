@@ -41,6 +41,8 @@ namespace Storm
 
 		const Storm::SerializeRecordHeader& getRecordHeader() const final override;
 
+		std::shared_ptr<Storm::SerializeSupportedFeatureLayout> getRecordSupportedFeature() const final override;
+
 	public:
 		bool resetReplay() final override;
 

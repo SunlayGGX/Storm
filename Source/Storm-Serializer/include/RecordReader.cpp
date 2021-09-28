@@ -5,6 +5,7 @@
 #include "SerializeRecordHeader.h"
 #include "SerializeConstraintLayout.h"
 #include "SerializeParticleSystemLayout.h"
+#include "SerializeSupportedFeatureLayout.h"
 
 #include "SerializeRecordContraintsData.h"
 #include "SerializeRecordParticleSystemData.h"
@@ -64,6 +65,17 @@ namespace
 			}
 		}
 	}
+
+	void fillSupportedFeatureImpl(const Storm::Version &currentVersion, Storm::SerializeSupportedFeatureLayout &missingFeatures)
+	{
+		missingFeatures._hasPSystemGlobalForce =							currentVersion >= Storm::Version{ 1, 2, 0 };
+		missingFeatures._hasPressures = missingFeatures._hasDensities =		currentVersion >= Storm::Version{ 1, 3, 0 };
+		missingFeatures._hasVolumes =										currentVersion >= Storm::Version{ 1, 4, 0 };
+		missingFeatures._hasDragComponentforces =							currentVersion >= Storm::Version{ 1, 5, 0 };
+		missingFeatures._hasDynamicPressureQForces =						currentVersion >= Storm::Version{ 1, 6, 0 };
+		missingFeatures._hasNormals = missingFeatures._hasNoStickForces	=	currentVersion >= Storm::Version{ 1, 7, 0 };
+		missingFeatures._hasPSystemTotalEngineForce	=						currentVersion >= Storm::Version{ 1, 8, 0 };
+	}
 }
 
 
@@ -114,6 +126,8 @@ Storm::RecordReader::RecordReader() :
 
 	Storm::RecordHandlerBase::serializeHeader();
 	_firstFramePosition = _package.getStreamPosition();
+
+	fillSupportedFeatureImpl(currentRecordVersion, *_header._supportedFeaturesLayout);
 
 	_noMoreFrame = _header._frameCount == 0;
 }

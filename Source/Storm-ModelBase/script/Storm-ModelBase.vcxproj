@@ -85,6 +85,7 @@
     <ClInclude Include="..\include\SceneScriptConfig.h" />
     <ClInclude Include="..\include\SceneFluidDefaultCustomConfig.h" />
     <ClInclude Include="..\include\SerializeConstraintLayout.h" />
+    <ClInclude Include="..\include\SerializeSupportedFeatureLayout.h" />
     <ClInclude Include="..\include\SerializeParticleSystemLayout.h" />
     <ClInclude Include="..\include\SerializeRecordContraintsData.h" />
     <ClInclude Include="..\include\SerializeRecordHeader.h" />
