@@ -38,7 +38,7 @@ namespace
 		return result;
 	}
 
-	void generateLauncherRunner(const FilesystemRequest &sceneConfigRequest, const FilesystemRequest &recordRequest, const std::filesystem::path &endFolder)
+	void generateLauncherRunner(const FilesystemRequest &sceneConfigRequest, const FilesystemRequest &recordRequest, const std::filesystem::path &endFolder, const std::filesystem::path &endFolderUniformMacroized)
 	{
 		std::filesystem::path runnerFileName = sceneConfigRequest._toFilename;
 		runnerFileName.replace_extension(".bat");
@@ -53,8 +53,13 @@ namespace
 			"call \"Storm.exe\" --threadPriority=High --mode=Replay ";
 
 		batFile << 
-			"--scene=" << endFolder / sceneConfigRequest._toFilename << " "
-			"--recordFile=" << endFolder / recordRequest._toFilename << " ";
+			"--scene=" << endFolderUniformMacroized / sceneConfigRequest._toFilename << " "
+			"--recordFile=" << endFolderUniformMacroized / recordRequest._toFilename << " ";
+	}
+
+	std::filesystem::path retrieveMacroizedRecordArchiveFolder(const Storm::IConfigManager &configMgr)
+	{
+		return std::filesystem::path{ configMgr.makeMacroKey(Storm::MacroTags::k_builtInMacroKey_StormArchive) } / "Records";
 	}
 }
 
@@ -72,7 +77,7 @@ Storm::RecordArchiver::RecordArchiver() :
 
 	LOG_DEBUG << "Record archiver created.";
 
-	_archivePath = Storm::toStdString(std::filesystem::path{ configMgr.makeMacroKey(Storm::MacroTags::k_builtInMacroKey_StormArchive) } / "Records");
+	_archivePath = Storm::toStdString(retrieveMacroizedRecordArchiveFolder(configMgr));
 	configMgr.getMacroizedConvertedValue(_archivePath);
 
 	const std::filesystem::path archivePathFilesystem{ _archivePath };
@@ -157,7 +162,8 @@ void Storm::RecordArchiver::execute()
 
 		LOG_DEBUG << "Generating runner launcher.";
 
-		generateLauncherRunner(requests[0], requests[1], endFolder);
+		const std::filesystem::path endFolderNormalizedWithMacros = std::filesystem::path{ retrieveMacroizedRecordArchiveFolder(configMgr) } / endFolder.filename();
+		generateLauncherRunner(requests[0], requests[1], endFolder, endFolderNormalizedWithMacros);
 
 		LOG_COMMENT << "Archiving finished successfully.";
 	}
