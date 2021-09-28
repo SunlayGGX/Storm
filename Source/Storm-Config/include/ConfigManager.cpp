@@ -616,3 +616,8 @@ void Storm::ConfigManager::getMacroizedConvertedValue(std::string &inOutValue) c
 		Storm::throwException<Storm::Exception>("'" + inOutValue + "' has no known macros embedded into it!");
 	}
 }
+
+std::string Storm::ConfigManager::makeMacroKey(const std::string_view value) const
+{
+	return _macroConfig.makeMacroKey(value);
+}

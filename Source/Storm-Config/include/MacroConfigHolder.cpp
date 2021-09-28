@@ -265,6 +265,12 @@ bool Storm::MacroConfigHolder::hasKnownMacro(const std::string &inOutStr, std::s
 	return false;
 }
 
+
+std::string Storm::MacroConfigHolder::makeMacroKey(const std::string_view value) const
+{
+	return makeFinalMacroKey(value);
+}
+
 void Storm::MacroConfigHolder::operator()(std::string &inOutStr) const
 {
 	_lastHasResolved = false;

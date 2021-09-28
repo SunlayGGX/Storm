@@ -35,6 +35,9 @@ namespace Storm
 		bool hasKnownMacro(const std::string &inOutStr, std::size_t &outPosFound) const;
 
 	public:
+		std::string makeMacroKey(const std::string_view value) const;
+
+	public:
 		void operator()(std::string &inOutStr) const;
 		std::string operator()(const std::string &inStr) const;
 

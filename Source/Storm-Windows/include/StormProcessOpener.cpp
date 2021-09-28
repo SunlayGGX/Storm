@@ -12,6 +12,8 @@
 
 #include "StormExiter.h"
 
+#include "Config/MacroTags.cs"
+
 #include "StringAlgo.h"
 
 
@@ -168,7 +170,7 @@ bool Storm::StormProcessOpener::openCurrentConfigFile(const Storm::StormProcessO
 bool Storm::StormProcessOpener::openReadmeFile(const OpenParameter &param, std::size_t &outProcessUID)
 {
 	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
-	std::string readmePath = "$[StormRoot]\\Readme.md";
+	std::string readmePath = Storm::toStdString(std::filesystem::path{ configMgr.makeMacroKey(Storm::MacroTags::k_builtInMacroKey_StormRoot) } / "Readme.md");
 	configMgr.getMacroizedConvertedValue(readmePath);
 
 	return openNotepadOnFile(param, outProcessUID, readmePath);
@@ -223,7 +225,7 @@ bool Storm::StormProcessOpener::openStormRootExplorer(const Storm::StormProcessO
 {
 	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
 
-	std::string openCommand = "Explorer.exe \"$[StormRoot]\"";
+	std::string openCommand = "Explorer.exe \"" + configMgr.makeMacroKey(Storm::MacroTags::k_builtInMacroKey_StormRoot) + "\"";
 	configMgr.getMacroizedConvertedValue(openCommand);
 
 	return tryOpenProcess(param, outProcessUID, defaultOpenProcess, Storm::StormProcessStartup{

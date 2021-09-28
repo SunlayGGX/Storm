@@ -89,5 +89,6 @@ namespace Storm
 		virtual void getUnsafeMacroizedConvertedValue(std::string &inOutValue) const = 0;
 		virtual bool getMaybeMacroizedConvertedValue(std::string &inOutValue) const = 0;
 		virtual void getMacroizedConvertedValue(std::string &inOutValue) const = 0;
+		virtual std::string makeMacroKey(const std::string_view value) const = 0;
 	};
 }
