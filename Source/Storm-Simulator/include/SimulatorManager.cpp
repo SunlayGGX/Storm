@@ -787,8 +787,6 @@ void Storm::SimulatorManager::initialize_Implementation()
 
 	/* initialize the Selector */
 
-	_particleSelector.initialize();
-
 	_kernelHandler.initialize();
 
 	Storm::IThreadManager &threadMgr = singletonHolder.getSingleton<Storm::IThreadManager>();
@@ -824,6 +822,8 @@ void Storm::SimulatorManager::initialize_Implementation()
 			_cage = std::make_unique<Storm::Cage>(*sceneOptionalCageConfig);
 		}
 	}
+
+	_particleSelector.initialize(isReplayMode);
 
 	/* Initialize inputs */
 

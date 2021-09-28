@@ -4,6 +4,7 @@
 #include "SingletonHolder.h"
 #include "IGraphicsManager.h"
 #include "IConfigManager.h"
+#include "ISerializerManager.h"
 
 #include "SceneFluidConfig.h"
 #include "SceneSimulationConfig.h"
@@ -12,6 +13,8 @@
 #include "ParticleSelectionMode.h"
 
 #include "SimulationMode.h"
+
+#include "SerializeSupportedFeatureLayout.h"
 
 #include "UIField.h"
 #include "UIFieldContainer.h"
@@ -166,13 +169,13 @@ namespace
 
 		return currentSelectionMode;
 	}
-
 }
 
 
 Storm::ParticleSelector::ParticleSelector() :
 	_currentParticleSelectionMode{ Storm::ParticleSelectionMode::AllOnParticle },
-	_selectedParticleData{ std::make_unique<Storm::SelectedParticleData>() }
+	_selectedParticleData{ std::make_unique<Storm::SelectedParticleData>() },
+	_supportedFeatures{ nullptr }
 {
 	_selectionModeStr = parseSelectedParticleMode(_currentParticleSelectionMode);
 	_selectedParticleData->_selectedParticle = std::make_pair(dummySelectedParticleIndex(), 0);
@@ -182,13 +185,24 @@ Storm::ParticleSelector::ParticleSelector() :
 
 Storm::ParticleSelector::~ParticleSelector() = default;
 
-void Storm::ParticleSelector::initialize()
+void Storm::ParticleSelector::initialize(const bool isInReplayMode)
 {
 	_fields = std::make_unique<Storm::UIFieldContainer>();
 
 	(*_fields)
 		.bindField(STORM_SELECTED_PARTICLE_DISPLAY_MODE_FIELD_NAME, _selectionModeStr)
 		;
+
+	if (isInReplayMode)
+	{
+		const Storm::ISerializerManager &serializerMgr = Storm::SingletonHolder::instance().getSingleton<Storm::ISerializerManager>();
+		_supportedFeatures = serializerMgr.getRecordSupportedFeature();
+	}
+	else
+	{
+		// The default one.
+		_supportedFeatures = std::make_shared<Storm::SerializeSupportedFeatureLayout>();
+	}
 }
 
 bool Storm::ParticleSelector::hasSelectedParticle() const noexcept
@@ -394,29 +408,39 @@ void Storm::ParticleSelector::logForceComponents() const
 		
 		rbSpecificInfosStr.reserve(64 + rbForceStr.size() + rbForceNormStr.size() + rbAverageForceStr.size() + rbAverageForceNormStr.size());
 
-#define STORM_APPEND_RB_VECTOR_DATA(vectorName, vectorStr, vectorNormStr, unit) \
-	rbSpecificInfosStr += "\n" vectorName ": ";									\
-	rbSpecificInfosStr += vectorStr;											\
-	rbSpecificInfosStr += ". Norm: ";											\
-	rbSpecificInfosStr += vectorNormStr;										\
-	rbSpecificInfosStr += unit "."
+#define STORM_SUPPORT_STR(supported) (supported ? "" : "  (NOT SUPPORTED)")
 
-		STORM_APPEND_RB_VECTOR_DATA("Rigidbody P normal", rbNormalStr, rbNormalNormStr, "");
-		STORM_APPEND_RB_VECTOR_DATA("Complete Forces (with PhysX)", rbForceStr, rbForceNormStr, "N");
-		STORM_APPEND_RB_VECTOR_DATA("Average", rbAverageForceStr, rbAverageForceNormStr, "N");
+#define STORM_APPEND_RB_VECTOR_DATA(vectorName, vectorStr, vectorNormStr, unit, supported)	\
+	rbSpecificInfosStr += "\n" vectorName ": ";												\
+	rbSpecificInfosStr += vectorStr;														\
+	rbSpecificInfosStr += ". Norm: ";														\
+	rbSpecificInfosStr += vectorNormStr;													\
+	rbSpecificInfosStr += " " unit ".";														\
+	rbSpecificInfosStr += STORM_SUPPORT_STR(supported)										\
+
+		STORM_APPEND_RB_VECTOR_DATA("Rigidbody P normal", rbNormalStr, rbNormalNormStr, "", _supportedFeatures->_hasNormals);
+		STORM_APPEND_RB_VECTOR_DATA("Complete Forces (with PhysX)", rbForceStr, rbForceNormStr, "N", _supportedFeatures->_hasPSystemGlobalForce);
+		STORM_APPEND_RB_VECTOR_DATA("Average", rbAverageForceStr, rbAverageForceNormStr, "N", true);
 	}
+
+#define STORM_APPEND_DATA_TO_STREAM(name, memberName, unit, supported) \
+	name ": " << selectedParticleDataRef.memberName << ". Norm: " << selectedParticleDataRef.memberName.norm() << " " unit "." << STORM_SUPPORT_STR(supported) << "\n"
 
 	LOG_ALWAYS <<
 		"Particle vectors components are :\n"
-		"Velocity: " << selectedParticleDataRef._velocity << ". Norm: " << selectedParticleDataRef._velocity.norm() << " m/s.\n"
-		"Pressure: " << selectedParticleDataRef._pressureForce << ". Norm: " << selectedParticleDataRef._pressureForce.norm() << " N.\n"
-		"Viscosity: " << selectedParticleDataRef._viscosityForce << ". Norm: " << selectedParticleDataRef._viscosityForce.norm() << " N.\n"
-		"Drag: " << selectedParticleDataRef._dragForce << ". Norm: " << selectedParticleDataRef._dragForce.norm() << " N.\n"
-		"DynamicPressure: " << selectedParticleDataRef._dynamicPressureForce << ". Norm: " << selectedParticleDataRef._dynamicPressureForce.norm() << " N.\n"
-		"NoStick: " << selectedParticleDataRef._noStickForce << ". Norm: " << selectedParticleDataRef._noStickForce.norm() << " N.\n"
-		"Sum: " << selectedParticleDataRef._externalSumForces << ". Norm: " << selectedParticleDataRef._externalSumForces.norm() << " N.\n" 
-		"Total system force: " << selectedParticleDataRef._totalEngineForce << ". Norm: " << selectedParticleDataRef._totalEngineForce.norm() << " N." <<
+		STORM_APPEND_DATA_TO_STREAM("Velocity", _velocity, "m/s", true)
+		STORM_APPEND_DATA_TO_STREAM("Pressure", _pressureForce, "N", true)
+		STORM_APPEND_DATA_TO_STREAM("Viscosity", _viscosityForce, "N", true)
+		STORM_APPEND_DATA_TO_STREAM("Drag", _dragForce, "N", _supportedFeatures->_hasDragComponentforces)
+		STORM_APPEND_DATA_TO_STREAM("DynamicPressure", _dynamicPressureForce, "N", _supportedFeatures->_hasDynamicPressureQForces)
+		STORM_APPEND_DATA_TO_STREAM("NoStick", _noStickForce, "N", _supportedFeatures->_hasNoStickForces)
+		STORM_APPEND_DATA_TO_STREAM("Sum", _externalSumForces, "N", true)
+		STORM_APPEND_DATA_TO_STREAM("Total system force", _totalEngineForce, "N", _supportedFeatures->_hasPSystemTotalEngineForce) <<
 		rbSpecificInfosStr
 		;
+
+#undef STORM_APPEND_RB_VECTOR_DATA
+#undef STORM_APPEND_DATA_TO_STREAM
+#undef STORM_SUPPORT_STR
 }
 

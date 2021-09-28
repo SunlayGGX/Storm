@@ -6,6 +6,7 @@ namespace Storm
 	enum class ParticleSelectionMode : uint8_t;
 	class UIFieldContainer;
 	struct SelectedParticleData;
+	struct SerializeSupportedFeatureLayout;
 
 	class ParticleSelector
 	{
@@ -14,7 +15,7 @@ namespace Storm
 		~ParticleSelector();
 
 	public:
-		void initialize();
+		void initialize(const bool isInReplay);
 
 	public:
 		bool hasSelectedParticle() const noexcept;
@@ -55,5 +56,7 @@ namespace Storm
 
 		std::wstring _selectionModeStr;
 		std::unique_ptr<Storm::UIFieldContainer> _fields;
+
+		std::shared_ptr<Storm::SerializeSupportedFeatureLayout> _supportedFeatures;
 	};
 }
