@@ -99,7 +99,7 @@ Storm::RecordArchiver::RecordArchiver() :
 				{
 					const std::string_view nameNoComputerName{
 						existingArchiveDirName.c_str(),
-						existingArchiveDirName.c_str() + existingArchiveDirName.find_first_of('_') - 1
+						existingArchiveDirName.c_str() + existingArchiveDirName.find_first_of('_')
 					};
 
 					if (nameNoComputerName == sceneName)
