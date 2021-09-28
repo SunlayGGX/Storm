@@ -17,4 +17,6 @@ namespace Storm
 	void setLogVectoredExceptionsDisplayMode(Storm::VectoredExceptionDisplayMode displayMode);
 
 	std::string obtainStackTrace(bool minimalString);
+
+	bool isDebuggerAttached();
 }

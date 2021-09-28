@@ -6,6 +6,8 @@
 
 #include "StormMacro.h"
 
+#include "DebuggerHelper.h"
+
 #include <iostream>
 
 
@@ -33,7 +35,7 @@ void StormPackager::LoggerManager::log(const std::string_view &moduleName, Storm
 
 	std::cout << totalMsg;
 
-	if (::IsDebuggerPresent())
+	if (Storm::isDebuggerAttached())
 	{
 		::OutputDebugStringA(static_cast<LPCSTR>(totalMsg.c_str()));
 	}

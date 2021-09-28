@@ -205,7 +205,7 @@ namespace
 
 void Storm::waitForDebuggerToAttach(bool breakAfter /*= false*/)
 {
-	while (::IsDebuggerPresent() == FALSE)
+	while (!Storm::isDebuggerAttached())
 	{
 		std::this_thread::sleep_for(std::chrono::milliseconds{ 1 });
 	}
@@ -277,6 +277,11 @@ std::string Storm::obtainStackTrace(bool minimalString)
 
 		return Storm::toStdString<StackTracePolicyParser>(currentStacktrace);
 	}
+}
+
+bool Storm::isDebuggerAttached()
+{
+	return ::IsDebuggerPresent() == TRUE;
 }
 
 // Good to know: we can also traduce SE exception to normal C++ exception using _set_se_translator.
