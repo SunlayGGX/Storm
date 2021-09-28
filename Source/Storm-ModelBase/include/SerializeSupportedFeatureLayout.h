@@ -18,5 +18,6 @@ namespace Storm
 		uint8_t _hasNormals : 1;
 		uint8_t _hasNoStickForces : 1;
 		uint8_t _hasPSystemTotalEngineForce : 1;
+		uint8_t _hasIntermediaryPressureForces : 1;
 	};
 }

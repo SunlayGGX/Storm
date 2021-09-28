@@ -15,6 +15,7 @@ namespace Storm
 		Storm::Vector3 _dragForce;
 		Storm::Vector3 _dynamicPressureForce;
 		Storm::Vector3 _noStickForce;
+		Storm::Vector3 _intermediaryPressureForce;
 		Storm::Vector3 _externalSumForces;
 		Storm::Vector3 _totalEngineForce;
 

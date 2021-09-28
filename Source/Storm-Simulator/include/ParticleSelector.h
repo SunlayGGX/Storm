@@ -33,6 +33,7 @@ namespace Storm
 		void setSelectedParticleDragForce(const Storm::Vector3 &dragForce);
 		void setSelectedParticleBernoulliDynamicPressureForce(const Storm::Vector3 &qForce);
 		void setSelectedParticleNoStickForce(const Storm::Vector3 &noStickForce);
+		void setSelectedParticlePressureIntermediaryForce(const Storm::Vector3 &intermediaryPressureForce);
 		void setSelectedParticleSumForce(const Storm::Vector3 &sumForce);
 		void setTotalEngineSystemForce(const Storm::Vector3 &totalForce);
 		void setRbParticleNormals(const Storm::Vector3 &normals);

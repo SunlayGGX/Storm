@@ -38,6 +38,7 @@ void Storm::ParticleSystem::initParticlesCount(const std::size_t particleCount)
 	_velocity.resize(particleCount, Storm::Vector3::Zero());
 	_force.resize(particleCount, Storm::Vector3::Zero());
 	_tmpPressureForce.resize(particleCount, Storm::Vector3::Zero());
+	_tmpPressureIntermediaryForce.resize(particleCount, Storm::Vector3::Zero());
 	_tmpViscosityForce.resize(particleCount, Storm::Vector3::Zero());
 	_tmpDragForce.resize(particleCount, Storm::Vector3::Zero());
 	_tmpBernoulliDynamicPressureForce.resize(particleCount, Storm::Vector3::Zero());
@@ -143,6 +144,17 @@ std::vector<Storm::Vector3>& Storm::ParticleSystem::getTemporaryNoStickForces() 
 	return _tmpNoStickForce;
 }
 
+
+const std::vector<Storm::Vector3>& Storm::ParticleSystem::getTemporaryPressureIntermediaryForces() const noexcept
+{
+	return _tmpPressureIntermediaryForce;
+}
+
+std::vector<Storm::Vector3>& Storm::ParticleSystem::getTemporaryPressureIntermediaryForces() noexcept
+{
+	return _tmpPressureIntermediaryForce;
+}
+
 const std::vector<Storm::ParticleNeighborhoodArray>& Storm::ParticleSystem::getNeighborhoodArrays() const noexcept
 {
 	return _neighborhood;
@@ -225,6 +237,7 @@ void Storm::ParticleSystem::onIterationStart()
 		particleCount == _tmpDragForce.size() &&
 		particleCount == _tmpBernoulliDynamicPressureForce.size() &&
 		particleCount == _tmpNoStickForce.size() &&
+		particleCount == _tmpPressureIntermediaryForce.size() &&
 		(replayMode || particleCount == _neighborhood.size()) &&
 		"Particle count mismatch detected! An array of particle property has not the same particle count than the other!"
 	);
@@ -267,4 +280,5 @@ void Storm::ParticleSystem::resetParticleTemporaryForces(const std::size_t curre
 	_tmpDragForce[currentPIndex].setZero();
 	_tmpBernoulliDynamicPressureForce[currentPIndex].setZero();
 	_tmpNoStickForce[currentPIndex].setZero();
+	_tmpPressureIntermediaryForce[currentPIndex].setZero();
 }

@@ -14,6 +14,7 @@ namespace Storm
 		Drag,
 		DynamicPressure,
 		NoStick,
+		IntermediaryPressure,
 		AllOnParticle,
 		TotalEngineForce,
 

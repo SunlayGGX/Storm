@@ -22,7 +22,7 @@ namespace
 	// Each time you change/add/remove something that modifies the layout of the recording, increase the version number here (to not break the retro compatibility). 
 	constexpr Storm::Version retrieveRecordPacketVersion()
 	{
-		return Storm::Version{ 1, 8, 0 };
+		return Storm::Version{ 1, 9, 0 };
 	}
 
 	void recordStreamPosition(Storm::RecordWriter*const recordWriter, uint64_t &outPosition, const std::filesystem::path &recordFilePath)
@@ -102,7 +102,8 @@ void Storm::RecordWriter::write(/*const*/ Storm::SerializeRecordPendingData &dat
 			frameData._viscosityComponentforces <<
 			frameData._dragComponentforces <<
 			frameData._dynamicPressureQForces <<
-			frameData._noStickForces
+			frameData._noStickForces <<
+			frameData._intermediaryPressureComponentForces
 			;
 	}
 

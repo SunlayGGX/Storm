@@ -36,6 +36,8 @@ namespace Storm
 		std::vector<Storm::Vector3>& getTemporaryBernoulliDynamicPressureForces() noexcept;
 		const std::vector<Storm::Vector3>& getTemporaryNoStickForces() const noexcept;
 		std::vector<Storm::Vector3>& getTemporaryNoStickForces() noexcept;
+		const std::vector<Storm::Vector3>& getTemporaryPressureIntermediaryForces() const noexcept;
+		std::vector<Storm::Vector3>& getTemporaryPressureIntermediaryForces() noexcept;
 
 		const std::vector<Storm::ParticleNeighborhoodArray>& getNeighborhoodArrays() const noexcept;
 		std::vector<Storm::ParticleNeighborhoodArray>& getNeighborhoodArrays() noexcept;
@@ -67,6 +69,7 @@ namespace Storm
 		virtual void setTmpDragForces(std::vector<Storm::Vector3> &&tmpDragForces) = 0;
 		virtual void setTmpBernoulliDynamicPressureForces(std::vector<Storm::Vector3> &&tmpDynamicQForces) = 0;
 		virtual void setTmpNoStickForces(std::vector<Storm::Vector3> &&tmpNoStickForces) = 0;
+		virtual void setTmpPressureIntermediaryForces(std::vector<Storm::Vector3> &&tmpPressuresIntermediaryForces) = 0;
 		virtual void setParticleSystemPosition(const Storm::Vector3 &pSystemPosition) = 0;
 		virtual void setParticleSystemTotalForce(const Storm::Vector3 &pSystemTotalForce) = 0;
 
@@ -113,6 +116,7 @@ namespace Storm
 
 		// Tmp force value only valid if we're selecting a force, or if we are recording.
 		std::vector<Storm::Vector3> _tmpPressureForce;
+		std::vector<Storm::Vector3> _tmpPressureIntermediaryForce; // For DFSPH first solver. This is not the pressure force but a record of a component of the final pressure force.
 		std::vector<Storm::Vector3> _tmpViscosityForce;
 		std::vector<Storm::Vector3> _tmpDragForce;
 		std::vector<Storm::Vector3> _tmpBernoulliDynamicPressureForce;
