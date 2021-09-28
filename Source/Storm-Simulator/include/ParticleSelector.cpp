@@ -28,7 +28,7 @@ namespace
 	std::wstring parseSelectedParticleMode(const Storm::ParticleSelectionMode mode, const Storm::SerializeSupportedFeatureLayout &supportedFeatures)
 	{
 		std::wstring result;
-		result.reserve(64);
+		result.reserve(32);
 
 #define STORM_PARSE_CASE(Case, CaseNameResult, supported)	\
 case Storm::ParticleSelectionMode::Case:					\
