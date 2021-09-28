@@ -34,8 +34,8 @@ namespace
 
 			if constexpr (currentVersion < Storm::Version{ 1, 3, 0 })
 			{
-				frameData._densities.resize(framePCount, 0.f);;
-				frameData._pressures.resize(framePCount, 0.f);;
+				frameData._densities.resize(framePCount, 0.f);
+				frameData._pressures.resize(framePCount, 0.f);
 			}
 
 			if constexpr (currentVersion < Storm::Version{ 1, 4, 0 })
