@@ -148,10 +148,15 @@ void Storm::RecordArchiver::execute()
 
 		const std::string versionAppendStr = " v" + std::to_string(_version);
 
+		// If the debugger is attached, we're debugging right now and the command lines are given through visual studio.
+		// We don't want to change the recordings path inside Visual Studio command line to troubleshoot what we just recorded right now.
+		// So we prefer copying the files instead of moving them.
+		const bool canMoveFiles = !Storm::isDebuggerAttached();
+
 		FilesystemRequest requests[] =
 		{
 			computeCopyRequest(versionAppendStr,  configMgr.getSceneConfigFilePath(), false),
-			computeCopyRequest(versionAppendStr, configMgr.getSceneRecordConfig()._recordFilePath, true),
+			computeCopyRequest(versionAppendStr, configMgr.getSceneRecordConfig()._recordFilePath, canMoveFiles),
 		};
 
 		const std::filesystem::path endFolder{ _archivePath };
