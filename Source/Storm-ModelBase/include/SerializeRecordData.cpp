@@ -10,7 +10,7 @@
 
 Storm::SerializeSupportedFeatureLayout::SerializeSupportedFeatureLayout()
 {
-	::memset(this, true, sizeof(*this));
+	::memset(this, 0xFFFFFFFF, sizeof(*this));
 }
 
 Storm::SerializeRecordHeader::SerializeRecordHeader() :
