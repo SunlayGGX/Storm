@@ -61,6 +61,16 @@ void Storm::GraphicKernelEffectArea::setAreaPosition(const Storm::GraphicParticl
 	}
 }
 
+float Storm::GraphicKernelEffectArea::getAreaRadius() const
+{
+	return _kernelRadius;
+}
+
+const DirectX::XMVECTOR& Storm::GraphicKernelEffectArea::getAreaPosition() const
+{
+	return _currentAreaPosition;
+}
+
 void Storm::GraphicKernelEffectArea::setHasParticleHook(bool hasHook) noexcept
 {
 	_hasParticleHook = hasHook;

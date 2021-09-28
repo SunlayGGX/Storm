@@ -23,6 +23,7 @@ namespace Storm
 	class GraphicKernelEffectArea;
 	class GraphicNormals;
 	class UIFieldContainer;
+	enum class GraphicCutMode;
 
 	enum class ColoredSetting : uint8_t;
 
@@ -120,6 +121,11 @@ namespace Storm
 
 	public:
 		void setVectMultiplicatorCoeff(const float newCoeff);
+
+	public:
+		void makeCutAroundWatchedRb(const Storm::GraphicCutMode cutMode);
+		void makeCutAroundRigidbody(const unsigned int rbId, const Storm::GraphicCutMode cutMode);
+		void makeCutAroundSelectedParticle(const Storm::GraphicCutMode cutMode);
 
 	private:
 		unsigned char _renderCounter;

@@ -738,6 +738,27 @@ void Storm::Camera::setRescaledDimension(float newViewportWidth, float newViewpo
 	_rescaledScreenHeight = newViewportHeight;
 }
 
+void Storm::Camera::makeCut(const DirectX::XMVECTOR &position, const float distance)
+{
+	const DirectX::XMVECTOR dxEyePos = this->getDXEyePos();
+	const DirectX::XMVECTOR dxEyeDir = this->getDXEyeDir();
+
+	const float newExpectedNearPlane = DirectX::XMVector3Dot(DirectX::XMVectorSubtract(position, dxEyePos), dxEyeDir).m128_f32[0];
+	if (newExpectedNearPlane > 0.f)
+	{
+		this->setNearAndFarPlane(newExpectedNearPlane, newExpectedNearPlane + distance);
+	}
+	else
+	{
+		LOG_ERROR << "Position is behind the eye. We cannot make a cut behind what we currently see.";
+	}
+}
+
+void Storm::Camera::makeCut(const Storm::Vector3 &position, const float distance)
+{
+	this->makeCut(Storm::convertToXM(position), distance);
+}
+
 void Storm::Camera::setPositionInternal(float x, float y, float z)
 {
 	if (_position.x != x || _position.y != y || _position.z != z)

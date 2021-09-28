@@ -77,6 +77,9 @@ namespace Storm
 		void rescaleScreenPosition(float &outXPos, float &outYPos) const;
 		void setRescaledDimension(float newViewportWidth, float newViewportHeight);
 
+		void makeCut(const DirectX::XMVECTOR &position, const float distance);
+		void makeCut(const Storm::Vector3 &position, const float distance);
+
 	private:
 		void setPositionInternal(float x, float y, float z);
 		void setTargetInternal(float x, float y, float z);

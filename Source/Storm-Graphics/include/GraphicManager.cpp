@@ -24,6 +24,7 @@
 
 #include "SceneBlowerConfig.h"
 #include "SceneGraphicConfig.h"
+#include "SceneSimulationConfig.h"
 
 #include "SingletonHolder.h"
 #include "IWindowsManager.h"
@@ -38,6 +39,8 @@
 #include "ThreadingSafety.h"
 
 #include "SpecialKey.h"
+
+#include "GraphicCutMode.h"
 
 #include "UIFieldBase.h"
 #include "UIField.h"
@@ -763,5 +766,138 @@ void Storm::GraphicManager::setVectMultiplicatorCoeff(const float newCoeff)
 				_dirty = true;
 			}
 		});
+	}
+}
+
+void Storm::GraphicManager::makeCutAroundWatchedRb(const Storm::GraphicCutMode cutMode)
+{
+	if (this->isActive())
+	{
+		Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::GraphicsThread, [this, cutMode]()
+		{
+			if (_watchedRbNonOwningPtr)
+			{
+				this->makeCutAroundRigidbody(_watchedRbNonOwningPtr->getID(), cutMode);
+			}
+			else
+			{
+				LOG_ERROR << "No watched rb. Skipping cut.";
+			}
+		});
+	}
+}
+
+void Storm::GraphicManager::makeCutAroundRigidbody(const unsigned int rbId, const Storm::GraphicCutMode cutMode)
+{
+	if (this->isActive())
+	{
+		const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+		Storm::IThreadManager &threadMgr = singletonHolder.getSingleton<Storm::IThreadManager>();
+
+		switch (cutMode)
+		{
+		case Storm::GraphicCutMode::Kernel:
+			threadMgr.executeOnThread(Storm::ThreadEnumeration::GraphicsThread, [this, rbId]()
+			{
+				if (_watchedRbNonOwningPtr)
+				{
+					if (_watchedRbNonOwningPtr->getID() != rbId)
+					{
+						Storm::throwException<Storm::Exception>("We have a watched rb locked but we requested to set the cut on another rb, this is forbidden!");
+					}
+
+					_camera->makeCut(_watchedRbNonOwningPtr->getRbPosition(), _kernelEffectArea->getAreaRadius());
+				}
+				else if (const auto meshesFound = _meshesMap.find(rbId); meshesFound != std::end(_meshesMap))
+				{
+					_camera->makeCut(meshesFound->second->getRbPosition(), _kernelEffectArea->getAreaRadius());
+				}
+				else
+				{
+					LOG_ERROR << "Cannot find the graphic mesh specified by id " << rbId;
+				}
+			});
+			break;
+
+		case Storm::GraphicCutMode::Particle:
+		{
+			const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
+			threadMgr.executeOnThread(Storm::ThreadEnumeration::GraphicsThread, [this, rbId, particleRadius = configMgr.getSceneSimulationConfig()._particleRadius]()
+			{
+				if (_watchedRbNonOwningPtr)
+				{
+					if (_watchedRbNonOwningPtr->getID() != rbId)
+					{
+						Storm::throwException<Storm::Exception>("We have a watched rb locked but we requested to set the cut on another rb, this is forbidden!");
+					}
+
+					_camera->makeCut(_watchedRbNonOwningPtr->getRbPosition(), particleRadius);
+				}
+				else if (const auto meshesFound = _meshesMap.find(rbId); meshesFound != std::end(_meshesMap))
+				{
+					_camera->makeCut(meshesFound->second->getRbPosition(), particleRadius);
+				}
+				else
+				{
+					LOG_ERROR << "Cannot find the graphic mesh specified by id " << rbId;
+				}
+			});
+			break;
+		}
+
+		default:
+			Storm::throwException<Storm::Exception>("Unknown cut mode (" + Storm::toStdString(cutMode) + ")");
+		}
+	}
+}
+
+void Storm::GraphicManager::makeCutAroundSelectedParticle(const Storm::GraphicCutMode cutMode)
+{
+	if (this->isActive())
+	{
+		const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+		Storm::IThreadManager &threadMgr = singletonHolder.getSingleton<Storm::IThreadManager>();
+
+		switch (cutMode)
+		{
+		case Storm::GraphicCutMode::Kernel:
+			threadMgr.executeOnThread(Storm::ThreadEnumeration::GraphicsThread, [this]()
+			{
+				if (_watchedRbNonOwningPtr)
+				{
+					Storm::throwException<Storm::Exception>("We have a watched rb locked but we requested to make a cut, this is forbidden (except a cut on the watched rb center)!");
+				}
+
+				if (this->hasSelectedParticle())
+				{
+					_camera->makeCut(_kernelEffectArea->getAreaPosition(), _kernelEffectArea->getAreaRadius());
+				}
+				else
+				{
+					LOG_ERROR << "No selected particle. Skipping cut.";
+				}
+			});
+			break;
+
+		case Storm::GraphicCutMode::Particle:
+			threadMgr.executeOnThread(Storm::ThreadEnumeration::GraphicsThread, [this, &singletonHolder]()
+			{
+				if (_watchedRbNonOwningPtr)
+				{
+					Storm::throwException<Storm::Exception>("We have a watched rb locked but we requested to make a cut, this is forbidden (except a cut on the watched rb center)!");
+				}
+
+				if (this->hasSelectedParticle())
+				{
+					const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
+					_camera->makeCut(_kernelEffectArea->getAreaPosition(), configMgr.getSceneSimulationConfig()._particleRadius);
+				}
+				else
+				{
+					LOG_ERROR << "No selected particle. Skipping cut.";
+				}
+			});
+			break;
+		}
 	}
 }

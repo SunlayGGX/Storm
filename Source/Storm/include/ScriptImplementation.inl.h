@@ -12,6 +12,7 @@
 #include "PhysicsManager.h"
 
 #include "ColoredSetting.h"
+#include "GraphicCutMode.h"
 
 
 /////////////////////////////////////////////////
@@ -130,6 +131,11 @@ void STORM_CURRENT_REGISTERED_TYPE::registerCurrentOnScript(IScriptWrapperInterf
 		STORM_DECLARE_SCRIPTED_ENUM(Storm::ColoredSetting::Density)
 	);
 
+	script.registerCurrentEnum(Storm::GraphicCutMode,
+		STORM_DECLARE_SCRIPTED_ENUM(Storm::GraphicCutMode::Kernel),
+		STORM_DECLARE_SCRIPTED_ENUM(Storm::GraphicCutMode::Particle)
+	);
+
 	script.registerCurrentType(
 
 		STORM_DECLARE_SCRIPTED_METHOD(cycleColoredSetting),
@@ -143,7 +149,11 @@ void STORM_CURRENT_REGISTERED_TYPE::registerCurrentOnScript(IScriptWrapperInterf
 
 		STORM_DECLARE_SCRIPTED_METHOD(setUIFieldEnabled),
 
-		STORM_DECLARE_SCRIPTED_METHOD(setVectMultiplicatorCoeff)
+		STORM_DECLARE_SCRIPTED_METHOD(setVectMultiplicatorCoeff),
+
+		STORM_DECLARE_SCRIPTED_METHOD(makeCutAroundWatchedRb),
+		STORM_DECLARE_SCRIPTED_METHOD(makeCutAroundRigidbody),
+		STORM_DECLARE_SCRIPTED_METHOD(makeCutAroundSelectedParticle)
 
 	).registerCurrentInstance("graphicMgr");
 }
