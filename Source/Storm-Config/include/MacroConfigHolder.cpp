@@ -84,6 +84,7 @@ void Storm::MacroConfigHolder::initialize()
 	this->registerMacroInternal(Storm::MacroTags::k_builtInMacroKey_DateTime, Storm::TimeHelper::getCurrentDateTime(false));
 	this->registerMacroInternal(Storm::MacroTags::k_builtInMacroKey_Date, Storm::TimeHelper::getCurrentDate());
 	this->registerMacroInternal(Storm::MacroTags::k_builtInMacroKey_PID, Storm::toStdString(configMgr.getCurrentPID()));
+	this->registerMacroInternal(Storm::MacroTags::k_builtInMacroKey_ComputerName, Storm::toStdString(configMgr.getComputerName()));
 
 	if (std::filesystem::exists(outputPath))
 	{

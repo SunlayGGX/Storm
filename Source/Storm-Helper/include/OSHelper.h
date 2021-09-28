@@ -10,5 +10,6 @@ namespace Storm
 	public:
 		static std::string getRawQuotedCommandline();
 		static void logOSEnvironmentInformation();
+		static std::string getComputerNameFromEnviron();
 	};
 }

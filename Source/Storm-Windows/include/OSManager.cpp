@@ -5,6 +5,8 @@
 
 #include "StormProcess.h"
 
+#include "OSHelper.h"
+
 #include <atlbase.h>
 #include <comdef.h>
 
@@ -361,6 +363,25 @@ std::wstring Storm::OSManager::openFileExplorerDialog(const std::wstring &defaul
 unsigned int Storm::OSManager::obtainCurrentPID() const
 {
 	return ::GetCurrentProcessId();
+}
+
+
+std::string Storm::OSManager::getComputerName() const
+{
+	TCHAR buffer[MAX_COMPUTERNAME_LENGTH + 1];
+	DWORD buffsize;
+	if (::GetComputerName(buffer, &buffsize))
+	{
+		return Storm::toStdString(std::wstring_view{ buffer, buffer + buffsize });
+	}
+	else
+	{
+		LOG_DEBUG_ERROR <<
+			"Cannot retrieve computer name from msdn method. Error was: " << GetLastError() << ".\n"
+			"Falling back to environ.";
+	}
+
+	return Storm::OSHelper::getComputerNameFromEnviron();
 }
 
 std::size_t Storm::OSManager::startProcess(Storm::StormProcessStartup &&startup)

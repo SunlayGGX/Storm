@@ -119,6 +119,13 @@ namespace Storm
 		public
 #endif
 			const string k_builtInMacroKey_PID = "PID";
+
+#if __cplusplus
+        constexpr static
+#else
+		public
+#endif
+			const string k_builtInMacroKey_ComputerName = "ComputerName";
 	}
 #if __cplusplus
     ;

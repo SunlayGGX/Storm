@@ -31,6 +31,7 @@ namespace Storm
 	public:
 		std::wstring openFileExplorerDialog(const std::wstring &defaultStartingPath, const std::map<std::wstring, std::wstring> &filters) final override;
 		unsigned int obtainCurrentPID() const final override;
+		std::string getComputerName() const final override;
 
 		std::size_t startProcess(Storm::StormProcessStartup &&startup) final override;
 		int queryProcessExitCode(const std::size_t processUID, bool &outReturned, bool &outFailure) const final override;

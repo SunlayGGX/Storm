@@ -53,6 +53,7 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 
 		Storm::IOSManager &iosMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IOSManager>();
 		_currentPID = iosMgr.obtainCurrentPID();
+		_computerName = iosMgr.getComputerName();
 
 		// If is not absolute, make it absolute.
 		bool hasMadeAbsolute = !exePath.is_absolute();
@@ -574,6 +575,12 @@ std::string Storm::ConfigManager::getViscosityMethods() const
 unsigned int Storm::ConfigManager::getCurrentPID() const
 {
 	return _currentPID;
+}
+
+
+const std::string& Storm::ConfigManager::getComputerName() const
+{
+	return _computerName;
 }
 
 const std::string& Storm::ConfigManager::getSceneConfigFilePath() const

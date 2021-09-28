@@ -210,6 +210,7 @@ There are some pre-built-in macros that aren’t defined inside the macro file. 
 + **$[DateTime]** will refer to the current date at the time the application is started (in filesystem compatible format : Weekday_Year_Month_Day_Hour_Minute_Second ).
 + **$[Date]**, like DateTime, will refer to the current date at the time the application is started, but without hours and lesser time division (in filesystem compatible format : Weekday_Year_Month_Day ).
 + **$[PID]** will refer to the process unique ID (PID).
++ **$[ComputerName]** will refer to the computer name (aka hostname).
 + **$[SceneName]** will refer to the chosen scene name. This is an exception to the pre-build-in macros which can be used anywhere. It can only be used after selecting a scene. Therefore, be cautious when using this prebuilt macro. This settigs is only available for Storm application.
 + **$[SceneStateFolder]** will refer to the default state folder path. Since this macro is made from SceneName macros, it is also an exception to the pre-build-in macros which can be used anywhere. This settigs is only available for Storm application.
 

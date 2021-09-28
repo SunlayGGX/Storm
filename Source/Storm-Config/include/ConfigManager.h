@@ -68,6 +68,7 @@ namespace Storm
 		const std::string& getSimulationTypeName() const final override;
 		std::string getViscosityMethods() const final override;
 		unsigned int getCurrentPID() const final override;
+		const std::string& getComputerName() const final override;
 		const std::string& getSceneConfigFilePath() const final override;
 		const std::string& getScriptFilePath() const final override;
 		const std::string& getRestartCommandline() const final override;
@@ -102,6 +103,7 @@ namespace Storm
 		// Computed
 		std::string _sceneFileName;
 		unsigned int _currentPID;
+		std::string _computerName;
 
 		std::string _commandLineForRestart;
 

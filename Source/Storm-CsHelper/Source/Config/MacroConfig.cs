@@ -173,6 +173,11 @@ namespace Storm_CsHelper.Source.Config
 			return System.Diagnostics.Process.GetCurrentProcess().Id.ToString();
 		}
 
+		private static string GetCurrentComputerName()
+		{
+			return System.Environment.MachineName;
+		}
+
 		public void AddPrebuiltMacro()
         {
             string exePath = System.Reflection.Assembly.GetExecutingAssembly().Location;
@@ -201,7 +206,8 @@ namespace Storm_CsHelper.Source.Config
 				new RawBuiltInMacroRequest() { _key = Storm.MacroTags.k_builtInMacroKey_StormTmp,			_value = MacroConfig.GetTmpPath(outputPath) },
 				new RawBuiltInMacroRequest() { _key = Storm.MacroTags.k_builtInMacroKey_DateTime,			_value = DateTime.Now.ToString() },
 				new RawBuiltInMacroRequest() { _key = Storm.MacroTags.k_builtInMacroKey_Date,				_value = DateTime.Now.ToLongDateString() },
-				new RawBuiltInMacroRequest() { _key = Storm.MacroTags.k_builtInMacroKey_PID,				_value = MacroConfig.GetCurrentLogViewerPID() }
+				new RawBuiltInMacroRequest() { _key = Storm.MacroTags.k_builtInMacroKey_PID,				_value = MacroConfig.GetCurrentLogViewerPID() },
+				new RawBuiltInMacroRequest() { _key = Storm.MacroTags.k_builtInMacroKey_ComputerName,		_value = MacroConfig.GetCurrentComputerName() }
 			);
 
 			if (Directory.Exists(outputPath))
