@@ -38,6 +38,12 @@ namespace Storm
 		float getCameraMoveSpeed() const noexcept;
 		float getCameraPlaneSpeed() const noexcept;
 
+		DirectX::XMVECTOR getDXEyePos() const;
+		DirectX::XMVECTOR getDXEyeDir() const;
+
+		Storm::Vector3 getEyePos() const;
+		Storm::Vector3 getEyeDir() const;
+
 		void increaseCameraSpeed();
 		void decreaseCameraSpeed();
 

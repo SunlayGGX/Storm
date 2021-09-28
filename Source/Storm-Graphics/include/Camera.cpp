@@ -438,6 +438,28 @@ float Storm::Camera::getCameraPlaneSpeed() const noexcept
 	return _cameraPlaneSpeed;
 }
 
+DirectX::XMVECTOR Storm::Camera::getDXEyePos() const
+{
+	return DirectX::XMLoadFloat3(&this->getPosition());
+}
+
+DirectX::XMVECTOR Storm::Camera::getDXEyeDir() const
+{
+	DirectX::XMVECTOR dxEyePos = this->getDXEyePos();
+	DirectX::XMVECTOR dxTargetPos = DirectX::XMLoadFloat3(&this->getTarget());
+	return DirectX::XMVector3Normalize(DirectX::XMVectorSubtract(dxTargetPos, dxEyePos));
+}
+
+Storm::Vector3 Storm::Camera::getEyePos() const
+{
+	return Storm::convertToStorm(this->getDXEyePos());
+}
+
+Storm::Vector3 Storm::Camera::getEyeDir() const
+{
+	return Storm::convertToStorm(this->getDXEyeDir());
+}
+
 void Storm::Camera::increaseCameraSpeed()
 {
 	this->setCameraMoveSpeed(_cameraMoveSpeed * 2.f);
