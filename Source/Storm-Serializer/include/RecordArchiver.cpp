@@ -95,11 +95,19 @@ Storm::RecordArchiver::RecordArchiver() :
 			const std::string existingArchiveDirName = Storm::toStdString(dirIter.path().filename());
 			if (const std::size_t versionPos = existingArchiveDirName.find_last_of(versionStrIdentifier); versionPos != std::string::npos)
 			{
-				if (versionPos > 0 && std::string_view{ existingArchiveDirName.c_str(), existingArchiveDirName.c_str() + versionPos - 1 } == sceneName)
+				if (versionPos > 0)
 				{
-					const std::string_view existingArchiveDirVersionStr{ existingArchiveDirName.c_str() + versionPos + 1, existingArchiveDirName.c_str() + existingArchiveDirName.size() };
+					const std::string_view nameNoComputerName{
+						existingArchiveDirName.c_str(),
+						existingArchiveDirName.c_str() + existingArchiveDirName.find_first_of('_') - 1
+					};
 
-					_version = std::max(static_cast<decltype(_version)>(std::strtoul(existingArchiveDirVersionStr.data(), nullptr, 10)), _version);
+					if (nameNoComputerName == sceneName)
+					{
+						const std::string_view existingArchiveDirVersionStr{ existingArchiveDirName.c_str() + versionPos + 1, existingArchiveDirName.c_str() + existingArchiveDirName.size() };
+
+						_version = std::max(static_cast<decltype(_version)>(std::strtoul(existingArchiveDirVersionStr.data(), nullptr, 10)), _version);
+					}
 				}
 			}
 		}
@@ -110,8 +118,10 @@ Storm::RecordArchiver::RecordArchiver() :
 
 	std::string newArchiveName;
 	newArchiveName.reserve(versionStr.size() + sceneName.size() + versionStrIdentifier.size());
-	
+
 	newArchiveName += sceneName;
+	newArchiveName += '_';
+	newArchiveName += configMgr.getComputerName();
 	newArchiveName += versionStrIdentifier;
 	newArchiveName += versionStr;
 	
