@@ -59,7 +59,8 @@ Storm::GeneralDebugConfig::GeneralDebugConfig() :
 	_pvdConnectTimeoutMillisec{ 33 },
 	_pvdTransmitConstraints{ true },
 	_pvdTransmitContacts{ true },
-	_pvdTransmitSceneQueries{ false }
+	_pvdTransmitSceneQueries{ false },
+	_keepUnsupported{ false }
 {}
 
 Storm::GeneralApplicationConfig::GeneralApplicationConfig() :

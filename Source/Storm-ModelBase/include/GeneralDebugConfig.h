@@ -35,5 +35,8 @@ namespace Storm
 		bool _pvdTransmitConstraints;
 		bool _pvdTransmitContacts;
 		bool _pvdTransmitSceneQueries;
+
+		// Graphics
+		bool _keepUnsupported;
 	};
 }

@@ -269,6 +269,18 @@ bool Storm::GeneralConfigHolder::read(const std::string &generalConfigFilePathSt
 							}
 						}
 					}
+					else if (debugXmlElement.first == "Graphics")
+					{
+						for (const auto &graphicDataXml : debugXmlElement.second)
+						{
+							if (
+								!Storm::XmlReader::handleXml(graphicDataXml, "keepUnsupported", generalDebugConfig._keepUnsupported)
+								)
+							{
+								LOG_ERROR << graphicDataXml.first << " (inside General.Debug.Graphics) is unknown, therefore it cannot be handled";
+							}
+						}
+					}
 					else
 					{
 						LOG_ERROR << debugXmlElement.first << " (inside General.Debug) is unknown, therefore it cannot be handled";

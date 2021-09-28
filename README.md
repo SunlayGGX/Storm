@@ -269,6 +269,10 @@ Note that the maximum value you can set is Fatal, it means that no matter what l
 - **pvdTransmitSceneQueries (boolean, facultative)**: Specify we’ll send scene query data to the PVD. Default is false.
 
 
+##### - Graphics (facultative)
+- **keepUnsupported (boolean, facultative)**: True if we should cycle on unsupported force when selecting a particle (legacy behavior), otherwise we'll skip all unsupported. Default is false.
+
+
 #### Network (facultative)
 - **enable (boolean, facultative)**: If false, the network module communication with Storm tools will be disabled. Default is false. Note that even if it is disabled, processes start/stop and web logic are still enabled.
 - **scriptSender (SocketSetting, facultative)**: The socket settings referring to the communication with the Script sender tool. Ignored if the network module is disabled. The default used port is 5007.

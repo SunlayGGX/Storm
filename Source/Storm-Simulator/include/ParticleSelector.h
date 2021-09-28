@@ -58,5 +58,6 @@ namespace Storm
 		std::unique_ptr<Storm::UIFieldContainer> _fields;
 
 		std::shared_ptr<Storm::SerializeSupportedFeatureLayout> _supportedFeatures;
+		bool _keepUnsupported;
 	};
 }

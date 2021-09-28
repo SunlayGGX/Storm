@@ -9,6 +9,7 @@
 #include "SceneFluidConfig.h"
 #include "SceneSimulationConfig.h"
 #include "SceneFluidCustomDFSPHConfig.h"
+#include "GeneralDebugConfig.h"
 
 #include "ParticleSelectionMode.h"
 
@@ -24,27 +25,42 @@
 
 namespace
 {
-	std::wstring parseSelectedParticleMode(const Storm::ParticleSelectionMode mode)
+	std::wstring parseSelectedParticleMode(const Storm::ParticleSelectionMode mode, const Storm::SerializeSupportedFeatureLayout &supportedFeatures)
 	{
+		std::wstring result;
+		result.reserve(64);
+
+#define STORM_PARSE_CASE(Case, CaseNameResult, supported)	\
+case Storm::ParticleSelectionMode::Case:					\
+	result += STORM_TEXT(CaseNameResult);					\
+	if (!supported)											\
+	{														\
+		result += STORM_TEXT(" (N-S)");						\
+	}														\
+	break
+
 		switch (mode)
 		{
-		case Storm::ParticleSelectionMode::Velocity: return STORM_TEXT("Velocity");
-		case Storm::ParticleSelectionMode::Pressure: return STORM_TEXT("Pressure");
-		case Storm::ParticleSelectionMode::Viscosity: return STORM_TEXT("Viscosity");
-		case Storm::ParticleSelectionMode::Drag: return STORM_TEXT("Drag");
-		case Storm::ParticleSelectionMode::DynamicPressure: return STORM_TEXT("DynamicQ");
-		case Storm::ParticleSelectionMode::NoStick: return STORM_TEXT("NoStick");
-		case Storm::ParticleSelectionMode::AllOnParticle: return STORM_TEXT("All On Particle");
-		case Storm::ParticleSelectionMode::TotalEngineForce: return STORM_TEXT("All On System (Engine)");
-		case Storm::ParticleSelectionMode::Normal: return STORM_TEXT("Normal");
-		case Storm::ParticleSelectionMode::RbForce: return STORM_TEXT("Rb Total force");
-		case Storm::ParticleSelectionMode::AverageRbForce: return STORM_TEXT("Rb Average Total force");
+			STORM_PARSE_CASE(Velocity,			"Velocity",					true);
+			STORM_PARSE_CASE(Pressure,			"Pressure",					true);
+			STORM_PARSE_CASE(Viscosity,			"Viscosity",				true);
+			STORM_PARSE_CASE(AllOnParticle,		"All On Particle",			true);
+			STORM_PARSE_CASE(Drag,				"Drag",						supportedFeatures._hasDragComponentforces);
+			STORM_PARSE_CASE(DynamicPressure,	"DynamicQ",					supportedFeatures._hasDynamicPressureQForces);
+			STORM_PARSE_CASE(NoStick,			"NoStick",					supportedFeatures._hasNoStickForces);
+			STORM_PARSE_CASE(TotalEngineForce,	"All On System (Engine)",	supportedFeatures._hasPSystemTotalEngineForce);
+			STORM_PARSE_CASE(Normal,			"Normal",					supportedFeatures._hasNormals);
+			STORM_PARSE_CASE(RbForce,			"Rb Total force",			supportedFeatures._hasPSystemGlobalForce);
+			STORM_PARSE_CASE(AverageRbForce,	"Rb Average Total force",	supportedFeatures._hasPSystemGlobalForce);
 
 		case Storm::ParticleSelectionMode::SelectionModeCount:
 		default:
 			Storm::throwException<Storm::Exception>("Unknown particle selection mode. Mode was " + Storm::toStdString(mode));
 			break;
 		}
+#undef STORM_PARSE_CASE
+
+		return result;
 	}
 
 	constexpr auto dummySelectedParticleIndex()
@@ -117,55 +133,70 @@ namespace
 
 
 	template<class UsedSelectionMode>
-	bool checkSkippedSelectionMode(Storm::ParticleSelectionMode selectionMode)
+	bool checkSkippedSelectionMode(Storm::ParticleSelectionMode selectionMode, const Storm::SerializeSupportedFeatureLayout &supportedFeatures, const bool keepUnsupported)
 	{
+#define STORM_UNSUPPORTED_CONDITION(variableName) keepUnsupported || variableName
 		switch (selectionMode)
 		{
 		case Storm::ParticleSelectionMode::DynamicPressure:
 		{
-			const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
-			const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
-
-			const Storm::SceneSimulationConfig &simulConfig = configMgr.getSceneSimulationConfig();
-			switch (simulConfig._simulationMode)
+			if (STORM_UNSUPPORTED_CONDITION(supportedFeatures._hasDynamicPressureQForces))
 			{
-			case Storm::SimulationMode::DFSPH:
-			{
-				const Storm::SceneFluidConfig &fluidConfig = configMgr.getSceneFluidConfig();
-				const Storm::SceneFluidCustomDFSPHConfig &dfsphFluidConfig = static_cast<const Storm::SceneFluidCustomDFSPHConfig &>(*fluidConfig._customSimulationSettings);
-				return dfsphFluidConfig._useBernoulliPrinciple;
-			}
+				const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+				const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
 
-			default:
-				return true;
+				const Storm::SceneSimulationConfig &simulConfig = configMgr.getSceneSimulationConfig();
+				switch (simulConfig._simulationMode)
+				{
+				case Storm::SimulationMode::DFSPH:
+				{
+					const Storm::SceneFluidConfig &fluidConfig = configMgr.getSceneFluidConfig();
+					const Storm::SceneFluidCustomDFSPHConfig &dfsphFluidConfig = static_cast<const Storm::SceneFluidCustomDFSPHConfig &>(*fluidConfig._customSimulationSettings);
+					return dfsphFluidConfig._useBernoulliPrinciple;
+				}
+
+				default:
+					return true;
+				}
 			}
 		}
 
-		case Storm::ParticleSelectionMode::AllOnParticle:
-		case Storm::ParticleSelectionMode::Velocity:
+		case Storm::ParticleSelectionMode::NoStick:
+			return STORM_UNSUPPORTED_CONDITION(supportedFeatures._hasNoStickForces);
+
+		case Storm::ParticleSelectionMode::Drag:
+			return STORM_UNSUPPORTED_CONDITION(supportedFeatures._hasDragComponentforces);
+
+		case Storm::ParticleSelectionMode::Normal:
+			return STORM_UNSUPPORTED_CONDITION(supportedFeatures._hasNormals);
+
+		case Storm::ParticleSelectionMode::TotalEngineForce:
+			return STORM_UNSUPPORTED_CONDITION(supportedFeatures._hasPSystemTotalEngineForce);
+
+		case Storm::ParticleSelectionMode::AverageRbForce:
+		case Storm::ParticleSelectionMode::RbForce:
+			return STORM_UNSUPPORTED_CONDITION(supportedFeatures._hasPSystemGlobalForce);
+
 		case Storm::ParticleSelectionMode::Pressure:
 		case Storm::ParticleSelectionMode::Viscosity:
-		case Storm::ParticleSelectionMode::NoStick:
-		case Storm::ParticleSelectionMode::Drag:
-		case Storm::ParticleSelectionMode::Normal:
-		case Storm::ParticleSelectionMode::TotalEngineForce:
-		case Storm::ParticleSelectionMode::RbForce:
-		case Storm::ParticleSelectionMode::AverageRbForce:
+		case Storm::ParticleSelectionMode::Velocity:
+		case Storm::ParticleSelectionMode::AllOnParticle:
 		case Storm::ParticleSelectionMode::SelectionModeCount:
 		default:
 			return true;
 		}
+#undef STORM_UNSUPPORTED_CONDITION
 	}
 
 	template<class UsedSelectionMode>
-	Storm::ParticleSelectionMode cycleSelectionMode(Storm::ParticleSelectionMode currentSelectionMode)
+	Storm::ParticleSelectionMode cycleSelectionMode(Storm::ParticleSelectionMode currentSelectionMode, const Storm::SerializeSupportedFeatureLayout &supportedFeatures, const bool keepUnsupported)
 	{
 		do
 		{
 			const uint8_t cycledValue = (static_cast<uint8_t>(currentSelectionMode) + 1) % static_cast<uint8_t>(Storm::ParticleSelectionMode::SelectionModeCount);
 			currentSelectionMode = retrieveSelectionMode<UsedSelectionMode>(cycledValue);
 
-		} while (!checkSkippedSelectionMode<UsedSelectionMode>(currentSelectionMode));
+		} while (!checkSkippedSelectionMode<UsedSelectionMode>(currentSelectionMode, supportedFeatures, keepUnsupported));
 
 		return currentSelectionMode;
 	}
@@ -173,11 +204,11 @@ namespace
 
 
 Storm::ParticleSelector::ParticleSelector() :
-	_currentParticleSelectionMode{ Storm::ParticleSelectionMode::AllOnParticle },
+	_currentParticleSelectionMode{ Storm::ParticleSelectionMode::Velocity },
 	_selectedParticleData{ std::make_unique<Storm::SelectedParticleData>() },
-	_supportedFeatures{ nullptr }
+	_supportedFeatures{ nullptr },
+	_keepUnsupported{ false }
 {
-	_selectionModeStr = parseSelectedParticleMode(_currentParticleSelectionMode);
 	_selectedParticleData->_selectedParticle = std::make_pair(dummySelectedParticleIndex(), 0);
 
 	this->clearRbTotalForce();
@@ -187,15 +218,14 @@ Storm::ParticleSelector::~ParticleSelector() = default;
 
 void Storm::ParticleSelector::initialize(const bool isInReplayMode)
 {
-	_fields = std::make_unique<Storm::UIFieldContainer>();
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
 
-	(*_fields)
-		.bindField(STORM_SELECTED_PARTICLE_DISPLAY_MODE_FIELD_NAME, _selectionModeStr)
-		;
+	_keepUnsupported = configMgr.getGeneralDebugConfig()._keepUnsupported;
 
 	if (isInReplayMode)
 	{
-		const Storm::ISerializerManager &serializerMgr = Storm::SingletonHolder::instance().getSingleton<Storm::ISerializerManager>();
+		const Storm::ISerializerManager &serializerMgr = singletonHolder.getSingleton<Storm::ISerializerManager>();
 		_supportedFeatures = serializerMgr.getRecordSupportedFeature();
 	}
 	else
@@ -203,6 +233,14 @@ void Storm::ParticleSelector::initialize(const bool isInReplayMode)
 		// The default one.
 		_supportedFeatures = std::make_shared<Storm::SerializeSupportedFeatureLayout>();
 	}
+
+	_selectionModeStr = parseSelectedParticleMode(_currentParticleSelectionMode, *_supportedFeatures);
+
+	_fields = std::make_unique<Storm::UIFieldContainer>();
+
+	(*_fields)
+		.bindField(STORM_SELECTED_PARTICLE_DISPLAY_MODE_FIELD_NAME, _selectionModeStr)
+		;
 }
 
 bool Storm::ParticleSelector::hasSelectedParticle() const noexcept
@@ -244,7 +282,7 @@ bool Storm::ParticleSelector::clearParticleSelection()
 
 void Storm::ParticleSelector::setParticleSelectionDisplayMode(const Storm::ParticleSelectionMode newMode)
 {
-	_selectionModeStr = parseSelectedParticleMode(newMode);
+	_selectionModeStr = parseSelectedParticleMode(newMode, *_supportedFeatures);
 	_currentParticleSelectionMode = newMode;
 
 	_fields->pushField(STORM_SELECTED_PARTICLE_DISPLAY_MODE_FIELD_NAME);
@@ -255,11 +293,11 @@ void Storm::ParticleSelector::cycleParticleSelectionDisplayMode()
 	Storm::ParticleSelectionMode newMode;
 	if (_selectedParticleData->_hasRbTotalForce)
 	{
-		newMode = cycleSelectionMode<RbParticleSelectionMode>(_currentParticleSelectionMode);
+		newMode = cycleSelectionMode<RbParticleSelectionMode>(_currentParticleSelectionMode, *_supportedFeatures, _keepUnsupported);
 	}
 	else
 	{
-		newMode = cycleSelectionMode<FluidParticleSelectionMode>(_currentParticleSelectionMode);
+		newMode = cycleSelectionMode<FluidParticleSelectionMode>(_currentParticleSelectionMode, *_supportedFeatures, _keepUnsupported);
 	}
 
 	this->setParticleSelectionDisplayMode(newMode);
