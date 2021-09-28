@@ -66,6 +66,7 @@
     <ClInclude Include="..\include\DirectXController.h" />
     <ClInclude Include="..\include\DirectXHardwareInfo.h" />
     <ClInclude Include="..\include\GraphicConstraintSystem.h" />
+    <ClInclude Include="..\include\GraphicCutMode.h" />
     <ClInclude Include="..\include\GraphicGravity.h" />
     <ClInclude Include="..\include\GraphicHelpers.h" />
     <ClInclude Include="..\include\GraphicKernelEffectArea.h" />

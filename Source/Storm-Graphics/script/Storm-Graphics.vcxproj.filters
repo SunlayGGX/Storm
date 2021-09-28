@@ -287,5 +287,8 @@
     <ClInclude Include="..\include\GraphicParameters.h">
       <Filter>Header Files\GraphicComponent</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\GraphicCutMode.h">
+      <Filter>Header Files\GraphicComponent</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
