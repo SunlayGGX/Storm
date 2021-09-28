@@ -18,6 +18,8 @@
 #include "RecordWriter.h"
 #include "RecordReader.h"
 
+#include "RecordArchiver.h"
+
 #include "ThreadingSafety.h"
 #include "ThreadHelper.h"
 #include "ThreadFlaggerObject.h"
@@ -91,6 +93,12 @@ void Storm::SerializerManager::cleanUp_Implementation()
 	this->execute();
 
 	this->endRecordInternal();
+
+	if (_archiver)
+	{
+		_archiver->execute();
+		_archiver.reset();
+	}
 }
 
 void Storm::SerializerManager::run()
@@ -202,6 +210,14 @@ void Storm::SerializerManager::recordFrame(Storm::SerializeRecordPendingData &&f
 
 void Storm::SerializerManager::beginRecord(Storm::SerializeRecordHeader &&recordHeader)
 {
+	executeOnSerializerThread([this]()
+	{
+		if (!_archiver)
+		{
+			_archiver = std::make_unique<Storm::RecordArchiver>();
+		}
+	});
+
 	executeOnSerializerThread([this, rec = Storm::FuncMovePass<Storm::SerializeRecordHeader>{ std::move(recordHeader) }]() mutable
 	{
 		assert(Storm::isSerializerThread() && "This method should only be executed inside the serializer thread!");
@@ -235,6 +251,8 @@ void Storm::SerializerManager::endRecordInternal()
 	{
 		_recordWriter->endWrite();
 		LOG_COMMENT << "Recording ended";
+
+		_recordWriter.reset();
 	}
 }
 

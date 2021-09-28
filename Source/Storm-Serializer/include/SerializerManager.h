@@ -8,6 +8,7 @@ namespace Storm
 {
 	class RecordReader;
 	class RecordWriter;
+	class RecordArchiver;
 
 	class SerializerManager final :
 		private Storm::Singleton<Storm::SerializerManager>,
@@ -57,6 +58,9 @@ namespace Storm
 
 		// State recording
 		std::unique_ptr<Storm::StateSavingOrders> _stateSavingRequestOrders;
+
+		// Archiver
+		std::unique_ptr<Storm::RecordArchiver> _archiver;
 
 		mutable std::mutex _mutex;
 	};
