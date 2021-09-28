@@ -841,10 +841,12 @@ void Storm::DFSPHSolver::divergenceSolve(const Storm::IterationParameter &iterat
 	{
 		// Since data field was made from fluid particles, no need to check.
 		Storm::FluidParticleSystem &fluidPSystem = static_cast<Storm::FluidParticleSystem &>(*particleSystems.find(dataFieldPair.first)->second);
-		Storm::runParallel(dataFieldPair.second, [this, &iterationParameter, &fluidPSystem, &dataFieldPair, invertDeltaTime](Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex)
+		std::vector<Storm::Vector3> &intermediaryPressureForces = fluidPSystem.getTemporaryPressureIntermediaryForces();
+		Storm::runParallel(dataFieldPair.second, [this, &iterationParameter, &fluidPSystem, &dataFieldPair, &intermediaryPressureForces, invertDeltaTime](Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex)
 		{
 			this->computeDensityChange(iterationParameter, fluidPSystem, &dataFieldPair.second, currentPData, currentPIndex);
 			currentPData._kCoeff *= invertDeltaTime;
+			intermediaryPressureForces[currentPIndex].setZero();
 		});
 	}
 
@@ -870,6 +872,7 @@ void Storm::DFSPHSolver::divergenceSolve(const Storm::IterationParameter &iterat
 			
 			const std::vector<float> &masses = fluidPSystem.getMasses();
 			const std::vector<Storm::ParticleNeighborhoodArray> &neighborhoodArrays = fluidPSystem.getNeighborhoodArrays();
+			std::vector<Storm::Vector3> &intermediaryPressureForces = fluidPSystem.getTemporaryPressureIntermediaryForces();
 
 			const float density0 = fluidPSystem.getRestDensity();
 			avgDensityErrAtom = 0.f;
@@ -879,6 +882,9 @@ void Storm::DFSPHSolver::divergenceSolve(const Storm::IterationParameter &iterat
 			auto lambda = [&]<bool computePressureForBoundary>(Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex, const float ki)
 			{
 				const float currentPMass = masses[currentPIndex];
+				Storm::Vector3 &currentPIntermediaryForce = intermediaryPressureForces[currentPIndex];
+
+				const float deltaVToForce = currentPMass * invertDeltaTime;
 
 				Storm::Vector3 &v_i = currentPData._predictedVelocity;
 
@@ -907,7 +913,11 @@ void Storm::DFSPHSolver::divergenceSolve(const Storm::IterationParameter &iterat
 						const float kSum = ki + lastNeighborFluidSystem->getRestDensity() / density0 * kj;
 						if (std::fabs(kSum) > Storm::SPHSolverPrivateLogic::k_epsilon)
 						{
-							v_i += (iterationParameter._deltaTime * kSum * lastNeighborFluidSystem->getParticleVolume()) * neighbor._gradWij;
+							const Storm::Vector3 velChange = (iterationParameter._deltaTime * kSum * lastNeighborFluidSystem->getParticleVolume()) * neighbor._gradWij;
+							v_i += velChange;
+
+							const Storm::Vector3 addedPressureForce = deltaVToForce * velChange;
+							currentPIntermediaryForce += addedPressureForce;
 						}
 					}
 					else if constexpr (computePressureForBoundary)
@@ -918,15 +928,18 @@ void Storm::DFSPHSolver::divergenceSolve(const Storm::IterationParameter &iterat
 
 						v_i += velChange;
 
+						const Storm::Vector3 addedPressureForce = deltaVToForce * velChange;
+						currentPIntermediaryForce += addedPressureForce;
+
 #if true
 						if (!neighborPSystemAsBoundary->isStatic())
 						{
-							Storm::Vector3 addedPressureForce = (-currentPMass * invertDeltaTime) * velChange;
-
 							Storm::Vector3 &tmpPressureForce = neighborPSystemAsBoundary->getTemporaryPressureForces()[neighbor._particleIndex];
+							Storm::Vector3 &tmpPressureIntermediaryForce = neighborPSystemAsBoundary->getTemporaryPressureIntermediaryForces()[neighbor._particleIndex];
 
 							std::lock_guard<std::mutex> lock{ neighbor._containingParticleSystem->_mutex };
-							tmpPressureForce += addedPressureForce;
+							tmpPressureForce -= addedPressureForce;
+							tmpPressureIntermediaryForce -= addedPressureForce;
 						}
 #endif
 					}

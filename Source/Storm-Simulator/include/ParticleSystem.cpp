@@ -280,5 +280,5 @@ void Storm::ParticleSystem::resetParticleTemporaryForces(const std::size_t curre
 	_tmpDragForce[currentPIndex].setZero();
 	_tmpBernoulliDynamicPressureForce[currentPIndex].setZero();
 	_tmpNoStickForce[currentPIndex].setZero();
-	_tmpPressureIntermediaryForce[currentPIndex].setZero();
+	//_tmpPressureIntermediaryForce[currentPIndex].setZero(); // This is done inside the solver directly. Then if the solver is disabled no overhead will happen.
 }
