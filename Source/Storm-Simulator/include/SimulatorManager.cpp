@@ -1456,7 +1456,7 @@ void Storm::SimulatorManager::advanceOneFrame()
 {
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 	Storm::ITimeManager &timeMgr = singletonHolder.getSingleton<Storm::ITimeManager>();
-	if (timeMgr.getStateNoSyncWait() == Storm::TimeWaitResult::Pause)
+	if (timeMgr.simulationIsPaused())
 	{
 		// Unpause to start the current iteration.
 		timeMgr.changeSimulationPauseState();
@@ -2139,7 +2139,7 @@ void Storm::SimulatorManager::cycleSelectedParticleDisplayMode()
 	if (_particleSelector.hasSelectedParticle())
 	{
 		const Storm::ITimeManager &timeMgr = Storm::SingletonHolder::instance().getSingleton<Storm::ITimeManager>();
-		if (timeMgr.getStateNoSyncWait() == Storm::TimeWaitResult::Pause)
+		if (timeMgr.simulationIsPaused())
 		{
 			this->pushParticlesToGraphicModule(true);
 		}
