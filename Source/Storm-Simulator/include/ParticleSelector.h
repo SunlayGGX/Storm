@@ -48,6 +48,19 @@ namespace Storm
 		std::size_t getSelectedParticleIndex() const noexcept;
 
 	public:
+		const Storm::SerializeSupportedFeatureLayout& getSupportedFeaturesList() const noexcept;
+		bool shouldKeepSupportedFeatures() const noexcept;
+
+	private:
+		bool customShouldRefresh() const noexcept;
+
+	public:
+		bool clearCustomSelection();
+		bool setCustomSelection(std::string &&customSelectionCSL);
+		bool hasCustomSelection() const noexcept;
+		void computeCustomSelection();
+
+	public:
 		void logForceComponents() const;
 
 	private:

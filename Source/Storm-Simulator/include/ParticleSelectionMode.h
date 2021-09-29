@@ -18,6 +18,8 @@ namespace Storm
 		AllOnParticle,
 		TotalEngineForce,
 
+		Custom,
+
 		Normal,
 		RbForce,
 		AverageRbForce,

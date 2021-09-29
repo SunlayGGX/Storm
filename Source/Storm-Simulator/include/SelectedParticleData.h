@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Average.h"
+#include "CustomForceSelect.h"
 
 
 namespace Storm
@@ -25,5 +26,10 @@ namespace Storm
 		Storm::Vector3 _totalForcesOnRb;
 
 		Storm::Average<Storm::Vector3, Storm::MovingAverageTraits<32>> _averageForcesOnRb;
+
+		Storm::Vector3 _customCached;
+
+		Storm::CustomForceSelect* _endCustomForceSelected;
+		Storm::CustomForceSelect _customForceSelected[static_cast<std::size_t>(Storm::CustomForceSelect::Count)];
 	};
 }

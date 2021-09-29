@@ -2173,6 +2173,11 @@ void Storm::SimulatorManager::refreshParticleSelection()
 				_particleSelector.setRbPosition(pSystemAsRb.getRbPosition());
 				_particleSelector.setRbTotalForce(pSystemAsRb.getRbTotalForce());
 			}
+
+			if (_particleSelector.hasCustomSelection())
+			{
+				_particleSelector.computeCustomSelection();
+			}
 		}
 	}
 }
@@ -3020,6 +3025,11 @@ bool Storm::SimulatorManager::selectSpecificParticle_Internal(const unsigned pSy
 					_particleSelector.clearRbTotalForce();
 				}
 
+				if (_particleSelector.hasCustomSelection())
+				{
+					_particleSelector.computeCustomSelection();
+				}
+
 				_particleSelector.logForceComponents();
 
 				return true;
@@ -3102,5 +3112,31 @@ void Storm::SimulatorManager::clearRigidbodyToDisplayNormals()
 		graphicMgr.clearNormalsData();
 
 		LOG_COMMENT << "Cleared normals data display.";
+	});
+}
+
+void Storm::SimulatorManager::selectCustomForcesDisplay(std::string selectionCSL)
+{
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::MainThread, [this, selectionCSLObject = Storm::FuncMovePass{ std::move(selectionCSL) }]() mutable
+	{
+		bool shouldRefresh;
+		if (selectionCSLObject._object.empty())
+		{
+			shouldRefresh = _particleSelector.clearCustomSelection();
+		}
+		else
+		{
+			shouldRefresh = _particleSelector.setCustomSelection(std::move(selectionCSLObject._object));
+		}
+
+		if (shouldRefresh)
+		{
+			const Storm::ITimeManager &timeMgr = Storm::SingletonHolder::instance().getSingleton<Storm::ITimeManager>();
+			if (timeMgr.simulationIsPaused())
+			{
+				this->pushParticlesToGraphicModule(true);
+			}
+		}
 	});
 }

@@ -48,6 +48,7 @@
     <ClInclude Include="..\include\BlowerTimeHandler.h" />
     <ClInclude Include="..\include\Cage.h" />
     <ClInclude Include="..\include\CubicSplineKernel.h" />
+    <ClInclude Include="..\include\CustomForceSelect.h" />
     <ClInclude Include="..\include\DFSPHSolver.h" />
     <ClInclude Include="..\include\DFSPHSolverData.h" />
     <ClInclude Include="..\include\FluidParticleSystem.h" />

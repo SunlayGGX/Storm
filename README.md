@@ -696,6 +696,12 @@ Here the list of available commands :
 - **void setUseRotationFix_DFSPH(size_t neighborCount)**: Enable rotation fix. This method is only available if the solver is DFSPH.
 - **void selectRigidbodyToDisplayNormals(const unsigned int rbId)**: Select a rigidbody to display its normals.
 - **void clearRigidbodyToDisplayNormals()**: Clear the rigidbody to display its normals selection.
+- **void selectCustomForcesDisplay(std::string selectionCSL)**: Select forces, accumulate them and display the result inside the Custom appelation on the UI. Only works for the selected particle. The list of the force to choose should be set inside selectionCSL string (A comma separated list) that is not case sensitive. If the string is empty, the selection is cleared. Accepted values are :
+  * "Pressure" : refers to the pressure force.
+  * "Viscosity" : refers to the viscosity force.
+  * "Drag" : refers to the drag force.
+  * "Bernouilli" / "DynamicQ" / "DynamicPressure" : refer to the dynamic pressure force.
+  * "NoStick" : refers to the no stick constraint penalty force.
 
 
 #### - TimeManager (timeMgr)

@@ -20,6 +20,12 @@
 #include "UIField.h"
 #include "UIFieldContainer.h"
 
+#include "StringAlgo.h"
+
+#include <set>
+
+#include <boost\algorithm\string\case_conv.hpp>
+
 #define STORM_SELECTED_PARTICLE_DISPLAY_MODE_FIELD_NAME "Selected P. Mode"
 
 
@@ -45,6 +51,7 @@ case Storm::ParticleSelectionMode::Case:					\
 			STORM_PARSE_CASE(Pressure,				"Pressure",					true);
 			STORM_PARSE_CASE(Viscosity,				"Viscosity",				true);
 			STORM_PARSE_CASE(AllOnParticle,			"All On Particle",			true);
+			STORM_PARSE_CASE(Custom,				"Custom",					true);
 			STORM_PARSE_CASE(Drag,					"Drag",						supportedFeatures._hasDragComponentforces);
 			STORM_PARSE_CASE(DynamicPressure,		"DynamicQ",					supportedFeatures._hasDynamicPressureQForces);
 			STORM_PARSE_CASE(NoStick,				"NoStick",					supportedFeatures._hasNoStickForces);
@@ -87,6 +94,7 @@ case Storm::ParticleSelectionMode::Case:					\
 	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, IntermediaryPressure)	\
 	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, AllOnParticle)			\
 	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, TotalEngineForce)		\
+	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Custom)					\
 
 #define STORM_XMACRO_SELECTION_RB_MODE_BINDINGS(SelectionMode)					\
 	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Velocity)				\
@@ -98,6 +106,7 @@ case Storm::ParticleSelectionMode::Case:					\
 	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, IntermediaryPressure)	\
 	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, AllOnParticle)			\
 	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, TotalEngineForce)		\
+	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Custom)					\
 	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Normal)					\
 	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, RbForce)					\
 	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, AverageRbForce)			\
@@ -136,9 +145,11 @@ case Storm::ParticleSelectionMode::Case:					\
 
 
 	template<class UsedSelectionMode>
-	bool checkSkippedSelectionMode(Storm::ParticleSelectionMode selectionMode, const Storm::SerializeSupportedFeatureLayout &supportedFeatures, const bool keepUnsupported)
+	bool checkSkippedSelectionMode(const Storm::ParticleSelector &particleSelector, Storm::ParticleSelectionMode selectionMode)
 	{
-#define STORM_UNSUPPORTED_CONDITION(variableName) keepUnsupported || variableName
+		const Storm::SerializeSupportedFeatureLayout &supportedFeatures = particleSelector.getSupportedFeaturesList();
+
+#define STORM_UNSUPPORTED_CONDITION(variableName) particleSelector.shouldKeepSupportedFeatures() || variableName
 		switch (selectionMode)
 		{
 		case Storm::ParticleSelectionMode::DynamicPressure:
@@ -192,6 +203,9 @@ case Storm::ParticleSelectionMode::Case:					\
 		case Storm::ParticleSelectionMode::RbForce:
 			return STORM_UNSUPPORTED_CONDITION(supportedFeatures._hasPSystemGlobalForce);
 
+		case Storm::ParticleSelectionMode::Custom:
+			return particleSelector.hasCustomSelection();
+
 		case Storm::ParticleSelectionMode::Pressure:
 		case Storm::ParticleSelectionMode::Viscosity:
 		case Storm::ParticleSelectionMode::Velocity:
@@ -204,16 +218,94 @@ case Storm::ParticleSelectionMode::Case:					\
 	}
 
 	template<class UsedSelectionMode>
-	Storm::ParticleSelectionMode cycleSelectionMode(Storm::ParticleSelectionMode currentSelectionMode, const Storm::SerializeSupportedFeatureLayout &supportedFeatures, const bool keepUnsupported)
+	Storm::ParticleSelectionMode cycleSelectionMode(const Storm::ParticleSelector &particleSelector, Storm::ParticleSelectionMode currentSelectionMode)
 	{
 		do
 		{
 			const uint8_t cycledValue = (static_cast<uint8_t>(currentSelectionMode) + 1) % static_cast<uint8_t>(Storm::ParticleSelectionMode::SelectionModeCount);
 			currentSelectionMode = retrieveSelectionMode<UsedSelectionMode>(cycledValue);
 
-		} while (!checkSkippedSelectionMode<UsedSelectionMode>(currentSelectionMode, supportedFeatures, keepUnsupported));
+		} while (!checkSkippedSelectionMode<UsedSelectionMode>(particleSelector, currentSelectionMode));
 
 		return currentSelectionMode;
+	}
+
+	template<bool left>
+	void trim(std::span<char> &inOutSpan)
+	{
+		const std::size_t spanSize = inOutSpan.size();
+		if (spanSize > 0)
+		{
+			std::size_t moving = 0;
+			char* current;
+
+			if constexpr (left)
+			{
+				current = &inOutSpan.front();
+			}
+			else
+			{
+				current = &inOutSpan.back();
+			}
+
+			do
+			{
+				if (*current == ' ' || *current == '\t' || *current == '\n')
+				{
+					++moving;
+					if constexpr (left)
+					{
+						++current;
+					}
+					else
+					{
+						--current;
+					}
+				}
+				else
+				{
+					break;
+				}
+
+			} while (moving < spanSize);
+
+			if (moving > 0)
+			{
+				if constexpr (left)
+				{
+					inOutSpan = inOutSpan.subspan(moving);
+				}
+				else
+				{
+					inOutSpan = inOutSpan.subspan(0, spanSize - moving);
+				}
+			}
+		}
+	}
+
+	Storm::CustomForceSelect parseForceSelect(std::span<char> &forceSelectSpan)
+	{
+		trim<true>(forceSelectSpan);
+		trim<false>(forceSelectSpan);
+
+		boost::to_lower(forceSelectSpan);
+
+		const std::string_view forceSelectStr{ forceSelectSpan.data(), forceSelectSpan.size() };
+
+
+#define STORM_RETURN_IF_PARSED(selectEnum, lowerName) if(forceSelectStr == lowerName) return Storm::CustomForceSelect::selectEnum
+
+		STORM_RETURN_IF_PARSED(Pressure, "pressure");
+		STORM_RETURN_IF_PARSED(Viscosity, "viscosity");
+		STORM_RETURN_IF_PARSED(Drag, "drag");
+		STORM_RETURN_IF_PARSED(Bernouilli, "bernouilli");
+		STORM_RETURN_IF_PARSED(Bernouilli, "dynamicq");
+		STORM_RETURN_IF_PARSED(Bernouilli, "dynamicpressure");
+		STORM_RETURN_IF_PARSED(NoStick, "nostick");
+
+#undef STORM_RETURN_IF_PARSED
+
+		Storm::throwException<Storm::Exception>(forceSelectStr + " cannot be parsed into a CustomForceSelect enumeration.");
 	}
 }
 
@@ -225,6 +317,7 @@ Storm::ParticleSelector::ParticleSelector() :
 	_keepUnsupported{ false }
 {
 	_selectedParticleData->_selectedParticle = std::make_pair(dummySelectedParticleIndex(), 0);
+	this->clearCustomSelection();
 
 	this->clearRbTotalForce();
 }
@@ -308,11 +401,11 @@ void Storm::ParticleSelector::cycleParticleSelectionDisplayMode()
 	Storm::ParticleSelectionMode newMode;
 	if (_selectedParticleData->_hasRbTotalForce)
 	{
-		newMode = cycleSelectionMode<RbParticleSelectionMode>(_currentParticleSelectionMode, *_supportedFeatures, _keepUnsupported);
+		newMode = cycleSelectionMode<RbParticleSelectionMode>(*this, _currentParticleSelectionMode);
 	}
 	else
 	{
-		newMode = cycleSelectionMode<FluidParticleSelectionMode>(_currentParticleSelectionMode, *_supportedFeatures, _keepUnsupported);
+		newMode = cycleSelectionMode<FluidParticleSelectionMode>(*this, _currentParticleSelectionMode);
 	}
 
 	this->setParticleSelectionDisplayMode(newMode);
@@ -400,6 +493,7 @@ const Storm::Vector3& Storm::ParticleSelector::getSelectedVectorToDisplay() cons
 	case Storm::ParticleSelectionMode::IntermediaryPressure:	return _selectedParticleData->_intermediaryPressureForce;
 	case Storm::ParticleSelectionMode::AllOnParticle:			return _selectedParticleData->_externalSumForces;
 	case Storm::ParticleSelectionMode::TotalEngineForce:		return _selectedParticleData->_totalEngineForce;
+	case Storm::ParticleSelectionMode::Custom:					return _selectedParticleData->_customCached;
 	case Storm::ParticleSelectionMode::Normal:					return _selectedParticleData->_rbNormals;
 	case Storm::ParticleSelectionMode::RbForce:					return _selectedParticleData->_totalForcesOnRb;
 	case Storm::ParticleSelectionMode::AverageRbForce:			return _selectedParticleData->_averageForcesOnRb.getAverage();
@@ -424,6 +518,7 @@ const Storm::Vector3& Storm::ParticleSelector::getSelectedVectorPosition(const S
 		// We prefer to start the force at the selected particle, otherwise we can use the rb position since the total engine force is a force per system.
 		return _selectedParticleData->_hasRbTotalForce ? _selectedParticleData->_rbPosition : particlePosition;
 
+	case Storm::ParticleSelectionMode::Custom:
 	case Storm::ParticleSelectionMode::Normal:
 	case Storm::ParticleSelectionMode::Velocity:
 	case Storm::ParticleSelectionMode::Pressure:
@@ -449,9 +544,113 @@ std::size_t Storm::ParticleSelector::getSelectedParticleIndex() const noexcept
 	return _selectedParticleData->_selectedParticle.second;
 }
 
+const Storm::SerializeSupportedFeatureLayout& Storm::ParticleSelector::getSupportedFeaturesList() const noexcept
+{
+	return *_supportedFeatures;
+}
+
+bool Storm::ParticleSelector::shouldKeepSupportedFeatures() const noexcept
+{
+	return _keepUnsupported;
+}
+
+
+bool Storm::ParticleSelector::customShouldRefresh() const noexcept
+{
+	return _currentParticleSelectionMode == Storm::ParticleSelectionMode::Custom && this->hasSelectedParticle();
+}
+
+bool Storm::ParticleSelector::clearCustomSelection()
+{
+	if (_selectedParticleData->_endCustomForceSelected != _selectedParticleData->_customForceSelected)
+	{
+		_selectedParticleData->_endCustomForceSelected = _selectedParticleData->_customForceSelected;
+		return this->customShouldRefresh();
+	}
+
+	return false;
+}
+
+bool Storm::ParticleSelector::setCustomSelection(std::string &&customSelectionCSL)
+{
+	std::vector<std::string_view> splitted;
+	splitted.reserve(static_cast<std::size_t>(Storm::CustomForceSelect::Count));
+
+	Storm::StringAlgo::split(splitted, customSelectionCSL, Storm::StringAlgo::makeSplitPredicate(','));
+
+	Storm::SelectedParticleData &data = *_selectedParticleData;
+	std::set<Storm::CustomForceSelect> uniqueSelect;
+
+	for (std::string_view &splitElem : splitted)
+	{
+		// This comes from a true std::string, therefore this is modifyable memory.
+		uniqueSelect.emplace(parseForceSelect(std::span<char>{ const_cast<char*>(splitElem.data()), splitElem.size() }));
+	}
+
+	if (uniqueSelect != std::set<Storm::CustomForceSelect>{ data._customForceSelected, data._endCustomForceSelected })
+	{
+		this->clearCustomSelection();
+
+		if (!uniqueSelect.empty())
+		{
+			for (const Storm::CustomForceSelect selection : uniqueSelect)
+			{
+				*data._endCustomForceSelected = selection;
+				++data._endCustomForceSelected;
+			}
+
+			this->computeCustomSelection();
+		}
+
+		return this->customShouldRefresh();
+	}
+
+	return false;
+}
+
+bool Storm::ParticleSelector::hasCustomSelection() const noexcept
+{
+	return _selectedParticleData->_endCustomForceSelected != _selectedParticleData->_customForceSelected;
+}
+
+void Storm::ParticleSelector::computeCustomSelection()
+{
+	Storm::SelectedParticleData &data = *_selectedParticleData;
+	data._customCached.setZero();
+
+	for (const Storm::CustomForceSelect* iter = _selectedParticleData->_customForceSelected; iter != data._endCustomForceSelected; ++iter)
+	{
+		switch (*iter)
+		{
+		case Storm::CustomForceSelect::Pressure:	data._customCached += data._pressureForce; break;
+		case Storm::CustomForceSelect::Viscosity:	data._customCached += data._viscosityForce; break;
+		case Storm::CustomForceSelect::Drag:		data._customCached += data._dragForce; break;
+		case Storm::CustomForceSelect::Bernouilli:	data._customCached += data._dynamicPressureForce; break;
+		case Storm::CustomForceSelect::NoStick:		data._customCached += data._noStickForce; break;
+
+		case Storm::CustomForceSelect::Count:
+		default:
+			__assume(false);
+		}
+	}
+}
+
 void Storm::ParticleSelector::logForceComponents() const
 {
 	const auto &selectedParticleDataRef = *_selectedParticleData;
+
+	std::string customStr;
+	if (this->hasCustomSelection())
+	{
+		const std::string customForceStr = Storm::toStdString(selectedParticleDataRef._customCached);
+		customStr.reserve(customForceStr.size() + 32);
+
+		customStr += "\nCustom: ";
+		customStr += customForceStr;
+		customStr += ". Norm: ";
+		customStr += Storm::toStdString(selectedParticleDataRef._customCached.norm());
+		customStr += " N.\n";
+	}
 
 	std::string rbSpecificInfosStr;
 	if (selectedParticleDataRef._hasRbTotalForce)
@@ -496,6 +695,7 @@ void Storm::ParticleSelector::logForceComponents() const
 		STORM_APPEND_DATA_TO_STREAM("Intermediary Pressure", _intermediaryPressureForce, "N", _supportedFeatures->_hasIntermediaryPressureForces)
 		STORM_APPEND_DATA_TO_STREAM("Sum", _externalSumForces, "N", true)
 		STORM_APPEND_DATA_TO_STREAM("Total system force", _totalEngineForce, "N", _supportedFeatures->_hasPSystemTotalEngineForce) <<
+		customStr <<
 		rbSpecificInfosStr
 		;
 

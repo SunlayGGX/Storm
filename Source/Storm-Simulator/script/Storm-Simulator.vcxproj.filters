@@ -260,5 +260,8 @@
     <ClInclude Include="..\include\SPHSolverPrivateLogic.h">
       <Filter>Header Files\Solver\SPHSolvers\Base</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\CustomForceSelect.h">
+      <Filter>Header Files\General</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -81,6 +81,7 @@ void STORM_CURRENT_REGISTERED_TYPE::registerCurrentOnScript(IScriptWrapperInterf
 		STORM_DECLARE_SCRIPTED_METHOD(selectSpecificParticle),
 		STORM_DECLARE_SCRIPTED_METHOD(selectRigidbodyToDisplayNormals),
 		STORM_DECLARE_SCRIPTED_METHOD(clearRigidbodyToDisplayNormals),
+		STORM_DECLARE_SCRIPTED_METHOD(selectCustomForcesDisplay),
 		
 		// Debug
 		STORM_DECLARE_SCRIPTED_METHOD(printRigidBodyMoment),

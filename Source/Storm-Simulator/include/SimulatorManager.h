@@ -175,6 +175,9 @@ namespace Storm
 		void clearRigidbodyToDisplayNormals();
 
 	private:
+		void selectCustomForcesDisplay(std::string selectionCSL);
+
+	private:
 		Storm::ParticleSystemContainer _particleSystem;
 		std::vector<std::unique_ptr<Storm::IBlower>> _blowers;
 
