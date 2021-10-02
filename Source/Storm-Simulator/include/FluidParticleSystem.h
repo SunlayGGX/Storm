@@ -5,11 +5,14 @@
 
 namespace Storm
 {
+	class UIFieldContainer;
+
 	class FluidParticleSystem : public Storm::ParticleSystem
 	{
 	public:
 		FluidParticleSystem(unsigned int particleSystemIndex, std::vector<Storm::Vector3> &&worldPositions);
 		FluidParticleSystem(unsigned int particleSystemIndex, std::size_t particleCount);
+		~FluidParticleSystem();
 
 	public:
 		void onIterationStart() final override;
@@ -82,5 +85,7 @@ namespace Storm
 		float _particleVolume;
 
 		bool _gravityEnabled;
+		
+		std::unique_ptr<Storm::UIFieldContainer> _fields;
 	};
 }

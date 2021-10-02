@@ -20,13 +20,20 @@
 
 #include "ParticleSystemUtils.h"
 
+#include "UIFieldBase.h"
+#include "UIFieldContainer.h"
+#include "UIField.h"
+
 #define STORM_HIJACKED_TYPE float
 #	include "VectHijack.h"
 #undef STORM_HIJACKED_TYPE
 
+#define STORM_WANTED_DENSITY_FIELD_NAME "Density0"
+
 
 Storm::FluidParticleSystem::FluidParticleSystem(unsigned int particleSystemIndex, std::vector<Storm::Vector3> &&worldPositions) :
-	Storm::ParticleSystem{ particleSystemIndex, std::move(worldPositions) }
+	Storm::ParticleSystem{ particleSystemIndex, std::move(worldPositions) },
+	_fields{ std::make_unique<Storm::UIFieldContainer>() }
 {
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
@@ -54,12 +61,16 @@ Storm::FluidParticleSystem::FluidParticleSystem(unsigned int particleSystemIndex
 	_masses.resize(particleCount, _particleVolume * _restDensity);
 	_densities.resize(particleCount);
 	_pressure.resize(particleCount);
-
+	
 	_velocityPreTimestep.resize(particleCount);
+	
+	(*_fields)
+		.bindField(STORM_WANTED_DENSITY_FIELD_NAME, _wantedDensity);
 }
 
 Storm::FluidParticleSystem::FluidParticleSystem(unsigned int particleSystemIndex, std::size_t particleCount) :
-	Storm::ParticleSystem{ particleSystemIndex, particleCount }
+	Storm::ParticleSystem{ particleSystemIndex, particleCount },
+	_fields{ std::make_unique<Storm::UIFieldContainer>() }
 {
 	_densities.resize(particleCount);
 	_pressure.resize(particleCount);
@@ -71,8 +82,13 @@ Storm::FluidParticleSystem::FluidParticleSystem(unsigned int particleSystemIndex
 
 	_wantedDensity = fluidConfig._density;
 
+	(*_fields)
+		.bindField(STORM_WANTED_DENSITY_FIELD_NAME, _wantedDensity);
+
 	// No need to init the other thing since this constructor is only to be used in replay mode and we won't use them.
 }
+
+Storm::FluidParticleSystem::~FluidParticleSystem() = default;
 
 void Storm::FluidParticleSystem::onIterationStart()
 {
