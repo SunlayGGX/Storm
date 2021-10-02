@@ -785,12 +785,12 @@ void Storm::Camera::setTargetInternal(float x, float y, float z)
 
 void Storm::Camera::setCameraMoveSpeed(float newSpeed)
 {
-	updateField(*_fields, STORM_TRANSLATE_SPEED_FIELD_NAME, _cameraMoveSpeed, newSpeed);
+	Storm::updateField(*_fields, STORM_TRANSLATE_SPEED_FIELD_NAME, _cameraMoveSpeed, newSpeed);
 }
 
 void Storm::Camera::setCameraRotateSpeed(float newSpeed) // In degrees
 {
-	updateField(*_fields, STORM_ROTATE_SPEED_FIELD_NAME, _cameraRotateSpeed, newSpeed);
+	Storm::updateField(*_fields, STORM_ROTATE_SPEED_FIELD_NAME, _cameraRotateSpeed, newSpeed);
 }
 
 void Storm::Camera::setCameraPlaneSpeed(float newSpeed)

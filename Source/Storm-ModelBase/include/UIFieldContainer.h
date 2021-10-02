@@ -46,6 +46,6 @@ namespace Storm
 #	define bindField(fieldName, valueRef) bindFieldW(STORM_TEXT(fieldName), valueRef)
 #	define deleteField(fieldName) deleteFieldW(STORM_TEXT(fieldName))
 #	define pushField(fieldName) pushFieldW(STORM_TEXT(fieldName))
-#	define updateField(uiFields, fieldName, valueRef, newValue) Storm::updateFieldW(uiFields, valueRef, newValue, STORM_TEXT(fieldName))
+#	define updateField(uiFields, fieldName, valueRef, newValue) updateFieldW(uiFields, valueRef, newValue, STORM_TEXT(fieldName))
 #endif
 }

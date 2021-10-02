@@ -71,6 +71,6 @@ void Storm::KernelHandler::update(const float currentPhysicsTimeInSeconds)
 
 void Storm::KernelHandler::setKernelValue(const float newValue)
 {
-	updateField(*_uiFields, STORM_KERNEL_VALUE_FIELD_NAME, _currentKernelValue, newValue);
+	Storm::updateField(*_uiFields, STORM_KERNEL_VALUE_FIELD_NAME, _currentKernelValue, newValue);
 	Storm::SingletonHolder::instance().getSingleton<Storm::IGraphicsManager>().setKernelAreaRadius(_currentKernelValue);
 }
