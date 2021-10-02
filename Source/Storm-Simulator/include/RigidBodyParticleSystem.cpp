@@ -508,6 +508,11 @@ void Storm::RigidBodyParticleSystem::setParticleSystemTotalForce(const Storm::Ve
 	_rbTotalForce = rbTotalForce;
 }
 
+void Storm::RigidBodyParticleSystem::setParticleSystemWantedDensity(const float)
+{
+
+}
+
 void Storm::RigidBodyParticleSystem::buildNeighborhoodOnParticleSystemUsingSpacePartition(const Storm::ParticleSystemContainer &allParticleSystems, const float kernelLength)
 {
 	// Rb particle systems do not need for neighborhood when their volumes are fixed.

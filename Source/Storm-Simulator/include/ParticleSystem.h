@@ -72,6 +72,7 @@ namespace Storm
 		virtual void setTmpPressureIntermediaryForces(std::vector<Storm::Vector3> &&tmpPressuresIntermediaryForces) = 0;
 		virtual void setParticleSystemPosition(const Storm::Vector3 &pSystemPosition) = 0;
 		virtual void setParticleSystemTotalForce(const Storm::Vector3 &pSystemTotalForce) = 0;
+		virtual void setParticleSystemWantedDensity(const float value) = 0;
 
 		virtual void setParticleSystemTotalForceNonPhysX(const Storm::Vector3 &pSystemTotalForce);
 

@@ -36,6 +36,7 @@ namespace Storm
 		void setTmpPressureIntermediaryForces(std::vector<Storm::Vector3> &&tmpPressuresIntermediaryForces) final override;
 		void setParticleSystemPosition(const Storm::Vector3 &pSystemPosition) final override;
 		void setParticleSystemTotalForce(const Storm::Vector3 &pSystemTotalForce) final override;
+		void setParticleSystemWantedDensity(const float value) final override;
 
 		void prepareSaving(const bool replayMode) final override;
 
@@ -77,6 +78,7 @@ namespace Storm
 		std::vector<Storm::Vector3> _velocityPreTimestep;
 
 		float _restDensity;
+		float _wantedDensity;
 		float _particleVolume;
 
 		bool _gravityEnabled;

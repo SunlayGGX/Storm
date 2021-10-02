@@ -211,7 +211,8 @@ namespace
 	template<bool remap, Storm::SIMDUsageMode simdMode>
 	void lerpParticleSystemsFrames(Storm::ParticleSystemContainer &particleSystems, Storm::SerializeRecordPendingData &frameBefore, Storm::SerializeRecordPendingData &frameAfter, const float coefficient)
 	{
-		Storm::Vector3 tmp;
+		Storm::Vector3 tmpVec;
+		float tmpFl;
 
 		const std::size_t frameElementCount = frameAfter._particleSystemElements.size();
 		for (std::size_t iter = 0; iter < frameElementCount; ++iter)
@@ -239,14 +240,17 @@ namespace
 
 			Storm::ParticleSystem &currentPSystem = *particleSystems[frameBeforeElements._systemId];
 
-			lerp(frameBeforeElements._pSystemPosition, frameAfterElements._pSystemPosition, coefficient, tmp);
-			currentPSystem.setParticleSystemPosition(tmp);
+			lerp(frameBeforeElements._wantedDensity, frameAfterElements._wantedDensity, coefficient, tmpFl);
+			currentPSystem.setParticleSystemWantedDensity(tmpFl);
 
-			lerp(frameBeforeElements._pSystemGlobalForce, frameAfterElements._pSystemGlobalForce, coefficient, tmp);
-			currentPSystem.setParticleSystemTotalForce(tmp);
+			lerp(frameBeforeElements._pSystemPosition, frameAfterElements._pSystemPosition, coefficient, tmpVec);
+			currentPSystem.setParticleSystemPosition(tmpVec);
 
-			lerp(frameBeforeElements._pSystemTotalEngineForce, frameAfterElements._pSystemTotalEngineForce, coefficient, tmp);
-			currentPSystem.setParticleSystemTotalForceNonPhysX(tmp);
+			lerp(frameBeforeElements._pSystemGlobalForce, frameAfterElements._pSystemGlobalForce, coefficient, tmpVec);
+			currentPSystem.setParticleSystemTotalForce(tmpVec);
+
+			lerp(frameBeforeElements._pSystemTotalEngineForce, frameAfterElements._pSystemTotalEngineForce, coefficient, tmpVec);
+			currentPSystem.setParticleSystemTotalForceNonPhysX(tmpVec);
 
 			std::vector<Storm::Vector3> &allPositions = currentPSystem.getPositions();
 			std::vector<Storm::Vector3> &allVelocities = currentPSystem.getVelocity();
@@ -266,6 +270,7 @@ namespace
 				Storm::FluidParticleSystem &currentPSystemAsFluid = static_cast<Storm::FluidParticleSystem &>(currentPSystem);
 				std::vector<float> &allDensities = currentPSystemAsFluid.getDensities();
 				std::vector<float> &allPressures = currentPSystemAsFluid.getPressures();
+
 
 #define STORM_MAKE_PARALLEL_FLUID_LERPS																		\
 	std::future<void> lerpsComputators[] =																	\
@@ -475,6 +480,8 @@ namespace
 						STORM_MAKE_SIMPLE_COPY_ARRAY(_densities, pSystemRefAsFluid.getDensities());
 						STORM_MAKE_SIMPLE_COPY_ARRAY(_pressures, pSystemRefAsFluid.getPressures());
 					}
+
+					framePSystemElementData._wantedDensity = pSystemRefAsFluid.getRestDensity();
 				}
 				else
 				{
@@ -553,6 +560,7 @@ void Storm::ReplaySolver::transferFrameToParticleSystem_move(Storm::ParticleSyst
 	for (auto &currentFrameElement : frameFrom._particleSystemElements)
 	{
 		Storm::ParticleSystem &particleSystem = *particleSystems[currentFrameElement._systemId];
+		particleSystem.setParticleSystemWantedDensity(currentFrameElement._wantedDensity);
 		particleSystem.setParticleSystemPosition(currentFrameElement._pSystemPosition);
 		particleSystem.setParticleSystemTotalForce(currentFrameElement._pSystemGlobalForce);
 		particleSystem.setPositions(std::move(currentFrameElement._positions));

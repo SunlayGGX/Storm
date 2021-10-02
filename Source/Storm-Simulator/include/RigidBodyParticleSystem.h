@@ -41,6 +41,7 @@ namespace Storm
 		void setTmpPressureIntermediaryForces(std::vector<Storm::Vector3> &&tmpPressuresIntermediaryForces) final override;
 		void setParticleSystemPosition(const Storm::Vector3 &pSystemPosition) final override;
 		void setParticleSystemTotalForce(const Storm::Vector3 &pSystemTotalForce) final override;
+		void setParticleSystemWantedDensity(const float value) final override;
 
 	public:
 		const std::vector<float>& getVolumes() const noexcept;

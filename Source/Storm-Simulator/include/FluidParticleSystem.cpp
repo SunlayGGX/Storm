@@ -36,6 +36,8 @@ Storm::FluidParticleSystem::FluidParticleSystem(unsigned int particleSystemIndex
 	_restDensity = fluidConfig._density;
 	_gravityEnabled = fluidConfig._gravityEnabled;
 
+	_wantedDensity = _restDensity;
+
 	const std::size_t particleCount = this->getParticleCount();
 
 	const float particleDiameter = sceneSimulationConfig._particleRadius * 2.f;
@@ -61,6 +63,13 @@ Storm::FluidParticleSystem::FluidParticleSystem(unsigned int particleSystemIndex
 {
 	_densities.resize(particleCount);
 	_pressure.resize(particleCount);
+
+	// It will be overwritten by the record afterward but just to make it non stupid in case we have an old record that did not support the feature at the time.
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
+	const Storm::SceneFluidConfig &fluidConfig = configMgr.getSceneFluidConfig();
+
+	_wantedDensity = fluidConfig._density;
 
 	// No need to init the other thing since this constructor is only to be used in replay mode and we won't use them.
 }
@@ -205,6 +214,15 @@ void Storm::FluidParticleSystem::setParticleSystemTotalForce(const Storm::Vector
 #endif
 }
 
+void Storm::FluidParticleSystem::setParticleSystemWantedDensity(const float value)
+{
+	// If it is NaN, then this is not good value.
+	if (!isnan(value))
+	{
+		Storm::updateField(*_fields, STORM_WANTED_DENSITY_FIELD_NAME, _wantedDensity, value);
+	}
+}
+
 void Storm::FluidParticleSystem::prepareSaving(const bool replayMode)
 {
 	Storm::ParticleSystem::prepareSaving(replayMode);
@@ -229,7 +247,8 @@ void Storm::FluidParticleSystem::prepareSaving(const bool replayMode)
 
 float Storm::FluidParticleSystem::getRestDensity() const noexcept
 {
-	return _restDensity;
+	// Wanted density is equal to the rest density if we did not enable the density smooth change.
+	return _wantedDensity;
 }
 
 float Storm::FluidParticleSystem::getParticleVolume() const noexcept
