@@ -47,6 +47,7 @@ namespace Storm
 		bool _gravityEnabled;
 		bool _removeParticlesCollidingWithRb;
 		bool _removeOutDomainParticles;
+		bool _smoothingRestDensity;
 
 		float _uniformDragCoefficient; // F = 1/2 rho * |vj - vi|(vj - vi) * Cd * Ai => _uniformDragCoefficient = 1/2 * Cd * Ai
 

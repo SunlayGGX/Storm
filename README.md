@@ -397,6 +397,7 @@ This element is all setting appertaining to a fluid. Here the tag you can set in
 - **UnitParticles (tag, semi-facultative)**: Inside this tag should be listed particles we want to spawn manually at a specified particle. They are spawned one by one.
  + **position (vector3, facultative)**: This is the position of one spawned particle. Each position tag will represent one particle.
 - **density (positive float, facultative)**: This is the rest density of the fluid in kg.m^-3. Default is 1.2754 kg.m^-3 which is the density of Dry air at 0 °C and normal ATM pressure.
+- **smoothDensity0 (boolean, facultative)**: Enable the smoothing of the rest density from the actual average density. This is experimental. Default is false (we'll use the rest density as-is).
 - **particleVolume (positive float, facultative)**: This is the particle volume of the fluid in m^3. This is a constant throughout the simulation. If left unset (default), we’ll compute it automatically. It should be a positive non-zero floating point number.
 - **pressureK1 (positive zero-able float, facultative)**: This is the pressure stiffness constant coefficient used when initializing the pressure using state equation. In formulas, it is often found as k1. Default is set automatically from WCSPH formula.
 - **pressureK2 (positive zero-able float, facultative)**: This is the pressure exponent constant coefficient used when initializing the pressure using state equation. In formulas, it is often found as k2. Default is 7.

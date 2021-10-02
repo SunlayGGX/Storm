@@ -863,6 +863,7 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 				!Storm::XmlReader::handleXml(fluidXmlElement, "removeOutDomainParticles", fluidConfig._removeOutDomainParticles) &&
 				!Storm::XmlReader::handleXml(fluidXmlElement, "uniformDragCoeff", fluidConfig._uniformDragCoefficient) &&
 				!Storm::XmlReader::handleXml(fluidXmlElement, "reducedMassCoeff", fluidConfig._reducedMassCoefficient) &&
+				!Storm::XmlReader::handleXml(fluidXmlElement, "smoothDensity0", fluidConfig._smoothingRestDensity) &&
 				!Storm::XmlReader::handleXml(fluidXmlElement, "density", fluidConfig._density)
 				)
 			{
