@@ -129,6 +129,32 @@ void Storm::FluidParticleSystem::onSubIterationStart(const Storm::ParticleSystem
 	});
 }
 
+void Storm::FluidParticleSystem::onIterationEnd()
+{
+	Storm::ParticleSystem::onIterationEnd();
+
+	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
+	const Storm::SceneFluidConfig &fluidConfig = configMgr.getSceneFluidConfig();
+	if (fluidConfig._smoothingRestDensity)
+	{
+		float avgDensity = std::reduce(std::execution::par, std::begin(_densities), std::end(_densities), 0.f);
+		avgDensity /= static_cast<float>(this->getParticleCount());
+
+		// This comes from Xavier Chermain implementation for its mémoire.
+		float tmp = _restDensity * 0.001f;
+		if (_wantedDensity > avgDensity)
+		{
+			tmp = _wantedDensity - tmp;
+		}
+		else
+		{
+			tmp = _wantedDensity + tmp;
+		}
+
+		this->setParticleSystemWantedDensity(tmp);
+	}
+}
+
 bool Storm::FluidParticleSystem::isFluids() const noexcept
 {
 	return true;

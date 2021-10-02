@@ -17,6 +17,7 @@ namespace Storm
 	public:
 		void onIterationStart() final override;
 		void onSubIterationStart(const Storm::ParticleSystemContainer &allParticleSystems, const std::vector<std::unique_ptr<Storm::IBlower>> &blowers) final override;
+		void onIterationEnd() final override;
 
 	public:
 		bool isFluids() const noexcept final override;
