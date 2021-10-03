@@ -32,6 +32,8 @@ namespace Storm
 		float _noStickCoeff;
 		float _dragCoefficient;
 
+		float _reducedVolumeCoeff;
+
 		bool _static;
 		bool _isWall;
 

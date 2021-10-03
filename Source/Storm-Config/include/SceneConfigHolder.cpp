@@ -943,12 +943,14 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 	AnimationsKeeper animationsKeeper;
 
 	auto &rigidBodiesConfigArray = _sceneConfig->_rigidBodiesConfig;
-	float rbConfigAngularVelocityDampingTmp = -1.f;
+	float rbAngulVelDampingTmp = -1.f;
 	
 	bool foundWatchedRb = graphicConfig._rbWatchId == std::numeric_limits<decltype(graphicConfig._rbWatchId)>::max();
 
+	float tmpVolumeReducedCoeff = fluidConfig._reducedMassCoefficient;
+
 	Storm::XmlReader::readDataInList(srcTree, "RigidBodies", "RigidBody", rigidBodiesConfigArray,
-		[&rbConfigAngularVelocityDampingTmp](const auto &rigidBodyConfigXml, Storm::SceneRigidBodyConfig &rbConfig)
+		[&rbAngulVelDampingTmp, &tmpVolumeReducedCoeff](const auto &rigidBodyConfigXml, Storm::SceneRigidBodyConfig &rbConfig)
 	{
 		return
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "id", rbConfig._rigidBodyID) ||
@@ -957,7 +959,7 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "staticFrictionCoeff", rbConfig._staticFrictionCoefficient) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "dynamicFrictionCoeff", rbConfig._dynamicFrictionCoefficient) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "restitutionCoeff", rbConfig._restitutionCoefficient) ||
-			Storm::XmlReader::handleXml(rigidBodyConfigXml, "angularDamping", rbConfigAngularVelocityDampingTmp) ||
+			Storm::XmlReader::handleXml(rigidBodyConfigXml, "angularDamping", rbAngulVelDampingTmp) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "fixTranslation", rbConfig._isTranslationFixed) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "fixedVolume", rbConfig._fixedSimulationVolume) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "wall", rbConfig._isWall) ||
@@ -974,14 +976,14 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "collisionType", rbConfig._collisionShape, parseCollisionType) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "animation", rbConfig._animationXmlPath) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "animationName", rbConfig._animationName) ||
+			Storm::XmlReader::handleXml(rigidBodyConfigXml, "reducedVolumeCoeff", tmpVolumeReducedCoeff) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "translation", rbConfig._translation, parseVector3Element) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "rotation", rbConfig._rotation, parseRotationElement) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "geometry", rbConfig._geometry, parseGeometryType) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "scale", rbConfig._scale, parseVector3Element) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "color", rbConfig._color, parseColor4Element)
 			;
-	},
-		[&animationsKeeper, &macroConfig, &rigidBodiesConfigArray, &fluidConfig, &rbConfigAngularVelocityDampingTmp, &param, &foundWatchedRb, rbWatchedId = graphicConfig._rbWatchId](Storm::SceneRigidBodyConfig &rbConfig)
+	}, [&, rbWatchedId = graphicConfig._rbWatchId](Storm::SceneRigidBodyConfig &rbConfig)
 	{
 		macroConfig(rbConfig._meshFilePath);
 		macroConfig(rbConfig._animationXmlPath);
@@ -1053,6 +1055,14 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 				break;
 			}
 		}
+
+		if (tmpVolumeReducedCoeff <= 0.f)
+		{
+			Storm::throwException<Storm::Exception>("The rigid body " + std::to_string(rbConfig._rigidBodyID) + " has specified a value for the volume reduced coeff inferior or equal to 0 (" + std::to_string(tmpVolumeReducedCoeff) + ")! This is illegal.");
+		}
+
+		rbConfig._reducedVolumeCoeff = tmpVolumeReducedCoeff;
+		tmpVolumeReducedCoeff = fluidConfig._reducedMassCoefficient; // For the next one.
 		
 		if (rbConfig._isTranslationFixed && (rbConfig._isWall || rbConfig._static))
 		{
@@ -1068,18 +1078,18 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 			}
 		}
 
-		if (rbConfigAngularVelocityDampingTmp != -1.f)
+		if (rbAngulVelDampingTmp != -1.f)
 		{
 			if (rbConfig._isWall || rbConfig._static)
 			{
 				Storm::throwException<Storm::Exception>("RigidBody id " + std::to_string(rbConfig._rigidBodyID) + " is static. It cannot have a velocity damping coefficient!");
 			}
-			else if (rbConfigAngularVelocityDampingTmp > 1.f)
+			else if (rbAngulVelDampingTmp > 1.f)
 			{
-				Storm::throwException<Storm::Exception>("The angular velocity damping value couldn't exceed 1.0 (rigid body " + std::to_string(rbConfig._rigidBodyID) + ")! Value was " + std::to_string(rbConfigAngularVelocityDampingTmp));
+				Storm::throwException<Storm::Exception>("The angular velocity damping value couldn't exceed 1.0 (rigid body " + std::to_string(rbConfig._rigidBodyID) + ")! Value was " + std::to_string(rbAngulVelDampingTmp));
 			}
 
-			rbConfig._angularVelocityDamping = rbConfigAngularVelocityDampingTmp;
+			rbConfig._angularVelocityDamping = rbAngulVelDampingTmp;
 		}
 
 		if (rbConfig._collisionShape == Storm::CollisionType::IndividualParticle)

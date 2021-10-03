@@ -180,9 +180,9 @@ void Storm::RigidBodyParticleSystem::initializePreSimulation(const Storm::Partic
 
 			if (_volumeFixed)
 			{
-				Storm::runParallel(_volumes, [this](float &currentPVolume, const std::size_t currentPIndex) 
+				Storm::runParallel(_volumes, [this, coeff = sceneRbConfig._reducedVolumeCoeff](float &currentPVolume, const std::size_t currentPIndex)
 				{
-					currentPVolume = 1.f / _staticVolumesInitValue[currentPIndex];
+					currentPVolume = coeff / _staticVolumesInitValue[currentPIndex];
 				});
 			}
 		}
@@ -192,7 +192,7 @@ void Storm::RigidBodyParticleSystem::initializePreSimulation(const Storm::Partic
 	{
 		if (volumeFixedUsingRbVolume)
 		{
-			const float particleVolume = retrieveParticleFixedVolume(this->getId(), this->getParticleCount());
+			const float particleVolume = retrieveParticleFixedVolume(this->getId(), this->getParticleCount()) * sceneRbConfig._reducedVolumeCoeff;
 			Storm::runParallel(_volumes, [particleVolume](float &currentPVolume)
 			{
 				currentPVolume = particleVolume;
@@ -212,7 +212,7 @@ void Storm::RigidBodyParticleSystem::initializePreSimulation(const Storm::Partic
 			const Storm::RawKernelMethodDelegate rawKernelMeth = Storm::retrieveRawKernelMethod(sceneSimulationConfig._kernelMode);
 			const Storm::GradKernelMethodDelegate gradKernel = Storm::retrieveGradKernelMethod(sceneSimulationConfig._kernelMode);
 
-			Storm::runParallel(staticNeighborhood, [this, &allParticleSystems, &spacePartitionerMgr, &rawKernelMeth, &gradKernel, kernelLength, currentKernelZero, kernelLengthSquared = kernelLength * kernelLength, currentSystemId = this->getId()](ParticleNeighborhoodArray &currentPStaticNeighborhood, const std::size_t particleIndex)
+			Storm::runParallel(staticNeighborhood, [this, &allParticleSystems, &spacePartitionerMgr, &rawKernelMeth, &gradKernel, kernelLength, currentKernelZero, kernelLengthSquared = kernelLength * kernelLength, currentSystemId = this->getId(), coeff = sceneRbConfig._reducedVolumeCoeff](ParticleNeighborhoodArray &currentPStaticNeighborhood, const std::size_t particleIndex)
 			{
 				const std::vector<Storm::NeighborParticleReferral>* bundleContainingPtr;
 				const std::vector<Storm::NeighborParticleReferral>* outLinkedNeighborBundle[Storm::k_neighborLinkedBunkCount];
@@ -240,7 +240,7 @@ void Storm::RigidBodyParticleSystem::initializePreSimulation(const Storm::Partic
 				float initialDeltaVolume = currentKernelZero;
 
 				float &currentPVolume = _volumes[particleIndex];
-				currentPVolume = 1.f / computeParticleDeltaVolume<true>(currentPStaticNeighborhood, this, initialDeltaVolume);
+				currentPVolume = coeff / computeParticleDeltaVolume<true>(currentPStaticNeighborhood, this, initialDeltaVolume);
 
 				// Get all static particles referrals that are near the current particle position.
 				/*spacePartitionerMgr.getAllBundles(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::StaticRigidBody);
@@ -302,7 +302,8 @@ void Storm::RigidBodyParticleSystem::onSubIterationStart(const Storm::ParticleSy
 	{
 		if (!_volumeFixed)
 		{
-			Storm::runParallel(_volumes, [this](float &currentPVolume, const std::size_t currentPIndex)
+			const Storm::SceneRigidBodyConfig &sceneRbConfig = configMgr.getSceneRigidBodyConfig(this->getId());
+			Storm::runParallel(_volumes, [this, coeff = sceneRbConfig._reducedVolumeCoeff](float &currentPVolume, const std::size_t currentPIndex)
 			{
 				// Compute the current boundary particle volume.
 				const float initialVolumeValue = _staticVolumesInitValue[currentPIndex];
@@ -323,8 +324,9 @@ void Storm::RigidBodyParticleSystem::onSubIterationStart(const Storm::ParticleSy
 		}
 		else
 		{
+			const Storm::SceneRigidBodyConfig &sceneRbConfig = configMgr.getSceneRigidBodyConfig(this->getId());
 			const float currentKernelZero = Storm::retrieveKernelZeroValue(sceneSimulationConfig._kernelMode);
-			Storm::runParallel(_force, [this, currentKernelZero](Storm::Vector3 &force, const std::size_t currentPIndex)
+			Storm::runParallel(_force, [this, currentKernelZero, coeff = sceneRbConfig._reducedVolumeCoeff](Storm::Vector3 &force, const std::size_t currentPIndex)
 			{
 				// Initialize forces to 0
 				force.setZero();
@@ -334,7 +336,7 @@ void Storm::RigidBodyParticleSystem::onSubIterationStart(const Storm::ParticleSy
 				const float initialVolumeValue = currentKernelZero;
 
 				float &currentPVolume = _volumes[currentPIndex];
-				currentPVolume = 1.f / computeParticleDeltaVolume(_neighborhood[currentPIndex], this, initialVolumeValue); // ???
+				currentPVolume = coeff / computeParticleDeltaVolume(_neighborhood[currentPIndex], this, initialVolumeValue); // ???
 			});
 		}
 	}

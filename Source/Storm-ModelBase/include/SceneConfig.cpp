@@ -118,6 +118,7 @@ Storm::SceneRigidBodyConfig::SceneRigidBodyConfig() :
 	_isTranslationFixed{ false },
 	_fixedSimulationVolume{ false },
 	_mass{ -1.f },
+	_reducedVolumeCoeff{ 0.f }, // whatever. Will be init to the one from the fluid anyway _reducedMassCoeff
 	_viscosity{ 0.f },
 	_noStickCoeff{ 1.f },
 	_dragCoefficient{ 0.f },
