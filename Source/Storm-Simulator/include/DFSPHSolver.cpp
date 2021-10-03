@@ -299,7 +299,7 @@ Storm::DFSPHSolver::DFSPHSolver(const float k_kernelLength, const Storm::Particl
 				currentPData._predictedVelocity.setZero();
 				currentPData._nonPressureAcceleration.setZero();
 				currentPData._kCoeff = 0.f;
-				currentPData._predictedDensity = 0.f;
+				currentPData._densityAdv = 0.f;
 			});
 
 			totalParticleCount += currentPSystemPCount._newSize;
@@ -907,7 +907,7 @@ void Storm::DFSPHSolver::divergenceSolve(const Storm::IterationParameter &iterat
 
 						const Storm::DFSPHSolverData &neighborData = (*neighborDataArray)[neighbor._particleIndex];
 
-						const float b_j = neighborData._predictedDensity;
+						const float b_j = neighborData._densityAdv;
 						const float kj = b_j * neighborData._kCoeff;
 
 						const float kSum = ki + lastNeighborFluidSystem->getRestDensity() / density0 * kj;
@@ -951,7 +951,7 @@ void Storm::DFSPHSolver::divergenceSolve(const Storm::IterationParameter &iterat
 				//////////////////////////////////////////////////////////////////////////
 				// Evaluate rhs
 				//////////////////////////////////////////////////////////////////////////
-				const float b_i = currentPData._predictedDensity;
+				const float b_i = currentPData._densityAdv;
 				const float ki = b_i * currentPData._kCoeff;
 
 				if (std::fabs(ki) > Storm::SPHSolverPrivateLogic::k_epsilon)
@@ -970,7 +970,7 @@ void Storm::DFSPHSolver::divergenceSolve(const Storm::IterationParameter &iterat
 			Storm::runParallel(dataFieldPair.second, [&](Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex)
 			{
 				this->computeDensityChange(iterationParameter, fluidPSystem, &dataFieldPair.second, currentPData, currentPIndex);
-				avgDensityErrAtom += density0 * (currentPData._predictedDensity);
+				avgDensityErrAtom += density0 * (currentPData._densityAdv);
 			});
 
 			avgDensityErrAtom = avgDensityErrAtom / _totalParticleCountFl;
@@ -1091,7 +1091,7 @@ void Storm::DFSPHSolver::pressureSolve(const Storm::IterationParameter &iteratio
 
 						const Storm::DFSPHSolverData &neighborData = (*neighborDataArray)[neighbor._particleIndex];
 
-						const float b_j = neighborData._predictedDensity - 1.f;
+						const float b_j = neighborData._densityAdv - 1.f;
 						const float kj = b_j * neighborData._kCoeff;
 						const float kSum = ki + lastNeighborFluidSystem->getRestDensity() / density0 * kj;
 						if (std::fabs(kSum) > Storm::SPHSolverPrivateLogic::k_epsilon)
@@ -1132,7 +1132,7 @@ void Storm::DFSPHSolver::pressureSolve(const Storm::IterationParameter &iteratio
 				//////////////////////////////////////////////////////////////////////////
 				// Evaluate rhs
 				//////////////////////////////////////////////////////////////////////////
-				const float b_i = currentPData._predictedDensity - 1.f;
+				const float b_i = currentPData._densityAdv - 1.f;
 				const float ki = b_i * currentPData._kCoeff;
 
 				if (std::fabs(ki) > Storm::SPHSolverPrivateLogic::k_epsilon)
@@ -1151,7 +1151,7 @@ void Storm::DFSPHSolver::pressureSolve(const Storm::IterationParameter &iteratio
 			Storm::runParallel(dataFieldPair.second, [&](Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex)
 			{
 				this->computeDensityAdv(iterationParameter, fluidPSystem, &dataFieldPair.second, currentPData, currentPIndex);
-				densityError += density0 * currentPData._predictedDensity - density0;
+				densityError += density0 * currentPData._densityAdv - density0;
 			});
 
 			outAverageError = densityError / _totalParticleCountFl;
@@ -1227,7 +1227,7 @@ void Storm::DFSPHSolver::computeDFSPHFactor(const Storm::IterationParameter &ite
 void Storm::DFSPHSolver::computeDensityAdv(const Storm::IterationParameter &iterationParameter, Storm::FluidParticleSystem &fluidPSystem, const Storm::DFSPHSolver::DFSPHSolverDataArray* currentSystemData, Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex)
 {
 	const float density = fluidPSystem.getDensities()[currentPIndex];
-	float &densityAdv = currentPData._predictedDensity;
+	float &densityAdv = currentPData._densityAdv;
 
 	const float density0 = fluidPSystem.getRestDensity();
 
@@ -1270,7 +1270,7 @@ void Storm::DFSPHSolver::computeDensityChange(const Storm::IterationParameter &i
 {
 	const Storm::ParticleNeighborhoodArray &currentPNeighborhood = fluidPSystem.getNeighborhoodArrays()[currentPIndex];
 
-	float &densityAdv = currentPData._predictedDensity;
+	float &densityAdv = currentPData._densityAdv;
 	densityAdv = 0.f;
 
 	// in case of particle deficiency do not perform a divergence solve

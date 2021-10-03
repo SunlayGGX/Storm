@@ -10,7 +10,7 @@ namespace Storm
 
 		float _kCoeff;
 
-		float _predictedDensity;
+		float _densityAdv;
 		Storm::Vector3 _predictedVelocity;
 	};
 }
