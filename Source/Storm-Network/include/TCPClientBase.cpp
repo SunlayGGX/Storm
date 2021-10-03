@@ -251,11 +251,18 @@ void Storm::TCPClientBasePrivateLogic::definitiveStop(Traits::SocketType &socket
 		LOG_ERROR << "Cannot cancel socket : " << ex.what();
 	}
 
-	if (connected)
+	try
 	{
-		socket.shutdown(boost::asio::socket_base::shutdown_type::shutdown_both);
+		if (connected)
+		{
+			socket.shutdown(boost::asio::socket_base::shutdown_type::shutdown_both);
+		}
+		socket.close();
 	}
-	socket.close();
+	catch (const boost::system::system_error &error)
+	{
+		LOG_ERROR << "Cannot close socket due to system error: '" << error.what() << "'. Error code was " << error.code();
+	}
 }
 
 void Storm::TCPClientBasePrivateLogic::onConnectionChanged(const Storm::OnConnectionStateChangedParam &param, Storm::ConnectionStatus &connectedFlag, Storm::EndPointIdentifier &outApplicationId)
