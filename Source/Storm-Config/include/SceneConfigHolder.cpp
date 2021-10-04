@@ -616,7 +616,9 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 		{
 			if (
 				!Storm::XmlReader::handleXml(cageXmlElement, "boxMin", cageConfig._boxMin, parseVector3Element) &&
-				!Storm::XmlReader::handleXml(cageXmlElement, "boxMax", cageConfig._boxMax, parseVector3Element)
+				!Storm::XmlReader::handleXml(cageXmlElement, "boxMax", cageConfig._boxMax, parseVector3Element) &&
+				!Storm::XmlReader::handleXml(cageXmlElement, "infiniteDomain", cageConfig._infiniteDomain) &&
+				!Storm::XmlReader::handleXml(cageXmlElement, "passthroughVelReduceCoeff", cageConfig._passthroughVelReduceCoeff, parseVector3Element)
 				)
 			{
 				LOG_ERROR << "tag '" << cageXmlElement.first << "' (inside Scene.Cage) is unknown, therefore it cannot be handled";
@@ -629,6 +631,13 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 				"No components of cage box min should be greater or equal than box max\n"
 				"=> Box min : " + Storm::toStdString(cageConfig._boxMin) + "\n"
 				"=> Box max : " + Storm::toStdString(cageConfig._boxMax)
+			);
+		}
+		else if (cageConfig._infiniteDomain && (cageConfig._passthroughVelReduceCoeff.x() < 0.f || cageConfig._passthroughVelReduceCoeff.y() < 0.f || cageConfig._passthroughVelReduceCoeff.z() < 0.f))
+		{
+			Storm::throwException<Storm::Exception>(
+				"When enabled, all values for the velocity pass through coefficients should be positive or zero on each axis!\n"
+				"Current value was : " + Storm::toStdString(cageConfig._passthroughVelReduceCoeff)
 			);
 		}
 	}

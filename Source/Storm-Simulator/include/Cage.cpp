@@ -14,7 +14,9 @@
 
 Storm::Cage::Cage(const Storm::SceneCageConfig &sceneCageConfig) :
 	_boxMin{ sceneCageConfig._boxMin },
-	_boxMax{ sceneCageConfig._boxMax }
+	_boxMax{ sceneCageConfig._boxMax },
+	_infiniteDomain{ sceneCageConfig._infiniteDomain },
+	_velocityCoeffs{ sceneCageConfig._passthroughVelReduceCoeff }
 {
 
 }
@@ -27,44 +29,51 @@ void Storm::Cage::doEnclose(Storm::ParticleSystemContainer &pSystems) const
 	constexpr auto ySelector = [](auto &vect) -> auto& { return vect.y(); };
 	constexpr auto zSelector = [](auto &vect) -> auto& { return vect.z(); };
 
-	const Storm::Vector3 cageCenter = (_boxMax + _boxMin) / 2.f;
-	Storm::IRandomManager &randomMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IRandomManager>();
-
-	for (const auto &pSystemPair : pSystems)
+	if (_infiniteDomain)
 	{
-		Storm::ParticleSystem &pSystem = *pSystemPair.second;
-		if (pSystem.isFluids())
+		STORM_NOT_IMPLEMENTED;
+	}
+	else
+	{
+		const Storm::Vector3 cageCenter = (_boxMax + _boxMin) / 2.f;
+		Storm::IRandomManager &randomMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IRandomManager>();
+
+		for (const auto &pSystemPair : pSystems)
 		{
-			std::vector<Storm::Vector3> &allPPositions = pSystem.getPositions();
-			std::vector<Storm::Vector3> &allPVelocities = pSystem.getVelocity();
-
-			const float maxDisplacement = Storm::SimulatorManager::instance().getKernelLength();
-
-			Storm::runParallel(allPPositions,
-				[
-				this,
-				&cageCenter,
-				&randomMgr,
-				&allPVelocities,
-				maxDisplacement,
-				&xSelector,
-				&ySelector,
-				&zSelector
-				](Storm::Vector3 &currentPPosition, const std::size_t currentPIndex)
+			Storm::ParticleSystem &pSystem = *pSystemPair.second;
+			if (pSystem.isFluids())
 			{
-				bool res = Storm::clampInPlace(_boxMin, _boxMax, currentPPosition, xSelector);
-				res |= Storm::clampInPlace(_boxMin, _boxMax, currentPPosition, ySelector);
-				res |= Storm::clampInPlace(_boxMin, _boxMax, currentPPosition, zSelector);
+				std::vector<Storm::Vector3> &allPPositions = pSystem.getPositions();
+				std::vector<Storm::Vector3> &allPVelocities = pSystem.getVelocity();
 
-				if (res)
+				const float maxDisplacement = Storm::SimulatorManager::instance().getKernelLength();
+
+				Storm::runParallel(allPPositions,
+					[
+						this,
+						&cageCenter,
+						&randomMgr,
+						&allPVelocities,
+						maxDisplacement,
+						&xSelector,
+						&ySelector,
+						&zSelector
+					](Storm::Vector3 &currentPPosition, const std::size_t currentPIndex)
 				{
-					// Move randomly the particle to the center with a maximum of maxDisplacement.
-					const float randomDisplacement = randomMgr.randomizeFloat() * maxDisplacement;
-					currentPPosition += (cageCenter - currentPPosition) * randomDisplacement;
+					bool res = Storm::clampInPlace(_boxMin, _boxMax, currentPPosition, xSelector);
+					res |= Storm::clampInPlace(_boxMin, _boxMax, currentPPosition, ySelector);
+					res |= Storm::clampInPlace(_boxMin, _boxMax, currentPPosition, zSelector);
 
-					allPVelocities[currentPIndex].setZero();
-				}
-			});
+					if (res)
+					{
+						// Move randomly the particle to the center with a maximum of maxDisplacement.
+						const float randomDisplacement = randomMgr.randomizeFloat() * maxDisplacement;
+						currentPPosition += (cageCenter - currentPPosition) * randomDisplacement;
+
+						allPVelocities[currentPIndex].setZero();
+					}
+				});
+			}
 		}
 	}
 }

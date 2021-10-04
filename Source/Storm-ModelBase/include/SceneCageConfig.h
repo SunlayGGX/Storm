@@ -11,5 +11,8 @@ namespace Storm
 	public:
 		Storm::Vector3 _boxMin;
 		Storm::Vector3 _boxMax;
+
+		bool _infiniteDomain;
+		Storm::Vector3 _passthroughVelReduceCoeff;
 	};
 }

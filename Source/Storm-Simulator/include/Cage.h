@@ -19,5 +19,8 @@ namespace Storm
 	private:
 		Storm::Vector3 _boxMin;
 		Storm::Vector3 _boxMax;
+
+		const bool _infiniteDomain;
+		const Storm::Vector3 _velocityCoeffs;
 	};
 }
