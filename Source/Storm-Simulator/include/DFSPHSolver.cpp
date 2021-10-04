@@ -392,7 +392,7 @@ void Storm::DFSPHSolver::execute(const Storm::IterationParameter &iterationParam
 	}
 
 	// 5th : Divergence solve
-	this->fullDensityInvariantSolve_Internal(iterationParameter, dfsphFluidConfig);
+	this->fullDensityInvariantSolve_Internal(iterationParameter, fluidConfig, dfsphFluidConfig);
 	if (!this->shouldContinue()) STORM_UNLIKELY
 	{
 		return;
@@ -623,7 +623,7 @@ void Storm::DFSPHSolver::initializeStepDensities(const Storm::IterationParameter
 	}
 }
 
-void Storm::DFSPHSolver::fullDensityInvariantSolve_Internal(const Storm::IterationParameter &iterationParameter, const Storm::SceneFluidCustomDFSPHConfig &sceneDFSPHSimulationConfig)
+void Storm::DFSPHSolver::fullDensityInvariantSolve_Internal(const Storm::IterationParameter &iterationParameter, const Storm::SceneFluidConfig &scenefluidConfig, const Storm::SceneFluidCustomDFSPHConfig &sceneDFSPHSimulationConfig)
 {
 	unsigned int iterationV;
 	float averageErrorV;
@@ -657,7 +657,7 @@ void Storm::DFSPHSolver::fullDensityInvariantSolve_Internal(const Storm::Iterati
 			Storm::runParallel(fluidParticleSystem.getMasses(), [&](float &currentPMass, const std::size_t currentPIndex)
 			{
 				float &currentPDensity = densities[currentPIndex];
-				currentPMass = currentPDensity * particleVolume;
+				currentPMass = currentPDensity * particleVolume * scenefluidConfig._reducedMassCoefficient;
 			});
 		}
 	}

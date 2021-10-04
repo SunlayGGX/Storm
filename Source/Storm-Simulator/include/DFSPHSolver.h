@@ -35,7 +35,7 @@ namespace Storm
 
 	private:
 		void initializeStepDensities(const Storm::IterationParameter &iterationParameter, const Storm::SceneSimulationConfig &sceneSimulationConfig, const Storm::SceneFluidCustomDFSPHConfig &sceneDFSPHSimulationConfig);
-		void fullDensityInvariantSolve_Internal(const Storm::IterationParameter &iterationParameter, const Storm::SceneFluidCustomDFSPHConfig &sceneDFSPHSimulationConfig);
+		void fullDensityInvariantSolve_Internal(const Storm::IterationParameter &iterationParameter, const Storm::SceneFluidConfig &scenefluidConfig, const Storm::SceneFluidCustomDFSPHConfig &sceneDFSPHSimulationConfig);
 		void fullVelocityDivergenceSolve_Internal(const Storm::IterationParameter &iterationParameter, const Storm::SceneFluidCustomDFSPHConfig &sceneDFSPHSimulationConfig);
 		void computeNonPressureForces_Internal(const Storm::IterationParameter &iterationParameter, const Storm::SceneSimulationConfig &sceneSimulationConfig, const Storm::SceneFluidConfig &fluidConfig);
 
