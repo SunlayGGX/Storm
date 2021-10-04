@@ -711,3 +711,63 @@ void Storm::RigidBodyParticleSystem::revertToCurrentTimestep(const std::vector<s
 		});
 	}
 }
+
+std::vector<float> Storm::RigidBodyParticleSystem::computeEmptiness(const Storm::ParticleSystemContainer &allParticleSystems, const float kernelLength) const
+{
+	std::vector<float> results;
+	std::vector<Storm::ParticleNeighborhoodArray> tmpFluidNeighbors;
+
+	const std::size_t pCount = this->getParticleCount();
+
+	results.resize(pCount);
+	tmpFluidNeighbors.resize(pCount);
+	for (Storm::ParticleNeighborhoodArray &particleNeighbor : tmpFluidNeighbors)
+	{
+		particleNeighbor.reserve(32);
+	}
+
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	const Storm::ISpacePartitionerManager &spacePartitionerMgr = singletonHolder.getSingleton<Storm::ISpacePartitionerManager>();
+	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
+
+	const Storm::SceneSimulationConfig &sceneSimulationConfig = configMgr.getSceneSimulationConfig();
+	const Storm::RawKernelMethodDelegate rawKernelMeth = Storm::retrieveRawKernelMethod(sceneSimulationConfig._kernelMode);
+	const Storm::GradKernelMethodDelegate gradKernel = Storm::retrieveGradKernelMethod(sceneSimulationConfig._kernelMode);
+
+	Storm::runParallel(tmpFluidNeighbors, [&, kernelLengthSquared = kernelLength * kernelLength, currentSystemId = this->getId()](ParticleNeighborhoodArray &currentPFluidNeighborhood, const std::size_t particleIndex)
+	{
+		const std::vector<Storm::NeighborParticleReferral>* bundleContainingPtr;
+		const std::vector<Storm::NeighborParticleReferral>* outLinkedNeighborBundle[Storm::k_neighborLinkedBunkCount];
+
+		const Storm::Vector3 &currentPPosition = _positions[particleIndex];
+
+		spacePartitionerMgr.getAllBundles(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::Fluid);
+		Storm::searchForNeighborhood<true, false>(
+			const_cast<Storm::RigidBodyParticleSystem*>(this), // const_cast because we take a non const but we don't actually modify the object (Just the neighbor structure obtain a non const pointed object it could change later, but we wont right now)
+			allParticleSystems,
+			kernelLength,
+			kernelLengthSquared,
+			currentSystemId,
+			currentPFluidNeighborhood,
+			particleIndex,
+			currentPPosition,
+			*bundleContainingPtr,
+			outLinkedNeighborBundle,
+			rawKernelMeth,
+			gradKernel
+			);
+
+		float result = std::numeric_limits<float>::max();
+		for (const auto &neighborInfo : currentPFluidNeighborhood)
+		{
+			if (result > neighborInfo._xijNorm)
+			{
+				result = neighborInfo._xijNorm;
+			}
+		}
+
+		results[particleIndex] = result;
+	});
+
+	return results;
+}

@@ -159,6 +159,7 @@ namespace Storm
 		void printRigidBodyGlobalDensity(const unsigned int id) const;
 		void printMassForRbDensity(const unsigned int id, const float wantedDensity);
 
+		void writeRbEmptiness(const unsigned int id, const std::string &filePath);
 		void writeCurrentFrameSystemForcesToCsv(const unsigned int id, const std::string &filePath) const;
 		void writeParticleNeighborhood(const unsigned int id, const std::size_t pIndex, const std::string &filePath) const;
 

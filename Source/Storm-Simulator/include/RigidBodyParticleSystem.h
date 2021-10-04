@@ -69,6 +69,9 @@ namespace Storm
 	public:
 		void revertToCurrentTimestep(const std::vector<std::unique_ptr<Storm::IBlower>> &blowers) final override;
 
+	public:
+		std::vector<float> computeEmptiness(const Storm::ParticleSystemContainer &allParticleSystems, const float kernelLength) const;
+
 	private:
 		// Volumes got from the computation of static rigid bodies neighbor for a rigid body (So useful only for Rigid bodies) !
 		std::vector<float> _staticVolumesInitValue;

@@ -690,6 +690,7 @@ Here the list of available commands :
 - **void logAverageDensity()**: Log the average density of the simulation.
 - **void logVelocityData()**: Log min and max velocity of each particle system.
 - **void logTotalVolume()**: Log the total volume taken by all particles contained inside the domain.
+- **void writeRbEmptiness(const unsigned int id, const std::string &filePath)**: Computes the void distance between each particle of the rigidbody specified by id and the nearest fluid particle then write it to the csv file named filePath.
 - **void writeCurrentFrameSystemForcesToCsv(const unsigned int id, const std::string &filePath)**: Write all forces (force, pressure, viscosity, drag) of particle system refered by its id to a csv file. Note that the system can be a fluid or a rigid body. "filePath" can accept macros.
 - **void writeParticleNeighborhood(const unsigned int id, const std::size_t pIndex, const std::string &filePath)**: Write particle specified by id (particle system id) and pIndex (position in particle system) data from neighborhood. "filePath" can accept macros. If filepath extension is csv, then we'll devide the path into 2 files : the first suffixed with neighbor would contains neighbors and the other (suffixed with nonNeighbor) would contains all other particles from the same system. Otherwise, we'll write it into the same file.
 - **void setGravityEnabled(bool enableGravityOnFluids)**: Enable/Disable gravity at runtime.

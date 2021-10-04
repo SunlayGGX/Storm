@@ -2614,6 +2614,43 @@ void Storm::SimulatorManager::printMassForRbDensity(const unsigned int id, const
 	}
 }
 
+void Storm::SimulatorManager::writeRbEmptiness(const unsigned int id, const std::string &filePath)
+{
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
+
+	std::string FilePathCpy = filePath;
+	configMgr.getMaybeMacroizedConvertedValue(FilePathCpy);
+
+	const Storm::Language osLanguage = configMgr.getGeneralApplicationConfig()._language;
+
+	singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::MainThread, [this, filePathUnMacroized = FuncMovePass<std::string>{ std::move(FilePathCpy) }, id, osLanguage]()
+	{
+		const std::string pSystemIdStr = std::to_string(id);
+
+		for (const auto &particleSystemPair : _particleSystem)
+		{
+			if (particleSystemPair.first == id)
+			{
+				const Storm::ParticleSystem &pSystemToPrint = *particleSystemPair.second;
+				if (pSystemToPrint.isFluids())
+				{
+					Storm::throwException<Storm::Exception>("Particle system with id " + pSystemIdStr + " is not a solid.");
+				}
+
+				const std::vector<float> emptinessDistancePerRbP = static_cast<const Storm::RigidBodyParticleSystem &>(pSystemToPrint).computeEmptiness(_particleSystem, _kernelHandler.getKernelValue());
+
+				LOG_DEBUG << "Writing forces of particle system " << pSystemIdStr << " to csv.";
+				Storm::CSVWriter{ filePathUnMacroized._object, osLanguage }("dist", emptinessDistancePerRbP);
+
+				return;
+			}
+		}
+
+		Storm::throwException<Storm::Exception>("We did not find particle system (fluid or rb) with id " + pSystemIdStr);
+	});
+}
+
 void Storm::SimulatorManager::writeCurrentFrameSystemForcesToCsv(const unsigned id, const std::string &filePath) const
 {
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
