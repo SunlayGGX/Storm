@@ -24,8 +24,9 @@ void Storm::FreezeWatcher::execute()
 	const bool debuggerAttached = Storm::isDebuggerAttached();
 
 	// If we detached the debugger.
-	if (_lastDebuggerAttachedState && !debuggerAttached) STORM_UNLIKELY
+	if (_lastDebuggerAttachedState != debuggerAttached) STORM_UNLIKELY
 	{
+		_lastDebuggerAttachedState = debuggerAttached;
 		this->resetFlags();
 	}
 
