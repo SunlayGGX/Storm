@@ -71,6 +71,7 @@ We use catch2 as our unit test library. If you decided to download it, you must 
 - **Storm-ModelBase**: This module is the base for each module and provides an abstraction layer with interfaces and input/output objects. This allows modules to work together without directly referencing each other.
 - **Storm-Physics**: This module is responsible for initializing and managing Physics computations.
 - **Storm-Profiler**: This module provides some profiling data. It does not intend to replace Visual Studio built-in tool nor any other external library. But it provides a convenient way to register times, speed, ... and display it directly inside Storm application UI (or logging).
+- **Storm-Safety**: This module is to provide some watchers to improve the safety of the application like freeze and memory watching.
 - **Storm-Script**: This module is to abstract the scripting language used by the engine. For now, the scripting language is lua.
 - **Storm-Serializer**: This module is to handle serialization of data to make real-time replay, for example.
 - **Storm-Space**: This module is responsible to optimize and process the space partitioning of any data existing inside the virtual world.
