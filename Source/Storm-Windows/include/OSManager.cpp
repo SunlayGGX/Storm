@@ -12,6 +12,7 @@
 #include <atlbase.h>
 #include <comdef.h>
 #include <Psapi.h>
+#include <sysinfoapi.h>
 
 
 namespace
@@ -427,6 +428,8 @@ bool Storm::OSManager::retrieveMemoryInfo(Storm::MemoryInfos &outMemoryInfos) co
 {
 	outMemoryInfos._usedMemory = this->retrieveCurrentAppUsedMemory();
 	::MEMORYSTATUSEX memoryStatus;
+
+	memoryStatus.dwLength = sizeof(memoryStatus);
 
 	if (::GlobalMemoryStatusEx(&memoryStatus))
 	{
