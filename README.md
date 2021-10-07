@@ -301,7 +301,7 @@ Note that the maximum value you can set is Fatal, it means that no matter what l
 #### Safety (facultative)
 
 ##### Memory (facultative)
-- **memoryThreshold (positive float)**: The memory coefficient threshold applied to the total installed memory the workstation has. If the application take more than this threhold of RAM, then we'll kill the application as a safety measure. This value should be between ]0.0, 1.0]. Default is 0.95 (We allow the application to take 95% of the available RAM).
+- **memoryThreshold (positive float, facultative)**: The memory coefficient threshold applied to the total installed memory the workstation has. If the application take more than this threhold of RAM, then we'll kill the application as a safety measure. This value should be between ]0.0, 1.0]. Default is 0.95 (We allow the application to take 95% of the available RAM).
 
 
 ##### Freeze (facultative)
