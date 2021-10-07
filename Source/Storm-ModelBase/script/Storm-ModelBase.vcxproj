@@ -39,6 +39,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\AsyncAction.h" />
+    <ClInclude Include="..\include\ConfigConstants.h" />
     <ClInclude Include="..\include\ConstraintType.h" />
     <ClInclude Include="..\include\GeneralConfig.h" />
     <ClInclude Include="..\include\GeneralDebugConfig.h" />

@@ -3,7 +3,8 @@
 #include "MacroConfigHolder.h"
 
 #include "GeneralConfig.h"
-#include "GeneralWebConfig.h"
+
+#include "ConfigConstants.h"
 
 #include "XmlReader.h"
 
@@ -332,9 +333,11 @@ bool Storm::GeneralConfigHolder::read(const std::string &generalConfigFilePathSt
 						}
 
 						generalSafetyConfig._freezeRefresh = std::chrono::seconds{ freezeRefreshSecTmp };
-						if (generalSafetyConfig._freezeRefresh < std::chrono::seconds{ 30 }) // Below 30 seconds is too extreme.
+
+						constexpr std::chrono::seconds k_safetyThreadRefreshRate{ static_cast<decltype(generalSafetyConfig._freezeRefresh.count())>(Storm::ConfigConstants::SafetyConstants::k_safetyThreadRefreshRateSeconds) };
+						if (generalSafetyConfig._freezeRefresh < k_safetyThreadRefreshRate) // Below 30 seconds is too extreme.
 						{
-							Storm::throwException<Storm::Exception>("Freeze watching refresh duration threshold cannot be below 30 seconds. This is too extreme! Value was " + Storm::toStdString(generalSafetyConfig._freezeRefresh));
+							Storm::throwException<Storm::Exception>("Freeze watching refresh duration threshold cannot be below " + Storm::toStdString(k_safetyThreadRefreshRate) + " seconds. This is too extreme! Value was " + Storm::toStdString(generalSafetyConfig._freezeRefresh));
 						}
 					}
 					else

@@ -163,6 +163,9 @@
     <Filter Include="Source Files\Modules\Network">
       <UniqueIdentifier>{af8b1382-e059-4a08-8408-dcdd544546d5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Modules\Config\Constants">
+      <UniqueIdentifier>{7094e05a-d279-4359-94c5-222ed5b32a92}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-ModelBasePCH.cpp">
@@ -553,6 +556,9 @@
     </ClInclude>
     <ClInclude Include="..\include\ISafetyManager.h">
       <Filter>Header Files\Singleton</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ConfigConstants.h">
+      <Filter>Header Files\Modules\Config\Constants</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
