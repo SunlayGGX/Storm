@@ -141,6 +141,21 @@ void Storm::SpacePartitionerManager::setPartitionLength(float length)
 	}
 }
 
+bool Storm::SpacePartitionerManager::isOutsideSpaceDomain(const Storm::Vector3 &position) const
+{
+	return
+		isnan(position.x()) ||
+		isnan(position.y()) ||
+		isnan(position.z()) ||
+		position.x() < _downSpaceCorner.x() ||
+		position.y() < _downSpaceCorner.y() ||
+		position.z() < _downSpaceCorner.z() ||
+		position.x() > _upSpaceCorner.x() ||
+		position.y() > _upSpaceCorner.y() ||
+		position.z() > _upSpaceCorner.z()
+		;
+}
+
 const std::unique_ptr<Storm::VoxelGrid>& Storm::SpacePartitionerManager::getSpacePartition(Storm::PartitionSelection modality) const
 {
 	switch (modality)

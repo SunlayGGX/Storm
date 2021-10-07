@@ -43,5 +43,10 @@ namespace Storm
 		// Create an additional temporary partition to hold posData.
 		// Note that we don't keep a reference to the item, therefore you're responsible to clean it.
 		virtual std::shared_ptr<Storm::IDistanceSpacePartitionProxy> makeDistancePartitionProxy(const Storm::Vector3 &upCorner, const Storm::Vector3 &downCorner, const float partitionLength) = 0;
+
+		// Computes if the particle at position is outside the space domain. If true, then extra care should be made
+		// (but in lot of case, do not continue to use the manager for such particle because we won't check inside any other methods
+		// (we expect the check to be done separately before entering any of the other methods, or that you know what you are doing))
+		virtual bool isOutsideSpaceDomain(const Storm::Vector3 &position) const = 0;
 	};
 }

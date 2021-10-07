@@ -151,10 +151,14 @@ void Storm::RigidBodyParticleSystem::initializePreSimulation(const Storm::Partic
 
 			Storm::runParallel(staticNeighborhood, [this, &allParticleSystems, &spacePartitionerMgr, &rawKernelMeth, &gradKernel, kernelLength, currentKernelZero, kernelLengthSquared = kernelLength * kernelLength, currentSystemId = this->getId()](ParticleNeighborhoodArray &currentPStaticNeighborhood, const std::size_t particleIndex)
 			{
+				const Storm::Vector3 &currentPPosition = _positions[particleIndex];
+				if (spacePartitionerMgr.isOutsideSpaceDomain(currentPPosition)) STORM_UNLIKELY
+				{
+					return;
+				}
+
 				const std::vector<Storm::NeighborParticleReferral>* bundleContainingPtr;
 				const std::vector<Storm::NeighborParticleReferral>* outLinkedNeighborBundle[Storm::k_neighborLinkedBunkCount];
-
-				const Storm::Vector3 &currentPPosition = _positions[particleIndex];
 
 				// Get all particles referrals that are near the current particle position.
 				spacePartitionerMgr.getAllBundles(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::StaticRigidBody);
@@ -214,10 +218,14 @@ void Storm::RigidBodyParticleSystem::initializePreSimulation(const Storm::Partic
 
 			Storm::runParallel(staticNeighborhood, [this, &allParticleSystems, &spacePartitionerMgr, &rawKernelMeth, &gradKernel, kernelLength, currentKernelZero, kernelLengthSquared = kernelLength * kernelLength, currentSystemId = this->getId(), coeff = sceneRbConfig._reducedVolumeCoeff](ParticleNeighborhoodArray &currentPStaticNeighborhood, const std::size_t particleIndex)
 			{
+				const Storm::Vector3 &currentPPosition = _positions[particleIndex];
+				if (spacePartitionerMgr.isOutsideSpaceDomain(currentPPosition)) STORM_UNLIKELY
+				{
+					return;
+				}
+
 				const std::vector<Storm::NeighborParticleReferral>* bundleContainingPtr;
 				const std::vector<Storm::NeighborParticleReferral>* outLinkedNeighborBundle[Storm::k_neighborLinkedBunkCount];
-
-				const Storm::Vector3 &currentPPosition = _positions[particleIndex];
 
 				// Get all dynamic particles referrals that are near the current particle position. But we'll take only the current dynamic rb at the end...
 				spacePartitionerMgr.getAllBundles(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::DynamicRigidBody);
@@ -537,10 +545,14 @@ void Storm::RigidBodyParticleSystem::buildNeighborhoodOnParticleSystemUsingSpace
 	{
 		Storm::runParallel(_neighborhood, [this, &allParticleSystems, &spacePartitionerMgr, &rawKernelMeth, &gradKernel, kernelLength, kernelLengthSquared = kernelLength * kernelLength, currentSystemId = this->getId()](ParticleNeighborhoodArray &currentPNeighborhood, const std::size_t particleIndex)
 		{
+			const Storm::Vector3 &currentPPosition = _positions[particleIndex];
+			if (spacePartitionerMgr.isOutsideSpaceDomain(currentPPosition)) STORM_UNLIKELY
+			{
+				return;
+			}
+
 			const std::vector<Storm::NeighborParticleReferral>* bundleContainingPtr;
 			const std::vector<Storm::NeighborParticleReferral>* outLinkedNeighborBundle[Storm::k_neighborLinkedBunkCount];
-
-			const Storm::Vector3 &currentPPosition = _positions[particleIndex];
 
 			// Get all particles referrals that are near the current particle position. First, rigid bodies doesn't see fluids, so do not query them...
 			spacePartitionerMgr.getAllBundles(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::DynamicRigidBody);
@@ -564,10 +576,14 @@ void Storm::RigidBodyParticleSystem::buildNeighborhoodOnParticleSystemUsingSpace
 	{
 		Storm::runParallel(_neighborhood, [this, &allParticleSystems, &spacePartitionerMgr, &rawKernelMeth, &gradKernel, kernelLength, kernelLengthSquared = kernelLength * kernelLength, currentSystemId = this->getId()](ParticleNeighborhoodArray &currentPNeighborhood, const std::size_t particleIndex)
 		{
+			const Storm::Vector3 &currentPPosition = _positions[particleIndex];
+			if (spacePartitionerMgr.isOutsideSpaceDomain(currentPPosition)) STORM_UNLIKELY
+			{
+				return;
+			}
+
 			const std::vector<Storm::NeighborParticleReferral>* bundleContainingPtr;
 			const std::vector<Storm::NeighborParticleReferral>* outLinkedNeighborBundle[Storm::k_neighborLinkedBunkCount];
-
-			const Storm::Vector3 &currentPPosition = _positions[particleIndex];
 
 			// Get all particles referrals that are near the current particle position. First, rigid bodies doesn't see fluids, so do not query them...
 			spacePartitionerMgr.getAllBundles(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::StaticRigidBody);

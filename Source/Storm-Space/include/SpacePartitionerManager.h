@@ -31,6 +31,8 @@ namespace Storm
 		float getPartitionLength() const final override;
 		void setPartitionLength(float length) final override;
 
+		bool isOutsideSpaceDomain(const Storm::Vector3 &position) const final override;
+
 	public:
 		std::shared_ptr<Storm::IDistanceSpacePartitionProxy> makeDistancePartitionProxy(const Storm::Vector3 &upCorner, const Storm::Vector3 &downCorner, const float partitionLength) final override;
 
