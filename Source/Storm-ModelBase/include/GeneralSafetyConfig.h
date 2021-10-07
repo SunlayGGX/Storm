@@ -10,7 +10,8 @@ namespace Storm
 
 	public:
 		// Memory watching
-		float _memoryThreshold;
+		double _memoryThreshold;
+		bool _enableMemoryWatcher;
 
 		// Freeze watching
 		std::chrono::seconds _freezeRefresh;

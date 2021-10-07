@@ -303,7 +303,8 @@ bool Storm::GeneralConfigHolder::read(const std::string &generalConfigFilePathSt
 						for (const auto &safeMemoryDataXml : safetyXmlElement.second)
 						{
 							if (
-								!Storm::XmlReader::handleXml(safeMemoryDataXml, "memoryThreshold", generalSafetyConfig._memoryThreshold)
+								!Storm::XmlReader::handleXml(safeMemoryDataXml, "memoryThreshold", generalSafetyConfig._memoryThreshold) &&
+								!Storm::XmlReader::handleXml(safeMemoryDataXml, "enableWatcher", generalSafetyConfig._enableMemoryWatcher)
 								)
 							{
 								LOG_ERROR << safeMemoryDataXml.first << " (inside General.Safety.Memory) is unknown, therefore it cannot be handled";

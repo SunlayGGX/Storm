@@ -73,7 +73,8 @@ Storm::GeneralApplicationConfig::GeneralApplicationConfig() :
 }
 
 Storm::GeneralSafetyConfig::GeneralSafetyConfig() :
-	_memoryThreshold{ 0.95f },
+	_memoryThreshold{ 0.95 },
+	_enableMemoryWatcher{ true },
 	_freezeRefresh{ std::chrono::minutes{ 20 } }
 {
 
