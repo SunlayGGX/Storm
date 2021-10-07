@@ -22,6 +22,8 @@ namespace Storm
 	private:
 		void run();
 
+		void execute();
+
 	public:
 		void notifySimulationThreadAlive() final override;
 
@@ -29,6 +31,9 @@ namespace Storm
 		std::unique_ptr<Storm::FreezeWatcher> _freezeWatcher;
 		std::unique_ptr<Storm::MemoryWatcher> _memoryWatcher;
 
+		bool _isRunning;
+		std::mutex _cvMutex;
+		std::condition_variable _cv;
 		std::thread _safetyThread;
 	};
 }

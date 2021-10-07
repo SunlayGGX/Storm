@@ -4,7 +4,6 @@
 #include "MemoryWatcher.h"
 
 #include "IThreadManager.h"
-#include "ITimeManager.h"
 #include "IConfigManager.h"
 #include "SingletonHolder.h"
 
@@ -24,6 +23,10 @@ Storm::SafetyManager::SafetyManager() = default;
 
 Storm::SafetyManager::~SafetyManager()
 {
+	{
+		std::unique_lock<std::mutex> lock{ _cvMutex };
+		_isRunning = false;
+	}
 	Storm::join(_safetyThread);
 
 	_memoryWatcher.reset();
@@ -43,6 +46,8 @@ void Storm::SafetyManager::initialize_Implementation()
 		_memoryWatcher = std::make_unique<Storm::MemoryWatcher>(generalSafetyConfig);
 	}
 
+	_isRunning = true;
+
 	_safetyThread = std::thread{ [this]()
 	{
 		STORM_REGISTER_THREAD(SafetyThread);
@@ -53,29 +58,43 @@ void Storm::SafetyManager::initialize_Implementation()
 
 void Storm::SafetyManager::cleanUp_Implementation()
 {
+	{
+		std::unique_lock<std::mutex> lock{ _cvMutex };
+		_isRunning = false;
+	}
+	_cv.notify_all();
+
 	Storm::join(_safetyThread);
 }
 
 void Storm::SafetyManager::run()
 {
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
-	Storm::ITimeManager &timeMgr = singletonHolder.getSingleton<Storm::ITimeManager>();
 	Storm::IThreadManager &threadMgr = singletonHolder.getSingleton<Storm::IThreadManager>();
 
 	constexpr std::chrono::milliseconds k_refreshDurationMillisec{
-		std::chrono::seconds{ static_cast<decltype(std::declval<std::chrono::seconds>().count())>(Storm::ConfigConstants::SafetyConstants::k_safetyThreadRefreshRateSeconds) / 2 }
+		std::chrono::seconds{ static_cast<decltype(std::declval<std::chrono::seconds>().count())>(Storm::ConfigConstants::SafetyConstants::k_safetyThreadRefreshRateSeconds) / 5 }
 	};
 
-	while (timeMgr.waitForTimeOrExit(k_refreshDurationMillisec))
+	std::unique_lock<std::mutex> lock{ _cvMutex };
+	while (!_cv.wait_for(lock, k_refreshDurationMillisec, [this]() { return !_isRunning; }))
 	{
-		threadMgr.processCurrentThreadActions();
+		lock.unlock();
 
-		if (_memoryWatcher)
-		{
-			_memoryWatcher->execute();
-		}
-		_freezeWatcher->execute();
+		threadMgr.processCurrentThreadActions();
+		this->execute();
+
+		lock.lock();
 	}
+}
+
+void Storm::SafetyManager::execute()
+{
+	if (_memoryWatcher)
+	{
+		_memoryWatcher->execute();
+	}
+	_freezeWatcher->execute();
 }
 
 void Storm::SafetyManager::notifySimulationThreadAlive()
