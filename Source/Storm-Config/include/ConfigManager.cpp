@@ -444,6 +444,11 @@ const Storm::GeneralApplicationConfig& Storm::ConfigManager::getGeneralApplicati
 	return _generalConfigHolder.getConfig()._generalApplicationConfig;
 }
 
+const Storm::GeneralSafetyConfig& Storm::ConfigManager::getGeneralSafetyConfig() const
+{
+	return _generalConfigHolder.getConfig()._generalSafetyConfig;
+}
+
 const Storm::SceneGraphicConfig& Storm::ConfigManager::getSceneGraphicConfig() const
 {
 	return _sceneConfigHolder.getConfig()._graphicConfig;
