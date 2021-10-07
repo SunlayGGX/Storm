@@ -6,6 +6,9 @@
 
 namespace Storm
 {
+	class FreezeWatcher;
+	class MemoryWatcher;
+
 	class SafetyManager final :
 		private Storm::Singleton<Storm::SafetyManager>,
 		public Storm::ISafetyManager
@@ -13,6 +16,18 @@ namespace Storm
 		STORM_DECLARE_SINGLETON(SafetyManager);
 
 	public:
+		void initialize_Implementation();
+		void cleanUp_Implementation();
 
+	private:
+		void run();
+
+		void execute();
+
+	private:
+		std::unique_ptr<Storm::FreezeWatcher> _freezeWatcher;
+		std::unique_ptr<Storm::MemoryWatcher> _memoryWatcher;
+
+		std::thread _safetyThread;
 	};
 }

@@ -152,6 +152,8 @@ namespace
 				Storm::WindowsManager::instance().initialize(Storm::NoUI{});
 			}
 
+			Storm::SafetyManager::instance().initialize();
+
 			Storm::SimulatorManager::instance().initialize();
 
 			Storm::SpacePartitionerManager::instance().initialize(Storm::SimulatorManager::instance().getKernelLength());
@@ -179,6 +181,7 @@ namespace
 
 			Storm::TimeManager::instance().cleanUp();
 			Storm::SimulatorManager::instance().cleanUp();
+			Storm::SafetyManager::instance().cleanUp();
 			Storm::RaycastManager::instance().cleanUp();
 			Storm::SpacePartitionerManager::instance().cleanUp();
 			Storm::ThreadManager::instance().cleanUp();
