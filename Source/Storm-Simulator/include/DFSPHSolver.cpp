@@ -256,7 +256,7 @@ namespace
 
 					// Make it the component that removes the normal component of the velocity.
 					// Note : we suppose the rigid body normal at neighbor particle (rbPNormal) is normalized.
-					const Storm::Vector3 addedForce = (velDiff.dot(rbPNormal) * velocityToForceCoeff * noStickCoeff) * rbPNormal;
+					const Storm::Vector3 addedForce = (velDiff.dot(rbPNormal) * velocityToForceCoeff * noStickCoeff * neighbor._Wij * iterationParameter._kernelLengthSquared) * rbPNormal;
 					result -= addedForce;
 
 					// Mirror the force on the boundary solid following the 3rd newton law
