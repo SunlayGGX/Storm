@@ -25,6 +25,12 @@
     <Filter Include="Source Files\Freeze">
       <UniqueIdentifier>{0b0e6dba-c059-449f-b8ea-cc2b5c641818}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Helpers">
+      <UniqueIdentifier>{fac979b6-677c-4c10-8fa5-3de0d6c1308c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Helpers">
+      <UniqueIdentifier>{1ad86a36-6af3-4be2-9ca1-902eabe09b35}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-SafetyPCH.cpp">
@@ -39,6 +45,9 @@
     <ClCompile Include="..\include\FreezeWatcher.cpp">
       <Filter>Source Files\Freeze</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\SafetyHelpers.cpp">
+      <Filter>Source Files\Helpers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-SafetyPCH.h">
@@ -52,6 +61,9 @@
     </ClInclude>
     <ClInclude Include="..\include\FreezeWatcher.h">
       <Filter>Header Files\Freeze</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SafetyHelpers.h">
+      <Filter>Header Files\Helpers</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -10,6 +10,8 @@ namespace Storm
 
 		k_termination = 100,
 
+		k_safetyTermination = 500,
+
 		k_otherThreadTermination = 200,
 
 		k_stdException = -99,

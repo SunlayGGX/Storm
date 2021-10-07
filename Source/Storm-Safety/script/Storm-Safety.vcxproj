@@ -17,6 +17,7 @@
   <ItemGroup>
     <ClCompile Include="..\include\FreezeWatcher.cpp" />
     <ClCompile Include="..\include\MemoryWatcher.cpp" />
+    <ClCompile Include="..\include\SafetyHelpers.cpp" />
     <ClCompile Include="..\include\SafetyManager.cpp" />
     <ClCompile Include="..\include\Storm-SafetyPCH.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -27,6 +28,7 @@
   <ItemGroup>
     <ClInclude Include="..\include\FreezeWatcher.h" />
     <ClInclude Include="..\include\MemoryWatcher.h" />
+    <ClInclude Include="..\include\SafetyHelpers.h" />
     <ClInclude Include="..\include\SafetyManager.h" />
     <ClInclude Include="..\include\Storm-SafetyPCH.h" />
   </ItemGroup>
