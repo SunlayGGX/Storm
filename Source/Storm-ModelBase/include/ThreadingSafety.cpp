@@ -102,3 +102,8 @@ bool Storm::isNetworkThread()
 {
 	return currentThreadContainsFlag<Storm::ThreadFlagEnum::NetworkThread>();
 }
+
+bool Storm::isSafetyThread()
+{
+	return currentThreadContainsFlag<Storm::ThreadFlagEnum::SafetyThread>();
+}

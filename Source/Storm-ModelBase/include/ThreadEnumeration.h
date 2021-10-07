@@ -15,5 +15,6 @@ namespace Storm
 		SerializerThread,
 		ScriptThread,
 		NetworkThread,
+		SafetyThread,
 	};
 }
