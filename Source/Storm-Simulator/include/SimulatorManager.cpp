@@ -13,6 +13,7 @@
 #include "ISerializerManager.h"
 #include "IAssetLoaderManager.h"
 #include "IOSManager.h"
+#include "ISafetyManager.h"
 
 #include "TimeWaitResult.h"
 
@@ -765,6 +766,9 @@ void Storm::SimulatorManager::initialize_Implementation()
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
+	Storm::ISafetyManager &safetyMgr = singletonHolder.getSingleton<Storm::ISafetyManager>();
+
+	safetyMgr.notifySimulationThreadAlive();
 
 	/* Check simulation validity */
 	const Storm::ParticleCountInfo particleInfo{ _particleSystem };
@@ -946,6 +950,8 @@ void Storm::SimulatorManager::initialize_Implementation()
 			.bindField(STORM_PROGRESS_REMAINING_TIME_NAME, _progressRemainingTime)
 			;
 	}
+
+	safetyMgr.notifySimulationThreadAlive();
 }
 
 Storm::ExitCode Storm::SimulatorManager::run()
@@ -977,6 +983,9 @@ Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 	Storm::ITimeManager &timeMgr = singletonHolder.getSingleton<Storm::ITimeManager>();
 	Storm::IThreadManager &threadMgr = singletonHolder.getSingleton<Storm::IThreadManager>();
 	Storm::IProfilerManager* profilerMgrNullablePtr = configMgr.getGeneralDebugConfig()._profileSimulationSpeed ? singletonHolder.getFacet<Storm::IProfilerManager>() : nullptr;
+	Storm::ISafetyManager &safetyMgr = singletonHolder.getSingleton<Storm::ISafetyManager>();
+
+	safetyMgr.notifySimulationThreadAlive();
 
 	const Storm::SceneRecordConfig &sceneRecordConfig = configMgr.getSceneRecordConfig();
 	Storm::ISerializerManager &serializerMgr = singletonHolder.getSingleton<Storm::ISerializerManager>();
@@ -1045,10 +1054,12 @@ Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 					profilerMgrNullablePtr->getSpeedProfileAccumulatedTime() / static_cast<float>(_currentFrameNumber);
 			}
 
+			safetyMgr.notifySimulationThreadAlive();
 			return _runExitCode;
 
 		case TimeWaitResult::Pause:
 			simulationSpeedProfile.disable();
+			safetyMgr.notifySimulationThreadAlive();
 
 			// Takes time to process messages that came from other threads.
 			threadMgr.processCurrentThreadActions();
@@ -1066,6 +1077,7 @@ Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 		}
 
 		threadMgr.processCurrentThreadActions();
+		safetyMgr.notifySimulationThreadAlive();
 
 		_kernelHandler.update(timeMgr.getCurrentPhysicsElapsedTime());
 
@@ -1146,6 +1158,9 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 	Storm::IPhysicsManager &physicsMgr = singletonHolder.getSingleton<Storm::IPhysicsManager>();
 	Storm::IThreadManager &threadMgr = singletonHolder.getSingleton<Storm::IThreadManager>();
 	Storm::ISpacePartitionerManager &spacePartitionerMgr = singletonHolder.getSingleton<Storm::ISpacePartitionerManager>();
+	Storm::ISafetyManager &safetyMgr = singletonHolder.getSingleton<Storm::ISafetyManager>();
+
+	safetyMgr.notifySimulationThreadAlive();
 
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
 	const Storm::SceneSimulationConfig &sceneSimulationConfig = configMgr.getSceneSimulationConfig();
@@ -1203,10 +1218,12 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 					"Simulation average speed was " <<
 					profilerMgrNullablePtr->getSpeedProfileAccumulatedTime() / static_cast<float>(_currentFrameNumber);
 			}
+			safetyMgr.notifySimulationThreadAlive();
 			return _runExitCode;
 
 		case TimeWaitResult::Pause:
 			simulationSpeedProfile.disable();
+			safetyMgr.notifySimulationThreadAlive();
 
 			// Takes time to process messages that came from other threads.
 			threadMgr.processCurrentThreadActions();
@@ -1221,6 +1238,8 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 		default:
 			break;
 		}
+
+		safetyMgr.notifySimulationThreadAlive();
 
 		_kernelHandler.update(timeMgr.getCurrentPhysicsElapsedTime());
 
