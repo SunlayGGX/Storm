@@ -66,7 +66,7 @@ void Storm::SafetyManager::run()
 		std::chrono::seconds{ static_cast<decltype(std::declval<std::chrono::seconds>().count())>(Storm::ConfigConstants::SafetyConstants::k_safetyThreadRefreshRateSeconds) / 2 }
 	};
 
-	while (!timeMgr.waitForTimeOrExit(k_refreshDurationMillisec))
+	while (timeMgr.waitForTimeOrExit(k_refreshDurationMillisec))
 	{
 		threadMgr.processCurrentThreadActions();
 
