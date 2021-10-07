@@ -10,6 +10,16 @@
 #include "SafetyHelpers.h"
 
 
+namespace
+{
+	enum : std::size_t
+	{
+		// We'll let at least 4Mb of RAM on the workstation. This is the lifeline we estimate to be critical. If we take more and the total available ram goes under this level, then we have a problem.
+		k_minRemainingSpaceInBytes = 1024 * 1024 * 4 
+	};
+}
+
+
 Storm::MemoryWatcher::MemoryWatcher(const Storm::GeneralSafetyConfig &safetyConfig) :
 	_alertCoeffThreshold{ safetyConfig._memoryThreshold * 0.7 },
 	_endCoeffThreshold{ safetyConfig._memoryThreshold },
@@ -32,7 +42,7 @@ void Storm::MemoryWatcher::execute()
 		{
 			double memoryConsumptionPercentage = static_cast<double>(memoryInfos._usedMemory) / static_cast<double>(memoryInfos._totalMemory);
 
-			if (memoryConsumptionPercentage > _endCoeffThreshold)
+			if (memoryConsumptionPercentage > _endCoeffThreshold || memoryInfos._availableMemory < k_minRemainingSpaceInBytes) STORM_UNLIKELY
 			{
 				Storm::SafetyHelpers::sendCleanCloseTermination(
 					"We went beyond the alloted memory consumption for the current process. We'll close it"
@@ -51,7 +61,7 @@ void Storm::MemoryWatcher::execute()
 			}
 			else
 			{
-				if (memoryConsumptionPercentage > _alertCoeffThreshold)
+				if (memoryConsumptionPercentage > _alertCoeffThreshold) STORM_UNLIKELY
 				{
 					std::size_t remainingBeforeKill = static_cast<std::size_t>((memoryConsumptionPercentage - _endCoeffThreshold) * static_cast<double>(memoryInfos._totalMemory));
 
