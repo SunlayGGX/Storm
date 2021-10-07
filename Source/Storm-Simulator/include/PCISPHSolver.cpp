@@ -243,7 +243,6 @@ void Storm::PCISPHSolver::execute(const Storm::IterationParameter &iterationPara
 	unsigned int currentPredictionIter = 0;
 
 	const float deltaTimeSquared = iterationParameter._deltaTime * iterationParameter._deltaTime;
-	const float k_kernelLengthSquared = iterationParameter._kernelLength * iterationParameter._kernelLength;
 
 	// 1st : Initialize iteration
 	simulMgr.advanceBlowersTime(iterationParameter._deltaTime);
@@ -339,7 +338,7 @@ void Storm::PCISPHSolver::execute(const Storm::IterationParameter &iterationPara
 			const std::vector<Storm::Vector3> &positions = fluidParticleSystem.getPositions();
 			const std::vector<Storm::Vector3> &velocities = fluidParticleSystem.getVelocity();
 
-			const float viscoPrecoeff = 0.01f * k_kernelLengthSquared;
+			const float viscoPrecoeff = 0.01f * iterationParameter._kernelLengthSquared;
 			
 			std::vector<Storm::PCISPHSolverData> &dataField = _data.find(particleSystemPair.first)->second;
 
@@ -493,7 +492,7 @@ void Storm::PCISPHSolver::execute(const Storm::IterationParameter &iterationPara
 						const Storm::Vector3 xij = currentPData._currentPosition - currentNeighborPFluidData->second[neighbor._particleIndex]._currentPosition;
 						
 						const float normSquared = xij.squaredNorm();
-						if (Storm::ParticleSystem::isElligibleNeighborParticle(k_kernelLengthSquared, normSquared))
+						if (Storm::ParticleSystem::isElligibleNeighborParticle(iterationParameter._kernelLengthSquared, normSquared))
 						{
 #if !STORM_USE_SPLISH_SPLASH_BIDOUILLE
 							const float neighborPMass = neighborFluidParticleSystem.getMasses()[neighbor._particleIndex];
@@ -514,7 +513,7 @@ void Storm::PCISPHSolver::execute(const Storm::IterationParameter &iterationPara
 
 						const Storm::Vector3 xij = currentPData._currentPosition - neighborRbParticleSystem.getPositions()[neighbor._particleIndex];
 						const float normSquared = xij.squaredNorm();
-						if (Storm::ParticleSystem::isElligibleNeighborParticle(k_kernelLengthSquared, normSquared))
+						if (Storm::ParticleSystem::isElligibleNeighborParticle(iterationParameter._kernelLengthSquared, normSquared))
 						{
 							neighborPVolume = neighborRbParticleSystem.getVolumes()[neighbor._particleIndex];
 
@@ -602,7 +601,7 @@ void Storm::PCISPHSolver::execute(const Storm::IterationParameter &iterationPara
 						const Storm::Vector3 &xij = xi - neighborPData._currentPosition;
 
 						const float normSquared = xij.squaredNorm();
-						if (Storm::ParticleSystem::isElligibleNeighborParticle(k_kernelLengthSquared, normSquared))
+						if (Storm::ParticleSystem::isElligibleNeighborParticle(iterationParameter._kernelLengthSquared, normSquared))
 						{
 #if STORM_MINUS_ACCEL
 							currentPData._predictedAcceleration -= pressureCoeff * gradKernel(iterationParameter._kernelLength, xij, std::sqrtf(normSquared));
@@ -620,7 +619,7 @@ void Storm::PCISPHSolver::execute(const Storm::IterationParameter &iterationPara
 						const Storm::Vector3 xij = xi - neighborPSystemAsRb.getPositions()[neighbor._particleIndex];
 
 						const float normSquared = xij.squaredNorm();
-						if (Storm::ParticleSystem::isElligibleNeighborParticle(k_kernelLengthSquared, normSquared))
+						if (Storm::ParticleSystem::isElligibleNeighborParticle(iterationParameter._kernelLengthSquared, normSquared))
 						{
 							// An acceleration
 							Storm::Vector3 pressureTmpVect = pressureCoeff * gradKernel(iterationParameter._kernelLength, xij, std::sqrtf(normSquared));

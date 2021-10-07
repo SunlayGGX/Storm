@@ -249,8 +249,7 @@ void Storm::WCSPHSolver::execute(const Storm::IterationParameter &iterationParam
 		return;
 	}
 
-	const float k_kernelLengthSquared = iterationParameter._kernelLength * iterationParameter._kernelLength;
-	const float k_kernelLengthSquared00_1 = 0.01f * k_kernelLengthSquared;
+	const float k_kernelLengthSquared00_1 = 0.01f * iterationParameter._kernelLengthSquared;
 
 	// 3rd : Compute forces : pressure and viscosity
 	for (auto &particleSystemPair : particleSystems)

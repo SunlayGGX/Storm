@@ -189,7 +189,6 @@ void Storm::IISPHSolver::execute(const Storm::IterationParameter &iterationParam
 	unsigned int currentPredictionIter = 0;
 
 	const float deltaTimeSquared = iterationParameter._deltaTime * iterationParameter._deltaTime;
-	const float k_kernelLengthSquared = iterationParameter._kernelLength * iterationParameter._kernelLength;
 
 	Storm::ParticleSystemContainer &particleSystems = *iterationParameter._particleSystems;
 
@@ -267,7 +266,7 @@ void Storm::IISPHSolver::execute(const Storm::IterationParameter &iterationParam
 
 			const std::vector<Storm::Vector3> &velocities = fluidParticleSystem.getVelocity();
 
-			const float viscoPrecoeff = 0.01f * k_kernelLengthSquared;
+			const float viscoPrecoeff = 0.01f * iterationParameter._kernelLengthSquared;
 
 			std::vector<Storm::IISPHSolverData> &dataField = _data.find(particleSystemPair.first)->second;
 

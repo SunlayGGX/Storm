@@ -1232,9 +1232,11 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 		}
 
 		// Compute the simulation
+		const float k_kernelVal = this->getKernelLength();
 		_sphSolver->execute(Storm::IterationParameter{
 			._particleSystems = &_particleSystem,
-			._kernelLength = this->getKernelLength(),
+			._kernelLength = k_kernelVal,
+			._kernelLengthSquared = k_kernelVal * k_kernelVal,
 			._deltaTime = timeMgr.getCurrentPhysicsDeltaTime()
 		});
 

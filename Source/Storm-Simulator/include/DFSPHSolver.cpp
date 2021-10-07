@@ -676,7 +676,6 @@ void Storm::DFSPHSolver::fullVelocityDivergenceSolve_Internal(const Storm::Itera
 
 void Storm::DFSPHSolver::computeNonPressureForces_Internal(const Storm::IterationParameter &iterationParameter, const Storm::SceneSimulationConfig &sceneSimulationConfig, const Storm::SceneFluidConfig &fluidConfig)
 {
-	const float k_kernelLengthSquared = iterationParameter._kernelLength * iterationParameter._kernelLength;
 	Storm::ParticleSystemContainer &particleSystems = *iterationParameter._particleSystems;
 	const Storm::SceneFluidCustomDFSPHConfig &dfsphFluidConfig = static_cast<const Storm::SceneFluidCustomDFSPHConfig &>(*fluidConfig._customSimulationSettings);
 
@@ -707,7 +706,7 @@ void Storm::DFSPHSolver::computeNonPressureForces_Internal(const Storm::Iteratio
 
 			const std::vector<Storm::Vector3> &velocities = fluidParticleSystem.getVelocity();
 
-			const float viscoPrecoeff = 0.01f * k_kernelLengthSquared;
+			const float viscoPrecoeff = 0.01f * iterationParameter._kernelLengthSquared;
 
 			Storm::DFSPHSolver::DFSPHSolverDataArray &dataField = _data.find(particleSystemPair.first)->second;
 
