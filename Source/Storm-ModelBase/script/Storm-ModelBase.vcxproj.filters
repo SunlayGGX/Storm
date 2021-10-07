@@ -166,6 +166,9 @@
     <Filter Include="Header Files\Modules\Config\Constants">
       <UniqueIdentifier>{7094e05a-d279-4359-94c5-222ed5b32a92}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Modules\OS">
+      <UniqueIdentifier>{b28c2d5c-3c1d-4c7f-8041-db81b4de53f4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-ModelBasePCH.cpp">
@@ -559,6 +562,9 @@
     </ClInclude>
     <ClInclude Include="..\include\ConfigConstants.h">
       <Filter>Header Files\Modules\Config\Constants</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\MemoryInfos.h">
+      <Filter>Header Files\Modules\OS</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

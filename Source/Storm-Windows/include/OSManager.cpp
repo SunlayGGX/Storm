@@ -7,8 +7,11 @@
 
 #include "OSHelper.h"
 
+#include "MemoryInfos.h"
+
 #include <atlbase.h>
 #include <comdef.h>
+#include <Psapi.h>
 
 
 namespace
@@ -165,7 +168,8 @@ namespace Storm
 }
 
 Storm::OSManager::OSManager() :
-	_processHolder{ std::make_unique<Storm::details::ProcessesHolder>() }
+	_processHolder{ std::make_unique<Storm::details::ProcessesHolder>() },
+	_currentProcessHandle{ ::GetCurrentProcess() }
 {}
 
 Storm::OSManager::~OSManager() = default;
@@ -403,6 +407,41 @@ void Storm::OSManager::makeBipSound(const std::chrono::milliseconds bipDuration)
 {
 	enum : DWORD { k_frequencyHz = 523 };
 	::Beep(k_frequencyHz, static_cast<DWORD>(bipDuration.count()));
+}
+
+std::size_t Storm::OSManager::retrieveCurrentAppUsedMemory() const
+{
+	::PROCESS_MEMORY_COUNTERS memCounter;
+	if (::GetProcessMemoryInfo(static_cast<HANDLE>(_currentProcessHandle), &memCounter, sizeof(memCounter)))
+	{
+		return memCounter.WorkingSetSize;
+	}
+	else
+	{
+		LOG_DEBUG_ERROR << "Cannot query current process memory usage. Error code was " << GetLastError();
+		return 0;
+	}
+}
+
+bool Storm::OSManager::retrieveMemoryInfo(Storm::MemoryInfos &outMemoryInfos) const
+{
+	outMemoryInfos._usedMemory = this->retrieveCurrentAppUsedMemory();
+	::MEMORYSTATUSEX memoryStatus;
+
+	if (::GlobalMemoryStatusEx(&memoryStatus))
+	{
+		outMemoryInfos._availableMemory = memoryStatus.ullAvailPhys;
+		outMemoryInfos._totalMemory = memoryStatus.ullTotalPhys;
+		return true;
+	}
+	else
+	{
+		LOG_DEBUG_ERROR << "Cannot retrieve memory infos for the current workstation. Error code was " << GetLastError();
+
+		outMemoryInfos._totalMemory = 0;
+		outMemoryInfos._availableMemory = 0;
+		return false;
+	}
 }
 
 bool Storm::OSManager::preventShutdown()

@@ -41,9 +41,14 @@ namespace Storm
 		void makeBipSound(const std::chrono::milliseconds bipDuration) final override;
 
 	public:
+		std::size_t retrieveCurrentAppUsedMemory() const final override;
+		bool retrieveMemoryInfo(Storm::MemoryInfos &outMemoryInfos) const final override;
+
+	public:
 		bool preventShutdown() final override;
 
 	private:
 		std::unique_ptr<Storm::details::ProcessesHolder> _processHolder;
+		void* /*HANDLE*/ _currentProcessHandle;
 	};
 }

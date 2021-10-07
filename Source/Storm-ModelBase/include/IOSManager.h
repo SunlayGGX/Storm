@@ -6,6 +6,7 @@
 namespace Storm
 {
 	struct StormProcessStartup;
+	struct MemoryInfos;
 
 	class IOSManager : public Storm::ISingletonHeldInterface<IOSManager>
 	{
@@ -23,6 +24,10 @@ namespace Storm
 
 	public:
 		virtual void makeBipSound(const std::chrono::milliseconds bipDuration) = 0;
+
+	public:
+		virtual std::size_t retrieveCurrentAppUsedMemory() const = 0;
+		virtual bool retrieveMemoryInfo(Storm::MemoryInfos &outMemoryInfos) const = 0;
 
 	public:
 		virtual bool preventShutdown() = 0;
