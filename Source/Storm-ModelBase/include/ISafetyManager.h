@@ -11,6 +11,6 @@ namespace Storm
 		virtual ~ISafetyManager() = default;
 
 	public:
-
+		virtual void notifySimulationThreadAlive() = 0;
 	};
 }

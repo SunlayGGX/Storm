@@ -5,6 +5,7 @@
 
 #include "IThreadManager.h"
 #include "ITimeManager.h"
+#include "IConfigManager.h"
 #include "SingletonHolder.h"
 
 #include "ConfigConstants.h"
@@ -13,6 +14,10 @@
 #include "ThreadFlagEnum.h"
 #include "ThreadEnumeration.h"
 #include "ThreadFlaggerObject.h"
+
+#include "GeneralSafetyConfig.h"
+
+#include "ThreadingSafety.h"
 
 
 Storm::SafetyManager::SafetyManager() = default;
@@ -27,8 +32,16 @@ Storm::SafetyManager::~SafetyManager()
 
 void Storm::SafetyManager::initialize_Implementation()
 {
-	_freezeWatcher = std::make_unique<Storm::FreezeWatcher>();
-	_memoryWatcher = std::make_unique<Storm::MemoryWatcher>();
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
+	const Storm::GeneralSafetyConfig &generalSafetyConfig = configMgr.getGeneralSafetyConfig();
+
+	_freezeWatcher = std::make_unique<Storm::FreezeWatcher>(generalSafetyConfig);
+
+	if (generalSafetyConfig._enableMemoryWatcher)
+	{
+		_memoryWatcher = std::make_unique<Storm::MemoryWatcher>(generalSafetyConfig);
+	}
 
 	_safetyThread = std::thread{ [this]()
 	{
@@ -50,17 +63,28 @@ void Storm::SafetyManager::run()
 	Storm::IThreadManager &threadMgr = singletonHolder.getSingleton<Storm::IThreadManager>();
 
 	constexpr std::chrono::milliseconds k_refreshDurationMillisec{
-		std::chrono::seconds{ static_cast<decltype(std::declval<std::chrono::seconds>().count())>(Storm::ConfigConstants::SafetyConstants::k_safetyThreadRefreshRateSeconds) }
+		std::chrono::seconds{ static_cast<decltype(std::declval<std::chrono::seconds>().count())>(Storm::ConfigConstants::SafetyConstants::k_safetyThreadRefreshRateSeconds) / 2 }
 	};
 
 	while (!timeMgr.waitForTimeOrExit(k_refreshDurationMillisec))
 	{
 		threadMgr.processCurrentThreadActions();
-		this->execute();
+
+		if (_memoryWatcher)
+		{
+			_memoryWatcher->execute();
+		}
+		_freezeWatcher->execute();
 	}
 }
 
-void Storm::SafetyManager::execute()
+void Storm::SafetyManager::notifySimulationThreadAlive()
 {
+	assert(Storm::isSimulationThread() && "This method can only be executed inside Simulation thread.");
 
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::SafetyThread, [this, notificationTime = std::chrono::high_resolution_clock::now()]()
+	{
+		_freezeWatcher->setLastNotificationTime(notificationTime);
+	});
 }

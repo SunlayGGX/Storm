@@ -22,7 +22,8 @@ namespace Storm
 	private:
 		void run();
 
-		void execute();
+	public:
+		void notifySimulationThreadAlive() final override;
 
 	private:
 		std::unique_ptr<Storm::FreezeWatcher> _freezeWatcher;
