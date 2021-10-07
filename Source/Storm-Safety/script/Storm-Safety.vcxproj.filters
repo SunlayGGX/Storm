@@ -13,6 +13,18 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\Memory">
+      <UniqueIdentifier>{8720d779-3ece-4eae-afeb-4755a81b652a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Freeze">
+      <UniqueIdentifier>{3028b1c8-daa2-4b63-9b1a-1f5bc162ef0b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Memory">
+      <UniqueIdentifier>{388ddb4d-7a43-4d6c-9e18-778222909616}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Freeze">
+      <UniqueIdentifier>{0b0e6dba-c059-449f-b8ea-cc2b5c641818}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-SafetyPCH.cpp">
@@ -21,6 +33,12 @@
     <ClCompile Include="..\include\SafetyManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\MemoryWatcher.cpp">
+      <Filter>Source Files\Memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\FreezeWatcher.cpp">
+      <Filter>Source Files\Freeze</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-SafetyPCH.h">
@@ -28,6 +46,12 @@
     </ClInclude>
     <ClInclude Include="..\include\SafetyManager.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\MemoryWatcher.h">
+      <Filter>Header Files\Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\FreezeWatcher.h">
+      <Filter>Header Files\Freeze</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
