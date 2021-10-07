@@ -12,6 +12,31 @@
 #include "Vector3Utils.h"
 
 
+namespace
+{
+	template<class ValueType, class SelectorFunc>
+	void reflectWithPenalty(const ValueType &min, const ValueType &max, const ValueType &penalty, ValueType &valuePos, ValueType &valueVel, SelectorFunc &&selector)
+	{
+		auto &selectedPosCoord = selector(valuePos);
+		auto &selectedVelCoord = selector(valueVel);
+		const auto &minValue = selector(min);
+		const auto &maxValue = selector(max);
+		const auto &selectedPenalty = selector(penalty);
+
+		if (selectedPosCoord < minValue)
+		{
+			selectedPosCoord = maxValue + selectedPosCoord - minValue;
+			selectedVelCoord *= selectedPenalty;
+		}
+		else if (selectedPosCoord > maxValue)
+		{
+			selectedPosCoord = minValue + selectedPosCoord - maxValue;
+			selectedVelCoord *= selectedPenalty;
+		}
+	}
+}
+
+
 Storm::Cage::Cage(const Storm::SceneCageConfig &sceneCageConfig) :
 	_boxMin{ sceneCageConfig._boxMin },
 	_boxMax{ sceneCageConfig._boxMax },
@@ -31,7 +56,31 @@ void Storm::Cage::doEnclose(Storm::ParticleSystemContainer &pSystems) const
 
 	if (_infiniteDomain)
 	{
-		STORM_NOT_IMPLEMENTED;
+		for (const auto &pSystemPair : pSystems)
+		{
+			Storm::ParticleSystem &pSystem = *pSystemPair.second;
+			if (pSystem.isFluids())
+			{
+				std::vector<Storm::Vector3> &allPPositions = pSystem.getPositions();
+				std::vector<Storm::Vector3> &allPVelocities = pSystem.getVelocity();
+
+				const float maxDisplacement = Storm::SimulatorManager::instance().getKernelLength();
+
+				Storm::runParallel(allPPositions, [this, &allPVelocities, &xSelector, &ySelector, &zSelector](Storm::Vector3 &currentPPosition, const std::size_t currentPIndex)
+				{
+					reflectWithPenalty(_boxMin, _boxMax, _velocityCoeffs, currentPPosition, allPVelocities[currentPIndex], xSelector);
+					reflectWithPenalty(_boxMin, _boxMax, _velocityCoeffs, currentPPosition, allPVelocities[currentPIndex], ySelector);
+					reflectWithPenalty(_boxMin, _boxMax, _velocityCoeffs, currentPPosition, allPVelocities[currentPIndex], zSelector);
+				});
+			}
+			else
+			{
+				// TODO : I need to think for this case...
+				// because rigid bodies are solid, their particles shouldn't move from each other (this is a constraint) therefore they cannot be teared apart from one another...
+				// This contraint is true for my engine, but also for the Physics engine I use.
+				STORM_NOT_IMPLEMENTED;
+			}
+		}
 	}
 	else
 	{
