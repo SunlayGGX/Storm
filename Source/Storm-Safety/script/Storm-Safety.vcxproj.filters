@@ -18,9 +18,15 @@
     <ClCompile Include="..\include\Storm-SafetyPCH.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\SafetyManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-SafetyPCH.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SafetyManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

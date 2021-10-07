@@ -24,6 +24,7 @@
 #include "NetworkManager.h"
 #include "BibliographyManager.h"
 #include "AnimationManager.h"
+#include "SafetyManager.h"
 
 #include "ScriptImplementation.inl.h"
 
@@ -43,6 +44,7 @@ namespace
 		Storm::ScriptManager,
 		Storm::ConfigManager,
 		Storm::LoggerManager,
+		Storm::SafetyManager,
 		Storm::SerializerManager,
 		Storm::ProfilerManager,
 		Storm::ThreadManager,

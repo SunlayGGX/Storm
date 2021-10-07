@@ -54,6 +54,7 @@
     <ClInclude Include="..\include\GeneralApplicationConfig.h" />
     <ClInclude Include="..\include\INetworkManager.h" />
     <ClInclude Include="..\include\InternalReferenceConfig.h" />
+    <ClInclude Include="..\include\ISafetyManager.h" />
     <ClInclude Include="..\include\ParticleRemovalMode.h" />
     <ClInclude Include="..\include\SceneBlowerConfig.h" />
     <ClInclude Include="..\include\BlowerDef.h" />

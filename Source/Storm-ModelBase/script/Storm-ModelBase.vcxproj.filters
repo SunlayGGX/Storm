@@ -551,5 +551,8 @@
     <ClInclude Include="..\include\GeneralSafetyConfig.h">
       <Filter>Header Files\Modules\Config\General</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\ISafetyManager.h">
+      <Filter>Header Files\Singleton</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
