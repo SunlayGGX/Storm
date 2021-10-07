@@ -47,8 +47,9 @@ namespace
 		batFile <<
 			"echo off\n"
 			"cd %~dp0\n\n"
+			"cd ../../../../bin/Release\n\n\n"
 
-			"call \"../Base/LauncherSetup.bat\" Release\n\n\n"
+			//"call \"../Base/LauncherSetup.bat\" Release\n\n\n"
 
 			"call \"Storm.exe\" --threadPriority=High --mode=Replay ";
 
