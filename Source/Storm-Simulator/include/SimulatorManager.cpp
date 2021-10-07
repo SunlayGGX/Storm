@@ -1023,6 +1023,7 @@ Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 	do
 	{
 		SpeedProfileBalist simulationSpeedProfile{ profilerMgrNullablePtr };
+		safetyMgr.notifySimulationThreadAlive();
 
 		Storm::TimeWaitResult simulationState;
 		if (sceneRecordConfig._replayRealTime)
@@ -1054,12 +1055,10 @@ Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 					profilerMgrNullablePtr->getSpeedProfileAccumulatedTime() / static_cast<float>(_currentFrameNumber);
 			}
 
-			safetyMgr.notifySimulationThreadAlive();
 			return _runExitCode;
 
 		case TimeWaitResult::Pause:
 			simulationSpeedProfile.disable();
-			safetyMgr.notifySimulationThreadAlive();
 
 			// Takes time to process messages that came from other threads.
 			threadMgr.processCurrentThreadActions();
@@ -1077,7 +1076,6 @@ Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 		}
 
 		threadMgr.processCurrentThreadActions();
-		safetyMgr.notifySimulationThreadAlive();
 
 		_kernelHandler.update(timeMgr.getCurrentPhysicsElapsedTime());
 
@@ -1207,6 +1205,7 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 	do
 	{
 		SpeedProfileBalist simulationSpeedProfile{ profilerMgrNullablePtr };
+		safetyMgr.notifySimulationThreadAlive();
 
 		Storm::TimeWaitResult simulationState = noWait ? timeMgr.getStateNoSyncWait() : timeMgr.waitNextFrame();
 		switch (simulationState)
@@ -1218,12 +1217,10 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 					"Simulation average speed was " <<
 					profilerMgrNullablePtr->getSpeedProfileAccumulatedTime() / static_cast<float>(_currentFrameNumber);
 			}
-			safetyMgr.notifySimulationThreadAlive();
 			return _runExitCode;
 
 		case TimeWaitResult::Pause:
 			simulationSpeedProfile.disable();
-			safetyMgr.notifySimulationThreadAlive();
 
 			// Takes time to process messages that came from other threads.
 			threadMgr.processCurrentThreadActions();
@@ -1238,8 +1235,6 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 		default:
 			break;
 		}
-
-		safetyMgr.notifySimulationThreadAlive();
 
 		_kernelHandler.update(timeMgr.getCurrentPhysicsElapsedTime());
 
