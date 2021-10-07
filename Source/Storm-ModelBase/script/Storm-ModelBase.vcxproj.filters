@@ -548,5 +548,8 @@
     <ClInclude Include="..\include\SerializeSupportedFeatureLayout.h">
       <Filter>Header Files\Modules\Serializer\Record\Header\Layout</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\GeneralSafetyConfig.h">
+      <Filter>Header Files\Modules\Config\General</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

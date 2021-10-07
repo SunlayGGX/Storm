@@ -72,5 +72,12 @@ Storm::GeneralApplicationConfig::GeneralApplicationConfig() :
 
 }
 
+Storm::GeneralSafetyConfig::GeneralSafetyConfig() :
+	_memoryThreshold{ 0.95f },
+	_freezeRefresh{ std::chrono::minutes{ 20 } }
+{
+
+}
+
 Storm::GeneralDebugConfig::~GeneralDebugConfig() = default;
 Storm::GeneralNetworkConfig::~GeneralNetworkConfig() = default;

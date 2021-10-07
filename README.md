@@ -298,6 +298,16 @@ Note that the maximum value you can set is Fatal, it means that no matter what l
 - **showGravityArrow (boolean, facultative)**: If true, gravity arrow will be displayed by default on the HUD. Default is true.
 
 
+#### Safety (facultative)
+
+##### Memory (facultative)
+- **memoryThreshold (positive float)**: The memory coefficient threshold applied to the total installed memory the workstation has. If the application take more than this threhold of RAM, then we'll kill the application as a safety measure. This value should be between ]0.0, 1.0]. Default is 0.95 (We allow the application to take 95% of the available RAM).
+
+
+##### Freeze (facultative)
+- **refreshDuration (unsigned integer, facultative)** : Set the refresh duration of the simulation freeze watcher in seconds. If the simultation is frozen more than this threshold, then we'll kill the application as a safety measure. This value should be greater than 30 seconds. Default is 1200 seconds (20 minutes). Note that this safety watcher is temporily disabled when a debugger is attached.
+
+
 #### Simulation (facultative)
 - **allowNoFluid (boolean, facultative)**: If true, we will allow the scene config file to not have any fluid (useful for testing rigid body features without minding particles while developing). Default is false.
 - **stateRefreshFrameCount (positive integer, facultative)**: Specify how many frames before the next system state refresh. This value must be a positive integer. 0 means the state refreshes is disabled. Default is 0.

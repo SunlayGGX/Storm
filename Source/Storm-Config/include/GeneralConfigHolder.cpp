@@ -288,6 +288,63 @@ bool Storm::GeneralConfigHolder::read(const std::string &generalConfigFilePathSt
 				}
 			}
 
+			/* Safety */
+			Storm::GeneralSafetyConfig &generalSafetyConfig = _generalConfig->_generalSafetyConfig;
+
+			const auto &safetyTreeOpt = generalTree.get_child_optional("Safety");
+			if (safetyTreeOpt.has_value())
+			{
+				const auto &safetyTree = safetyTreeOpt.value();
+				for (const auto &safetyXmlElement : safetyTree)
+				{
+					if (safetyXmlElement.first == "Memory")
+					{
+						for (const auto &safeMemoryDataXml : safetyXmlElement.second)
+						{
+							if (
+								!Storm::XmlReader::handleXml(safeMemoryDataXml, "memoryThreshold", generalSafetyConfig._memoryThreshold)
+								)
+							{
+								LOG_ERROR << safeMemoryDataXml.first << " (inside General.Safety.Memory) is unknown, therefore it cannot be handled";
+							}
+						}
+
+						if (generalSafetyConfig._memoryThreshold <= 0.f) 
+						{
+							Storm::throwException<Storm::Exception>("Memory threshold coefficient should be strictly greater than 0! Value was " + Storm::toStdString(generalSafetyConfig._memoryThreshold));
+						}
+						else if (generalSafetyConfig._memoryThreshold > 1.f)
+						{
+							Storm::throwException<Storm::Exception>("Memory threshold coefficient should be below 1.0! Value was " + Storm::toStdString(generalSafetyConfig._memoryThreshold));
+						}
+					}
+					else if (safetyXmlElement.first == "Freeze")
+					{
+						auto freezeRefreshSecTmp = generalSafetyConfig._freezeRefresh.count();
+						for (const auto &safeFreezeDataXml : safetyXmlElement.second)
+						{
+							if (
+								!Storm::XmlReader::handleXml(safeFreezeDataXml, "refreshDuration", freezeRefreshSecTmp)
+								)
+							{
+								LOG_ERROR << safeFreezeDataXml.first << " (inside General.Safety.Freeze) is unknown, therefore it cannot be handled";
+							}
+						}
+
+						generalSafetyConfig._freezeRefresh = std::chrono::seconds{ freezeRefreshSecTmp };
+						if (generalSafetyConfig._freezeRefresh < std::chrono::seconds{ 30 }) // Below 30 seconds is too extreme.
+						{
+							Storm::throwException<Storm::Exception>("Freeze watching refresh duration threshold cannot be below 30 seconds. This is too extreme! Value was " + Storm::toStdString(generalSafetyConfig._freezeRefresh));
+						}
+					}
+					else
+					{
+						LOG_ERROR << safetyXmlElement.first << " (inside General.Safety) is unknown, therefore it cannot be handled";
+					}
+				}
+			}
+
+
 			/* Network */
 			Storm::GeneralNetworkConfig &generalNetworkConfig = _generalConfig->_generalNetworkConfig;
 

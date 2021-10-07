@@ -6,6 +6,7 @@
 #include "GeneralDebugConfig.h"
 #include "GeneralApplicationConfig.h"
 #include "GeneralNetworkConfig.h"
+#include "GeneralSafetyConfig.h"
 
 
 namespace Storm
@@ -19,5 +20,6 @@ namespace Storm
 		Storm::GeneralWebConfig _generalWebConfig;
 		Storm::GeneralDebugConfig _generalDebugConfig;
 		Storm::GeneralApplicationConfig _generalApplicationConfig;
+		Storm::GeneralSafetyConfig _generalSafetyConfig;
 	};
 }
