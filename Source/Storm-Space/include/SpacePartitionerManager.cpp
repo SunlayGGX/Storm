@@ -2,12 +2,15 @@
 
 #include "SingletonHolder.h"
 #include "IAssetLoaderManager.h"
+#include "IConfigManager.h"
 
 #include "IRigidBody.h"
 
 #include "VoxelGrid.h"
 #include "PartitionSelection.h"
 #include "DistanceSpacePartitionProxy.h"
+
+#include "SceneCageConfig.h"
 
 #include "Vector3Utils.h"
 
@@ -34,6 +37,17 @@ void Storm::SpacePartitionerManager::initialize_Implementation(float partitionLe
 	};
 
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+
+	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
+	const Storm::SceneCageConfig* sceneCageCfg = configMgr.getSceneOptionalCageConfig();
+	if (sceneCageCfg)
+	{
+		_infiniteDomain = sceneCageCfg->_infiniteDomain;
+	}
+	else
+	{
+		_infiniteDomain = false;
+	}
 
 	const Storm::IAssetLoaderManager &assetLoaderMgr = singletonHolder.getSingleton<Storm::IAssetLoaderManager>();
 	const auto &allRigidBodies = assetLoaderMgr.getRigidBodyArray();
@@ -154,6 +168,12 @@ bool Storm::SpacePartitionerManager::isOutsideSpaceDomain(const Storm::Vector3 &
 		position.y() > _upSpaceCorner.y() ||
 		position.z() > _upSpaceCorner.z()
 		;
+}
+
+bool Storm::SpacePartitionerManager::isInfiniteDomainMode() const noexcept
+{
+	assert(this->isInitialized() && "This method should only be called after this object is initialized or the value won't have any sense (it would be left uninitialized until then)");
+	return _infiniteDomain;
 }
 
 const std::unique_ptr<Storm::VoxelGrid>& Storm::SpacePartitionerManager::getSpacePartition(Storm::PartitionSelection modality) const

@@ -32,6 +32,11 @@ namespace Storm
 		// Note that inOutContainingBundlePtr can also contain the particle at particlePosition.
 		virtual void getAllBundles(const std::vector<Storm::NeighborParticleReferral>* &outContainingBundlePtr, const std::vector<Storm::NeighborParticleReferral>*(&outNeighborBundle)[Storm::k_neighborLinkedBunkCount], const Storm::Vector3 &particlePosition, Storm::PartitionSelection modality) const = 0;
 
+		// Get the all bundles that can be considered as neighbor from the bundle referred by systemId containing the particlePosition. 
+		// Note that inOutContainingBundlePtr can also contain the particle at particlePosition.
+		// This method is the overload that takes the infinite domain into account and should be called if isInfiniteDomainMode returns true instead of getAllBundles.
+		virtual void getAllBundlesInfinite(const std::vector<Storm::NeighborParticleReferral>* &outContainingBundlePtr, const std::vector<Storm::NeighborParticleReferral>*(&outNeighborBundle)[Storm::k_neighborLinkedBunkCount], const Storm::Vector3 &particlePosition, Storm::PartitionSelection modality) const = 0;
+
 		// Get the containing bundle containing particlePosition.
 		virtual void getContainingBundle(const std::vector<Storm::NeighborParticleReferral>* &containingBundlePtr, const Storm::Vector3 &particlePosition, Storm::PartitionSelection modality) const = 0;
 
@@ -48,5 +53,10 @@ namespace Storm
 		// (but in lot of case, do not continue to use the manager for such particle because we won't check inside any other methods
 		// (we expect the check to be done separately before entering any of the other methods, or that you know what you are doing))
 		virtual bool isOutsideSpaceDomain(const Storm::Vector3 &position) const = 0;
+
+		// Returns a flag telling this manager is in infinite domain mode.
+		// This method should be called before getting the bundle (to know if client should call getAllBundles or getAllBundlesInfinite).
+		// Note that this flag is not checked. Therefore if the wrong method is called, we would just have the neighborhoods as if the feature was enabled/disabled.
+		virtual bool isInfiniteDomainMode() const noexcept = 0;
 	};
 }

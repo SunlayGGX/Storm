@@ -33,6 +33,8 @@ namespace Storm
 
 		bool isOutsideSpaceDomain(const Storm::Vector3 &position) const final override;
 
+		bool isInfiniteDomainMode() const noexcept final override;
+
 	public:
 		std::shared_ptr<Storm::IDistanceSpacePartitionProxy> makeDistancePartitionProxy(const Storm::Vector3 &upCorner, const Storm::Vector3 &downCorner, const float partitionLength) final override;
 
@@ -49,5 +51,7 @@ namespace Storm
 		SpacePartitionStructure _fluidSpacePartition;
 		SpacePartitionStructure _dynamicRigidBodySpacePartition;
 		SpacePartitionStructure _staticRigidBodySpacePartition;
+
+		bool _infiniteDomain;
 	};
 }
