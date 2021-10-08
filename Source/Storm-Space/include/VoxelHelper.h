@@ -205,7 +205,7 @@ namespace
 	}
 
 	template<class VoxelType, class VoxelData>
-	static void getVoxelsDataAtPositionImpl(const VoxelType &voxel, float voxelEdgeLength, const Storm::Vector3 &voxelShift, const std::vector<VoxelData>* &outContainingVoxelPtr, const std::vector<VoxelData>*(&outNeighborData)[Storm::k_neighborLinkedBunkCount], const Storm::Vector3 &particlePosition)
+	static void retrieveVoxelsDataAtPositionImpl(const VoxelType &voxel, float voxelEdgeLength, const Storm::Vector3 &voxelShift, const std::vector<VoxelData>* &outContainingVoxelPtr, const std::vector<VoxelData>*(&outNeighborData)[Storm::k_neighborLinkedBunkCount], const Storm::Vector3 &particlePosition)
 	{
 		unsigned int xIndex;
 		unsigned int yIndex;

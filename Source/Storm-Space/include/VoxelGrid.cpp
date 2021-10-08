@@ -33,7 +33,7 @@ Storm::VoxelGrid::~VoxelGrid() = default;
 
 void Storm::VoxelGrid::getVoxelsDataAtPosition(float voxelEdgeLength, const Storm::Vector3 &voxelShift, const std::vector<Storm::NeighborParticleReferral>* &outContainingVoxelPtr, const std::vector<Storm::NeighborParticleReferral>*(&outNeighborData)[Storm::k_neighborLinkedBunkCount], const Storm::Vector3 &particlePosition) const
 {
-	getVoxelsDataAtPositionImpl(*this, voxelEdgeLength, voxelShift, outContainingVoxelPtr, outNeighborData, particlePosition);
+	retrieveVoxelsDataAtPositionImpl(*this, voxelEdgeLength, voxelShift, outContainingVoxelPtr, outNeighborData, particlePosition);
 }
 
 void Storm::VoxelGrid::getVoxelsDataAtPosition(float voxelEdgeLength, const Storm::Vector3 &voxelShift, const std::vector<Storm::NeighborParticleReferral>* &outContainingVoxelPtr, const Storm::Vector3 &particlePosition) const
