@@ -83,3 +83,7 @@
 #	define STORM_LIKELY
 #	define STORM_UNLIKELY
 #endif
+
+
+#define STORM_OUTPUT_BUILD_MESSAGE(Msg) __pragma(message("STORM Message : " Msg))
+
