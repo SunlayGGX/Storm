@@ -46,6 +46,11 @@ Storm::RecordHandlerBase::RecordHandlerBase(Storm::SerializeRecordHeader &&heade
 
 Storm::RecordHandlerBase::~RecordHandlerBase() = default;
 
+void Storm::RecordHandlerBase::fillSupportedFeature(const Storm::Version &currentVersion, Storm::SerializeSupportedFeatureLayout &missingFeatures) const
+{
+	assert(!_package.isSerializing() && "This method should only be called with reader. Not from writer!");
+}
+
 void Storm::RecordHandlerBase::serializeHeader()
 {
 	const Storm::Version &currentVersion = _preheaderSerializer->getRecordVersion();

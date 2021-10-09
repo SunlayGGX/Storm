@@ -23,6 +23,9 @@ namespace Storm
 	public:
 		bool readNextFrame(Storm::SerializeRecordPendingData &outPendingData);
 
+	protected:
+		void fillSupportedFeature(const Storm::Version &currentVersion, Storm::SerializeSupportedFeatureLayout &missingFeatures) const final override;
+
 	private:
 		void correctVersionMismatch(Storm::SerializeRecordPendingData &outPendingData);
 
