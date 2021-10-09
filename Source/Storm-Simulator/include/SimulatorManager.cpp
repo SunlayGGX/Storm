@@ -2704,6 +2704,7 @@ void Storm::SimulatorManager::writeCurrentFrameSystemForcesToCsv(const unsigned 
 					{ "BernoulliDynamicQ", &pSystemToPrint.getTemporaryBernoulliDynamicPressureForces(), MakeSumFormula::value },
 					{ "NoStick", &pSystemToPrint.getTemporaryNoStickForces(), MakeSumFormula::value },
 					{ "interPressure", &pSystemToPrint.getTemporaryPressureIntermediaryForces(), MakeSumFormula::value },
+					{ "Coenda", &pSystemToPrint.getTemporaryCoendaForces(), MakeSumFormula::value },
 				};
 				
 				writer.reserve(std::get<1>(mappings[0])->size());
