@@ -183,6 +183,11 @@ bool Storm::SpacePartitionerManager::isInfiniteDomainMode() const noexcept
 	return _infiniteDomain;
 }
 
+Storm::Vector3 Storm::SpacePartitionerManager::getDomainDimension() const noexcept
+{
+	return _upSpaceCorner - _downSpaceCorner;
+}
+
 const std::unique_ptr<Storm::VoxelGrid>& Storm::SpacePartitionerManager::getSpacePartition(Storm::PartitionSelection modality) const
 {
 	switch (modality)

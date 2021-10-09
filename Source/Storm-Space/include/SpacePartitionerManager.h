@@ -36,6 +36,8 @@ namespace Storm
 
 		bool isInfiniteDomainMode() const noexcept final override;
 
+		Storm::Vector3 getDomainDimension() const noexcept final override;
+
 	public:
 		std::shared_ptr<Storm::IDistanceSpacePartitionProxy> makeDistancePartitionProxy(const Storm::Vector3 &upCorner, const Storm::Vector3 &downCorner, const float partitionLength) final override;
 

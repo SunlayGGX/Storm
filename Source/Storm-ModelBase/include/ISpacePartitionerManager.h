@@ -59,5 +59,7 @@ namespace Storm
 		// This method should be called before getting the bundle (to know if client should call getAllBundles or getAllBundlesInfinite).
 		// Note that this flag is not checked. Therefore if the wrong method is called, we would just have the neighborhoods as if the feature was enabled/disabled.
 		virtual bool isInfiniteDomainMode() const noexcept = 0;
+
+		virtual Storm::Vector3 getDomainDimension() const noexcept = 0;
 	};
 }
