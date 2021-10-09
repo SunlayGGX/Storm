@@ -67,6 +67,7 @@
 
 #include "SerializeParticleSystemLayout.h"
 #include "SerializeConstraintLayout.h"
+#include "SerializeSupportedFeatureLayout.h"
 #include "SerializeRecordHeader.h"
 
 #include "SerializeRecordParticleSystemData.h"
@@ -751,7 +752,8 @@ Storm::SimulatorManager::SimulatorManager() :
 	_currentFrameNumber{ 0 },
 	_currentSimulationSystemsState{ Storm::SimulationSystemsState::Normal },
 	_maxVelocitySquaredLastStateCheck{ 0.f },
-	_rigidBodySelectedNormalsNonOwningPtr{ nullptr }
+	_rigidBodySelectedNormalsNonOwningPtr{ nullptr },
+	_replayNeedNeighborhoodRefresh{ true }
 {
 	(*_uiFields)
 		.bindField(STORM_FRAME_NUMBER_FIELD_NAME, _currentFrameNumber);
@@ -811,8 +813,10 @@ void Storm::SimulatorManager::initialize_Implementation()
 			LOG_ERROR << "There is no frame to simulate inside the current record. The application will stop.";
 		}
 
+		_supportedFeature = serializerMgr.getRecordSupportedFeature();
+
 		const Storm::SceneRecordConfig &sceneRecordConfig = configMgr.getSceneRecordConfig();
-		this->applyReplayFrame(frameBefore, sceneRecordConfig._recordFps);
+		this->applyReplayFrame(frameBefore, *_supportedFeature, sceneRecordConfig._recordFps);
 	}
 	else
 	{
@@ -1020,6 +1024,8 @@ Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 
 	std::vector<Storm::SerializeRecordContraintsData> recordedConstraintsData;
 
+	float lastKernelValue = _kernelHandler.getKernelValue();
+
 	do
 	{
 		SpeedProfileBalist simulationSpeedProfile{ profilerMgrNullablePtr };
@@ -1077,7 +1083,7 @@ Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 
 		threadMgr.processCurrentThreadActions();
 
-		_kernelHandler.update(timeMgr.getCurrentPhysicsElapsedTime());
+		//_kernelHandler.update(timeMgr.getCurrentPhysicsElapsedTime());
 
 		if (_reinitFrameAfter)
 		{
@@ -1089,7 +1095,8 @@ Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 			_reinitFrameAfter = false;
 		}
 
-		if (Storm::ReplaySolver::replayCurrentNextFrame(_particleSystem, frameBefore, frameAfter, expectedReplayFps, recordedConstraintsData))
+		float currentKernelValue;
+		if (Storm::ReplaySolver::replayCurrentNextFrame(_particleSystem, frameBefore, frameAfter, expectedReplayFps, recordedConstraintsData, currentKernelValue))
 		{
 			this->pushParticlesToGraphicModule(false);
 
@@ -1099,6 +1106,13 @@ Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 			for (const std::unique_ptr<Storm::IBlower> &blowerUPtr : _blowers)
 			{
 				blowerUPtr->advanceTime(physicsFixedDeltaTime);
+			}
+
+			if (lastKernelValue != currentKernelValue)
+			{
+				_kernelHandler.setKernelValue(currentKernelValue);
+				lastKernelValue = currentKernelValue;
+				_replayNeedNeighborhoodRefresh = true;
 			}
 
 			if (autoEndSimulation)
@@ -1116,7 +1130,7 @@ Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 			LOG_COMMENT << "Simulation has come to an halt because there is no more frame to replay.";
 			timeMgr.changeSimulationPauseState();
 
-			_kernelHandler.update(timeMgr.getCurrentPhysicsElapsedTime());
+			//_kernelHandler.update(timeMgr.getCurrentPhysicsElapsedTime());
 		}
 
 		if (hasAutoEndSimulation)
@@ -1202,6 +1216,8 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 
 	bool shouldUnfixRbAutomatically = sceneSimulationConfig._freeRbAtPhysicsTime != -1.f;
 
+	float lastKernelValue = _kernelHandler.getKernelValue();
+
 	do
 	{
 		SpeedProfileBalist simulationSpeedProfile{ profilerMgrNullablePtr };
@@ -1238,6 +1254,14 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 
 		_kernelHandler.update(timeMgr.getCurrentPhysicsElapsedTime());
 
+		// Recreate the partition if kernel length actually changed.
+		const float k_kernelVal = this->getKernelLength();
+		if (lastKernelValue != k_kernelVal)
+		{
+			spacePartitionerMgr.setPartitionLength(k_kernelVal);
+			lastKernelValue = k_kernelVal;
+		}
+
 		// On iteration start
 		physicsMgr.notifyIterationStart();
 		for (auto &particleSystem : _particleSystem)
@@ -1246,7 +1270,6 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 		}
 
 		// Compute the simulation
-		const float k_kernelVal = this->getKernelLength();
 		_sphSolver->execute(Storm::IterationParameter{
 			._particleSystems = &_particleSystem,
 			._kernelLength = k_kernelVal,
@@ -1347,6 +1370,8 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 							removeRawParticles(fluidPSystem.getTemporaryDragForces(), toRemoveCount);
 							removeRawParticles(fluidPSystem.getTemporaryBernoulliDynamicPressureForces(), toRemoveCount);
 							removeRawParticles(fluidPSystem.getTemporaryNoStickForces(), toRemoveCount);
+							removeRawParticles(fluidPSystem.getTemporaryPressureIntermediaryForces(), toRemoveCount);
+							removeRawParticles(fluidPSystem.getTemporaryCoendaForces(), toRemoveCount);
 							removeRawParticles(fluidPSystem.getPositions(), toRemoveCount);
 							removeRawParticles(fluidPSystem.getVelocity(), toRemoveCount);
 							removeRawParticles(fluidPSystem.getVelocityPreTimestep(), toRemoveCount);
@@ -2179,6 +2204,7 @@ void Storm::SimulatorManager::refreshParticleSelection()
 			_particleSelector.setSelectedParticleDragForce(pSystem.getTemporaryDragForces()[selectedParticleIndex]);
 			_particleSelector.setSelectedParticleBernoulliDynamicPressureForce(pSystem.getTemporaryBernoulliDynamicPressureForces()[selectedParticleIndex]);
 			_particleSelector.setSelectedParticleNoStickForce(pSystem.getTemporaryNoStickForces()[selectedParticleIndex]);
+			_particleSelector.setSelectedParticleCoendaForce(pSystem.getTemporaryCoendaForces()[selectedParticleIndex]);
 			_particleSelector.setSelectedParticlePressureIntermediaryForce(pSystem.getTemporaryPressureIntermediaryForces()[selectedParticleIndex]);
 			_particleSelector.setSelectedParticleSumForce(pSystem.getForces()[selectedParticleIndex]);
 			_particleSelector.setTotalEngineSystemForce(pSystem.getTotalForceNonPhysX());
@@ -2271,7 +2297,7 @@ void Storm::SimulatorManager::pushRecord(float currentPhysicsTime, bool pushStat
 	serializerMgr.recordFrame(std::move(currentFrameData));
 }
 
-void Storm::SimulatorManager::applyReplayFrame(Storm::SerializeRecordPendingData &frame, const float replayFps, bool pushParallel /*= true*/)
+void Storm::SimulatorManager::applyReplayFrame(Storm::SerializeRecordPendingData &frame, const Storm::SerializeSupportedFeatureLayout &suportedFeature, const float replayFps, bool pushParallel /*= true*/)
 {
 	assert(Storm::isSimulationThread() && "This method should only be executed inside the simulation thread!");
 
@@ -2296,6 +2322,12 @@ void Storm::SimulatorManager::applyReplayFrame(Storm::SerializeRecordPendingData
 
 	Storm::IPhysicsManager &physicsMgr = singletonHolder.getSingleton<Storm::IPhysicsManager>();
 	physicsMgr.pushConstraintsRecordedFrame(frame._constraintElements);
+
+	if (suportedFeature._hasKernelLength && _kernelHandler.getKernelValue() != frame._kernelLength)
+	{
+		_kernelHandler.setKernelValue(frame._kernelLength);
+		_replayNeedNeighborhoodRefresh = true;
+	}
 }
 
 void Storm::SimulatorManager::resetReplay()
@@ -2322,7 +2354,7 @@ void Storm::SimulatorManager::resetReplay_SimulationThread()
 			if (serializerMgr.obtainNextFrame(frameBefore))
 			{
 				const Storm::SceneRecordConfig &sceneRecordConfig = configMgr.getSceneRecordConfig();
-				this->applyReplayFrame(frameBefore, sceneRecordConfig._recordFps, false);
+				this->applyReplayFrame(frameBefore, *_supportedFeature, sceneRecordConfig._recordFps, false);
 
 				_currentFrameNumber = 0;
 				_uiFields->pushField(STORM_FRAME_NUMBER_FIELD_NAME);
@@ -2640,8 +2672,13 @@ void Storm::SimulatorManager::writeRbEmptiness(const unsigned int id, const std:
 
 	const Storm::Language osLanguage = configMgr.getGeneralApplicationConfig()._language;
 
-	singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::MainThread, [this, filePathUnMacroized = FuncMovePass<std::string>{ std::move(FilePathCpy) }, id, osLanguage]()
+	singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::MainThread, [this, filePathUnMacroized = FuncMovePass<std::string>{ std::move(FilePathCpy) }, id, osLanguage, isReplayMode = configMgr.isInReplayMode()]()
 	{
+		if (isReplayMode)
+		{
+			this->refreshReplayNeighborhood();
+		}
+
 		const std::string pSystemIdStr = std::to_string(id);
 
 		for (const auto &particleSystemPair : _particleSystem)
@@ -2703,6 +2740,7 @@ void Storm::SimulatorManager::writeCurrentFrameSystemForcesToCsv(const unsigned 
 					{ "BernoulliDynamicQ", &pSystemToPrint.getTemporaryBernoulliDynamicPressureForces(), MakeSumFormula::value },
 					{ "NoStick", &pSystemToPrint.getTemporaryNoStickForces(), MakeSumFormula::value },
 					{ "interPressure", &pSystemToPrint.getTemporaryPressureIntermediaryForces(), MakeSumFormula::value },
+					{ "Coenda", &pSystemToPrint.getTemporaryCoendaForces(), MakeSumFormula::value },
 				};
 				
 				writer.reserve(std::get<1>(mappings[0])->size());
@@ -2756,7 +2794,7 @@ void Storm::SimulatorManager::writeCurrentFrameSystemForcesToCsv(const unsigned 
 }
 
 
-void Storm::SimulatorManager::writeParticleNeighborhood(const unsigned int id, const std::size_t pIndex, const std::string &filePath) const
+void Storm::SimulatorManager::writeParticleNeighborhood(const unsigned int id, const std::size_t pIndex, const std::string &filePath)
 {
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
@@ -2765,7 +2803,7 @@ void Storm::SimulatorManager::writeParticleNeighborhood(const unsigned int id, c
 	configMgr.getMaybeMacroizedConvertedValue(FilePathCpy);
 	const Storm::Language osLanguage = configMgr.getGeneralApplicationConfig()._language;
 
-	singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::MainThread, [this, id, pIndex, filePathUnMacroized = FuncMovePass<std::string>{ std::move(FilePathCpy) }, osLanguage]()
+	singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::MainThread, [this, id, pIndex, filePathUnMacroized = FuncMovePass<std::string>{ std::move(FilePathCpy) }, osLanguage, isReplayMode = configMgr.isInReplayMode()]()
 	{
 		if (const auto found = _particleSystem.find(id); found != std::end(_particleSystem))
 		{
@@ -2773,6 +2811,11 @@ void Storm::SimulatorManager::writeParticleNeighborhood(const unsigned int id, c
 			const std::size_t pCount = pSystem.getParticleCount();
 			if (pIndex < pCount)
 			{
+				if (isReplayMode)
+				{
+					this->refreshReplayNeighborhood();
+				}
+
 				std::filesystem::path filePathSystem{ filePathUnMacroized._object };
 				if (filePathSystem.extension() == ".csv")
 				{
@@ -3063,6 +3106,7 @@ bool Storm::SimulatorManager::selectSpecificParticle_Internal(const unsigned pSy
 				_particleSelector.setSelectedParticleDragForce(selectedPSystem.getTemporaryDragForces()[particleIndex]);
 				_particleSelector.setSelectedParticleBernoulliDynamicPressureForce(selectedPSystem.getTemporaryBernoulliDynamicPressureForces()[particleIndex]);
 				_particleSelector.setSelectedParticleNoStickForce(selectedPSystem.getTemporaryNoStickForces()[particleIndex]);
+				_particleSelector.setSelectedParticleCoendaForce(selectedPSystem.getTemporaryCoendaForces()[particleIndex]);
 				_particleSelector.setSelectedParticlePressureIntermediaryForce(selectedPSystem.getTemporaryPressureIntermediaryForces()[particleIndex]);
 				_particleSelector.setTotalEngineSystemForce(selectedPSystem.getTotalForceNonPhysX());
 
@@ -3192,4 +3236,34 @@ void Storm::SimulatorManager::selectCustomForcesDisplay(std::string selectionCSL
 			}
 		}
 	});
+}
+
+void Storm::SimulatorManager::refreshReplayNeighborhood()
+{
+	assert(Storm::isSimulationThread() && "This method should only be executed inside simulation thread!");
+	if (_replayNeedNeighborhoodRefresh)
+	{
+		const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+		Storm::ISpacePartitionerManager &spacePartitionerMgr = singletonHolder.getSingleton<Storm::ISpacePartitionerManager>();
+
+		// Recreate the partition (if needed)
+		spacePartitionerMgr.setPartitionLength(this->getKernelLength());
+
+		// Fill Neighborhood for current frame
+		this->refreshParticlePartition(false);
+
+		_replayNeedNeighborhoodRefresh = false;
+	}
+	else
+	{
+		// Fill Neighborhood for current frame
+		this->refreshParticlePartition(true);
+	}
+
+	// Build particle system neighborhoods
+	for (auto &particleSystem : _particleSystem)
+	{
+		Storm::ParticleSystem &pSystem = *particleSystem.second;
+		pSystem.buildNeighborhood(_particleSystem);
+	}
 }

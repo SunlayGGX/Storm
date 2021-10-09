@@ -31,6 +31,7 @@ namespace Storm
 		float _viscosity;
 		float _noStickCoeff;
 		float _dragCoefficient;
+		float _coendaCoefficient;
 
 		float _reducedVolumeCoeff;
 

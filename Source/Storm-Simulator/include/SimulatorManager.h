@@ -23,6 +23,7 @@ namespace Storm
 	class Cage;
 	struct SceneSimulationConfig;
 	struct SerializeRecordPendingData;
+	struct SerializeSupportedFeatureLayout;
 	enum class RaycastEnablingFlag : uint8_t;
 	enum class SimulationSystemsState : uint8_t;
 
@@ -134,7 +135,7 @@ namespace Storm
 		void pushRecord(float currentPhysicsTime, bool pushStatics) const;
 
 	private:
-		void applyReplayFrame(Storm::SerializeRecordPendingData &frame, const float replayFps, bool pushParallel = true);
+		void applyReplayFrame(Storm::SerializeRecordPendingData &frame, const Storm::SerializeSupportedFeatureLayout &suportedFeature, const float replayFps, bool pushParallel = true);
 
 	public:
 		void resetReplay();
@@ -161,7 +162,7 @@ namespace Storm
 
 		void writeRbEmptiness(const unsigned int id, const std::string &filePath);
 		void writeCurrentFrameSystemForcesToCsv(const unsigned int id, const std::string &filePath) const;
-		void writeParticleNeighborhood(const unsigned int id, const std::size_t pIndex, const std::string &filePath) const;
+		void writeParticleNeighborhood(const unsigned int id, const std::size_t pIndex, const std::string &filePath);
 
 	private:
 		void logAverageDensity() const;
@@ -177,6 +178,10 @@ namespace Storm
 
 	private:
 		void selectCustomForcesDisplay(std::string selectionCSL);
+
+	private:
+		// When replaying
+		void refreshReplayNeighborhood();
 
 	private:
 		Storm::ParticleSystemContainer _particleSystem;
@@ -204,6 +209,9 @@ namespace Storm
 		// For replay
 		std::unique_ptr<Storm::SerializeRecordPendingData> _frameBefore;
 		bool _reinitFrameAfter;
+		bool _replayNeedNeighborhoodRefresh;
+
+		std::shared_ptr<Storm::SerializeSupportedFeatureLayout> _supportedFeature;
 
 		std::wstring _progressRemainingTime;
 

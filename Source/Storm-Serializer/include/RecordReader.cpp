@@ -73,20 +73,12 @@ namespace
 			{
 				frameData._wantedDensity = std::numeric_limits<float>::quiet_NaN();
 			}
-		}
-	}
 
-	void fillSupportedFeatureImpl(const Storm::Version &currentVersion, Storm::SerializeSupportedFeatureLayout &missingFeatures)
-	{
-		missingFeatures._hasPSystemGlobalForce =							currentVersion >= Storm::Version{ 1, 2, 0 };
-		missingFeatures._hasPressures = missingFeatures._hasDensities =		currentVersion >= Storm::Version{ 1, 3, 0 };
-		missingFeatures._hasVolumes =										currentVersion >= Storm::Version{ 1, 4, 0 };
-		missingFeatures._hasDragComponentforces =							currentVersion >= Storm::Version{ 1, 5, 0 };
-		missingFeatures._hasDynamicPressureQForces =						currentVersion >= Storm::Version{ 1, 6, 0 };
-		missingFeatures._hasNormals = missingFeatures._hasNoStickForces	=	currentVersion >= Storm::Version{ 1, 7, 0 };
-		missingFeatures._hasPSystemTotalEngineForce	=						currentVersion >= Storm::Version{ 1, 8, 0 };
-		missingFeatures._hasIntermediaryPressureForces =					currentVersion >= Storm::Version{ 1, 9, 0 };
-		missingFeatures._hasWantedDensity =									currentVersion >= Storm::Version{ 1, 10, 0 };
+			if constexpr (currentVersion < Storm::Version{ 1, 11, 0 })
+			{
+				frameData._coendaForces.resize(framePCount, Storm::Vector3::Zero());
+			}
+		}
 	}
 }
 
@@ -139,6 +131,14 @@ Storm::RecordReader::RecordReader() :
 	{
 		_readMethodToUse = &Storm::RecordReader::readNextFrame_v1_10_0;
 	}
+	else if (currentRecordVersion == Storm::Version{ 1, 11, 0 })
+	{
+		_readMethodToUse = &Storm::RecordReader::readNextFrame_v1_11_0;
+	}
+	else if (currentRecordVersion == Storm::Version{ 1, 12, 0 })
+	{
+		_readMethodToUse = &Storm::RecordReader::readNextFrame_v1_12_0;
+	}
 	else
 	{
 		Storm::throwException<Storm::Exception>("Cannot read the current record because the version " + Storm::toStdString(currentRecordVersion) + " isn't handled ");
@@ -147,7 +147,7 @@ Storm::RecordReader::RecordReader() :
 	Storm::RecordHandlerBase::serializeHeader();
 	_firstFramePosition = _package.getStreamPosition();
 
-	fillSupportedFeatureImpl(currentRecordVersion, *_header._supportedFeaturesLayout);
+	this->fillSupportedFeature(currentRecordVersion, *_header._supportedFeaturesLayout);
 
 	_noMoreFrame = _header._frameCount == 0;
 }
@@ -179,6 +179,23 @@ bool Storm::RecordReader::readNextFrame(Storm::SerializeRecordPendingData &outPe
 	}
 
 	return false;
+}
+
+void Storm::RecordReader::fillSupportedFeature(const Storm::Version &currentVersion, Storm::SerializeSupportedFeatureLayout &missingFeatures) const
+{
+	Storm::RecordHandlerBase::fillSupportedFeature(currentVersion, missingFeatures);
+
+	missingFeatures._hasPSystemGlobalForce = currentVersion >= Storm::Version{ 1, 2, 0 };
+	missingFeatures._hasPressures = missingFeatures._hasDensities = currentVersion >= Storm::Version{ 1, 3, 0 };
+	missingFeatures._hasVolumes = currentVersion >= Storm::Version{ 1, 4, 0 };
+	missingFeatures._hasDragComponentforces = currentVersion >= Storm::Version{ 1, 5, 0 };
+	missingFeatures._hasDynamicPressureQForces = currentVersion >= Storm::Version{ 1, 6, 0 };
+	missingFeatures._hasNormals = missingFeatures._hasNoStickForces = currentVersion >= Storm::Version{ 1, 7, 0 };
+	missingFeatures._hasPSystemTotalEngineForce = currentVersion >= Storm::Version{ 1, 8, 0 };
+	missingFeatures._hasIntermediaryPressureForces = currentVersion >= Storm::Version{ 1, 9, 0 };
+	missingFeatures._hasWantedDensity = currentVersion >= Storm::Version{ 1, 10, 0 };
+	missingFeatures._hasCoendaForces = currentVersion >= Storm::Version{ 1, 11, 0 };
+	missingFeatures._hasKernelLength = currentVersion >= Storm::Version{ 1, 12, 0 };
 }
 
 void Storm::RecordReader::correctVersionMismatch(Storm::SerializeRecordPendingData &outPendingData)
@@ -215,6 +232,22 @@ void Storm::RecordReader::correctVersionMismatch(Storm::SerializeRecordPendingDa
 	else if (currentRecordVersion == Storm::Version{ 1, 7, 0 })
 	{
 		correctVersionMismatchImpl<1, 7, 0>(outPendingData);
+	}
+	else if (currentRecordVersion == Storm::Version{ 1, 8, 0 })
+	{
+		correctVersionMismatchImpl<1, 8, 0>(outPendingData);
+	}
+	else if (currentRecordVersion == Storm::Version{ 1, 9, 0 })
+	{
+		correctVersionMismatchImpl<1, 9, 0>(outPendingData);
+	}
+	else if (currentRecordVersion == Storm::Version{ 1, 10, 0 })
+	{
+		correctVersionMismatchImpl<1, 10, 0>(outPendingData);
+	}
+	else if (currentRecordVersion <= Storm::Version{ 1, 12, 0 }) // Skip 1.12 because there is nothing worth correcting
+	{
+		correctVersionMismatchImpl<1, 11, 0>(outPendingData);
 	}
 }
 
@@ -813,3 +846,128 @@ bool Storm::RecordReader::readNextFrame_v1_10_0(Storm::SerializeRecordPendingDat
 	return true;
 }
 
+bool Storm::RecordReader::readNextFrame_v1_11_0(Storm::SerializeRecordPendingData &outPendingData)
+{
+	uint64_t frameNumber = std::numeric_limits<uint64_t>::max();
+	_package << frameNumber;
+
+	_noMoreFrame = frameNumber >= _header._frameCount;
+	if (_noMoreFrame)
+	{
+		return false;
+	}
+
+	_package << outPendingData._physicsTime;
+
+	if (frameNumber == 0)
+	{
+		// If it is the first frame, then we would have all particles from all rigid bodies (static rigid bodies included).
+		outPendingData._particleSystemElements.resize(_header._particleSystemLayouts.size());
+	}
+	else
+	{
+		// The other frame have only the particle system that are allowed to move (gain some spaces).
+		outPendingData._particleSystemElements.resize(_movingSystemCount);
+	}
+
+	for (Storm::SerializeRecordParticleSystemData &frameData : outPendingData._particleSystemElements)
+	{
+		_package <<
+			frameData._systemId <<
+			frameData._wantedDensity <<
+			frameData._pSystemPosition <<
+			frameData._pSystemGlobalForce <<
+			frameData._pSystemTotalEngineForce <<
+			frameData._positions <<
+			frameData._velocities <<
+			frameData._forces <<
+			frameData._densities <<
+			frameData._pressures <<
+			frameData._volumes <<
+			frameData._normals <<
+			frameData._pressureComponentforces <<
+			frameData._viscosityComponentforces <<
+			frameData._dragComponentforces <<
+			frameData._dynamicPressureQForces <<
+			frameData._noStickForces <<
+			frameData._coendaForces <<
+			frameData._intermediaryPressureComponentForces
+			;
+	}
+
+	outPendingData._constraintElements.resize(_header._contraintLayouts.size());
+	for (Storm::SerializeRecordContraintsData &constraintData : outPendingData._constraintElements)
+	{
+		_package <<
+			constraintData._id <<
+			constraintData._position1 <<
+			constraintData._position2
+			;
+	}
+
+	return true;
+}
+
+bool Storm::RecordReader::readNextFrame_v1_12_0(Storm::SerializeRecordPendingData &outPendingData)
+{
+	uint64_t frameNumber = std::numeric_limits<uint64_t>::max();
+	_package << frameNumber;
+
+	_noMoreFrame = frameNumber >= _header._frameCount;
+	if (_noMoreFrame)
+	{
+		return false;
+	}
+
+	_package 
+		<< outPendingData._physicsTime
+		<< outPendingData._kernelLength;
+
+	if (frameNumber == 0)
+	{
+		// If it is the first frame, then we would have all particles from all rigid bodies (static rigid bodies included).
+		outPendingData._particleSystemElements.resize(_header._particleSystemLayouts.size());
+	}
+	else
+	{
+		// The other frame have only the particle system that are allowed to move (gain some spaces).
+		outPendingData._particleSystemElements.resize(_movingSystemCount);
+	}
+
+	for (Storm::SerializeRecordParticleSystemData &frameData : outPendingData._particleSystemElements)
+	{
+		_package <<
+			frameData._systemId <<
+			frameData._wantedDensity <<
+			frameData._pSystemPosition <<
+			frameData._pSystemGlobalForce <<
+			frameData._pSystemTotalEngineForce <<
+			frameData._positions <<
+			frameData._velocities <<
+			frameData._forces <<
+			frameData._densities <<
+			frameData._pressures <<
+			frameData._volumes <<
+			frameData._normals <<
+			frameData._pressureComponentforces <<
+			frameData._viscosityComponentforces <<
+			frameData._dragComponentforces <<
+			frameData._dynamicPressureQForces <<
+			frameData._noStickForces <<
+			frameData._coendaForces <<
+			frameData._intermediaryPressureComponentForces
+			;
+	}
+
+	outPendingData._constraintElements.resize(_header._contraintLayouts.size());
+	for (Storm::SerializeRecordContraintsData &constraintData : outPendingData._constraintElements)
+	{
+		_package <<
+			constraintData._id <<
+			constraintData._position1 <<
+			constraintData._position2
+			;
+	}
+
+	return true;
+}

@@ -273,6 +273,41 @@ namespace
 
 		return result;
 	}
+
+	Storm::Vector3 produceCoendaForces(const Storm::IterationParameter &iterationParameter, const Storm::FluidParticleSystem &fluidParticleSystem, const Storm::Vector3 &vi, const float currentPMass, const Storm::ParticleNeighborhoodArray &currentPNeighborhood)
+	{
+		Storm::Vector3 result = Storm::Vector3::Zero();
+
+		const float toForceCoeff = currentPMass / (iterationParameter._deltaTime * iterationParameter._deltaTime);
+		const float finalConstCoeff = toForceCoeff / 2.f;
+		for (const Storm::NeighborParticleInfo &neighbor : currentPNeighborhood)
+		{
+			if (!neighbor._isFluidParticle)
+			{
+				Storm::RigidBodyParticleSystem &pSystemAsRb = static_cast<Storm::RigidBodyParticleSystem &>(*neighbor._containingParticleSystem);
+
+				const float coendaCoeff = pSystemAsRb.getCoendaCoefficient();
+				if (coendaCoeff > 0.f)
+				{
+					// Make it the component that removes the normal component of the velocity.
+					// Note : we suppose the rigid body normal at neighbor particle (rbPNormal) is normalized.
+					const Storm::Vector3 addedForce = (finalConstCoeff * coendaCoeff) * neighbor._xij;
+					result -= addedForce;
+
+					// Mirror the force on the boundary solid following the 3rd newton law
+					if (!pSystemAsRb.isStatic())
+					{
+						Storm::Vector3 &boundaryNeighborTmpNoStickForce = neighbor._containingParticleSystem->getTemporaryNoStickForces()[neighbor._particleIndex];
+
+						std::lock_guard<std::mutex> lock{ neighbor._containingParticleSystem->_mutex };
+						boundaryNeighborTmpNoStickForce += addedForce;
+					}
+				}
+			}
+		}
+
+		return result;
+	}
 }
 
 
@@ -790,6 +825,13 @@ void Storm::DFSPHSolver::computeNonPressureForces_Internal(const Storm::Iteratio
 					Storm::Vector3 &currentPTmpNoStickForce = fluidParticleSystem.getTemporaryNoStickForces()[currentPIndex];
 					currentPTmpNoStickForce = produceNoStickConditionForces(iterationParameter, fluidParticleSystem, vi, currentPMass, currentPNeighborhood);
 					currentPForce += currentPTmpNoStickForce;
+				}
+
+				if (sceneSimulationConfig._useCoendaEffect)
+				{
+					Storm::Vector3 &currentPTmpCoendaForce = fluidParticleSystem.getTemporaryCoendaForces()[currentPIndex];
+					currentPTmpCoendaForce = produceCoendaForces(iterationParameter, fluidParticleSystem, vi, currentPMass, currentPNeighborhood);
+					currentPForce += currentPTmpCoendaForce;
 				}
 
 				// We should also initialize the data field now (avoid to restart the threads).

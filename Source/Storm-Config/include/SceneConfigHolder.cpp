@@ -398,7 +398,8 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 			!Storm::XmlReader::handleXml(generalXmlElement, "fluidParticleRemovalMode", sceneSimulationConfig._fluidParticleRemovalMode, parseParticleRemovalMode) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "startFixRigidBodies", sceneSimulationConfig._fixRigidBodyAtStartTime) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "freeRbAtTime", sceneSimulationConfig._freeRbAtPhysicsTime) &&
-			!Storm::XmlReader::handleXml(generalXmlElement, "noStickConstraint", sceneSimulationConfig._noStickConstraint)
+			!Storm::XmlReader::handleXml(generalXmlElement, "noStickConstraint", sceneSimulationConfig._noStickConstraint) &&
+			!Storm::XmlReader::handleXml(generalXmlElement, "useCoendaEffect", sceneSimulationConfig._useCoendaEffect)
 			)
 		{
 			LOG_ERROR << "tag '" << generalXmlElement.first << "' (inside Scene.General) is unknown, therefore it cannot be handled";
@@ -976,6 +977,7 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "viscosity", rbConfig._viscosity) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "noStickCoeff", rbConfig._noStickCoeff) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "dragCoeff", rbConfig._dragCoefficient) ||
+			Storm::XmlReader::handleXml(rigidBodyConfigXml, "coendaCoeff", rbConfig._coendaCoefficient) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "layerCount", rbConfig._layerCount) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "normalsCoherency", rbConfig._enforceNormalsCoherency) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "sampleCountMDeserno", rbConfig._sampleCountMDeserno) ||
@@ -1033,6 +1035,10 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 		else if (rbConfig._dragCoefficient < 0.f)
 		{
 			Storm::throwException<Storm::Exception>("drag coefficient value " + std::to_string(rbConfig._dragCoefficient) + " is invalid (rigid body " + std::to_string(rbConfig._rigidBodyID) + "). This should be positive or zero!");
+		}
+		else if (rbConfig._coendaCoefficient < 0.f)
+		{
+			Storm::throwException<Storm::Exception>("Coenda coefficient value " + std::to_string(rbConfig._coendaCoefficient) + " is invalid (rigid body " + std::to_string(rbConfig._rigidBodyID) + "). This should be positive or zero!");
 		}
 		else if (rbConfig._isWall && rbConfig._insideRbFluidDetectionMethodEnum != Storm::InsideParticleRemovalTechnique::None)
 		{

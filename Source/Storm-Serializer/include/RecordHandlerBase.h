@@ -21,6 +21,9 @@ namespace Storm
 	public:
 		virtual ~RecordHandlerBase();
 
+	protected:
+		virtual void fillSupportedFeature(const Storm::Version &currentVersion, Storm::SerializeSupportedFeatureLayout &missingFeatures) const;
+
 	public:
 		void serializeHeader();
 		const Storm::SerializeRecordHeader& getHeader() const noexcept;
