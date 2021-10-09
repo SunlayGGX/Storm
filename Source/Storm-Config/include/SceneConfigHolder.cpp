@@ -1035,6 +1035,10 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 		{
 			Storm::throwException<Storm::Exception>("drag coefficient value " + std::to_string(rbConfig._dragCoefficient) + " is invalid (rigid body " + std::to_string(rbConfig._rigidBodyID) + "). This should be positive or zero!");
 		}
+		else if (rbConfig._coendaCoefficient < 0.f)
+		{
+			Storm::throwException<Storm::Exception>("Coenda coefficient value " + std::to_string(rbConfig._coendaCoefficient) + " is invalid (rigid body " + std::to_string(rbConfig._rigidBodyID) + "). This should be positive or zero!");
+		}
 		else if (rbConfig._isWall && rbConfig._insideRbFluidDetectionMethodEnum != Storm::InsideParticleRemovalTechnique::None)
 		{
 			Storm::throwException<Storm::Exception>("Setting a insider particles removal technique for a wall rigid body is forbidden (rigid body " + std::to_string(rbConfig._rigidBodyID) + ")!");
