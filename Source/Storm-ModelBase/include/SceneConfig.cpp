@@ -122,6 +122,7 @@ Storm::SceneRigidBodyConfig::SceneRigidBodyConfig() :
 	_viscosity{ 0.f },
 	_noStickCoeff{ 1.f },
 	_dragCoefficient{ 0.f },
+	_coendaCoefficient{ 0.f },
 	_layerCount{ 1 },
 	_layerGenerationMode{ Storm::LayeringGenerationTechnique::Scaling },
 	_volumeComputationTechnique{ Storm::VolumeComputationTechnique::None },

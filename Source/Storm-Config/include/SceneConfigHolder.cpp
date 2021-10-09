@@ -976,6 +976,7 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "viscosity", rbConfig._viscosity) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "noStickCoeff", rbConfig._noStickCoeff) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "dragCoeff", rbConfig._dragCoefficient) ||
+			Storm::XmlReader::handleXml(rigidBodyConfigXml, "coendaCoeff", rbConfig._coendaCoefficient) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "layerCount", rbConfig._layerCount) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "normalsCoherency", rbConfig._enforceNormalsCoherency) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "sampleCountMDeserno", rbConfig._sampleCountMDeserno) ||

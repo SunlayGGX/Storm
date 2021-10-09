@@ -102,6 +102,7 @@ void Storm::RigidBodyParticleSystem::loadRigidbodyConfig()
 	_viscosity = currentRbConfig._viscosity;
 	_noStickCoefficient = currentRbConfig._noStickCoeff;
 	_dragCoefficient = currentRbConfig._dragCoefficient;
+	_coendaCoefficient = currentRbConfig._coendaCoefficient;
 
 	_volumeFixed = currentRbConfig._fixedSimulationVolume;
 
@@ -363,6 +364,11 @@ float Storm::RigidBodyParticleSystem::getNoStickCoefficient() const noexcept
 float Storm::RigidBodyParticleSystem::getDragCoefficient() const noexcept
 {
 	return _dragCoefficient;
+}
+
+float Storm::RigidBodyParticleSystem::getCoendaCoefficient() const noexcept
+{
+	return _coendaCoefficient;
 }
 
 const std::vector<float>& Storm::RigidBodyParticleSystem::getVolumes() const noexcept

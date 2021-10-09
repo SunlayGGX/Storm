@@ -54,6 +54,7 @@ namespace Storm
 		float getViscosity() const noexcept;
 		float getNoStickCoefficient() const noexcept;
 		float getDragCoefficient() const noexcept;
+		float getCoendaCoefficient() const noexcept;
 
 		const Storm::Vector3& getRbPosition() const noexcept;
 		const Storm::Vector3& getRbTotalForce() const noexcept;
@@ -84,6 +85,7 @@ namespace Storm
 		float _viscosity;
 		float _noStickCoefficient;
 		float _dragCoefficient;
+		float _coendaCoefficient;
 
 		// Those are particle global position and rotation that serves to update particles using the rigid body position and rotation owned by the physics engine.
 		// Beware because they are made to track the changes of position and rotation, it means that they are not forcefully up to date.
