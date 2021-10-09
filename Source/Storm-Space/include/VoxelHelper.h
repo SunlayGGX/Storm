@@ -547,8 +547,32 @@ namespace
 			if constexpr (infiniteDomain)
 			{
 				outShouldReflect = true;
-				STORM_TODO("infinite domain -> Corner : Left bottom front");
-				STORM_NOT_IMPLEMENTED;
+
+				const unsigned int xIndexBefore_reflected = gridBoundary.x() - 1;
+				const unsigned int yIndexBefore_reflected = gridBoundary.y() - 1;
+				const unsigned int zIndexBefore_reflected = gridBoundary.z() - 1;
+
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndex, zIndexBefore_reflected);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexAfter, zIndexBefore_reflected);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexBefore_reflected, zIndex);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexBefore_reflected, zIndexAfter);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexBefore_reflected, zIndexBefore_reflected);
+
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexAfter, yIndex, zIndexBefore_reflected);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexAfter, yIndexAfter, zIndexBefore_reflected);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexAfter, yIndexBefore_reflected, zIndex);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexAfter, yIndexBefore_reflected, zIndexAfter);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexAfter, yIndexBefore_reflected, zIndexBefore_reflected);
+				
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore_reflected, yIndex, zIndex);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore_reflected, yIndex, zIndexAfter);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore_reflected, yIndex, zIndexBefore_reflected);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore_reflected, yIndexAfter, zIndex);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore_reflected, yIndexAfter, zIndexAfter);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore_reflected, yIndexAfter, zIndexBefore_reflected);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore_reflected, yIndexBefore_reflected, zIndex);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore_reflected, yIndexBefore_reflected, zIndexAfter);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore_reflected, yIndexBefore_reflected, zIndexBefore_reflected);
 			}
 			else
 			{
@@ -611,8 +635,31 @@ namespace
 			if constexpr (infiniteDomain)
 			{
 				outShouldReflect = true;
-				STORM_TODO("infinite domain -> Corner : Left Top front");
-				STORM_NOT_IMPLEMENTED;
+
+				const unsigned int xIndexBefore_reflected = gridBoundary.x() - 1;
+				const unsigned int zIndexBefore_reflected = gridBoundary.z() - 1;
+
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, 0, zIndex);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, 0, zIndexAfter);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, 0, zIndexBefore_reflected);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexBefore, zIndexBefore_reflected);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndex, zIndexBefore_reflected);
+
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexAfter, 0, zIndex);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexAfter, 0, zIndexAfter);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexAfter, 0, zIndexBefore_reflected);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexAfter, yIndexBefore, zIndexBefore_reflected);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexAfter, yIndex, zIndexBefore_reflected);
+
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore_reflected, 0, zIndex);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore_reflected, 0, zIndexAfter);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore_reflected, 0, zIndexBefore_reflected);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore_reflected, yIndex, zIndex);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore_reflected, yIndex, zIndexAfter);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore_reflected, yIndex, zIndexBefore_reflected);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore_reflected, yIndexBefore, zIndex);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore_reflected, yIndexBefore, zIndexAfter);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore_reflected, yIndexBefore, zIndexBefore_reflected);
 			}
 			else
 			{
@@ -674,8 +721,30 @@ namespace
 			if constexpr (infiniteDomain)
 			{
 				outShouldReflect = true;
-				STORM_TODO("infinite domain -> Corner : Left Top Back");
-				STORM_NOT_IMPLEMENTED;
+
+				const unsigned int xIndexBefore_reflected = gridBoundary.x() - 1;
+
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, 0, 0);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, 0, zIndexBefore);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, 0, zIndex);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexBefore, 0);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndex, 0);
+
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexAfter, 0, 0);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexAfter, 0, zIndexBefore);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexAfter, 0, zIndex);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexAfter, yIndexBefore, 0);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexAfter, yIndex, 0);
+				
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore_reflected, 0, 0);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore_reflected, 0, zIndexBefore);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore_reflected, 0, zIndex);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore_reflected, yIndexBefore, 0);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore_reflected, yIndexBefore, zIndexBefore);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore_reflected, yIndexBefore, zIndex);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore_reflected, yIndex, 0);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore_reflected, yIndex, zIndexBefore);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore_reflected, yIndex, zIndex);
 			}
 			else
 			{
@@ -739,8 +808,31 @@ namespace
 			if constexpr (infiniteDomain)
 			{
 				outShouldReflect = true;
-				STORM_TODO("infinite domain -> Corner : Left Bottom Back");
-				STORM_NOT_IMPLEMENTED;
+
+				const unsigned int xIndexBefore_reflected = gridBoundary.x() - 1;
+				const unsigned int yIndexBefore_reflected = gridBoundary.y() - 1;
+
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndex, 0);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexAfter, 0);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexBefore_reflected, 0);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexBefore_reflected, zIndexBefore);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexBefore_reflected, zIndex);
+
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexAfter, yIndex, 0);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexAfter, yIndexAfter, 0);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexAfter, yIndexBefore_reflected, 0);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexAfter, yIndexBefore_reflected, zIndexBefore);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexAfter, yIndexBefore_reflected, zIndex);
+				
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore_reflected, yIndex, 0);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore_reflected, yIndex, zIndexBefore);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore_reflected, yIndex, zIndex);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore_reflected, yIndexAfter, 0);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore_reflected, yIndexAfter, zIndexBefore);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore_reflected, yIndexAfter, zIndex);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore_reflected, yIndexBefore_reflected, 0);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore_reflected, yIndexBefore_reflected, zIndexBefore);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore_reflected, yIndexBefore_reflected, zIndex);
 			}
 			else
 			{
@@ -804,8 +896,31 @@ namespace
 			if constexpr (infiniteDomain)
 			{
 				outShouldReflect = true;
-				STORM_TODO("infinite domain -> Corner : Right Bottom Front");
-				STORM_NOT_IMPLEMENTED;
+
+				const unsigned int yIndexBefore_reflected = gridBoundary.y() - 1;
+				const unsigned int zIndexBefore_reflected = gridBoundary.z() - 1;
+
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(0, yIndex, zIndex);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(0, yIndex, zIndexAfter);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(0, yIndex, zIndexBefore_reflected);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(0, yIndexAfter, zIndex);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(0, yIndexAfter, zIndexAfter);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(0, yIndexAfter, zIndexBefore_reflected);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(0, yIndexBefore_reflected, zIndex);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(0, yIndexBefore_reflected, zIndexAfter);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(0, yIndexBefore_reflected, zIndexBefore_reflected);
+
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndex, zIndexBefore_reflected);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexAfter, zIndexBefore_reflected);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexBefore_reflected, zIndex);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexBefore_reflected, zIndexAfter);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexBefore_reflected, zIndexBefore_reflected);
+
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndex, zIndexBefore_reflected);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndexAfter, zIndexBefore_reflected);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndexBefore_reflected, zIndex);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndexBefore_reflected, zIndexAfter);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndexBefore_reflected, zIndexBefore_reflected);
 			}
 			else
 			{
@@ -867,8 +982,30 @@ namespace
 			if constexpr (infiniteDomain)
 			{
 				outShouldReflect = true;
-				STORM_TODO("infinite domain -> Corner : Right Top Front");
-				STORM_NOT_IMPLEMENTED;
+
+				const unsigned int zIndexBefore_reflected = gridBoundary.z() - 1;
+
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(0, 0, zIndex);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(0, 0, zIndexAfter);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(0, 0, zIndexBefore_reflected);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(0, yIndexBefore, zIndex);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(0, yIndexBefore, zIndexAfter);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(0, yIndexBefore, zIndexBefore_reflected);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(0, yIndex, zIndex);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(0, yIndex, zIndexAfter);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(0, yIndex, zIndexBefore_reflected);
+
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, 0, zIndex);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, 0, zIndexAfter);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, 0, zIndexBefore_reflected);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndexBefore, zIndexBefore_reflected);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndex, zIndexBefore_reflected);
+
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, 0, zIndex);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, 0, zIndexAfter);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, 0, zIndexBefore_reflected);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexBefore, zIndexBefore_reflected);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndex, zIndexBefore_reflected);
 			}
 			else
 			{
@@ -928,8 +1065,28 @@ namespace
 			if constexpr (infiniteDomain)
 			{
 				outShouldReflect = true;
-				STORM_TODO("infinite domain -> Corner : Right Top Back");
-				STORM_NOT_IMPLEMENTED;
+
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(0, 0, 0);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(0, 0, zIndexBefore);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(0, 0, zIndex);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(0, yIndexBefore, 0);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(0, yIndexBefore, zIndexBefore);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(0, yIndexBefore, zIndex);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(0, yIndex, 0);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(0, yIndex, zIndexBefore);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(0, yIndex, zIndex);
+
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, 0, 0);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, 0, zIndexBefore);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, 0, zIndex);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndexBefore, 0);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndex, 0);
+
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, 0, 0);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, 0, zIndexBefore);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, 0, zIndex);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexBefore, 0);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndex, 0);
 			}
 			else
 			{
@@ -989,8 +1146,30 @@ namespace
 			if constexpr (infiniteDomain)
 			{
 				outShouldReflect = true;
-				STORM_TODO("infinite domain -> Corner : Right Bottom Back");
-				STORM_NOT_IMPLEMENTED;
+
+				const unsigned int yIndexBefore_reflected = gridBoundary.y() - 1;
+
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(0, yIndex, 0);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(0, yIndex, zIndexBefore);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(0, yIndex, zIndex);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(0, yIndexAfter, 0);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(0, yIndexAfter, zIndexBefore);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(0, yIndexAfter, zIndex);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(0, yIndexBefore_reflected, 0);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(0, yIndexBefore_reflected, zIndexBefore);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(0, yIndexBefore_reflected, zIndex);
+
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndex, 0);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndexAfter, 0);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndexBefore_reflected, 0);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndexBefore_reflected, zIndexBefore);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndexBefore_reflected, zIndex);
+
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndex, 0);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexAfter, 0);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexBefore_reflected, 0);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexBefore_reflected, zIndexBefore);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexBefore_reflected, zIndex);
 			}
 			else
 			{
