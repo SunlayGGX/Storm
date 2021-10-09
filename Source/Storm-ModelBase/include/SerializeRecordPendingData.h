@@ -13,6 +13,7 @@ namespace Storm
 
 	public:
 		float _physicsTime;
+		float _kernelLength;
 		std::vector<Storm::SerializeRecordParticleSystemData> _particleSystemElements;
 		std::vector<Storm::SerializeRecordContraintsData> _constraintElements;
 	};

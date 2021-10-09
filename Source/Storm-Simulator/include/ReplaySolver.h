@@ -18,7 +18,7 @@ namespace Storm
 
 		static void computeNextRecordTime(float &inOutNextRecordTime, const float currentPhysicsTime, const float recordFps);
 
-		static bool replayCurrentNextFrame(Storm::ParticleSystemContainer &particleSystems, Storm::SerializeRecordPendingData &frameBefore, Storm::SerializeRecordPendingData &frameAfter, const float recordFps, std::vector<Storm::SerializeRecordContraintsData> &outFrameConstraintData);
+		static bool replayCurrentNextFrame(Storm::ParticleSystemContainer &particleSystems, Storm::SerializeRecordPendingData &frameBefore, Storm::SerializeRecordPendingData &frameAfter, const float recordFps, std::vector<Storm::SerializeRecordContraintsData> &outFrameConstraintData, float &outKernelValue);
 
 		static void fillRecordFromSystems(const bool pushStatics, const Storm::ParticleSystemContainer &particleSystems, Storm::SerializeRecordPendingData &currentFrameData);
 	};

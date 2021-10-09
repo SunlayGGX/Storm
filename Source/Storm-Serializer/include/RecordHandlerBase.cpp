@@ -11,6 +11,7 @@
 
 #include "SerializeConstraintLayout.h"
 #include "SerializeParticleSystemLayout.h"
+#include "SerializeSupportedFeatureLayout.h"
 
 #include "Version.h"
 
@@ -49,6 +50,7 @@ Storm::RecordHandlerBase::~RecordHandlerBase() = default;
 void Storm::RecordHandlerBase::fillSupportedFeature(const Storm::Version &currentVersion, Storm::SerializeSupportedFeatureLayout &missingFeatures) const
 {
 	assert(!_package.isSerializing() && "This method should only be called with reader. Not from writer!");
+	missingFeatures._hasInfiniteDomainFlag = currentVersion >= Storm::Version{ 1, 12, 0 };
 }
 
 void Storm::RecordHandlerBase::serializeHeader()
@@ -146,6 +148,15 @@ void Storm::RecordHandlerBase::serializeHeader()
 	{
 		_package << constraintLayout._id;
 	}
+
+	if (currentVersion < Storm::Version{ 1, 12 })
+	{
+		_header._infiniteDomain = false;
+		return;
+	}
+	// The part after should only be executed from version 1.12 onwards.
+
+	_package << _header._infiniteDomain;
 }
 
 const Storm::SerializeRecordHeader& Storm::RecordHandlerBase::getHeader() const noexcept

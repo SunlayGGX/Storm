@@ -3,6 +3,7 @@
 #include "SingletonHolder.h"
 #include "IAssetLoaderManager.h"
 #include "IConfigManager.h"
+#include "ISerializerManager.h"
 
 #include "IRigidBody.h"
 
@@ -11,6 +12,9 @@
 #include "DistanceSpacePartitionProxy.h"
 
 #include "SceneCageConfig.h"
+
+#include "SerializeSupportedFeatureLayout.h"
+#include "SerializeRecordHeader.h"
 
 #include "Vector3Utils.h"
 
@@ -39,14 +43,30 @@ void Storm::SpacePartitionerManager::initialize_Implementation(float partitionLe
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
-	const Storm::SceneCageConfig* sceneCageCfg = configMgr.getSceneOptionalCageConfig();
-	if (sceneCageCfg)
+
+	bool initInfiniteDomainFlag = true;
+
+	if (configMgr.isInReplayMode())
 	{
-		_infiniteDomain = sceneCageCfg->_infiniteDomain;
+		const Storm::ISerializerManager &serializerMgr = singletonHolder.getSingleton<Storm::ISerializerManager>();
+		if (serializerMgr.getRecordSupportedFeature()->_hasInfiniteDomainFlag)
+		{
+			_infiniteDomain = serializerMgr.getRecordHeader()._infiniteDomain;
+			initInfiniteDomainFlag = false;
+		}
 	}
-	else
+
+	if (initInfiniteDomainFlag)
 	{
-		_infiniteDomain = false;
+		const Storm::SceneCageConfig* sceneCageCfg = configMgr.getSceneOptionalCageConfig();
+		if (sceneCageCfg)
+		{
+			_infiniteDomain = sceneCageCfg->_infiniteDomain;
+		}
+		else
+		{
+			_infiniteDomain = false;
+		}
 	}
 
 	const Storm::IAssetLoaderManager &assetLoaderMgr = singletonHolder.getSingleton<Storm::IAssetLoaderManager>();

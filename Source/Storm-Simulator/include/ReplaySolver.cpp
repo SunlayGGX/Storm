@@ -748,7 +748,7 @@ void Storm::ReplaySolver::computeNextRecordTime(float &inOutNextRecordTime, cons
 	}
 }
 
-bool Storm::ReplaySolver::replayCurrentNextFrame(Storm::ParticleSystemContainer &particleSystems, Storm::SerializeRecordPendingData &frameBefore, Storm::SerializeRecordPendingData &frameAfter, const float recordFps, std::vector<Storm::SerializeRecordContraintsData> &outFrameConstraintData)
+bool Storm::ReplaySolver::replayCurrentNextFrame(Storm::ParticleSystemContainer &particleSystems, Storm::SerializeRecordPendingData &frameBefore, Storm::SerializeRecordPendingData &frameAfter, const float recordFps, std::vector<Storm::SerializeRecordContraintsData> &outFrameConstraintData, float &outKernelValue)
 {
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 	Storm::ITimeManager &timeMgr = singletonHolder.getSingleton<Storm::ITimeManager>();
@@ -767,6 +767,8 @@ bool Storm::ReplaySolver::replayCurrentNextFrame(Storm::ParticleSystemContainer 
 		outFrameConstraintData = std::move(frameBefore._constraintElements);
 
 		timeMgr.setCurrentPhysicsElapsedTime(frameBefore._physicsTime);
+
+		outKernelValue = frameBefore._kernelLength;
 
 		Storm::ReplaySolver::computeNextRecordTime(nextFrameTime, frameBefore._physicsTime, recordFps);
 	}
@@ -833,6 +835,8 @@ bool Storm::ReplaySolver::replayCurrentNextFrame(Storm::ParticleSystemContainer 
 		}
 
 		lerpConstraintsFrames(frameBefore, frameAfter, coefficient, outFrameConstraintData);
+
+		lerp(frameBefore._kernelLength, frameAfter._kernelLength, coefficient, outKernelValue);
 
 		timeMgr.setCurrentPhysicsElapsedTime(nextFrameTime);
 	}
