@@ -291,9 +291,23 @@ namespace
 
 			if constexpr (infiniteDomain)
 			{
+				// Only reflect on Z. Since Z is front here, then we would need to include voxel at back Z.
 				outShouldReflect = true;
-				STORM_TODO("infinite domain -> Middle front");
-				STORM_NOT_IMPLEMENTED;
+
+				// Reflection on opposite Z Edge that is the Z before reflected from the first Z => on the last Z (The back).
+				const unsigned int zIndexBefore_reflected = gridBoundary.z() - 1;
+
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndexBefore, zIndexBefore_reflected);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndex, zIndexBefore_reflected);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndexAfter, zIndexBefore_reflected);
+
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexBefore, zIndexBefore_reflected);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndex, zIndexBefore_reflected);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexAfter, zIndexBefore_reflected);
+
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexAfter, yIndexBefore, zIndexBefore_reflected);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexAfter, yIndex, zIndexBefore_reflected);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexAfter, yIndexAfter, zIndexBefore_reflected);
 			}
 			else
 			{
@@ -324,9 +338,21 @@ namespace
 
 			if constexpr (infiniteDomain)
 			{
+				// Only reflect on Z. Since Z is back here, then we would need to include voxel at front Z.
 				outShouldReflect = true;
-				STORM_TODO("infinite domain -> Middle back");
-				STORM_NOT_IMPLEMENTED;
+
+				// Reflection on opposite Z Edge that is the Z before reflected from the last Z => on the first Z (The front) which is the Z with index 0.
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndexBefore, 0);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndex, 0);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndexAfter, 0);
+
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexBefore, 0);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndex, 0);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexAfter, 0);
+
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexAfter, yIndexBefore, 0);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexAfter, yIndex, 0);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexAfter, yIndexAfter, 0);
 			}
 			else
 			{
@@ -356,9 +382,20 @@ namespace
 
 			if constexpr (infiniteDomain)
 			{
+				// Only reflect on X. Since X is at the leftmost side of the domain here, then we would need to include voxel at the domain's rightmost side.
 				outShouldReflect = true;
-				STORM_TODO("infinite domain -> Middle left");
-				STORM_NOT_IMPLEMENTED;
+
+				const unsigned int xIndexBefore_reflected = gridBoundary.x() - 1;
+
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore_reflected, yIndexBefore, zIndexBefore);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore_reflected, yIndexBefore, zIndex);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore_reflected, yIndexBefore, zIndexAfter);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore_reflected, yIndex, zIndexBefore);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore_reflected, yIndex, zIndex);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore_reflected, yIndex, zIndexAfter);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore_reflected, yIndexAfter, zIndexBefore);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore_reflected, yIndexAfter, zIndex);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore_reflected, yIndexAfter, zIndexAfter);
 			}
 			else
 			{
@@ -367,6 +404,26 @@ namespace
 			break;
 
 		case PositionInDomain::RightMiddleMiddle:
+			if constexpr (infiniteDomain)
+			{
+				// Only reflect on X. Since X is at the rightmost side of the domain here, then we would need to include voxel at the domain's leftmost side (aka x=0).
+				outShouldReflect = true;
+
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(0, yIndexBefore, zIndexBefore);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(0, yIndexBefore, zIndex);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(0, yIndexBefore, zIndexAfter);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(0, yIndex, zIndexBefore);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(0, yIndex, zIndex);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(0, yIndex, zIndexAfter);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(0, yIndexAfter, zIndexBefore);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(0, yIndexAfter, zIndex);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(0, yIndexAfter, zIndexAfter);
+			}
+			else
+			{
+				outShouldReflect = false;
+			}
+
 			STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndexBefore, zIndexBefore);
 			STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndexBefore, zIndex);
 			STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndexBefore, zIndexAfter);
@@ -386,16 +443,6 @@ namespace
 			STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexAfter, zIndex);
 			STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexAfter, zIndexAfter);
 
-			if constexpr (infiniteDomain)
-			{
-				outShouldReflect = true;
-				STORM_TODO("infinite domain -> Middle right");
-				STORM_NOT_IMPLEMENTED;
-			}
-			else
-			{
-				outShouldReflect = false;
-			}
 			break;
 
 		case PositionInDomain::MiddleBottomMiddle:
@@ -422,8 +469,21 @@ namespace
 			if constexpr (infiniteDomain)
 			{
 				outShouldReflect = true;
-				STORM_TODO("infinite domain -> Middle bottom");
-				STORM_NOT_IMPLEMENTED;
+
+				// Only reflect on Y. Since Y is at the bottommost side of the domain here, then we would need to include voxel at the domain's topmost side.
+				const unsigned int yIndexBefore_reflected = gridBoundary.y() - 1;
+
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndexBefore_reflected, zIndexBefore);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndexBefore_reflected, zIndex);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndexBefore_reflected, zIndexAfter);
+
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexBefore_reflected, zIndexBefore);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexBefore_reflected, zIndex);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexBefore_reflected, zIndexAfter);
+
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexAfter, yIndexBefore_reflected, zIndexBefore);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexAfter, yIndexBefore_reflected, zIndex);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexAfter, yIndexBefore_reflected, zIndexAfter);
 			}
 			else
 			{
@@ -455,8 +515,19 @@ namespace
 			if constexpr (infiniteDomain)
 			{
 				outShouldReflect = true;
-				STORM_TODO("infinite domain -> Middle top");
-				STORM_NOT_IMPLEMENTED;
+
+				// Only reflect on Y. Since Y is at the topmost side of the domain here, then we would need to include voxel at the domain's bottommost side (aka y=0).
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, 0, zIndexBefore);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, 0, zIndex);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, 0, zIndexAfter);
+
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, 0, zIndexBefore);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, 0, zIndex);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, 0, zIndexAfter);
+
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexAfter, 0, zIndexBefore);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexAfter, 0, zIndex);
+				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexAfter, 0, zIndexAfter);
 			}
 			else
 			{
