@@ -85,7 +85,8 @@
 #endif
 
 
-#define STORM_OUTPUT_BUILD_MESSAGE(Msg) __pragma(message("STORM Message : " Msg))
 
+#define STORM_OUTPUT_BUILD_MESSAGE(Msg) __pragma(message(__FILE__ "(" STORM_STRINGIFY(__LINE__) ") : STORM Message => " Msg))
 
 #define STORM_TODO(...) STORM_OUTPUT_BUILD_MESSAGE("TODO => " #__VA_ARGS__)
+
