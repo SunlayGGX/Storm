@@ -720,6 +720,7 @@ Here the list of available commands :
   * "Drag" : refers to the drag force.
   * "Bernouilli" / "DynamicQ" / "DynamicPressure" : refer to the dynamic pressure force.
   * "NoStick" : refers to the no stick constraint penalty force.
+  * "Coenda" : refers to the coenda penalty force.
 
 
 #### - TimeManager (timeMgr)

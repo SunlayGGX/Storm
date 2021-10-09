@@ -36,6 +36,8 @@ namespace Storm
 		std::vector<Storm::Vector3>& getTemporaryBernoulliDynamicPressureForces() noexcept;
 		const std::vector<Storm::Vector3>& getTemporaryNoStickForces() const noexcept;
 		std::vector<Storm::Vector3>& getTemporaryNoStickForces() noexcept;
+		const std::vector<Storm::Vector3>& getTemporaryCoendaForces() const noexcept;
+		std::vector<Storm::Vector3>& getTemporaryCoendaForces() noexcept;
 		const std::vector<Storm::Vector3>& getTemporaryPressureIntermediaryForces() const noexcept;
 		std::vector<Storm::Vector3>& getTemporaryPressureIntermediaryForces() noexcept;
 
@@ -69,6 +71,7 @@ namespace Storm
 		virtual void setTmpDragForces(std::vector<Storm::Vector3> &&tmpDragForces) = 0;
 		virtual void setTmpBernoulliDynamicPressureForces(std::vector<Storm::Vector3> &&tmpDynamicQForces) = 0;
 		virtual void setTmpNoStickForces(std::vector<Storm::Vector3> &&tmpNoStickForces) = 0;
+		virtual void setTmpCoendaForces(std::vector<Storm::Vector3> &&coendaForces) = 0;
 		virtual void setTmpPressureIntermediaryForces(std::vector<Storm::Vector3> &&tmpPressuresIntermediaryForces) = 0;
 		virtual void setParticleSystemPosition(const Storm::Vector3 &pSystemPosition) = 0;
 		virtual void setParticleSystemTotalForce(const Storm::Vector3 &pSystemTotalForce) = 0;
@@ -122,6 +125,7 @@ namespace Storm
 		std::vector<Storm::Vector3> _tmpDragForce;
 		std::vector<Storm::Vector3> _tmpBernoulliDynamicPressureForce;
 		std::vector<Storm::Vector3> _tmpNoStickForce;
+		std::vector<Storm::Vector3> _tmpCoendaForce;
 
 		Storm::Vector3 _totalForceNonPhysX;
 

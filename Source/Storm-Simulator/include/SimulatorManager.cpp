@@ -2179,6 +2179,7 @@ void Storm::SimulatorManager::refreshParticleSelection()
 			_particleSelector.setSelectedParticleDragForce(pSystem.getTemporaryDragForces()[selectedParticleIndex]);
 			_particleSelector.setSelectedParticleBernoulliDynamicPressureForce(pSystem.getTemporaryBernoulliDynamicPressureForces()[selectedParticleIndex]);
 			_particleSelector.setSelectedParticleNoStickForce(pSystem.getTemporaryNoStickForces()[selectedParticleIndex]);
+			_particleSelector.setSelectedParticleCoendaForce(pSystem.getTemporaryCoendaForces()[selectedParticleIndex]);
 			_particleSelector.setSelectedParticlePressureIntermediaryForce(pSystem.getTemporaryPressureIntermediaryForces()[selectedParticleIndex]);
 			_particleSelector.setSelectedParticleSumForce(pSystem.getForces()[selectedParticleIndex]);
 			_particleSelector.setTotalEngineSystemForce(pSystem.getTotalForceNonPhysX());
@@ -3063,6 +3064,7 @@ bool Storm::SimulatorManager::selectSpecificParticle_Internal(const unsigned pSy
 				_particleSelector.setSelectedParticleDragForce(selectedPSystem.getTemporaryDragForces()[particleIndex]);
 				_particleSelector.setSelectedParticleBernoulliDynamicPressureForce(selectedPSystem.getTemporaryBernoulliDynamicPressureForces()[particleIndex]);
 				_particleSelector.setSelectedParticleNoStickForce(selectedPSystem.getTemporaryNoStickForces()[particleIndex]);
+				_particleSelector.setSelectedParticleCoendaForce(selectedPSystem.getTemporaryCoendaForces()[particleIndex]);
 				_particleSelector.setSelectedParticlePressureIntermediaryForce(selectedPSystem.getTemporaryPressureIntermediaryForces()[particleIndex]);
 				_particleSelector.setTotalEngineSystemForce(selectedPSystem.getTotalForceNonPhysX());
 

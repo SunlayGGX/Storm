@@ -492,11 +492,19 @@ void Storm::RigidBodyParticleSystem::setTmpBernoulliDynamicPressureForces(std::v
 	}
 }
 
-void Storm::RigidBodyParticleSystem::setTmpNoStickForces(std::vector<Storm::Vector3> &&tmpNoStick)
+void Storm::RigidBodyParticleSystem::setTmpNoStickForces(std::vector<Storm::Vector3> &&tmpNoStickForces)
 {
 	if (!this->isStatic())
 	{
-		_tmpNoStickForce = std::move(tmpNoStick);
+		_tmpNoStickForce = std::move(tmpNoStickForces);
+	}
+}
+
+void Storm::RigidBodyParticleSystem::setTmpCoendaForces(std::vector<Storm::Vector3> &&tmpCoendaForces)
+{
+	if (!this->isStatic())
+	{
+		_tmpCoendaForce = std::move(tmpCoendaForces);
 	}
 }
 

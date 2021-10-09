@@ -260,6 +260,7 @@ namespace
 			std::vector<Storm::Vector3> &allDragForce = currentPSystem.getTemporaryDragForces();
 			std::vector<Storm::Vector3> &allDynamicQForce = currentPSystem.getTemporaryBernoulliDynamicPressureForces();
 			std::vector<Storm::Vector3> &allNoStickForce = currentPSystem.getTemporaryNoStickForces();
+			std::vector<Storm::Vector3> &allCoendaForce = currentPSystem.getTemporaryCoendaForces();
 			std::vector<Storm::Vector3> &allIntermediaryPressures = currentPSystem.getTemporaryPressureIntermediaryForces();
 
 
@@ -285,6 +286,7 @@ namespace
 		STORM_LAUNCH_LERP_ARRAY_FUTURE(_dragComponentforces, allDragForce),									\
 		STORM_LAUNCH_LERP_ARRAY_FUTURE(_dynamicPressureQForces, allDynamicQForce),							\
 		STORM_LAUNCH_LERP_ARRAY_FUTURE(_noStickForces, allNoStickForce),									\
+		STORM_LAUNCH_LERP_ARRAY_FUTURE(_coendaForces, allCoendaForce),									\
 		STORM_LAUNCH_LERP_ARRAY_FUTURE(_intermediaryPressureComponentForces, allIntermediaryPressures),		\
 	}
 
@@ -312,6 +314,7 @@ namespace
 						lerp(frameBeforeElements._dragComponentforces[currentPIndex], frameAfterElements._dragComponentforces[currentPIndex], coefficient, allDragForce[currentPIndex]);
 						lerp(frameBeforeElements._dynamicPressureQForces[currentPIndex], frameAfterElements._dynamicPressureQForces[currentPIndex], coefficient, allDynamicQForce[currentPIndex]);
 						lerp(frameBeforeElements._noStickForces[currentPIndex], frameAfterElements._noStickForces[currentPIndex], coefficient, allNoStickForce[currentPIndex]);
+						lerp(frameBeforeElements._coendaForces[currentPIndex], frameAfterElements._coendaForces[currentPIndex], coefficient, allCoendaForce[currentPIndex]);
 						lerp(frameBeforeElements._intermediaryPressureComponentForces[currentPIndex], frameAfterElements._intermediaryPressureComponentForces[currentPIndex], coefficient, allIntermediaryPressures[currentPIndex]);
 					});
 				}
@@ -337,6 +340,7 @@ namespace
 		STORM_LAUNCH_LERP_ARRAY_FUTURE(_dragComponentforces, allDragForce),									\
 		STORM_LAUNCH_LERP_ARRAY_FUTURE(_dynamicPressureQForces, allDynamicQForce),							\
 		STORM_LAUNCH_LERP_ARRAY_FUTURE(_noStickForces, allNoStickForce),									\
+		STORM_LAUNCH_LERP_ARRAY_FUTURE(_coendaForces, allCoendaForce),										\
 		STORM_LAUNCH_LERP_ARRAY_FUTURE(_intermediaryPressureComponentForces, allIntermediaryPressures),		\
 	}
 				if constexpr (simdMode == Storm::SIMDUsageMode::AVX512)
@@ -363,6 +367,7 @@ namespace
 						lerp(frameBeforeElements._dragComponentforces[currentPIndex], frameAfterElements._dragComponentforces[currentPIndex], coefficient, allDragForce[currentPIndex]);
 						lerp(frameBeforeElements._dynamicPressureQForces[currentPIndex], frameAfterElements._dynamicPressureQForces[currentPIndex], coefficient, allDynamicQForce[currentPIndex]);
 						lerp(frameBeforeElements._noStickForces[currentPIndex], frameAfterElements._noStickForces[currentPIndex], coefficient, allNoStickForce[currentPIndex]);
+						lerp(frameBeforeElements._coendaForces[currentPIndex], frameAfterElements._coendaForces[currentPIndex], coefficient, allCoendaForce[currentPIndex]);
 						lerp(frameBeforeElements._intermediaryPressureComponentForces[currentPIndex], frameAfterElements._intermediaryPressureComponentForces[currentPIndex], coefficient, allIntermediaryPressures[currentPIndex]);
 					});
 #undef STORM_MAKE_PARALLEL_RB_LERPS
@@ -516,6 +521,7 @@ namespace
 					STORM_COPY_ARRAYS(avx512CpyLambda, _dragComponentforces, pSystemRef.getTemporaryDragForces());
 					STORM_COPY_ARRAYS(avx512CpyLambda, _dynamicPressureQForces, pSystemRef.getTemporaryBernoulliDynamicPressureForces());
 					STORM_COPY_ARRAYS(avx512CpyLambda, _noStickForces, pSystemRef.getTemporaryNoStickForces());
+					STORM_COPY_ARRAYS(avx512CpyLambda, _coendaForces, pSystemRef.getTemporaryCoendaForces());
 					STORM_COPY_ARRAYS(avx512CpyLambda, _intermediaryPressureComponentForces, pSystemRef.getTemporaryPressureIntermediaryForces());
 				}
 				else if constexpr (simdMode == Storm::SIMDUsageMode::SSE)
@@ -528,6 +534,7 @@ namespace
 					STORM_COPY_ARRAYS(sseCpyLambda, _dragComponentforces, pSystemRef.getTemporaryDragForces());
 					STORM_COPY_ARRAYS(sseCpyLambda, _dynamicPressureQForces, pSystemRef.getTemporaryBernoulliDynamicPressureForces());
 					STORM_COPY_ARRAYS(sseCpyLambda, _noStickForces, pSystemRef.getTemporaryNoStickForces());
+					STORM_COPY_ARRAYS(sseCpyLambda, _coendaForces, pSystemRef.getTemporaryCoendaForces());
 					STORM_COPY_ARRAYS(sseCpyLambda, _intermediaryPressureComponentForces, pSystemRef.getTemporaryPressureIntermediaryForces());
 				}
 				else
@@ -540,6 +547,7 @@ namespace
 					STORM_MAKE_SIMPLE_COPY_ARRAY(_dragComponentforces, pSystemRef.getTemporaryDragForces());
 					STORM_MAKE_SIMPLE_COPY_ARRAY(_dynamicPressureQForces, pSystemRef.getTemporaryBernoulliDynamicPressureForces());
 					STORM_MAKE_SIMPLE_COPY_ARRAY(_noStickForces, pSystemRef.getTemporaryNoStickForces());
+					STORM_MAKE_SIMPLE_COPY_ARRAY(_coendaForces, pSystemRef.getTemporaryCoendaForces());
 					STORM_MAKE_SIMPLE_COPY_ARRAY(_intermediaryPressureComponentForces, pSystemRef.getTemporaryPressureIntermediaryForces());
 				}
 
@@ -575,6 +583,7 @@ void Storm::ReplaySolver::transferFrameToParticleSystem_move(Storm::ParticleSyst
 		particleSystem.setTmpDragForces(std::move(currentFrameElement._dragComponentforces));
 		particleSystem.setTmpBernoulliDynamicPressureForces(std::move(currentFrameElement._dynamicPressureQForces));
 		particleSystem.setTmpNoStickForces(std::move(currentFrameElement._noStickForces));
+		particleSystem.setTmpCoendaForces(std::move(currentFrameElement._coendaForces));
 		particleSystem.setParticleSystemTotalForceNonPhysX(currentFrameElement._pSystemTotalEngineForce);
 	}
 }
@@ -595,6 +604,7 @@ void Storm::ReplaySolver::transferFrameToParticleSystem_copy(Storm::ParticleSyst
 		std::vector<Storm::Vector3> &allDragForce = currentPSystem.getTemporaryDragForces();
 		std::vector<Storm::Vector3> &allDynamicQForce = currentPSystem.getTemporaryBernoulliDynamicPressureForces();
 		std::vector<Storm::Vector3> &allNoStickForce = currentPSystem.getTemporaryNoStickForces();
+		std::vector<Storm::Vector3> &allCoendaForce = currentPSystem.getTemporaryCoendaForces();
 		std::vector<Storm::Vector3> &allIntermediaryPressures = currentPSystem.getTemporaryPressureIntermediaryForces();
 
 		if (currentPSystem.isFluids())
@@ -624,6 +634,7 @@ void Storm::ReplaySolver::transferFrameToParticleSystem_copy(Storm::ParticleSyst
 		STORM_LAUNCH_CPY_ARRAY_FUTURE(_dragComponentforces, allDragForce),									\
 		STORM_LAUNCH_CPY_ARRAY_FUTURE(_dynamicPressureQForces, allDynamicQForce),							\
 		STORM_LAUNCH_CPY_ARRAY_FUTURE(_noStickForces, allNoStickForce),										\
+		STORM_LAUNCH_CPY_ARRAY_FUTURE(_coendaForces, allCoendaForce),										\
 		STORM_LAUNCH_CPY_ARRAY_FUTURE(_intermediaryPressureComponentForces, allIntermediaryPressures),		\
 	}
 
@@ -653,6 +664,7 @@ void Storm::ReplaySolver::transferFrameToParticleSystem_copy(Storm::ParticleSyst
 					allDragForce[currentPIndex] = frameElement._dragComponentforces[currentPIndex];
 					allDynamicQForce[currentPIndex] = frameElement._dynamicPressureQForces[currentPIndex];
 					allNoStickForce[currentPIndex] = frameElement._noStickForces[currentPIndex];
+					allCoendaForce[currentPIndex] = frameElement._coendaForces[currentPIndex];
 					allIntermediaryPressures[currentPIndex] = frameElement._intermediaryPressureComponentForces[currentPIndex];
 				});
 			}
@@ -678,6 +690,7 @@ void Storm::ReplaySolver::transferFrameToParticleSystem_copy(Storm::ParticleSyst
 		STORM_LAUNCH_CPY_ARRAY_FUTURE(_dragComponentforces, allDragForce),								\
 		STORM_LAUNCH_CPY_ARRAY_FUTURE(_dynamicPressureQForces, allDynamicQForce),						\
 		STORM_LAUNCH_CPY_ARRAY_FUTURE(_noStickForces, allNoStickForce),									\
+		STORM_LAUNCH_CPY_ARRAY_FUTURE(_coendaForces, allCoendaForce),									\
 		STORM_LAUNCH_CPY_ARRAY_FUTURE(_intermediaryPressureComponentForces, allIntermediaryPressures),	\
 	}
 
@@ -708,6 +721,7 @@ void Storm::ReplaySolver::transferFrameToParticleSystem_copy(Storm::ParticleSyst
 					allDragForce[currentPIndex] = frameElement._dragComponentforces[currentPIndex];
 					allDynamicQForce[currentPIndex] = frameElement._dynamicPressureQForces[currentPIndex];
 					allNoStickForce[currentPIndex] = frameElement._noStickForces[currentPIndex];
+					allCoendaForce[currentPIndex] = frameElement._coendaForces[currentPIndex];
 					allIntermediaryPressures[currentPIndex] = frameElement._intermediaryPressureComponentForces[currentPIndex];
 				});
 			}

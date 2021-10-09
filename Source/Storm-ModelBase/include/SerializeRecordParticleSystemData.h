@@ -21,6 +21,7 @@ namespace Storm
 		std::vector<Storm::Vector3> _dragComponentforces;
 		std::vector<Storm::Vector3> _dynamicPressureQForces;
 		std::vector<Storm::Vector3> _noStickForces;
+		std::vector<Storm::Vector3> _coendaForces;
 		std::vector<Storm::Vector3> _intermediaryPressureComponentForces;
 	};
 }
