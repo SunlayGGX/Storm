@@ -216,6 +216,18 @@ void Storm::RecordReader::correctVersionMismatch(Storm::SerializeRecordPendingDa
 	{
 		correctVersionMismatchImpl<1, 7, 0>(outPendingData);
 	}
+	else if (currentRecordVersion == Storm::Version{ 1, 8, 0 })
+	{
+		correctVersionMismatchImpl<1, 8, 0>(outPendingData);
+	}
+	else if (currentRecordVersion == Storm::Version{ 1, 9, 0 })
+	{
+		correctVersionMismatchImpl<1, 9, 0>(outPendingData);
+	}
+	else if (currentRecordVersion == Storm::Version{ 1, 10, 0 })
+	{
+		correctVersionMismatchImpl<1, 10, 0>(outPendingData);
+	}
 }
 
 bool Storm::RecordReader::readNextFrame_v1_0_0(Storm::SerializeRecordPendingData &outPendingData)
