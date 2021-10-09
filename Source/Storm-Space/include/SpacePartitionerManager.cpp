@@ -128,13 +128,14 @@ void Storm::SpacePartitionerManager::clearSpaceReorderingForPartition(Storm::Par
 void Storm::SpacePartitionerManager::getAllBundles(const std::vector<Storm::NeighborParticleReferral>* &outContainingBundlePtr, const std::vector<Storm::NeighborParticleReferral>*(&outNeighborBundle)[Storm::k_neighborLinkedBunkCount], const Storm::Vector3 &particlePosition, Storm::PartitionSelection modality) const
 {
 	const std::unique_ptr<Storm::VoxelGrid> &spacePartition = this->getSpacePartition(modality);
-	spacePartition->getVoxelsDataAtPosition<false>(this->getPartitionLength(), _gridShiftOffset, outContainingBundlePtr, outNeighborBundle, particlePosition);
+	bool dummy;
+	spacePartition->getVoxelsDataAtPosition<false>(this->getPartitionLength(), _gridShiftOffset, outContainingBundlePtr, outNeighborBundle, particlePosition, dummy);
 }
 
-void Storm::SpacePartitionerManager::getAllBundlesInfinite(const std::vector<Storm::NeighborParticleReferral>* &outContainingBundlePtr, const std::vector<Storm::NeighborParticleReferral>*(&outNeighborBundle)[Storm::k_neighborLinkedBunkCount], const Storm::Vector3 &particlePosition, Storm::PartitionSelection modality) const
+void Storm::SpacePartitionerManager::getAllBundlesInfinite(const std::vector<Storm::NeighborParticleReferral>* &outContainingBundlePtr, const std::vector<Storm::NeighborParticleReferral>*(&outNeighborBundle)[Storm::k_neighborLinkedBunkCount], const Storm::Vector3 &particlePosition, Storm::PartitionSelection modality, bool &outShouldReflect) const
 {
 	const std::unique_ptr<Storm::VoxelGrid> &spacePartition = this->getSpacePartition(modality);
-	spacePartition->getVoxelsDataAtPosition<true>(this->getPartitionLength(), _gridShiftOffset, outContainingBundlePtr, outNeighborBundle, particlePosition);
+	spacePartition->getVoxelsDataAtPosition<true>(this->getPartitionLength(), _gridShiftOffset, outContainingBundlePtr, outNeighborBundle, particlePosition, outShouldReflect);
 }
 
 void Storm::SpacePartitionerManager::getContainingBundle(const std::vector<Storm::NeighborParticleReferral>* &outContainingBundlePtr, const Storm::Vector3 &particlePosition, Storm::PartitionSelection modality) const

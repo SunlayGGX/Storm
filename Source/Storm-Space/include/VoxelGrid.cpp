@@ -32,13 +32,13 @@ Storm::VoxelGrid::VoxelGrid(const Storm::VoxelGrid &other) = default;
 Storm::VoxelGrid::~VoxelGrid() = default;
 
 template<bool infiniteDomain>
-void Storm::VoxelGrid::getVoxelsDataAtPosition(float voxelEdgeLength, const Storm::Vector3 &voxelShift, const std::vector<Storm::NeighborParticleReferral>* &outContainingVoxelPtr, const std::vector<Storm::NeighborParticleReferral>*(&outNeighborData)[Storm::k_neighborLinkedBunkCount], const Storm::Vector3 &particlePosition) const
+void Storm::VoxelGrid::getVoxelsDataAtPosition(float voxelEdgeLength, const Storm::Vector3 &voxelShift, const std::vector<Storm::NeighborParticleReferral>* &outContainingVoxelPtr, const std::vector<Storm::NeighborParticleReferral>*(&outNeighborData)[Storm::k_neighborLinkedBunkCount], const Storm::Vector3 &particlePosition, bool &outShouldReflect) const
 {
-	retrieveVoxelsDataAtPositionImpl<infiniteDomain>(*this, voxelEdgeLength, voxelShift, outContainingVoxelPtr, outNeighborData, particlePosition);
+	retrieveVoxelsDataAtPositionImpl<infiniteDomain>(*this, voxelEdgeLength, voxelShift, outContainingVoxelPtr, outNeighborData, particlePosition, outShouldReflect);
 }
 
-template void Storm::VoxelGrid::getVoxelsDataAtPosition<true>(float, const Storm::Vector3 &, const std::vector<Storm::NeighborParticleReferral>* &, const std::vector<Storm::NeighborParticleReferral>*(&)[Storm::k_neighborLinkedBunkCount], const Storm::Vector3 &) const;
-template void Storm::VoxelGrid::getVoxelsDataAtPosition<false>(float, const Storm::Vector3 &, const std::vector<Storm::NeighborParticleReferral>* &, const std::vector<Storm::NeighborParticleReferral>*(&)[Storm::k_neighborLinkedBunkCount], const Storm::Vector3 &) const;
+template void Storm::VoxelGrid::getVoxelsDataAtPosition<true>(float, const Storm::Vector3 &, const std::vector<Storm::NeighborParticleReferral>* &, const std::vector<Storm::NeighborParticleReferral>*(&)[Storm::k_neighborLinkedBunkCount], const Storm::Vector3 &, bool &) const;
+template void Storm::VoxelGrid::getVoxelsDataAtPosition<false>(float, const Storm::Vector3 &, const std::vector<Storm::NeighborParticleReferral>* &, const std::vector<Storm::NeighborParticleReferral>*(&)[Storm::k_neighborLinkedBunkCount], const Storm::Vector3 &, bool &) const;
 
 void Storm::VoxelGrid::getVoxelsDataAtPosition(float voxelEdgeLength, const Storm::Vector3 &voxelShift, const std::vector<Storm::NeighborParticleReferral>* &outContainingVoxelPtr, const Storm::Vector3 &particlePosition) const
 {

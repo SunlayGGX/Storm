@@ -37,7 +37,8 @@ Storm::DistanceSpacePartitionProxy::~DistanceSpacePartitionProxy() = default;
 
 void Storm::DistanceSpacePartitionProxy::getBundleAtPosition(const std::vector<Storm::Vector3>* &outContainingBundlePtr, const std::vector<Storm::Vector3>*(&outNeighborBundle)[Storm::k_neighborLinkedBunkCount], const Storm::Vector3 &particlePosition) const
 {
-	retrieveVoxelsDataAtPositionImpl(*this, _voxelEdgeLength, _gridShiftOffset, outContainingBundlePtr, outNeighborBundle, particlePosition);
+	bool dummy;
+	retrieveVoxelsDataAtPositionImpl(*this, _voxelEdgeLength, _gridShiftOffset, outContainingBundlePtr, outNeighborBundle, particlePosition, dummy);
 }
 
 bool Storm::DistanceSpacePartitionProxy::addDataIfDistanceUnique(const Storm::Vector3 &data, const float distanceSquared)

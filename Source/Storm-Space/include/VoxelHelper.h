@@ -205,7 +205,7 @@ namespace
 	}
 
 	template<bool infiniteDomain = false, class VoxelType, class VoxelData>
-	static void retrieveVoxelsDataAtPositionImpl(const VoxelType &voxel, float voxelEdgeLength, const Storm::Vector3 &voxelShift, const std::vector<VoxelData>* &outContainingVoxelPtr, const std::vector<VoxelData>*(&outNeighborData)[Storm::k_neighborLinkedBunkCount], const Storm::Vector3 &particlePosition)
+	static void retrieveVoxelsDataAtPositionImpl(const VoxelType &voxel, float voxelEdgeLength, const Storm::Vector3 &voxelShift, const std::vector<VoxelData>* &outContainingVoxelPtr, const std::vector<VoxelData>*(&outNeighborData)[Storm::k_neighborLinkedBunkCount], const Storm::Vector3 &particlePosition, bool &outShouldReflect)
 	{
 		unsigned int xIndex;
 		unsigned int yIndex;
@@ -236,6 +236,7 @@ namespace
 		switch (computePositionInDomain(gridBoundary.x() - 1, gridBoundary.y() - 1, gridBoundary.z() - 1, xIndex, yIndex, zIndex))
 		{
 		case PositionInDomain::AllMiddle: // We're inside the domain and not near a boundary, so complete neighborhood!
+			outShouldReflect = false;
 			STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndexBefore, zIndexBefore);
 			STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndexBefore, zIndex);
 			STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndexBefore, zIndexAfter);
@@ -270,11 +271,13 @@ namespace
 		case PositionInDomain::MiddleFront:
 			if constexpr (infiniteDomain)
 			{
+				outShouldReflect = true;
 				STORM_TODO("infinite domain -> Middle front");
 				STORM_NOT_IMPLEMENTED;
 			}
 			else
 			{
+				outShouldReflect = false;
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndexBefore, zIndex);
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndexBefore, zIndexAfter);
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndex, zIndex);
@@ -300,11 +303,13 @@ namespace
 		case PositionInDomain::MiddleBack:
 			if constexpr (infiniteDomain)
 			{
+				outShouldReflect = true;
 				STORM_TODO("infinite domain -> Middle back");
 				STORM_NOT_IMPLEMENTED;
 			}
 			else
 			{
+				outShouldReflect = false;
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndexBefore, zIndexBefore);
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndexBefore, zIndex);
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndex, zIndexBefore);
@@ -330,11 +335,13 @@ namespace
 		case PositionInDomain::MiddleLeft:
 			if constexpr (infiniteDomain)
 			{
+				outShouldReflect = true;
 				STORM_TODO("infinite domain -> Middle left");
 				STORM_NOT_IMPLEMENTED;
 			}
 			else
 			{
+				outShouldReflect = false;
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexBefore, zIndexBefore);
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexBefore, zIndex);
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexBefore, zIndexAfter);
@@ -359,11 +366,13 @@ namespace
 		case PositionInDomain::MiddleRight:
 			if constexpr (infiniteDomain)
 			{
+				outShouldReflect = true;
 				STORM_TODO("infinite domain -> Middle right");
 				STORM_NOT_IMPLEMENTED;
 			}
 			else
 			{
+				outShouldReflect = false;
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndexBefore, zIndexBefore);
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndexBefore, zIndex);
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndexBefore, zIndexAfter);
@@ -388,11 +397,13 @@ namespace
 		case PositionInDomain::MiddleBottom:
 			if constexpr (infiniteDomain)
 			{
+				outShouldReflect = true;
 				STORM_TODO("infinite domain -> Middle bottom");
 				STORM_NOT_IMPLEMENTED;
 			}
 			else
 			{
+				outShouldReflect = false;
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndex, zIndexBefore);
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndex, zIndex);
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndex, zIndexAfter);
@@ -418,11 +429,13 @@ namespace
 		case PositionInDomain::MiddleTop:
 			if constexpr (infiniteDomain)
 			{
+				outShouldReflect = true;
 				STORM_TODO("infinite domain -> Middle top");
 				STORM_NOT_IMPLEMENTED;
 			}
 			else
 			{
+				outShouldReflect = false;
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndexBefore, zIndexBefore);
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndexBefore, zIndex);
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndexBefore, zIndexAfter);
@@ -448,11 +461,13 @@ namespace
 		case PositionInDomain::LeftBottomFront:
 			if constexpr (infiniteDomain)
 			{
+				outShouldReflect = true;
 				STORM_TODO("infinite domain -> Left bottom front");
 				STORM_NOT_IMPLEMENTED;
 			}
 			else
 			{
+				outShouldReflect = false;
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndex, zIndexAfter);
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexAfter, zIndex);
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexAfter, zIndexAfter);
@@ -466,11 +481,13 @@ namespace
 		case PositionInDomain::LeftMiddleFront:
 			if constexpr (infiniteDomain)
 			{
+				outShouldReflect = true;
 				STORM_TODO("infinite domain -> Left Middle front");
 				STORM_NOT_IMPLEMENTED;
 			}
 			else
 			{
+				outShouldReflect = false;
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexBefore, zIndex);
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexBefore, zIndexAfter);
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndex, zIndexAfter);
@@ -488,11 +505,13 @@ namespace
 		case PositionInDomain::LeftTopFront:
 			if constexpr (infiniteDomain)
 			{
+				outShouldReflect = true;
 				STORM_TODO("infinite domain -> Left Top front");
 				STORM_NOT_IMPLEMENTED;
 			}
 			else
 			{
+				outShouldReflect = false;
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexBefore, zIndex);
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexBefore, zIndexAfter);
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndex, zIndexAfter);
@@ -506,11 +525,13 @@ namespace
 		case PositionInDomain::LeftTopMiddle:
 			if constexpr (infiniteDomain)
 			{
+				outShouldReflect = true;
 				STORM_TODO("infinite domain -> Left Top Middle");
 				STORM_NOT_IMPLEMENTED;
 			}
 			else
 			{
+				outShouldReflect = false;
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexBefore, zIndexBefore);
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexBefore, zIndex);
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexBefore, zIndexAfter);
@@ -528,11 +549,13 @@ namespace
 		case PositionInDomain::LeftTopBack:
 			if constexpr (infiniteDomain)
 			{
+				outShouldReflect = true;
 				STORM_TODO("infinite domain -> Left Top Back");
 				STORM_NOT_IMPLEMENTED;
 			}
 			else
 			{
+				outShouldReflect = false;
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexBefore, zIndexBefore);
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexBefore, zIndex);
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndex, zIndexBefore);
@@ -547,11 +570,13 @@ namespace
 
 			if constexpr (infiniteDomain)
 			{
+				outShouldReflect = true;
 				STORM_TODO("infinite domain -> Left Middle Back");
 				STORM_NOT_IMPLEMENTED;
 			}
 			else
 			{
+				outShouldReflect = false;
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexBefore, zIndexBefore);
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexBefore, zIndex);
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndex, zIndexBefore);
@@ -570,11 +595,13 @@ namespace
 
 			if constexpr (infiniteDomain)
 			{
+				outShouldReflect = true;
 				STORM_TODO("infinite domain -> Left Bottom Back");
 				STORM_NOT_IMPLEMENTED;
 			}
 			else
 			{
+				outShouldReflect = false;
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndex, zIndexBefore);
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexAfter, zIndexBefore);
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexAfter, zIndex);
@@ -589,11 +616,13 @@ namespace
 
 			if constexpr (infiniteDomain)
 			{
+				outShouldReflect = true;
 				STORM_TODO("infinite domain -> Left Bottom Middle");
 				STORM_NOT_IMPLEMENTED;
 			}
 			else
 			{
+				outShouldReflect = false;
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndex, zIndexBefore);
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndex, zIndexAfter);
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexAfter, zIndexBefore);
@@ -612,11 +641,13 @@ namespace
 
 			if constexpr (infiniteDomain)
 			{
+				outShouldReflect = true;
 				STORM_TODO("infinite domain -> Right Bottom Front");
 				STORM_NOT_IMPLEMENTED;
 			}
 			else
 			{
+				outShouldReflect = false;
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndex, zIndex);
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndex, zIndexAfter);
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndexAfter, zIndex);
@@ -630,11 +661,13 @@ namespace
 		case PositionInDomain::RightMiddleFront:
 			if constexpr (infiniteDomain)
 			{
+				outShouldReflect = true;
 				STORM_TODO("infinite domain -> Right Middle Front");
 				STORM_NOT_IMPLEMENTED;
 			}
 			else
 			{
+				outShouldReflect = false;
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndexBefore, zIndex);
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndexBefore, zIndexAfter);
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndex, zIndex);
@@ -652,11 +685,13 @@ namespace
 		case PositionInDomain::RightTopFront:
 			if constexpr (infiniteDomain)
 			{
+				outShouldReflect = true;
 				STORM_TODO("infinite domain -> Right Top Front");
 				STORM_NOT_IMPLEMENTED;
 			}
 			else
 			{
+				outShouldReflect = false;
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndexBefore, zIndex);
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndexBefore, zIndexAfter);
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndex, zIndex);
@@ -670,11 +705,13 @@ namespace
 		case PositionInDomain::RightTopMiddle:
 			if constexpr (infiniteDomain)
 			{
+				outShouldReflect = true;
 				STORM_TODO("infinite domain -> Right Top Middle");
 				STORM_NOT_IMPLEMENTED;
 			}
 			else
 			{
+				outShouldReflect = false;
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndexBefore, zIndexBefore);
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndexBefore, zIndex);
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndexBefore, zIndexAfter);
@@ -692,11 +729,13 @@ namespace
 		case PositionInDomain::RightTopBack:
 			if constexpr (infiniteDomain)
 			{
+				outShouldReflect = true;
 				STORM_TODO("infinite domain -> Right Top Back");
 				STORM_NOT_IMPLEMENTED;
 			}
 			else
 			{
+				outShouldReflect = false;
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndexBefore, zIndexBefore);
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndexBefore, zIndex);
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndex, zIndex);
@@ -710,11 +749,13 @@ namespace
 		case PositionInDomain::RightMiddleBack:
 			if constexpr (infiniteDomain)
 			{
+				outShouldReflect = true;
 				STORM_TODO("infinite domain -> Right Middle Back");
 				STORM_NOT_IMPLEMENTED;
 			}
 			else
 			{
+				outShouldReflect = false;
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndexBefore, zIndexBefore);
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndexBefore, zIndex);
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndex, zIndexBefore);
@@ -732,11 +773,13 @@ namespace
 		case PositionInDomain::RightBottomBack:
 			if constexpr (infiniteDomain)
 			{
+				outShouldReflect = true;
 				STORM_TODO("infinite domain -> Right Bottom Back");
 				STORM_NOT_IMPLEMENTED;
 			}
 			else
 			{
+				outShouldReflect = false;
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndex, zIndex);
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndex, zIndexBefore);
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndexAfter, zIndexBefore);
@@ -750,11 +793,13 @@ namespace
 		case PositionInDomain::RightBottomMiddle:
 			if constexpr (infiniteDomain)
 			{
+				outShouldReflect = true;
 				STORM_TODO("infinite domain -> Right Bottom Middle");
 				STORM_NOT_IMPLEMENTED;
 			}
 			else
 			{
+				outShouldReflect = false;
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndex, zIndexBefore);
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndex, zIndex);
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndex, zIndexAfter);
@@ -772,11 +817,13 @@ namespace
 		case PositionInDomain::MiddleTopFront:
 			if constexpr (infiniteDomain)
 			{
+				outShouldReflect = true;
 				STORM_TODO("infinite domain -> Middle Top Front");
 				STORM_NOT_IMPLEMENTED;
 			}
 			else
 			{
+				outShouldReflect = false;
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndexBefore, zIndex);
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndexBefore, zIndexAfter);
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndex, zIndex);
@@ -794,11 +841,13 @@ namespace
 		case PositionInDomain::MiddleBottomFront:
 			if constexpr (infiniteDomain)
 			{
+				outShouldReflect = true;
 				STORM_TODO("infinite domain -> Middle Bottom Front");
 				STORM_NOT_IMPLEMENTED;
 			}
 			else
 			{
+				outShouldReflect = false;
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndex, zIndex);
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndex, zIndexAfter);
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndexAfter, zIndex);
@@ -816,11 +865,13 @@ namespace
 		case PositionInDomain::MiddleTopBack:
 			if constexpr (infiniteDomain)
 			{
+				outShouldReflect = true;
 				STORM_TODO("infinite domain -> Middle Top Back");
 				STORM_NOT_IMPLEMENTED;
 			}
 			else
 			{
+				outShouldReflect = false;
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndexBefore, zIndexBefore);
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndexBefore, zIndex);
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndex, zIndexBefore);
@@ -838,11 +889,13 @@ namespace
 		case PositionInDomain::MiddleBottomBack:
 			if constexpr (infiniteDomain)
 			{
+				outShouldReflect = true;
 				STORM_TODO("infinite domain -> Middle Bottom Back");
 				STORM_NOT_IMPLEMENTED;
 			}
 			else
 			{
+				outShouldReflect = false;
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndex, zIndexBefore);
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndex, zIndex);
 				STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndexAfter, zIndexBefore);
