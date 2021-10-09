@@ -149,7 +149,7 @@ void Storm::RigidBodyParticleSystem::initializePreSimulation(const Storm::Partic
 			const Storm::RawKernelMethodDelegate rawKernelMeth = Storm::retrieveRawKernelMethod(sceneSimulationConfig._kernelMode);
 			const Storm::GradKernelMethodDelegate gradKernel = Storm::retrieveGradKernelMethod(sceneSimulationConfig._kernelMode);
 
-			Storm::runParallel(staticNeighborhood, [this, &allParticleSystems, &spacePartitionerMgr, &rawKernelMeth, &gradKernel, kernelLength, currentKernelZero, kernelLengthSquared = kernelLength * kernelLength, currentSystemId = this->getId()](ParticleNeighborhoodArray &currentPStaticNeighborhood, const std::size_t particleIndex)
+			Storm::runParallel(staticNeighborhood, [this, &allParticleSystems, &spacePartitionerMgr, &rawKernelMeth, &gradKernel, kernelLength, currentKernelZero, kernelLengthSquared = kernelLength * kernelLength, currentSystemId = this->getId(), domainDimension = spacePartitionerMgr.getDomainDimension(), infiniteDomain = spacePartitionerMgr.isInfiniteDomainMode()](ParticleNeighborhoodArray &currentPStaticNeighborhood, const std::size_t particleIndex)
 			{
 				const Storm::Vector3 &currentPPosition = _positions[particleIndex];
 				if (spacePartitionerMgr.isOutsideSpaceDomain(currentPPosition)) STORM_UNLIKELY
@@ -160,9 +160,7 @@ void Storm::RigidBodyParticleSystem::initializePreSimulation(const Storm::Partic
 				const std::vector<Storm::NeighborParticleReferral>* bundleContainingPtr;
 				const std::vector<Storm::NeighborParticleReferral>* outLinkedNeighborBundle[Storm::k_neighborLinkedBunkCount];
 
-				// Get all particles referrals that are near the current particle position.
-				spacePartitionerMgr.getAllBundles(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::StaticRigidBody);
-				Storm::searchForNeighborhood<false, true>(
+				Storm::NeighborSearchInParam<ParticleNeighborhoodArray, decltype(rawKernelMeth), decltype(gradKernel), Storm::k_neighborLinkedBunkCount> inParam{
 					this,
 					allParticleSystems,
 					kernelLength,
@@ -171,11 +169,34 @@ void Storm::RigidBodyParticleSystem::initializePreSimulation(const Storm::Partic
 					currentPStaticNeighborhood,
 					particleIndex,
 					currentPPosition,
-					*bundleContainingPtr,
+					bundleContainingPtr,
 					outLinkedNeighborBundle,
 					rawKernelMeth,
-					gradKernel
-				);
+					gradKernel,
+					domainDimension,
+					false
+				};
+
+				// Get all particles referrals that are near the current particle position.
+				if (infiniteDomain)
+				{
+					bool shouldConsiderInfiniteDomain;
+					spacePartitionerMgr.getAllBundlesInfinite(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::StaticRigidBody, shouldConsiderInfiniteDomain);
+
+					if (shouldConsiderInfiniteDomain)
+					{
+						Storm::searchForNeighborhood<true, true>(inParam);
+					}
+					else
+					{
+						Storm::searchForNeighborhood<true, false>(inParam);
+					}
+				}
+				else
+				{
+					spacePartitionerMgr.getAllBundles(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::StaticRigidBody);
+					Storm::searchForNeighborhood<true, false>(inParam);
+				}
 
 				// Initialize the static volume.
 				float &currentPStaticVolumeDelta = _staticVolumesInitValue[particleIndex];
@@ -216,7 +237,7 @@ void Storm::RigidBodyParticleSystem::initializePreSimulation(const Storm::Partic
 			const Storm::RawKernelMethodDelegate rawKernelMeth = Storm::retrieveRawKernelMethod(sceneSimulationConfig._kernelMode);
 			const Storm::GradKernelMethodDelegate gradKernel = Storm::retrieveGradKernelMethod(sceneSimulationConfig._kernelMode);
 
-			Storm::runParallel(staticNeighborhood, [this, &allParticleSystems, &spacePartitionerMgr, &rawKernelMeth, &gradKernel, kernelLength, currentKernelZero, kernelLengthSquared = kernelLength * kernelLength, currentSystemId = this->getId(), coeff = sceneRbConfig._reducedVolumeCoeff](ParticleNeighborhoodArray &currentPStaticNeighborhood, const std::size_t particleIndex)
+			Storm::runParallel(staticNeighborhood, [this, &allParticleSystems, &spacePartitionerMgr, &rawKernelMeth, &gradKernel, kernelLength, currentKernelZero, kernelLengthSquared = kernelLength * kernelLength, currentSystemId = this->getId(), coeff = sceneRbConfig._reducedVolumeCoeff, domainDimension = spacePartitionerMgr.getDomainDimension(), infiniteDomain = spacePartitionerMgr.isInfiniteDomainMode()](ParticleNeighborhoodArray &currentPStaticNeighborhood, const std::size_t particleIndex)
 			{
 				const Storm::Vector3 &currentPPosition = _positions[particleIndex];
 				if (spacePartitionerMgr.isOutsideSpaceDomain(currentPPosition)) STORM_UNLIKELY
@@ -227,9 +248,7 @@ void Storm::RigidBodyParticleSystem::initializePreSimulation(const Storm::Partic
 				const std::vector<Storm::NeighborParticleReferral>* bundleContainingPtr;
 				const std::vector<Storm::NeighborParticleReferral>* outLinkedNeighborBundle[Storm::k_neighborLinkedBunkCount];
 
-				// Get all dynamic particles referrals that are near the current particle position. But we'll take only the current dynamic rb at the end...
-				spacePartitionerMgr.getAllBundles(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::DynamicRigidBody);
-				Storm::searchForNeighborhood<false, true>(
+				Storm::NeighborSearchInParam<ParticleNeighborhoodArray, decltype(rawKernelMeth), decltype(gradKernel), Storm::k_neighborLinkedBunkCount> inParam{
 					this,
 					allParticleSystems,
 					kernelLength,
@@ -238,11 +257,35 @@ void Storm::RigidBodyParticleSystem::initializePreSimulation(const Storm::Partic
 					currentPStaticNeighborhood,
 					particleIndex,
 					currentPPosition,
-					*bundleContainingPtr,
+					bundleContainingPtr,
 					outLinkedNeighborBundle,
 					rawKernelMeth,
-					gradKernel
-				);
+					gradKernel,
+					domainDimension,
+					false
+				};
+
+				if (infiniteDomain)
+				{
+					bool shouldConsiderInfiniteDomain;
+
+					// Get all dynamic particles referrals that are near the current particle position. But we'll take only the current dynamic rb at the end...
+					spacePartitionerMgr.getAllBundlesInfinite(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::DynamicRigidBody, shouldConsiderInfiniteDomain);
+					if (shouldConsiderInfiniteDomain)
+					{
+						Storm::searchForNeighborhood<true, true>(inParam);
+					}
+					else
+					{
+						Storm::searchForNeighborhood<true, false>(inParam);
+					}
+				}
+				else
+				{
+					// Get all dynamic particles referrals that are near the current particle position. But we'll take only the current dynamic rb at the end...
+					spacePartitionerMgr.getAllBundles(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::DynamicRigidBody);
+					Storm::searchForNeighborhood<true, false>(inParam);
+				}
 
 				// Compute the volume with the current dynamic rigid body (since the internal particle to the dynamic rigid body are statics from each other, or we won't call it rigid...).
 				float initialDeltaVolume = currentKernelZero;
@@ -252,20 +295,7 @@ void Storm::RigidBodyParticleSystem::initializePreSimulation(const Storm::Partic
 
 				// Get all static particles referrals that are near the current particle position.
 				/*spacePartitionerMgr.getAllBundles(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::StaticRigidBody);
-				Storm::searchForNeighborhood<false, false>(
-					this,
-					allParticleSystems,
-					kernelLength,
-					kernelLengthSquared,
-					currentSystemId,
-					currentPStaticNeighborhood,
-					particleIndex,
-					currentPPosition,
-					*bundleContainingPtr,
-					outLinkedNeighborBundle,
-					rawKernelMeth,
-					gradKernel
-				);*/
+				Storm::searchForNeighborhood<false, false>(inParam);*/
 
 				// Initialize the static volume.
 				//float &currentPVolume = _volumes[particleIndex];
@@ -543,7 +573,7 @@ void Storm::RigidBodyParticleSystem::buildNeighborhoodOnParticleSystemUsingSpace
 
 	if (this->isStatic())
 	{
-		Storm::runParallel(_neighborhood, [this, &allParticleSystems, &spacePartitionerMgr, &rawKernelMeth, &gradKernel, kernelLength, kernelLengthSquared = kernelLength * kernelLength, currentSystemId = this->getId()](ParticleNeighborhoodArray &currentPNeighborhood, const std::size_t particleIndex)
+		Storm::runParallel(_neighborhood, [this, &allParticleSystems, &spacePartitionerMgr, &rawKernelMeth, &gradKernel, kernelLength, kernelLengthSquared = kernelLength * kernelLength, currentSystemId = this->getId(), domainDimension = spacePartitionerMgr.getDomainDimension(), infiniteDomain = spacePartitionerMgr.isInfiniteDomainMode()](ParticleNeighborhoodArray &currentPNeighborhood, const std::size_t particleIndex)
 		{
 			const Storm::Vector3 &currentPPosition = _positions[particleIndex];
 			if (spacePartitionerMgr.isOutsideSpaceDomain(currentPPosition)) STORM_UNLIKELY
@@ -554,9 +584,7 @@ void Storm::RigidBodyParticleSystem::buildNeighborhoodOnParticleSystemUsingSpace
 			const std::vector<Storm::NeighborParticleReferral>* bundleContainingPtr;
 			const std::vector<Storm::NeighborParticleReferral>* outLinkedNeighborBundle[Storm::k_neighborLinkedBunkCount];
 
-			// Get all particles referrals that are near the current particle position. First, rigid bodies doesn't see fluids, so do not query them...
-			spacePartitionerMgr.getAllBundles(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::DynamicRigidBody);
-			Storm::searchForNeighborhood<false, false>(
+			Storm::NeighborSearchInParam<ParticleNeighborhoodArray, decltype(rawKernelMeth), decltype(gradKernel), Storm::k_neighborLinkedBunkCount> inParam{
 				this,
 				allParticleSystems,
 				kernelLength,
@@ -565,16 +593,40 @@ void Storm::RigidBodyParticleSystem::buildNeighborhoodOnParticleSystemUsingSpace
 				currentPNeighborhood,
 				particleIndex,
 				currentPPosition,
-				*bundleContainingPtr,
+				bundleContainingPtr,
 				outLinkedNeighborBundle,
 				rawKernelMeth,
-				gradKernel
-			);
+				gradKernel,
+				domainDimension,
+				false
+			};
+
+			if (infiniteDomain)
+			{
+				bool shouldConsiderInfiniteDomain;
+
+				// Get all dynamic particles referrals that are near the current particle position. But we'll take only the current dynamic rb at the end...
+				spacePartitionerMgr.getAllBundlesInfinite(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::DynamicRigidBody, shouldConsiderInfiniteDomain);
+				if (shouldConsiderInfiniteDomain)
+				{
+					Storm::searchForNeighborhood<true, true>(inParam);
+				}
+				else
+				{
+					Storm::searchForNeighborhood<true, false>(inParam);
+				}
+			}
+			else
+			{
+				// Get all particles referrals that are near the current particle position. First, rigid bodies doesn't see fluids, so do not query them...
+				spacePartitionerMgr.getAllBundles(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::DynamicRigidBody);
+				Storm::searchForNeighborhood<false, false>(inParam);
+			}
 		});
 	}
 	else
 	{
-		Storm::runParallel(_neighborhood, [this, &allParticleSystems, &spacePartitionerMgr, &rawKernelMeth, &gradKernel, kernelLength, kernelLengthSquared = kernelLength * kernelLength, currentSystemId = this->getId()](ParticleNeighborhoodArray &currentPNeighborhood, const std::size_t particleIndex)
+		Storm::runParallel(_neighborhood, [this, &allParticleSystems, &spacePartitionerMgr, &rawKernelMeth, &gradKernel, kernelLength, kernelLengthSquared = kernelLength * kernelLength, currentSystemId = this->getId(), domainDimension = spacePartitionerMgr.getDomainDimension(), infiniteDomain = spacePartitionerMgr.isInfiniteDomainMode()](ParticleNeighborhoodArray &currentPNeighborhood, const std::size_t particleIndex)
 		{
 			const Storm::Vector3 &currentPPosition = _positions[particleIndex];
 			if (spacePartitionerMgr.isOutsideSpaceDomain(currentPPosition)) STORM_UNLIKELY
@@ -585,9 +637,7 @@ void Storm::RigidBodyParticleSystem::buildNeighborhoodOnParticleSystemUsingSpace
 			const std::vector<Storm::NeighborParticleReferral>* bundleContainingPtr;
 			const std::vector<Storm::NeighborParticleReferral>* outLinkedNeighborBundle[Storm::k_neighborLinkedBunkCount];
 
-			// Get all particles referrals that are near the current particle position. First, rigid bodies doesn't see fluids, so do not query them...
-			spacePartitionerMgr.getAllBundles(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::StaticRigidBody);
-			Storm::searchForNeighborhood<false, false>(
+			Storm::NeighborSearchInParam<ParticleNeighborhoodArray, decltype(rawKernelMeth), decltype(gradKernel), Storm::k_neighborLinkedBunkCount> inParam{
 				this,
 				allParticleSystems,
 				kernelLength,
@@ -596,27 +646,44 @@ void Storm::RigidBodyParticleSystem::buildNeighborhoodOnParticleSystemUsingSpace
 				currentPNeighborhood,
 				particleIndex,
 				currentPPosition,
-				*bundleContainingPtr,
+				bundleContainingPtr,
 				outLinkedNeighborBundle,
 				rawKernelMeth,
-				gradKernel
-			);
+				gradKernel,
+				domainDimension,
+				false
+			};
 
-			spacePartitionerMgr.getAllBundles(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::DynamicRigidBody);
-			Storm::searchForNeighborhood<false, true>(
-				this,
-				allParticleSystems,
-				kernelLength,
-				kernelLengthSquared,
-				currentSystemId,
-				currentPNeighborhood,
-				particleIndex,
-				currentPPosition,
-				*bundleContainingPtr,
-				outLinkedNeighborBundle,
-				rawKernelMeth,
-				gradKernel
-			);
+			if (infiniteDomain)
+			{
+				bool shouldConsiderInfiniteDomain;
+				
+				// Get all particles referrals that are near the current particle position. First, rigid bodies doesn't see fluids, so do not query them...
+				spacePartitionerMgr.getAllBundlesInfinite(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::StaticRigidBody, shouldConsiderInfiniteDomain);
+				if (shouldConsiderInfiniteDomain)
+				{
+					Storm::searchForNeighborhood<true, true>(inParam);
+
+					spacePartitionerMgr.getAllBundles(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::DynamicRigidBody);
+					Storm::searchForNeighborhood<true, true>(inParam);
+				}
+				else
+				{
+					Storm::searchForNeighborhood<true, false>(inParam);
+
+					spacePartitionerMgr.getAllBundles(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::DynamicRigidBody);
+					Storm::searchForNeighborhood<true, false>(inParam);
+				}
+			}
+			else
+			{
+				// Get all particles referrals that are near the current particle position. First, rigid bodies doesn't see fluids, so do not query them...
+				spacePartitionerMgr.getAllBundles(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::StaticRigidBody);
+				Storm::searchForNeighborhood<false, false>(inParam);
+
+				spacePartitionerMgr.getAllBundles(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::DynamicRigidBody);
+				Storm::searchForNeighborhood<true, false>(inParam);
+			}
 		});
 	}
 }
@@ -750,15 +817,14 @@ std::vector<float> Storm::RigidBodyParticleSystem::computeEmptiness(const Storm:
 	const Storm::RawKernelMethodDelegate rawKernelMeth = Storm::retrieveRawKernelMethod(sceneSimulationConfig._kernelMode);
 	const Storm::GradKernelMethodDelegate gradKernel = Storm::retrieveGradKernelMethod(sceneSimulationConfig._kernelMode);
 
-	Storm::runParallel(tmpFluidNeighbors, [&, kernelLengthSquared = kernelLength * kernelLength, currentSystemId = this->getId()](ParticleNeighborhoodArray &currentPFluidNeighborhood, const std::size_t particleIndex)
+	Storm::runParallel(tmpFluidNeighbors, [&, kernelLengthSquared = kernelLength * kernelLength, currentSystemId = this->getId(), domainDimension = spacePartitionerMgr.getDomainDimension(), infiniteDomain = spacePartitionerMgr.isInfiniteDomainMode()](ParticleNeighborhoodArray &currentPFluidNeighborhood, const std::size_t particleIndex)
 	{
 		const std::vector<Storm::NeighborParticleReferral>* bundleContainingPtr;
 		const std::vector<Storm::NeighborParticleReferral>* outLinkedNeighborBundle[Storm::k_neighborLinkedBunkCount];
 
 		const Storm::Vector3 &currentPPosition = _positions[particleIndex];
 
-		spacePartitionerMgr.getAllBundles(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::Fluid);
-		Storm::searchForNeighborhood<true, false>(
+		Storm::NeighborSearchInParam<ParticleNeighborhoodArray, decltype(rawKernelMeth), decltype(gradKernel), Storm::k_neighborLinkedBunkCount> inParam{
 			const_cast<Storm::RigidBodyParticleSystem*>(this), // const_cast because we take a non const but we don't actually modify the object (Just the neighbor structure obtain a non const pointed object it could change later, but we wont right now)
 			allParticleSystems,
 			kernelLength,
@@ -767,11 +833,33 @@ std::vector<float> Storm::RigidBodyParticleSystem::computeEmptiness(const Storm:
 			currentPFluidNeighborhood,
 			particleIndex,
 			currentPPosition,
-			*bundleContainingPtr,
+			bundleContainingPtr,
 			outLinkedNeighborBundle,
 			rawKernelMeth,
-			gradKernel
-			);
+			gradKernel,
+			domainDimension,
+			true
+		};
+
+		if (infiniteDomain)
+		{
+			bool shouldConsiderInfiniteDomain;
+
+			spacePartitionerMgr.getAllBundlesInfinite(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::Fluid, shouldConsiderInfiniteDomain);
+			if (shouldConsiderInfiniteDomain)
+			{
+				Storm::searchForNeighborhood<true, true>(inParam);
+			}
+			else
+			{
+				Storm::searchForNeighborhood<true, false>(inParam);
+			}
+		}
+		else
+		{
+			spacePartitionerMgr.getAllBundles(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::Fluid);
+			Storm::searchForNeighborhood<false, false>(inParam);
+		}
 
 		float result = std::numeric_limits<float>::max();
 		for (const auto &neighborInfo : currentPFluidNeighborhood)

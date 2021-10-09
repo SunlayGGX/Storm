@@ -7,55 +7,73 @@ namespace Storm
 {
 	namespace details
 	{
-		template<class VectOrIntrinsType, class NeighborhoodArray, class RawKernelFunc, class GradKernelFunc>
+		template<class VectOrIntrinsType>
 		struct NeighborSearchParamTmp
 		{
-			NeighborhoodArray &_currentPNeighborhood;
-
 			const VectOrIntrinsType _currentPPos;
-			const Storm::Vector3* _otherPPos;
-
-			const float _kernelLength;
-			const float _kernelLengthSquared;
+			VectOrIntrinsType _otherPPos;
 
 			VectOrIntrinsType _xij;
 
 			float _normSquared;
-
-			const RawKernelFunc &_rawKernelFunc;
-			const GradKernelFunc &_gradKernelFunc;
 		};
 	}
 
+	template<class NeighborhoodArrayType, class RawKernelFuncType, class GradKernelFuncType, std::size_t outLinkedNeighborBundleSize>
+	struct NeighborSearchInParam
+	{
+	public:
+		using NeighborhoodArray = NeighborhoodArrayType;
+		using RawKernelFunc = RawKernelFuncType;
+		using GradKernelFunc = GradKernelFuncType;
+
+	public:
+		Storm::ParticleSystem*const _thisParticleSystem;
+		const Storm::ParticleSystemContainer &_allParticleSystems;
+		const float _kernelLength;
+		const float _kernelLengthSquared;
+		const unsigned int _currentSystemId;
+		NeighborhoodArray &_currentPNeighborhood;
+		const std::size_t _particleIndex;
+		const Storm::Vector3 &_currentPPosition;
+		const std::vector<Storm::NeighborParticleReferral>* &_containingBundleReferrals;
+		const std::vector<Storm::NeighborParticleReferral>*(&_outLinkedNeighborBundle)[outLinkedNeighborBundleSize];
+		const RawKernelFunc &_rawKernelFunc;
+		const GradKernelFunc &_gradKernelFunc;
+		const Storm::Vector3 &_domainDimension;
+
+		bool _isFluid;
+	};
+
 #if !STORM_USE_INTRINSICS
 	template<class SearchParam>
-	__forceinline bool isNeighborhood(SearchParam &inOutParam)
+	__forceinline bool isNeighborhood(const NeighborSearchInParamType &inParam, SearchParam &inOutParam)
 	{
-		const Storm::Vector3 &toCheckPPos = *inOutParam._otherPPos;
+		const Storm::Vector3 &toCheckPPos = inOutParam._otherPPos;
 
 		float &outX = inOutParam._xij.x();
 		outX = inOutParam._currentPPos.x() - toCheckPPos.x();
 		const float xDiffSquared = outX * outX;
-		if (xDiffSquared < kernelLengthSquared)
+		if (xDiffSquared < inParam._kernelLengthSquared)
 		{
 			float &outY = inOutParam._xij.y();
 			outY = inOutParam._currentPPos.y() - toCheckPPos.y();
 			const float yDiffSquared = outY * outY;
-			if (yDiffSquared < kernelLengthSquared)
+			if (yDiffSquared < inParam._kernelLengthSquared)
 			{
 				float &outZ = inOutParam._xij.z();
 				outZ = inOutParam._currentPPos.z() - toCheckPPos.z();
 				inOutParam._normSquared = xDiffSquared + yDiffSquared + outZ * outZ;
 
-				return inOutParam._normSquared > 0.0000000000001f && inOutParam._normSquared < inOutParam._kernelLengthSquared;
+				return inOutParam._normSquared > 0.0000000000001f && inOutParam._normSquared < inParam._kernelLengthSquared;
 			}
 		}
 
 		return false;
 	}
 #else
-	template<class SearchParam>
-	__forceinline bool isNeighborhood(SearchParam &inOutParam)
+	template<class SearchParam, class NeighborSearchInParamType>
+	__forceinline bool isNeighborhood(const NeighborSearchInParamType &inParam, SearchParam &inOutParam)
 	{
 		enum : int
 		{
@@ -67,75 +85,77 @@ namespace Storm
 			dotProductMask = conditionMask << 4 | broadcastMask
 		};
 
-		const Storm::Vector3 &toCheckPPos = *inOutParam._otherPPos;
-		inOutParam._xij = _mm_sub_ps(inOutParam._currentPPos, STORM_INTRINSICS_LOAD_PS_FROM_VECT3(toCheckPPos));
+		inOutParam._xij = _mm_sub_ps(inOutParam._currentPPos, inOutParam._otherPPos);
 
 		inOutParam._normSquared = _mm_dp_ps(inOutParam._xij, inOutParam._xij, dotProductMask).m128_f32[0];
-		return inOutParam._normSquared > 0.0000000000001f && inOutParam._normSquared < inOutParam._kernelLengthSquared;
+		return inOutParam._normSquared > 0.0000000000001f && inOutParam._normSquared < inParam._kernelLengthSquared;
 	}
-#endif
 
-	template<bool isFluid, class SearchParam>
-	__forceinline void addIfNeighbor(SearchParam &param, Storm::ParticleSystem*const particleSystem, const Storm::NeighborParticleReferral &particleReferral)
+	template<bool considerInfiniteDomain, class SearchParam>
+	__forceinline void retrieveNeighborPosition(SearchParam &inOutParam, const std::vector<Storm::Vector3> &positions, const Storm::NeighborParticleReferral &particleReferral)
 	{
-		if (Storm::isNeighborhood(param))
-		{
-#if STORM_USE_INTRINSICS
-			Storm::NeighborParticleInfo &addedNeighbor = param._currentPNeighborhood.emplace_back(particleSystem, particleReferral._particleIndex, param._xij.m128_f32[0], param._xij.m128_f32[1], param._xij.m128_f32[2], param._normSquared, isFluid);
-#else
-			Storm::NeighborParticleInfo &addedNeighbor = param._currentPNeighborhood.emplace_back(particleSystem, particleReferral._particleIndex, param._xij, param._normSquared, isFluid);
-#endif
+		const Storm::Vector3 &position = positions[particleReferral._particleIndex];
+		inOutParam._otherPPos = STORM_INTRINSICS_LOAD_PS_FROM_VECT3(position);
 
-			addedNeighbor._Wij = param._rawKernelFunc(param._kernelLength, addedNeighbor._xijNorm);
-			addedNeighbor._gradWij = param._gradKernelFunc(param._kernelLength, addedNeighbor._xij, addedNeighbor._xijNorm);
+		if constexpr (considerInfiniteDomain)
+		{
+
 		}
 	}
 
-	template<bool isFluid, bool containingBundleIsSameTypeThanThisSystemP, class NeighborhoodArray, std::size_t outLinkedNeighborBundleSize, class RawKernelFunc, class GradKernelFunc>
-	void searchForNeighborhood(Storm::ParticleSystem* thisParticleSystem, const Storm::ParticleSystemContainer &allParticleSystems, const float kernelLength, const float kernelLengthSquared, const unsigned int currentSystemId, NeighborhoodArray &currentPNeighborhood, const std::size_t particleIndex, const Storm::Vector3 &currentPPosition, const std::vector<Storm::NeighborParticleReferral> &containingBundleReferrals, const std::vector<Storm::NeighborParticleReferral>*(&outLinkedNeighborBundle)[outLinkedNeighborBundleSize], const RawKernelFunc &rawKernelFunc, const GradKernelFunc &gradKernelFunc)
+#endif
+
+	template<class SearchParam, class NeighborSearchInParamType>
+	__forceinline void addIfNeighbor(const NeighborSearchInParamType &inParam, SearchParam &param, Storm::ParticleSystem*const particleSystem, const Storm::NeighborParticleReferral &particleReferral)
+	{
+		if (Storm::isNeighborhood(inParam, param))
+		{
+#if STORM_USE_INTRINSICS
+			Storm::NeighborParticleInfo &addedNeighbor = inParam._currentPNeighborhood.emplace_back(particleSystem, particleReferral._particleIndex, param._xij.m128_f32[0], param._xij.m128_f32[1], param._xij.m128_f32[2], param._normSquared, inParam._isFluid);
+#else
+			Storm::NeighborParticleInfo &addedNeighbor = inParam._currentPNeighborhood.emplace_back(particleSystem, particleReferral._particleIndex, param._xij, param._normSquared, inParam._isFluid);
+#endif
+
+			addedNeighbor._Wij = inParam._rawKernelFunc(inParam._kernelLength, addedNeighbor._xijNorm);
+			addedNeighbor._gradWij = inParam._gradKernelFunc(inParam._kernelLength, addedNeighbor._xij, addedNeighbor._xijNorm);
+		}
+	}
+
+	template<bool containingBundleIsSameTypeThanThisSystemP, bool considerInfiniteDomain, class NeighborSearchParamType>
+	void searchForNeighborhood(const NeighborSearchParamType &inParam)
 	{
 #if STORM_USE_INTRINSICS
-		details::NeighborSearchParamTmp<__m128, NeighborhoodArray, RawKernelFunc, GradKernelFunc> param {
-			._currentPNeighborhood = currentPNeighborhood,
-			._currentPPos = STORM_INTRINSICS_LOAD_PS_FROM_VECT3(currentPPosition),
-			._kernelLength = kernelLength,
-			._kernelLengthSquared = kernelLengthSquared,
-			._rawKernelFunc = rawKernelFunc,
-			._gradKernelFunc = gradKernelFunc,
+		details::NeighborSearchParamTmp<__m128> param {
+			._currentPPos = STORM_INTRINSICS_LOAD_PS_FROM_VECT3(inParam._currentPPosition)
 		};
 
 #else
-		details::NeighborSearchParamTmp<Storm::Vector3, NeighborhoodArray, RawKernelFunc, GradKernelFunc> param {
-			._currentPNeighborhood = currentPNeighborhood,
-			._currentPPos = currentPPosition,
-			._kernelLength = kernelLength,
-			._kernelLengthSquared = kernelLengthSquared,
-			._rawKernelFunc = rawKernelFunc,
-			._gradKernelFunc = gradKernelFunc,
+		details::NeighborSearchParamTmp<Storm::Vector3> param {
+			._currentPPos = inParam._currentPPosition
 		};
 #endif
 
 		Storm::ParticleSystem* otherPSystem = nullptr;
-		unsigned int lastOtherPSystemCachedId = currentSystemId;
+		unsigned int lastOtherPSystemCachedId = inParam._currentSystemId;
 
 		if constexpr (containingBundleIsSameTypeThanThisSystemP)
 		{
-			const std::vector<Storm::Vector3> &thisSystemAllPPosition = thisParticleSystem->getPositions();
+			const std::vector<Storm::Vector3> &thisSystemAllPPosition = inParam._thisParticleSystem->getPositions();
 
 			std::size_t iter = 0;
-			const std::size_t containingBundleRefCount = containingBundleReferrals.size();
+			const std::size_t containingBundleRefCount = inParam._containingBundleReferrals->size();
 
 			for (; iter < containingBundleRefCount; ++iter)
 			{
-				const Storm::NeighborParticleReferral &particleReferral = containingBundleReferrals[iter];
+				const Storm::NeighborParticleReferral &particleReferral = (*inParam._containingBundleReferrals)[iter];
 
-				if (particleReferral._systemId == currentSystemId)
+				if (particleReferral._systemId == inParam._currentSystemId)
 				{
-					if (particleReferral._particleIndex != particleIndex)
+					if (particleReferral._particleIndex != inParam._particleIndex)
 					{
-						param._otherPPos = &thisSystemAllPPosition[particleReferral._particleIndex];
+						Storm::retrieveNeighborPosition<considerInfiniteDomain>(param, thisSystemAllPPosition, particleReferral);
 
-						Storm::addIfNeighbor<isFluid>(param, thisParticleSystem, particleReferral);
+						Storm::addIfNeighbor(inParam, param, inParam._thisParticleSystem, particleReferral);
 					}
 					else
 					{
@@ -148,92 +168,92 @@ namespace Storm
 					if (lastOtherPSystemCachedId != particleReferral._systemId)
 					{
 						lastOtherPSystemCachedId = particleReferral._systemId;
-						otherPSystem = allParticleSystems.find(particleReferral._systemId)->second.get();
+						otherPSystem = inParam._allParticleSystems.find(particleReferral._systemId)->second.get();
 					}
 
-					param._otherPPos = &otherPSystem->getPositions()[particleReferral._particleIndex];
+					Storm::retrieveNeighborPosition<considerInfiniteDomain>(param, otherPSystem->getPositions(), particleReferral);
 
-					Storm::addIfNeighbor<isFluid>(param, otherPSystem, particleReferral);
+					Storm::addIfNeighbor(inParam, param, otherPSystem, particleReferral);
 				}
 			}
 
 			for (; iter < containingBundleRefCount; ++iter)
 			{
-				const Storm::NeighborParticleReferral &particleReferral = containingBundleReferrals[iter];
+				const Storm::NeighborParticleReferral &particleReferral = (*inParam._containingBundleReferrals)[iter];
 
-				if (particleReferral._systemId == currentSystemId)
+				if (particleReferral._systemId == inParam._currentSystemId)
 				{
-					param._otherPPos = &thisSystemAllPPosition[particleReferral._particleIndex];
+					Storm::retrieveNeighborPosition<considerInfiniteDomain>(param, thisSystemAllPPosition, particleReferral);
 
-					Storm::addIfNeighbor<isFluid>(param, thisParticleSystem, particleReferral);
+					Storm::addIfNeighbor(inParam, param, inParam._thisParticleSystem, particleReferral);
 				}
 				else
 				{
 					if (lastOtherPSystemCachedId != particleReferral._systemId)
 					{
 						lastOtherPSystemCachedId = particleReferral._systemId;
-						otherPSystem = allParticleSystems.find(particleReferral._systemId)->second.get();
+						otherPSystem = inParam._allParticleSystems.find(particleReferral._systemId)->second.get();
 					}
 
-					param._otherPPos = &otherPSystem->getPositions()[particleReferral._particleIndex];
+					Storm::retrieveNeighborPosition<considerInfiniteDomain>(param, otherPSystem->getPositions(), particleReferral);
 
-					Storm::addIfNeighbor<isFluid>(param, otherPSystem, particleReferral);
+					Storm::addIfNeighbor(inParam, param, otherPSystem, particleReferral);
 				}
 			}
 
-			for (const std::vector<Storm::NeighborParticleReferral>** linkedNeighborReferralsIter = outLinkedNeighborBundle; *linkedNeighborReferralsIter != nullptr; ++linkedNeighborReferralsIter)
+			for (const std::vector<Storm::NeighborParticleReferral>** linkedNeighborReferralsIter = inParam._outLinkedNeighborBundle; *linkedNeighborReferralsIter != nullptr; ++linkedNeighborReferralsIter)
 			{
 				for (const Storm::NeighborParticleReferral &particleReferral : **linkedNeighborReferralsIter)
 				{
-					if (particleReferral._systemId == currentSystemId)
+					if (particleReferral._systemId == inParam._currentSystemId)
 					{
-						param._otherPPos = &thisSystemAllPPosition[particleReferral._particleIndex];
+						Storm::retrieveNeighborPosition<considerInfiniteDomain>(param, thisSystemAllPPosition, particleReferral);
 
-						Storm::addIfNeighbor<isFluid>(param, thisParticleSystem, particleReferral);
+						Storm::addIfNeighbor(inParam, param, inParam._thisParticleSystem, particleReferral);
 					}
 					else
 					{
 						if (lastOtherPSystemCachedId != particleReferral._systemId)
 						{
 							lastOtherPSystemCachedId = particleReferral._systemId;
-							otherPSystem = allParticleSystems.find(particleReferral._systemId)->second.get();
+							otherPSystem = inParam._allParticleSystems.find(particleReferral._systemId)->second.get();
 						}
 
-						param._otherPPos = &otherPSystem->getPositions()[particleReferral._particleIndex];
+						Storm::retrieveNeighborPosition<considerInfiniteDomain>(param, otherPSystem->getPositions(), particleReferral);
 
-						Storm::addIfNeighbor<isFluid>(param, otherPSystem, particleReferral);
+						Storm::addIfNeighbor(inParam, param, otherPSystem, particleReferral);
 					}
 				}
 			}
 		}
 		else
 		{
-			for (const Storm::NeighborParticleReferral &particleReferral : containingBundleReferrals)
+			for (const Storm::NeighborParticleReferral &particleReferral : *inParam._containingBundleReferrals)
 			{
 				if (lastOtherPSystemCachedId != particleReferral._systemId)
 				{
 					lastOtherPSystemCachedId = particleReferral._systemId;
-					otherPSystem = allParticleSystems.find(particleReferral._systemId)->second.get();
+					otherPSystem = inParam._allParticleSystems.find(particleReferral._systemId)->second.get();
 				}
 
-				param._otherPPos = &otherPSystem->getPositions()[particleReferral._particleIndex];
+				Storm::retrieveNeighborPosition<considerInfiniteDomain>(param, otherPSystem->getPositions(), particleReferral);
 
-				Storm::addIfNeighbor<isFluid>(param, otherPSystem, particleReferral);
+				Storm::addIfNeighbor(inParam, param, otherPSystem, particleReferral);
 			}
 
-			for (const std::vector<Storm::NeighborParticleReferral>** linkedNeighborReferralsIter = outLinkedNeighborBundle; *linkedNeighborReferralsIter != nullptr; ++linkedNeighborReferralsIter)
+			for (const std::vector<Storm::NeighborParticleReferral>** linkedNeighborReferralsIter = inParam._outLinkedNeighborBundle; *linkedNeighborReferralsIter != nullptr; ++linkedNeighborReferralsIter)
 			{
 				for (const Storm::NeighborParticleReferral &particleReferral : **linkedNeighborReferralsIter)
 				{
 					if (lastOtherPSystemCachedId != particleReferral._systemId)
 					{
 						lastOtherPSystemCachedId = particleReferral._systemId;
-						otherPSystem = allParticleSystems.find(particleReferral._systemId)->second.get();
+						otherPSystem = inParam._allParticleSystems.find(particleReferral._systemId)->second.get();
 					}
 
-					param._otherPPos = &otherPSystem->getPositions()[particleReferral._particleIndex];
+					Storm::retrieveNeighborPosition<considerInfiniteDomain>(param, otherPSystem->getPositions(), particleReferral);
 
-					Storm::addIfNeighbor<isFluid>(param, otherPSystem, particleReferral);
+					Storm::addIfNeighbor(inParam, param, otherPSystem, particleReferral);
 				}
 			}
 		}

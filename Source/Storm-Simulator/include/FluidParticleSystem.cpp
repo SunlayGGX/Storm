@@ -354,7 +354,7 @@ void Storm::FluidParticleSystem::buildNeighborhoodOnParticleSystemUsingSpacePart
 	const Storm::RawKernelMethodDelegate rawKernel = Storm::retrieveRawKernelMethod(sceneSimulationConfig._kernelMode);
 	const Storm::GradKernelMethodDelegate gradKernel = Storm::retrieveGradKernelMethod(sceneSimulationConfig._kernelMode);
 
-	Storm::runParallel(_neighborhood, [this, &allParticleSystems, &spacePartitionerMgr, &rawKernel, &gradKernel, kernelLength, kernelLengthSquared = kernelLength * kernelLength, currentSystemId = this->getId()](ParticleNeighborhoodArray &currentPNeighborhood, const std::size_t particleIndex)
+	Storm::runParallel(_neighborhood, [this, &allParticleSystems, &spacePartitionerMgr, &rawKernel, &gradKernel, kernelLength, kernelLengthSquared = kernelLength * kernelLength, currentSystemId = this->getId(), domainDimension = spacePartitionerMgr.getDomainDimension(), infiniteDomain = spacePartitionerMgr.isInfiniteDomainMode()](ParticleNeighborhoodArray &currentPNeighborhood, const std::size_t particleIndex)
 	{
 		const Storm::Vector3 &currentPPosition = _positions[particleIndex];
 		if (spacePartitionerMgr.isOutsideSpaceDomain(currentPPosition)) STORM_UNLIKELY
@@ -365,9 +365,7 @@ void Storm::FluidParticleSystem::buildNeighborhoodOnParticleSystemUsingSpacePart
 		const std::vector<Storm::NeighborParticleReferral>* bundleContainingPtr;
 		const std::vector<Storm::NeighborParticleReferral>* outLinkedNeighborBundle[Storm::k_neighborLinkedBunkCount];
 
-		// Get all particles referrals that are near the current particle position. First, get all particles inside the fluid partitioned space...
-		spacePartitionerMgr.getAllBundles(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::Fluid);
-		Storm::searchForNeighborhood<true, true>(
+		Storm::NeighborSearchInParam<ParticleNeighborhoodArray, decltype(rawKernel), decltype(gradKernel), Storm::k_neighborLinkedBunkCount> inParam {
 			this,
 			allParticleSystems,
 			kernelLength,
@@ -376,43 +374,60 @@ void Storm::FluidParticleSystem::buildNeighborhoodOnParticleSystemUsingSpacePart
 			currentPNeighborhood,
 			particleIndex,
 			currentPPosition,
-			*bundleContainingPtr,
+			bundleContainingPtr,
 			outLinkedNeighborBundle,
 			rawKernel,
-			gradKernel
-		);
+			gradKernel,
+			domainDimension,
+			true
+		};
 
-		spacePartitionerMgr.getAllBundles(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::StaticRigidBody);
-		Storm::searchForNeighborhood<false, false>(
-			this,
-			allParticleSystems,
-			kernelLength,
-			kernelLengthSquared,
-			currentSystemId,
-			currentPNeighborhood,
-			particleIndex,
-			currentPPosition,
-			*bundleContainingPtr,
-			outLinkedNeighborBundle,
-			rawKernel,
-			gradKernel
-		);
+		if (infiniteDomain)
+		{
+			bool shouldConsiderInfiniteDomain;
 
-		spacePartitionerMgr.getAllBundles(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::DynamicRigidBody);
-		Storm::searchForNeighborhood<false, false>(
-			this,
-			allParticleSystems,
-			kernelLength,
-			kernelLengthSquared,
-			currentSystemId,
-			currentPNeighborhood,
-			particleIndex,
-			currentPPosition,
-			*bundleContainingPtr,
-			outLinkedNeighborBundle,
-			rawKernel,
-			gradKernel
-		);
+			// Get all particles referrals that are near the current particle position. First, get all particles inside the fluid partitioned space...
+			spacePartitionerMgr.getAllBundlesInfinite(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::Fluid, shouldConsiderInfiniteDomain);
+
+			if (shouldConsiderInfiniteDomain)
+			{
+				Storm::searchForNeighborhood<true, true>(inParam);
+
+				inParam._isFluid = false;
+
+				spacePartitionerMgr.getAllBundles(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::StaticRigidBody);
+				Storm::searchForNeighborhood<false, true>(inParam);
+
+				spacePartitionerMgr.getAllBundles(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::DynamicRigidBody);
+				Storm::searchForNeighborhood<false, true>(inParam);
+			}
+			else
+			{
+				Storm::searchForNeighborhood<true, false>(inParam);
+
+				inParam._isFluid = false;
+
+				spacePartitionerMgr.getAllBundles(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::StaticRigidBody);
+				Storm::searchForNeighborhood<false, false>(inParam);
+
+				spacePartitionerMgr.getAllBundles(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::DynamicRigidBody);
+				Storm::searchForNeighborhood<false, false>(inParam);
+			}
+		}
+		else
+		{
+			// Get all particles referrals that are near the current particle position. First, get all particles inside the fluid partitioned space...
+			spacePartitionerMgr.getAllBundles(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::Fluid);
+			Storm::searchForNeighborhood<true, false>(inParam);
+
+			inParam._isFluid = false;
+
+			spacePartitionerMgr.getAllBundles(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::StaticRigidBody);
+			Storm::searchForNeighborhood<false, false>(inParam);
+
+			spacePartitionerMgr.getAllBundles(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::DynamicRigidBody);
+			Storm::searchForNeighborhood<false, false>(inParam);
+		}
 	});
 }
 
