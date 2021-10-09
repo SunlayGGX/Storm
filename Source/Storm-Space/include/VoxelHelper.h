@@ -20,12 +20,12 @@ namespace
 		// x=middle, y=middle, z=middle
 		AllMiddle,
 
-		MiddleFront,
-		MiddleBack,
-		MiddleLeft,
-		MiddleRight,
-		MiddleBottom,
-		MiddleTop,
+		MiddleMiddleFront,
+		MiddleMiddleBack,
+		LeftMiddleMiddle,
+		RightMiddleMiddle,
+		MiddleBottomMiddle,
+		MiddleTopMiddle,
 
 		// xyz
 
@@ -68,18 +68,18 @@ namespace
 				}
 				else if (zIndex == 0) // Is on front side, so the resulting enum value will contain the word "Front"
 				{
-					return PositionInDomain::MiddleFront;
+					return PositionInDomain::MiddleMiddleFront;
 				}
 				else // Is on back side, so the resulting enum value will contain the word "Back"
 				{
-					return PositionInDomain::MiddleBack;
+					return PositionInDomain::MiddleMiddleBack;
 				}
 			}
 			else if (yIndex == 0) // Is on bottom side, so the resulting enum value will contain the word "Bottom"
 			{
 				if (zIndex > 0 && zIndex < zLast) // z is Middle, so the resulting enum value will contain the word "Middle"
 				{
-					return PositionInDomain::MiddleBottom;
+					return PositionInDomain::MiddleBottomMiddle;
 				}
 				else if (zIndex == 0) // Is on front side, so the resulting enum value will contain the word "Front"
 				{
@@ -94,7 +94,7 @@ namespace
 			{
 				if (zIndex > 0 && zIndex < zLast) // z is Middle, so the resulting enum value will contain the word "Middle"
 				{
-					return PositionInDomain::MiddleTop;
+					return PositionInDomain::MiddleTopMiddle;
 				}
 				else if (zIndex == 0) // Is on front side, so the resulting enum value will contain the word "Front"
 				{
@@ -112,7 +112,7 @@ namespace
 			{
 				if (zIndex > 0 && zIndex < zLast) // z is Middle, so the resulting enum value will contain the word "Middle"
 				{
-					return PositionInDomain::MiddleLeft;
+					return PositionInDomain::LeftMiddleMiddle;
 				}
 				else if (zIndex == 0) // Is on front side, so the resulting enum value will contain the word "Front"
 				{
@@ -160,7 +160,7 @@ namespace
 			{
 				if (zIndex > 0 && zIndex < zLast) // z is Middle, so the resulting enum value will contain the word "Middle"
 				{
-					return PositionInDomain::MiddleRight;
+					return PositionInDomain::RightMiddleMiddle;
 				}
 				else if (zIndex == 0) // Is on front side, so the resulting enum value will contain the word "Front"
 				{
@@ -268,7 +268,7 @@ namespace
 			STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexAfter, yIndexAfter, zIndexAfter);
 			break;
 
-		case PositionInDomain::MiddleFront:
+		case PositionInDomain::MiddleMiddleFront:
 			STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndexBefore, zIndex);
 			STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndexBefore, zIndexAfter);
 			STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndex, zIndex);
@@ -301,7 +301,7 @@ namespace
 			}
 			break;
 
-		case PositionInDomain::MiddleBack:
+		case PositionInDomain::MiddleMiddleBack:
 			STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndexBefore, zIndexBefore);
 			STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndexBefore, zIndex);
 			STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndex, zIndexBefore);
@@ -334,7 +334,7 @@ namespace
 			}
 			break;
 
-		case PositionInDomain::MiddleLeft:
+		case PositionInDomain::LeftMiddleMiddle:
 			STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexBefore, zIndexBefore);
 			STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexBefore, zIndex);
 			STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndexBefore, zIndexAfter);
@@ -366,7 +366,7 @@ namespace
 			}
 			break;
 
-		case PositionInDomain::MiddleRight:
+		case PositionInDomain::RightMiddleMiddle:
 			STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndexBefore, zIndexBefore);
 			STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndexBefore, zIndex);
 			STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndexBefore, zIndexAfter);
@@ -398,7 +398,7 @@ namespace
 			}
 			break;
 
-		case PositionInDomain::MiddleBottom:
+		case PositionInDomain::MiddleBottomMiddle:
 			STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndex, zIndexBefore);
 			STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndex, zIndex);
 			STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndex, zIndexAfter);
@@ -431,7 +431,7 @@ namespace
 			}
 			break;
 
-		case PositionInDomain::MiddleTop:
+		case PositionInDomain::MiddleTopMiddle:
 			STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndexBefore, zIndexBefore);
 			STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndexBefore, zIndex);
 			STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndexBefore, yIndexBefore, zIndexAfter);
