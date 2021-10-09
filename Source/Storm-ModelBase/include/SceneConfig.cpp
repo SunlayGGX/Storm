@@ -80,7 +80,8 @@ Storm::SceneSimulationConfig::SceneSimulationConfig() :
 	_removeFluidForVolumeConsistency{ false },
 	_freeRbAtPhysicsTime{ -1.f },
 	_noStickConstraint{ false },
-	_applyDragEffect{ false }
+	_applyDragEffect{ false },
+	_useCoendaEffect{ false }
 {
 
 }

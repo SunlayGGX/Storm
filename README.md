@@ -347,6 +347,7 @@ Unlike the other config files, it can be named as you want. Here the xml tags yo
 - **rbViscosityMethod (string, facultative)**: Specify what method to use when computing viscosity force of a fluid particle on a rigid body particle. This setting is case insensitive. Allowed values are “Standard” (default) and “XSPH”.
 - **fluidParticleRemovalMode (string, facultative)**: Specify what method formula to use to detect a fluid particle overlaps a rigid body particle, therefore should be eliminated at initialization time. This setting is case insensitive. Allowed values are “Sphere” (default) and “Cube”.
 - **noStickConstraint (boolean, facultative)**: Enforce the no-stick constraint as explicited in R. Bridson book. Since it is experimental, default is false. For now, the setting is only implemented for DFSPH.
+- **useCoendaEffect (boolean, facultative)**: Use Coenda effect penalty forces. Since it is experimental, default is false. For now, the setting is only implemented for DFSPH.
 
 
 #### Graphics
