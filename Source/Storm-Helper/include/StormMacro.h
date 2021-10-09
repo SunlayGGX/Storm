@@ -90,3 +90,5 @@
 
 #define STORM_TODO(...) STORM_OUTPUT_BUILD_MESSAGE("TODO => " #__VA_ARGS__)
 
+
+#define STORM_MAY_BE_UNUSED [[maybe_unused]]
