@@ -286,44 +286,50 @@ std::string Storm::obtainStackTrace(bool minimalString)
 						k_firstReserveSizeSum = k_expectedFirstReserveMsgSize + k_frameFirstReserveSize + k_decoratorMsgSize + k_incrementReserveSize
 					};
 
+					constexpr std::string_view k_header = "Stack trace:\n";
+
 					const std::size_t frameCount = stacktraceObject.size();
-					result.reserve(frameCount * k_firstReserveSizeSum);
+					result.reserve(k_header.size() + frameCount * k_firstReserveSizeSum);
+
+					result += k_header;
 
 					boost::stacktrace::detail::debugging_symbols idebug;
-
-					std::string moduleTmp;
-
-					for (std::size_t iter = 0; iter < frameCount; ++iter)
+					if (idebug.is_inited())
 					{
-						const auto &frame = stacktraceObject[iter];
-						if (!frame.empty())
+						std::string moduleTmp;
+
+						for (std::size_t iter = 0; iter < frameCount; ++iter)
 						{
-							const auto address = frame.address();
-							const auto [sourceFilePath, fileLine] = idebug.get_source_file_line_impl(address);
-
-							result += ' ';
-							if (Storm::VisualStudioOutputCompliantParser::produceVSOutputCompliantLine(result, iter, sourceFilePath, fileLine))
+							const auto &frame = stacktraceObject[iter];
+							if (!frame.empty())
 							{
-								result += ':';
-							}
+								const auto address = frame.address();
+								const auto [sourceFilePath, fileLine] = idebug.get_source_file_line_impl(address);
 
-							const std::string nameImpl = idebug.get_name_impl(address, &moduleTmp);
-							if (!nameImpl.empty())
-							{
-								result += " at ";
-								result += nameImpl;
-							}
-							if (!moduleTmp.empty())
-							{
-								result += " in ";
-								result += moduleTmp;
-							}
+								result += ' ';
+								if (Storm::VisualStudioOutputCompliantParser::produceVSOutputCompliantLine(result, iter, sourceFilePath, fileLine))
+								{
+									result += ':';
+								}
 
-							result += '\n';
+								const std::string nameImpl = idebug.get_name_impl(address, &moduleTmp);
+								if (!nameImpl.empty())
+								{
+									result += " at ";
+									result += nameImpl;
+								}
+								if (!moduleTmp.empty())
+								{
+									result += " in ";
+									result += moduleTmp;
+								}
+
+								result += '\n';
+							}
 						}
-					}
 
-					result.pop_back();
+						result.pop_back();
+					}
 				}
 #else
 				result = boost::stacktrace::to_string(stacktraceObject);

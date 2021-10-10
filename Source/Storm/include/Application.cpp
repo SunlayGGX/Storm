@@ -260,8 +260,7 @@ Storm::ExitCode Storm::Application::run()
 	{
 		LOG_FATAL <<
 			"Caught an unhandled Storm exception in the Application main loop (run). Process will exit.\n"
-			"Reason : " << ex.what() << ".\n"
-			"Stack trace :\n" << ex.stackTrace();
+			"Reason : " << ex.what() << ".\n" << ex.stackTrace();
 		throw;
 	}
 	catch (const std::exception &ex)
@@ -294,8 +293,7 @@ Storm::EarlyExitAnswer Storm::Application::ensureCleanStateAfterException(const 
 		catch (const Storm::Exception &cleanUpEx)
 		{
 			std::string errorMsg2{ 
-				"Another exception happened during cleanup : " + Storm::toStdString(cleanUpEx) + ".\n"
-				"Stack trace :\n" + cleanUpEx.stackTrace()
+				"Another exception happened during cleanup : " + Storm::toStdString(cleanUpEx) + ".\n" + cleanUpEx.stackTrace()
 			};
 
 			if (Storm::LoggerManager::isAlive() && Storm::LoggerManager::instance().isInitialized())

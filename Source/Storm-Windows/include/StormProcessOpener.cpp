@@ -55,8 +55,7 @@ namespace
 		{
 			LOG_ERROR <<
 				"Failed to open " << nameOfWhatToOpen << ".\n"
-				"Error : " << ex.what() << "\n"
-				"Stack trace :\n" << ex.stackTrace()
+				"Error : " << ex.what() << "\n" << ex.stackTrace()
 				;
 		}
 		catch (const std::exception &ex)

@@ -49,8 +49,7 @@ void Storm::TCPClientBasePrivateLogic::connect(Traits::NetworkService &ioService
 			catch (const Storm::Exception &e)
 			{
 				LOG_ERROR <<
-					"Storm::Exception catched while connecting : " << e.what() << ".\n"
-					"Stack trace :\n" << e.stackTrace()
+					"Storm::Exception catched while connecting : " << e.what() << ".\n" << e.stackTrace()
 					;
 			}
 			catch (const std::exception &e)

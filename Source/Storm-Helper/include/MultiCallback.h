@@ -156,7 +156,7 @@ namespace Storm
 						currentReturnElement._error.reserve(exceptionMsg.size() + exceptionStackTrace.size() + 16);
 
 						currentReturnElement._error += exceptionMsg;
-						currentReturnElement._error += "\n\nStack Trace :\n";
+						currentReturnElement._error += "\n\n";
 						currentReturnElement._error += exceptionStackTrace;
 					}
 					catch (const std::exception &ex)

@@ -49,7 +49,7 @@ namespace
 		inOutError += errorCountStr;
 		inOutError += " : Command parsing error happened :\n";
 		inOutError += errorMsg;
-		inOutError += ".\nStack trace :\n";
+		inOutError += ".\n";
 		inOutError += errorStackTrace;
 		inOutError += "\n\n\n";
 	}
