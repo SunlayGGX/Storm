@@ -377,5 +377,8 @@
     <ClInclude Include="..\include\SIMDUsageMode.h">
       <Filter>Header Files\OS\Material</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\VisualStudioOutputCompliantParser.h">
+      <Filter>Header Files\OS\Debugging</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
