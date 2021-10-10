@@ -24,7 +24,8 @@ catch (const Storm::Exception &ex)
 {
 	return processEarlyExitAnswer(
 		Storm::Application::ensureCleanStateAfterException(
-			"Fatal error (Storm::Exception received) : " + std::string{ ex.what() } + ".\n" + ex.stackTrace(),
+			"Fatal error (Storm::Exception received) : " + std::string{ ex.what() } + ".\n"
+			"Stack trace :\n" + ex.stackTrace(),
 			true
 		)
 	);

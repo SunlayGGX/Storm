@@ -56,7 +56,7 @@ void Storm::NetworkCore::execute()
 			LOG_ERROR <<
 				"Network error happened :\n"
 				"Error: " << exception.what() << ".\n"
-				"at " << exception.stackTrace();
+				"Stack trace :\n" << exception.stackTrace();
 		}
 
 		if (std::chrono::high_resolution_clock::now() > quitTime)

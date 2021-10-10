@@ -133,7 +133,9 @@ void Storm::SerializerManager::run()
 	}
 	catch (const Storm::Exception &e)
 	{
-		LOG_FATAL << "Serializer thread unexpected exit (with Storm::Exception) : " << e.what() << ".\n" << e.stackTrace();
+		LOG_FATAL <<
+			"Serializer thread unexpected exit (with Storm::Exception) : " << e.what() << ".\n"
+			"Stack trace :\n" << e.stackTrace();
 		normalExit = false;
 	}
 	catch (const std::exception &e)

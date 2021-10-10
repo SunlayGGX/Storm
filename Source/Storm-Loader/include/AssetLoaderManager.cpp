@@ -181,7 +181,7 @@ namespace
 				errorMsg += iterStr;
 				errorMsg += " has thrown an exception : ";
 				errorMsg += exceptionMsg;
-				errorMsg += ".\nStackTrace:\n";
+				errorMsg += ".\nStack Trace :\n";
 				errorMsg += exceptionStackTrace;
 				errorMsg += '\n';
 			}

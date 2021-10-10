@@ -198,7 +198,8 @@ catch (const Storm::Exception &ex)
 {
 	std::cerr <<
 		"Unhandled storm exception happened!\n"
-		"Message was " << ex.what() << ".\n" << ex.stackTrace()
+		"Message was " << ex.what() << ".\n"
+		"Stack trace :\n" << ex.stackTrace()
 		;
 	return static_cast<int>(Storm::ExitCode::k_stdException);
 }
