@@ -15,6 +15,8 @@ namespace Storm
 	
 	class PhysicsConstraint;
 
+	struct SceneCageConfig;
+
 	class PhysicsManager final :
 		private Storm::Singleton<Storm::PhysicsManager>,
 		public Storm::IPhysicsManager
@@ -72,6 +74,9 @@ namespace Storm
 		const Storm::PhysXHandler& getPhysXHandler() const;
 		Storm::PhysXHandler& getPhysXHandler();
 
+	private:
+		void createCage(const Storm::SceneCageConfig &cageConfig);
+
 	public:
 		mutable std::mutex _simulationMutex;
 
@@ -84,5 +89,7 @@ namespace Storm
 		std::vector<std::shared_ptr<Storm::PhysicsConstraint>> _constraints;
 
 		bool _rigidBodiesFixated;
+
+		std::unique_ptr<Storm::PhysicsStaticsRigidBody> _optionalCageBody;
 	};
 }

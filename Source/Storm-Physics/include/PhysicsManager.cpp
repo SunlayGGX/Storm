@@ -11,12 +11,14 @@
 #include "SceneConstraintConfig.h"
 #include "SceneSimulationConfig.h"
 #include "SceneRecordConfig.h"
+#include "SceneCageConfig.h"
 
 #include "SingletonHolder.h"
 #include "IGraphicsManager.h"
 #include "IThreadManager.h"
 #include "IConfigManager.h"
 #include "IInputManager.h"
+#include "IAssetLoaderManager.h"
 
 #include "ThreadEnumeration.h"
 #include "SpecialKey.h"
@@ -25,6 +27,8 @@
 #include "SerializeRecordContraintsData.h"
 
 #include "RecordMode.h"
+
+#include "CollisionType.h"
 
 #include "SearchAlgo.h"
 
@@ -63,6 +67,12 @@ void Storm::PhysicsManager::initialize_Implementation()
 
 	_rigidBodiesFixated = configMgr.getSceneSimulationConfig()._fixRigidBodyAtStartTime;
 
+	const Storm::SceneCageConfig* cageConfigPtr = configMgr.getSceneOptionalCageConfig();
+	if (cageConfigPtr && cageConfigPtr->_infiniteDomain)
+	{
+		this->createCage(*cageConfigPtr);
+	}
+
 	Storm::IInputManager &inputMgr = singletonHolder.getSingleton<Storm::IInputManager>();
 	inputMgr.bindKey(Storm::SpecialKey::KC_L, [this]() { this->setRigidbodiesFixedInternalImpl(!_rigidBodiesFixated); });
 
@@ -78,6 +88,8 @@ void Storm::PhysicsManager::cleanUp_Implementation()
 	_staticsRbMap.clear();
 	_dynamicsRbMap.clear();
 
+	_optionalCageBody.reset();
+
 	_physXHandler.reset();
 
 	LOG_COMMENT << "PhysX cleanup finished successfully";
@@ -89,6 +101,11 @@ void Storm::PhysicsManager::notifyIterationStart()
 	{
 		rb.onIterationStart();
 	}, _dynamicsRbMap, _staticsRbMap);
+
+	if (_optionalCageBody)
+	{
+		_optionalCageBody->onIterationStart();
+	}
 }
 
 void Storm::PhysicsManager::update(const float currentTime, float deltaTime)
@@ -103,10 +120,16 @@ void Storm::PhysicsManager::update(const float currentTime, float deltaTime)
 			constraint.executeIfNeeded();
 		}, _constraints);
 
-		Storm::SearchAlgo::executeOnContainer([time = currentTime + deltaTime](auto &rb)
+		const float time = currentTime + deltaTime;
+		Storm::SearchAlgo::executeOnContainer([time](auto &rb)
 		{
 			rb.onPostUpdate(time);
 		}, _dynamicsRbMap, _staticsRbMap);
+
+		if (_optionalCageBody)
+		{
+			_optionalCageBody->onPostUpdate(time);
+		}
 
 		this->pushPhysicsVisualizationData();
 	}
@@ -464,4 +487,27 @@ const Storm::PhysXHandler& Storm::PhysicsManager::getPhysXHandler() const
 Storm::PhysXHandler& Storm::PhysicsManager::getPhysXHandler()
 {
 	return *_physXHandler;
+}
+
+void Storm::PhysicsManager::createCage(const Storm::SceneCageConfig &cageConfig)
+{
+	Storm::SceneRigidBodyConfig dummyCfg;
+	dummyCfg._rigidBodyID = std::numeric_limits<decltype(dummyCfg._rigidBodyID)>::max();
+	dummyCfg._collisionShape = Storm::CollisionType::Custom;
+	dummyCfg._isWall = true;
+	dummyCfg._translation.setZero();
+	dummyCfg._rotation = Storm::Rotation::Identity();
+
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	const Storm::IAssetLoaderManager &assetMgr = singletonHolder.getSingleton<Storm::IAssetLoaderManager>();
+
+	std::vector<Storm::Vector3> cubeVertexes;
+	std::vector<uint32_t> cubeIndexes;
+
+	const Storm::Vector3 cagePosition = (cageConfig._boxMax + cageConfig._boxMin) / 2.f;
+	const Storm::Vector3 cageDimension = cageConfig._boxMax - cageConfig._boxMin;
+
+	assetMgr.generateSimpleSmoothedCube(cagePosition, cageDimension, cubeVertexes, cubeIndexes);
+
+	_optionalCageBody = std::make_unique<Storm::PhysicsStaticsRigidBody>(dummyCfg, cubeVertexes, cubeIndexes);
 }

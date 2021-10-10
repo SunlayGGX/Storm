@@ -73,13 +73,16 @@ void Storm::Cage::doEnclose(Storm::ParticleSystemContainer &pSystems) const
 					reflectWithPenalty(_boxMin, _boxMax, _velocityCoeffs, currentPPosition, allPVelocities[currentPIndex], zSelector);
 				});
 			}
+#if false
 			else
 			{
 				// TODO : I need to think for this case...
 				// because rigid bodies are solid, their particles shouldn't move from each other (this is a constraint) therefore they cannot be teared apart from one another...
-				// This contraint is true for my engine, but also for the Physics engine I use.
-				STORM_NOT_IMPLEMENTED;
+				// This constraint is true for my engine, but also for the Physics engine I use.
+
+				// Finally, the physics engine handle the case by preventing the rigid body to leave the cage.
 			}
+#endif
 		}
 	}
 	else
