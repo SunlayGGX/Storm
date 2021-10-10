@@ -171,6 +171,9 @@
     <ClCompile Include="..\include\Language.cpp">
       <Filter>Source Files\Application</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\VisualStudioOutputCompliantParser.cpp">
+      <Filter>Source Files\OS\Debugging</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-HelperPCH.h">

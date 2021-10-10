@@ -36,6 +36,7 @@
     <ClCompile Include="..\include\StormPathHelper.cpp" />
     <ClCompile Include="..\include\TimeHelper.cpp" />
     <ClCompile Include="..\include\Version.cpp" />
+    <ClCompile Include="..\include\VisualStudioOutputCompliantParser.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\ArchitectureMacros.h" />
