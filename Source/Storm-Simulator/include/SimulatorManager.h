@@ -169,6 +169,9 @@ namespace Storm
 		void logVelocityData() const;
 		void logTotalVolume() const;
 
+		void logSelectedParticleContributionToVelocity();
+		void logSelectedParticleContributionToVector(float x, float y, float z);
+
 	private:
 		bool selectSpecificParticle_Internal(const unsigned int pSystemId, const std::size_t particleIndex);
 		void selectSpecificParticle(const unsigned int pSystemId, const std::size_t particleIndex);

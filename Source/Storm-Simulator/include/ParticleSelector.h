@@ -63,6 +63,8 @@ namespace Storm
 
 	public:
 		void logForceComponents() const;
+		void logForceComponentsContributionToVector(const Storm::Vector3 &vec) const;
+		void logForceComponentsContributionToVelocity() const;
 
 	private:
 		std::unique_ptr<Storm::SelectedParticleData> _selectedParticleData;

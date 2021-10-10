@@ -3099,6 +3099,38 @@ void Storm::SimulatorManager::logTotalVolume() const
 	});
 }
 
+void Storm::SimulatorManager::logSelectedParticleContributionToVelocity()
+{
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::MainThread, [this]()
+	{
+		if (_particleSelector.hasSelectedParticle())
+		{
+			_particleSelector.logForceComponentsContributionToVelocity();
+		}
+		else
+		{
+			LOG_ERROR << "No selected particle.";
+		}
+	});
+}
+
+void Storm::SimulatorManager::logSelectedParticleContributionToVector(float x, float y, float z)
+{
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::MainThread, [this, vec = Storm::Vector3{ x, y, z }]()
+	{
+		if (_particleSelector.hasSelectedParticle())
+		{
+			_particleSelector.logForceComponentsContributionToVector(vec);
+		}
+		else
+		{
+			LOG_ERROR << "No selected particle.";
+		}
+	});
+}
+
 bool Storm::SimulatorManager::selectSpecificParticle_Internal(const unsigned pSystemId, const std::size_t particleIndex)
 {
 	assert(Storm::isSimulationThread() && "This method can only be called from simulation thread.");

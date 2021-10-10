@@ -314,6 +314,16 @@ case Storm::ParticleSelectionMode::Case:					\
 
 		Storm::throwException<Storm::Exception>(forceSelectStr + " cannot be parsed into a CustomForceSelect enumeration.");
 	}
+
+	template<class Logger>
+	void logContribution(Logger &logger, const std::string_view name, const Storm::Vector3 &force, const Storm::Vector3 &normalizedVec)
+	{
+		logger << "\n" << name << " : ";
+		const float contribution = force.dot(normalizedVec);
+		const Storm::Vector3 colinearContrib = normalizedVec * contribution;
+		const Storm::Vector3 perpDisorient = force - colinearContrib;
+		logger << contribution << " N. Colinear contrib : " << colinearContrib << ". Disorient : " << perpDisorient << " (Norm " << perpDisorient.norm() << ")";
+	}
 }
 
 
@@ -718,4 +728,51 @@ void Storm::ParticleSelector::logForceComponents() const
 #undef STORM_APPEND_RB_VECTOR_DATA
 #undef STORM_APPEND_DATA_TO_STREAM
 #undef STORM_SUPPORT_STR
+}
+
+void Storm::ParticleSelector::logForceComponentsContributionToVector(const Storm::Vector3 &vec) const
+{
+	if (vec.isZero())
+	{
+		Storm::throwException<Storm::Exception>("Vector shouldn't be null!");
+	}
+
+	const Storm::Vector3 vecNormalized = vec.normalized();
+	const auto &dataRef = *_selectedParticleData;
+	
+	auto alwaysLogger = LOG_ALWAYS;
+	
+	alwaysLogger <<
+		"Contribution to " << vec << " (normalized is " << vecNormalized << ")";
+
+	logContribution(alwaysLogger, "Pressure", dataRef._pressureForce, vecNormalized);
+	logContribution(alwaysLogger, "Viscosity", dataRef._viscosityForce, vecNormalized);
+
+	if (_supportedFeatures->_hasDragComponentforces)
+	{
+		logContribution(alwaysLogger, "Drag", dataRef._dragForce, vecNormalized);
+	}
+	if (_supportedFeatures->_hasDynamicPressureQForces)
+	{
+		logContribution(alwaysLogger, "DynamicPressure", dataRef._dynamicPressureForce, vecNormalized);
+	}
+	if (_supportedFeatures->_hasNoStickForces)
+	{
+		logContribution(alwaysLogger, "NoStick", dataRef._noStickForce, vecNormalized);
+	}
+	if (_supportedFeatures->_hasCoendaForces)
+	{
+		logContribution(alwaysLogger, "Coenda", dataRef._coendaForce, vecNormalized);
+	}
+	if (_supportedFeatures->_hasIntermediaryPressureForces)
+	{
+		logContribution(alwaysLogger, "Intermediary Pressure", dataRef._intermediaryPressureForce, vecNormalized);
+	}
+
+	logContribution(alwaysLogger, "Sum", dataRef._externalSumForces, vecNormalized);
+}
+
+void Storm::ParticleSelector::logForceComponentsContributionToVelocity() const
+{
+	this->logForceComponentsContributionToVector(_selectedParticleData->_velocity);
 }
