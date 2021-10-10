@@ -248,7 +248,7 @@ namespace Storm_LogViewer
                     }
                     catch (System.Exception ex)
                     {
-                        Console.WriteLine("Exception happened while scrolling to the end : " + ex.Message + ".\nStack Trace : " + ex.StackTrace);
+                        Console.WriteLine("Exception happened while scrolling to the end : " + ex.Message + ".\nStack Trace :\n" + ex.StackTrace);
                     }
                 }
             }
