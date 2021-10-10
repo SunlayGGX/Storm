@@ -9,6 +9,7 @@ namespace Storm
 	enum class PartitionSelection;
 	struct NeighborParticleReferral;
 	class IDistanceSpacePartitionProxy;
+	class OutReflectedModality;
 
 	class ISpacePartitionerManager : public Storm::ISingletonHeldInterface<Storm::ISpacePartitionerManager>
 	{
@@ -35,8 +36,8 @@ namespace Storm
 		// Get the all bundles that can be considered as neighbor from the bundle referred by systemId containing the particlePosition. 
 		// Note that inOutContainingBundlePtr can also contain the particle at particlePosition.
 		// This method is the overload that takes the infinite domain into account and should be called if isInfiniteDomainMode returns true instead of getAllBundles.
-		// outShouldReflect is a boolean flag set to true if we actually pushed reflected voxels neighbors, therefore extra works should be done to handle the case.
-		virtual void getAllBundlesInfinite(const std::vector<Storm::NeighborParticleReferral>* &outContainingBundlePtr, const std::vector<Storm::NeighborParticleReferral>*(&outNeighborBundle)[Storm::k_neighborLinkedBunkCount], const Storm::Vector3 &particlePosition, Storm::PartitionSelection modality, bool &outShouldReflect) const = 0;
+		// reflectModality is the reflected modality of the last call to getAllBundlesInfinite (in the current thread). We provide our own OutReflectedModality and reflectModality would point to it. But another run of getAllBundlesInfinite (or getAllBundles) and the variable will be modified.
+		virtual void getAllBundlesInfinite(const std::vector<Storm::NeighborParticleReferral>* &outContainingBundlePtr, const std::vector<Storm::NeighborParticleReferral>*(&outNeighborBundle)[Storm::k_neighborLinkedBunkCount], const Storm::Vector3 &particlePosition, Storm::PartitionSelection modality, const Storm::OutReflectedModality* &reflectModality) const = 0;
 
 		// Get the containing bundle containing particlePosition.
 		virtual void getContainingBundle(const std::vector<Storm::NeighborParticleReferral>* &containingBundlePtr, const Storm::Vector3 &particlePosition, Storm::PartitionSelection modality) const = 0;

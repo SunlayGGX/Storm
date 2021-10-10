@@ -2,6 +2,8 @@
 
 #include "ParticleSystemContainer.h"
 
+#include "OutReflectedModality.h"
+
 
 namespace Storm
 {
@@ -43,6 +45,7 @@ namespace Storm
 		const Storm::Vector3 &_domainDimension;
 
 		bool _isFluid;
+		const Storm::OutReflectedModality* _reflectedModality;
 	};
 
 #if !STORM_USE_INTRINSICS

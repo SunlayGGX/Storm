@@ -181,10 +181,9 @@ void Storm::RigidBodyParticleSystem::initializePreSimulation(const Storm::Partic
 				// Get all particles referrals that are near the current particle position.
 				if (infiniteDomain)
 				{
-					bool shouldConsiderInfiniteDomain;
-					spacePartitionerMgr.getAllBundlesInfinite(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::StaticRigidBody, shouldConsiderInfiniteDomain);
+					spacePartitionerMgr.getAllBundlesInfinite(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::StaticRigidBody, inParam._reflectedModality);
 
-					if (shouldConsiderInfiniteDomain)
+					if (inParam._reflectedModality->_summary != Storm::OutReflectedModalityEnum::None)
 					{
 						Storm::searchForNeighborhood<true, true>(inParam);
 					}
@@ -268,11 +267,9 @@ void Storm::RigidBodyParticleSystem::initializePreSimulation(const Storm::Partic
 
 				if (infiniteDomain)
 				{
-					bool shouldConsiderInfiniteDomain;
-
 					// Get all dynamic particles referrals that are near the current particle position. But we'll take only the current dynamic rb at the end...
-					spacePartitionerMgr.getAllBundlesInfinite(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::DynamicRigidBody, shouldConsiderInfiniteDomain);
-					if (shouldConsiderInfiniteDomain)
+					spacePartitionerMgr.getAllBundlesInfinite(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::DynamicRigidBody, inParam._reflectedModality);
+					if (inParam._reflectedModality->_summary != Storm::OutReflectedModalityEnum::None)
 					{
 						Storm::searchForNeighborhood<true, true>(inParam);
 					}
@@ -617,11 +614,9 @@ void Storm::RigidBodyParticleSystem::buildNeighborhoodOnParticleSystemUsingSpace
 
 			if (infiniteDomain)
 			{
-				bool shouldConsiderInfiniteDomain;
-
 				// Get all dynamic particles referrals that are near the current particle position. But we'll take only the current dynamic rb at the end...
-				spacePartitionerMgr.getAllBundlesInfinite(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::DynamicRigidBody, shouldConsiderInfiniteDomain);
-				if (shouldConsiderInfiniteDomain)
+				spacePartitionerMgr.getAllBundlesInfinite(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::DynamicRigidBody, inParam._reflectedModality);
+				if (inParam._reflectedModality->_summary != Storm::OutReflectedModalityEnum::None)
 				{
 					Storm::searchForNeighborhood<true, true>(inParam);
 				}
@@ -670,11 +665,9 @@ void Storm::RigidBodyParticleSystem::buildNeighborhoodOnParticleSystemUsingSpace
 
 			if (infiniteDomain)
 			{
-				bool shouldConsiderInfiniteDomain;
-				
 				// Get all particles referrals that are near the current particle position. First, rigid bodies doesn't see fluids, so do not query them...
-				spacePartitionerMgr.getAllBundlesInfinite(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::StaticRigidBody, shouldConsiderInfiniteDomain);
-				if (shouldConsiderInfiniteDomain)
+				spacePartitionerMgr.getAllBundlesInfinite(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::StaticRigidBody, inParam._reflectedModality);
+				if (inParam._reflectedModality->_summary != Storm::OutReflectedModalityEnum::None)
 				{
 					Storm::searchForNeighborhood<true, true>(inParam);
 
@@ -857,10 +850,8 @@ std::vector<float> Storm::RigidBodyParticleSystem::computeEmptiness(const Storm:
 
 		if (infiniteDomain)
 		{
-			bool shouldConsiderInfiniteDomain;
-
-			spacePartitionerMgr.getAllBundlesInfinite(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::Fluid, shouldConsiderInfiniteDomain);
-			if (shouldConsiderInfiniteDomain)
+			spacePartitionerMgr.getAllBundlesInfinite(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::Fluid, inParam._reflectedModality);
+			if (inParam._reflectedModality->_summary != Storm::OutReflectedModalityEnum::None)
 			{
 				Storm::searchForNeighborhood<true, true>(inParam);
 			}

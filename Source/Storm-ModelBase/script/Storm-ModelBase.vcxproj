@@ -57,6 +57,7 @@
     <ClInclude Include="..\include\InternalReferenceConfig.h" />
     <ClInclude Include="..\include\ISafetyManager.h" />
     <ClInclude Include="..\include\MemoryInfos.h" />
+    <ClInclude Include="..\include\OutReflectedModality.h" />
     <ClInclude Include="..\include\ParticleRemovalMode.h" />
     <ClInclude Include="..\include\SceneBlowerConfig.h" />
     <ClInclude Include="..\include\BlowerDef.h" />

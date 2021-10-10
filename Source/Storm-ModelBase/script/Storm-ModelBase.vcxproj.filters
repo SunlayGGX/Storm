@@ -566,5 +566,8 @@
     <ClInclude Include="..\include\MemoryInfos.h">
       <Filter>Header Files\Modules\OS</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\OutReflectedModality.h">
+      <Filter>Header Files\Modules\SpacePartitioning</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

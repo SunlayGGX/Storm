@@ -370,7 +370,7 @@ void Storm::FluidParticleSystem::buildNeighborhoodOnParticleSystemUsingSpacePart
 		const std::vector<Storm::NeighborParticleReferral>* bundleContainingPtr;
 		const std::vector<Storm::NeighborParticleReferral>* outLinkedNeighborBundle[Storm::k_neighborLinkedBunkCount];
 
-		Storm::NeighborSearchInParam<ParticleNeighborhoodArray, decltype(rawKernel), decltype(gradKernel), Storm::k_neighborLinkedBunkCount> inParam {
+		Storm::NeighborSearchInParam<ParticleNeighborhoodArray, decltype(rawKernel), decltype(gradKernel), Storm::k_neighborLinkedBunkCount> inParam{
 			this,
 			allParticleSystems,
 			kernelLength,
@@ -389,12 +389,10 @@ void Storm::FluidParticleSystem::buildNeighborhoodOnParticleSystemUsingSpacePart
 
 		if (infiniteDomain)
 		{
-			bool shouldConsiderInfiniteDomain;
-
 			// Get all particles referrals that are near the current particle position. First, get all particles inside the fluid partitioned space...
-			spacePartitionerMgr.getAllBundlesInfinite(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::Fluid, shouldConsiderInfiniteDomain);
+			spacePartitionerMgr.getAllBundlesInfinite(bundleContainingPtr, outLinkedNeighborBundle, currentPPosition, Storm::PartitionSelection::Fluid, inParam._reflectedModality);
 
-			if (shouldConsiderInfiniteDomain)
+			if (inParam._reflectedModality->_summary != Storm::OutReflectedModalityEnum::None)
 			{
 				Storm::searchForNeighborhood<true, true>(inParam);
 
