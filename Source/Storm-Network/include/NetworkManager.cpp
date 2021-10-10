@@ -88,8 +88,7 @@ void Storm::NetworkManager::run()
 	{
 		LOG_FATAL << 
 			"Storm::Exception catched forcing us to stop the network module.\n"
-			"Error was " << e.what() << ".\n"
-			"Call stack was " << e.stackTrace()
+			"Error was " << e.what() << ".\n" << e.stackTrace()
 			;
 		
 		runContinue = false;

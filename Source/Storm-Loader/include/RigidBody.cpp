@@ -387,9 +387,7 @@ void Storm::RigidBody::load(const Storm::SceneRigidBodyConfig &rbSceneConfig)
 						catch (const Storm::Exception &e)
 						{
 							LOG_ERROR <<
-								"Cache version parsing failed. We'll invalidate the cache. Reason was " << e.what() << "\n\n"
-								"Stack trace :\n" <<
-								e.stackTrace();
+								"Cache version parsing failed. We'll invalidate the cache. Reason was " << e.what() << "\n\n" << e.stackTrace();
 
 							hasCache = false;
 						}

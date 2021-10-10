@@ -244,8 +244,7 @@ namespace
 	{
 		LOG_FATAL <<
 			"Aborting failure happened when running " << actionDescription << " inside input/Windows thread.\n"
-			"Error was : " << errorMsg << ".\n"
-			"Stack trace : " << stackTrace
+			"Error was : " << errorMsg << ".\n" << stackTrace
 			;
 
 		Storm::requestExitOtherThread();
