@@ -603,6 +603,12 @@ const std::string& Storm::ConfigManager::getRestartCommandline() const
 	return _commandLineForRestart;
 }
 
+bool Storm::ConfigManager::hasWall() const
+{
+	const std::vector<Storm::SceneRigidBodyConfig> &rbConfigs = this->getSceneRigidBodiesConfig();
+	return std::ranges::any_of(rbConfigs, [](const Storm::SceneRigidBodyConfig &rbConfig) { return rbConfig._isWall; });
+}
+
 void Storm::ConfigManager::getUnsafeMacroizedConvertedValue(std::string &inOutValue) const
 {
 	_macroConfig(inOutValue);

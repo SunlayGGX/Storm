@@ -1804,7 +1804,18 @@ void Storm::SimulatorManager::addFluidParticleSystem(unsigned int id, std::vecto
 	{
 		LOG_COMMENT << "Removing fluid particles that collide with rigid bodies particles.";
 
-		std::pair<Storm::Vector3, Storm::Vector3> outDomain{ Storm::initVector3ForMin(), Storm::initVector3ForMax() };
+		const Storm::SceneCageConfig*const cageConfigPtr = configMgr.getSceneOptionalCageConfig();
+		std::pair<Storm::Vector3, Storm::Vector3> outDomain;
+		if (cageConfigPtr && !configMgr.hasWall())
+		{
+			outDomain.first = cageConfigPtr->_boxMin;
+			outDomain.second = cageConfigPtr->_boxMax;
+		}
+		else
+		{
+			outDomain.first = Storm::initVector3ForMin();
+			outDomain.second = Storm::initVector3ForMax();
+		}
 
 		const Storm::SceneSimulationConfig &sceneSimulationConfig = configMgr.getSceneSimulationConfig();
 
