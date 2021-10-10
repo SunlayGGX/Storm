@@ -7,6 +7,8 @@
 #include "UniversalString.h"
 #include "VisualStudioOutputCompliantParser.h"
 
+#include "StormMacro.h"
+
 #include <boost/stacktrace.hpp>
 
 
@@ -275,27 +277,27 @@ std::string Storm::obtainStackTrace(bool minimalString)
 				std::string result;
 
 #if true
-				if (stacktraceObject)
+				if (stacktraceObject) STORM_LIKELY
 				{
-					enum : std::size_t
-					{
-						k_expectedFirstReserveMsgSize = 128,
-						k_frameFirstReserveSize = 128,
-						k_decoratorMsgSize = 6,
-						k_incrementReserveSize = 5,
-						k_firstReserveSizeSum = k_expectedFirstReserveMsgSize + k_frameFirstReserveSize + k_decoratorMsgSize + k_incrementReserveSize
-					};
-
-					constexpr std::string_view k_header = "Stack trace:\n";
-
-					const std::size_t frameCount = stacktraceObject.size();
-					result.reserve(k_header.size() + frameCount * k_firstReserveSizeSum);
-
-					result += k_header;
-
 					boost::stacktrace::detail::debugging_symbols idebug;
-					if (idebug.is_inited())
+					if (idebug.is_inited()) STORM_LIKELY
 					{
+						enum : std::size_t
+						{
+							k_expectedFirstReserveMsgSize = 128,
+							k_frameFirstReserveSize = 128,
+							k_decoratorMsgSize = 6,
+							k_incrementReserveSize = 5,
+							k_firstReserveSizeSum = k_expectedFirstReserveMsgSize + k_frameFirstReserveSize + k_decoratorMsgSize + k_incrementReserveSize
+						};
+
+						constexpr std::string_view k_header = "Stack trace:\n";
+
+						const std::size_t frameCount = stacktraceObject.size();
+						result.reserve(k_header.size() + frameCount * k_firstReserveSizeSum);
+
+						result += k_header;
+
 						std::string moduleTmp;
 
 						for (std::size_t iter = 0; iter < frameCount; ++iter)
