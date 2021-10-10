@@ -261,7 +261,6 @@ Storm::ExitCode Storm::Application::run()
 		LOG_FATAL <<
 			"Caught an unhandled Storm exception in the Application main loop (run). Process will exit.\n"
 			"Reason : " << ex.what() << ".\n" << ex.stackTrace();
-			;
 		throw;
 	}
 	catch (const std::exception &ex)
