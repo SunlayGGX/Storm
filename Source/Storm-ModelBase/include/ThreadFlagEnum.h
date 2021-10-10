@@ -5,14 +5,17 @@
 
 namespace Storm
 {
-	template<uint64_t val>
-	constexpr uint64_t doFlagChecks()
+	namespace
 	{
-		STORM_STATIC_ASSERT(val != static_cast<uint64_t>(0), "0 is reserved a reserved value for threading flag (means no flag)!");
-		return val;
+		template<uint64_t val>
+		constexpr static __forceinline uint64_t doThreadFlagChecks()
+		{
+			STORM_STATIC_ASSERT(val != static_cast<uint64_t>(0), "0 is a reserved value for threading flag (means no flag)!");
+			return val;
+		}
 	}
 
-#define STORM_DECLARE_THREAD_FLAG(FlagName, ...) FlagName = doFlagChecks<static_cast<uint64_t>(Storm::BitField<__VA_ARGS__>::value)>()
+#define STORM_DECLARE_THREAD_FLAG(FlagName, ...) FlagName = doThreadFlagChecks<static_cast<uint64_t>(Storm::BitField<__VA_ARGS__>::value)>()
 
 	enum class ThreadFlagEnum : uint64_t
 	{
