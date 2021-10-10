@@ -5,6 +5,7 @@
 #include "VectoredExceptionDisplayMode.h"
 
 #include "UniversalString.h"
+#include "VisualStudioOutputCompliantParser.h"
 
 #include <boost/stacktrace.hpp>
 
@@ -271,7 +272,64 @@ std::string Storm::obtainStackTrace(bool minimalString)
 		public:
 			static std::string parsePolicyAgnostic(const boost::stacktrace::stacktrace &stacktraceObject)
 			{
-				return boost::stacktrace::to_string(stacktraceObject);
+				std::string result;
+
+#if true
+				if (stacktraceObject)
+				{
+					enum : std::size_t
+					{
+						k_expectedFirstReserveMsgSize = 128,
+						k_frameFirstReserveSize = 128,
+						k_decoratorMsgSize = 6,
+						k_incrementReserveSize = 5,
+						k_firstReserveSizeSum = k_expectedFirstReserveMsgSize + k_frameFirstReserveSize + k_decoratorMsgSize + k_incrementReserveSize
+					};
+
+					const std::size_t frameCount = stacktraceObject.size();
+					result.reserve(frameCount * k_firstReserveSizeSum);
+
+					boost::stacktrace::detail::debugging_symbols idebug;
+
+					std::string moduleTmp;
+
+					for (std::size_t iter = 0; iter < frameCount; ++iter)
+					{
+						const auto &frame = stacktraceObject[iter];
+						if (!frame.empty())
+						{
+							const auto address = frame.address();
+							const auto [sourceFilePath, fileLine] = idebug.get_source_file_line_impl(address);
+
+							result += ' ';
+							if (Storm::VisualStudioOutputCompliantParser::produceVSOutputCompliantLine(result, iter, sourceFilePath, fileLine))
+							{
+								result += ':';
+							}
+
+							const std::string nameImpl = idebug.get_name_impl(address, &moduleTmp);
+							if (!nameImpl.empty())
+							{
+								result += " at ";
+								result += nameImpl;
+							}
+							if (!moduleTmp.empty())
+							{
+								result += " in ";
+								result += moduleTmp;
+							}
+
+							result += '\n';
+						}
+					}
+
+					result.pop_back();
+				}
+#else
+				result = boost::stacktrace::to_string(stacktraceObject);
+#endif
+
+				return result;
 			}
 		};
 
