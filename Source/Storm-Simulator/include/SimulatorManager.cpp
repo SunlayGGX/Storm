@@ -740,6 +740,45 @@ namespace
 
 		return totalVolume;
 	}
+
+	Storm::ParticleSystem* checkParticleExistence(const Storm::ParticleSystemContainer &particleSystem, unsigned int pSystemId, std::size_t particleIndex, bool shouldThrow)
+	{
+		if (const auto found = particleSystem.find(pSystemId); found != std::end(particleSystem))
+		{
+			auto &pSystem = *found->second;
+			const std::size_t pCount = pSystem.getParticleCount();
+			if (particleIndex < pCount)
+			{
+				return const_cast<Storm::ParticleSystem*>(&pSystem);
+			}
+			else
+			{
+				const std::string errMsg = "We found the right particle system but the particle at " + std::to_string(particleIndex) + " doesn't exist!";
+				if (shouldThrow)
+				{
+					Storm::throwException<Storm::Exception>(errMsg);
+				}
+				else
+				{
+					LOG_ERROR << errMsg;
+				}
+			}
+		}
+		else
+		{
+			const std::string errMsg = "We did not find the particle system with id " + std::to_string(pSystemId);
+			if (shouldThrow)
+			{
+				Storm::throwException<Storm::Exception>(errMsg);
+			}
+			else
+			{
+				LOG_ERROR << errMsg;
+			}
+		}
+
+		return nullptr;
+	}
 }
 
 Storm::SimulatorManager::SimulatorManager() :
@@ -2816,167 +2855,157 @@ void Storm::SimulatorManager::writeParticleNeighborhood(const unsigned int id, c
 
 	singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::MainThread, [this, id, pIndex, filePathUnMacroized = FuncMovePass<std::string>{ std::move(FilePathCpy) }, osLanguage, isReplayMode = configMgr.isInReplayMode()]()
 	{
-		if (const auto found = _particleSystem.find(id); found != std::end(_particleSystem))
+		if (const Storm::ParticleSystem*const containingPSystem = checkParticleExistence(_particleSystem, id, pIndex, false); containingPSystem != nullptr)
 		{
-			const Storm::ParticleSystem &pSystem = *found->second;
-			const std::size_t pCount = pSystem.getParticleCount();
-			if (pIndex < pCount)
+			if (isReplayMode)
 			{
-				if (isReplayMode)
+				this->refreshReplayNeighborhood();
+			}
+
+			const Storm::ParticleSystem &pSystem = *containingPSystem;
+			const std::size_t pCount = pSystem.getParticleCount();
+
+			std::filesystem::path filePathSystem{ filePathUnMacroized._object };
+			if (filePathSystem.extension() == ".csv")
+			{
+				filePathSystem.replace_extension();
+
+				const Storm::Vector3 &currentPPosition = pSystem.getPositions()[pIndex];
+				const Storm::ParticleNeighborhoodArray &currentPNeighborhood = pSystem.getNeighborhoodArrays()[pIndex];
+				const std::size_t neighborCount = currentPNeighborhood.size();
+
+				std::vector<std::size_t> toSkip;
+				toSkip.reserve(neighborCount + 1);
+
+				std::filesystem::path filePathNeighbor = filePathSystem.string() + "_neighbor.csv";
+				Storm::CSVWriter writerNeighbor{ filePathNeighbor.string(), osLanguage };
+
+				for (const auto &neighbor : currentPNeighborhood)
 				{
-					this->refreshReplayNeighborhood();
+					const std::size_t neighborId = neighbor._containingParticleSystem->getId();
+					writerNeighbor("id", neighborId);
+					writerNeighbor("index", neighbor._particleIndex);
+					writerNeighbor("pos", neighbor._containingParticleSystem->getPositions()[neighbor._particleIndex]);
+					writerNeighbor("diff", neighbor._xijNorm);
+
+					if (neighborId == id)
+					{
+						toSkip.emplace_back(neighbor._particleIndex);
+					}
 				}
 
-				std::filesystem::path filePathSystem{ filePathUnMacroized._object };
-				if (filePathSystem.extension() == ".csv")
+				std::filesystem::path filePathNonNeighbor = filePathSystem.string() + "_nonNeighbor.csv";
+				Storm::CSVWriter writerNonNeighbor{ filePathNonNeighbor.string(), osLanguage };
+
+				const auto logParticle = [&writerNonNeighbor, &pSystem, &currentPPosition](const std::size_t iter)
 				{
-					filePathSystem.replace_extension();
+					const Storm::Vector3 &pos = pSystem.getPositions()[iter];
+					writerNonNeighbor("index", iter);
+					writerNonNeighbor("pos", pos);
+					writerNonNeighbor("diff", (pos - currentPPosition).norm());
+				};
 
-					const Storm::Vector3 &currentPPosition = pSystem.getPositions()[pIndex];
-					const Storm::ParticleNeighborhoodArray &currentPNeighborhood = pSystem.getNeighborhoodArrays()[pIndex];
-					const std::size_t neighborCount = currentPNeighborhood.size();
-
-					std::vector<std::size_t> toSkip;
-					toSkip.reserve(neighborCount + 1);
-
-					std::filesystem::path filePathNeighbor = filePathSystem.string() + "_neighbor.csv";
-					Storm::CSVWriter writerNeighbor{ filePathNeighbor.string(), osLanguage };
-
-					for (const auto &neighbor : currentPNeighborhood)
-					{
-						const std::size_t neighborId = neighbor._containingParticleSystem->getId();
-						writerNeighbor("id", neighborId);
-						writerNeighbor("index", neighbor._particleIndex);
-						writerNeighbor("pos", neighbor._containingParticleSystem->getPositions()[neighbor._particleIndex]);
-						writerNeighbor("diff", neighbor._xijNorm);
-
-						if (neighborId == id)
-						{
-							toSkip.emplace_back(neighbor._particleIndex);
-						}
-					}
-
-					std::filesystem::path filePathNonNeighbor = filePathSystem.string() + "_nonNeighbor.csv";
-					Storm::CSVWriter writerNonNeighbor{ filePathNonNeighbor.string(), osLanguage };
-
-					const auto logParticle = [&writerNonNeighbor, &pSystem, &currentPPosition](const std::size_t iter)
-					{
-						const Storm::Vector3 &pos = pSystem.getPositions()[iter];
-						writerNonNeighbor("index", iter);
-						writerNonNeighbor("pos", pos);
-						writerNonNeighbor("diff", (pos - currentPPosition).norm());
-					};
-
-					for (std::size_t iter = 0; iter < pCount; ++iter)
-					{
-						if (toSkip.empty())
-						{
-							logParticle(iter);
-						}
-						else
-						{
-							if (const auto toSkipFound = std::find(std::begin(toSkip), std::end(toSkip), iter); toSkipFound == std::end(toSkip)) STORM_LIKELY
-							{
-								logParticle(iter);
-							}
-							else
-							{
-								*toSkipFound = toSkip.back();
-								toSkip.pop_back();
-							}
-						}
-					}
-				}
-				else
+				for (std::size_t iter = 0; iter < pCount; ++iter)
 				{
-					std::string toLog;
-
-					const Storm::Vector3 &currentPPosition = pSystem.getPositions()[pIndex];
-					const Storm::ParticleNeighborhoodArray &currentPNeighborhood = pSystem.getNeighborhoodArrays()[pIndex];
-
-					const std::size_t neighborCount = currentPNeighborhood.size();
-
-					toLog.reserve((pCount + neighborCount) * 65 + 128);
-
-					std::vector<std::size_t> toSkip;
-					toSkip.reserve(neighborCount + 1);
-
-					toLog += "NEIGHBOR :\n********************\n\n";
-					for (const auto &neighbor : currentPNeighborhood)
+					if (toSkip.empty())
 					{
-						const std::size_t neighborId = neighbor._containingParticleSystem->getId();
-
-						toLog += "id,index=";
-						toLog += std::to_string(neighborId);
-						toLog += ',';
-						toLog += std::to_string(neighbor._particleIndex);
-						toLog += "; pos=";
-						toLog += Storm::toStdString(neighbor._containingParticleSystem->getPositions()[neighbor._particleIndex]);
-						toLog += "; diff=";
-						toLog += Storm::toStdString(neighbor._xijNorm);
-						toLog += "\n";
-
-						if (neighborId == id)
-						{
-							toSkip.emplace_back(neighbor._particleIndex);
-						}
-					}
-
-					toSkip.emplace_back(pIndex);
-
-					toLog += "\n\nOTHERS :\n********************\n\n";
-
-					const auto logParticle = [&toLog, &pSystem, &currentPPosition](const std::size_t iter)
-					{
-						const Storm::Vector3 &pos = pSystem.getPositions()[iter];
-						toLog += "index=";
-						toLog += std::to_string(iter);
-						toLog += "; pos=";
-						toLog += Storm::toStdString(pos);
-						toLog += "; diff=";
-						toLog += Storm::toStdString((pos - currentPPosition).norm());
-						toLog += "\n";
-					};
-
-					for (std::size_t iter = 0; iter < pCount; ++iter)
-					{
-						if (toSkip.empty())
-						{
-							logParticle(iter);
-						}
-						else
-						{
-							if (const auto toSkipFound = std::find(std::begin(toSkip), std::end(toSkip), iter); toSkipFound == std::end(toSkip)) STORM_LIKELY
-							{
-								logParticle(iter);
-							}
-							else
-							{
-								*toSkipFound = toSkip.back();
-								toSkip.pop_back();
-							}
-						}
-					}
-
-					// If this is only a filename (no path)
-					if (filePathSystem.filename() == filePathSystem)
-					{
-						DEBUG_LOG_UNTO_FILE(std::move(filePathUnMacroized._object)) << toLog;
+						logParticle(iter);
 					}
 					else
 					{
-						std::ofstream{ filePathUnMacroized._object } << toLog;
+						if (const auto toSkipFound = std::find(std::begin(toSkip), std::end(toSkip), iter); toSkipFound == std::end(toSkip)) STORM_LIKELY
+						{
+							logParticle(iter);
+						}
+						else
+						{
+							*toSkipFound = toSkip.back();
+							toSkip.pop_back();
+						}
 					}
 				}
 			}
 			else
 			{
-				LOG_ERROR << pIndex << "-th particle does not exist inside particle system " << id;
+				std::string toLog;
+
+				const Storm::Vector3 &currentPPosition = pSystem.getPositions()[pIndex];
+				const Storm::ParticleNeighborhoodArray &currentPNeighborhood = pSystem.getNeighborhoodArrays()[pIndex];
+
+				const std::size_t neighborCount = currentPNeighborhood.size();
+
+				toLog.reserve((pCount + neighborCount) * 65 + 128);
+
+				std::vector<std::size_t> toSkip;
+				toSkip.reserve(neighborCount + 1);
+
+				toLog += "NEIGHBOR :\n********************\n\n";
+				for (const auto &neighbor : currentPNeighborhood)
+				{
+					const std::size_t neighborId = neighbor._containingParticleSystem->getId();
+
+					toLog += "id,index=";
+					toLog += std::to_string(neighborId);
+					toLog += ',';
+					toLog += std::to_string(neighbor._particleIndex);
+					toLog += "; pos=";
+					toLog += Storm::toStdString(neighbor._containingParticleSystem->getPositions()[neighbor._particleIndex]);
+					toLog += "; diff=";
+					toLog += Storm::toStdString(neighbor._xijNorm);
+					toLog += "\n";
+
+					if (neighborId == id)
+					{
+						toSkip.emplace_back(neighbor._particleIndex);
+					}
+				}
+
+				toSkip.emplace_back(pIndex);
+
+				toLog += "\n\nOTHERS :\n********************\n\n";
+
+				const auto logParticle = [&toLog, &pSystem, &currentPPosition](const std::size_t iter)
+				{
+					const Storm::Vector3 &pos = pSystem.getPositions()[iter];
+					toLog += "index=";
+					toLog += std::to_string(iter);
+					toLog += "; pos=";
+					toLog += Storm::toStdString(pos);
+					toLog += "; diff=";
+					toLog += Storm::toStdString((pos - currentPPosition).norm());
+					toLog += "\n";
+				};
+
+				for (std::size_t iter = 0; iter < pCount; ++iter)
+				{
+					if (toSkip.empty())
+					{
+						logParticle(iter);
+					}
+					else
+					{
+						if (const auto toSkipFound = std::find(std::begin(toSkip), std::end(toSkip), iter); toSkipFound == std::end(toSkip)) STORM_LIKELY
+						{
+							logParticle(iter);
+						}
+						else
+						{
+							*toSkipFound = toSkip.back();
+							toSkip.pop_back();
+						}
+					}
+				}
+
+				// If this is only a filename (no path)
+				if (filePathSystem.filename() == filePathSystem)
+				{
+					DEBUG_LOG_UNTO_FILE(std::move(filePathUnMacroized._object)) << toLog;
+				}
+				else
+				{
+					std::ofstream{ filePathUnMacroized._object } << toLog;
+				}
 			}
-		}
-		else
-		{
-			LOG_ERROR << "Cannot find the particle system with id " << id;
 		}
 	});
 }
