@@ -3167,6 +3167,10 @@ void Storm::SimulatorManager::forceRefreshParticleNeighborhood(const unsigned in
 	{
 		if (Storm::ParticleSystem*const containingPSystem = checkParticleExistence(_particleSystem, pSystemId, particleIndex, false); containingPSystem != nullptr)
 		{
+			// Since this method is called from callbacks, then it is after a loop iteration was done, therefore the cage would move particles but the space partitioner wouldn't have refreshed its data yet (would do after the callbacks when the simulation loop iteration truly starts).
+			// Therefore, refresh it now to be kept up to date with last iteration particle moves.
+			this->refreshParticlePartition(!containingPSystem->isStatic());
+
 			containingPSystem->buildSpecificParticleNeighborhood(_particleSystem, particleIndex);
 		}
 	});
