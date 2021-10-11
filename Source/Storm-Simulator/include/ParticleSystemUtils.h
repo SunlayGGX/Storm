@@ -140,7 +140,7 @@ namespace Storm
 
 	__forceinline __m128 retrieveDomainReflectionDimension(const Storm::Vector3 &domainDimension, const Storm::OutReflectedModalityEnum reflectedModality)
 	{
-		return _mm_set_ps(
+		return _mm_setr_ps(
 			STORM_PROCESS_RETURN_DIMENSION_FROM_FLAG(XReflectedToTheLeft, XReflectedToTheRight, x),
 			STORM_PROCESS_RETURN_DIMENSION_FROM_FLAG(YReflectedToTheBottom, YReflectedToTheTop, y),
 			STORM_PROCESS_RETURN_DIMENSION_FROM_FLAG(ZReflectedToTheFront, ZReflectedToTheBack, z),
