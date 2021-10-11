@@ -279,8 +279,12 @@ namespace
 #define STORM_CUT_REFLECTED_MODALITY_BUNDLE(caseFlag)																					\
 Storm::OutReflectedModalityEnum* reflectedModalityIter;																					\
 {																																		\
-	const std::size_t cutPosition = std::end(outNeighborData) - iter;																	\
-	::memset(reflectedModalityPerThread._modalityPerBundle, static_cast<int>(Storm::OutReflectedModalityEnum::None), cutPosition);		\
+	const std::size_t cutPosition = iter - outNeighborData;																				\
+	::memset(																															\
+		reflectedModalityPerThread._modalityPerBundle,																					\
+		static_cast<int>(Storm::OutReflectedModalityEnum::None),																		\
+		cutPosition * sizeof(*std::begin(reflectedModalityPerThread._modalityPerBundle))												\
+	);																																	\
 	reflectedModalityIter = reflectedModalityPerThread._modalityPerBundle + cutPosition;												\
 }																																		\
 reflectedModalityPerThread._summary = static_cast<Storm::OutReflectedModalityEnum>(MakeSummaryReflectedComposeFrom::caseFlag)
@@ -1471,8 +1475,11 @@ STORM_ATTRIBUTE_VALUES_TO_NEIGHBOR_DATA_ITERATOR(xIndex, yIndex, zIndex); \
 		if constexpr (infiniteDomain)
 		{
 			// On infinite domain, no matter the location of the voxel, we would always have a full neighborhood of voxels (the missing voxel neighbors would be provided from the opposite side reflection)
-			enum { k_fullVoxelNeighborhood = Storm::k_neighborLinkedBunkCount - 1 };
-			assert(std::end(outNeighborData) - iter == k_fullVoxelNeighborhood && "Infinite domain should reflect the voxel neighborhood in a way this one is always filled!");
+			enum 
+			{
+				k_trueEndBundleWithNullBundlePos = Storm::k_neighborLinkedBunkCount - 1
+			};
+			assert(iter - outNeighborData == k_trueEndBundleWithNullBundlePos && "Infinite domain should reflect the voxel neighborhood in a way this one is always filled!");
 		}
 
 		// The next iterator should always be a nullptr to stop the loop. Since we have 1 more pointer than the maximum logically possible, we shouldn't trigger any sigsegv...
