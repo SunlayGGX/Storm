@@ -56,9 +56,9 @@ void Storm::SpacePartitionerManager::initialize_Implementation(float partitionLe
 		}
 	}
 
+	const Storm::SceneCageConfig*const sceneCageCfg = configMgr.getSceneOptionalCageConfig();
 	if (initInfiniteDomainFlag)
 	{
-		const Storm::SceneCageConfig* sceneCageCfg = configMgr.getSceneOptionalCageConfig();
 		if (sceneCageCfg)
 		{
 			_infiniteDomain = sceneCageCfg->_infiniteDomain;
@@ -69,6 +69,21 @@ void Storm::SpacePartitionerManager::initialize_Implementation(float partitionLe
 		}
 	}
 
+	constexpr auto xCoordProvider = [](auto &vect) -> auto& { return vect.x(); };
+	constexpr auto yCoordProvider = [](auto &vect) -> auto& { return vect.y(); };
+	constexpr auto zCoordProvider = [](auto &vect) -> auto& { return vect.z(); };
+
+	if (sceneCageCfg)
+	{
+		Storm::minMaxInPlace(_downSpaceCorner, _upSpaceCorner, sceneCageCfg->_boxMin, xCoordProvider);
+		Storm::minMaxInPlace(_downSpaceCorner, _upSpaceCorner, sceneCageCfg->_boxMin, yCoordProvider);
+		Storm::minMaxInPlace(_downSpaceCorner, _upSpaceCorner, sceneCageCfg->_boxMin, zCoordProvider);
+
+		Storm::minMaxInPlace(_downSpaceCorner, _upSpaceCorner, sceneCageCfg->_boxMax, xCoordProvider);
+		Storm::minMaxInPlace(_downSpaceCorner, _upSpaceCorner, sceneCageCfg->_boxMax, yCoordProvider);
+		Storm::minMaxInPlace(_downSpaceCorner, _upSpaceCorner, sceneCageCfg->_boxMax, zCoordProvider);
+	}
+
 	const Storm::IAssetLoaderManager &assetLoaderMgr = singletonHolder.getSingleton<Storm::IAssetLoaderManager>();
 	const auto &allRigidBodies = assetLoaderMgr.getRigidBodyArray();
 	for (const auto &rigidBody : allRigidBodies)
@@ -76,15 +91,15 @@ void Storm::SpacePartitionerManager::initialize_Implementation(float partitionLe
 		const std::vector<Storm::Vector3> &allVertexes = rigidBody->getRigidBodyParticlesWorldPositions();
 		for (const Storm::Vector3 &vertex : allVertexes)
 		{
-			Storm::minMaxInPlace(_downSpaceCorner, _upSpaceCorner, vertex, [](auto &vect) -> auto& { return vect.x(); });
-			Storm::minMaxInPlace(_downSpaceCorner, _upSpaceCorner, vertex, [](auto &vect) -> auto& { return vect.y(); });
-			Storm::minMaxInPlace(_downSpaceCorner, _upSpaceCorner, vertex, [](auto &vect) -> auto& { return vect.z(); });
+			Storm::minMaxInPlace(_downSpaceCorner, _upSpaceCorner, vertex, xCoordProvider);
+			Storm::minMaxInPlace(_downSpaceCorner, _upSpaceCorner, vertex, yCoordProvider);
+			Storm::minMaxInPlace(_downSpaceCorner, _upSpaceCorner, vertex, zCoordProvider);
 		}
 	}
 
-	Storm::minNegativeInPlaceFromBoth(_gridShiftOffset, _downSpaceCorner, _upSpaceCorner, [](auto &vect) -> auto& { return vect.x(); });
-	Storm::minNegativeInPlaceFromBoth(_gridShiftOffset, _downSpaceCorner, _upSpaceCorner, [](auto &vect) -> auto& { return vect.y(); });
-	Storm::minNegativeInPlaceFromBoth(_gridShiftOffset, _downSpaceCorner, _upSpaceCorner, [](auto &vect) -> auto& { return vect.z(); });
+	Storm::minNegativeInPlaceFromBoth(_gridShiftOffset, _downSpaceCorner, _upSpaceCorner, xCoordProvider);
+	Storm::minNegativeInPlaceFromBoth(_gridShiftOffset, _downSpaceCorner, _upSpaceCorner, yCoordProvider);
+	Storm::minNegativeInPlaceFromBoth(_gridShiftOffset, _downSpaceCorner, _upSpaceCorner, zCoordProvider);
 
 	_partitionLength = -1.f; // To be sure we don't set the same length.
 	this->setPartitionLength(partitionLength);
