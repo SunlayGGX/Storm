@@ -85,8 +85,14 @@ namespace Storm
 	public:
 		void buildNeighborhood(const Storm::ParticleSystemContainer &allParticleSystems);
 
+		// Debugging purpose. This method could be left trailing behind with recent neighborhood building modification done inside buildNeighborhood. The update would only be done when we need to debug!
+		void buildSpecificParticleNeighborhood(const Storm::ParticleSystemContainer &allParticleSystems, const std::size_t pIndex);
+
 	protected:
 		virtual void buildNeighborhoodOnParticleSystemUsingSpacePartition(const Storm::ParticleSystemContainer &allParticleSystems, const float kernelLength) = 0;
+
+		// Debugging purpose. This method could be left trailing behind recent neighborhood building modification done inside buildNeighborhoodOnParticleSystemUsingSpacePartition (the real one because optimized). The update would only be done when we need to debug the feature!
+		virtual void buildSpecificParticleNeighborhoodOnParticleSystemUsingSpacePartition(const Storm::ParticleSystemContainer &allParticleSystems, const std::size_t pIndex, const float kernelLength) = 0;
 
 	public:
 		virtual void updatePosition(float deltaTimeInSec, bool force) = 0;

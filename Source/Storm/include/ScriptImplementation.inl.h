@@ -95,7 +95,8 @@ void STORM_CURRENT_REGISTERED_TYPE::registerCurrentOnScript(IScriptWrapperInterf
 		STORM_DECLARE_SCRIPTED_METHOD(logSelectedParticleContributionToVector),
 		STORM_DECLARE_SCRIPTED_METHOD(writeCurrentFrameSystemForcesToCsv),
 		STORM_DECLARE_SCRIPTED_METHOD(writeParticleNeighborhood),
-		STORM_DECLARE_SCRIPTED_METHOD(writeRbEmptiness)
+		STORM_DECLARE_SCRIPTED_METHOD(writeRbEmptiness),
+		STORM_DECLARE_SCRIPTED_METHOD(forceRefreshParticleNeighborhood) // Yes, this is to debug the particle neighborhood regeneration. Should not be called otherwise.
 
 	).registerCurrentInstance("simulMgr");
 }

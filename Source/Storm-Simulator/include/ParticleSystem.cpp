@@ -227,6 +227,20 @@ void Storm::ParticleSystem::buildNeighborhood(const Storm::ParticleSystemContain
 	this->buildNeighborhoodOnParticleSystemUsingSpacePartition(allParticleSystems, kernelLength);
 }
 
+void Storm::ParticleSystem::buildSpecificParticleNeighborhood(const Storm::ParticleSystemContainer &allParticleSystems, const std::size_t pIndex)
+{
+	assert(Storm::isSimulationThread() && "This method should only be executed inside the simulation thread!");
+	if (pIndex > this->getParticleCount()) STORM_UNLIKELY
+	{
+		Storm::throwException<Storm::Exception>("pIndex (" + std::to_string(pIndex) + ") is out of range in particle system (" + std::to_string(this->getId()) + ")!");
+	}
+
+	_neighborhood[pIndex].clear();
+
+	const float kernelLength = Storm::SimulatorManager::instance().getKernelLength();
+	this->buildSpecificParticleNeighborhoodOnParticleSystemUsingSpacePartition(allParticleSystems, pIndex, kernelLength);
+}
+
 void Storm::ParticleSystem::initializePreSimulation(const Storm::ParticleSystemContainer &allParticleSystems, const float kernelLengthSquared)
 {
 	assert(Storm::isSimulationThread() && "This method should only be executed inside the simulation thread!");

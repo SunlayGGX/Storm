@@ -172,6 +172,10 @@ namespace Storm
 		void logSelectedParticleContributionToVelocity();
 		void logSelectedParticleContributionToVector(float x, float y, float z);
 
+	public:
+		// This is to debug the particle neighborhood regeneration. Should not be called otherwise !
+		void forceRefreshParticleNeighborhood(const unsigned int pSystemId, const std::size_t particleIndex);
+
 	private:
 		bool selectSpecificParticle_Internal(const unsigned int pSystemId, const std::size_t particleIndex);
 		void selectSpecificParticle(const unsigned int pSystemId, const std::size_t particleIndex);

@@ -3160,6 +3160,18 @@ void Storm::SimulatorManager::logSelectedParticleContributionToVector(float x, f
 	});
 }
 
+void Storm::SimulatorManager::forceRefreshParticleNeighborhood(const unsigned int pSystemId, const std::size_t particleIndex)
+{
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::MainThread, [this, pSystemId, particleIndex]()
+	{
+		if (Storm::ParticleSystem*const containingPSystem = checkParticleExistence(_particleSystem, pSystemId, particleIndex, false); containingPSystem != nullptr)
+		{
+			containingPSystem->buildSpecificParticleNeighborhood(_particleSystem, particleIndex);
+		}
+	});
+}
+
 bool Storm::SimulatorManager::selectSpecificParticle_Internal(const unsigned pSystemId, const std::size_t particleIndex)
 {
 	assert(Storm::isSimulationThread() && "This method can only be called from simulation thread.");
