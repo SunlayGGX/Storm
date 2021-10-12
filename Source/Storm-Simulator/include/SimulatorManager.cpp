@@ -2337,6 +2337,7 @@ void Storm::SimulatorManager::pushRecord(float currentPhysicsTime, bool pushStat
 
 	Storm::SerializeRecordPendingData currentFrameData;
 	currentFrameData._physicsTime = currentPhysicsTime;
+	currentFrameData._kernelLength = this->getKernelLength();
 
 	Storm::ReplaySolver::fillRecordFromSystems(pushStatics, _particleSystem, currentFrameData);
 
