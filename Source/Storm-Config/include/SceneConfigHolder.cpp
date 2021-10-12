@@ -321,6 +321,10 @@ if (blowerTypeStr == BlowerTypeXmlName) return Storm::BlowerType::BlowerTypeName
 		{
 			result->_type = Storm::GeometryType::EquiSphere_MarkusDeserno;
 		}
+		else if (geometryTypeStr == "spherealkashi")
+		{
+			result->_type = Storm::GeometryType::Sphere_AlKashi;
+		}
 		else
 		{
 			Storm::throwException<Storm::Exception>("Geometry Type value is unknown : '" + geometryTypeStr + "'");
@@ -378,6 +382,7 @@ if (blowerTypeStr == BlowerTypeXmlName) return Storm::BlowerType::BlowerTypeName
 			break;
 
 		case Storm::GeometryType::Sphere:
+		case Storm::GeometryType::Sphere_AlKashi:
 			break;
 
 		case Storm::GeometryType::None:

@@ -68,6 +68,7 @@ namespace
 				break;
 
 			case Storm::GeometryType::Sphere:
+			case Storm::GeometryType::Sphere_AlKashi:
 				break;
 
 			case Storm::GeometryType::EquiSphere_MarkusDeserno:
@@ -496,6 +497,7 @@ void Storm::RigidBody::load(const Storm::SceneRigidBodyConfig &rbSceneConfig)
 					break;
 
 				case Storm::GeometryType::Sphere:
+				case Storm::GeometryType::Sphere_AlKashi:
 					if (internalLayer)
 					{
 						samplingResult = Storm::UniformSampler::process<true>(geoConfig, sepDistance, rbSceneConfig._layerCount, &rbSceneConfig._scale.x());

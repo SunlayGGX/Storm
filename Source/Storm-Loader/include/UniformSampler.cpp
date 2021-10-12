@@ -8,27 +8,36 @@
 
 namespace
 {
+	template<bool useAlKashi>
 	double computeAngleStep(const double separationDistance, const double circleRadius)
 	{
-		double res;
-#if true
-		// Cosine law (Al Kashi Theorem)
-		//	   c²=a²+b²-2ab cos(tetha)
-		// <=> tetha = acos((a²+b²-c²) / (2ab))
-		// <=> tetha = acos((2r² - sep²) / (2r²)) since a=b=r and c=sep=separationDistance
+		if constexpr (useAlKashi)
+		{
+			// Cosine law (Al Kashi Theorem)
+			//	   c²=a²+b²-2ab cos(tetha)
+			// <=> tetha = acos((a²+b²-c²) / (2ab))
+			// <=> tetha = acos((2r² - sep²) / (2r²)) since a=b=r and c=sep=separationDistance
 
-		const double circleRadiusSquaredCoeff = 2.0 * circleRadius * circleRadius;
-		res = std::acos((circleRadiusSquaredCoeff - (separationDistance * separationDistance)) / circleRadiusSquaredCoeff);
-#else
-		res = std::asin(separationDistance / radius);
-#endif
-
-		return std::abs(res);
+			const double circleRadiusSquaredCoeff = 2.0 * circleRadius * circleRadius;
+			const double res = std::acos((circleRadiusSquaredCoeff - (separationDistance * separationDistance)) / circleRadiusSquaredCoeff);
+			if (!std::isnan(res))
+			{
+				return std::abs(res);
+			}
+		}
+		
+		// From a rule of thumbs.
+		// If we travel 2pi*radius, then we have swept an angle of 2pi.
+		// So to travel separationDistance, we need to sweep tetha = 2pi * sepDist / (2pi* radius) <=> tetha = sepDist / radius.
+		//
+		// Note that is formula is only correct (performs even better for our algorithm than the exact Al Kashi theorem) if separationDistance is not much
+		// i.e. tetha is little (if tetha is too big, then we cannot approximate that the distance between 2 point which must be separationDistance is equal to the distance traveled along the perimeter of the circle).
+		return std::abs(separationDistance / circleRadius);
 	}
 
 #define STORM_USE_COMPLEXE_BUT_EXACT_ALGO false
 
-	template<bool internalLayer>
+	template<bool internalLayer, bool useAlKashi>
 	Storm::SamplingResult sampleUniformSphere(const float separationDistance, int layerCount, float radius)
 	{
 		Storm::SamplingResult result;
@@ -53,7 +62,7 @@ namespace
 			{
 				// I think this implementation is more exact than the other part of the #if #else #endif... But the visual result are hard to compare and both looks the same to me... Therefore I prefer to keep the simpler one as the active code path (easier to troubleshoot if an issue arise).
 #if STORM_USE_COMPLEXE_BUT_EXACT_ALGO
-				double deltaRad = computeAngleStep(separationDistance, radius);
+				double deltaRad = computeAngleStep<useAlKashi>(separationDistance, radius);
 				if (!std::isnan(deltaRad))
 				{
 					const std::size_t circleRowCount = static_cast<std::size_t>(M_PI / deltaRad + 0.000000001);
@@ -74,7 +83,7 @@ namespace
 							const double currentY = std::sin(tetha) * radius;
 
 							const double littleCircleRadius = std::cos(tetha) * radius;
-							double anglePhi = computeAngleStep(separationDistance, littleCircleRadius);
+							double anglePhi = computeAngleStep<useAlKashi>(separationDistance, littleCircleRadius);
 							if (!std::isnan(anglePhi))
 							{
 								const std::size_t particleCountOnCircle = static_cast<std::size_t>(static_cast<double>(twoPi) / std::abs(anglePhi) + 0.000000001);
@@ -99,20 +108,24 @@ namespace
 					}
 				}
 #else
-				double deltaRad = computeAngleStep(separationDistance, radius);
+				double deltaRad = computeAngleStep<useAlKashi>(separationDistance, radius);
 
-				for (double tetha = -M_PI_2 + deltaRad; tetha < M_PI_2; tetha += deltaRad)
+				std::size_t indexLastCircle = 0;
+
+				for (double tetha = -M_PI_2 + deltaRad; tetha <= M_PI_2; tetha += deltaRad)
 				{
 					const double currentY = std::sin(tetha) * radius;
 
 					const double littleCircleRadius = std::cos(tetha) * radius;
-					double anglePhi = computeAngleStep(separationDistance, littleCircleRadius);
+					double anglePhi = computeAngleStep<useAlKashi>(separationDistance, littleCircleRadius);
 					if (!std::isnan(anglePhi))
 					{
 						const std::size_t particleCountOnCircle = static_cast<std::size_t>(twoPi / std::abs(anglePhi));
 						if (particleCountOnCircle != 0)
 						{
 							anglePhi = (std::signbit(anglePhi) ? -twoPi : twoPi) / static_cast<double>(particleCountOnCircle);
+
+							indexLastCircle = result._position.size();
 
 							for (std::size_t iter = 0; iter < particleCountOnCircle; ++iter)
 							{
@@ -127,6 +140,17 @@ namespace
 							}
 						}
 					}
+				}
+
+				// Just a failsafe to try to fill the hole if one appeared for whatever reason, but in normal time, we should not use it.
+				const Storm::Vector3 last{ 0.f, radius, 0.f };
+				if (std::find_if(std::begin(result._position) + indexLastCircle, std::end(result._position), [&last, sepDistSquared = separationDistance * separationDistance](const Storm::Vector3 &pos) 
+				{
+					return (last - pos).squaredNorm() < sepDistSquared; 
+				}) == std::end(result._position))
+				{
+					result._position.emplace_back(last);
+					result._normals.emplace_back(last.normalized());
 				}
 #endif
 			}
@@ -423,7 +447,10 @@ Storm::SamplingResult Storm::UniformSampler::process(const Storm::GeometryConfig
 	switch (geometryConfig._type)
 	{
 	case Storm::GeometryType::Sphere:
-		return sampleUniformSphere<internalLayer>(separationDistance, layerCount, *reinterpret_cast<const float*const>(samplerData));
+		return sampleUniformSphere<internalLayer, false>(separationDistance, layerCount, *reinterpret_cast<const float*const>(samplerData));
+
+	case Storm::GeometryType::Sphere_AlKashi:
+		return sampleUniformSphere<internalLayer, true>(separationDistance, layerCount, *reinterpret_cast<const float*const>(samplerData));
 
 	case Storm::GeometryType::EquiSphere_MarkusDeserno:
 		return sampleUniformEquiSphere_MarkusDeserno<internalLayer>(separationDistance, layerCount, *reinterpret_cast<const std::pair<float, std::size_t>*const>(samplerData));

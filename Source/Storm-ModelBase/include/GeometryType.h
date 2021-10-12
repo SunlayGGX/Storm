@@ -8,6 +8,7 @@ namespace Storm
 		Cube,
 		Sphere,
 		EquiSphere_MarkusDeserno,
+		Sphere_AlKashi,
 		None,
 	};
 }
