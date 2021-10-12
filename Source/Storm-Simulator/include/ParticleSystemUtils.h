@@ -52,7 +52,7 @@ namespace Storm
 
 	namespace
 	{
-		using OutReflectedModalityEnumUnderlyingNative = Storm::ByteValueType<Storm::BitsCount<Storm::OutReflectedModalityEnum>::k_value>::Type;
+		using OutReflectedModalityEnumUnderlyingNative = Storm::EnumUnderlyingNative<Storm::OutReflectedModalityEnum>;
 	}
 
 #define STORM_PROCESS_RETURN_DIMENSION_FROM_FLAG(FlagPlus, FlagMinus, Coord) \

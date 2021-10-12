@@ -58,7 +58,7 @@ namespace
 		MiddleBottomBack,
 	};
 
-	using OutReflectedModalityEnumUnderlyingNative = Storm::ByteValueType<Storm::BitsCount<Storm::OutReflectedModalityEnum>::k_value>::Type;
+	using OutReflectedModalityEnumUnderlyingNative = Storm::EnumUnderlyingNative<Storm::OutReflectedModalityEnum>;
 
 	STORM_STATIC_ASSERT(static_cast<OutReflectedModalityEnumUnderlyingNative>(Storm::OutReflectedModalityEnum::None) == 0, "Storm::OutReflectedModalityEnum::None should have the value 0x0 to be composed adequately.");
 

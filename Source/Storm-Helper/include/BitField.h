@@ -25,6 +25,8 @@ namespace Storm
 			void>>>>;
 	};
 
+	template<class EnumType> using EnumUnderlyingNative = Storm::ByteValueType<Storm::BitsCount<EnumType>::k_value>::template Type;
+
 	template<bool bit, bool ... othersBits>
 	struct BitField
 	{
