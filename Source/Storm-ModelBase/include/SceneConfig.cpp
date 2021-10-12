@@ -211,6 +211,7 @@ Storm::SceneFluidConfig::SceneFluidConfig() :
 	_relaxationCoefficient{ 0.5f },
 	_pressureInitRelaxationCoefficient{ 0.5f },
 	_gravityEnabled{ true },
+	_smoothingRestDensity{ false },
 	_removeParticlesCollidingWithRb{ true },
 	_removeOutDomainParticles{ true },
 	_customSimulationSettings{ nullptr }, // This will be filled when we'll read the config file to the right settings structure depending on our simulation mode.
