@@ -21,6 +21,8 @@
 
 #include "GeneralConfig.h"
 
+#include "GeometryConfig.h"
+
 #include "CollisionType.h"
 #include "ConstraintType.h"
 #include "SimulationMode.h"
@@ -39,6 +41,7 @@
 
 #include "ColorChecker.h"
 #include "XmlReader.h"
+#include "BitField.h"
 
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
@@ -299,25 +302,90 @@ if (blowerTypeStr == BlowerTypeXmlName) return Storm::BlowerType::BlowerTypeName
 		}
 	}
 
-	Storm::GeometryType parseGeometryType(std::string geometryTypeStr)
+	std::unique_ptr<Storm::GeometryConfig> parseGeometryType(const boost::property_tree::ptree &tree)
 	{
+		std::unique_ptr<Storm::GeometryConfig> result = std::make_unique<Storm::GeometryConfig>();
+
+		std::string geometryTypeStr = tree.get_value<std::string>();
 		boost::algorithm::to_lower(geometryTypeStr);
+
 		if (geometryTypeStr == "cube")
 		{
-			return Storm::GeometryType::Cube;
+			result->_type = Storm::GeometryType::Cube;
 		}
 		else if (geometryTypeStr == "sphere")
 		{
-			return Storm::GeometryType::Sphere;
+			result->_type = Storm::GeometryType::Sphere;
 		}
 		else if (geometryTypeStr == "equispheremdeserno")
 		{
-			return Storm::GeometryType::EquiSphere_MarkusDeserno;
+			result->_type = Storm::GeometryType::EquiSphere_MarkusDeserno;
 		}
 		else
 		{
 			Storm::throwException<Storm::Exception>("Geometry Type value is unknown : '" + geometryTypeStr + "'");
 		}
+
+		using HoleModalityUnderlyingNative = Storm::EnumUnderlyingNative<Storm::GeometryConfig::HoleModality>;
+		switch (result->_type)
+		{
+		case Storm::GeometryType::Cube:
+		{
+			unsigned int openedHole = 0;
+			bool tmp = false;
+			if (Storm::XmlReader::readXmlAttribute(tree, tmp, "openXLeft") && tmp)
+			{
+				STORM_ADD_BIT_ENABLED(result->_holeModality, Storm::GeometryConfig::HoleModality::OpenedXLeft);
+				++openedHole;
+			}
+			if (Storm::XmlReader::readXmlAttribute(tree, tmp, "openXRight") && tmp)
+			{
+				STORM_ADD_BIT_ENABLED(result->_holeModality, Storm::GeometryConfig::HoleModality::OpenedXRight);
+				++openedHole;
+			}
+			if (Storm::XmlReader::readXmlAttribute(tree, tmp, "openYUp") && tmp)
+			{
+				STORM_ADD_BIT_ENABLED(result->_holeModality, Storm::GeometryConfig::HoleModality::OpenedYUp);
+				++openedHole;
+			}
+			if (Storm::XmlReader::readXmlAttribute(tree, tmp, "openYDown") && tmp)
+			{
+				STORM_ADD_BIT_ENABLED(result->_holeModality, Storm::GeometryConfig::HoleModality::OpenedYDown);
+				++openedHole;
+			}
+			if (Storm::XmlReader::readXmlAttribute(tree, tmp, "openZFront") && tmp)
+			{
+				STORM_ADD_BIT_ENABLED(result->_holeModality, Storm::GeometryConfig::HoleModality::OpenedZFront);
+				++openedHole;
+			}
+			if (Storm::XmlReader::readXmlAttribute(tree, tmp, "openZBack") && tmp)
+			{
+				STORM_ADD_BIT_ENABLED(result->_holeModality, Storm::GeometryConfig::HoleModality::OpenedZBack);
+				++openedHole;
+			}
+			if (openedHole == 6)
+			{
+				Storm::throwException<Storm::Exception>(
+					"Specified cube geometry has opened all possible holes.\n"
+					"Therefore this is no cube anymore but void geometry which is illegal!"
+				);
+			}
+			break;
+		}
+
+		case Storm::GeometryType::EquiSphere_MarkusDeserno:
+			Storm::XmlReader::sureReadXmlAttribute(tree, result->_sampleCountMDeserno, "sampleCountMDeserno");
+			break;
+
+		case Storm::GeometryType::Sphere:
+			break;
+
+		case Storm::GeometryType::None:
+		default:
+			__assume(false);
+		}
+
+		return result;
 	}
 
 	class AnimationsKeeper
@@ -980,7 +1048,6 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "coendaCoeff", rbConfig._coendaCoefficient) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "layerCount", rbConfig._layerCount) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "normalsCoherency", rbConfig._enforceNormalsCoherency) ||
-			Storm::XmlReader::handleXml(rigidBodyConfigXml, "sampleCountMDeserno", rbConfig._sampleCountMDeserno) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "layeringGeneration", rbConfig._layerGenerationMode, parseLayeringGenerationTechnique) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "volumeComputation", rbConfig._volumeComputationTechnique, parseVolumeComputationTechnique) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "pInsideRemovalTechnique", rbConfig._insideRbFluidDetectionMethodEnum, parseInsideRemovalTech) ||
@@ -1054,17 +1121,22 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 		}
 		else if (rbConfig._layerGenerationMode == Storm::LayeringGenerationTechnique::Uniform)
 		{
-			switch (rbConfig._geometry)
+			if (rbConfig._geometry == nullptr)
 			{
-			case Storm::GeometryType::None:
-				Storm::throwException<Storm::Exception>("The rigid body " + std::to_string(rbConfig._rigidBodyID) + " has specified uniform generation but no geometry type was specified! This is illegal.");
+				Storm::throwException<Storm::Exception>("The rigid body " + std::to_string(rbConfig._rigidBodyID) + " has specified uniform generation but no geometry was specified! This is illegal.");
+			}
 
+			switch (rbConfig._geometry->_type)
+			{
 			case Storm::GeometryType::EquiSphere_MarkusDeserno:
-				if (rbConfig._sampleCountMDeserno == 0)
+				if (rbConfig._geometry->_sampleCountMDeserno == 0)
 				{
 					Storm::throwException<Storm::Exception>("The rigid body " + std::to_string(rbConfig._rigidBodyID) + " has specified uniform generation of a sphere with M. Deserno algorithm but has not specified an input sample count value! This is illegal.");
 				}
 				break;
+
+			case Storm::GeometryType::None:
+				__assume(false); // Shouldn't happen since we have a GeometryConfig pointer (Which means we parsed it)
 
 			default:
 				break;

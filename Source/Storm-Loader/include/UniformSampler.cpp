@@ -1,6 +1,9 @@
 #include "UniformSampler.h"
 
 #include "GeometryType.h"
+#include "GeometryConfig.h"
+
+#include "BitField.h"
 
 
 namespace
@@ -242,9 +245,18 @@ namespace
 	}
 
 	template<bool internalLayer>
-	Storm::SamplingResult sampleUniformCube(const float separationDistance, int layerCount, Storm::Vector3 dimensions)
+	Storm::SamplingResult sampleUniformCube(const float separationDistance, int layerCount, const std::pair<const Storm::Vector3* const, Storm::GeometryConfig::HoleModality> &data)
 	{
 		Storm::SamplingResult result;
+
+		Storm::Vector3 dimensions = *data.first;
+
+		const bool xLeftClosed = !STORM_IS_BIT_ENABLED(data.second, Storm::GeometryConfig::HoleModality::OpenedXLeft);
+		const bool xRightClosed = !STORM_IS_BIT_ENABLED(data.second, Storm::GeometryConfig::HoleModality::OpenedXRight);
+		const bool yUpClosed = !STORM_IS_BIT_ENABLED(data.second, Storm::GeometryConfig::HoleModality::OpenedYUp);
+		const bool yDownClosed = !STORM_IS_BIT_ENABLED(data.second, Storm::GeometryConfig::HoleModality::OpenedYDown);
+		const bool zBackClosed = !STORM_IS_BIT_ENABLED(data.second, Storm::GeometryConfig::HoleModality::OpenedZBack);
+		const bool zFrontClosed = !STORM_IS_BIT_ENABLED(data.second, Storm::GeometryConfig::HoleModality::OpenedZFront);
 
 		const std::size_t expectedCount = static_cast<std::size_t>(std::ceilf(2.f * (dimensions.x() * dimensions.y() + dimensions.y() * dimensions.z() + dimensions.z() * dimensions.x()) / (separationDistance * separationDistance)) + 0.000001f) * layerCount;
 		result._position.reserve(expectedCount);
@@ -252,6 +264,8 @@ namespace
 
 		const float midSepDist = separationDistance / 2.f;
 		const float offsetLayerCoord = separationDistance * 2.f;
+
+		const bool shouldScanPlaneXZ = yUpClosed || yDownClosed || zBackClosed || zFrontClosed;
 
 		do
 		{
@@ -262,63 +276,103 @@ namespace
 			const float endX = dimensions.x() / 2.f;
 
 			// 1st face
-			for (float y = begin.y(); y <= end.y(); y += separationDistance)
+			if (xLeftClosed)
 			{
-				for (float z = begin.z(); z <= end.z(); z += separationDistance)
+				for (float y = begin.y(); y <= end.y(); y += separationDistance)
 				{
-					result._position.emplace_back(currentX, y, z);
-					result._normals.emplace_back(-1.f, 0.f, 0.f);
+					for (float z = begin.z(); z <= end.z(); z += separationDistance)
+					{
+						result._position.emplace_back(currentX, y, z);
+						result._normals.emplace_back(-1.f, 0.f, 0.f);
+					}
 				}
+				currentX += separationDistance;
 			}
-			currentX += separationDistance;
 
-			const float sepDistanceSquared = separationDistance * separationDistance;
 			// Scan plane
-			for (; currentX < endX; currentX += separationDistance)
+			if (shouldScanPlaneXZ)
 			{
-				std::size_t firstPScanlineIdx = result._position.size();
-
-				for (float y = begin.y(); y < end.y(); y += separationDistance)
+				const float sepDistanceSquared = separationDistance * separationDistance;
+				for (; currentX < endX; currentX += separationDistance)
 				{
-					result._position.emplace_back(currentX, y, begin.z());
-					result._normals.emplace_back(0.f, 0.f, -1.f);
-				}
+					float last;
+					float offset;
 
-				float last = end.y() - result._position.back().y();
-				float offset = std::sqrtf(sepDistanceSquared - last * last);
+					if (zFrontClosed)
+					{
+						for (float y = begin.y(); y < end.y(); y += separationDistance)
+						{
+							result._position.emplace_back(currentX, y, begin.z());
+							result._normals.emplace_back(0.f, 0.f, -1.f);
+						}
 
-				for (float z = begin.z() /*+ offset*/; z < end.z(); z += separationDistance)
-				{
-					result._position.emplace_back(currentX, end.y(), z);
-					result._normals.emplace_back(0.f, 1.f, 0.f);
-				}
+						last = end.y() - result._position.back().y();
+						offset = std::sqrtf(sepDistanceSquared - last * last);
+					}
+					else
+					{
+						last = 0.f;
+						offset = 0.f;
+					}
 
-				last = end.z() - result._position.back().z();
-				offset = std::sqrtf(sepDistanceSquared - last * last);
+					if (yUpClosed)
+					{
+						for (float z = begin.z() /*+ offset*/; z < end.z(); z += separationDistance)
+						{
+							result._position.emplace_back(currentX, end.y(), z);
+							result._normals.emplace_back(0.f, 1.f, 0.f);
+						}
 
-				for (float y = end.y() /*- offset*/; y > begin.y(); y -= separationDistance)
-				{
-					result._position.emplace_back(currentX, y, end.z());
-					result._normals.emplace_back(0.f, 0.f, 1.f);
-				}
+						last = end.z() - result._position.back().z();
+						offset = std::sqrtf(sepDistanceSquared - last * last);
+					}
+					else
+					{
+						last = 0.f;
+						offset = 0.f;
+					}
 
-				last = begin.y() - result._position.back().y();
-				offset = std::sqrtf(sepDistanceSquared - last * last);
-				const Storm::Vector3 &firstP = result._position[firstPScanlineIdx];
+					if (zBackClosed)
+					{
+						for (float y = end.y() /*- offset*/; y > begin.y(); y -= separationDistance)
+						{
+							result._position.emplace_back(currentX, y, end.z());
+							result._normals.emplace_back(0.f, 0.f, 1.f);
+						}
 
-				for (float z = end.z() /*- offset*/; z > firstP.z(); z -= separationDistance)
-				{
-					result._position.emplace_back(currentX, begin.y(), z);
-					result._normals.emplace_back(0.f, -1.f, 0.f);
+						last = begin.y() - result._position.back().y();
+						offset = std::sqrtf(sepDistanceSquared - last * last);
+					}
+					else
+					{
+						last = 0.f;
+						offset = 0.f;
+					}
+
+					if (yDownClosed)
+					{
+						for (float z = end.z() /*- offset*/; z > begin.z(); z -= separationDistance)
+						{
+							result._position.emplace_back(currentX, begin.y(), z);
+							result._normals.emplace_back(0.f, -1.f, 0.f);
+						}
+					}
 				}
 			}
-
-			for (float y = begin.y(); y <= end.y(); y += separationDistance)
+			else
 			{
-				for (float z = begin.z(); z <= end.z(); z += separationDistance)
+				currentX = endX;
+			}
+
+			if (xRightClosed)
+			{
+				for (float y = begin.y(); y <= end.y(); y += separationDistance)
 				{
-					result._position.emplace_back(currentX, y, z);
-					result._normals.emplace_back(1.f, 0.f, 0.f);
+					for (float z = begin.z(); z <= end.z(); z += separationDistance)
+					{
+						result._position.emplace_back(currentX, y, z);
+						result._normals.emplace_back(1.f, 0.f, 0.f);
+					}
 				}
 			}
 
@@ -355,7 +409,7 @@ namespace
 
 
 template<bool internalLayer>
-Storm::SamplingResult Storm::UniformSampler::process(const Storm::GeometryType geometry, const float separationDistance, const int layerCount, const void*const samplerData)
+Storm::SamplingResult Storm::UniformSampler::process(const Storm::GeometryConfig &geometryConfig, const float separationDistance, const int layerCount, const void*const samplerData)
 {
 	if (separationDistance <= 0.f)
 	{
@@ -366,7 +420,7 @@ Storm::SamplingResult Storm::UniformSampler::process(const Storm::GeometryType g
 		Storm::throwException<Storm::Exception>("Layer count should be greater than 0!");
 	}
 
-	switch (geometry)
+	switch (geometryConfig._type)
 	{
 	case Storm::GeometryType::Sphere:
 		return sampleUniformSphere<internalLayer>(separationDistance, layerCount, *reinterpret_cast<const float*const>(samplerData));
@@ -375,7 +429,13 @@ Storm::SamplingResult Storm::UniformSampler::process(const Storm::GeometryType g
 		return sampleUniformEquiSphere_MarkusDeserno<internalLayer>(separationDistance, layerCount, *reinterpret_cast<const std::pair<float, std::size_t>*const>(samplerData));
 
 	case Storm::GeometryType::Cube:
-		return sampleUniformCube<internalLayer>(separationDistance, layerCount, *reinterpret_cast<const Storm::Vector3*const>(samplerData));
+	{
+		std::pair<const Storm::Vector3*const, Storm::GeometryConfig::HoleModality> finalData{
+			reinterpret_cast<const Storm::Vector3*const>(samplerData),
+			geometryConfig._holeModality
+		};
+		return sampleUniformCube<internalLayer>(separationDistance, layerCount, finalData);
+	}
 
 	case Storm::GeometryType::None:
 	default:
@@ -383,5 +443,5 @@ Storm::SamplingResult Storm::UniformSampler::process(const Storm::GeometryType g
 	}
 }
 
-template Storm::SamplingResult Storm::UniformSampler::process<true>(const Storm::GeometryType, const float, const int, const void*const);
-template Storm::SamplingResult Storm::UniformSampler::process<false>(const Storm::GeometryType, const float, const int, const void*const);
+template Storm::SamplingResult Storm::UniformSampler::process<true>(const Storm::GeometryConfig &, const float, const int, const void*const);
+template Storm::SamplingResult Storm::UniformSampler::process<false>(const Storm::GeometryConfig &, const float, const int, const void*const);

@@ -5,7 +5,7 @@
 
 namespace Storm
 {
-	enum class GeometryType;
+	struct GeometryConfig;
 
 	class UniformSampler
 	{
@@ -15,6 +15,6 @@ namespace Storm
 		// - Storm::Vector3 (dimension x, y, z) if geometry is a cube
 		// - a std::pair<float, std::size_t> with first is radius and second is the particle count if geometry is a SphereTmp
 		template<bool internalLayer>
-		static Storm::SamplingResult process(const Storm::GeometryType geometry, const float separationDistance, const int layerCount, const void*const samplerData);
+		static Storm::SamplingResult process(const Storm::GeometryConfig &geometryConfig, const float separationDistance, const int layerCount, const void*const samplerData);
 	};
 }

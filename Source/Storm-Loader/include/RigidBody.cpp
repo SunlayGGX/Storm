@@ -5,6 +5,7 @@
 
 #include "SceneRigidBodyConfig.h"
 #include "SceneSimulationConfig.h"
+#include "GeometryConfig.h"
 
 #include "SingletonHolder.h"
 #include "IConfigManager.h"
@@ -54,13 +55,31 @@ namespace
 		suffix += Storm::toStdString(rbSceneConfig._layerGenerationMode);
 		if (rbSceneConfig._layerGenerationMode == Storm::LayeringGenerationTechnique::Uniform)
 		{
-			suffix += "_type";
-			suffix += Storm::toStdString(rbSceneConfig._geometry);
+			const Storm::GeometryConfig &geoConfig = *rbSceneConfig._geometry;
 
-			if (rbSceneConfig._geometry == Storm::GeometryType::EquiSphere_MarkusDeserno)
+			suffix += "_type";
+			suffix += Storm::toStdString(geoConfig._type);
+
+			switch (geoConfig._type)
 			{
-				suffix += "x";
-				suffix += Storm::toStdString(rbSceneConfig._sampleCountMDeserno);
+			case Storm::GeometryType::Cube:
+				suffix += "hole";
+				suffix += Storm::toStdString(geoConfig._holeModality);
+				break;
+
+			case Storm::GeometryType::Sphere:
+				break;
+
+			case Storm::GeometryType::EquiSphere_MarkusDeserno:
+				suffix += "sCount";
+				suffix += Storm::toStdString(geoConfig._sampleCountMDeserno);
+				break;
+
+			case Storm::GeometryType::None:
+				__assume(false);
+
+			default:
+				break;
 			}
 		}
 
@@ -461,46 +480,48 @@ void Storm::RigidBody::load(const Storm::SceneRigidBodyConfig &rbSceneConfig)
 			{
 				const float sepDistance = currentParticleRadius * 2.f;
 				const bool internalLayer = !rbSceneConfig._isWall;
-				switch (rbSceneConfig._geometry)
+				const Storm::GeometryConfig &geoConfig = *rbSceneConfig._geometry;
+
+				switch (geoConfig._type)
 				{
 				case Storm::GeometryType::Cube:
 					if (internalLayer)
 					{
-						samplingResult = Storm::UniformSampler::process<true>(rbSceneConfig._geometry, sepDistance, rbSceneConfig._layerCount, &rbSceneConfig._scale);
+						samplingResult = Storm::UniformSampler::process<true>(geoConfig, sepDistance, rbSceneConfig._layerCount, &rbSceneConfig._scale);
 					}
 					else
 					{
-						samplingResult = Storm::UniformSampler::process<false>(rbSceneConfig._geometry, sepDistance, rbSceneConfig._layerCount, &rbSceneConfig._scale);
+						samplingResult = Storm::UniformSampler::process<false>(geoConfig, sepDistance, rbSceneConfig._layerCount, &rbSceneConfig._scale);
 					}
 					break;
 
 				case Storm::GeometryType::Sphere:
 					if (internalLayer)
 					{
-						samplingResult = Storm::UniformSampler::process<true>(rbSceneConfig._geometry, sepDistance, rbSceneConfig._layerCount, &rbSceneConfig._scale.x());
+						samplingResult = Storm::UniformSampler::process<true>(geoConfig, sepDistance, rbSceneConfig._layerCount, &rbSceneConfig._scale.x());
 					}
 					else
 					{
-						samplingResult = Storm::UniformSampler::process<false>(rbSceneConfig._geometry, sepDistance, rbSceneConfig._layerCount, &rbSceneConfig._scale.x());
+						samplingResult = Storm::UniformSampler::process<false>(geoConfig, sepDistance, rbSceneConfig._layerCount, &rbSceneConfig._scale.x());
 					}
 					break;
 
 				case Storm::GeometryType::EquiSphere_MarkusDeserno:
 				{
-					std::pair<float, std::size_t> data{ rbSceneConfig._scale.x(), rbSceneConfig._sampleCountMDeserno };
+					std::pair<float, std::size_t> data{ rbSceneConfig._scale.x(), geoConfig._sampleCountMDeserno };
 					if (internalLayer)
 					{
-						samplingResult = Storm::UniformSampler::process<true>(rbSceneConfig._geometry, sepDistance, rbSceneConfig._layerCount, &data);
+						samplingResult = Storm::UniformSampler::process<true>(geoConfig, sepDistance, rbSceneConfig._layerCount, &data);
 					}
 					else
 					{
-						samplingResult = Storm::UniformSampler::process<false>(rbSceneConfig._geometry, sepDistance, rbSceneConfig._layerCount, &data);
+						samplingResult = Storm::UniformSampler::process<false>(geoConfig, sepDistance, rbSceneConfig._layerCount, &data);
 					}
 					break;
 				}
 
 				default:
-					Storm::throwException<Storm::Exception>("Unhandled Geometry Type : " + Storm::toStdString(rbSceneConfig._geometry));
+					Storm::throwException<Storm::Exception>("Unhandled Geometry Type : " + Storm::toStdString(geoConfig._type));
 				}
 			}
 			else

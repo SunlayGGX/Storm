@@ -169,6 +169,12 @@
     <Filter Include="Header Files\Modules\OS">
       <UniqueIdentifier>{b28c2d5c-3c1d-4c7f-8041-db81b4de53f4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Modules\Config\Misc">
+      <UniqueIdentifier>{c68da562-d3ed-40ae-98d6-8fd59e60f808}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Modules\Config\Misc">
+      <UniqueIdentifier>{a432cf04-dfe1-4bb5-a6fe-5928f6f30616}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-ModelBasePCH.cpp">
@@ -221,6 +227,9 @@
     </ClCompile>
     <ClCompile Include="..\include\VolumeIntegrator.cpp">
       <Filter>Source Files\General</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\GeometryConfig.cpp">
+      <Filter>Source Files\Modules\Config\Misc</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -568,6 +577,9 @@
     </ClInclude>
     <ClInclude Include="..\include\OutReflectedModality.h">
       <Filter>Header Files\Modules\SpacePartitioning</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\GeometryConfig.h">
+      <Filter>Header Files\Modules\Config\Misc</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -9,6 +9,8 @@ namespace Storm
 	enum class LayeringGenerationTechnique;
 	enum class VolumeComputationTechnique;
 
+	struct GeometryConfig;
+
 	struct SceneRigidBodyConfig
 	{
 	public:
@@ -51,12 +53,9 @@ namespace Storm
 
 		unsigned int _layerCount;
 		Storm::LayeringGenerationTechnique _layerGenerationMode;
-		Storm::GeometryType _geometry;
+		std::shared_ptr<const Storm::GeometryConfig> _geometry;
 
 		bool _enforceNormalsCoherency;
-
-		// The sample count used as input for MDeserno Algorithm. Only useful if chosen sampler is the uniform one and _geometry is Storm::GeometryType::EquiSphere_MarkusDeserno.
-		std::size_t _sampleCountMDeserno;
 
 		bool _fixedSimulationVolume;
 		Storm::VolumeComputationTechnique _volumeComputationTechnique;

@@ -17,6 +17,7 @@
   <ItemGroup>
     <ClCompile Include="..\include\ColorChecker.cpp" />
     <ClCompile Include="..\include\GeneralConfig.cpp" />
+    <ClCompile Include="..\include\GeometryConfig.cpp" />
     <ClCompile Include="..\include\InternalConfig.cpp" />
     <ClCompile Include="..\include\RaycastRequestObject.cpp" />
     <ClCompile Include="..\include\RigidBodyHolder.cpp" />
@@ -45,6 +46,7 @@
     <ClInclude Include="..\include\GeneralDebugConfig.h" />
     <ClInclude Include="..\include\GeneralNetworkConfig.h" />
     <ClInclude Include="..\include\GeneralSafetyConfig.h" />
+    <ClInclude Include="..\include\GeometryConfig.h" />
     <ClInclude Include="..\include\GeometryType.h" />
     <ClInclude Include="..\include\IAnimationManager.h" />
     <ClInclude Include="..\include\IBibliographyManager.h" />
