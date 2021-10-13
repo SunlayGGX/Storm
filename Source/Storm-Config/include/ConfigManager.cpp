@@ -95,15 +95,6 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 			}
 		}
 
-		const bool noUI = parser.getNoUI();
-		if (noUI)
-		{
-			if (simulationConfigParam._simulatorRecordMode != Storm::RecordMode::Record)
-			{
-				Storm::throwException<Storm::Exception>("When starting without a UI means that it is focused on recording! Not setting recording mode isn't allowed then.");
-			}
-		}
-
 		_userSetThreadPriority = parser.getThreadPriority();
 
 		_macroConfig.initialize();
@@ -338,9 +329,21 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 			break;
 		}
 
+		const bool noUI = parser.getNoUI();
 		_withUI = !noUI;
+
 		if (noUI)
 		{
+			if (simulationConfigParam._simulatorRecordMode != Storm::RecordMode::Record)
+			{
+				const Storm::GeneralDebugConfig &debugConfig = this->getGeneralDebugConfig();
+				const bool intendProfilingWithoutUI = debugConfig._profileSimulationSpeed && sceneConfig._simulationConfig._endSimulationPhysicsTimeInSeconds > 0.f;
+				if (!intendProfilingWithoutUI)
+				{
+					Storm::throwException<Storm::Exception>("When starting without a UI means that it is focused on recording or profiling! We must either set recording mode or profile the simulator.");
+				}
+			}
+
 			bool &startPaused = sceneConfig._simulationConfig._startPaused;
 			if (startPaused)
 			{
