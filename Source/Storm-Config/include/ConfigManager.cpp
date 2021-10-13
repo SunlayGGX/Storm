@@ -343,7 +343,13 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 
 				const Storm::GeneralDebugConfig &debugConfig = this->getGeneralDebugConfig();
 				const bool intendProfilingWithoutUI = debugConfig._profileSimulationSpeed && sceneConfig._simulationConfig._endSimulationPhysicsTimeInSeconds > 0.f;
-				if (!intendProfilingWithoutUI)
+				if (intendProfilingWithoutUI)
+				{
+					LOG_DEBUG_WARNING << 
+						"No UI mode set with some profiling flags, therefore we expect the reason was to profile.\n"
+						"However, beware that some features are disabled in this mode so we would get partial profiling data (only simulator related features would run).";
+				}
+				else
 				{
 					Storm::throwException<Storm::Exception>("When starting without a UI means that it is focused on recording or profiling! We must either set recording mode or profile the simulator.");
 				}
