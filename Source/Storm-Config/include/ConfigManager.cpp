@@ -336,6 +336,11 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 		{
 			if (simulationConfigParam._simulatorRecordMode != Storm::RecordMode::Record)
 			{
+				if (simulationConfigParam._simulatorRecordMode == Storm::RecordMode::Replay)
+				{
+					Storm::throwException<Storm::Exception>("We must always have a UI when replaying a simulation.");
+				}
+
 				const Storm::GeneralDebugConfig &debugConfig = this->getGeneralDebugConfig();
 				const bool intendProfilingWithoutUI = debugConfig._profileSimulationSpeed && sceneConfig._simulationConfig._endSimulationPhysicsTimeInSeconds > 0.f;
 				if (!intendProfilingWithoutUI)
