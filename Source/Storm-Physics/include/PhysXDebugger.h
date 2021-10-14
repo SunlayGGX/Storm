@@ -14,7 +14,7 @@ namespace Storm
 		~PhysXDebugger();
 
 	public:
-		void reconnect();
+		bool reconnect();
 		void reconnectIfNeeded();
 
 		void close();
@@ -31,6 +31,8 @@ namespace Storm
 		Storm::UniquePointer<physx::PxPvdTransport> _transport;
 
 		std::unique_ptr<Storm::PhysXPVDConnectHandler> _pvdConnectHandler;
+
+		std::chrono::high_resolution_clock::time_point _lastReconnectionTimeFailure;
 
 		std::string _ipStr;
 
