@@ -9,10 +9,14 @@
 
 #include "MemoryInfos.h"
 
+#include "RAII.h"
+
 #include <atlbase.h>
 #include <comdef.h>
 #include <Psapi.h>
 #include <sysinfoapi.h>
+#include <msi.h>
+#include <set>
 
 
 namespace
@@ -82,6 +86,90 @@ namespace
 		Type &_ptr;
 		DWORD &_cookie;
 	};
+
+	void listInstalledSoftwareUsingRegKey(HKEY rootKey, const std::basic_string_view<TCHAR> sRoot, std::set<std::wstring> &inOutResults)
+	{
+		HKEY hUninstKey = nullptr;
+		HKEY hAppKey = nullptr;
+		TCHAR sAppKeyName[1024];
+		TCHAR sSubAppKey[1024];
+		TCHAR res[1024];
+		long lResult = ERROR_SUCCESS;
+		DWORD dwBufferSize = 0;
+
+		//Open the "Uninstall" key.
+		if (::RegOpenKeyEx(rootKey, sRoot.data(), 0, KEY_READ, &hUninstKey) != ERROR_SUCCESS)
+		{
+			LOG_ERROR << "Cannot open the uninstall key";
+			return;
+		}
+
+		auto hUninstKeyCloser = Storm::makeLazyRAIIObject([&hUninstKey]()
+		{
+			RegCloseKey(hUninstKey);
+		});
+
+		for (DWORD dwIndex = 0; lResult != ERROR_NO_MORE_ITEMS; ++dwIndex)
+		{
+			//Enumerate all sub keys...
+			dwBufferSize = sizeof(sAppKeyName) / sizeof(TCHAR);
+			lResult = RegEnumKeyEx(hUninstKey, dwIndex, sAppKeyName, &dwBufferSize, nullptr, nullptr, nullptr, nullptr);
+
+			if (::StrCmpC(sAppKeyName, TEXT("Classes")) == 0)
+			{
+				continue;
+			}
+
+			if (lResult == ERROR_SUCCESS)
+			{
+				::wsprintf(sSubAppKey, L"%s\\%s", sRoot.data(), sAppKeyName);
+				if (::RegOpenKeyEx(rootKey, sSubAppKey, 0, KEY_READ, &hAppKey) != ERROR_SUCCESS)
+				{
+					continue;
+				}
+
+				auto hAppKeyCloser = Storm::makeLazyRAIIObject([&hAppKey]()
+				{
+					RegCloseKey(hAppKey);
+				});
+
+				long subResult = ERROR_SUCCESS;
+				for (DWORD subIndex = 0; subResult != ERROR_NO_MORE_ITEMS; ++subIndex)
+				{
+					dwBufferSize = sizeof(res) / sizeof(TCHAR);
+					subResult = ::RegEnumKeyEx(hAppKey, subIndex, res, &dwBufferSize, nullptr, nullptr, nullptr, nullptr);
+					if(subResult == ERROR_SUCCESS)
+					{
+						auto valPair = inOutResults.emplace(Storm::toStdWString(sAppKeyName) + L' ' + Storm::toStdWString(res));
+						if (valPair.second)
+						{
+							if (auto bracketFound = valPair.first->find('{'); bracketFound != std::string::npos)
+							{
+								if (auto clip = valPair.first->find('}', bracketFound); clip != std::string::npos)
+								{
+									inOutResults.erase(valPair.first);
+								}
+								else
+								{
+									auto node = inOutResults.extract(valPair.first);
+									node.value().erase(bracketFound, clip - bracketFound);
+									inOutResults.insert(std::move(node));
+								}
+							}
+						}
+					}
+					else if (subResult == ERROR_NO_MORE_ITEMS)
+					{
+						break;
+					}
+				}
+			}
+			else if (lResult == ERROR_NO_MORE_ITEMS)
+			{
+				break;
+			}
+		}
+	}
 }
 
 namespace Storm
@@ -459,4 +547,94 @@ bool Storm::OSManager::preventShutdown()
 		LOG_ERROR << generateComError(::GetLastError(), "We failed to prevent system shutdown.");
 		return false;
 	}
+}
+
+std::vector<std::wstring> Storm::OSManager::listAllInstalledSoftwares() const
+{
+	const auto toVect = [](std::set<std::wstring> &set)
+	{
+		return std::vector<std::wstring>{ std::make_move_iterator(std::begin(set)), std::make_move_iterator(std::end(set)) };
+	};
+
+	std::set<std::wstring> result;
+
+	listInstalledSoftwareUsingRegKey(HKEY_CURRENT_USER, TEXT("SOFTWARE"), result);
+	listInstalledSoftwareUsingRegKey(HKEY_LOCAL_MACHINE, TEXT("SOFTWARE"), result);
+	
+	// https://docs.microsoft.com/en-us/windows/win32/api/msi/nf-msi-msienumproductsa
+	TCHAR productCode[39];
+
+	enum : std::basic_string<TCHAR>::size_type { k_initialSize = 256 };
+	std::basic_string<TCHAR>::size_type initialSize = k_initialSize;
+	std::basic_string<TCHAR> cachedDynamicData = std::basic_string<TCHAR>{ k_initialSize, TEXT('\0') };
+
+	DWORD iter = 0;
+	do
+	{
+		switch (::MsiEnumProducts(iter++, productCode))
+		{
+		case ERROR_BAD_CONFIGURATION:
+			LOG_DEBUG_ERROR << "Configuration data is corrupted (MsiEnumProducts).";
+			return toVect(result);
+
+		case ERROR_INVALID_PARAMETER:
+			LOG_DEBUG_ERROR << "Invalid parameter used inside MsiEnumProductsA.";
+			return toVect(result);
+
+		case ERROR_NO_MORE_ITEMS:
+			return toVect(result);
+
+		case ERROR_NOT_ENOUGH_MEMORY:
+			LOG_ERROR << "Not enough memory to complete installed process enumeration.";
+			return toVect(result);
+
+		case ERROR_SUCCESS:
+			break;
+		
+		default:
+			__assume(false);
+		}
+
+		bool continueLoop = true;
+
+		do
+		{
+			DWORD sz = static_cast<DWORD>(cachedDynamicData.size());
+			switch (::MsiGetProductInfo(productCode, INSTALLPROPERTY_INSTALLEDPRODUCTNAME, cachedDynamicData.data(), &sz))
+			{
+			case ERROR_BAD_CONFIGURATION:
+				LOG_DEBUG_ERROR << "Configuration data is corrupted (MsiGetProductInfo).";
+				return toVect(result);
+
+			case ERROR_INVALID_PARAMETER:
+				LOG_DEBUG_ERROR << "Invalid parameter used inside MsiGetProductInfo.";
+				return toVect(result);
+
+			case ERROR_MORE_DATA:
+				initialSize = std::max(static_cast<std::size_t>(sz), initialSize * 2);
+				cachedDynamicData.resize(initialSize);
+				break;
+
+			case ERROR_NOT_ENOUGH_MEMORY:
+				LOG_ERROR << "Not enough memory to complete installed process enumeration.";
+				return toVect(result);
+
+			case ERROR_SUCCESS:
+				result.emplace(Storm::toStdWString(std::basic_string_view<TCHAR>{ cachedDynamicData.data(), sz }));
+				continueLoop = false;
+				break;
+
+			case ERROR_UNKNOWN_PROPERTY:
+				LOG_DEBUG_ERROR << "Requested property is unknown (MsiGetProductInfo).";
+
+			case ERROR_UNKNOWN_PRODUCT:
+				continueLoop = false;
+				break;
+
+			default:
+				__assume(false);
+			}
+		} while (continueLoop);
+
+	} while (true);
 }

@@ -31,5 +31,8 @@ namespace Storm
 
 	public:
 		virtual bool preventShutdown() = 0;
+
+	public:
+		virtual std::vector<std::wstring> listAllInstalledSoftwares() const = 0;
 	};
 }

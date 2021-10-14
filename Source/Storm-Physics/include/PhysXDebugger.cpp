@@ -2,6 +2,7 @@
 
 #include "SingletonHolder.h"
 #include "IConfigManager.h"
+#include "IOSManager.h"
 
 #include "GeneralDebugConfig.h"
 
@@ -31,10 +32,10 @@ namespace Storm
 		}
 
 	public:
-		void reconnect()
+		bool reconnect()
 		{
 			_pvd->disconnect();
-			this->connect();
+			return this->connect();
 		}
 
 		bool connect()
@@ -112,19 +113,37 @@ namespace Storm
 		physx::PxPvdTransport* _pvdTransport;
 		physx::PxPvdSceneClient* _pxPvdClient;
 	};
+
+	bool workstationHasPvd()
+	{
+		const Storm::IOSManager &osMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IOSManager>();
+
+		const std::vector<std::wstring> allSoftwares = osMgr.listAllInstalledSoftwares();
+		return std::ranges::any_of(allSoftwares, [](const std::wstring &software)
+		{
+			return software.find(L"PhysXVisualDebugger") != std::wstring::npos;
+		});
+	}
 }
 
 
-Storm::PhysXDebugger::PhysXDebugger(physx::PxFoundation &foundation)
+Storm::PhysXDebugger::PhysXDebugger(physx::PxFoundation &foundation) :
+	_lastReconnectionTimeFailure{ std::chrono::high_resolution_clock::time_point::min() }
 {
 	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
 	const Storm::GeneralDebugConfig &generalDebugConfig = configMgr.getGeneralDebugConfig();
 
+	// On true Release build, PVD are not handled by PhysX, therefore, it is a loss of time to ask PhysX to connect (this make a huge performance hit to enable it, even if it is disabled at the endpoint).
+#ifdef STORM_NO_PVD
+	_enabled = false;
+#else
 	_enabled =
 		generalDebugConfig._physXPvdDebugSocketSettings->_isEnabled &&
-		!configMgr.isInReplayMode()
+		!configMgr.isInReplayMode() &&
+		workstationHasPvd()
 		;
-
+#endif
+	
 	if (_enabled)
 	{
 		const std::string &ip = generalDebugConfig._physXPvdDebugSocketSettings->getIPStr();
@@ -140,6 +159,7 @@ Storm::PhysXDebugger::PhysXDebugger(physx::PxFoundation &foundation)
 		if (!_pvdConnectHandler->connect())
 		{
 			LOG_DEBUG_WARNING << "PhysX Visualizer Debugger (PVD) wasn't connected!";
+			_lastReconnectionTimeFailure = std::chrono::high_resolution_clock::now();
 		}
 	}
 }
@@ -155,21 +175,26 @@ Storm::PhysXDebugger::~PhysXDebugger()
 	}
 }
 
-void Storm::PhysXDebugger::reconnect()
+bool Storm::PhysXDebugger::reconnect()
 {
 	if (_enabled)
 	{
-		_pvdConnectHandler->reconnect();
+		return _pvdConnectHandler->reconnect();
 	}
+
+	return false;
 }
 
 void Storm::PhysXDebugger::reconnectIfNeeded()
 {
 	if (_enabled)
 	{
-		if (!_pvd->isConnected(false))
+		if (std::chrono::high_resolution_clock::now() - _lastReconnectionTimeFailure > std::chrono::seconds{ 1 } && !_pvd->isConnected(true))
 		{
-			this->reconnect();
+			if (!this->reconnect())
+			{
+				_lastReconnectionTimeFailure = std::chrono::high_resolution_clock::now();
+			}
 		}
 	}
 }
