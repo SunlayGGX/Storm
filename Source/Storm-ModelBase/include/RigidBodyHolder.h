@@ -8,6 +8,7 @@ namespace Storm
 	class RigidBodyHolder
 	{
 	public:
+		RigidBodyHolder();
 		virtual ~RigidBodyHolder() = default;
 
 	public:
@@ -18,10 +19,13 @@ namespace Storm
 		const Storm::Vector3& getRbPosition() const;
 		void setRbPosition(const Storm::Vector3 &pos);
 
-		unsigned int getID() const;
+		unsigned int getID() const noexcept;
+
+		bool positionDirty() const noexcept;
 
 	private:
 		std::shared_ptr<Storm::IRigidBody> _boundParentRb;
 		Storm::Vector3 _cachedPosition;
+		bool _positionChanged;
 	};
 }

@@ -15,7 +15,7 @@ namespace Storm
 	public:
 		void reset();
 
-		void updateWatchedRb(const Storm::Vector3 &watchedRbPosition);
+		void updateWatchedRb(const Storm::Vector3 &watchedRbPosition, const bool shouldTrackTranslation);
 		void update();
 
 		float getNearPlane() const noexcept;

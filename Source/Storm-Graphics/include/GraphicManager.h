@@ -134,6 +134,7 @@ namespace Storm
 		bool _dirty;
 
 		Storm::GraphicRigidBody* _watchedRbNonOwningPtr;
+		bool _shouldTrackRbTranslation;
 
 		std::unique_ptr<Storm::DirectXController> _directXController;
 		std::unique_ptr<Storm::Camera> _camera;

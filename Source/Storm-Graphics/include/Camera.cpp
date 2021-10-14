@@ -214,11 +214,6 @@ namespace
 		return frameIter != k_noFrame;
 	}
 
-	__forceinline bool isNearZero(const float value)
-	{
-		return std::fabs(value) < 0.000001f;
-	}
-
 	Storm::Vector3 extractSmoothedDisplacement(const Storm::Vector3 &srcDisplacement, const int frameIter)
 	{
 		const float currentStepX = static_cast<float>(frameIter + 1) / static_cast<float>(k_smoothFrameCountNormalized);
@@ -304,7 +299,7 @@ void Storm::Camera::reset()
 	this->buildViewMatrix();
 }
 
-void Storm::Camera::updateWatchedRb(const Storm::Vector3 &watchedRbPosition)
+void Storm::Camera::updateWatchedRb(const Storm::Vector3 &watchedRbPosition, const bool shouldTrackTranslation)
 {
 	const DirectX::XMVECTOR watchedRbPositionAsDX = Storm::convertToXM(watchedRbPosition);
 	const DirectX::XMVECTOR currentCamPosition = DirectX::XMLoadFloat3(&_position);
@@ -313,7 +308,8 @@ void Storm::Camera::updateWatchedRb(const Storm::Vector3 &watchedRbPosition)
 	const DirectX::XMVECTOR eyeDir = DirectX::XMVector3Normalize(DirectX::XMVectorSubtract(targetPosition, currentCamPosition));
 	const DirectX::XMVECTOR camToWatchedRb = DirectX::XMVectorSubtract(watchedRbPositionAsDX, currentCamPosition);
 
-	const float newExpectedNearPlane = DirectX::XMVector3Dot(eyeDir, camToWatchedRb).m128_f32[0];
+	const DirectX::XMVECTOR nearPlaneVectors = DirectX::XMVector3Dot(eyeDir, camToWatchedRb);
+	const float newExpectedNearPlane = nearPlaneVectors.m128_f32[0];
 
 	constexpr float nearPlaneEpsilon = getMinimalNearPlaneValue();
 	if (newExpectedNearPlane > nearPlaneEpsilon)
@@ -327,6 +323,24 @@ void Storm::Camera::updateWatchedRb(const Storm::Vector3 &watchedRbPosition)
 			this->setNearAndFarPlane(newExpectedNearPlane, newExpectedNearPlane + nearPlaneEpsilon);
 		}
 	}
+
+	if (shouldTrackTranslation)
+	{
+		// We need the perpendicular component of the camera to watched rb vector from the eye direction of the camera to know how we need to translate to keep the rb at the center of the camera
+		// (which I'll be naming camToWatchedRb_perpendicularToEyedir, aka camTranslationToMake).
+		// 
+		// Therefore, camToWatchedRb = camToWatchedRb_parallelToEyedir + camToWatchedRb_perpendicularToEyedir.
+		// <=> camTranslationToMake = camToWatchedRb_perpendicularToEyedir = camToWatchedRb - camToWatchedRb_parallelToEyedir
+		// But camToWatchedRb_parallelToEyedir = eyeDir * nearPlane (since eyeDir is normalized vector and near plane was set to the norm of camToWatchedRb_parallelToEyedir from the code on top)
+		// 
+		// <=> camTranslationToMake = camToWatchedRb_perpendicularToEyedir = camToWatchedRb - eyeDir * nearPlaneVectors
+		//
+		// From the doc https://docs.microsoft.com/en-us/windows/win32/api/directxmath/nf-directxmath-xmvectornegativemultiplysubtract
+		// XMVectorNegativeMultiplySubtract(V1, V2, V3) => V3 - V1 * V2
+		// => V1 : eyeDir, V2: nearPlaneVectors, V3 : camToWatchedRb
+		const Storm::Vector3 camTranslationToMake = Storm::convertToStorm(DirectX::XMVectorNegativeMultiplySubtract(eyeDir, nearPlaneVectors, camToWatchedRb));
+		this->translateRelative(camTranslationToMake - _deltaTranslationSmooth, _shouldMoveSmooth);
+	}
 }
 
 void Storm::Camera::update()
@@ -337,17 +351,19 @@ void Storm::Camera::update()
 		{
 			if (_deltaTranslationSmooth != Storm::Vector3::Zero())
 			{
-				++_startSmoothMoveFramePos;
+				if (!_deltaTranslationSmooth.isZero(std::max(0.0001f, _cameraMoveSpeed / 1000.f)))
+				{
+					++_startSmoothMoveFramePos;
 
-				const Storm::Vector3 partTranslation = extractSmoothedDisplacement(_deltaTranslationSmooth, _startSmoothMoveFramePos);
+					const Storm::Vector3 partTranslation = extractSmoothedDisplacement(_deltaTranslationSmooth, _startSmoothMoveFramePos);
 
-				this->translateRelative(partTranslation, false);
+					this->translateRelative(partTranslation, false);
 
-				// It adds another level of smoothness and allows a smaller object ;). But it is not part of the explanation on the mathematical formula described inside extractSmoothedDisplacement.
-				// This makes the mathematical abstraction a little off, but the visual effect is really really good.
-				_deltaTranslationSmooth -= partTranslation;
-
-				if (isNearZero(_deltaTranslationSmooth.x()) && isNearZero(_deltaTranslationSmooth.y()) && isNearZero(_deltaTranslationSmooth.z()))
+					// It adds another level of smoothness and allows a smaller object ;). But it is not part of the explanation on the mathematical formula described inside extractSmoothedDisplacement.
+					// This makes the mathematical abstraction a little off, but the visual effect is really really good.
+					_deltaTranslationSmooth -= partTranslation;
+				}
+				else
 				{
 					this->translateRelative(_deltaTranslationSmooth, false);
 

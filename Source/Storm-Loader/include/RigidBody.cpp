@@ -172,12 +172,12 @@ Storm::RigidBody::RigidBody(const Storm::SceneRigidBodyConfig &rbSceneConfig, Re
 	this->loadForReplay(rbSceneConfig);
 }
 
-const std::string& Storm::RigidBody::getRigidBodyName() const
+const std::string& Storm::RigidBody::getRigidBodyName() const noexcept
 {
 	return _meshPath;
 }
 
-unsigned int Storm::RigidBody::getRigidBodyID() const
+unsigned int Storm::RigidBody::getRigidBodyID() const noexcept
 {
 	return _rbId;
 }

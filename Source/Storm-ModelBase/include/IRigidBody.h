@@ -9,9 +9,9 @@ namespace Storm
 	{
 	public:
 		// This is also the path to the rigid body.
-		virtual const std::string& getRigidBodyName() const = 0;
+		virtual const std::string& getRigidBodyName() const noexcept = 0;
 
-		virtual unsigned int getRigidBodyID() const = 0;
+		virtual unsigned int getRigidBodyID() const noexcept = 0;
 
 		virtual void getRigidBodyTransform(Storm::Vector3 &outTrans, Storm::Rotation &outRot) const = 0;
 		virtual void getRigidBodyTransform(Storm::Vector3 &outTrans, Storm::Quaternion &outRot) const = 0;
