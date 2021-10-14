@@ -47,6 +47,9 @@ namespace Storm
 	public:
 		bool preventShutdown() final override;
 
+	public:
+		std::vector<std::wstring> listAllInstalledSoftwares() const final override;
+
 	private:
 		std::unique_ptr<Storm::details::ProcessesHolder> _processHolder;
 		void* /*HANDLE*/ _currentProcessHandle;
