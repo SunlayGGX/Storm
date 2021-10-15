@@ -3,6 +3,12 @@
 #include "IRigidBody.h"
 
 
+Storm::RigidBodyHolder::RigidBodyHolder() :
+	_positionChanged{ true }
+{
+
+}
+
 void Storm::RigidBodyHolder::setRbParent(const std::shared_ptr<Storm::IRigidBody> &boundRbParent)
 {
 	if (_boundParentRb == nullptr)
@@ -33,10 +39,19 @@ const Storm::Vector3& Storm::RigidBodyHolder::getRbPosition() const
 
 void Storm::RigidBodyHolder::setRbPosition(const Storm::Vector3 &pos)
 {
-	_cachedPosition = pos;
+	_positionChanged = _cachedPosition != pos;
+	if (_positionChanged)
+	{
+		_cachedPosition = pos;
+	}
 }
 
-unsigned int Storm::RigidBodyHolder::getID() const
+unsigned int Storm::RigidBodyHolder::getID() const noexcept
 {
 	return _boundParentRb->getRigidBodyID();
+}
+
+bool Storm::RigidBodyHolder::positionDirty() const noexcept
+{
+	return _positionChanged;
 }

@@ -184,6 +184,8 @@ void Storm::GraphicManager::initialize_Implementation(void* hwnd)
 		_fields->bindField(STORM_WATCHED_RB_POSITION, _watchedRbNonOwningPtr->getRbPosition());
 	}
 
+	_shouldTrackRbTranslation = sceneGraphicConfig._trackTranslation;
+
 	if (sceneGraphicConfig._displaySolidAsParticles)
 	{
 		_directXController->setAllParticleState();
@@ -299,9 +301,9 @@ void Storm::GraphicManager::update()
 
 		if (_dirty)
 		{
-			if (_watchedRbNonOwningPtr != nullptr)
+			if (_watchedRbNonOwningPtr != nullptr && _watchedRbNonOwningPtr->positionDirty())
 			{
-				currentCamera.updateWatchedRb(_watchedRbNonOwningPtr->getRbPosition());
+				currentCamera.updateWatchedRb(_watchedRbNonOwningPtr->getRbPosition(), _shouldTrackRbTranslation);
 				_fields->pushField(STORM_WATCHED_RB_POSITION);
 			}
 

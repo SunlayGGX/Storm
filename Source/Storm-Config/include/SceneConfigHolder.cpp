@@ -393,6 +393,12 @@ if (blowerTypeStr == BlowerTypeXmlName) return Storm::BlowerType::BlowerTypeName
 		return result;
 	}
 
+	void parseWatchedRb(const boost::property_tree::ptree &tree, Storm::SceneGraphicConfig &graphicConfig)
+	{
+		graphicConfig._rbWatchId = tree.get_value<decltype(graphicConfig._rbWatchId)>();
+		Storm::XmlReader::readXmlAttribute(tree, graphicConfig._trackTranslation, "trackTranslation");
+	}
+
 	class AnimationsKeeper
 	{
 	public:
@@ -578,7 +584,7 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 			!Storm::XmlReader::handleXml(graphicXmlElement, "forceColor", graphicConfig._forceColor, parseColor4Element) &&
 			!Storm::XmlReader::handleXml(graphicXmlElement, "normalsColor", graphicConfig._normalsColor, parseColor4Element) &&
 			!Storm::XmlReader::handleXml(graphicXmlElement, "blowerAlpha", graphicConfig._blowerAlpha) &&
-			!Storm::XmlReader::handleXml(graphicXmlElement, "watchRbId", graphicConfig._rbWatchId) &&
+			!Storm::XmlReader::handleXml(graphicXmlElement, "watchRbId", graphicConfig, parseWatchedRb) &&
 			!Storm::XmlReader::handleXml(graphicXmlElement, "grid", graphicConfig._grid, parseVector3Element)
 			)
 		{

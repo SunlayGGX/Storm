@@ -39,5 +39,6 @@ namespace Storm
 		Storm::Vector4 _normalsColor;
 
 		std::size_t _rbWatchId;
+		bool _trackTranslation;
 	};
 }

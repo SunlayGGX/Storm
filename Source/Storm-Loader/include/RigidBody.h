@@ -20,8 +20,8 @@ namespace Storm
 		RigidBody(const Storm::SceneRigidBodyConfig &rbSceneConfig, ReplayMode);
 
 	public:
-		const std::string& getRigidBodyName() const final override;
-		unsigned int getRigidBodyID() const final override;
+		const std::string& getRigidBodyName() const noexcept final override;
+		unsigned int getRigidBodyID() const noexcept final override;
 		void getRigidBodyTransform(Storm::Vector3 &outTrans, Storm::Rotation &outRot) const final override;
 		void getRigidBodyTransform(Storm::Vector3 &outTrans, Storm::Quaternion &outRot) const final override;
 		std::vector<Storm::Vector3> getRigidBodyParticlesWorldPositions() const final override;

@@ -139,9 +139,14 @@ Storm::PhysXDebugger::PhysXDebugger(physx::PxFoundation &foundation) :
 #else
 	_enabled =
 		generalDebugConfig._physXPvdDebugSocketSettings->_isEnabled &&
-		!configMgr.isInReplayMode() &&
-		workstationHasPvd()
+		!configMgr.isInReplayMode()
 		;
+
+	if (_enabled && !workstationHasPvd())
+	{
+		LOG_WARNING << "We requested to use PVD but PVD is not part of the current workstation installed softwares, therefore we'll disable the PVD connection.";
+		_enabled = false;
+	}
 #endif
 	
 	if (_enabled)
