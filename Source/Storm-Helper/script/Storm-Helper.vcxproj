@@ -35,6 +35,7 @@
     <ClCompile Include="..\include\Exception.cpp" />
     <ClCompile Include="..\include\StormPathHelper.cpp" />
     <ClCompile Include="..\include\TimeHelper.cpp" />
+    <ClCompile Include="..\include\TypeIdGenerator.cpp" />
     <ClCompile Include="..\include\Version.cpp" />
     <ClCompile Include="..\include\VisualStudioOutputCompliantParser.cpp" />
   </ItemGroup>
@@ -98,6 +99,7 @@
     <ClInclude Include="..\include\TimeHelper.h" />
     <ClInclude Include="..\include\TraitsHelper.h" />
     <ClInclude Include="..\include\NameExtractor.h" />
+    <ClInclude Include="..\include\TypeIdGenerator.h" />
     <ClInclude Include="..\include\UniquePointer.h" />
     <ClInclude Include="..\include\UniversalString.h" />
     <ClInclude Include="..\include\ValueGuard.h" />

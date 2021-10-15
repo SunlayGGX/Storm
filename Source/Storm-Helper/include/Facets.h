@@ -2,6 +2,7 @@
 
 
 #include "CRTPHierarchy.h"
+#include "TypeIdGenerator.h"
 
 
 namespace Storm
@@ -15,8 +16,8 @@ namespace Storm
 		public:
 			using UnderlyingType = unsigned int;
 
-		public:
-			ID() : _id{ ++s_idGenerator } {}
+		private:
+			ID(UnderlyingType idValue) : _id{ idValue }{}
 
 		public:
 			bool operator==(const ID &other) const
@@ -34,8 +35,14 @@ namespace Storm
 				return _id;
 			}
 
+			template<class Type>
+			static ID produceID()
+			{
+				return { s_idGenerator.produceID<Type>() };
+			}
+
 		private:
-			static inline ID::UnderlyingType s_idGenerator = -1;
+			static inline Storm::TypeIdGenerator s_idGenerator;
 			const UnderlyingType _id;
 		};
 
@@ -55,7 +62,7 @@ namespace Storm
 		virtual ~Facet() = default;
 
 	public:
-		static inline const FacetBase<GroupType>::template ID ID;
+		static inline const FacetBase<GroupType>::template ID ID = FacetBase<GroupType>::template ID::produceID<ChildType>();
 	};
 }
 

@@ -156,7 +156,7 @@ namespace Storm
 			template<class Facet, class ItemType>
 			void registerFacet(ItemType &&item)
 			{
-				const IdType &index = Facet::ID;
+				const std::size_t index = Facet::ID;
 				if (_array.size() <= index)
 				{
 					_array.resize(index + 1, nullptr);

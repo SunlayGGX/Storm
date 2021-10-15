@@ -118,6 +118,9 @@
     <Filter Include="Source Files\General\Algorithm">
       <UniqueIdentifier>{c799a01e-e010-4d23-94cc-5d845afa7d4a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\General\Facets">
+      <UniqueIdentifier>{5e0c48ef-7444-48ff-b825-e7dbd479ca9c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-HelperPCH.cpp">
@@ -173,6 +176,9 @@
     </ClCompile>
     <ClCompile Include="..\include\VisualStudioOutputCompliantParser.cpp">
       <Filter>Source Files\OS\Debugging</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\TypeIdGenerator.cpp">
+      <Filter>Source Files\General\Facets</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -382,6 +388,9 @@
     </ClInclude>
     <ClInclude Include="..\include\VisualStudioOutputCompliantParser.h">
       <Filter>Header Files\OS\Debugging</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\TypeIdGenerator.h">
+      <Filter>Header Files\General\Facets</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
