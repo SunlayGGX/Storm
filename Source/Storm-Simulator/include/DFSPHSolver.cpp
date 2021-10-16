@@ -677,7 +677,7 @@ void Storm::DFSPHSolver::fullDensityInvariantSolve_Internal(const Storm::Iterati
 	}
 
 	this->updateCurrentPredictionIter(iterationV, sceneDFSPHSimulationConfig._maxPredictIteration, averageErrorV, sceneDFSPHSimulationConfig._maxDensityError, 0);
-
+#if false
 	Storm::ParticleSystemContainer &particleSystems = *iterationParameter._particleSystems;
 	for (auto &particleSystemPair : particleSystems)
 	{
@@ -695,6 +695,7 @@ void Storm::DFSPHSolver::fullDensityInvariantSolve_Internal(const Storm::Iterati
 			});
 		}
 	}
+#endif
 }
 
 
