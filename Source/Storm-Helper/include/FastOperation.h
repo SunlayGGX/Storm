@@ -175,14 +175,14 @@ namespace Storm
 			}
 
 			// Fallback
-			::memcpy(dstPtrAsInt, srcPtrAsInt, sizeInBytes);
+			::memcpy(dstPtr, srcPtr, sizeInBytes);
 		}
 
 		template<SIMDUsageMode mode, class Type>
 		static __forceinline void copyMemory_V2(const std::vector<Type> &src, std::vector<Type> &dst)
 		{
 			assert(src.size() == dst.size() && "Size mismatch!");
-			Storm::FastOperation::copyMemory_V2<mode>(src.data(), dst.data(), dst.size() * sizeof(Type));
+			Storm::FastOperation::copyMemory_V2<mode>(reinterpret_cast<const uint8_t*const>(src.data()), reinterpret_cast<uint8_t*const>(dst.data()), dst.size() * sizeof(Type));
 		}
 
 	public:
