@@ -2,7 +2,7 @@
 
 #include "NonInstanciable.h"
 #include "SIMDUsageMode.h"
-
+#include <intrin.h>
 
 namespace Storm
 {

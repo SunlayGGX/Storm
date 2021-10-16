@@ -137,6 +137,7 @@
     <ClCompile Include="..\include\BitFieldTester.cpp" />
     <ClCompile Include="..\include\ChronoTester.cpp" />
     <ClCompile Include="..\include\CSVTester.cpp" />
+    <ClCompile Include="..\include\FastOperationTester.cpp" />
     <ClCompile Include="..\include\MetaprogTester.cpp" />
     <ClCompile Include="..\include\MiscTester.cpp" />
     <ClCompile Include="..\include\SearchAlgoTester.cpp" />
