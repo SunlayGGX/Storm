@@ -541,11 +541,19 @@ void Storm::RigidBodyParticleSystem::setTmpCoendaForces(std::vector<Storm::Vecto
 	}
 }
 
-void Storm::RigidBodyParticleSystem::setTmpPressureIntermediaryForces(std::vector<Storm::Vector3> &&tmpPressuresIntermediaryForces)
+void Storm::RigidBodyParticleSystem::setTmpPressureDensityIntermediaryForces(std::vector<Storm::Vector3> &&tmpPressuresIntermediaryForces)
 {
 	if (!this->isStatic())
 	{
-		_tmpPressureIntermediaryForce = std::move(tmpPressuresIntermediaryForces);
+		_tmpPressureDensityIntermediaryForce = std::move(tmpPressuresIntermediaryForces);
+	}
+}
+
+void Storm::RigidBodyParticleSystem::setTmpPressureVelocityIntermediaryForces(std::vector<Storm::Vector3> &&tmpPressuresIntermediaryForces)
+{
+	if (!this->isStatic())
+	{
+		_tmpPressureVelocityIntermediaryForce = std::move(tmpPressuresIntermediaryForces);
 	}
 }
 

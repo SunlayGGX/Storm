@@ -47,20 +47,21 @@ case Storm::ParticleSelectionMode::Case:					\
 
 		switch (mode)
 		{
-			STORM_PARSE_CASE(Velocity,				"Velocity",					true);
-			STORM_PARSE_CASE(Pressure,				"Pressure",					true);
-			STORM_PARSE_CASE(Viscosity,				"Viscosity",				true);
-			STORM_PARSE_CASE(AllOnParticle,			"All On Particle",			true);
-			STORM_PARSE_CASE(Custom,				"Custom",					true);
-			STORM_PARSE_CASE(Drag,					"Drag",						supportedFeatures._hasDragComponentforces);
-			STORM_PARSE_CASE(DynamicPressure,		"DynamicQ",					supportedFeatures._hasDynamicPressureQForces);
-			STORM_PARSE_CASE(NoStick,				"NoStick",					supportedFeatures._hasNoStickForces);
-			STORM_PARSE_CASE(Coenda,				"Coenda",					supportedFeatures._hasCoendaForces);
-			STORM_PARSE_CASE(IntermediaryPressure,	"Intermediary Pressure",	supportedFeatures._hasIntermediaryPressureForces);
-			STORM_PARSE_CASE(TotalEngineForce,		"All On System (Engine)",	supportedFeatures._hasPSystemTotalEngineForce);
-			STORM_PARSE_CASE(Normal,				"Normal",					supportedFeatures._hasNormals);
-			STORM_PARSE_CASE(RbForce,				"Rb Total force",			supportedFeatures._hasPSystemGlobalForce);
-			STORM_PARSE_CASE(AverageRbForce,		"Rb Average Total force",	supportedFeatures._hasPSystemGlobalForce);
+			STORM_PARSE_CASE(Velocity,						"Velocity",							true);
+			STORM_PARSE_CASE(Pressure,						"Pressure",							true);
+			STORM_PARSE_CASE(Viscosity,						"Viscosity",						true);
+			STORM_PARSE_CASE(AllOnParticle,					"All On Particle",					true);
+			STORM_PARSE_CASE(Custom,						"Custom",							true);
+			STORM_PARSE_CASE(Drag,							"Drag",								supportedFeatures._hasDragComponentforces);
+			STORM_PARSE_CASE(DynamicPressure,				"DynamicQ",							supportedFeatures._hasDynamicPressureQForces);
+			STORM_PARSE_CASE(NoStick,						"NoStick",							supportedFeatures._hasNoStickForces);
+			STORM_PARSE_CASE(Coenda,						"Coenda",							supportedFeatures._hasCoendaForces);
+			STORM_PARSE_CASE(IntermediaryDensityPressure,	"Intermediary Density Pressure",	supportedFeatures._hasIntermediaryDensityPressureForces);
+			STORM_PARSE_CASE(IntermediaryVelocityPressure,	"Intermediary Velocity Pressure",	supportedFeatures._hasIntermediaryVelocityPressureForces);
+			STORM_PARSE_CASE(TotalEngineForce,				"All On System (Engine)",			supportedFeatures._hasPSystemTotalEngineForce);
+			STORM_PARSE_CASE(Normal,						"Normal",							supportedFeatures._hasNormals);
+			STORM_PARSE_CASE(RbForce,						"Rb Total force",					supportedFeatures._hasPSystemGlobalForce);
+			STORM_PARSE_CASE(AverageRbForce,				"Rb Average Total force",			supportedFeatures._hasPSystemGlobalForce);
 
 		case Storm::ParticleSelectionMode::SelectionModeCount:
 		default:
@@ -85,34 +86,36 @@ case Storm::ParticleSelectionMode::Case:					\
 	// It is the macro that make the links between the STORM_XMACRO_SELECTION_MODE xmacro, and the bindings mode xmacro.
 #define STORM_XMACRO_ELEM_BASE_SELECTION_MODE(SelectionMode, BindingsXMacro) STORM_XMACRO_ELEM_SELECTION_MODE(SelectionMode, BindingsXMacro(SelectionMode))
 
-#define STORM_XMACRO_SELECTION_FLUIDS_MODE_BINDINGS(SelectionMode)				\
-	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Velocity)				\
-	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Pressure)				\
-	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Viscosity)				\
-	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Drag)					\
-	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, DynamicPressure)			\
-	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, NoStick)					\
-	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Coenda)					\
-	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, IntermediaryPressure)	\
-	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, AllOnParticle)			\
-	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, TotalEngineForce)		\
-	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Custom)					\
+#define STORM_XMACRO_SELECTION_FLUIDS_MODE_BINDINGS(SelectionMode)						\
+	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Velocity)						\
+	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Pressure)						\
+	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Viscosity)						\
+	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Drag)							\
+	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, DynamicPressure)					\
+	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, NoStick)							\
+	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Coenda)							\
+	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, IntermediaryDensityPressure)		\
+	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, IntermediaryVelocityPressure)	\
+	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, AllOnParticle)					\
+	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, TotalEngineForce)				\
+	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Custom)							\
 
-#define STORM_XMACRO_SELECTION_RB_MODE_BINDINGS(SelectionMode)					\
-	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Velocity)				\
-	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Pressure)				\
-	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Viscosity)				\
-	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Drag)					\
-	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, DynamicPressure)			\
-	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, NoStick)					\
-	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Coenda)					\
-	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, IntermediaryPressure)	\
-	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, AllOnParticle)			\
-	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, TotalEngineForce)		\
-	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Custom)					\
-	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Normal)					\
-	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, RbForce)					\
-	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, AverageRbForce)			\
+#define STORM_XMACRO_SELECTION_RB_MODE_BINDINGS(SelectionMode)							\
+	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Velocity)						\
+	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Pressure)						\
+	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Viscosity)						\
+	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Drag)							\
+	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, DynamicPressure)					\
+	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, NoStick)							\
+	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Coenda)							\
+	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, IntermediaryDensityPressure)		\
+	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, IntermediaryVelocityPressure)	\
+	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, AllOnParticle)					\
+	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, TotalEngineForce)				\
+	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Custom)							\
+	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Normal)							\
+	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, RbForce)							\
+	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, AverageRbForce)					\
 
 
 #define STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, BindingValueName) BindingValueName,
@@ -176,11 +179,12 @@ case Storm::ParticleSelectionMode::Case:					\
 					return true;
 				}
 			}
+			return true;
 		}
 
-		case Storm::ParticleSelectionMode::IntermediaryPressure:
+		case Storm::ParticleSelectionMode::IntermediaryDensityPressure:
 		{
-			if (STORM_UNSUPPORTED_CONDITION(supportedFeatures._hasIntermediaryPressureForces))
+			if (STORM_UNSUPPORTED_CONDITION(supportedFeatures._hasIntermediaryDensityPressureForces))
 			{
 				const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 				const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
@@ -188,6 +192,20 @@ case Storm::ParticleSelectionMode::Case:					\
 				const Storm::SceneSimulationConfig &simulConfig = configMgr.getSceneSimulationConfig();
 				return simulConfig._simulationMode == Storm::SimulationMode::DFSPH;
 			}
+			return true;
+		}
+
+		case Storm::ParticleSelectionMode::IntermediaryVelocityPressure:
+		{
+			if (STORM_UNSUPPORTED_CONDITION(supportedFeatures._hasIntermediaryVelocityPressureForces))
+			{
+				const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+				const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
+
+				const Storm::SceneSimulationConfig &simulConfig = configMgr.getSceneSimulationConfig();
+				return simulConfig._simulationMode == Storm::SimulationMode::DFSPH;
+			}
+			return true;
 		}
 
 		case Storm::ParticleSelectionMode::NoStick:
@@ -463,9 +481,14 @@ void Storm::ParticleSelector::setSelectedParticleCoendaForce(const Storm::Vector
 	_selectedParticleData->_coendaForce = coendaForce;
 }
 
-void Storm::ParticleSelector::setSelectedParticlePressureIntermediaryForce(const Storm::Vector3 &intermediaryPressureForce)
+void Storm::ParticleSelector::setSelectedParticlePressureDensityIntermediaryForce(const Storm::Vector3 &intermediaryPressureForce)
 {
-	_selectedParticleData->_intermediaryPressureForce = intermediaryPressureForce;
+	_selectedParticleData->_intermediaryDensityPressureForce = intermediaryPressureForce;
+}
+
+void Storm::ParticleSelector::setSelectedParticlePressureVelocityIntermediaryForce(const Storm::Vector3 &intermediaryPressureForce)
+{
+	_selectedParticleData->_intermediaryVelocityPressureForce = intermediaryPressureForce;
 }
 
 void Storm::ParticleSelector::setSelectedParticleSumForce(const Storm::Vector3 &sumForce)
@@ -506,20 +529,21 @@ const Storm::Vector3& Storm::ParticleSelector::getSelectedVectorToDisplay() cons
 {
 	switch (_currentParticleSelectionMode)
 	{
-	case Storm::ParticleSelectionMode::Velocity:				return _selectedParticleData->_velocity;
-	case Storm::ParticleSelectionMode::Pressure:				return _selectedParticleData->_pressureForce;
-	case Storm::ParticleSelectionMode::Viscosity:				return _selectedParticleData->_viscosityForce;
-	case Storm::ParticleSelectionMode::Drag:					return _selectedParticleData->_dragForce;
-	case Storm::ParticleSelectionMode::DynamicPressure:			return _selectedParticleData->_dynamicPressureForce;
-	case Storm::ParticleSelectionMode::NoStick:					return _selectedParticleData->_noStickForce;
-	case Storm::ParticleSelectionMode::Coenda:					return _selectedParticleData->_coendaForce;
-	case Storm::ParticleSelectionMode::IntermediaryPressure:	return _selectedParticleData->_intermediaryPressureForce;
-	case Storm::ParticleSelectionMode::AllOnParticle:			return _selectedParticleData->_externalSumForces;
-	case Storm::ParticleSelectionMode::TotalEngineForce:		return _selectedParticleData->_totalEngineForce;
-	case Storm::ParticleSelectionMode::Custom:					return _selectedParticleData->_customCached;
-	case Storm::ParticleSelectionMode::Normal:					return _selectedParticleData->_rbNormals;
-	case Storm::ParticleSelectionMode::RbForce:					return _selectedParticleData->_totalForcesOnRb;
-	case Storm::ParticleSelectionMode::AverageRbForce:			return _selectedParticleData->_averageForcesOnRb.getAverage();
+	case Storm::ParticleSelectionMode::Velocity:						return _selectedParticleData->_velocity;
+	case Storm::ParticleSelectionMode::Pressure:						return _selectedParticleData->_pressureForce;
+	case Storm::ParticleSelectionMode::Viscosity:						return _selectedParticleData->_viscosityForce;
+	case Storm::ParticleSelectionMode::Drag:							return _selectedParticleData->_dragForce;
+	case Storm::ParticleSelectionMode::DynamicPressure:					return _selectedParticleData->_dynamicPressureForce;
+	case Storm::ParticleSelectionMode::NoStick:							return _selectedParticleData->_noStickForce;
+	case Storm::ParticleSelectionMode::Coenda:							return _selectedParticleData->_coendaForce;
+	case Storm::ParticleSelectionMode::IntermediaryDensityPressure:		return _selectedParticleData->_intermediaryDensityPressureForce;
+	case Storm::ParticleSelectionMode::IntermediaryVelocityPressure:	return _selectedParticleData->_intermediaryVelocityPressureForce;
+	case Storm::ParticleSelectionMode::AllOnParticle:					return _selectedParticleData->_externalSumForces;
+	case Storm::ParticleSelectionMode::TotalEngineForce:				return _selectedParticleData->_totalEngineForce;
+	case Storm::ParticleSelectionMode::Custom:							return _selectedParticleData->_customCached;
+	case Storm::ParticleSelectionMode::Normal:							return _selectedParticleData->_rbNormals;
+	case Storm::ParticleSelectionMode::RbForce:							return _selectedParticleData->_totalForcesOnRb;
+	case Storm::ParticleSelectionMode::AverageRbForce:					return _selectedParticleData->_averageForcesOnRb.getAverage();
 
 	case Storm::ParticleSelectionMode::SelectionModeCount:
 	default:
@@ -550,7 +574,8 @@ const Storm::Vector3& Storm::ParticleSelector::getSelectedVectorPosition(const S
 	case Storm::ParticleSelectionMode::DynamicPressure:
 	case Storm::ParticleSelectionMode::NoStick:
 	case Storm::ParticleSelectionMode::Coenda:
-	case Storm::ParticleSelectionMode::IntermediaryPressure:
+	case Storm::ParticleSelectionMode::IntermediaryDensityPressure:
+	case Storm::ParticleSelectionMode::IntermediaryVelocityPressure:
 	case Storm::ParticleSelectionMode::AllOnParticle:
 	case Storm::ParticleSelectionMode::SelectionModeCount:
 	default:
@@ -718,7 +743,8 @@ void Storm::ParticleSelector::logForceComponents() const
 		STORM_APPEND_DATA_TO_STREAM("DynamicPressure", _dynamicPressureForce, "N", _supportedFeatures->_hasDynamicPressureQForces)
 		STORM_APPEND_DATA_TO_STREAM("NoStick", _noStickForce, "N", _supportedFeatures->_hasNoStickForces)
 		STORM_APPEND_DATA_TO_STREAM("Coenda", _coendaForce, "N", _supportedFeatures->_hasCoendaForces)
-		STORM_APPEND_DATA_TO_STREAM("Intermediary Pressure", _intermediaryPressureForce, "N", _supportedFeatures->_hasIntermediaryPressureForces)
+		STORM_APPEND_DATA_TO_STREAM("Intermediary Density Pressure", _intermediaryDensityPressureForce, "N", _supportedFeatures->_hasIntermediaryDensityPressureForces)
+		STORM_APPEND_DATA_TO_STREAM("Intermediary Velocity Pressure", _intermediaryVelocityPressureForce, "N", _supportedFeatures->_hasIntermediaryVelocityPressureForces)
 		STORM_APPEND_DATA_TO_STREAM("Sum", _externalSumForces, "N", true)
 		STORM_APPEND_DATA_TO_STREAM("Total system force", _totalEngineForce, "N", _supportedFeatures->_hasPSystemTotalEngineForce) <<
 		customStr <<
@@ -764,9 +790,13 @@ void Storm::ParticleSelector::logForceComponentsContributionToVector(const Storm
 	{
 		logContribution(alwaysLogger, "Coenda", dataRef._coendaForce, vecNormalized);
 	}
-	if (_supportedFeatures->_hasIntermediaryPressureForces)
+	if (_supportedFeatures->_hasIntermediaryDensityPressureForces)
 	{
-		logContribution(alwaysLogger, "Intermediary Pressure", dataRef._intermediaryPressureForce, vecNormalized);
+		logContribution(alwaysLogger, "Intermediary Density Pressure", dataRef._intermediaryDensityPressureForce, vecNormalized);
+	}
+	if (_supportedFeatures->_hasIntermediaryVelocityPressureForces)
+	{
+		logContribution(alwaysLogger, "Intermediary Velocity Pressure", dataRef._intermediaryVelocityPressureForce, vecNormalized);
 	}
 
 	logContribution(alwaysLogger, "Sum", dataRef._externalSumForces, vecNormalized);

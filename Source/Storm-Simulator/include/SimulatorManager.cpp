@@ -1409,7 +1409,8 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 							removeRawParticles(fluidPSystem.getTemporaryDragForces(), toRemoveCount);
 							removeRawParticles(fluidPSystem.getTemporaryBernoulliDynamicPressureForces(), toRemoveCount);
 							removeRawParticles(fluidPSystem.getTemporaryNoStickForces(), toRemoveCount);
-							removeRawParticles(fluidPSystem.getTemporaryPressureIntermediaryForces(), toRemoveCount);
+							removeRawParticles(fluidPSystem.getTemporaryPressureDensityIntermediaryForces(), toRemoveCount);
+							removeRawParticles(fluidPSystem.getTemporaryPressureVelocityIntermediaryForces(), toRemoveCount);
 							removeRawParticles(fluidPSystem.getTemporaryCoendaForces(), toRemoveCount);
 							removeRawParticles(fluidPSystem.getPositions(), toRemoveCount);
 							removeRawParticles(fluidPSystem.getVelocity(), toRemoveCount);
@@ -2255,7 +2256,8 @@ void Storm::SimulatorManager::refreshParticleSelection()
 			_particleSelector.setSelectedParticleBernoulliDynamicPressureForce(pSystem.getTemporaryBernoulliDynamicPressureForces()[selectedParticleIndex]);
 			_particleSelector.setSelectedParticleNoStickForce(pSystem.getTemporaryNoStickForces()[selectedParticleIndex]);
 			_particleSelector.setSelectedParticleCoendaForce(pSystem.getTemporaryCoendaForces()[selectedParticleIndex]);
-			_particleSelector.setSelectedParticlePressureIntermediaryForce(pSystem.getTemporaryPressureIntermediaryForces()[selectedParticleIndex]);
+			_particleSelector.setSelectedParticlePressureDensityIntermediaryForce(pSystem.getTemporaryPressureDensityIntermediaryForces()[selectedParticleIndex]);
+			_particleSelector.setSelectedParticlePressureVelocityIntermediaryForce(pSystem.getTemporaryPressureVelocityIntermediaryForces()[selectedParticleIndex]);
 			_particleSelector.setSelectedParticleSumForce(pSystem.getForces()[selectedParticleIndex]);
 			_particleSelector.setTotalEngineSystemForce(pSystem.getTotalForceNonPhysX());
 
@@ -2790,7 +2792,8 @@ void Storm::SimulatorManager::writeCurrentFrameSystemForcesToCsv(const unsigned 
 					{ "Drag", &pSystemToPrint.getTemporaryDragForces(), MakeSumFormula::value },
 					{ "BernoulliDynamicQ", &pSystemToPrint.getTemporaryBernoulliDynamicPressureForces(), MakeSumFormula::value },
 					{ "NoStick", &pSystemToPrint.getTemporaryNoStickForces(), MakeSumFormula::value },
-					{ "interPressure", &pSystemToPrint.getTemporaryPressureIntermediaryForces(), MakeSumFormula::value },
+					{ "interDensityPressure", &pSystemToPrint.getTemporaryPressureDensityIntermediaryForces(), MakeSumFormula::value },
+					{ "interVelocityPressure", &pSystemToPrint.getTemporaryPressureVelocityIntermediaryForces(), MakeSumFormula::value },
 					{ "Coenda", &pSystemToPrint.getTemporaryCoendaForces(), MakeSumFormula::value },
 				};
 				
@@ -3196,7 +3199,8 @@ bool Storm::SimulatorManager::selectSpecificParticle_Internal(const unsigned pSy
 				_particleSelector.setSelectedParticleBernoulliDynamicPressureForce(selectedPSystem.getTemporaryBernoulliDynamicPressureForces()[particleIndex]);
 				_particleSelector.setSelectedParticleNoStickForce(selectedPSystem.getTemporaryNoStickForces()[particleIndex]);
 				_particleSelector.setSelectedParticleCoendaForce(selectedPSystem.getTemporaryCoendaForces()[particleIndex]);
-				_particleSelector.setSelectedParticlePressureIntermediaryForce(selectedPSystem.getTemporaryPressureIntermediaryForces()[particleIndex]);
+				_particleSelector.setSelectedParticlePressureDensityIntermediaryForce(selectedPSystem.getTemporaryPressureDensityIntermediaryForces()[particleIndex]);
+				_particleSelector.setSelectedParticlePressureVelocityIntermediaryForce(selectedPSystem.getTemporaryPressureVelocityIntermediaryForces()[particleIndex]);
 				_particleSelector.setTotalEngineSystemForce(selectedPSystem.getTotalForceNonPhysX());
 
 				if (!selectedPSystem.isFluids())

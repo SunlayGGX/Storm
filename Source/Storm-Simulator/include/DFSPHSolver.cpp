@@ -882,12 +882,10 @@ void Storm::DFSPHSolver::divergenceSolve(const Storm::IterationParameter &iterat
 	{
 		// Since data field was made from fluid particles, no need to check.
 		Storm::FluidParticleSystem &fluidPSystem = static_cast<Storm::FluidParticleSystem &>(*particleSystems.find(dataFieldPair.first)->second);
-		std::vector<Storm::Vector3> &intermediaryPressureForces = fluidPSystem.getTemporaryPressureIntermediaryForces();
-		Storm::runParallel(dataFieldPair.second, [this, &iterationParameter, &fluidPSystem, &dataFieldPair, &intermediaryPressureForces, invertDeltaTime](Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex)
+		Storm::runParallel(dataFieldPair.second, [this, &iterationParameter, &fluidPSystem, &dataFieldPair, invertDeltaTime](Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex)
 		{
 			this->computeDensityChange(iterationParameter, fluidPSystem, &dataFieldPair.second, currentPData, currentPIndex);
 			currentPData._kCoeff *= invertDeltaTime;
-			intermediaryPressureForces[currentPIndex].setZero();
 		});
 	}
 
@@ -913,7 +911,7 @@ void Storm::DFSPHSolver::divergenceSolve(const Storm::IterationParameter &iterat
 			
 			const std::vector<float> &masses = fluidPSystem.getMasses();
 			const std::vector<Storm::ParticleNeighborhoodArray> &neighborhoodArrays = fluidPSystem.getNeighborhoodArrays();
-			std::vector<Storm::Vector3> &intermediaryPressureForces = fluidPSystem.getTemporaryPressureIntermediaryForces();
+			std::vector<Storm::Vector3> &intermediaryPressureForces = fluidPSystem.getTemporaryPressureDensityIntermediaryForces();
 
 			const float density0 = fluidPSystem.getRestDensity();
 			avgDensityErrAtom = 0.f;
@@ -976,7 +974,7 @@ void Storm::DFSPHSolver::divergenceSolve(const Storm::IterationParameter &iterat
 						if (!neighborPSystemAsBoundary->isStatic())
 						{
 							Storm::Vector3 &tmpPressureForce = neighborPSystemAsBoundary->getTemporaryPressureForces()[neighbor._particleIndex];
-							Storm::Vector3 &tmpPressureIntermediaryForce = neighborPSystemAsBoundary->getTemporaryPressureIntermediaryForces()[neighbor._particleIndex];
+							Storm::Vector3 &tmpPressureIntermediaryForce = neighborPSystemAsBoundary->getTemporaryPressureDensityIntermediaryForces()[neighbor._particleIndex];
 
 							std::lock_guard<std::mutex> lock{ neighbor._containingParticleSystem->_mutex };
 							tmpPressureForce -= addedPressureForce;

@@ -38,7 +38,8 @@ void Storm::ParticleSystem::initParticlesCount(const std::size_t particleCount)
 	_velocity.resize(particleCount, Storm::Vector3::Zero());
 	_force.resize(particleCount, Storm::Vector3::Zero());
 	_tmpPressureForce.resize(particleCount, Storm::Vector3::Zero());
-	_tmpPressureIntermediaryForce.resize(particleCount, Storm::Vector3::Zero());
+	_tmpPressureDensityIntermediaryForce.resize(particleCount, Storm::Vector3::Zero());
+	_tmpPressureVelocityIntermediaryForce.resize(particleCount, Storm::Vector3::Zero());
 	_tmpViscosityForce.resize(particleCount, Storm::Vector3::Zero());
 	_tmpDragForce.resize(particleCount, Storm::Vector3::Zero());
 	_tmpBernoulliDynamicPressureForce.resize(particleCount, Storm::Vector3::Zero());
@@ -155,14 +156,24 @@ std::vector<Storm::Vector3>& Storm::ParticleSystem::getTemporaryCoendaForces() n
 	return _tmpCoendaForce;
 }
 
-const std::vector<Storm::Vector3>& Storm::ParticleSystem::getTemporaryPressureIntermediaryForces() const noexcept
+const std::vector<Storm::Vector3>& Storm::ParticleSystem::getTemporaryPressureDensityIntermediaryForces() const noexcept
 {
-	return _tmpPressureIntermediaryForce;
+	return _tmpPressureDensityIntermediaryForce;
 }
 
-std::vector<Storm::Vector3>& Storm::ParticleSystem::getTemporaryPressureIntermediaryForces() noexcept
+std::vector<Storm::Vector3>& Storm::ParticleSystem::getTemporaryPressureDensityIntermediaryForces() noexcept
 {
-	return _tmpPressureIntermediaryForce;
+	return _tmpPressureDensityIntermediaryForce;
+}
+
+const std::vector<Storm::Vector3>& Storm::ParticleSystem::getTemporaryPressureVelocityIntermediaryForces() const noexcept
+{
+	return _tmpPressureVelocityIntermediaryForce;
+}
+
+std::vector<Storm::Vector3>& Storm::ParticleSystem::getTemporaryPressureVelocityIntermediaryForces() noexcept
+{
+	return _tmpPressureVelocityIntermediaryForce;
 }
 
 const std::vector<Storm::ParticleNeighborhoodArray>& Storm::ParticleSystem::getNeighborhoodArrays() const noexcept
@@ -262,7 +273,8 @@ void Storm::ParticleSystem::onIterationStart()
 		particleCount == _tmpBernoulliDynamicPressureForce.size() &&
 		particleCount == _tmpNoStickForce.size() &&
 		particleCount == _tmpCoendaForce.size() &&
-		particleCount == _tmpPressureIntermediaryForce.size() &&
+		particleCount == _tmpPressureDensityIntermediaryForce.size() &&
+		particleCount == _tmpPressureVelocityIntermediaryForce.size() &&
 		(replayMode || particleCount == _neighborhood.size()) &&
 		"Particle count mismatch detected! An array of particle property has not the same particle count than the other!"
 	);
@@ -306,5 +318,6 @@ void Storm::ParticleSystem::resetParticleTemporaryForces(const std::size_t curre
 	_tmpBernoulliDynamicPressureForce[currentPIndex].setZero();
 	_tmpNoStickForce[currentPIndex].setZero();
 	_tmpCoendaForce[currentPIndex].setZero();
-	//_tmpPressureIntermediaryForce[currentPIndex].setZero(); // This is done inside the solver directly. Then if the solver is disabled no overhead will happen.
+	_tmpPressureDensityIntermediaryForce[currentPIndex].setZero();
+	_tmpPressureVelocityIntermediaryForce[currentPIndex].setZero();
 }

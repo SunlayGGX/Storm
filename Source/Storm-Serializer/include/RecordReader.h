@@ -43,6 +43,7 @@ namespace Storm
 		bool readNextFrame_v1_10_0(Storm::SerializeRecordPendingData &outPendingData);
 		bool readNextFrame_v1_11_0(Storm::SerializeRecordPendingData &outPendingData);
 		bool readNextFrame_v1_12_0(Storm::SerializeRecordPendingData &outPendingData);
+		bool readNextFrame_v1_13_0(Storm::SerializeRecordPendingData &outPendingData);
 
 	public:
 		ReadMethodDelegate _readMethodToUse;

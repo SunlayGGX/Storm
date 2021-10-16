@@ -242,9 +242,14 @@ void Storm::FluidParticleSystem::setTmpCoendaForces(std::vector<Storm::Vector3> 
 	_tmpCoendaForce = std::move(tmpCoendaForces);
 }
 
-void Storm::FluidParticleSystem::setTmpPressureIntermediaryForces(std::vector<Storm::Vector3> &&tmpPressuresIntermediaryForces)
+void Storm::FluidParticleSystem::setTmpPressureDensityIntermediaryForces(std::vector<Storm::Vector3> &&tmpPressuresIntermediaryForces)
 {
-	_tmpPressureIntermediaryForce = std::move(tmpPressuresIntermediaryForces);
+	_tmpPressureDensityIntermediaryForce = std::move(tmpPressuresIntermediaryForces);
+}
+
+void Storm::FluidParticleSystem::setTmpPressureVelocityIntermediaryForces(std::vector<Storm::Vector3> &&tmpPressuresIntermediaryForces)
+{
+	_tmpPressureVelocityIntermediaryForce = std::move(tmpPressuresIntermediaryForces);
 }
 
 void Storm::FluidParticleSystem::setParticleSystemPosition(const Storm::Vector3 &/*pSystemPosition*/)

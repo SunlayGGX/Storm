@@ -15,7 +15,8 @@ namespace Storm
 		DynamicPressure,
 		NoStick,
 		Coenda,
-		IntermediaryPressure,
+		IntermediaryDensityPressure,
+		IntermediaryVelocityPressure,
 		AllOnParticle,
 		TotalEngineForce,
 
