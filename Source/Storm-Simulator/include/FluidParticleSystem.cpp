@@ -17,6 +17,7 @@
 #include "IBlower.h"
 
 #include "RunnerHelper.h"
+#include "FastOperation.h"
 
 #include "ParticleSystemUtils.h"
 
@@ -178,7 +179,25 @@ void Storm::FluidParticleSystem::setPositions(std::vector<Storm::Vector3> &&posi
 
 void Storm::FluidParticleSystem::setVelocity(std::vector<Storm::Vector3> &&velocities)
 {
-	_velocityPreTimestep = velocities;
+	if (_velocityPreTimestep.size() == velocities.size()) STORM_LIKELY
+	{
+		if (Storm::FastOperation::canUseAVX512())
+		{
+			Storm::FastOperation::copyMemory_V2<Storm::SIMDUsageMode::AVX512>(velocities, _velocityPreTimestep);
+		}
+		else if (Storm::FastOperation::canUseSIMD())
+		{
+			Storm::FastOperation::copyMemory_V2<Storm::SIMDUsageMode::SSE>(velocities, _velocityPreTimestep);
+		}
+		else
+		{
+			Storm::FastOperation::copyMemory_V2<Storm::SIMDUsageMode::SISD>(velocities, _velocityPreTimestep);
+		}
+	}
+	else
+	{
+		_velocityPreTimestep = velocities;
+	}
 	_velocity = std::move(velocities);
 }
 
