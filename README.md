@@ -518,7 +518,7 @@ Inside this element should be put all rigid bodies. Each rigid body should be sp
 - **endTime (positive float, facultative)**: This defines the time in simulation seconds time your blower stop completely. After this value, your blower will remain disabled. This value minus fadeOutTime shouldn’t be lesser than the start time + fadeInTime. If -1.0 is specified, the endTime will be ignored and the blower will continue indefinitely. Default value is -1.0.
 - **fadeInTime (positive float, facultative)**: This defines the time in simulation seconds time the blower will take to attain its peak force. 0.0 means that it will be instant. The increase rate is linear between startTime and startTime + fadeInTime.
 - **fadeOutTime (positive float, facultative)**: This defines the time in simulation seconds time the blower will take to stop from its peak force to a null force. 0.0 means that it will be instant. The decrease rate is linear between endTime - fadeOutTime and endTime.
-- **radius (positive float, semi-mandatory)**: This defines the radius in meters of the blower. This setting is mandatory for Sphere type blowers and should be a positive non-zero floating point number. Any uses for another blower type than sphere derived blowers aren’t allowed.
+- **radius (positive float, semi-mandatory)**: This defines the radius in meters of the blower. This setting is mandatory for Sphere type blowers and should be a positive non-zero floating point number. Any uses for another blower type than sphere or Cylinder derived blowers aren’t allowed.
 - **upRadius (positive float, semi-mandatory)**: This defines the radius in meters of the Cone blower up disk. This setting is mandatory for Cone type blowers and should be a positive floating point number. Any uses for another blower type than Cone derived blowers aren’t allowed.
 - **downRadius (positive float, semi-mandatory)**: This defines the radius in meters of the Cone blower down disk. This setting is mandatory for Cone type blowers and should be a positive floating point number. Any uses for another blower type than Cone derived blowers aren’t allowed.
 - **height (positive float, semi-mandatory)**: This defines the height in meters of the blower. This setting is mandatory for Cylinder type blowers and should be a positive non-zero floating point number. Any uses for another blower type than cylinder derived blowers aren’t allowed.
@@ -728,12 +728,18 @@ Here the list of available commands :
 - **void selectRigidbodyToDisplayNormals(const unsigned int rbId)**: Select a rigidbody to display its normals.
 - **void clearRigidbodyToDisplayNormals()**: Clear the rigidbody to display its normals selection.
 - **void selectCustomForcesDisplay(std::string selectionCSL)**: Select forces, accumulate them and display the result inside the Custom appelation on the UI. Only works for the selected particle. The list of the force to choose should be set inside selectionCSL string (A comma separated list) that is not case sensitive. If the string is empty, the selection is cleared. Accepted values are :
-  * "Pressure" : refers to the pressure force.
-  * "Viscosity" : refers to the viscosity force.
-  * "Drag" : refers to the drag force.
-  * "Bernouilli" / "DynamicQ" / "DynamicPressure" : refer to the dynamic pressure force.
-  * "NoStick" : refers to the no stick constraint penalty force.
-  * "Coenda" : refers to the coenda penalty force.
+  * "Pressure" : refers to the pressure force. It shouldn't be used with its "All" setting flag counterpart.
+  * "Viscosity" : refers to the viscosity force. It shouldn't be used with its "All" setting flag counterpart.
+  * "Drag" : refers to the drag force. It shouldn't be used with its "All" setting flag counterpart.
+  * "Bernouilli" / "DynamicQ" / "DynamicPressure" : refer to the dynamic pressure force. It shouldn't be used with its "All" setting flag counterpart.
+  * "NoStick" : refers to the no stick constraint penalty force. It shouldn't be used with its "All" setting flag counterpart.
+  * "Coenda" : refers to the coenda penalty force. It shouldn't be used with its "All" setting flag counterpart.
+  * "AllPressure" : refers to all pressure forces from the particle system the selected particle is a part of. It shouldn't be used with its individual setting flag counterpart.
+  * "AllViscosity" : refers to all viscosity forces from the particle system the selected particle is a part of. It shouldn't be used with its individual setting flag counterpart.
+  * "AllDrag" : refers to all drag forces from the particle system the selected particle is a part of. It shouldn't be used with its individual setting flag counterpart.
+  * "AllBernouilli" / "AllDynamicQ" / "AllDynamicPressure" : refer to all dynamic pressure forces from the particle system the selected particle is a part of. It shouldn't be used with its individual setting flag counterpart.
+  * "AllNoStick" : refers to all no stick constraint penalty forces from the particle system the selected particle is a part of. It shouldn't be used with its individual setting flag counterpart.
+  * "AllCoenda" : refers to all coenda penalty forces from the particle system the selected particle is a part of. It shouldn't be used with its individual setting flag counterpart.
 
 
 #### - TimeManager (timeMgr)

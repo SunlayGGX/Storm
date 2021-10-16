@@ -26,6 +26,7 @@ namespace Storm
 	struct SerializeSupportedFeatureLayout;
 	enum class RaycastEnablingFlag : uint8_t;
 	enum class SimulationSystemsState : uint8_t;
+	enum class CustomForceSelect : uint8_t;
 
 	class SimulatorManager final :
 		private Storm::Singleton<Storm::SimulatorManager, Storm::DefineDefaultCleanupImplementationOnly>,
@@ -123,6 +124,9 @@ namespace Storm
 	private:
 		void cycleSelectedParticleDisplayMode();
 		void refreshParticleSelection();
+
+	public:
+		void accumulateAllForcesFromParticleSystem(const unsigned int pSystemId, const Storm::CustomForceSelect selection, Storm::Vector3 &inOutResult) const;
 
 	public:
 		void requestCycleColoredSetting();

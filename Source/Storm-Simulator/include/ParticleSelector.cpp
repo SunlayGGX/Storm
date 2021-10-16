@@ -5,6 +5,7 @@
 #include "IGraphicsManager.h"
 #include "IConfigManager.h"
 #include "ISerializerManager.h"
+#include "SimulatorManager.h"
 
 #include "SceneFluidConfig.h"
 #include "SceneSimulationConfig.h"
@@ -327,6 +328,14 @@ case Storm::ParticleSelectionMode::Case:					\
 		STORM_RETURN_IF_PARSED(Bernouilli, "dynamicpressure");
 		STORM_RETURN_IF_PARSED(NoStick, "nostick");
 		STORM_RETURN_IF_PARSED(Coenda, "coenda");
+		STORM_RETURN_IF_PARSED(AllPressure, "allpressure");
+		STORM_RETURN_IF_PARSED(AllViscosity, "allviscosity");
+		STORM_RETURN_IF_PARSED(AllDrag, "alldrag");
+		STORM_RETURN_IF_PARSED(AllBernouilli, "allbernouilli");
+		STORM_RETURN_IF_PARSED(AllBernouilli, "alldynamicq");
+		STORM_RETURN_IF_PARSED(AllBernouilli, "alldynamicpressure");
+		STORM_RETURN_IF_PARSED(AllNoStick, "allnostick");
+		STORM_RETURN_IF_PARSED(AllCoenda, "allcoenda");
 
 #undef STORM_RETURN_IF_PARSED
 
@@ -341,6 +350,40 @@ case Storm::ParticleSelectionMode::Case:					\
 		const Storm::Vector3 colinearContrib = normalizedVec * contribution;
 		const Storm::Vector3 perpDisorient = force - colinearContrib;
 		logger << contribution << " N. Colinear contrib : " << colinearContrib << ". Disorient : " << perpDisorient << " (Norm " << perpDisorient.norm() << ")";
+	}
+
+	bool checkCustomSelectionIncoherency(const Storm::CustomForceSelect*const start, const Storm::CustomForceSelect*const end, const Storm::CustomForceSelect newAddedSelection)
+	{
+#define STORM_CHECK_INCOMPATIBILITY_WITH(IncompatibleValue) \
+if (std::any_of(start, end, [](const Storm::CustomForceSelect otherForceSelect) { return otherForceSelect == Storm::CustomForceSelect::IncompatibleValue; }))	\
+{																																								\
+	return false;																																				\
+} void(0)
+		
+		switch (newAddedSelection)
+		{
+		case Storm::CustomForceSelect::Pressure:		STORM_CHECK_INCOMPATIBILITY_WITH(AllPressure); break;
+		case Storm::CustomForceSelect::Viscosity:		STORM_CHECK_INCOMPATIBILITY_WITH(AllViscosity); break;
+		case Storm::CustomForceSelect::Drag:			STORM_CHECK_INCOMPATIBILITY_WITH(AllDrag); break;
+		case Storm::CustomForceSelect::Bernouilli:		STORM_CHECK_INCOMPATIBILITY_WITH(AllBernouilli); break;
+		case Storm::CustomForceSelect::NoStick:			STORM_CHECK_INCOMPATIBILITY_WITH(AllNoStick); break;
+		case Storm::CustomForceSelect::Coenda:			STORM_CHECK_INCOMPATIBILITY_WITH(AllCoenda); break;
+		case Storm::CustomForceSelect::AllPressure:		STORM_CHECK_INCOMPATIBILITY_WITH(Pressure); break;
+		case Storm::CustomForceSelect::AllViscosity:	STORM_CHECK_INCOMPATIBILITY_WITH(Viscosity); break;
+		case Storm::CustomForceSelect::AllDrag:			STORM_CHECK_INCOMPATIBILITY_WITH(Drag); break;
+		case Storm::CustomForceSelect::AllBernouilli:	STORM_CHECK_INCOMPATIBILITY_WITH(Bernouilli); break;
+		case Storm::CustomForceSelect::AllNoStick:		STORM_CHECK_INCOMPATIBILITY_WITH(NoStick); break;
+		case Storm::CustomForceSelect::AllCoenda:		STORM_CHECK_INCOMPATIBILITY_WITH(Coenda); break;
+
+		case Storm::CustomForceSelect::Count:
+		default:
+			assert(false && "Missing case statement handle or use of Count value (which is invalid in the current context).");
+			__assume(false);
+		}
+
+#undef STORM_CHECK_INCOMPATIBILITY_WITH
+
+		return true;
 	}
 }
 
@@ -638,14 +681,22 @@ bool Storm::ParticleSelector::setCustomSelection(std::string &&customSelectionCS
 
 	if (uniqueSelect != std::set<Storm::CustomForceSelect>{ data._customForceSelected, data._endCustomForceSelected })
 	{
-		this->clearCustomSelection();
+		const bool hadSomethingToClear = this->clearCustomSelection();
 
 		if (!uniqueSelect.empty())
 		{
 			for (const Storm::CustomForceSelect selection : uniqueSelect)
 			{
-				*data._endCustomForceSelected = selection;
-				++data._endCustomForceSelected;
+				if (checkCustomSelectionIncoherency(data._customForceSelected, data._endCustomForceSelected, selection))
+				{
+					*data._endCustomForceSelected = selection;
+					++data._endCustomForceSelected;
+				}
+				else
+				{
+					this->clearCustomSelection();
+					return this->customShouldRefresh() && hadSomethingToClear;
+				}
 			}
 
 			this->computeCustomSelection();
@@ -677,6 +728,18 @@ void Storm::ParticleSelector::computeCustomSelection()
 		case Storm::CustomForceSelect::Bernouilli:	data._customCached += data._dynamicPressureForce; break;
 		case Storm::CustomForceSelect::NoStick:		data._customCached += data._noStickForce; break;
 		case Storm::CustomForceSelect::Coenda:		data._customCached += data._coendaForce; break;
+
+		case Storm::CustomForceSelect::AllPressure:	
+		case Storm::CustomForceSelect::AllViscosity:
+		case Storm::CustomForceSelect::AllDrag:		
+		case Storm::CustomForceSelect::AllBernouilli:
+		case Storm::CustomForceSelect::AllNoStick:
+		case Storm::CustomForceSelect::AllCoenda:
+		{
+			const Storm::SimulatorManager &simulMgr = Storm::SimulatorManager::instance();
+			simulMgr.accumulateAllForcesFromParticleSystem(data._selectedParticle.first, *iter, data._customCached);
+			break;
+		}
 
 		case Storm::CustomForceSelect::Count:
 		default:

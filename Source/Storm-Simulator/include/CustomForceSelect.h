@@ -12,6 +12,14 @@ namespace Storm
 		NoStick,
 		Coenda,
 
+		// All Compositions
+		AllPressure,
+		AllViscosity,
+		AllDrag,
+		AllBernouilli,
+		AllNoStick,
+		AllCoenda,
+
 		// Do not use like the others. Should remain the last one.
 		Count
 	};

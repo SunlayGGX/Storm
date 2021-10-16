@@ -34,6 +34,7 @@
 #include "ReplaySolver.h"
 
 #include "PartitionSelection.h"
+#include "CustomForceSelect.h"
 
 #include "ParticleCountInfo.h"
 
@@ -2273,6 +2274,47 @@ void Storm::SimulatorManager::refreshParticleSelection()
 				_particleSelector.computeCustomSelection();
 			}
 		}
+	}
+}
+
+void Storm::SimulatorManager::accumulateAllForcesFromParticleSystem(const unsigned int pSystemId, const Storm::CustomForceSelect selection, Storm::Vector3 &inOutResult) const
+{
+	assert(Storm::isSimulationThread() && "This should only be executed in simulation thread!");
+	if (const auto found = _particleSystem.find(pSystemId); found != std::end(_particleSystem))
+	{
+		const Storm::ParticleSystem &pSystem = *found->second;
+
+		const std::vector<Storm::Vector3>* selectedForcesPtr;
+
+		switch (selection)
+		{
+		case Storm::CustomForceSelect::AllPressure:		selectedForcesPtr = &pSystem.getTemporaryPressureForces(); break;
+		case Storm::CustomForceSelect::AllViscosity:	selectedForcesPtr = &pSystem.getTemporaryViscosityForces(); break;
+		case Storm::CustomForceSelect::AllDrag:			selectedForcesPtr = &pSystem.getTemporaryDragForces(); break;
+		case Storm::CustomForceSelect::AllBernouilli:	selectedForcesPtr = &pSystem.getTemporaryBernoulliDynamicPressureForces(); break;
+		case Storm::CustomForceSelect::AllNoStick:		selectedForcesPtr = &pSystem.getTemporaryNoStickForces(); break;
+		case Storm::CustomForceSelect::AllCoenda:		selectedForcesPtr = &pSystem.getTemporaryCoendaForces(); break;
+
+		case Storm::CustomForceSelect::Pressure:
+		case Storm::CustomForceSelect::Viscosity:
+		case Storm::CustomForceSelect::Drag:
+		case Storm::CustomForceSelect::Bernouilli:
+		case Storm::CustomForceSelect::NoStick:
+		case Storm::CustomForceSelect::Coenda:
+			assert(false && "This method should not be used for individual forces.");
+			__assume(false);
+
+		case Storm::CustomForceSelect::Count:
+		default:
+			assert(false && "Unhandled CustomForceSelect or use of Count (which is invalid in the current context)!");
+			__assume(false);
+		}
+
+		inOutResult += std::reduce(std::execution::par, std::begin(*selectedForcesPtr), std::end(*selectedForcesPtr), static_cast<Storm::Vector3>(Storm::Vector3::Zero()));
+	}
+	else
+	{
+		Storm::throwException<Storm::Exception>("The particle system " + std::to_string(pSystemId) + " does not exist!");
 	}
 }
 
