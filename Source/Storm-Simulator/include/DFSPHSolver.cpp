@@ -496,6 +496,10 @@ void Storm::DFSPHSolver::execute(const Storm::IterationParameter &iterationParam
 		std::vector<Storm::Vector3> &positions = fluidParticleSystem.getPositions();
 		std::vector<Storm::Vector3> &tmpPressureForces = fluidParticleSystem.getTemporaryPressureForces();
 
+		const std::vector<Storm::Vector3> &tmpPressureDensityForces = fluidParticleSystem.getTemporaryPressureDensityIntermediaryForces();
+		const std::vector<Storm::Vector3> &tmpPressureVelocityForces = fluidParticleSystem.getTemporaryPressureVelocityIntermediaryForces();
+		const std::vector<Storm::Vector3> &velocityPreTimestep = fluidParticleSystem.getVelocityPreTimestep();
+
 		std::atomic<bool> dirtyTmp = false;
 		constexpr const float minForceDirtyEpsilon = 0.0001f;
 
@@ -503,19 +507,14 @@ void Storm::DFSPHSolver::execute(const Storm::IterationParameter &iterationParam
 		{
 			// Euler integration
 			Storm::Vector3 &currentPVelocity = velocities[currentPIndex];
-			Storm::Vector3 &currentPPositions = positions[currentPIndex];
+			Storm::Vector3 &currentPPosition = positions[currentPIndex];
 
-			const float currentPMass = masses[currentPIndex];
+			tmpPressureForces[currentPIndex] = tmpPressureDensityForces[currentPIndex] + tmpPressureVelocityForces[currentPIndex];
 
-			// Since all pressure computation was done on currentPData._predictedVelocity, then the difference is the velocity delta that was added from the pressure effect.
-			const Storm::Vector3 pressureVelocityAccel = (currentPData._predictedVelocity - currentPVelocity) / iterationParameter._deltaTime;
-			tmpPressureForces[currentPIndex] = pressureVelocityAccel * currentPMass;
-
-			const Storm::Vector3 totalAccel = currentPData._nonPressureAcceleration + pressureVelocityAccel;
-			forces[currentPIndex] = totalAccel * currentPMass;
+			forces[currentPIndex] = (currentPData._predictedVelocity - velocityPreTimestep[currentPIndex]) * (masses[currentPIndex] / iterationParameter._deltaTime);
 
 			currentPVelocity = currentPData._predictedVelocity;
-			currentPPositions += currentPVelocity * iterationParameter._deltaTime;
+			currentPPosition += currentPVelocity * iterationParameter._deltaTime;
 
 			if (!dirtyTmp)
 			{
