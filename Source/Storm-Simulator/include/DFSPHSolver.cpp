@@ -1108,11 +1108,13 @@ void Storm::DFSPHSolver::pressureSolve(const Storm::IterationParameter &iteratio
 
 			const std::vector<float> &masses = fluidPSystem.getMasses();
 			const std::vector<Storm::ParticleNeighborhoodArray> &neighborhoodArrays = fluidPSystem.getNeighborhoodArrays();
+			std::vector<Storm::Vector3> &temporaryVelocityPressureForces = fluidPSystem.getTemporaryPressureVelocityIntermediaryForces();
 			
 			auto lambda = [&]<bool computePressureForBoundary>(Storm::DFSPHSolverData & currentPData, const std::size_t currentPIndex, const float ki)
 			{
 				const float currentPMass = masses[currentPIndex];
 				Storm::Vector3 &v_i = currentPData._predictedVelocity;
+				Storm::Vector3 &currentPTemporaryVelocityPressureForce = temporaryVelocityPressureForces[currentPIndex];
 
 				const Storm::DFSPHSolver::DFSPHSolverDataArray* neighborDataArray = &dataFieldPair.second;
 				const Storm::FluidParticleSystem* lastNeighborFluidSystem = &fluidPSystem;
@@ -1135,8 +1137,12 @@ void Storm::DFSPHSolver::pressureSolve(const Storm::IterationParameter &iteratio
 						const float kSum = ki + lastNeighborFluidSystem->getRestDensity() / density0 * kj;
 						if (std::fabs(kSum) > Storm::SPHSolverPrivateLogic::k_epsilon)
 						{
+							const Storm::Vector3 velChange = (iterationParameter._deltaTime * kSum * lastNeighborFluidSystem->getParticleVolume()) * neighbor._gradWij;	// ki, kj already contain inverse density
+
 							// Directly update velocities instead of storing pressure accelerations
-							v_i += (iterationParameter._deltaTime * kSum * lastNeighborFluidSystem->getParticleVolume()) * neighbor._gradWij;	// ki, kj already contain inverse density
+							v_i += velChange;
+
+							currentPTemporaryVelocityPressureForce -= (currentPMass * invDeltaTime) * velChange;
 						}
 					}
 					else if constexpr (computePressureForBoundary)
@@ -1148,15 +1154,18 @@ void Storm::DFSPHSolver::pressureSolve(const Storm::IterationParameter &iteratio
 
 						v_i += velChange;
 
+						const Storm::Vector3 addedPressureForce = (currentPMass * invDeltaTime) * velChange;
+						currentPTemporaryVelocityPressureForce += addedPressureForce;
 #if true
 						if (!neighborPSystemAsBoundary->isStatic())
 						{
-							Storm::Vector3 addedPressureForce = (-currentPMass * invDeltaTime) * velChange;
 
 							Storm::Vector3 &tmpPressureForce = neighborPSystemAsBoundary->getTemporaryPressureForces()[neighbor._particleIndex];
+							Storm::Vector3 &tmpIntermediaryPressureVelocityForce = neighborPSystemAsBoundary->getTemporaryPressureVelocityIntermediaryForces()[neighbor._particleIndex];
 
 							std::lock_guard<std::mutex> lock{ neighbor._containingParticleSystem->_mutex };
-							tmpPressureForce += addedPressureForce;
+							tmpPressureForce -= addedPressureForce;
+							tmpIntermediaryPressureVelocityForce -= addedPressureForce;
 						}
 #endif
 					}
