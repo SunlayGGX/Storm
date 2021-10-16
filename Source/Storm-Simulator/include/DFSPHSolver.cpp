@@ -297,10 +297,10 @@ namespace
 					// Mirror the force on the boundary solid following the 3rd newton law
 					if (!pSystemAsRb.isStatic())
 					{
-						Storm::Vector3 &boundaryNeighborTmpNoStickForce = neighbor._containingParticleSystem->getTemporaryNoStickForces()[neighbor._particleIndex];
+						Storm::Vector3 &boundaryNeighborTmpCoendaForce = neighbor._containingParticleSystem->getTemporaryCoendaForces()[neighbor._particleIndex];
 
 						std::lock_guard<std::mutex> lock{ neighbor._containingParticleSystem->_mutex };
-						boundaryNeighborTmpNoStickForce += addedForce;
+						boundaryNeighborTmpCoendaForce += addedForce;
 					}
 				}
 			}
