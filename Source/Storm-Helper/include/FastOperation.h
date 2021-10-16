@@ -1,6 +1,7 @@
 #pragma once
 
 #include "NonInstanciable.h"
+#include "SIMDUsageMode.h"
 
 
 namespace Storm
@@ -124,6 +125,64 @@ namespace Storm
 		{
 			assert(src.size() == dst.size() && "Size mismatch!");
 			Storm::FastOperation::copyMemory<useSIMD, useAVX512>(src.data(), dst.data(), dst.size());
+		}
+
+
+
+		template<SIMDUsageMode mode>
+		static __forceinline void copyMemory_V2(const uint8_t*const srcPtr, uint8_t*const dstPtr, const std::size_t sizeInBytes)
+		{
+			if constexpr (mode == Storm::SIMDUsageMode::AVX512)
+			{
+				if (sizeInBytes >= sizeof(__m512i))
+				{
+					__m512i increment = _mm512_set1_epi64(sizeof(__m512i));
+					__m512i storageVar = _mm512_set4_epi64(0, sizeof(__m512i), (uint64_t)dstPtr, (uint64_t)srcPtr);
+
+					do
+					{
+						_mm512_storeu_epi32(reinterpret_cast<void*const>(storageVar.m512i_u64[1]), _mm512_loadu_epi32(reinterpret_cast<const void*>(storageVar.m512i_u64[0])));
+						storageVar = _mm512_add_epi64(storageVar, increment);
+					} while (storageVar.m512i_u64[2] < sizeInBytes);
+
+					storageVar = _mm512_sub_epi64(storageVar, _mm512_set1_epi64(storageVar.m512i_u64[2] - sizeInBytes));
+					_mm512_storeu_epi32(reinterpret_cast<void*const>(storageVar.m512i_u64[1]), _mm512_loadu_epi32(reinterpret_cast<const void*>(storageVar.m512i_u64[0])));
+					return;
+				}
+			}
+			else if constexpr (mode == Storm::SIMDUsageMode::SSE)
+			{
+				if (sizeInBytes >= sizeof(__m128i))
+				{
+					uint64_t iter = sizeof(__m128i);
+					__m128i increment = _mm_set1_epi64x(sizeof(__m128i));
+					__m128i storageVar = _mm_set_epi64x((uint64_t)srcPtr, (uint64_t)dstPtr);
+
+					do
+					{
+						*reinterpret_cast<__m128i*>(storageVar.m128i_u64[0]) = *reinterpret_cast<__m128i*>(storageVar.m128i_u64[1]);
+						storageVar = _mm_add_epi64(storageVar, increment);
+
+						iter += sizeof(__m128i);
+					} while (iter < sizeInBytes);
+
+
+					storageVar = _mm_sub_epi64(storageVar, _mm_set1_epi64x(iter - sizeInBytes));
+					*reinterpret_cast<__m128i*>(storageVar.m128i_u64[0]) = *reinterpret_cast<__m128i*>(storageVar.m128i_u64[1]);
+
+					return;
+				}
+			}
+
+			// Fallback
+			::memcpy(dstPtrAsInt, srcPtrAsInt, sizeInBytes);
+		}
+
+		template<SIMDUsageMode mode, class Type>
+		static __forceinline void copyMemory_V2(const std::vector<Type> &src, std::vector<Type> &dst)
+		{
+			assert(src.size() == dst.size() && "Size mismatch!");
+			Storm::FastOperation::copyMemory_V2<mode>(src.data(), dst.data(), dst.size() * sizeof(Type));
 		}
 
 	public:
