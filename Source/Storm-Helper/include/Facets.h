@@ -3,6 +3,7 @@
 
 #include "CRTPHierarchy.h"
 #include "TypeIdGenerator.h"
+#include "StaticAssertionsMacros.h"
 
 
 namespace Storm
@@ -20,6 +21,13 @@ namespace Storm
 			ID(UnderlyingType idValue) : _id{ idValue }{}
 
 		public:
+			template<class NativeType>
+			friend auto operator<=>(const NativeType left, const ID &right)
+			{
+				STORM_STATIC_ASSERT(std::is_integral_v<NativeType>, "left must be an integer type!");
+				return left <=> right._id;
+			}
+
 			bool operator==(const ID &other) const
 			{
 				return _id == other._id;
