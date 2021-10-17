@@ -698,6 +698,20 @@ Here the list of available commands :
 - **Kernel**: To specify the graphic cut should have a depth of one kernel length.
 - **Particle**: To specify the graphic cut should have a depth of one particle radius.
 
+#### - CustomForceSelect
+- **Pressure**: To specify the final pressure force. This flag specifies the force of a particle alone.
+- **Viscosity**: To specify the viscosity force. This flag specifies the force of a particle alone.
+- **Drag**: To specify the drag force. This flag specifies the force of a particle alone.
+- **Bernouilli**: To specify the bernouilli dynamic Q force. This flag specifies the force of a particle alone.
+- **NoStick**: To specify the no-stick force. This flag specifies the force of a particle alone.
+- **Coenda**: To specify the coenda effect force. This flag specifies the force of a particle alone.
+- **AllPressure**: To specify the final pressure force. This flag specifies the sum of all forces from all particles of a system.
+- **AllViscosity**: To specify the viscosity force. This flag specifies the sum of all forces from all particles of a system.
+- **AllDrag**: To specify the drag force. This flag specifies the sum of all forces from all particles of a system.
+- **AllBernouilli**: To specify the bernouilli dynamic Q force. This flag specifies the sum of all forces from all particles of a system.
+- **AllNoStick**: To specify the no-stick force. This flag specifies the sum of all forces from all particles of a system.
+- **AllCoenda**: To specify the coenda effect force. This flag specifies the sum of all forces from all particles of a system.
+
 
 ### Exposed Instance
 
@@ -716,7 +730,9 @@ Here the list of available commands :
 - **void logVelocityData()**: Log min and max velocity of each particle system.
 - **void logTotalVolume()**: Log the total volume taken by all particles contained inside the domain.
 - **void logSelectedParticleContributionToVelocity()**: Log the contribution all individual registered forces has on the velocity (Customs are not handled).
+- **void logSelectedParticleContributionToTotalForce()**: Log the contribution all individual registered forces has on the total force (Customs are not handled).
 - **void logSelectedParticleContributionToVector(float x, float y, float z):  Log the contribution all individual registered forces has on a vector specified by x, y and z (Customs are not handled). Useful to log the effect of forces on specific axis.
+- **void logForceParticipationOnTotalForce(const unsigned int id, const Storm::CustomForceSelect force, const int pressureMode)**: Log the participation of the specified force on particle system referred from id. Custom force would always be all forces of the type no matter which CustomForceSelect we chose between the unary force or the multi. In case of pressure, pressureMode should be equal to 0 is we want to log the final pressure force, 1 if we want the temporary density pressure force and 2 if we want the temporary velocity pressure force. Any other value is forbidden and this flag is ignored if another force is selected.
 - **void writeRbEmptiness(const unsigned int id, const std::string &filePath)**: Computes the void distance between each particle of the rigidbody specified by id and the nearest fluid particle then write it to the csv file named filePath.
 - **void writeCurrentFrameSystemForcesToCsv(const unsigned int id, const std::string &filePath)**: Write all forces (force, pressure, viscosity, drag) of particle system refered by its id to a csv file. Note that the system can be a fluid or a rigid body. "filePath" can accept macros.
 - **void writeParticleNeighborhood(const unsigned int id, const std::size_t pIndex, const std::string &filePath)**: Write particle specified by id (particle system id) and pIndex (position in particle system) neighborhood data. "filePath" can accept macros. If filepath extension is csv, then we'll devide the path into 2 files : the first suffixed with neighbor would contains neighbors and the other (suffixed with nonNeighbor) would contains all other particles from the same system. Otherwise, we'll write it into the same file.

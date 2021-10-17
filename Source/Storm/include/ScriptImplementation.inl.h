@@ -13,6 +13,7 @@
 
 #include "ColoredSetting.h"
 #include "GraphicCutMode.h"
+#include "CustomForceSelect.h"
 
 
 /////////////////////////////////////////////////
@@ -59,7 +60,21 @@
 template<class IScriptWrapperInterface>
 void STORM_CURRENT_REGISTERED_TYPE::registerCurrentOnScript(IScriptWrapperInterface &script) const
 {
-	script.registerCurrentType(
+	script
+		.registerCurrentEnum(Storm::CustomForceSelect,
+			STORM_DECLARE_SCRIPTED_ENUM(Storm::CustomForceSelect::Pressure),
+			STORM_DECLARE_SCRIPTED_ENUM(Storm::CustomForceSelect::Viscosity),
+			STORM_DECLARE_SCRIPTED_ENUM(Storm::CustomForceSelect::Drag),
+			STORM_DECLARE_SCRIPTED_ENUM(Storm::CustomForceSelect::Bernouilli),
+			STORM_DECLARE_SCRIPTED_ENUM(Storm::CustomForceSelect::NoStick),
+			STORM_DECLARE_SCRIPTED_ENUM(Storm::CustomForceSelect::Coenda),
+			STORM_DECLARE_SCRIPTED_ENUM(Storm::CustomForceSelect::AllPressure),
+			STORM_DECLARE_SCRIPTED_ENUM(Storm::CustomForceSelect::AllViscosity),
+			STORM_DECLARE_SCRIPTED_ENUM(Storm::CustomForceSelect::AllDrag),
+			STORM_DECLARE_SCRIPTED_ENUM(Storm::CustomForceSelect::AllBernouilli),
+			STORM_DECLARE_SCRIPTED_ENUM(Storm::CustomForceSelect::AllNoStick),
+			STORM_DECLARE_SCRIPTED_ENUM(Storm::CustomForceSelect::AllCoenda)
+		).registerCurrentType(
 		
 		STORM_DECLARE_SCRIPTED_METHOD(resetReplay),
 
@@ -92,7 +107,9 @@ void STORM_CURRENT_REGISTERED_TYPE::registerCurrentOnScript(IScriptWrapperInterf
 		STORM_DECLARE_SCRIPTED_METHOD(logVelocityData),
 		STORM_DECLARE_SCRIPTED_METHOD(logTotalVolume),
 		STORM_DECLARE_SCRIPTED_METHOD(logSelectedParticleContributionToVelocity),
+		STORM_DECLARE_SCRIPTED_METHOD(logSelectedParticleContributionToTotalForce),
 		STORM_DECLARE_SCRIPTED_METHOD(logSelectedParticleContributionToVector),
+		STORM_DECLARE_SCRIPTED_METHOD(logForceParticipationOnTotalForce),
 		STORM_DECLARE_SCRIPTED_METHOD(writeCurrentFrameSystemForcesToCsv),
 		STORM_DECLARE_SCRIPTED_METHOD(writeParticleNeighborhood),
 		STORM_DECLARE_SCRIPTED_METHOD(writeRbEmptiness),

@@ -875,3 +875,8 @@ void Storm::ParticleSelector::logForceComponentsContributionToVelocity() const
 {
 	this->logForceComponentsContributionToVector(_selectedParticleData->_velocity);
 }
+
+void Storm::ParticleSelector::logForceComponentsContributionToTotalForce() const
+{
+	this->logForceComponentsContributionToVector(_selectedParticleData->_totalEngineForce);
+}
