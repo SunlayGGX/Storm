@@ -395,6 +395,7 @@ Storm::ParticleSelector::ParticleSelector() :
 	_keepUnsupported{ false }
 {
 	_selectedParticleData->_selectedParticle = std::make_pair(dummySelectedParticleIndex(), 0);
+	_selectedParticleData->_hasCustomAll = false;
 	this->clearCustomSelection();
 
 	this->clearRbTotalForce();
@@ -609,6 +610,8 @@ const Storm::Vector3& Storm::ParticleSelector::getSelectedVectorPosition(const S
 		return _selectedParticleData->_hasRbTotalForce ? _selectedParticleData->_rbPosition : particlePosition;
 
 	case Storm::ParticleSelectionMode::Custom:
+		return _selectedParticleData->_hasCustomAll ? (_selectedParticleData->_hasRbTotalForce ? _selectedParticleData->_rbPosition : particlePosition) : particlePosition;
+
 	case Storm::ParticleSelectionMode::Normal:
 	case Storm::ParticleSelectionMode::Velocity:
 	case Storm::ParticleSelectionMode::Pressure:
@@ -718,6 +721,7 @@ void Storm::ParticleSelector::computeCustomSelection()
 {
 	Storm::SelectedParticleData &data = *_selectedParticleData;
 	data._customCached.setZero();
+	data._hasCustomAll = false;
 
 	for (const Storm::CustomForceSelect* iter = _selectedParticleData->_customForceSelected; iter != data._endCustomForceSelected; ++iter)
 	{
@@ -739,6 +743,7 @@ void Storm::ParticleSelector::computeCustomSelection()
 		{
 			const Storm::SimulatorManager &simulMgr = Storm::SimulatorManager::instance();
 			simulMgr.accumulateAllForcesFromParticleSystem(data._selectedParticle.first, *iter, data._customCached);
+			data._hasCustomAll = true;
 			break;
 		}
 

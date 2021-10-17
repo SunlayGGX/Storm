@@ -30,6 +30,7 @@ namespace Storm
 		Storm::Average<Storm::Vector3, Storm::MovingAverageTraits<32>> _averageForcesOnRb;
 
 		Storm::Vector3 _customCached;
+		bool _hasCustomAll;
 
 		Storm::CustomForceSelect* _endCustomForceSelected;
 		Storm::CustomForceSelect _customForceSelected[static_cast<std::size_t>(Storm::CustomForceSelect::Count)];
