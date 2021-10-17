@@ -1,6 +1,9 @@
 #pragma once
 
-#include <boost/program_options.hpp>
+#pragma warning(push)
+#pragma warning(disable:4702)
+#	include <boost/program_options.hpp>
+#pragma warning(pop)
 
 namespace Storm
 {

@@ -16,8 +16,10 @@
 
 #include "OSHelper.h"
 
-#include <boost/algorithm/string.hpp>
-
+#pragma warning(push)
+#pragma warning(disable:4702)
+#	include <boost/algorithm/string.hpp>
+#pragma warning(pop)
 
 
 Storm::ConfigManager::ConfigManager() :
@@ -567,7 +569,6 @@ std::string Storm::ConfigManager::getViscosityMethods() const
 				STORM_PARSE(Standard);
 
 			default:
-				__assume(false);
 				Storm::throwException<Storm::Exception>("Viscosity method value is unknown : '" + Storm::toStdString(viscoMethod) + "'");
 			}
 #undef STORM_PARSE

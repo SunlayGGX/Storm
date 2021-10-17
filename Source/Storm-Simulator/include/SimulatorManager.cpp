@@ -1009,8 +1009,8 @@ Storm::ExitCode Storm::SimulatorManager::run()
 		return this->runReplay_Internal();
 
 	default:
+		assert(false && "Unknown record mode!");
 		__assume(false);
-		Storm::throwException<Storm::Exception>("Unknown record mode!");
 	}
 }
 
@@ -1716,8 +1716,8 @@ void Storm::SimulatorManager::notifyCurrentSimulationStatesChanged()
 		break;
 
 	default:
+		assert(false && "Current simulation state unknown!");
 		__assume(false);
-		Storm::throwException<Storm::Exception>("Current simulation state unknown!");
 	}
 }
 

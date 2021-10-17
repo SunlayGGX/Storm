@@ -1299,7 +1299,7 @@ void Storm::DFSPHSolver::computeDensityAdv(const Storm::IterationParameter &iter
 void Storm::DFSPHSolver::computeDensityChange(const Storm::IterationParameter &/*iterationParameter*/, Storm::FluidParticleSystem &fluidPSystem, const Storm::DFSPHSolver::DFSPHSolverDataArray* currentSystemData, Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex)
 {
 	const Storm::ParticleNeighborhoodArray &currentPNeighborhood = fluidPSystem.getNeighborhoodArrays()[currentPIndex];
-
+	
 	float &densityAdv = currentPData._densityAdv;
 	densityAdv = 0.f;
 

@@ -6,8 +6,11 @@
 
 #include "Config/MacroTags.cs"
 
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/xml_parser.hpp>
+#pragma warning(push)
+#pragma warning(disable:4702)
+#	include <boost/property_tree/ptree.hpp>
+#	include <boost/property_tree/xml_parser.hpp>
+#pragma warning(pop)
 
 
 namespace
