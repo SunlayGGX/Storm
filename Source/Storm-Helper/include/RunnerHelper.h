@@ -12,6 +12,29 @@ namespace Storm
 		return &item - &container[0];
 	}
 
+	template<class Type>
+	__forceinline auto defaultItem(int) -> decltype(Type{ 0 })
+	{
+		return Type{ 0 };
+	}
+
+	template<>
+	__forceinline Storm::Vector3 defaultItem<Storm::Vector3>(int)
+	{
+		return Storm::Vector3::Zero();
+	}
+
+	template<class Type>
+	__forceinline auto defaultItem(void*) -> decltype(Type{})
+	{
+		return Type{};
+	}
+
+	// Don't implement, they are like declval, this is just to trick the compiler
+	template<class ContainerType> auto extractContainerType(const ContainerType &cont, int) -> decltype(*std::begin(cont)->second);
+	template<class ContainerType> auto extractContainerType(const ContainerType &cont, void*) -> decltype(std::begin(cont)->second);
+	template<class ContainerType> auto extractContainerType(const ContainerType &cont, ...) -> decltype(*std::begin(cont));
+
 	template<bool useOpenMPWhenEnabled = false, class ContainerType, class Func>
 	auto runParallel(ContainerType &container, Func &&func)
 		-> decltype(func(*std::begin(container), Storm::retrieveItemIndex(container, *std::begin(container))), void())
@@ -51,4 +74,16 @@ namespace Storm
 		return __std_parallel_algorithms_hw_threads() * 4;
 	}
 #endif
+
+	template<class ContainerType, class ValueType>
+	auto reduceParallel(const ContainerType &container, const ValueType &value)
+	{
+		return std::reduce(std::execution::par, std::begin(container), std::end(container), value);
+	}
+
+	template<class ContainerType>
+	auto reduceParallel(const ContainerType &container)
+	{
+		return Storm::reduceParallel(container, Storm::defaultItem<std::remove_cvref_t<decltype(Storm::extractContainerType(container, 0))>>(0));
+	}
 }

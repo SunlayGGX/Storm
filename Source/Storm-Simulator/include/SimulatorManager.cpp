@@ -2309,7 +2309,7 @@ void Storm::SimulatorManager::accumulateAllForcesFromParticleSystem(const unsign
 			__assume(false);
 		}
 
-		inOutResult += std::reduce(std::execution::par, std::begin(*selectedForcesPtr), std::end(*selectedForcesPtr), static_cast<Storm::Vector3>(Storm::Vector3::Zero()));
+		inOutResult += Storm::reduceParallel(*selectedForcesPtr);
 	}
 	else
 	{
@@ -2637,7 +2637,7 @@ void Storm::SimulatorManager::executeAllForcesCheck()
 		const Storm::ParticleSystem &currentPSystem = *particleSystemPair.second;
 
 		const std::vector<Storm::Vector3> &allForces = currentPSystem.getForces();
-		allForceSum = std::reduce(std::execution::par, std::begin(allForces), std::end(allForces), allForceSum);
+		allForceSum = Storm::reduceParallel(allForces, allForceSum);
 
 		if (!currentPSystem.isFluids() && !currentPSystem.isStatic())
 		{
