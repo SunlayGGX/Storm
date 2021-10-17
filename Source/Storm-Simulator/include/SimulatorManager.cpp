@@ -3281,7 +3281,7 @@ void Storm::SimulatorManager::logForceParticipationOnTotalForce(const unsigned i
 
 			const Storm::Vector3 &totalForceOnEngine = pSystem.getTotalForceNonPhysX();
 			const float normSquared = totalForceOnEngine.squaredNorm();
-			LOG_ALWAYS << "The participation of " << forceStrIdentifier << " force to the total is " << forceToLog.dot(totalForceOnEngine) / (normSquared * 100.f) << "%";
+			LOG_ALWAYS << "The participation of " << forceStrIdentifier << " force to the total is " << forceToLog.dot(totalForceOnEngine) / (normSquared / 100.f) << "%";
 		}
 		else
 		{
