@@ -202,7 +202,6 @@ void Storm::WCSPHSolver::execute(const Storm::IterationParameter &iterationParam
 			const float density0 = fluidParticleSystem.getRestDensity();
 			const std::vector<Storm::ParticleNeighborhoodArray> &neighborhoodArrays = fluidParticleSystem.getNeighborhoodArrays();
 			std::vector<float> &pressures = fluidParticleSystem.getPressures();
-			std::vector<float> &masses = fluidParticleSystem.getMasses();
 
 			Storm::runParallel(fluidParticleSystem.getDensities(), [&](float &currentPDensity, const std::size_t currentPIndex)
 			{
@@ -386,7 +385,7 @@ void Storm::WCSPHSolver::execute(const Storm::IterationParameter &iterationParam
 	}
 }
 
-void Storm::WCSPHSolver::removeRawEndData(const unsigned int pSystemId, std::size_t toRemoveCount)
+void Storm::WCSPHSolver::removeRawEndData(const unsigned int /*pSystemId*/, std::size_t /*toRemoveCount*/)
 {
 
 }

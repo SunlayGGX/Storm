@@ -36,7 +36,7 @@ Storm::RecordHandlerBase::RecordHandlerBase(Storm::SerializeRecordHeader &&heade
 }
 
 // Writing
-Storm::RecordHandlerBase::RecordHandlerBase(Storm::SerializeRecordHeader &&header, Storm::Version &recordVersion) :
+Storm::RecordHandlerBase::RecordHandlerBase(Storm::SerializeRecordHeader &&header, const Storm::Version &recordVersion) :
 	_header{ std::move(header) },
 	_package{ Storm::SerializePackageCreationModality::SavingAppendPreheaderProvidedAfter, retrieveRecordFilePath() },
 	_movingSystemCount{ 0 },

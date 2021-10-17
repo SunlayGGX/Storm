@@ -30,8 +30,8 @@ namespace Storm
 		void tweakEnabled() noexcept;
 
 	private:
-		float _kernelRadius;
 		DirectX::XMVECTOR _currentAreaPosition;
+		float _kernelRadius;
 
 		bool _enabled;
 		bool _hasParticleHook;

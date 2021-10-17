@@ -218,7 +218,7 @@ void Storm::ParticleSystem::setParticleSystemTotalForceNonPhysX(const Storm::Vec
 	_totalForceNonPhysX = pSystemTotalForce;
 }
 
-void Storm::ParticleSystem::prepareSaving(const bool replayMode)
+void Storm::ParticleSystem::prepareSaving(const bool /*replayMode*/)
 {
 
 }
@@ -252,7 +252,7 @@ void Storm::ParticleSystem::buildSpecificParticleNeighborhood(const Storm::Parti
 	this->buildSpecificParticleNeighborhoodOnParticleSystemUsingSpacePartition(allParticleSystems, pIndex, kernelLength);
 }
 
-void Storm::ParticleSystem::initializePreSimulation(const Storm::ParticleSystemContainer &allParticleSystems, const float kernelLengthSquared)
+void Storm::ParticleSystem::initializePreSimulation(const Storm::ParticleSystemContainer &/*allParticleSystems*/, const float /*kernelLengthSquared*/)
 {
 	assert(Storm::isSimulationThread() && "This method should only be executed inside the simulation thread!");
 }

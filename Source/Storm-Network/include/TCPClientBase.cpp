@@ -22,13 +22,13 @@
 
 
 
-void Storm::TCPClientBasePrivateLogic::setup(Traits::SocketType &socket)
+void Storm::TCPClientBasePrivateLogic::setup(Traits::SocketType &/*socket*/)
 {
 	/*socket.set_option(boost::asio::socket_base::keep_alive{ true });
 	socket.set_option(boost::asio::socket_base::reuse_address{ true });*/
 }
 
-void Storm::TCPClientBasePrivateLogic::connect(Traits::NetworkService &ioService, Traits::SocketType &socket, const Storm::SocketSetting &settings)
+void Storm::TCPClientBasePrivateLogic::connect(Traits::NetworkService &/*ioService*/, Traits::SocketType &socket, const Storm::SocketSetting &settings)
 {
 	Traits::TcpType::endpoint endpt{
 		boost::asio::ip::address::from_string(settings.getIPStr()),
@@ -62,7 +62,7 @@ void Storm::TCPClientBasePrivateLogic::connect(Traits::NetworkService &ioService
 	});
 }
 
-void Storm::TCPClientBasePrivateLogic::disconnect(Traits::NetworkService &ioService, Traits::SocketType &socket)
+void Storm::TCPClientBasePrivateLogic::disconnect(Traits::NetworkService &/*ioService*/, Traits::SocketType &socket)
 {
 	socket.close();
 }
@@ -211,7 +211,7 @@ void Storm::TCPClientBasePrivateLogic::startRead(Traits::SocketType &socket)
 	if (this->queryIsConnected())
 	{
 		boost::asio::async_read_until(socket, boost::asio::dynamic_buffer(_temporaryRead2), Storm::NetworkConstants::k_endOfMessageCommand,
-			[this, &socket](const boost::system::error_code &ec, const std::size_t byteRead)
+			[this, &socket](const boost::system::error_code &ec, const std::size_t /*byteRead*/)
 		{
 			if (!ec)
 			{

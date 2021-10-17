@@ -248,7 +248,7 @@ void Storm::FluidParticleSystem::setTmpDragForces(std::vector<Storm::Vector3> &&
 
 void Storm::FluidParticleSystem::setTmpBernoulliDynamicPressureForces(std::vector<Storm::Vector3>&& tmpDynamicQForces)
 {
-	_tmpBernoulliDynamicPressureForce = std::move(_tmpBernoulliDynamicPressureForce);
+	_tmpBernoulliDynamicPressureForce = std::move(tmpDynamicQForces);
 }
 
 void Storm::FluidParticleSystem::setTmpNoStickForces(std::vector<Storm::Vector3> &&tmpNoStickForces)
@@ -276,7 +276,7 @@ void Storm::FluidParticleSystem::setParticleSystemPosition(const Storm::Vector3 
 
 }
 
-void Storm::FluidParticleSystem::setParticleSystemTotalForce(const Storm::Vector3 &pSystemTotalForce)
+void Storm::FluidParticleSystem::setParticleSystemTotalForce(const Storm::Vector3 &/*pSystemTotalForce*/)
 {
 	// Both are the same. The total force and the non physX one since physX does not handle the fluid.
 	// But to prevent any mistakes when reading recordings, we'll disable this method
@@ -548,7 +548,7 @@ bool Storm::FluidParticleSystem::computeVelocityChange(float deltaTimeInSec, flo
 	{
 		Storm::Vector3 &currentPVelocity = _velocity[currentPIndex];
 
-		Storm::SemiImplicitEulerVelocitySolver solver{ _masses[currentPIndex], currentForce, currentPVelocity, deltaTimeInSec };
+		Storm::SemiImplicitEulerVelocitySolver solver{ _masses[currentPIndex], currentForce, deltaTimeInSec };
 
 		currentPVelocity += solver._velocityVariation;
 		if (currentPVelocity.squaredNorm() > highVelocityThresholdSquared)
@@ -587,7 +587,6 @@ void Storm::FluidParticleSystem::revertToCurrentTimestep(const std::vector<std::
 {
 	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
 	const Storm::SceneSimulationConfig &sceneSimulationConfig = configMgr.getSceneSimulationConfig();
-	const Storm::SceneFluidConfig &fluidConfig = configMgr.getSceneFluidConfig();
 
 	const Storm::Vector3 gravityAccel = _gravityEnabled ? sceneSimulationConfig._gravity : Storm::Vector3::Zero();
 

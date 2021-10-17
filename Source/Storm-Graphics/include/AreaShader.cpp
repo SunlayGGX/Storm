@@ -78,14 +78,14 @@ namespace
 	}
 }
 
-Storm::AreaShader::AreaShader(const ComPtr<ID3D11Device> &device, const uint32_t indexCount, const std::span<const std::string_view> macros) :
+Storm::AreaShader::AreaShader(const ComPtr<ID3D11Device> &device, const std::span<const std::string_view> macros) :
 	Storm::VPShaderBase{ device, k_areaShaderFilePath, k_areaVertexShaderFuncName, k_areaShaderFilePath, k_areaPixelShaderFuncName, retrieveBlowerInputLayoutElementDesc(), k_areaVertexDataLayoutDescCount, convertMacros(macros) },
 	_worldMat{ Storm::makeTransform(Storm::Vector3::Zero(), Storm::Quaternion::Identity()) } // By default, we won't use the world matrix.
 {
 	Storm::ConstantBufferHolder::initialize<ConstantBuffer>(device);
 }
 
-void Storm::AreaShader::setup(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera, const DirectX::XMVECTOR &color)
+void Storm::AreaShader::setup(const ComPtr<ID3D11Device> &/*device*/, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera, const DirectX::XMVECTOR &color)
 {
 	this->setupDeviceContext(deviceContext);
 

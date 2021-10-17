@@ -28,7 +28,7 @@ namespace
 	physx::PxDefaultAllocator g_defaultAllocator;
 	Storm::CustomPhysXLogger g_physXLogger;
 
-	Storm::UniquePointer<physx::PxShape> createSphereShape(physx::PxPhysics &physics, const Storm::SceneRigidBodyConfig &rbSceneConfig, const std::vector<Storm::Vector3> &vertices, physx::PxMaterial* rbMaterial)
+	Storm::UniquePointer<physx::PxShape> createSphereShape(physx::PxPhysics &physics, const std::vector<Storm::Vector3> &vertices, physx::PxMaterial* rbMaterial)
 	{
 #if STORM_USE_FAST_SPHERE_SHAPE_ALGO
 		// This algo supposes the sphere is uniform.
@@ -78,7 +78,7 @@ namespace
 #endif
 	}
 
-	Storm::UniquePointer<physx::PxShape> createBoxShape(physx::PxPhysics &physics, const Storm::SceneRigidBodyConfig &rbSceneConfig, const std::vector<Storm::Vector3> &vertices, physx::PxMaterial* rbMaterial)
+	Storm::UniquePointer<physx::PxShape> createBoxShape(physx::PxPhysics &physics, const std::vector<Storm::Vector3> &vertices, physx::PxMaterial* rbMaterial)
 	{
 		float maxX = 0.f;
 		float maxY = 0.f;
@@ -389,10 +389,10 @@ Storm::UniquePointer<physx::PxShape> Storm::PhysXHandler::createRigidBodyShape(c
 	{
 	case Storm::CollisionType::IndividualParticle:
 	case Storm::CollisionType::Sphere:
-		return createSphereShape(*_physics, rbSceneConfig, vertices, rbMaterial);
+		return createSphereShape(*_physics, vertices, rbMaterial);
 
 	case Storm::CollisionType::Cube:
-		return createBoxShape(*_physics, rbSceneConfig, vertices, rbMaterial);
+		return createBoxShape(*_physics, vertices, rbMaterial);
 
 	case Storm::CollisionType::Custom:
 		if (indexes.empty())
@@ -439,10 +439,10 @@ Storm::UniquePointer<physx::PxJoint> Storm::PhysXHandler::createDistanceJoint(co
 	return result;
 }
 
-std::pair<Storm::UniquePointer<physx::PxJoint>, Storm::UniquePointer<physx::PxJoint>> Storm::PhysXHandler::createSpinnableJoint(const Storm::SceneConstraintConfig &constraintConfig, physx::PxRigidActor* actor1, physx::PxRigidActor* actor2)
+std::pair<Storm::UniquePointer<physx::PxJoint>, Storm::UniquePointer<physx::PxJoint>> Storm::PhysXHandler::createSpinnableJoint(const Storm::SceneConstraintConfig &/*constraintConfig*/, physx::PxRigidActor* /*actor1*/, physx::PxRigidActor* /*actor2*/)
 {
+	// TODO
 	std::pair<Storm::UniquePointer<physx::PxJoint>, Storm::UniquePointer<physx::PxJoint>> result;
-
 	return result;
 }
 

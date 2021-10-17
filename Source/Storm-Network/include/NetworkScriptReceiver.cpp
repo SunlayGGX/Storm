@@ -27,7 +27,7 @@ Storm::NetworkScriptReceiver::NetworkScriptReceiver(ParentTcpClientBase::Traits:
 
 }
 
-void Storm::NetworkScriptReceiver::send(Storm::NetworkSendParam &&sendParam)
+void Storm::NetworkScriptReceiver::send(Storm::NetworkSendParam &&/*sendParam*/)
 {
 	STORM_NOT_IMPLEMENTED;
 }

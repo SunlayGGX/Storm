@@ -281,7 +281,7 @@ namespace Storm
 			}
 
 			template<class Type>
-			static constexpr std::size_t extractSize(const Type &val, void*)
+			static constexpr std::size_t extractSize(const Type &/*val*/, void*)
 			{
 				return 1;
 			}

@@ -9,9 +9,9 @@ namespace Storm
 	{
 	public:
 		template<class DataContainerType>
-		static void removeRawEndData(const unsigned int pSystemId, std::size_t toRemoveCount, DataContainerType &data)
+		static void removeRawEndData(const unsigned int pSystemId, std::size_t toRemoveCount, DataContainerType &dataMap)
 		{
-			if (auto found = data.find(pSystemId); found != std::end(data))
+			if (auto found = dataMap.find(pSystemId); found != std::end(dataMap))
 			{
 				auto &data = found->second;
 				while (toRemoveCount != 0)
@@ -34,7 +34,7 @@ namespace Storm
 		}
 
 		template<bool applyDragOnFluid>
-		static Storm::Vector3 computeSumDragForce(const Storm::IterationParameter &iterationParameter, const float uniformDragCoeff, const Storm::FluidParticleSystem &fluidParticleSystem, const Storm::Vector3 &vi, const Storm::ParticleNeighborhoodArray &currentPNeighborhood, const float currentPDensity)
+		static Storm::Vector3 computeSumDragForce(const Storm::IterationParameter &/*iterationParameter*/, const float uniformDragCoeff, const Storm::FluidParticleSystem &fluidParticleSystem, const Storm::Vector3 &vi, const Storm::ParticleNeighborhoodArray &currentPNeighborhood, const float currentPDensity)
 		{
 			Storm::Vector3 totalDragForce = Storm::Vector3::Zero();
 			Storm::Vector3 currentDragTmpComponent = Storm::Vector3::Zero();

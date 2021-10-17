@@ -293,7 +293,15 @@ void Storm::WindowsManager::initialize_Implementation(const Storm::WithUI &)
 	bool canLeave = false;
 	std::mutex syncMutex;
 
-	_windowsThread = std::thread{ [this, &syncronizer, &canLeave, &syncMutex]()
+	// This is done on purpose. This warning comes from the fact that I use syncronizer, canLeave and syncMutex that won't survive after the method exits contrary to the thread that keeps a reference to them.
+	// But those variables are here to block the method from leaving until the thread has reached a certain point. Therefore until the thread has reached this point, those variables are still completely valid and can be used. We must not use them afterwards though, therefore to ensure this fact, I put them inside some pointer that I set to null once their job is done.
+	// 
+	// And NO, there is no workaround this. We cannot execute the part that needs blocking before the thread starts due to some Windows API limitations :
+	// The Windows callbacks and inputs must be in the same thread that the one that created the Windows. If I create the Windows outside the thread, I cannot make an Input thread or the Input and Windows refresh loop thread would be linked to the Main thread which would add useless overhead on the simulation as well as adding needless complexity on the engine to handle the simulation in non UI mode (Without any Windows feature, therefore when this module is just disabled entirely)
+	// => The Main thread would be assigned to 2 differents functionalities depending on UI or non UI mode, which makes thread safety thinking globally more painful as well as producing extra code to push the Simulator and everything that comes with the main thread to another thread depending on our mode...
+#pragma warning(push)
+#pragma warning(disable: 4239)
+	_windowsThread = std::thread{ [this, syncronizerPtr = &syncronizer, canLeavePtr = &canLeave, syncMutexPtr = &syncMutex]() mutable
 	{
 		STORM_REGISTER_THREAD(WindowsAndInputThread);
 		
@@ -307,10 +315,17 @@ void Storm::WindowsManager::initialize_Implementation(const Storm::WithUI &)
 		});
 
 		{
-			std::unique_lock<std::mutex> lock{ syncMutex };
-			canLeave = true;
-			syncronizer.notify_all();
+			std::unique_lock<std::mutex> lock{ *syncMutexPtr };
+			*canLeavePtr = true;
 		}
+		
+		syncronizerPtr->notify_all();
+
+		// From now on, those variables aren't valid anymore because we left the method so we MUST NOT USE THEM.
+		// To be sure it is the case, I'm setting them to nullptr.
+		syncMutexPtr = nullptr;
+		canLeavePtr = nullptr;
+		syncronizerPtr = nullptr;
 
 		const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 		Storm::ITimeManager &timeMgr = singletonHolder.getSingleton<Storm::ITimeManager>();
@@ -335,6 +350,7 @@ void Storm::WindowsManager::initialize_Implementation(const Storm::WithUI &)
 			}
 		});
 	} };
+#pragma warning(pop)
 
 	std::unique_lock<std::mutex> lock{ syncMutex };
 	syncronizer.wait(lock, [&canLeave]() { return canLeave; });

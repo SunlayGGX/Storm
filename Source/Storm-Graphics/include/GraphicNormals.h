@@ -22,7 +22,7 @@ namespace Storm
 		~GraphicNormals();
 
 	private:
-		void refreshNormalsDataFromCachedInternal(const ComPtr<ID3D11Device> &device, const Storm::GraphicParameters &params, const uint32_t normalCount);
+		void refreshNormalsDataFromCachedInternal(const ComPtr<ID3D11Device> &device, const uint32_t normalCount);
 
 	public:
 		void refreshNormalsData(const ComPtr<ID3D11Device> &device, const Storm::GraphicParameters &params, const float oldNormalizationCoeff);

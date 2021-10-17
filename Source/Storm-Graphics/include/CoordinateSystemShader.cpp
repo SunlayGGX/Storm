@@ -73,7 +73,7 @@ void Storm::CoordinateSystemShader::draw(const ComPtr<ID3D11DeviceContext> &devi
 	Storm::VPShaderBase::draw(_indexCount, deviceContext);
 }
 
-void Storm::CoordinateSystemShader::setup(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera)
+void Storm::CoordinateSystemShader::setup(const ComPtr<ID3D11Device> &/*device*/, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera)
 {
 	// Setup the device context
 	this->setupDeviceContext(deviceContext);

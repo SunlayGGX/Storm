@@ -103,7 +103,7 @@ unsigned int Storm::VoxelGrid::computeRawIndexFromPosition(const Storm::Vector3u
 	return result;
 }
 
-std::vector<Storm::Voxel*> Storm::VoxelGrid::getVoxelsUnderRaycast(const Storm::Vector3 &origin, const Storm::Vector3 &direction, const float minDist, const float maxDist, const float voxelEdgeLength) const
+std::vector<Storm::Voxel*> Storm::VoxelGrid::getVoxelsUnderRaycast(const Storm::Vector3 &/*origin*/, const Storm::Vector3 &/*direction*/, const float /*minDist*/, const float /*maxDist*/, const float /*voxelEdgeLength*/) const
 {
 	STORM_NOT_IMPLEMENTED;
 }

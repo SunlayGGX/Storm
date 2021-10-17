@@ -60,7 +60,7 @@ namespace
 #undef STORM_SOLVER_NAMES_XMACRO
 
 	template<Storm::ViscosityMethod viscosityMethodOnFluid, Storm::ViscosityMethod viscosityMethodOnRigidBody>
-	Storm::Vector3 computeViscosity(const Storm::IterationParameter &iterationParameter, const Storm::SceneFluidConfig &fluidConfig, const Storm::FluidParticleSystem &fluidParticleSystem, const std::size_t currentPIndex, const float currentPMass, const Storm::Vector3 &vi, const Storm::ParticleNeighborhoodArray &currentPNeighborhood, const float currentPDensity, const float viscoPrecoeff)
+	Storm::Vector3 computeViscosity(const Storm::IterationParameter &iterationParameter, const Storm::SceneFluidConfig &fluidConfig, const Storm::FluidParticleSystem &fluidParticleSystem, const float currentPMass, const Storm::Vector3 &vi, const Storm::ParticleNeighborhoodArray &currentPNeighborhood, const float currentPDensity, const float viscoPrecoeff)
 	{
 		Storm::Vector3 totalViscosityForceOnParticle = Storm::Vector3::Zero();
 
@@ -237,7 +237,7 @@ namespace
 		return dynamicPressureForce;
 	}
 
-	Storm::Vector3 produceNoStickConditionForces(const Storm::IterationParameter &iterationParameter, const Storm::FluidParticleSystem &fluidParticleSystem, const Storm::Vector3 &vi, const float currentPMass, const Storm::ParticleNeighborhoodArray &currentPNeighborhood)
+	Storm::Vector3 produceNoStickConditionForces(const Storm::IterationParameter &iterationParameter, const Storm::FluidParticleSystem &/*fluidParticleSystem*/, const Storm::Vector3 &vi, const float currentPMass, const Storm::ParticleNeighborhoodArray &currentPNeighborhood)
 	{
 		Storm::Vector3 result = Storm::Vector3::Zero();
 
@@ -274,7 +274,7 @@ namespace
 		return result;
 	}
 
-	Storm::Vector3 produceCoendaForces(const Storm::IterationParameter &iterationParameter, const Storm::FluidParticleSystem &fluidParticleSystem, const Storm::Vector3 &vi, const float currentPMass, const Storm::ParticleNeighborhoodArray &currentPNeighborhood)
+	Storm::Vector3 produceCoendaForces(const Storm::IterationParameter &iterationParameter, const Storm::FluidParticleSystem &/*fluidParticleSystem*/, const Storm::Vector3 &/*vi*/, const float currentPMass, const Storm::ParticleNeighborhoodArray &currentPNeighborhood)
 	{
 		Storm::Vector3 result = Storm::Vector3::Zero();
 
@@ -311,7 +311,7 @@ namespace
 }
 
 
-Storm::DFSPHSolver::DFSPHSolver(const float k_kernelLength, const Storm::ParticleSystemContainer &particleSystemsMap) :
+Storm::DFSPHSolver::DFSPHSolver(const float /*k_kernelLength*/, const Storm::ParticleSystemContainer &particleSystemsMap) :
 	Storm::PredictiveSolverHandler{ g_solverIterationNames, g_solverErrorsNames }
 {
 	Storm::SimulatorManager &simulMgr = Storm::SimulatorManager::instance();
@@ -619,9 +619,8 @@ void Storm::DFSPHSolver::initializeStepDensities(const Storm::IterationParameter
 				Storm::runParallel(fluidPSystem.getPressures(), [this, &neighborhoodArrays, &velocities, &densities, density0 = fluidPSystem.getRestDensity()](float &currentPQ, const std::size_t currentPIndex)
 				{
 					const Storm::ParticleNeighborhoodArray &currentPNeighborhood = neighborhoodArrays[currentPIndex];
-					const Storm::Vector3 &vi = velocities[currentPIndex];
-
 #if false
+					const Storm::Vector3 &vi = velocities[currentPIndex];
 					currentPQ = vi.squaredNorm() / 2.f * densities[currentPIndex];
 #else
 					currentPQ = 0.f;
@@ -657,7 +656,7 @@ void Storm::DFSPHSolver::initializeStepDensities(const Storm::IterationParameter
 	}
 }
 
-void Storm::DFSPHSolver::fullDensityInvariantSolve_Internal(const Storm::IterationParameter &iterationParameter, const Storm::SceneFluidConfig &scenefluidConfig, const Storm::SceneFluidCustomDFSPHConfig &sceneDFSPHSimulationConfig)
+void Storm::DFSPHSolver::fullDensityInvariantSolve_Internal(const Storm::IterationParameter &iterationParameter, const Storm::SceneFluidConfig &/*scenefluidConfig*/, const Storm::SceneFluidCustomDFSPHConfig &sceneDFSPHSimulationConfig)
 {
 	unsigned int iterationV;
 	float averageErrorV;
@@ -756,7 +755,7 @@ void Storm::DFSPHSolver::computeNonPressureForces_Internal(const Storm::Iteratio
 				const Storm::ParticleNeighborhoodArray &currentPNeighborhood = neighborhoodArrays[currentPIndex];
 
 #define STORM_COMPUTE_VISCOSITY(fluidMethod, rbMethod) \
-	computeViscosity<fluidMethod, rbMethod>(iterationParameter, fluidConfig, fluidParticleSystem, currentPIndex, currentPMass, vi, currentPNeighborhood, currentPDensity, viscoPrecoeff)
+	computeViscosity<fluidMethod, rbMethod>(iterationParameter, fluidConfig, fluidParticleSystem, currentPMass, vi, currentPNeighborhood, currentPDensity, viscoPrecoeff)
 
 				switch (sceneSimulationConfig._fluidViscoMethod)
 				{
@@ -855,14 +854,6 @@ void Storm::DFSPHSolver::computeNonPressureForces_Internal(const Storm::Iteratio
 
 void Storm::DFSPHSolver::divergenceSolve(const Storm::IterationParameter &iterationParameter, const Storm::SceneFluidCustomDFSPHConfig &sceneDFSPHSimulationConfig, unsigned int &outIteration, float &outAverageError)
 {
-	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
-	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
-
-	const Storm::SceneSimulationConfig &sceneSimulationConfig = configMgr.getSceneSimulationConfig();
-	const Storm::SceneFluidConfig &sceneFluidConfig = configMgr.getSceneFluidConfig();
-
-	Storm::SimulatorManager &simulMgr = Storm::SimulatorManager::instance();
-
 	Storm::ParticleSystemContainer &particleSystems = *iterationParameter._particleSystems;
 
 	//////////////////////////////////////////////////////////////////////////
@@ -915,8 +906,6 @@ void Storm::DFSPHSolver::divergenceSolve(const Storm::IterationParameter &iterat
 
 			const float density0 = fluidPSystem.getRestDensity();
 			avgDensityErrAtom = 0.f;
-
-			float density_error = 0.f;
 
 			auto lambda = [&]<bool computePressureForBoundary>(Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex, const float ki)
 			{
@@ -1051,13 +1040,6 @@ void Storm::DFSPHSolver::divergenceSolve(const Storm::IterationParameter &iterat
 
 void Storm::DFSPHSolver::pressureSolve(const Storm::IterationParameter &iterationParameter, const Storm::SceneFluidCustomDFSPHConfig &sceneDFSPHSimulationConfig, unsigned int &outIteration, float &outAverageError)
 {
-	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
-	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
-
-	const Storm::SceneSimulationConfig &sceneSimulationConfig = configMgr.getSceneSimulationConfig();
-
-	Storm::SimulatorManager &simulMgr = Storm::SimulatorManager::instance();
-
 	Storm::ParticleSystemContainer &particleSystems = *iterationParameter._particleSystems;
 
 	const unsigned int minIter = sceneDFSPHSimulationConfig._minPredictIteration;
@@ -1314,7 +1296,7 @@ void Storm::DFSPHSolver::computeDensityAdv(const Storm::IterationParameter &iter
 	densityAdv = std::max(densityAdv, 1.f);
 }
 
-void Storm::DFSPHSolver::computeDensityChange(const Storm::IterationParameter &iterationParameter, Storm::FluidParticleSystem &fluidPSystem, const Storm::DFSPHSolver::DFSPHSolverDataArray* currentSystemData, Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex)
+void Storm::DFSPHSolver::computeDensityChange(const Storm::IterationParameter &/*iterationParameter*/, Storm::FluidParticleSystem &fluidPSystem, const Storm::DFSPHSolver::DFSPHSolverDataArray* currentSystemData, Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex)
 {
 	const Storm::ParticleNeighborhoodArray &currentPNeighborhood = fluidPSystem.getNeighborhoodArrays()[currentPIndex];
 

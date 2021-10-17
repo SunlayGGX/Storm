@@ -11,7 +11,7 @@ namespace Storm
 		private Storm::ConstantBufferHolder
 	{
 	public:
-		AreaShader(const ComPtr<ID3D11Device> &device, const uint32_t indexCount, const std::span<const std::string_view> macros);
+		AreaShader(const ComPtr<ID3D11Device> &device, const std::span<const std::string_view> macros);
 
 	public:
 		void setup(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera, const DirectX::XMVECTOR &color);

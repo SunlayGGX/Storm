@@ -283,7 +283,7 @@ Storm::SamplingResult Storm::PoissonDiskSampler::process(const int kTryConst, co
 	return samplingResult;
 }
 
-Storm::SamplingResult Storm::PoissonDiskSampler::process_v2(const int kTryConst, const float diskRadius, const std::vector<Storm::Vector3> &vertices, const Storm::Vector3 &upCorner, const Storm::Vector3 &downCorner, const bool smoothNormals)
+Storm::SamplingResult Storm::PoissonDiskSampler::process_v2(const int /*kTryConst*/, const float diskRadius, const std::vector<Storm::Vector3> &vertices, const Storm::Vector3 &upCorner, const Storm::Vector3 &downCorner, const bool /*smoothNormals*/)
 {
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 

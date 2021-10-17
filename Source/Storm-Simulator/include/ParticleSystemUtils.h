@@ -17,9 +17,9 @@ namespace Storm
 
 			VectOrIntrinsType _xij;
 
-			float _normSquared;
-
 			VectOrIntrinsType _domainReflectionDimension;
+
+			float _normSquared;
 		};
 	}
 

@@ -64,7 +64,7 @@ namespace
 #undef STORM_SOLVER_NAMES_XMACRO
 
 	template<Storm::ViscosityMethod viscosityMethodOnFluid, Storm::ViscosityMethod viscosityMethodOnRigidBody>
-	Storm::Vector3 computeViscosity(const Storm::IterationParameter &iterationParameter, const Storm::SceneFluidConfig &fluidConfig, const Storm::FluidParticleSystem &fluidParticleSystem, const std::size_t currentPIndex, const float currentPMass, const Storm::Vector3 &vi, const Storm::ParticleNeighborhoodArray &currentPNeighborhood, const float currentPDensity, const float viscoPrecoeff)
+	Storm::Vector3 computeViscosity(const Storm::IterationParameter &iterationParameter, const Storm::SceneFluidConfig &fluidConfig, const Storm::FluidParticleSystem &fluidParticleSystem, const float currentPMass, const Storm::Vector3 &vi, const Storm::ParticleNeighborhoodArray &currentPNeighborhood, const float currentPDensity, const float viscoPrecoeff)
 	{
 		Storm::Vector3 totalViscosityForceOnParticle = Storm::Vector3::Zero();
 
@@ -353,7 +353,7 @@ void Storm::PCISPHSolver::execute(const Storm::IterationParameter &iterationPara
 				const Storm::ParticleNeighborhoodArray &currentPNeighborhood = neighborhoodArrays[currentPIndex];
 
 #define STORM_COMPUTE_VISCOSITY(fluidMethod, rbMethod) \
-					computeViscosity<fluidMethod, rbMethod>(iterationParameter, fluidConfig, fluidParticleSystem, currentPIndex, currentPMass, vi, currentPNeighborhood, currentPDensity, viscoPrecoeff)
+					computeViscosity<fluidMethod, rbMethod>(iterationParameter, fluidConfig, fluidParticleSystem, currentPMass, vi, currentPNeighborhood, currentPDensity, viscoPrecoeff)
 
 				switch (sceneSimulationConfig._fluidViscoMethod)
 				{
@@ -438,7 +438,7 @@ void Storm::PCISPHSolver::execute(const Storm::IterationParameter &iterationPara
 		// Project the positions and velocities
 		for (auto &dataFieldPair : _data)
 		{
-			Storm::runParallel(dataFieldPair.second, [&](Storm::PCISPHSolverData &currentPData, const std::size_t currentPIndex)
+			Storm::runParallel(dataFieldPair.second, [&](Storm::PCISPHSolverData &currentPData)
 			{
 				currentPData._currentVelocity = currentPData._srcVelocity + currentPData._predictedAcceleration * iterationParameter._deltaTime;
 				currentPData._currentPosition = currentPData._srcPosition + currentPData._currentVelocity * iterationParameter._deltaTime;
@@ -551,7 +551,7 @@ void Storm::PCISPHSolver::execute(const Storm::IterationParameter &iterationPara
 			// Since data field was made from fluids particles only, no need to check if this is a fluid.
 			const Storm::FluidParticleSystem &currentParticleSystem = static_cast<const Storm::FluidParticleSystem &>(*particleSystems.find(dataFieldPair.first)->second);
 
-			const std::vector<float> &masses = currentParticleSystem.getMasses();
+			//const std::vector<float> &masses = currentParticleSystem.getMasses();
 			const std::vector<Storm::ParticleNeighborhoodArray> &neighborhoodArrays = currentParticleSystem.getNeighborhoodArrays();
 
 			Storm::runParallel(dataFieldPair.second, [&](Storm::PCISPHSolverData &currentPData, const std::size_t currentPIndex)

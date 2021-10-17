@@ -204,7 +204,7 @@ namespace
 		do
 		{
 			std::size_t nCount = result._position.size();
-			double a = 4.0 * M_PI * radius * radius / static_cast<double>(data.second);
+			double a = 4.0 * M_PI * radius * radius / static_cast<double>(N);
 			double d = std::sqrt(a);
 			double mTetha = std::round(M_PI / d);
 			double dTetha = M_PI / mTetha;

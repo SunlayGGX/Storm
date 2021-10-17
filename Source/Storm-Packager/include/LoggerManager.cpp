@@ -47,7 +47,7 @@ Storm::LogLevel StormPackager::LoggerManager::getLogLevel() const
 	return Storm::LogLevel::Debug;
 }
 
-void StormPackager::LoggerManager::logToTempFile(const std::string &fileName, const std::string &msg) const
+void StormPackager::LoggerManager::logToTempFile(const std::string &/*fileName*/, const std::string &/*msg*/) const
 {
 	STORM_NOT_IMPLEMENTED;
 }

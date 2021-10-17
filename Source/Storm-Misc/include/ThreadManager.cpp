@@ -57,10 +57,10 @@ void Storm::ThreadManager::registerCurrentThread(Storm::ThreadEnumeration thread
 	// If there were pending actions for this thread. Transfer them now to the new executor that was just created.
 	if (const auto pendingActionsIter = _pendingThreadsRegisteringActions.find(threadEnum); pendingActionsIter != std::end(_pendingThreadsRegisteringActions))
 	{
-		auto &executor = _toExecute[currentThreadId];
+		auto &executorRef = _toExecute[currentThreadId];
 		for (Storm::AsyncAction &pendingAction : pendingActionsIter->second)
 		{
-			executor->bind(std::move(pendingAction));
+			executorRef->bind(std::move(pendingAction));
 		}
 
 		_pendingThreadsRegisteringActions.erase(pendingActionsIter);
@@ -78,7 +78,6 @@ void Storm::ThreadManager::executeOnThread(const std::thread::id &threadId, Stor
 void Storm::ThreadManager::executeDefferedOnThread(Storm::ThreadEnumeration threadEnum, Storm::AsyncAction &&action)
 {
 	const auto thisThreadId = std::this_thread::get_id();
-	bool executeNow = false;
 
 	std::lock_guard<std::recursive_mutex> lock{ _mutex };
 	if (const auto found = _threadIdMapping.find(threadEnum); found != std::end(_threadIdMapping)) STORM_LIKELY

@@ -211,7 +211,12 @@ void Storm::BasicMeshGenerator::generateSphere(const Storm::Vector3 &position, c
 		k_vertexCount = k_ringsX * k_ringsYLean + 2,
 
 		// Every batch of 4 vertexes make 2 triangles : 3 indexes per triangle, therefore 6 indexes per batch of 4 vertexes.
-		k_indexCount = (k_ringsYLean * k_ringsXIteration + 1) * 6 + k_ringsX * 6
+		k_indexCount = (k_ringsYLean * k_ringsXIteration + 1) * 6 + k_ringsX * 6,
+
+		// For the 2 specific points that converges
+		k_downVertexIndex = static_cast<uint32_t>(k_vertexCount - 2),
+		k_upVertexIndex = static_cast<uint32_t>(k_downVertexIndex + 1),
+		k_lastRingStartOffset = static_cast<uint32_t>(k_downVertexIndex - k_ringsX),
 	};
 
 	// Increase the vertex count to avoid reallocation. The increase is from the former size of those buffers since maybe, they contains a scene we want to render in one batch... 
@@ -275,22 +280,14 @@ void Storm::BasicMeshGenerator::generateSphere(const Storm::Vector3 &position, c
 		);
 	}
 
-	// For the 2 specific points that converges
-	enum
-	{
-		k_downVertexIndex = static_cast<uint32_t>(k_vertexCount - 2),
-		k_upVertexIndex = static_cast<uint32_t>(k_downVertexIndex + 1),
-		k_lastRingStartOffset = static_cast<uint32_t>(k_downVertexIndex - k_ringsX),
-	};
-
 	for (std::size_t jiter = 0; jiter < k_ringsXIteration; ++jiter)
 	{
-		STORM_REGISTER_TRIANGLE_INDEX(k_downVertexIndex, static_cast<uint32_t>(jiter), static_cast<uint32_t>(jiter + 1));
-		STORM_REGISTER_TRIANGLE_INDEX(k_upVertexIndex, static_cast<uint32_t>(k_lastRingStartOffset + jiter + 1), static_cast<uint32_t>(k_lastRingStartOffset + jiter));
+		STORM_REGISTER_TRIANGLE_INDEX(static_cast<uint32_t>(k_downVertexIndex), static_cast<uint32_t>(jiter), static_cast<uint32_t>(jiter + 1));
+		STORM_REGISTER_TRIANGLE_INDEX(static_cast<uint32_t>(k_upVertexIndex), static_cast<uint32_t>(k_lastRingStartOffset + jiter + 1), static_cast<uint32_t>(k_lastRingStartOffset + jiter));
 	}
 
-	STORM_REGISTER_TRIANGLE_INDEX(k_downVertexIndex, static_cast<uint32_t>(k_ringsXIteration), 0);
-	STORM_REGISTER_TRIANGLE_INDEX(k_upVertexIndex, static_cast<uint32_t>(k_lastRingStartOffset), static_cast<uint32_t>(k_lastRingStartOffset + k_ringsXIteration));
+	STORM_REGISTER_TRIANGLE_INDEX(static_cast<uint32_t>(k_downVertexIndex), static_cast<uint32_t>(k_ringsXIteration), 0);
+	STORM_REGISTER_TRIANGLE_INDEX(static_cast<uint32_t>(k_upVertexIndex), static_cast<uint32_t>(k_lastRingStartOffset), static_cast<uint32_t>(k_lastRingStartOffset + k_ringsXIteration));
 
 	// normals (if needed)
 	generateSmoothedNormalsIfNeeded(inOutVertexes, inOutIndexes, inOutNormals, inOutVertexes.size() - vertexStart, indexStart);

@@ -23,7 +23,7 @@
 
 namespace
 {
-	Storm::Vector3 raySphereCollisionHit(const Storm::Vector3 &rayOrigin, const Storm::Vector3 &rayDirection, const Storm::Vector3 &particleCenter, const float particleRadiusSquared)
+	Storm::Vector3 raySphereCollisionHit(const Storm::Vector3 &/*rayOrigin*/, const Storm::Vector3 &/*rayDirection*/, const Storm::Vector3 &/*particleCenter*/, const float /*particleRadiusSquared*/)
 	{
 		STORM_NOT_IMPLEMENTED;
 	}

@@ -48,7 +48,12 @@ Storm::AnimationObject::AnimationObject(const Storm::SceneRigidBodyConfig &rbSce
 	_lastKeyIndex{ 0 }
 {
 	boost::property_tree::ptree rootXmlTree;
-	boost::property_tree::read_xml(std::stringstream{} << rbSceneConfig._animationXmlContent, rootXmlTree);
+	{
+		std::stringstream str;
+		str << rbSceneConfig._animationXmlContent;
+		boost::property_tree::read_xml(str, rootXmlTree);
+	}
+	
 
 	const boost::property_tree::ptree &animationXmlTree = rootXmlTree.get_child("Animation");
 	_keyframes.reserve(animationXmlTree.size());

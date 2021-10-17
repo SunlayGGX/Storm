@@ -15,7 +15,7 @@ namespace Storm
 		RecordPreHeaderSerializer();
 
 		// Write
-		RecordPreHeaderSerializer(Storm::Version &version);
+		RecordPreHeaderSerializer(const Storm::Version &version);
 
 	public:
 		void serialize(Storm::SerializePackage &package);

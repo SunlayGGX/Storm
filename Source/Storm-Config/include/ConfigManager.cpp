@@ -279,9 +279,9 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 				Storm::throwException<Storm::Exception>("Record fps wasn't set while we should be recording. We should always set one!");
 			}
 
-			const std::filesystem::path recordFilePath{ sceneRecordConfig._recordFilePath };
-			std::filesystem::remove_all(recordFilePath);
-			std::filesystem::create_directories(recordFilePath.parent_path());
+			const std::filesystem::path recordFilePathFs{ sceneRecordConfig._recordFilePath };
+			std::filesystem::remove_all(recordFilePathFs);
+			std::filesystem::create_directories(recordFilePathFs.parent_path());
 			break;
 		}
 

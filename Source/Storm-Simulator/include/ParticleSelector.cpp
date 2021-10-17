@@ -676,7 +676,8 @@ bool Storm::ParticleSelector::setCustomSelection(std::string &&customSelectionCS
 	for (std::string_view &splitElem : splitted)
 	{
 		// This comes from a true std::string, therefore this is modifyable memory.
-		uniqueSelect.emplace(parseForceSelect(std::span<char>{ const_cast<char*>(splitElem.data()), splitElem.size() }));
+		std::span<char> tmp{ const_cast<char*>(splitElem.data()), splitElem.size() };
+		uniqueSelect.emplace(parseForceSelect(tmp));
 	}
 
 	if (uniqueSelect != std::set<Storm::CustomForceSelect>{ data._customForceSelected, data._endCustomForceSelected })

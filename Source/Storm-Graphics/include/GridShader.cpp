@@ -55,7 +55,7 @@ void Storm::GridShader::draw(const ComPtr<ID3D11DeviceContext> &deviceContext)
 	Storm::VPShaderBase::draw(_gridIndexCount, deviceContext);
 }
 
-void Storm::GridShader::setup(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera)
+void Storm::GridShader::setup(const ComPtr<ID3D11Device> &/*device*/, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera)
 {
 	// Setup the device context
 	this->setupDeviceContext(deviceContext);

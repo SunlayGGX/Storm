@@ -590,6 +590,7 @@ case Storm::BlowerType::BlowerTypeName: \
 #undef STORM_EXECUTE_METHOD_ON_DENSE_MODE
 
 				default:
+					__assume(false);
 					break;
 				}
 

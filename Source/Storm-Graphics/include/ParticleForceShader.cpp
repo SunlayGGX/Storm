@@ -57,8 +57,6 @@ namespace
 
 	Storm::ShaderMacroContainer retrieveParticleForceShaderMacro()
 	{
-		const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
-
 		return Storm::ShaderMacroContainer{}
 			.addMacro("STORM_HAS_ON_TOP", true)
 			;
@@ -75,7 +73,7 @@ Storm::ParticleForceShader::ParticleForceShader(const ComPtr<ID3D11Device> &devi
 	_alwaysOnTop = configMgr.getGeneralGraphicConfig()._selectedParticleForceShouldBeTopMost;
 }
 
-void Storm::ParticleForceShader::setup(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera)
+void Storm::ParticleForceShader::setup(const ComPtr<ID3D11Device> &/*device*/, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera)
 {
 	// Setup the device context
 	this->setupDeviceContext(deviceContext);

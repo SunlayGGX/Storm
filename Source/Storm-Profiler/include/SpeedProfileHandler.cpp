@@ -15,13 +15,13 @@ Storm::SpeedProfileHandler::SpeedProfileHandler(const std::wstring_view &name) :
 
 Storm::SpeedProfileHandler::~SpeedProfileHandler() = default;
 
-void Storm::SpeedProfileHandler::addProfileData(const std::wstring_view &name)
+void Storm::SpeedProfileHandler::addProfileData(STORM_MAY_BE_UNUSED const std::wstring_view &name)
 {
 	assert(_name == name && "Speed profiling is specific to the Simulator loop and only one should exist!");
 	_speedProfile.startTime();
 }
 
-void Storm::SpeedProfileHandler::removeProfileData(const std::wstring_view &name)
+void Storm::SpeedProfileHandler::removeProfileData(STORM_MAY_BE_UNUSED const std::wstring_view &name)
 {
 	_speedProfile.stopTime();
 

@@ -269,7 +269,10 @@ void Storm::StateReader::execute(Storm::StateLoadingOrders &inOutLoadingOrder)
 	validateOrders(inOutLoadingOrder);
 
 	Storm::SerializePackage package{ Storm::SerializePackageCreationModality::LoadingManual, Storm::toStdString(inOutLoadingOrder._settings._filePath) };
-	package << StateReaderImpl{ inOutLoadingOrder };
+	{
+		StateReaderImpl tmp{ inOutLoadingOrder };
+		package << tmp;
+	}
 
 	checkValidity(*inOutLoadingOrder._simulationState);
 	applySettings(inOutLoadingOrder);

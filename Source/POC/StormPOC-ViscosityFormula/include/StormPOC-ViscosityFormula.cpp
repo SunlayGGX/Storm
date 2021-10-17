@@ -81,7 +81,7 @@ namespace
 		return Storm::LogLevel::Debug;
 	}
 
-	void LoggerManager::logToTempFile(const std::string &fileName, const std::string &msg) const
+	void LoggerManager::logToTempFile(const std::string &/*fileName*/, const std::string &/*msg*/) const
 	{
 		STORM_NOT_IMPLEMENTED;
 	}

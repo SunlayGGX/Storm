@@ -13,6 +13,8 @@
       <AdditionalOptions>/permissive %(AdditionalOptions)</AdditionalOptions>
       <OpenMPSupport>true</OpenMPSupport>
       <WarningLevel>Level4</WarningLevel>
+      <TreatAngleIncludeAsExternal>true</TreatAngleIncludeAsExternal>
+      <ExternalWarningLevel>Level3</ExternalWarningLevel>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup />

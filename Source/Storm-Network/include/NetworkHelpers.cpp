@@ -118,9 +118,9 @@ bool Storm::NetworkHelpers::parseMsg(std::string &inOutMsg, std::vector<Storm::O
 			{
 				param._parameters.reserve(msgTokenCount - k_minimalTokenCount);
 
-				for (std::size_t iter = k_minimalTokenCount; iter < msgTokenCount; ++iter)
+				for (std::size_t jiter = k_minimalTokenCount; jiter < msgTokenCount; ++jiter)
 				{
-					const std::string_view msgParam = msgTokens[iter];
+					const std::string_view msgParam = msgTokens[jiter];
 					if (!msgParam.empty())
 					{
 						param._parameters.emplace_back(msgParam);

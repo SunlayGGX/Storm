@@ -140,7 +140,7 @@ bool Storm::FadeInOutTimeHandler::shouldFadeOut(float &outFadeCoefficient) const
 }
 
 
-void Storm::BlowerGradualDirectionalCubeArea::applyDistanceEffectToTemporary(const Storm::Vector3 &force, const float forceNorm, Storm::Vector3 &tmp) const
+void Storm::BlowerGradualDirectionalCubeArea::applyDistanceEffectToTemporary(const Storm::Vector3 &force, const float /*forceNorm*/, Storm::Vector3 &tmp) const
 {
 	// This distanceCoeff variable should be 1.f if the particle is on the center plane. 0.f if it is on the max distance from the center plane.
 	const float distanceCoeff = (1.f - std::fabs(_planeDirectionVect.dot(tmp)) / _maxDistanceToCenterPlane);
@@ -173,13 +173,13 @@ void Storm::BlowerExplosionSphereArea::applyDistanceEffectToTemporary(const Stor
 	}
 }
 
-void Storm::BlowerSpherePlanarGradualArea::applyDistanceEffectToTemporary(const Storm::Vector3 &force, const float forceNorm, Storm::Vector3 &tmp) const
+void Storm::BlowerSpherePlanarGradualArea::applyDistanceEffectToTemporary(const Storm::Vector3 &force, const float /*forceNorm*/, Storm::Vector3 &tmp) const
 {
 	const float distanceCoeff = 1.f - std::fabs(_planeDirectionVect.dot(tmp) / _radius);
 	tmp = force * distanceCoeff;
 }
 
-void Storm::BlowerCylinderGradualMidPlanarArea::applyDistanceEffectToTemporary(const Storm::Vector3 &force, const float forceNorm, Storm::Vector3 &tmp) const
+void Storm::BlowerCylinderGradualMidPlanarArea::applyDistanceEffectToTemporary(const Storm::Vector3 &force, const float /*forceNorm*/, Storm::Vector3 &tmp) const
 {
 	const float distanceCoeff = 1.f - std::fabs(tmp.y()) / _midHeight;
 	tmp = force * distanceCoeff;

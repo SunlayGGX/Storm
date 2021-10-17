@@ -100,7 +100,7 @@ void Storm::GraphicAreaBaseHolder::initializeShader(const ComPtr<ID3D11Device> &
 
 	Storm::throwIfFailed(device->CreateBuffer(&indexBufferDesc, &indexData, &_indexBuffer));
 
-	_areaShader = std::make_unique<Storm::AreaShader>(device, _indexCount, macros);
+	_areaShader = std::make_unique<Storm::AreaShader>(device, macros);
 }
 
 void Storm::GraphicAreaBaseHolder::setup(const ComPtr<ID3D11DeviceContext> &deviceContext)

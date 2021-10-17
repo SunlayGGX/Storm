@@ -72,7 +72,7 @@ void Storm::GravityShader::draw(const ComPtr<ID3D11DeviceContext>& deviceContext
 	Storm::VPShaderBase::draw(1, deviceContext);
 }
 
-void Storm::GravityShader::setup(const ComPtr<ID3D11Device>& device, const ComPtr<ID3D11DeviceContext>& deviceContext, const Storm::Camera& currentCamera)
+void Storm::GravityShader::setup(const ComPtr<ID3D11Device> &/*device*/, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera)
 {
 	// Setup the device context
 	this->setupDeviceContext(deviceContext);

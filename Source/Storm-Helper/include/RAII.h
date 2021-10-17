@@ -38,7 +38,7 @@ namespace Storm
 	};
 
 	template<class Lambda>
-	static auto makeLazyRAIIObject(Lambda &&lambda)
+	auto makeLazyRAIIObject(Lambda &&lambda)
 	{
 		// The lambda encapsulating the original lambda is to hide the pointer. Now nobody can play with it because the object is invalid by construction
 		// and undefined behavior will result in accessing it.

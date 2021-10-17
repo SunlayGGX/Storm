@@ -16,7 +16,7 @@ namespace Storm
 		RecordHandlerBase(Storm::SerializeRecordHeader &&header);
 
 		// Writing
-		RecordHandlerBase(Storm::SerializeRecordHeader &&header, Storm::Version &recordVersion);
+		RecordHandlerBase(Storm::SerializeRecordHeader &&header, const Storm::Version &recordVersion);
 
 	public:
 		virtual ~RecordHandlerBase();

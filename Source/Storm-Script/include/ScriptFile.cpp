@@ -44,7 +44,10 @@ void Storm::ScriptFile::update()
 			std::string scriptContent;
 			scriptContent.reserve(fileSize);
 
-			std::copy(std::istreambuf_iterator<char>{std::ifstream{ _filePath }}, std::istreambuf_iterator<char>{}, std::back_inserter(scriptContent));
+			{
+				std::ifstream fileStream{ _filePath };
+				std::copy(std::istreambuf_iterator<char>{ fileStream }, std::istreambuf_iterator<char>{}, std::back_inserter(scriptContent));
+			}
 
 			Storm::ScriptManager::instance().executeScript_ScriptThread(std::move(scriptContent));
 		}

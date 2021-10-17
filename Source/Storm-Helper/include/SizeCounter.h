@@ -7,9 +7,9 @@ namespace Storm
 	struct SizeCounter
 	{
 	public:
-		enum
+		enum : std::size_t
 		{
-			value = SizeCounter<Type>::value + SizeCounter<Others...>::value
+			value = static_cast<std::size_t>(SizeCounter<Type>::value) + static_cast<std::size_t>(SizeCounter<Others...>::value)
 		};
 	};
 
@@ -17,7 +17,7 @@ namespace Storm
 	struct SizeCounter<Type>
 	{
 	public:
-		enum
+		enum : std::size_t
 		{
 			value = sizeof(Type)
 		};

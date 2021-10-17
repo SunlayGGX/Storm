@@ -48,7 +48,7 @@ Storm::MeshShader::MeshShader(const ComPtr<ID3D11Device> &device) :
 	Storm::ConstantBufferHolder::initialize<ConstantBuffer>(device);
 }
 
-void Storm::MeshShader::setup(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera, const DirectX::XMMATRIX &transposedTransform)
+void Storm::MeshShader::setup(const ComPtr<ID3D11Device> &/*device*/, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera, const DirectX::XMMATRIX &transposedTransform)
 {
 	// Setup the device context
 	this->setupDeviceContext(deviceContext);

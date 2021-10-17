@@ -59,7 +59,7 @@ IFACEMETHODIMP Storm::CDialogEventHandler::OnShareViolation(IFileDialog*, IShell
 	return S_OK;
 }
 
-IFACEMETHODIMP Storm::CDialogEventHandler::OnTypeChange(IFileDialog* pfd)
+IFACEMETHODIMP Storm::CDialogEventHandler::OnTypeChange(IFileDialog*)
 {
 	return S_OK;
 }
@@ -69,7 +69,7 @@ IFACEMETHODIMP Storm::CDialogEventHandler::OnOverwrite(IFileDialog*, IShellItem*
 	return S_OK;
 }
 
-IFACEMETHODIMP Storm::CDialogEventHandler::OnItemSelected(IFileDialogCustomize* pfdc, DWORD dwIDCtl, DWORD dwIDItem)
+IFACEMETHODIMP Storm::CDialogEventHandler::OnItemSelected(IFileDialogCustomize*, DWORD, DWORD)
 {
 	return S_OK;
 }

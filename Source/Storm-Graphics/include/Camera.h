@@ -108,13 +108,13 @@ namespace Storm
 		DirectX::XMMATRIX _transposedViewProjMatrix; // For 2D HUD
 		DirectX::XMMATRIX _transposedOrthoMatrix; // For 2D HUD
 
+		DirectX::XMVECTOR _up;
+		DirectX::XMFLOAT3 _position;
+		DirectX::XMFLOAT3 _target;
+
 		float _cameraMoveSpeed;
 		float _cameraRotateSpeed;
 		float _cameraPlaneSpeed;
-
-		DirectX::XMFLOAT3 _position;
-		DirectX::XMFLOAT3 _target;
-		DirectX::XMVECTOR _up;
 
 		float _nearPlane;
 		float _farPlane;

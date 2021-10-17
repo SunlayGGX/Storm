@@ -57,7 +57,7 @@ namespace
 
 
 	template<Storm::ViscosityMethod viscosityMethodOnFluid, Storm::ViscosityMethod viscosityMethodOnRigidBody>
-	Storm::Vector3 computeViscosity(const Storm::IterationParameter &iterationParameter, const Storm::SceneFluidConfig &fluidConfig, const Storm::FluidParticleSystem &fluidParticleSystem, const std::size_t currentPIndex, const float currentPMass, const Storm::Vector3 &vi, const Storm::ParticleNeighborhoodArray &currentPNeighborhood, const float currentPDensity, const float viscoPrecoeff)
+	Storm::Vector3 computeViscosity(const Storm::IterationParameter &iterationParameter, const Storm::SceneFluidConfig &fluidConfig, const Storm::FluidParticleSystem &fluidParticleSystem, const float currentPMass, const Storm::Vector3 &vi, const Storm::ParticleNeighborhoodArray &currentPNeighborhood, const float currentPDensity, const float viscoPrecoeff)
 	{
 		Storm::Vector3 totalViscosityForceOnParticle = Storm::Vector3::Zero();
 
@@ -141,7 +141,7 @@ namespace
 }
 
 
-Storm::IISPHSolver::IISPHSolver(const float k_kernelLength, const Storm::ParticleSystemContainer &particleSystemsMap) :
+Storm::IISPHSolver::IISPHSolver(const float /*k_kernelLength*/, const Storm::ParticleSystemContainer &particleSystemsMap) :
 	Storm::PredictiveSolverHandler{ g_solverIterationNames, g_solverErrorsNames }
 {
 	std::size_t totalParticleCount = 0;
@@ -281,7 +281,7 @@ void Storm::IISPHSolver::execute(const Storm::IterationParameter &iterationParam
 				const Storm::ParticleNeighborhoodArray &currentPNeighborhood = neighborhoodArrays[currentPIndex];
 
 #define STORM_COMPUTE_VISCOSITY(fluidMethod, rbMethod) \
-	computeViscosity<fluidMethod, rbMethod>(iterationParameter, fluidConfig, fluidParticleSystem, currentPIndex, currentPMass, vi, currentPNeighborhood, currentPDensity, viscoPrecoeff)
+	computeViscosity<fluidMethod, rbMethod>(iterationParameter, fluidConfig, fluidParticleSystem, currentPMass, vi, currentPNeighborhood, currentPDensity, viscoPrecoeff)
 
 				switch (sceneSimulationConfig._fluidViscoMethod)
 				{
@@ -361,7 +361,6 @@ void Storm::IISPHSolver::execute(const Storm::IterationParameter &iterationParam
 		// Since data field was made from fluids particles only, no need to check if this is a fluid.
 		Storm::FluidParticleSystem &fluidParticleSystem = static_cast<Storm::FluidParticleSystem &>(*particleSystems.find(dataFieldPair.first)->second);
 
-		const std::vector<float> &masses = fluidParticleSystem.getMasses();
 		const std::vector<float> &densities = fluidParticleSystem.getDensities();
 		const std::vector<Storm::ParticleNeighborhoodArray> &neighborhoodArrays = fluidParticleSystem.getNeighborhoodArrays();
 		std::vector<float> &pressures = fluidParticleSystem.getPressures();

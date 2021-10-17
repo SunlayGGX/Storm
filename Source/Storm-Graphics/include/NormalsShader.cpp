@@ -59,7 +59,7 @@ Storm::NormalsShader::NormalsShader(const ComPtr<ID3D11Device> &device) :
 	Storm::ConstantBufferHolder::initialize<ConstantBuffer>(device);
 }
 
-void Storm::NormalsShader::setup(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera)
+void Storm::NormalsShader::setup(const ComPtr<ID3D11Device> &/*device*/, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera)
 {
 	// Setup the device context
 	this->setupDeviceContext(deviceContext);

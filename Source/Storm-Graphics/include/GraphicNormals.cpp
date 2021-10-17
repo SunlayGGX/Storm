@@ -23,7 +23,7 @@ Storm::GraphicNormals::GraphicNormals(const ComPtr<ID3D11Device> &device) :
 Storm::GraphicNormals::~GraphicNormals() = default;
 
 
-void Storm::GraphicNormals::refreshNormalsDataFromCachedInternal(const ComPtr<ID3D11Device> &device, const Storm::GraphicParameters &params, const uint32_t normalCount)
+void Storm::GraphicNormals::refreshNormalsDataFromCachedInternal(const ComPtr<ID3D11Device> &device, const uint32_t normalCount)
 {
 	// In case it has a vertex buffer set (most of the time)
 	_vertexBuffer.Reset();
@@ -91,7 +91,7 @@ void Storm::GraphicNormals::refreshNormalsData(const ComPtr<ID3D11Device> &devic
 			normalInternal._head = normalInternal._base + unnormalizedNormal;
 		}
 
-		this->refreshNormalsDataFromCachedInternal(device, params, cachedNormalCount);
+		this->refreshNormalsDataFromCachedInternal(device, cachedNormalCount);
 	}
 }
 
@@ -112,7 +112,7 @@ void Storm::GraphicNormals::updateNormalsData(const ComPtr<ID3D11Device> &device
 		graphicNormal._head = currentPos + (currentNormal * multCoeff);
 	}
 
-	this->refreshNormalsDataFromCachedInternal(device, params, normalCount);
+	this->refreshNormalsDataFromCachedInternal(device, normalCount);
 }
 
 void Storm::GraphicNormals::render(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera)

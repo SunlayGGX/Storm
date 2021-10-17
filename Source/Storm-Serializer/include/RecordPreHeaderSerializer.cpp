@@ -16,7 +16,7 @@ namespace
 
 Storm::RecordPreHeaderSerializer::RecordPreHeaderSerializer() = default;
 
-Storm::RecordPreHeaderSerializer::RecordPreHeaderSerializer(Storm::Version &version)
+Storm::RecordPreHeaderSerializer::RecordPreHeaderSerializer(const Storm::Version &version)
 {
 	_preHeader._recordVersion = version;
 }

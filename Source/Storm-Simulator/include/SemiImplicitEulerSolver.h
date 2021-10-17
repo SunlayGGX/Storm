@@ -6,7 +6,7 @@ namespace Storm
 	class SemiImplicitEulerVelocitySolver
 	{
 	public:
-		SemiImplicitEulerVelocitySolver(float mass, const Storm::Vector3 &totalForce, const Storm::Vector3 &currentVelocity, float deltaTimeInSec);
+		SemiImplicitEulerVelocitySolver(float mass, const Storm::Vector3 &totalForce, float deltaTimeInSec);
 
 	public:
 		Storm::Vector3 _velocityVariation;

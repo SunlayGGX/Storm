@@ -2,7 +2,7 @@
 
 
 
-Storm::SemiImplicitEulerVelocitySolver::SemiImplicitEulerVelocitySolver(float mass, const Storm::Vector3 &totalForce, const Storm::Vector3 &currentVelocity, float deltaTimeInSec) :
+Storm::SemiImplicitEulerVelocitySolver::SemiImplicitEulerVelocitySolver(float mass, const Storm::Vector3 &totalForce, float deltaTimeInSec) :
 	_velocityVariation{ totalForce * (deltaTimeInSec / mass) }
 {
 

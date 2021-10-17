@@ -48,7 +48,7 @@ namespace
 	}
 
 	template<Storm::CommandKeyword ... forbiddenKeys>
-	constexpr void ensureNoConflictingKey_Exec(const std::string_view &allForbiddenKeys, const Storm::CommandLogicSupport &param)
+	constexpr void ensureNoConflictingKey_Exec(STORM_MAY_BE_UNUSED const std::string_view &allForbiddenKeys, const Storm::CommandLogicSupport &param)
 	{
 		if constexpr (sizeof...(forbiddenKeys) == 0)
 		{

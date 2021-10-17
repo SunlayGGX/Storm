@@ -843,7 +843,6 @@ void Storm::SimulatorManager::initialize_Implementation()
 	if (isReplayMode)
 	{
 		Storm::ISerializerManager &serializerMgr = singletonHolder.getSingleton<Storm::ISerializerManager>();
-		Storm::ITimeManager &timeMgr = singletonHolder.getSingleton<Storm::ITimeManager>();
 
 		_frameBefore = std::make_unique<Storm::SerializeRecordPendingData>();
 		Storm::SerializeRecordPendingData &frameBefore = *_frameBefore;
@@ -908,7 +907,7 @@ void Storm::SimulatorManager::initialize_Implementation()
 	}
 
 	Storm::IRaycastManager &raycastMgr = singletonHolder.getSingleton<Storm::IRaycastManager>();
-	inputMgr.bindMouseLeftClick([this, &raycastMgr, &singletonHolder, isReplayMode](int xPos, int yPos, int width, int height)
+	inputMgr.bindMouseLeftClick([this, &raycastMgr, &singletonHolder, isReplayMode](int xPos, int yPos, int /*width*/, int /*height*/)
 	{
 		if (_raycastFlag != Storm::RaycastEnablingFlag::Disabled)
 		{
@@ -950,7 +949,7 @@ void Storm::SimulatorManager::initialize_Implementation()
 		}
 	});
 
-	inputMgr.bindMouseMiddleClick([this, &raycastMgr, &singletonHolder, isReplayMode](int xPos, int yPos, int width, int height)
+	inputMgr.bindMouseMiddleClick([this, &raycastMgr, &singletonHolder, isReplayMode](int xPos, int yPos, int /*width*/, int /*height*/)
 	{
 		if (_raycastFlag != Storm::RaycastEnablingFlag::Disabled)
 		{
@@ -2377,7 +2376,6 @@ void Storm::SimulatorManager::pushRecord(float currentPhysicsTime, bool pushStat
 	assert(Storm::isSimulationThread() && "This method should only be executed inside the simulation thread!");
 
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
-	const Storm::SceneRecordConfig &sceneRecordConfig = singletonHolder.getSingleton<Storm::IConfigManager>().getSceneRecordConfig();
 
 	Storm::SerializeRecordPendingData currentFrameData;
 	currentFrameData._physicsTime = currentPhysicsTime;
@@ -2392,7 +2390,7 @@ void Storm::SimulatorManager::pushRecord(float currentPhysicsTime, bool pushStat
 	serializerMgr.recordFrame(std::move(currentFrameData));
 }
 
-void Storm::SimulatorManager::applyReplayFrame(Storm::SerializeRecordPendingData &frame, const Storm::SerializeSupportedFeatureLayout &suportedFeature, const float replayFps, bool pushParallel /*= true*/)
+void Storm::SimulatorManager::applyReplayFrame(Storm::SerializeRecordPendingData &frame, const Storm::SerializeSupportedFeatureLayout &suportedFeature, const float replayFps, bool /*pushParallel = true*/)
 {
 	assert(Storm::isSimulationThread() && "This method should only be executed inside the simulation thread!");
 
@@ -2619,10 +2617,6 @@ void Storm::SimulatorManager::executeAllForcesCheck()
 {
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 	Storm::IPhysicsManager &physicsMgr = singletonHolder.getSingleton<Storm::IPhysicsManager>();
-	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
-
-	const Storm::SceneSimulationConfig &sceneSimulationConfig = configMgr.getSceneSimulationConfig();
-	const Storm::Vector3 &gravityAccel = sceneSimulationConfig._gravity;
 
 	// Ensure that, from the momentum conservation law, all forces present in the domain (which is an isolated system) comes to zero
 	// (note that it shouldn't be true if the system is not in an equilibrium state because forces do work to convert potential energy into kinetic energy then.
@@ -2637,32 +2631,21 @@ void Storm::SimulatorManager::executeAllForcesCheck()
 	//
 	// But even with this fact, I'm not sure about the real physical state of the engine because what I'm saying is only if we have a perfect system,
 	// except that we simulate imperfect system with viscosity, therefore some energy is lost with the friction it implies.
-	std::atomic<float> xSum = 0.f;
-	std::atomic<float> ySum = 0.f;
-	std::atomic<float> zSum = 0.f;
+	Storm::Vector3 allForceSum = Storm::Vector3::Zero();
 	for (const auto &particleSystemPair : _particleSystem)
 	{
 		const Storm::ParticleSystem &currentPSystem = *particleSystemPair.second;
 
-		Storm::runParallel(currentPSystem.getForces(), [&xSum, &ySum, &zSum](const Storm::Vector3 &currentPForce)
-		{
-			xSum += currentPForce.x();
-			ySum += currentPForce.y();
-			zSum += currentPForce.z();
-		});
+		const std::vector<Storm::Vector3> &allForces = currentPSystem.getForces();
+		allForceSum = std::reduce(std::execution::par, std::begin(allForces), std::end(allForces), allForceSum);
 
 		if (!currentPSystem.isFluids() && !currentPSystem.isStatic())
 		{
 			// For rigid bodies, some forces like the gravity or the constraint are handled by the physics engine, therefore we must query those. 
-			const Storm::Vector3 additionalForces = physicsMgr.getPhysicalForceOnPhysicalBody(currentPSystem.getId());
-
-			xSum += additionalForces.x();
-			ySum += additionalForces.y();
-			zSum += additionalForces.z();
+			allForceSum += physicsMgr.getPhysicalForceOnPhysicalBody(currentPSystem.getId());
 		}
 	}
 
-	const Storm::Vector3 allForceSum{ xSum, ySum, zSum };
 	constexpr float epsilon = 0.000001f;
 	if (std::fabs(allForceSum.x()) > epsilon || std::fabs(allForceSum.y()) > epsilon || std::fabs(allForceSum.z()) > epsilon)
 	{

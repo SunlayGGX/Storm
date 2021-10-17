@@ -34,7 +34,10 @@ void Storm::BibliographyManager::generateBibTexLibrary() const
 				Storm::throwException<Storm::Exception>("'" + reference._bibTexLink + "' doesn't exists or isn't a valid file!");
 			}
 
-			std::copy(std::istreambuf_iterator<char>{ std::ifstream{ bibTexLinkPath } }, std::istreambuf_iterator<char>{}, ofIter);
+			{
+				std::ifstream fileStream{ bibTexLinkPath };
+				std::copy(std::istreambuf_iterator<char>{ fileStream }, std::istreambuf_iterator<char>{}, ofIter);
+			}
 
 			ofIter = '\n';
 			++ofIter;
