@@ -402,6 +402,17 @@ if (blowerTypeStr == BlowerTypeXmlName) return Storm::BlowerType::BlowerTypeName
 		Storm::XmlReader::readXmlAttribute(tree, graphicConfig._trackTranslation, "trackTranslation");
 	}
 
+	void parseCagePassthrough(const boost::property_tree::ptree &tree, Storm::SceneCageConfig &cageConfig)
+	{
+		Storm::XmlReader::readXmlAttribute(tree, cageConfig._passthroughVelReduceCoeffLeftBottomFront.x(), "xLeft");
+		Storm::XmlReader::readXmlAttribute(tree, cageConfig._passthroughVelReduceCoeffLeftBottomFront.y(), "yBottom");
+		Storm::XmlReader::readXmlAttribute(tree, cageConfig._passthroughVelReduceCoeffLeftBottomFront.z(), "zFront");
+
+		Storm::XmlReader::readXmlAttribute(tree, cageConfig._passthroughVelReduceCoeffRightTopBack.x(), "xRight");
+		Storm::XmlReader::readXmlAttribute(tree, cageConfig._passthroughVelReduceCoeffRightTopBack.y(), "yTop");
+		Storm::XmlReader::readXmlAttribute(tree, cageConfig._passthroughVelReduceCoeffRightTopBack.z(), "zBack");
+	}
+
 	class AnimationsKeeper
 	{
 	public:
@@ -701,7 +712,7 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 				!Storm::XmlReader::handleXml(cageXmlElement, "boxMin", cageConfig._boxMin, parseVector3Element) &&
 				!Storm::XmlReader::handleXml(cageXmlElement, "boxMax", cageConfig._boxMax, parseVector3Element) &&
 				!Storm::XmlReader::handleXml(cageXmlElement, "infiniteDomain", cageConfig._infiniteDomain) &&
-				!Storm::XmlReader::handleXml(cageXmlElement, "passthroughVelReduceCoeff", cageConfig._passthroughVelReduceCoeff, parseVector3Element)
+				!Storm::XmlReader::handleXml(cageXmlElement, "passthroughVelReduceCoeff", cageConfig, parseCagePassthrough)
 				)
 			{
 				LOG_ERROR << "tag '" << cageXmlElement.first << "' (inside Scene.Cage) is unknown, therefore it cannot be handled";
@@ -716,12 +727,19 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 				"=> Box max : " + Storm::toStdString(cageConfig._boxMax)
 			);
 		}
-		else if (cageConfig._infiniteDomain && (cageConfig._passthroughVelReduceCoeff.x() < 0.f || cageConfig._passthroughVelReduceCoeff.y() < 0.f || cageConfig._passthroughVelReduceCoeff.z() < 0.f))
+		else if (cageConfig._infiniteDomain && (cageConfig._passthroughVelReduceCoeffLeftBottomFront.x() < 0.f || cageConfig._passthroughVelReduceCoeffLeftBottomFront.y() < 0.f || cageConfig._passthroughVelReduceCoeffLeftBottomFront.z() < 0.f))
 		{
 			Storm::throwException<Storm::Exception>(
-				"When enabled, all values for the velocity pass through coefficients should be positive or zero on each axis!\n"
-				"Current value was : " + Storm::toStdString(cageConfig._passthroughVelReduceCoeff)
+				"When enabled, all values for the velocity pass through coefficients for left/bottom/front of the cage should be positive or zero on each axis!\n"
+				"Current value was : " + Storm::toStdString(cageConfig._passthroughVelReduceCoeffLeftBottomFront)
 			);
+		}
+		else if (cageConfig._infiniteDomain && (cageConfig._passthroughVelReduceCoeffRightTopBack.x() < 0.f || cageConfig._passthroughVelReduceCoeffRightTopBack.y() < 0.f || cageConfig._passthroughVelReduceCoeffRightTopBack.z() < 0.f))
+		{
+			Storm::throwException<Storm::Exception>(
+				"When enabled, all values for the velocity pass through coefficients for right/top/back of the cage should be positive or zero on each axis!\n"
+				"Current value was : " + Storm::toStdString(cageConfig._passthroughVelReduceCoeffRightTopBack)
+				);
 		}
 	}
 

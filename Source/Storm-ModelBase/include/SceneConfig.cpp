@@ -275,7 +275,8 @@ Storm::SceneCageConfig::SceneCageConfig() :
 	_boxMin{ dummyMandatoryVector3ForMin() },
 	_boxMax{ dummyMandatoryVector3ForMax() },
 	_infiniteDomain{ false },
-	_passthroughVelReduceCoeff{ 1.f, 1.f, 1.f }
+	_passthroughVelReduceCoeffLeftBottomFront{ 1.f, 1.f, 1.f },
+	_passthroughVelReduceCoeffRightTopBack{ 1.f, 1.f, 1.f }
 {
 
 }

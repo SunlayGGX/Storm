@@ -15,21 +15,22 @@
 namespace
 {
 	template<class ValueType, class SelectorFunc>
-	void reflectWithPenalty(const ValueType &min, const ValueType &max, const ValueType &penalty, ValueType &valuePos, ValueType &valueVel, SelectorFunc &&selector)
+	void reflectWithPenalty(const ValueType &min, const ValueType &max, const ValueType &penaltyLowest, const ValueType &penaltyHighest, ValueType &valuePos, ValueType &valueVel, SelectorFunc &&selector)
 	{
 		auto &selectedPosCoord = selector(valuePos);
 		auto &selectedVelCoord = selector(valueVel);
 		const auto &minValue = selector(min);
 		const auto &maxValue = selector(max);
-		const auto &selectedPenalty = selector(penalty);
 
 		if (selectedPosCoord < minValue)
 		{
+			const auto &selectedPenalty = selector(penaltyLowest);
 			selectedPosCoord = maxValue + selectedPosCoord - minValue;
 			selectedVelCoord *= selectedPenalty;
 		}
 		else if (selectedPosCoord > maxValue)
 		{
+			const auto &selectedPenalty = selector(penaltyHighest);
 			selectedPosCoord = minValue + selectedPosCoord - maxValue;
 			selectedVelCoord *= selectedPenalty;
 		}
@@ -41,7 +42,8 @@ Storm::Cage::Cage(const Storm::SceneCageConfig &sceneCageConfig) :
 	_boxMin{ sceneCageConfig._boxMin },
 	_boxMax{ sceneCageConfig._boxMax },
 	_infiniteDomain{ sceneCageConfig._infiniteDomain },
-	_velocityCoeffs{ sceneCageConfig._passthroughVelReduceCoeff }
+	_velocityCoeffsLeftBottomFront{ sceneCageConfig._passthroughVelReduceCoeffLeftBottomFront },
+	_passthroughVelReduceCoeffRightTopBack{ sceneCageConfig._passthroughVelReduceCoeffRightTopBack }
 {
 
 }
@@ -68,9 +70,9 @@ void Storm::Cage::doEnclose(Storm::ParticleSystemContainer &pSystems) const
 
 				Storm::runParallel(allPPositions, [this, &allPVelocities, &xSelector, &ySelector, &zSelector](Storm::Vector3 &currentPPosition, const std::size_t currentPIndex)
 				{
-					reflectWithPenalty(_boxMin, _boxMax, _velocityCoeffs, currentPPosition, allPVelocities[currentPIndex], xSelector);
-					reflectWithPenalty(_boxMin, _boxMax, _velocityCoeffs, currentPPosition, allPVelocities[currentPIndex], ySelector);
-					reflectWithPenalty(_boxMin, _boxMax, _velocityCoeffs, currentPPosition, allPVelocities[currentPIndex], zSelector);
+					reflectWithPenalty(_boxMin, _boxMax, _velocityCoeffsLeftBottomFront, _passthroughVelReduceCoeffRightTopBack, currentPPosition, allPVelocities[currentPIndex], xSelector);
+					reflectWithPenalty(_boxMin, _boxMax, _velocityCoeffsLeftBottomFront, _passthroughVelReduceCoeffRightTopBack, currentPPosition, allPVelocities[currentPIndex], ySelector);
+					reflectWithPenalty(_boxMin, _boxMax, _velocityCoeffsLeftBottomFront, _passthroughVelReduceCoeffRightTopBack, currentPPosition, allPVelocities[currentPIndex], zSelector);
 				});
 			}
 #if false

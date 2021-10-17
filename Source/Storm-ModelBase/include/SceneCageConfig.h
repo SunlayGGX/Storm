@@ -13,6 +13,7 @@ namespace Storm
 		Storm::Vector3 _boxMax;
 
 		bool _infiniteDomain;
-		Storm::Vector3 _passthroughVelReduceCoeff;
+		Storm::Vector3 _passthroughVelReduceCoeffLeftBottomFront;
+		Storm::Vector3 _passthroughVelReduceCoeffRightTopBack;
 	};
 }

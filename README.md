@@ -532,8 +532,16 @@ This element is completely optional. Not declaring it prevents to create a cage 
 - **boxMin (vector3, mandatory)**: The lower point of the cage spatial domain. All its components must be lower than boxMax.
 - **boxMax (vector3, mandatory)**: The higher point of the cage spatial domain. All its components must be greater than boxMin.
 - **infiniteDomain (bool, facultative)**: Specify if the cage should allow particle to pass through its borders. If true, then particle will be moved to the opposite side of the cage when they pass one side of the border. Default is false.
-- **passthroughVelReduceCoeff (vector3, facultative)**: When infinite domain is true. This coefficient is the velocity reduction coefficient happening for all particles that crosses the border on each axis. All values should be positive. Default is { x=1.0, y=1.0, z=1.0 }.
-
+- **passthroughVelReduceCoeff (tag, facultative)**: When infinite domain is true. This coefficient is the velocity reduction coefficient happening for all particles that crosses the border on each face defined individualy. All values should be positive. Attributes are : 
+ + **x (float, facultative)**: The coefficient of the lowest and highest x faces of the cage (left and right). It should not be used with xLeft or xRight attributes. Default is 1.0.
+ + **y (float, facultative)**: The coefficient of the lowest and highest y faces of the cage (top and bottom). It should not be used with yTop or yBottom attributes. Default is 1.0.
+ + **z (float, facultative)**: The coefficient of the lowest and highest z faces of the cage (back and front). It should not be used with zBack or zFront attributes. Default is 1.0.
+ + **xLeft (float, facultative)**: The coefficient of the lowest x face of the cage. Default is 1.0.
+ + **xRight (float, facultative)**: The coefficient of the highest x face of the cage. Default is 1.0.
+ + **yBottom(float, facultative)**: The coefficient of the lowest y face of the cage. Default is 1.0.
+ + **yTop (float, facultative)**: The coefficient of the highest y face of the cage. Default is 1.0.
+ + **zFront (float, facultative)**: The coefficient of the lowest z face of the cage. Default is 1.0.
+ + **zBack (float, facultative)**: The coefficient of the highest z face of the cage. Default is 1.0.
 
 
 ### Animation

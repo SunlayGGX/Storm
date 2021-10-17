@@ -21,6 +21,7 @@ namespace Storm
 		Storm::Vector3 _boxMax;
 
 		const bool _infiniteDomain;
-		const Storm::Vector3 _velocityCoeffs;
+		const Storm::Vector3 _velocityCoeffsLeftBottomFront;
+		const Storm::Vector3 _passthroughVelReduceCoeffRightTopBack;
 	};
 }
