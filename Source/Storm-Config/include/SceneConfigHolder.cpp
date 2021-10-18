@@ -404,13 +404,27 @@ if (blowerTypeStr == BlowerTypeXmlName) return Storm::BlowerType::BlowerTypeName
 
 	void parseCagePassthrough(const boost::property_tree::ptree &tree, Storm::SceneCageConfig &cageConfig)
 	{
-		Storm::XmlReader::readXmlAttribute(tree, cageConfig._passthroughVelReduceCoeffLeftBottomFront.x(), "xLeft");
-		Storm::XmlReader::readXmlAttribute(tree, cageConfig._passthroughVelReduceCoeffLeftBottomFront.y(), "yBottom");
-		Storm::XmlReader::readXmlAttribute(tree, cageConfig._passthroughVelReduceCoeffLeftBottomFront.z(), "zFront");
+		const auto attributeReader = [&cageConfig, &tree](const std::string_view legacyAttr, const std::string_view lowAttr, const std::string_view highAttr, auto getter)
+		{
+			bool hasSetCoordLegacy = Storm::XmlReader::readXmlAttribute(tree, getter(cageConfig._passthroughVelReduceCoeffLeftBottomFront), legacyAttr);
+			if (hasSetCoordLegacy)
+			{
+				getter(cageConfig._passthroughVelReduceCoeffRightTopBack) = getter(cageConfig._passthroughVelReduceCoeffLeftBottomFront);
+			}
 
-		Storm::XmlReader::readXmlAttribute(tree, cageConfig._passthroughVelReduceCoeffRightTopBack.x(), "xRight");
-		Storm::XmlReader::readXmlAttribute(tree, cageConfig._passthroughVelReduceCoeffRightTopBack.y(), "yTop");
-		Storm::XmlReader::readXmlAttribute(tree, cageConfig._passthroughVelReduceCoeffRightTopBack.z(), "zBack");
+			if (Storm::XmlReader::readXmlAttribute(tree, getter(cageConfig._passthroughVelReduceCoeffLeftBottomFront), lowAttr) && hasSetCoordLegacy)
+			{
+				Storm::throwException<Storm::Exception>("You cannot set " + Storm::toStdString(legacyAttr) + " and " + lowAttr + " attributes at the same time. Choose one and remove the other.");
+			}
+			if (Storm::XmlReader::readXmlAttribute(tree, getter(cageConfig._passthroughVelReduceCoeffRightTopBack), highAttr) && hasSetCoordLegacy)
+			{
+				Storm::throwException<Storm::Exception>("You cannot set " + Storm::toStdString(legacyAttr) + " and " + highAttr + " attributes at the same time. Choose one and remove the other.");
+			}
+		};
+		
+		attributeReader("x", "xLeft", "xRight", [](auto &val) -> auto& { return val.x(); });
+		attributeReader("y", "yBottom", "yTop", [](auto &val) -> auto& { return val.y(); });
+		attributeReader("z", "zFront", "zBack", [](auto &val) -> auto& { return val.z(); });
 	}
 
 	class AnimationsKeeper
