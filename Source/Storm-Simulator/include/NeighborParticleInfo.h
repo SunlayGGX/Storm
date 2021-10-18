@@ -10,22 +10,24 @@ namespace Storm
 	struct NeighborParticleInfo
 	{
 	public:
-		NeighborParticleInfo(Storm::ParticleSystem*const containingParticleSystem, std::size_t particleIndex, const Storm::Vector3 &positionDifferenceVector, float squaredNorm, bool isFluidP) :
+		NeighborParticleInfo(Storm::ParticleSystem*const containingParticleSystem, std::size_t particleIndex, const Storm::Vector3 &positionDifferenceVector, float squaredNorm, const bool isFluidP, const bool notReflected) :
 			_containingParticleSystem{ containingParticleSystem },
 			_particleIndex{ particleIndex },
 			_xij{ positionDifferenceVector },
 			_xijSquaredNorm{ squaredNorm },
 			_xijNorm{ std::sqrtf(squaredNorm) },
-			_isFluidParticle{ isFluidP }
+			_isFluidParticle{ isFluidP },
+			_notReflected{ notReflected }
 		{}
 
-		NeighborParticleInfo(Storm::ParticleSystem*const containingParticleSystem, std::size_t particleIndex, const float xDiff, const float yDiff, const float zDiff, const float squaredNorm, const bool isFluidP) :
+		NeighborParticleInfo(Storm::ParticleSystem*const containingParticleSystem, std::size_t particleIndex, const float xDiff, const float yDiff, const float zDiff, const float squaredNorm, const bool isFluidP, const bool notReflected) :
 			_containingParticleSystem{ containingParticleSystem },
 			_particleIndex{ particleIndex },
 			_xij{ xDiff, yDiff, zDiff },
 			_xijSquaredNorm{ squaredNorm },
 			_xijNorm{ std::sqrtf(squaredNorm) },
-			_isFluidParticle{ isFluidP }
+			_isFluidParticle{ isFluidP },
+			_notReflected{ notReflected }
 		{}
 
 		~NeighborParticleInfo() = default;
@@ -37,6 +39,7 @@ namespace Storm
 		const float _xijSquaredNorm; // Norm squared of _positionDifferenceVector
 		const float _xijNorm; // the version non squared of _vectToParticleSquaredNorm
 		const bool _isFluidParticle;
+		const bool _notReflected; // If the particle is NOT from the other side of the domain through the reflection mechanism. Only valid if we're on Infinite domain mode, always true otherwise.
 
 		// Making a cache of those value made an optimization of around 30% of the computational time
 		// (tested on 5 runs with and without those caches with the same settings and IISPH :

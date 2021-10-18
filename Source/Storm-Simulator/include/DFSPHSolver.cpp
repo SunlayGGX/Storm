@@ -67,9 +67,15 @@ namespace
 		const float density0 = fluidParticleSystem.getRestDensity();
 		const float restMassDensity = currentPMass * density0;
 
+		// Even though reflected particle are real particle inside the domain, they are in fact dummies to represent the notion of outside of domain particle
+		// And we consider out of domain particle to be still air (or at least, we don't care about their velocity).
+		// In other words, we consider reflected particle, aka out of domain particle, to have no velocity.
+		const Storm::Vector3 k_velocityInCasePReflected = Storm::Vector3::Zero();
+
 		for (const Storm::NeighborParticleInfo &neighbor : currentPNeighborhood)
 		{
-			const Storm::Vector3 vij = vi - neighbor._containingParticleSystem->getVelocity()[neighbor._particleIndex];
+			const Storm::Vector3 &vj = neighbor._notReflected ? neighbor._containingParticleSystem->getVelocity()[neighbor._particleIndex] : k_velocityInCasePReflected;
+			const Storm::Vector3 vij = vi - vj;
 
 			const float vijDotXij = vij.dot(neighbor._xij);
 			const float viscoGlobalCoeff = currentPMass * 10.f * vijDotXij / (neighbor._xijSquaredNorm + viscoPrecoeff);
@@ -198,6 +204,7 @@ namespace
 				}
 			}
 #else
+			STORM_TODO("Consider reflected particle (aka out of domain particle) velocity instead.");
 
 			if (neighbor._isFluidParticle)
 			{
@@ -215,7 +222,9 @@ namespace
 				const Storm::RigidBodyParticleSystem*const neighborPSystemAsBoundary = static_cast<Storm::RigidBodyParticleSystem*>(neighbor._containingParticleSystem);
 				const float neighborVolume = neighborPSystemAsBoundary->getVolumes()[neighbor._particleIndex];
 
-				const float qj = density0 * neighborPSystemAsBoundary->getVelocity()[neighbor._particleIndex].squaredNorm() / 2.f;
+				// Even though reflected particle are real particle inside the domain, they are in fact dummies to represent the notion of outside of domain particle
+				// And we consider out of domain particle to be still fluid at density0.
+				const float qj = neighbor._notReflected ? (density0 * neighborPSystemAsBoundary->getVelocity()[neighbor._particleIndex].squaredNorm() / 2.f) : density0;
 
 				const Storm::Vector3 currentDynamicPressureQComponent = (neighborVolume * neighborVolume * (qj - qi)) * neighbor._gradWij;
 
@@ -251,7 +260,7 @@ namespace
 				const float noStickCoeff = pSystemAsRb.getNoStickCoefficient();
 				if (noStickCoeff > 0.f)
 				{
-					const Storm::Vector3 velDiff = vi - pSystemAsRb.getVelocity()[neighbor._particleIndex];
+					const Storm::Vector3 velDiff = neighbor._notReflected ? (vi - pSystemAsRb.getVelocity()[neighbor._particleIndex]) : vi;
 					const Storm::Vector3 &rbPNormal = pSystemAsRb.getNormals()[neighbor._particleIndex];
 
 					// Make it the component that removes the normal component of the velocity.
@@ -616,7 +625,10 @@ void Storm::DFSPHSolver::initializeStepDensities(const Storm::IterationParameter
 				const std::vector<Storm::Vector3> &velocities = fluidPSystem.getVelocity();
 				const std::vector<float> &densities = fluidPSystem.getDensities();
 
-				Storm::runParallel(fluidPSystem.getPressures(), [this, &neighborhoodArrays, &velocities, &densities, density0 = fluidPSystem.getRestDensity()](float &currentPQ, const std::size_t currentPIndex)
+				// Even though reflected particle are real particle inside the domain, they are in fact dummies to represent the notion of outside of domain particle
+				// And we consider out of domain particle to be still air (or at least, we don't care about their velocity).
+				// In other words, we consider reflected particle, aka out of domain particle, to have no velocity.
+				Storm::runParallel(fluidPSystem.getPressures(), [this, &neighborhoodArrays, &velocities, &densities, density0 = fluidPSystem.getRestDensity(), k_velocityInCasePReflected = Storm::Vector3::Zero()](float &currentPQ, const std::size_t currentPIndex)
 				{
 					const Storm::ParticleNeighborhoodArray &currentPNeighborhood = neighborhoodArrays[currentPIndex];
 #if false
@@ -626,7 +638,7 @@ void Storm::DFSPHSolver::initializeStepDensities(const Storm::IterationParameter
 					currentPQ = 0.f;
 					for (const Storm::NeighborParticleInfo &neighbor : currentPNeighborhood)
 					{
-						const Storm::Vector3 &vj = neighbor._containingParticleSystem->getVelocity()[neighbor._particleIndex];
+						const Storm::Vector3 &vj = neighbor._notReflected ? neighbor._containingParticleSystem->getVelocity()[neighbor._particleIndex] : k_velocityInCasePReflected;
 						if (neighbor._isFluidParticle)
 						{
 							const Storm::FluidParticleSystem* neighborPSystemAsFluid = static_cast<Storm::FluidParticleSystem*>(neighbor._containingParticleSystem);
@@ -914,7 +926,7 @@ void Storm::DFSPHSolver::divergenceSolve(const Storm::IterationParameter &iterat
 
 				const float deltaVToForce = currentPMass * invertDeltaTime;
 
-				Storm::Vector3 &v_i = currentPData._predictedVelocity;
+				Storm::Vector3 &vi = currentPData._predictedVelocity;
 
 				const Storm::DFSPHSolver::DFSPHSolverDataArray* neighborDataArray = &dataFieldPair.second;
 				const Storm::FluidParticleSystem* lastNeighborFluidSystem = &fluidPSystem;
@@ -935,14 +947,14 @@ void Storm::DFSPHSolver::divergenceSolve(const Storm::IterationParameter &iterat
 
 						const Storm::DFSPHSolverData &neighborData = (*neighborDataArray)[neighbor._particleIndex];
 
-						const float b_j = neighborData._densityAdv;
+						const float b_j = neighbor._notReflected ? neighborData._densityAdv : 1.f;
 						const float kj = b_j * neighborData._kCoeff;
 
 						const float kSum = ki + lastNeighborFluidSystem->getRestDensity() / density0 * kj;
 						if (std::fabs(kSum) > Storm::SPHSolverPrivateLogic::k_epsilon)
 						{
 							const Storm::Vector3 velChange = (iterationParameter._deltaTime * kSum * lastNeighborFluidSystem->getParticleVolume()) * neighbor._gradWij;
-							v_i += velChange;
+							vi += velChange;
 
 							const Storm::Vector3 addedPressureForce = deltaVToForce * velChange;
 							currentPIntermediaryForce += addedPressureForce;
@@ -954,7 +966,7 @@ void Storm::DFSPHSolver::divergenceSolve(const Storm::IterationParameter &iterat
 
 						const Storm::Vector3 velChange = (iterationParameter._deltaTime * ki * neighborPSystemAsBoundary->getVolumes()[neighbor._particleIndex]) * neighbor._gradWij;	// kj already contains inverse density
 
-						v_i += velChange;
+						vi += velChange;
 
 						const Storm::Vector3 addedPressureForce = deltaVToForce * velChange;
 						currentPIntermediaryForce += addedPressureForce;
@@ -1095,7 +1107,7 @@ void Storm::DFSPHSolver::pressureSolve(const Storm::IterationParameter &iteratio
 			auto lambda = [&]<bool computePressureForBoundary>(Storm::DFSPHSolverData & currentPData, const std::size_t currentPIndex, const float ki)
 			{
 				const float currentPMass = masses[currentPIndex];
-				Storm::Vector3 &v_i = currentPData._predictedVelocity;
+				Storm::Vector3 &vi = currentPData._predictedVelocity;
 				Storm::Vector3 &currentPTemporaryVelocityPressureForce = temporaryVelocityPressureForces[currentPIndex];
 
 				const Storm::DFSPHSolver::DFSPHSolverDataArray* neighborDataArray = &dataFieldPair.second;
@@ -1114,7 +1126,7 @@ void Storm::DFSPHSolver::pressureSolve(const Storm::IterationParameter &iteratio
 
 						const Storm::DFSPHSolverData &neighborData = (*neighborDataArray)[neighbor._particleIndex];
 
-						const float b_j = neighborData._densityAdv - 1.f;
+						const float b_j = neighbor._notReflected ? (neighborData._densityAdv - 1.f) : 0.f;
 						const float kj = b_j * neighborData._kCoeff;
 						const float kSum = ki + lastNeighborFluidSystem->getRestDensity() / density0 * kj;
 						if (std::fabs(kSum) > Storm::SPHSolverPrivateLogic::k_epsilon)
@@ -1122,7 +1134,7 @@ void Storm::DFSPHSolver::pressureSolve(const Storm::IterationParameter &iteratio
 							const Storm::Vector3 velChange = (iterationParameter._deltaTime * kSum * lastNeighborFluidSystem->getParticleVolume()) * neighbor._gradWij;	// ki, kj already contain inverse density
 
 							// Directly update velocities instead of storing pressure accelerations
-							v_i += velChange;
+							vi += velChange;
 
 							currentPTemporaryVelocityPressureForce -= (currentPMass * invDeltaTime) * velChange;
 						}
@@ -1134,7 +1146,7 @@ void Storm::DFSPHSolver::pressureSolve(const Storm::IterationParameter &iteratio
 						// Directly update velocities instead of storing pressure accelerations
 						const Storm::Vector3 velChange = (iterationParameter._deltaTime * 1.f * ki * neighborPSystemAsBoundary->getVolumes()[neighbor._particleIndex]) * neighbor._gradWij; // kj already contains inverse density
 
-						v_i += velChange;
+						vi += velChange;
 
 						const Storm::Vector3 addedPressureForce = (currentPMass * invDeltaTime) * velChange;
 						currentPTemporaryVelocityPressureForce += addedPressureForce;
@@ -1268,6 +1280,10 @@ void Storm::DFSPHSolver::computeDensityAdv(const Storm::IterationParameter &iter
 	const Storm::DFSPHSolver::DFSPHSolverDataArray* neighborDataArray = currentSystemData;
 	const Storm::FluidParticleSystem* lastNeighborFluidSystem = &fluidPSystem;
 
+	// Even though reflected particle are real particle inside the domain, they are in fact dummies to represent the notion of outside of domain particle
+	// And we consider out of domain particle to be still air (or at least, we don't care about their velocity).
+	// In other words, we consider reflected particle, aka out of domain particle, to have no velocity.
+	const Storm::Vector3 k_velocityInCasePReflected = Storm::Vector3::Zero();
 	float delta = 0.f;
 	for (const Storm::NeighborParticleInfo &neighbor : currentPNeighborhood)
 	{
@@ -1281,13 +1297,13 @@ void Storm::DFSPHSolver::computeDensityAdv(const Storm::IterationParameter &iter
 
 			const Storm::DFSPHSolverData &neighborData = (*neighborDataArray)[neighbor._particleIndex];
 
-			const Storm::Vector3 &vj = neighborData._predictedVelocity;
+			const Storm::Vector3 &vj = neighbor._notReflected ? neighborData._predictedVelocity : k_velocityInCasePReflected;
 			delta += lastNeighborFluidSystem->getParticleVolume() * (vi - vj).dot(neighbor._gradWij);
 		}
 		else
 		{
 			const Storm::RigidBodyParticleSystem* neighborPSystemAsBoundary = static_cast<const Storm::RigidBodyParticleSystem*>(neighbor._containingParticleSystem);
-			const Storm::Vector3 &vj = neighborPSystemAsBoundary->getVelocity()[neighbor._particleIndex];
+			const Storm::Vector3 &vj = neighbor._notReflected ? neighborPSystemAsBoundary->getVelocity()[neighbor._particleIndex] : k_velocityInCasePReflected;
 			delta += neighborPSystemAsBoundary->getVolumes()[neighbor._particleIndex] * (vi - vj).dot(neighbor._gradWij);
 		}
 	}
@@ -1311,6 +1327,10 @@ void Storm::DFSPHSolver::computeDensityChange(const Storm::IterationParameter &/
 
 		const Storm::Vector3 &vi = currentPData._predictedVelocity;
 
+		// Even though reflected particle are real particle inside the domain, they are in fact dummies to represent the notion of outside of domain particle
+		// And we consider out of domain particle to be still fluid (or at least, we don't care about their velocity).
+		// In other words, we consider reflected particle, aka out of domain particle, to have no velocity.
+		const Storm::Vector3 k_velocityInCasePReflected = Storm::Vector3::Zero();
 		for (const Storm::NeighborParticleInfo &neighbor : currentPNeighborhood)
 		{
 			if (neighbor._isFluidParticle)
@@ -1323,14 +1343,14 @@ void Storm::DFSPHSolver::computeDensityChange(const Storm::IterationParameter &/
 
 				const Storm::DFSPHSolverData &neighborData = (*neighborDataArray)[neighbor._particleIndex];
 
-				const Storm::Vector3 &vj = neighborData._predictedVelocity;
+				const Storm::Vector3 &vj = neighbor._notReflected ? neighborData._predictedVelocity : k_velocityInCasePReflected;
 				densityAdv += lastNeighborFluidSystem->getParticleVolume() * (vi - vj).dot(neighbor._gradWij);
 			}
 			else
 			{
-				const Storm::RigidBodyParticleSystem* neighborPSystemAsBoundary = static_cast<const Storm::RigidBodyParticleSystem*>(neighbor._containingParticleSystem);
-				const Storm::Vector3 &vj = neighborPSystemAsBoundary->getVelocity()[neighbor._particleIndex];
-				densityAdv += neighborPSystemAsBoundary->getVolumes()[neighbor._particleIndex] * (vi - vj).dot(neighbor._gradWij);
+				const Storm::RigidBodyParticleSystem &neighborPSystemAsBoundary = static_cast<const Storm::RigidBodyParticleSystem &>(*neighbor._containingParticleSystem);
+				const Storm::Vector3 &vj = neighbor._notReflected ? neighborPSystemAsBoundary.getVelocity()[neighbor._particleIndex] : k_velocityInCasePReflected;
+				densityAdv += neighborPSystemAsBoundary.getVolumes()[neighbor._particleIndex] * (vi - vj).dot(neighbor._gradWij);
 			}
 		}
 

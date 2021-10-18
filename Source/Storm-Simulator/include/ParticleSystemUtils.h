@@ -152,15 +152,15 @@ namespace Storm
 
 #undef STORM_PROCESS_RETURN_DIMENSION_FROM_FLAG
 
-	template<class SearchParam, class NeighborSearchInParamType>
+	template<bool notReflected, class SearchParam, class NeighborSearchInParamType>
 	__forceinline void addIfNeighbor(const NeighborSearchInParamType &inParam, SearchParam &param, Storm::ParticleSystem*const particleSystem, const Storm::NeighborParticleReferral &particleReferral)
 	{
 		if (Storm::isNeighborhood(inParam, param))
 		{
 #if STORM_USE_INTRINSICS
-			Storm::NeighborParticleInfo &addedNeighbor = inParam._currentPNeighborhood.emplace_back(particleSystem, particleReferral._particleIndex, param._xij.m128_f32[0], param._xij.m128_f32[1], param._xij.m128_f32[2], param._normSquared, inParam._isFluid);
+			Storm::NeighborParticleInfo &addedNeighbor = inParam._currentPNeighborhood.emplace_back(particleSystem, particleReferral._particleIndex, param._xij.m128_f32[0], param._xij.m128_f32[1], param._xij.m128_f32[2], param._normSquared, inParam._isFluid, notReflected);
 #else
-			Storm::NeighborParticleInfo &addedNeighbor = inParam._currentPNeighborhood.emplace_back(particleSystem, particleReferral._particleIndex, param._xij, param._normSquared, inParam._isFluid);
+			Storm::NeighborParticleInfo &addedNeighbor = inParam._currentPNeighborhood.emplace_back(particleSystem, particleReferral._particleIndex, param._xij, param._normSquared, inParam._isFluid, notReflected);
 #endif
 
 			addedNeighbor._Wij = inParam._rawKernelFunc(inParam._kernelLength, addedNeighbor._xijNorm);
@@ -204,8 +204,7 @@ namespace Storm
 						// in other words, particle from the same bundle cannot be at the other side of the domain,
 						// otherwise they wouldn't be in the same bundle. Reflection are always for the neighbor bundles.
 						Storm::retrieveNeighborPosition<false>(param, thisSystemAllPPosition, particleReferral);
-
-						Storm::addIfNeighbor(inParam, param, inParam._thisParticleSystem, particleReferral);
+						Storm::addIfNeighbor<true>(inParam, param, inParam._thisParticleSystem, particleReferral);
 					}
 					else
 					{
@@ -225,8 +224,7 @@ namespace Storm
 					// in other words, particle from the same bundle cannot be at the other side of the domain,
 					// otherwise they wouldn't be in the same bundle. Reflection are always for the neighbor bundles.
 					Storm::retrieveNeighborPosition<false>(param, otherPSystem->getPositions(), particleReferral);
-
-					Storm::addIfNeighbor(inParam, param, otherPSystem, particleReferral);
+					Storm::addIfNeighbor<true>(inParam, param, otherPSystem, particleReferral);
 				}
 			}
 
@@ -240,8 +238,7 @@ namespace Storm
 					// in other words, particle from the same bundle cannot be at the other side of the domain,
 					// otherwise they wouldn't be in the same bundle. Reflection are always for the neighbor bundles.
 					Storm::retrieveNeighborPosition<false>(param, thisSystemAllPPosition, particleReferral);
-
-					Storm::addIfNeighbor(inParam, param, inParam._thisParticleSystem, particleReferral);
+					Storm::addIfNeighbor<true>(inParam, param, inParam._thisParticleSystem, particleReferral);
 				}
 				else
 				{
@@ -255,8 +252,7 @@ namespace Storm
 					// in other words, particle from the same bundle cannot be at the other side of the domain,
 					// otherwise they wouldn't be in the same bundle. Reflection are always for the neighbor bundles.
 					Storm::retrieveNeighborPosition<false>(param, otherPSystem->getPositions(), particleReferral);
-
-					Storm::addIfNeighbor(inParam, param, otherPSystem, particleReferral);
+					Storm::addIfNeighbor<true>(inParam, param, otherPSystem, particleReferral);
 				}
 			}
 
@@ -288,8 +284,7 @@ namespace Storm
 						if (particleReferral._systemId == inParam._currentSystemId)
 						{
 							Storm::retrieveNeighborPosition<false>(param, thisSystemAllPPosition, particleReferral);
-
-							Storm::addIfNeighbor(inParam, param, inParam._thisParticleSystem, particleReferral);
+							Storm::addIfNeighbor<true>(inParam, param, inParam._thisParticleSystem, particleReferral);
 						}
 						else
 						{
@@ -300,8 +295,7 @@ namespace Storm
 							}
 
 							Storm::retrieveNeighborPosition<false>(param, otherPSystem->getPositions(), particleReferral);
-
-							Storm::addIfNeighbor(inParam, param, otherPSystem, particleReferral);
+							Storm::addIfNeighbor<true>(inParam, param, otherPSystem, particleReferral);
 						}
 					}
 				}
@@ -311,9 +305,8 @@ namespace Storm
 					{
 						if (particleReferral._systemId == inParam._currentSystemId)
 						{
-							Storm::retrieveNeighborPosition<considerInfiniteDomain>(param, thisSystemAllPPosition, particleReferral);
-
-							Storm::addIfNeighbor(inParam, param, inParam._thisParticleSystem, particleReferral);
+							Storm::retrieveNeighborPosition<true>(param, thisSystemAllPPosition, particleReferral);
+							Storm::addIfNeighbor<false>(inParam, param, inParam._thisParticleSystem, particleReferral);
 						}
 						else
 						{
@@ -323,9 +316,8 @@ namespace Storm
 								otherPSystem = inParam._allParticleSystems.find(particleReferral._systemId)->second.get();
 							}
 
-							Storm::retrieveNeighborPosition<considerInfiniteDomain>(param, otherPSystem->getPositions(), particleReferral);
-
-							Storm::addIfNeighbor(inParam, param, otherPSystem, particleReferral);
+							Storm::retrieveNeighborPosition<true>(param, otherPSystem->getPositions(), particleReferral);
+							Storm::addIfNeighbor<false>(inParam, param, otherPSystem, particleReferral);
 						}
 					}
 				}
@@ -345,8 +337,7 @@ namespace Storm
 				// in other words, particle from the same bundle cannot be at the other side of the domain,
 				// otherwise they wouldn't be in the same bundle. Reflection are always for the neighbor bundles.
 				Storm::retrieveNeighborPosition<false>(param, otherPSystem->getPositions(), particleReferral);
-
-				Storm::addIfNeighbor(inParam, param, otherPSystem, particleReferral);
+				Storm::addIfNeighbor<true>(inParam, param, otherPSystem, particleReferral);
 			}
 
 			for (const std::vector<Storm::NeighborParticleReferral>** linkedNeighborReferralsIter = inParam._outLinkedNeighborBundle; *linkedNeighborReferralsIter != nullptr; ++linkedNeighborReferralsIter)
@@ -381,8 +372,7 @@ namespace Storm
 						}
 
 						Storm::retrieveNeighborPosition<false>(param, otherPSystem->getPositions(), particleReferral);
-
-						Storm::addIfNeighbor(inParam, param, otherPSystem, particleReferral);
+						Storm::addIfNeighbor<true>(inParam, param, otherPSystem, particleReferral);
 					}
 				}
 				else
@@ -395,9 +385,8 @@ namespace Storm
 							otherPSystem = inParam._allParticleSystems.find(particleReferral._systemId)->second.get();
 						}
 
-						Storm::retrieveNeighborPosition<considerInfiniteDomain>(param, otherPSystem->getPositions(), particleReferral);
-
-						Storm::addIfNeighbor(inParam, param, otherPSystem, particleReferral);
+						Storm::retrieveNeighborPosition<true>(param, otherPSystem->getPositions(), particleReferral);
+						Storm::addIfNeighbor<false>(inParam, param, otherPSystem, particleReferral);
 					}
 				}
 			}

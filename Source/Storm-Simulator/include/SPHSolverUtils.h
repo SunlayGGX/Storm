@@ -43,13 +43,18 @@ namespace Storm
 			const float currentPDensityRatio = dendity0 * dendity0 / currentPDensity;
 			const float fluidDragPreCoeff = uniformDragCoeff * currentPDensityRatio * fluidParticleSystem.getParticleVolume();
 
+			// Even though reflected particle are real particle inside the domain, they are in fact dummies to represent the notion of outside of domain particle
+			// And we consider out of domain particle to be still air (or at least, we don't care about their velocity).
+			// In other words, we consider reflected particle, aka out of domain particle, to have no velocity.
+			Storm::Vector3 k_velocityInCasePReflected = Storm::Vector3::Zero();
+
 			for (const Storm::NeighborParticleInfo &neighbor : currentPNeighborhood)
 			{
 				if (neighbor._isFluidParticle)
 				{
 					if constexpr (applyDragOnFluid)
 					{
-						computeDragForce(vi, neighbor._containingParticleSystem->getVelocity()[neighbor._particleIndex], fluidDragPreCoeff, neighbor._Wij, currentDragTmpComponent);
+						computeDragForce(vi, neighbor._notReflected ? neighbor._containingParticleSystem->getVelocity()[neighbor._particleIndex] : k_velocityInCasePReflected, fluidDragPreCoeff, neighbor._Wij, currentDragTmpComponent);
 						totalDragForce += currentDragTmpComponent;
 					}
 				}
@@ -61,7 +66,7 @@ namespace Storm
 					{
 						rbDragPreCoeff *= currentPDensityRatio * neighborPSystemAsBoundary->getVolumes()[neighbor._particleIndex];
 
-						const Storm::Vector3 &vj = neighborPSystemAsBoundary->getVelocity()[neighbor._particleIndex];
+						const Storm::Vector3 &vj = neighbor._notReflected ? neighborPSystemAsBoundary->getVelocity()[neighbor._particleIndex] : k_velocityInCasePReflected;
 
 						computeDragForce(vi, vj, rbDragPreCoeff, neighbor._Wij, currentDragTmpComponent);
 						totalDragForce += currentDragTmpComponent;
