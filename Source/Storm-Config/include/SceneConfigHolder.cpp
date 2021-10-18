@@ -1223,6 +1223,9 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 			}
 
 			rbConfig._angularVelocityDamping = rbAngulVelDampingTmp;
+
+			// Reset for the next one
+			rbAngulVelDampingTmp = -1.f;
 		}
 
 		if (rbConfig._collisionShape == Storm::CollisionType::IndividualParticle)
