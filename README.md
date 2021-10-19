@@ -533,7 +533,7 @@ Inside this element should be put all rigid bodies. Each rigid body should be sp
 This element is completely optional. Not declaring it prevents to create a cage inside the simulation (a domain where no particle is allowed to leave (but not physically meaningful)). Cage is a box.
 - **boxMin (vector3, mandatory)**: The lower point of the cage spatial domain. All its components must be lower than boxMax.
 - **boxMax (vector3, mandatory)**: The higher point of the cage spatial domain. All its components must be greater than boxMin.
-- **infiniteDomain (bool, facultative)**: Specify if the cage should allow particle to pass through its borders. If true, then particle will be moved to the opposite side of the cage when they pass one side of the border. Default is false.
+- **infiniteDomain (boolean, facultative)**: Specify if the cage should allow particle to pass through its borders. If true, then particle will be moved to the opposite side of the cage when they pass one side of the border. Default is false.
 - **passthroughVelReduceCoeff (tag, facultative)**: When infinite domain is true. This coefficient is the velocity reduction coefficient happening for all particles that crosses the border on each face defined individualy. All values should be positive. Attributes are : 
  + **x (float, facultative)**: The coefficient of the lowest and highest x faces of the cage (left and right). It should not be used with xLeft or xRight attributes. Default is 1.0.
  + **y (float, facultative)**: The coefficient of the lowest and highest y faces of the cage (top and bottom). It should not be used with yTop or yBottom attributes. Default is 1.0.
