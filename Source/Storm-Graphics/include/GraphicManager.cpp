@@ -312,9 +312,9 @@ void Storm::GraphicManager::update()
 					{
 						shouldTrackTranslation = false;
 					}
-					else
+					else if(_userMovedCameraThisFrame)
 					{
-						shouldTrackTranslation = _userMovedCameraThisFrame;
+						shouldTrackTranslation = true;
 						_userMovedCameraThisFrame = false;
 					}
 				}
