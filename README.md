@@ -348,6 +348,7 @@ Unlike the other config files, it can be named as you want. Here the xml tags yo
 - **fluidParticleRemovalMode (string, facultative)**: Specify what method formula to use to detect a fluid particle overlaps a rigid body particle, therefore should be eliminated at initialization time. This setting is case insensitive. Allowed values are “Sphere” (default) and “Cube”.
 - **noStickConstraint (boolean, facultative)**: Enforce the no-stick constraint as explicited in R. Bridson book. Since it is experimental, default is false. For now, the setting is only implemented for DFSPH.
 - **useCoendaEffect (boolean, facultative)**: Use Coenda effect penalty forces. Since it is experimental, default is false. For now, the setting is only implemented for DFSPH.
+- **floorExitLevelY (float, facultative)**: If set, the simulation will exit when any dynamic rigidbodies hit the floor below this point. Default is unset (the feature is disabled).
 
 
 #### Graphics

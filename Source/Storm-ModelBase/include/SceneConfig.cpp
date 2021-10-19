@@ -80,7 +80,8 @@ Storm::SceneSimulationConfig::SceneSimulationConfig() :
 	_freeRbAtPhysicsTime{ -1.f },
 	_noStickConstraint{ false },
 	_applyDragEffect{ false },
-	_useCoendaEffect{ false }
+	_useCoendaEffect{ false },
+	_exitSimulationFloorLevel{ std::numeric_limits<float>::quiet_NaN() }
 {
 
 }

@@ -60,5 +60,7 @@ namespace Storm
 		bool _noStickConstraint;
 		bool _applyDragEffect;
 		bool _useCoendaEffect;
+
+		float _exitSimulationFloorLevel;
 	};
 }

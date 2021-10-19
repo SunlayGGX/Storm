@@ -23,7 +23,7 @@ namespace Storm
 		virtual int waitForProcessExitCode(const std::size_t processUID, bool &outFailure) = 0;
 
 	public:
-		virtual void makeBipSound(const std::chrono::milliseconds bipDuration) = 0;
+		virtual void makeBipSound(const std::chrono::milliseconds bipDuration) const = 0;
 
 	public:
 		virtual std::size_t retrieveCurrentAppUsedMemory() const = 0;

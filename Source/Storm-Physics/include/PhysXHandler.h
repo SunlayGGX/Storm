@@ -10,7 +10,9 @@ namespace Storm
 
 	class PhysXDebugger;
 
-	class PhysXHandler : public physx::PxDeletionListener
+	class PhysXHandler :
+		public physx::PxDeletionListener,
+		public physx::PxSimulationEventCallback
 	{
 	public:
 		PhysXHandler();
@@ -42,6 +44,18 @@ namespace Storm
 	public:
 		void reconnectPhysicsDebugger();
 
+	public:
+		bool shouldExitIfHitFloor() const;
+
+	public:
+		void onConstraintBreak(physx::PxConstraintInfo* constraints, physx::PxU32 count) final override;
+		void onContact(const physx::PxContactPairHeader &pairHeader, const physx::PxContactPair* pairs, physx::PxU32 nbPairs) final override;
+		void onWake(physx::PxActor** actors, physx::PxU32 count) final override;
+		void onSleep(physx::PxActor** actors, physx::PxU32 count) final override;
+		void onTrigger(physx::PxTriggerPair* pairs, physx::PxU32 count) final override;
+		void onAdvance(const physx::PxRigidBody*const* bodyBuffer, const physx::PxTransform* poseBuffer, const physx::PxU32 count) final override;
+
+	private:
 	private:
 		Storm::UniquePointer<physx::PxFoundation> _foundationInstance;
 		Storm::UniquePointer<physx::PxPhysics> _physics;
@@ -53,5 +67,8 @@ namespace Storm
 
 		// Since PhysX doesn't own it.
 		std::vector<Storm::UniquePointer<physx::PxTriangleMesh>> _triangleMeshReferences;
+
+		bool _shouldQuitOnContactWithFloor;
+		float _lowestFloorY;
 	};
 }

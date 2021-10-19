@@ -38,7 +38,7 @@ namespace Storm
 		int waitForProcessExitCode(const std::size_t processUID, bool &outFailure) final override;
 
 	public:
-		void makeBipSound(const std::chrono::milliseconds bipDuration) final override;
+		void makeBipSound(const std::chrono::milliseconds bipDuration) const final override;
 
 	public:
 		std::size_t retrieveCurrentAppUsedMemory() const final override;

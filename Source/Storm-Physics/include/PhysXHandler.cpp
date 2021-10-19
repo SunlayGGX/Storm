@@ -8,11 +8,14 @@
 
 #include "SingletonHolder.h"
 #include "IConfigManager.h"
+#include "ITimeManager.h"
+#include "IOSManager.h"
 
 #include "SceneSimulationConfig.h"
 #include "SceneRigidBodyConfig.h"
 #include "SceneConstraintConfig.h"
 #include "ScenePhysicsConfig.h"
+#include "GeneralApplicationConfig.h"
 
 #include "CollisionType.h"
 
@@ -180,6 +183,17 @@ namespace
 
 		return result;
 	}
+
+	physx::PxFilterFlags customCollisionFilterShader(physx::PxFilterObjectAttributes /*attributes0*/, physx::PxFilterData /*filterData0*/, physx::PxFilterObjectAttributes /*attributes1*/, physx::PxFilterData /*filterData1*/, physx::PxPairFlags &retPairFlags, const void* /*constantBlock*/, physx::PxU32 /*constantBlockSize*/)
+	{
+		retPairFlags =
+			physx::PxPairFlag::eCONTACT_DEFAULT |
+			physx::PxPairFlag::eNOTIFY_TOUCH_PERSISTS |
+			physx::PxPairFlag::eNOTIFY_CONTACT_POINTS
+			;
+
+		return physx::PxFilterFlag::eNOTIFY;
+	}
 }
 
 Storm::PhysXHandler::PhysXHandler() :
@@ -236,6 +250,9 @@ Storm::PhysXHandler::PhysXHandler() :
 
 	const Storm::SceneSimulationConfig &sceneSimulationConfig = configMgr.getSceneSimulationConfig();
 
+	_shouldQuitOnContactWithFloor = !std::isnan(sceneSimulationConfig._exitSimulationFloorLevel);
+	_lowestFloorY = sceneSimulationConfig._exitSimulationFloorLevel;
+
 	physx::PxSceneDesc sceneDesc{ _physics->getTolerancesScale() };
 	sceneDesc.gravity = Storm::convertToPx(sceneSimulationConfig._gravity);
 
@@ -255,8 +272,16 @@ Storm::PhysXHandler::PhysXHandler() :
 #undef STORM_ADD_FLAG_IF_CONFIG
 
 	sceneDesc.gpuMaxNumPartitions = 8;
-	
-	sceneDesc.filterShader = physx::PxDefaultSimulationFilterShader;
+
+	if (_shouldQuitOnContactWithFloor)
+	{
+		sceneDesc.filterShader = customCollisionFilterShader;
+	}
+	else
+	{
+		sceneDesc.filterShader = physx::PxDefaultSimulationFilterShader;
+	}
+	sceneDesc.simulationEventCallback = this;
 
 	if (!sceneDesc.cpuDispatcher)
 	{
@@ -269,6 +294,7 @@ Storm::PhysXHandler::PhysXHandler() :
 	}
 
 	_scene = _physics->createScene(sceneDesc);
+
 	if (!_scene)
 	{
 		Storm::throwException<Storm::Exception>("PhysX main scene creation failed!");
@@ -373,6 +399,16 @@ Storm::UniquePointer<physx::PxRigidDynamic> Storm::PhysXHandler::createDynamicRi
 		result->setLinearDamping(0.f);
 	}
 
+#if true
+	// Normally this is already the case but just in case...
+	result->setCMassLocalPose(physx::PxTransform{ physx::PxIDENTITY::PxIdentity });
+#endif
+
+	if (_shouldQuitOnContactWithFloor)
+	{
+		result->setRigidBodyFlag(physx::PxRigidBodyFlag::Enum::eENABLE_CCD, true);
+	}
+
 	_scene->addActor(*result);
 
 	return result;
@@ -385,26 +421,38 @@ Storm::UniquePointer<physx::PxMaterial> Storm::PhysXHandler::createRigidBodyMate
 
 Storm::UniquePointer<physx::PxShape> Storm::PhysXHandler::createRigidBodyShape(const Storm::SceneRigidBodyConfig &rbSceneConfig, const std::vector<Storm::Vector3> &vertices, const std::vector<uint32_t> &indexes, physx::PxMaterial* rbMaterial)
 {
+	Storm::UniquePointer<physx::PxShape> result;
+
 	switch (rbSceneConfig._collisionShape)
 	{
 	case Storm::CollisionType::IndividualParticle:
 	case Storm::CollisionType::Sphere:
-		return createSphereShape(*_physics, vertices, rbMaterial);
+		result = createSphereShape(*_physics, vertices, rbMaterial);
+		break;
 
 	case Storm::CollisionType::Cube:
-		return createBoxShape(*_physics, vertices, rbMaterial);
+		result = createBoxShape(*_physics, vertices, rbMaterial);
+		break;
 
 	case Storm::CollisionType::Custom:
 		if (indexes.empty())
 		{
 			Storm::throwException<Storm::Exception>("To create a custom shape, we need indexes set (like creating a custom mesh)!");
 		}
-		return createCustomShape(*_physics, *_cooking, rbSceneConfig, vertices, indexes, rbMaterial, _triangleMeshReferences);
+		result = createCustomShape(*_physics, *_cooking, rbSceneConfig, vertices, indexes, rbMaterial, _triangleMeshReferences);
+		break;
 
 	case Storm::CollisionType::None:
 	default:
 		return Storm::UniquePointer<physx::PxShape>{};
 	}
+
+	if (_shouldQuitOnContactWithFloor)
+	{
+		result->setFlag(physx::PxShapeFlag::Enum::eSIMULATION_SHAPE, true);
+	}
+
+	return result;
 }
 
 Storm::UniquePointer<physx::PxJoint> Storm::PhysXHandler::createDistanceJoint(const Storm::SceneConstraintConfig &constraintConfig, physx::PxRigidActor* actor1, physx::PxRigidActor* actor2)
@@ -449,4 +497,109 @@ std::pair<Storm::UniquePointer<physx::PxJoint>, Storm::UniquePointer<physx::PxJo
 void Storm::PhysXHandler::reconnectPhysicsDebugger()
 {
 	_physXDebugger->reconnectIfNeeded();
+}
+
+bool Storm::PhysXHandler::shouldExitIfHitFloor() const
+{
+	return _shouldQuitOnContactWithFloor;
+}
+
+void Storm::PhysXHandler::onConstraintBreak(physx::PxConstraintInfo* /*constraints*/, physx::PxU32 /*count*/)
+{
+
+}
+
+void Storm::PhysXHandler::onContact(const physx::PxContactPairHeader &pairHeader, const physx::PxContactPair* pairs, physx::PxU32 nbPairs)
+{
+	if (_shouldQuitOnContactWithFloor)
+	{
+		std::vector<physx::PxContactPairPoint> contacts;
+
+		for (physx::PxU32 iter = 0; iter < nbPairs; ++iter)
+		{
+			const physx::PxContactPair &currentPair = pairs[iter];
+
+			if (currentPair.events & physx::PxPairFlag::eNOTIFY_TOUCH_PERSISTS)
+			{
+				const physx::PxRigidDynamic* rb;
+
+				if (pairHeader.actors[0]->getConcreteType() == physx::PxConcreteType::Enum::eRIGID_DYNAMIC)
+				{
+					rb = static_cast<physx::PxRigidDynamic*>(pairHeader.actors[0]);
+				}
+				else if (pairHeader.actors[1]->getConcreteType() == physx::PxConcreteType::Enum::eRIGID_DYNAMIC)
+				{
+					rb = static_cast<physx::PxRigidDynamic*>(pairHeader.actors[1]);
+				}
+				else
+				{
+					continue;
+				}
+
+				const physx::PxRigidStatic* floor;
+				if (pairHeader.actors[0]->getConcreteType() == physx::PxConcreteType::Enum::eRIGID_STATIC)
+				{
+					floor = static_cast<physx::PxRigidStatic*>(pairHeader.actors[0]);
+				}
+				else if (pairHeader.actors[1]->getConcreteType() == physx::PxConcreteType::Enum::eRIGID_STATIC)
+				{
+					floor = static_cast<physx::PxRigidStatic*>(pairHeader.actors[1]);
+				}
+				else
+				{
+					continue;
+				}
+
+				// If we have a contact between a static and a dynamic body (the floor would always be static)
+				if (rb && floor)
+				{
+					contacts.resize(currentPair.contactCount);
+					contacts.resize(currentPair.extractContacts(contacts.data(), currentPair.contactCount));
+
+					if (std::find_if(std::begin(contacts), std::end(contacts), [this](const physx::PxContactPairPoint &contact)
+					{
+						return std::fabs(Storm::convertToStorm(contact.position).y() - _lowestFloorY) < 0.0001f;
+					}) != std::end(contacts))
+					{
+						LOG_COMMENT <<
+							"A contact with the floor was triggered.\n" <<
+							rb->getName() << " hit the lowest level of " << floor->getName() << ".\n"
+							"Therefore, as requested in the global configuration, we'll exit the simulation because it is deemed useless to continue."
+							;
+
+						const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+
+						singletonHolder.getSingleton<Storm::ITimeManager>().quit();
+
+						const Storm::GeneralApplicationConfig &generalAppConfig = singletonHolder.getSingleton<Storm::IConfigManager>().getGeneralApplicationConfig();
+						if (generalAppConfig._bipSoundOnFinish)
+						{
+							const Storm::IOSManager &osMgr = singletonHolder.getSingleton<Storm::IOSManager>();
+							osMgr.makeBipSound(std::chrono::milliseconds{ 500 });
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+void Storm::PhysXHandler::onWake(physx::PxActor** /*actors*/, physx::PxU32 /*count*/)
+{
+
+}
+
+void Storm::PhysXHandler::onSleep(physx::PxActor** /*actors*/, physx::PxU32 /*count*/)
+{
+
+}
+
+void Storm::PhysXHandler::onTrigger(physx::PxTriggerPair* /*pairs*/, physx::PxU32 /*count*/)
+{
+
+}
+
+void Storm::PhysXHandler::onAdvance(const physx::PxRigidBody*const* /*bodyBuffer*/, const physx::PxTransform* /*poseBuffer*/, const physx::PxU32 /*count*/)
+{
+
 }
