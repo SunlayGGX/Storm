@@ -178,6 +178,7 @@ namespace Storm
 		void logSelectedParticleContributionToVector(float x, float y, float z) const;
 
 		void logForceParticipationOnTotalForce(const unsigned int id, const Storm::CustomForceSelect force, const int pressureMode) const;
+		void logForceParticipationOnVector(const unsigned int id, const Storm::CustomForceSelect force, const int pressureMode, float x, float y, float z) const;
 
 	public:
 		// This is to debug the particle neighborhood regeneration. Should not be called otherwise !

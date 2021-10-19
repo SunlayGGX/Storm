@@ -818,6 +818,73 @@ namespace
 
 		return nullptr;
 	}
+
+	void validateCustomSelectForceSelectedByUser(const Storm::CustomForceSelect force, const int pressureMode)
+	{
+		if ((force == Storm::CustomForceSelect::AllPressure || force == Storm::CustomForceSelect::Pressure) && pressureMode > 2)
+		{
+			Storm::throwException<Storm::Exception>(
+				"Pressure mode shouldn't be greater than 2!\n"
+				"0 -> Total pressure.\n"
+				"1 -> Temporary density pressure\n"
+				"2 -> Temporary velocity pressure\n"
+				"Current value was " + std::to_string(pressureMode));
+		}
+	}
+
+	std::pair<const std::string_view, Storm::Vector3> reduceSelectedParticleForce(const Storm::ParticleSystem &pSystem, const Storm::CustomForceSelect force, const int pressureMode)
+	{
+		switch (force)
+		{
+		case Storm::CustomForceSelect::Pressure:
+		case Storm::CustomForceSelect::AllPressure:
+			switch (pressureMode)
+			{
+			case 0: return { "pressure", Storm::reduceParallel(pSystem.getTemporaryPressureForces()) };
+			case 1: return { "temp density pressure", Storm::reduceParallel(pSystem.getTemporaryPressureDensityIntermediaryForces()) };
+			case 2: return { "temp velocity pressure", Storm::reduceParallel(pSystem.getTemporaryPressureVelocityIntermediaryForces()) };
+
+			default:
+				// We checked before entering sending the method to the main thread.
+				__assume(false);
+			}
+			break;
+
+		case Storm::CustomForceSelect::Viscosity:
+		case Storm::CustomForceSelect::AllViscosity:
+			return { "viscosity", Storm::reduceParallel(pSystem.getTemporaryViscosityForces()) };
+
+		case Storm::CustomForceSelect::Drag:
+		case Storm::CustomForceSelect::AllDrag:
+			return { "drag", Storm::reduceParallel(pSystem.getTemporaryDragForces()) };
+
+		case Storm::CustomForceSelect::Bernouilli:
+		case Storm::CustomForceSelect::AllBernouilli:
+			return { "Bernouilli", Storm::reduceParallel(pSystem.getTemporaryBernoulliDynamicPressureForces()) };
+
+		case Storm::CustomForceSelect::NoStick:
+		case Storm::CustomForceSelect::AllNoStick:
+			return { "no-stick", Storm::reduceParallel(pSystem.getTemporaryNoStickForces()) };
+
+		case Storm::CustomForceSelect::Coenda:
+		case Storm::CustomForceSelect::AllCoenda:
+			return { "Coenda", Storm::reduceParallel(pSystem.getTemporaryCoendaForces()) };
+
+		case Storm::CustomForceSelect::Count:
+			__assume(false);
+
+		default:
+			Storm::throwException<Storm::Exception>("Unhandled force selection!");
+		}
+	}
+
+	void logSelectedParticleContributionToVectorImpl(const Storm::ParticleSystem &pSystem, const Storm::CustomForceSelect force, const int pressureMode, const Storm::Vector3 &baseForceVectToCheckContribAgainst)
+	{
+		std::pair<const std::string_view, Storm::Vector3> reducedSelectedPair = reduceSelectedParticleForce(pSystem, force, pressureMode);
+
+		const float normSquared = baseForceVectToCheckContribAgainst.squaredNorm();
+		LOG_ALWAYS << "The participation of " << reducedSelectedPair.first << " force to the total is " << reducedSelectedPair.second.dot(baseForceVectToCheckContribAgainst) / (normSquared / 100.f) << "%";
+	}
 }
 
 Storm::SimulatorManager::SimulatorManager() :
@@ -3265,15 +3332,7 @@ void Storm::SimulatorManager::logSelectedParticleContributionToVector(float x, f
 
 void Storm::SimulatorManager::logForceParticipationOnTotalForce(const unsigned int id, const Storm::CustomForceSelect force, const int pressureMode) const
 {
-	if ((force == Storm::CustomForceSelect::AllPressure || force == Storm::CustomForceSelect::Pressure) && pressureMode > 2)
-	{
-		Storm::throwException<Storm::Exception>(
-			"Pressure mode shouldn't be greater than 2!\n"
-			"0 -> Total pressure.\n"
-			"1 -> Temporary density pressure\n"
-			"2 -> Temporary velocity pressure\n"
-			"Current value was " + std::to_string(pressureMode));
-	}
+	validateCustomSelectForceSelectedByUser(force, pressureMode);
 
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 	singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::MainThread, [this, id, force, pressureMode]()
@@ -3281,65 +3340,29 @@ void Storm::SimulatorManager::logForceParticipationOnTotalForce(const unsigned i
 		if (const auto pSystemFound = _particleSystem.find(id); pSystemFound != std::end(_particleSystem))
 		{
 			const Storm::ParticleSystem &pSystem = *pSystemFound->second;
-			Storm::Vector3 forceToLog;
-			std::string_view forceStrIdentifier;
+			logSelectedParticleContributionToVectorImpl(pSystem, force, pressureMode, pSystem.getTotalForceNonPhysX());
+		}
+		else
+		{
+			LOG_ERROR << "The particle system " << id << " didn't exist!";
+		}
+	});
+}
 
-			switch (force)
-			{
-			case Storm::CustomForceSelect::Pressure:
-			case Storm::CustomForceSelect::AllPressure:
-				switch (pressureMode)
-				{
-				case 0: forceToLog = Storm::reduceParallel(pSystem.getTemporaryPressureForces()); forceStrIdentifier = "pressure"; break;
-				case 1: forceToLog = Storm::reduceParallel(pSystem.getTemporaryPressureDensityIntermediaryForces()); forceStrIdentifier = "temp density pressure"; break;
-				case 2: forceToLog = Storm::reduceParallel(pSystem.getTemporaryPressureVelocityIntermediaryForces()); forceStrIdentifier = "temp velocity pressure"; break;
+void Storm::SimulatorManager::logForceParticipationOnVector(const unsigned int id, const Storm::CustomForceSelect force, const int pressureMode, float x, float y, float z) const
+{
+	validateCustomSelectForceSelectedByUser(force, pressureMode);
+	if (x == 0.f && y == 0.f && z == 0.f)
+	{
+		Storm::throwException<Storm::Exception>("We must not check contribution to a null vector.");
+	}
 
-				default:
-					// We checked before entering sending the method to the main thread.
-					__assume(false);
-				}
-				break;
-
-			case Storm::CustomForceSelect::Viscosity:
-			case Storm::CustomForceSelect::AllViscosity:
-				forceToLog = Storm::reduceParallel(pSystem.getTemporaryViscosityForces());
-				forceStrIdentifier = "viscosity";
-				break;
-
-			case Storm::CustomForceSelect::Drag:
-			case Storm::CustomForceSelect::AllDrag:
-				forceToLog = Storm::reduceParallel(pSystem.getTemporaryDragForces());
-				forceStrIdentifier = "drag";
-				break;
-			
-			case Storm::CustomForceSelect::Bernouilli:
-			case Storm::CustomForceSelect::AllBernouilli:
-				forceToLog = Storm::reduceParallel(pSystem.getTemporaryBernoulliDynamicPressureForces());
-				forceStrIdentifier = "bernouilli";
-				break;
-			
-			case Storm::CustomForceSelect::NoStick:
-			case Storm::CustomForceSelect::AllNoStick:
-				forceToLog = Storm::reduceParallel(pSystem.getTemporaryNoStickForces());
-				forceStrIdentifier = "no-stick";
-				break;
-
-			case Storm::CustomForceSelect::Coenda:
-			case Storm::CustomForceSelect::AllCoenda:
-				forceToLog = Storm::reduceParallel(pSystem.getTemporaryCoendaForces());
-				forceStrIdentifier = "coenda";
-				break;
-
-			case Storm::CustomForceSelect::Count:
-				__assume(false);
-
-			default:
-				Storm::throwException<Storm::Exception>("Unhandled force selection!");
-			}
-
-			const Storm::Vector3 &totalForceOnEngine = pSystem.getTotalForceNonPhysX();
-			const float normSquared = totalForceOnEngine.squaredNorm();
-			LOG_ALWAYS << "The participation of " << forceStrIdentifier << " force to the total is " << forceToLog.dot(totalForceOnEngine) / (normSquared / 100.f) << "%";
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::MainThread, [this, id, force, pressureMode, baseForceVect = Storm::Vector3{ x, y, z }]()
+	{
+		if (const auto pSystemFound = _particleSystem.find(id); pSystemFound != std::end(_particleSystem))
+		{
+			logSelectedParticleContributionToVectorImpl(*pSystemFound->second, force, pressureMode, baseForceVect);
 		}
 		else
 		{
