@@ -132,6 +132,7 @@ namespace Storm
 
 		bool _hasUI;
 		bool _dirty;
+		bool _userMovedCameraThisFrame;
 
 		Storm::GraphicRigidBody* _watchedRbNonOwningPtr;
 		bool _shouldTrackRbTranslation;

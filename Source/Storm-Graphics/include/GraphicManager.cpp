@@ -67,7 +67,8 @@ Storm::GraphicManager::GraphicManager() :
 	_hasUI{ false },
 	_dirty{ true },
 	_watchedRbNonOwningPtr{ nullptr },
-	_displayNormals{ false }
+	_displayNormals{ false },
+	_userMovedCameraThisFrame{ true }
 {
 
 }
@@ -204,17 +205,17 @@ void Storm::GraphicManager::initialize_Implementation(void* hwnd)
 			// I have an Azerty keyboard, so if you have a Qwerty keyboard, you'll surely need to change those.
 
 			Storm::IInputManager &inputMgr = singletonHolder.getSingleton<Storm::IInputManager>();
-			inputMgr.bindKey(Storm::SpecialKey::KC_UP, [this]() { _camera->positiveMoveYAxis(); _dirty = true; });
-			inputMgr.bindKey(Storm::SpecialKey::KC_LEFT, [this]() { _camera->positiveMoveXAxis(); _dirty = true; });
-			inputMgr.bindKey(Storm::SpecialKey::KC_NUMPAD8, [this]() { _camera->positiveMoveZAxis(); _dirty = true; });
-			inputMgr.bindKey(Storm::SpecialKey::KC_RIGHT, [this]() { _camera->negativeMoveXAxis(); _dirty = true; });
-			inputMgr.bindKey(Storm::SpecialKey::KC_DOWN, [this]() { _camera->negativeMoveYAxis(); _dirty = true; });
-			inputMgr.bindKey(Storm::SpecialKey::KC_NUMPAD2, [this]() { _camera->negativeMoveZAxis(); _dirty = true; });
-			inputMgr.bindKey(Storm::SpecialKey::KC_S, [this]() { _camera->positiveRotateXAxis(); _dirty = true; });
-			inputMgr.bindKey(Storm::SpecialKey::KC_D, [this]() { _camera->positiveRotateYAxis(); _dirty = true; });
-			inputMgr.bindKey(Storm::SpecialKey::KC_W, [this]() { _camera->negativeRotateXAxis(); _dirty = true; });
-			inputMgr.bindKey(Storm::SpecialKey::KC_A, [this]() { _camera->negativeRotateYAxis(); _dirty = true; });
-			inputMgr.bindKey(Storm::SpecialKey::KC_NUMPAD0, [this]() { _camera->reset(); _dirty = true; });
+			inputMgr.bindKey(Storm::SpecialKey::KC_UP, [this]() { _camera->positiveMoveYAxis(); _dirty = true; _userMovedCameraThisFrame = true; });
+			inputMgr.bindKey(Storm::SpecialKey::KC_LEFT, [this]() { _camera->positiveMoveXAxis(); _dirty = true; _userMovedCameraThisFrame = true; });
+			inputMgr.bindKey(Storm::SpecialKey::KC_NUMPAD8, [this]() { _camera->positiveMoveZAxis(); _dirty = true; _userMovedCameraThisFrame = true; });
+			inputMgr.bindKey(Storm::SpecialKey::KC_RIGHT, [this]() { _camera->negativeMoveXAxis(); _dirty = true; _userMovedCameraThisFrame = true; });
+			inputMgr.bindKey(Storm::SpecialKey::KC_DOWN, [this]() { _camera->negativeMoveYAxis(); _dirty = true; _userMovedCameraThisFrame = true; });
+			inputMgr.bindKey(Storm::SpecialKey::KC_NUMPAD2, [this]() { _camera->negativeMoveZAxis(); _dirty = true; _userMovedCameraThisFrame = true; });
+			inputMgr.bindKey(Storm::SpecialKey::KC_S, [this]() { _camera->positiveRotateXAxis(); _dirty = true; _userMovedCameraThisFrame = true; });
+			inputMgr.bindKey(Storm::SpecialKey::KC_D, [this]() { _camera->positiveRotateYAxis(); _dirty = true; _userMovedCameraThisFrame = true; });
+			inputMgr.bindKey(Storm::SpecialKey::KC_W, [this]() { _camera->negativeRotateXAxis(); _dirty = true; _userMovedCameraThisFrame = true; });
+			inputMgr.bindKey(Storm::SpecialKey::KC_A, [this]() { _camera->negativeRotateYAxis(); _dirty = true; _userMovedCameraThisFrame = true; });
+			inputMgr.bindKey(Storm::SpecialKey::KC_NUMPAD0, [this]() { _camera->reset(); _dirty = true; _userMovedCameraThisFrame = true; });
 			inputMgr.bindKey(Storm::SpecialKey::KC_ADD, [this]() { this->checkUserCanChangeNearPlane(); _camera->increaseNearPlane(); _dirty = true; });
 			inputMgr.bindKey(Storm::SpecialKey::KC_SUBTRACT, [this]() { this->checkUserCanChangeNearPlane(); _camera->decreaseNearPlane(); _dirty = true;});
 			inputMgr.bindKey(Storm::SpecialKey::KC_MULTIPLY, [this]() { _camera->increaseFarPlane(); _dirty = true; });
@@ -301,9 +302,24 @@ void Storm::GraphicManager::update()
 
 		if (_dirty)
 		{
-			if (_watchedRbNonOwningPtr != nullptr && _watchedRbNonOwningPtr->positionDirty())
+			const bool isSimulationPaused = singletonHolder.getSingleton<Storm::ITimeManager>().simulationIsPaused();
+			if (_watchedRbNonOwningPtr != nullptr && (_watchedRbNonOwningPtr->positionDirty() || _userMovedCameraThisFrame))
 			{
-				currentCamera.updateWatchedRb(_watchedRbNonOwningPtr->getRbPosition(), _shouldTrackRbTranslation);
+				bool shouldTrackTranslation = _shouldTrackRbTranslation;
+				if (shouldTrackTranslation)
+				{
+					if (isSimulationPaused)
+					{
+						shouldTrackTranslation = false;
+					}
+					else
+					{
+						shouldTrackTranslation = _userMovedCameraThisFrame;
+						_userMovedCameraThisFrame = false;
+					}
+				}
+
+				currentCamera.updateWatchedRb(_watchedRbNonOwningPtr->getRbPosition(), shouldTrackTranslation);
 				_fields->pushField(STORM_WATCHED_RB_POSITION);
 			}
 
@@ -329,6 +345,10 @@ void Storm::GraphicManager::update()
 			_directXController->reportDeviceMessages();
 
 			_dirty = false;
+			if (!isSimulationPaused)
+			{
+				_userMovedCameraThisFrame = false;
+			}
 		}
 	}
 }
