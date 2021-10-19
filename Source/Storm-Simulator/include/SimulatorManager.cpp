@@ -54,6 +54,7 @@
 #include "SceneBlowerConfig.h"
 #include "BlowerTimeHandler.h"
 #include "BlowerEffectArea.h"
+#include "BlowerVorticeArea.h"
 #include "Blower.h"
 
 #include "Cage.h"
@@ -221,37 +222,74 @@ namespace
 		}
 	};
 
-	template<Storm::BlowerType type, class BlowerEffectArea>
+	template<Storm::BlowerType type, bool produceVortices, class BlowerEffectArea>
 	void appendNewBlower(std::vector<std::unique_ptr<Storm::IBlower>> &inOutBlowerContainer, const Storm::SceneBlowerConfig &blowerConfig)
 	{
+		using VorticeAreaEffectType = std::conditional_t<produceVortices, Storm::DefaultVorticeArea, Storm::NoVortice>;
+
 		std::string_view blowerIntroMsg;
 		if constexpr (type != Storm::BlowerType::PulseExplosionSphere)
 		{
 			if (blowerConfig._fadeInTimeInSeconds > 0.f && blowerConfig._fadeOutTimeInSeconds > 0.f)
 			{
-				inOutBlowerContainer.emplace_back(std::make_unique<Storm::Blower<type, BlowerEffectArea, Storm::FadeInOutTimeHandler, BlowerCallbacks>>(blowerConfig));
-				blowerIntroMsg = "Blower with fadeIn and fadeOut feature created.\n";
+				inOutBlowerContainer.emplace_back(std::make_unique<Storm::Blower<type, BlowerEffectArea, VorticeAreaEffectType, Storm::FadeInOutTimeHandler, BlowerCallbacks>>(blowerConfig));
+				if constexpr (produceVortices)
+				{
+					blowerIntroMsg = "Blower with fadeIn, fadeOut and vortices features created.\n";
+				}
+				else
+				{
+					blowerIntroMsg = "Blower with fadeIn and fadeOut feature created.\n";
+				}
 			}
 			else if (blowerConfig._fadeInTimeInSeconds > 0.f)
 			{
-				inOutBlowerContainer.emplace_back(std::make_unique<Storm::Blower<type, BlowerEffectArea, Storm::FadeInTimeHandler, BlowerCallbacks>>(blowerConfig));
-				blowerIntroMsg = "Blower with fadeIn only feature created.\n";
+				inOutBlowerContainer.emplace_back(std::make_unique<Storm::Blower<type, BlowerEffectArea, VorticeAreaEffectType, Storm::FadeInTimeHandler, BlowerCallbacks>>(blowerConfig));
+				if constexpr (produceVortices)
+				{
+					blowerIntroMsg = "Blower with fadeIn only and vortices features created.\n";
+				}
+				else
+				{
+					blowerIntroMsg = "Blower with fadeIn only feature created.\n";
+				}
 			}
 			else if (blowerConfig._fadeOutTimeInSeconds > 0.f)
 			{
-				inOutBlowerContainer.emplace_back(std::make_unique<Storm::Blower<type, BlowerEffectArea, Storm::FadeOutTimeHandler, BlowerCallbacks>>(blowerConfig));
-				blowerIntroMsg = "Blower with fadeOut only feature created.\n";
+				inOutBlowerContainer.emplace_back(std::make_unique<Storm::Blower<type, BlowerEffectArea, VorticeAreaEffectType, Storm::FadeOutTimeHandler, BlowerCallbacks>>(blowerConfig));
+				if constexpr (produceVortices)
+				{
+					blowerIntroMsg = "Blower with fadeOut only and vortices features created.\n";
+				}
+				else
+				{
+					blowerIntroMsg = "Blower with fadeOut only feature created.\n";
+				}
 			}
 			else
 			{
-				inOutBlowerContainer.emplace_back(std::make_unique<Storm::Blower<type, BlowerEffectArea, Storm::BlowerTimeHandlerBase, BlowerCallbacks>>(blowerConfig));
-				blowerIntroMsg = "Blower without fadeIn or fadeOut only feature created.\n";
+				inOutBlowerContainer.emplace_back(std::make_unique<Storm::Blower<type, BlowerEffectArea, VorticeAreaEffectType, Storm::BlowerTimeHandlerBase, BlowerCallbacks>>(blowerConfig));
+				if constexpr (produceVortices)
+				{
+					blowerIntroMsg = "Blower without fadeIn or fadeOut only and vortices features created.\n";
+				}
+				else
+				{
+					blowerIntroMsg = "Blower without fadeIn or fadeOut only features created.\n";
+				}
 			}
 		}
 		else
 		{
-			inOutBlowerContainer.emplace_back(std::make_unique<Storm::Blower<Storm::BlowerType::PulseExplosionSphere, BlowerEffectArea, Storm::BlowerPulseTimeHandler, BlowerCallbacks>>(blowerConfig));
-			blowerIntroMsg = "Explosion Blower Effect created.\n";
+			inOutBlowerContainer.emplace_back(std::make_unique<Storm::Blower<Storm::BlowerType::PulseExplosionSphere, BlowerEffectArea, VorticeAreaEffectType, Storm::BlowerPulseTimeHandler, BlowerCallbacks>>(blowerConfig));
+			if constexpr (produceVortices)
+			{
+				blowerIntroMsg = "Vortice explosion Blower Effect features created.\n";
+			}
+			else
+			{
+				blowerIntroMsg = "Explosion Blower Effect created.\n";
+			}
 		}
 
 		LOG_DEBUG << blowerIntroMsg <<
@@ -2050,7 +2088,16 @@ const std::vector<Storm::Vector3>& Storm::SimulatorManager::getParticleSystemPos
 void Storm::SimulatorManager::loadBlower(const Storm::SceneBlowerConfig &blowerConfig)
 {
 #define STORM_XMACRO_GENERATE_ELEMENTARY_BLOWER(BlowerTypeName, BlowerTypeXmlName, EffectAreaType, MeshMakerType) \
-case Storm::BlowerType::BlowerTypeName: appendNewBlower<Storm::BlowerType::BlowerTypeName, Storm::EffectAreaType>(_blowers, blowerConfig); break;
+	case Storm::BlowerType::BlowerTypeName:																			  \
+	if (blowerConfig._applyVortice)																					  \
+	{																												  \
+		appendNewBlower<Storm::BlowerType::BlowerTypeName, true, Storm::EffectAreaType>(_blowers, blowerConfig);	  \
+	}																												  \
+	else																											  \
+	{																												  \
+		appendNewBlower<Storm::BlowerType::BlowerTypeName, false, Storm::EffectAreaType>(_blowers, blowerConfig);	  \
+	}																												  \
+	break;
 
 		switch (blowerConfig._blowerType)
 		{
@@ -2261,7 +2308,12 @@ void Storm::SimulatorManager::refreshParticleSelection()
 			_particleSelector.setSelectedParticleSumForce(pSystem.getForces()[selectedParticleIndex]);
 			_particleSelector.setTotalEngineSystemForce(pSystem.getTotalForceNonPhysX());
 
-			if (!pSystem.isFluids())
+			if (pSystem.isFluids())
+			{
+				const Storm::FluidParticleSystem &pSystemAsFluid = static_cast<const Storm::FluidParticleSystem &>(pSystem);
+				_particleSelector.setSelectedParticleBlowerForce(pSystemAsFluid.getTmpBlowerForces()[selectedParticleIndex]);
+			}
+			else
 			{
 				const Storm::RigidBodyParticleSystem &pSystemAsRb = static_cast<const Storm::RigidBodyParticleSystem &>(pSystem);
 				_particleSelector.setRbPosition(pSystemAsRb.getRbPosition());
@@ -2864,6 +2916,12 @@ void Storm::SimulatorManager::writeCurrentFrameSystemForcesToCsv(const unsigned 
 					}
 				}
 
+				if (pSystemToPrint.isFluids())
+				{
+					const Storm::FluidParticleSystem &pSystemAsFluid = static_cast<const Storm::FluidParticleSystem &>(pSystemToPrint);
+					registerVectorsInCsvLambda.operator()<true>("Blower", pSystemAsFluid.getTmpBlowerForces());
+				}
+
 				return;
 			}
 		}
@@ -3329,16 +3387,19 @@ bool Storm::SimulatorManager::selectSpecificParticle_Internal(const unsigned pSy
 				_particleSelector.setSelectedParticlePressureVelocityIntermediaryForce(selectedPSystem.getTemporaryPressureVelocityIntermediaryForces()[particleIndex]);
 				_particleSelector.setTotalEngineSystemForce(selectedPSystem.getTotalForceNonPhysX());
 
-				if (!selectedPSystem.isFluids())
+				if (selectedPSystem.isFluids())
+				{
+					const Storm::FluidParticleSystem &pSystemAsFluid = static_cast<const Storm::FluidParticleSystem &>(selectedPSystem);
+					_particleSelector.setSelectedParticleBlowerForce(pSystemAsFluid.getTmpBlowerForces()[particleIndex]);
+					_particleSelector.clearRbTotalForce();
+				}
+				else
 				{
 					const Storm::RigidBodyParticleSystem &pSystemAsRb = static_cast<const Storm::RigidBodyParticleSystem &>(selectedPSystem);
 					_particleSelector.setRbPosition(pSystemAsRb.getRbPosition());
 					_particleSelector.setRbParticleNormals(pSystemAsRb.getNormals()[particleIndex]);
 					_particleSelector.setRbTotalForce(pSystemAsRb.getRbTotalForce());
-				}
-				else
-				{
-					_particleSelector.clearRbTotalForce();
+					_particleSelector.setSelectedParticleBlowerForce(Storm::Vector3::Zero());
 				}
 
 				if (_particleSelector.hasCustomSelection())

@@ -263,5 +263,8 @@
     <ClInclude Include="..\include\CustomForceSelect.h">
       <Filter>Header Files\General</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\BlowerVorticeArea.h">
+      <Filter>Header Files\Blowers</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

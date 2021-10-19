@@ -17,6 +17,7 @@ namespace Storm
 		Coenda,
 		IntermediaryDensityPressure,
 		IntermediaryVelocityPressure,
+		Blower,
 		AllOnParticle,
 		TotalEngineForce,
 

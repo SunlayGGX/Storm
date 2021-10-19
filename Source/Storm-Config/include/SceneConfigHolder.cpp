@@ -1429,6 +1429,8 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 			Storm::XmlReader::handleXml(blowerConfigXml, "upRadius", blowerConfig._upRadius) ||
 			Storm::XmlReader::handleXml(blowerConfigXml, "downRadius", blowerConfig._downRadius) ||
 			Storm::XmlReader::handleXml(blowerConfigXml, "height", blowerConfig._height) ||
+			Storm::XmlReader::handleXml(blowerConfigXml, "applyVortice", blowerConfig._applyVortice) ||
+			Storm::XmlReader::handleXml(blowerConfigXml, "vorticeCoeff", blowerConfig._vorticeCoeff) ||
 			Storm::XmlReader::handleXml(blowerConfigXml, "dimension", blowerConfig._blowerDimension, parseVector3Element) ||
 			Storm::XmlReader::handleXml(blowerConfigXml, "force", blowerConfig._blowerForce, parseVector3Element) ||
 			Storm::XmlReader::handleXml(blowerConfigXml, "position", blowerConfig._blowerPosition, parseVector3Element)
@@ -1490,6 +1492,23 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 		}); found != lastRbToCheck)
 		{
 			Storm::throwException<Storm::Exception>("Blower with id " + std::to_string(blowerConfig._blowerId) + " shares the same id than an already registered rigid body. It is forbidden!");
+		}
+
+		if (blowerConfig._applyVortice)
+		{
+			if (blowerConfig._vorticeCoeff < 0.f)
+			{
+				Storm::throwException<Storm::Exception>("Blower vorticity coefficient is below 0 (value was " + std::to_string(blowerConfig._vorticeCoeff) + "), this is forbidden!");
+			}
+			else if (blowerConfig._applyVortice == 0.f)
+			{
+				LOG_WARNING << "Blower vorticity was enabled but its coefficient is 0, to avoid using CPU resources needlessly, we'll disable the vorticity entirely.";
+				blowerConfig._applyVortice = false;
+			}
+		}
+		else if (blowerConfig._vorticeCoeff != -1.f)
+		{
+			LOG_WARNING << "Blower vortice coefficient set to " << blowerConfig._vorticeCoeff << " But we didn't enable blower vorticity, therefore this setting will be ignored.";
 		}
 
 		switch (blowerConfig._blowerType)

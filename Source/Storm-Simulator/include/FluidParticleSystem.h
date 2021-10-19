@@ -40,6 +40,7 @@ namespace Storm
 		void setTmpCoendaForces(std::vector<Storm::Vector3> &&tmpCoendaForces) final override;
 		void setTmpPressureDensityIntermediaryForces(std::vector<Storm::Vector3> &&tmpPressuresIntermediaryForces) final override;
 		void setTmpPressureVelocityIntermediaryForces(std::vector<Storm::Vector3> &&tmpPressuresIntermediaryForces) final override;
+		void setTmpBlowerForces(std::vector<Storm::Vector3> &&tmpBlowerForces) final override;
 		void setParticleSystemPosition(const Storm::Vector3 &pSystemPosition) final override;
 		void setParticleSystemTotalForce(const Storm::Vector3 &pSystemTotalForce) final override;
 		void setParticleSystemWantedDensity(const float value) final override;
@@ -60,6 +61,9 @@ namespace Storm
 
 		std::vector<Storm::Vector3>& getVelocityPreTimestep() noexcept;
 		const std::vector<Storm::Vector3>& getVelocityPreTimestep() const noexcept;
+
+		std::vector<Storm::Vector3>& getTmpBlowerForces() noexcept;
+		const std::vector<Storm::Vector3>& getTmpBlowerForces() const noexcept;
 
 		void setGravityEnabled(bool enabled) noexcept;
 
@@ -83,6 +87,7 @@ namespace Storm
 		std::vector<float> _pressure;
 
 		std::vector<Storm::Vector3> _velocityPreTimestep;
+		std::vector<Storm::Vector3> _tmpBlowerForces;
 
 		float _restDensity;
 		float _wantedDensity;

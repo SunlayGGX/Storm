@@ -76,6 +76,7 @@ namespace Storm
 		virtual void setTmpCoendaForces(std::vector<Storm::Vector3> &&coendaForces) = 0;
 		virtual void setTmpPressureDensityIntermediaryForces(std::vector<Storm::Vector3> &&tmpPressuresIntermediaryForces) = 0;
 		virtual void setTmpPressureVelocityIntermediaryForces(std::vector<Storm::Vector3> &&tmpPressuresIntermediaryForces) = 0;
+		virtual void setTmpBlowerForces(std::vector<Storm::Vector3> &&tmpBlowerForces) = 0;
 		virtual void setParticleSystemPosition(const Storm::Vector3 &pSystemPosition) = 0;
 		virtual void setParticleSystemTotalForce(const Storm::Vector3 &pSystemTotalForce) = 0;
 		virtual void setParticleSystemWantedDensity(const float value) = 0;

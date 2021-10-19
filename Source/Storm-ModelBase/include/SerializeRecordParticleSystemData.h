@@ -24,5 +24,6 @@ namespace Storm
 		std::vector<Storm::Vector3> _coendaForces;
 		std::vector<Storm::Vector3> _intermediaryPressureDensityComponentForces;
 		std::vector<Storm::Vector3> _intermediaryPressureVelocityComponentForces;
+		std::vector<Storm::Vector3> _blowerForces;
 	};
 }

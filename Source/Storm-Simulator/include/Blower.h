@@ -8,25 +8,28 @@ namespace Storm
 {
 	enum class BlowerType;
 
-	template<Storm::BlowerType blowerType, class BlowerEffectArea, class BlowerTimeHandler, class BlowerCallbacks>
+	template<Storm::BlowerType blowerType, class BlowerEffectArea, class BlowerVorticeArea, class BlowerTimeHandler, class BlowerCallbacks>
 	class Blower :
 		public Storm::IBlower,
 		private BlowerEffectArea,
+		private BlowerVorticeArea,
 		private BlowerTimeHandler,
 		private BlowerCallbacks
 	{
 	private:
-		using ThisType = Storm::Blower<blowerType, BlowerEffectArea, BlowerTimeHandler, BlowerCallbacks>;
+		using ThisType = Storm::Blower<blowerType, BlowerEffectArea, BlowerVorticeArea, BlowerTimeHandler, BlowerCallbacks>;
 
 	public:
 		Blower(const Storm::SceneBlowerConfig &blowerConfig) :
 			BlowerEffectArea{ blowerConfig },
 			BlowerTimeHandler{ blowerConfig },
+			BlowerVorticeArea{ blowerConfig },
 			_id{ blowerConfig._blowerId },
 			_enabled{ true },
 			_srcForce{ blowerConfig._blowerForce },
 			_force{ Vector3::Zero() },
 			_forceNorm{ 0.f },
+			_forceNormSquared{ 0.f },
 			_blowerPosition{ blowerConfig._blowerPosition },
 			_state{ Storm::BlowerState::NotWorking }
 		{}
@@ -64,6 +67,18 @@ namespace Storm
 
 		template<class Type>
 		constexpr static bool hasDistanceEffect(void*)
+		{
+			return false;
+		}
+
+		template<class Type>
+		constexpr static auto hasVorticeEffect(int) -> decltype(Type::hasVorticeEffect())
+		{
+			return Type::hasVorticeEffect();
+		}
+
+		template<class Type>
+		constexpr static bool hasVorticeEffect(void*)
 		{
 			return false;
 		}
@@ -173,6 +188,12 @@ namespace Storm
 			Storm::Vector3 tmp = inParticlePosition - _blowerPosition;
 			if (BlowerEffectArea::isInside(tmp))
 			{
+				if constexpr (ThisType::hasVorticeEffect<BlowerVorticeArea>(0))
+				{
+					// tmp is the position diff here...
+					inOutParticleForce += BlowerVorticeArea::applyVortice(_force, _forceNormSquared, tmp);
+				}
+
 				if constexpr (ThisType::hasDistanceEffect<BlowerEffectArea>(0))
 				{
 					// tmp is the position diff before entering the method, it is a force scaled by the distance effect after leaving the method (to optimize, we wouldn't create another temporary Vect3)...
@@ -195,10 +216,20 @@ namespace Storm
 
 		void setActualForce(const Storm::Vector3 &actualForce)
 		{
-			_force = actualForce;
-			if constexpr (ThisType::hasDistanceEffect<BlowerEffectArea>(0))
+			enum : bool
 			{
-				_forceNorm = _force.norm();
+				k_hasDistanceEffect = ThisType::hasDistanceEffect<BlowerEffectArea>(0),
+				k_hasVorticeEffect = ThisType::hasVorticeEffect<BlowerEffectArea>(0)
+			};
+
+			_force = actualForce;
+			if constexpr (k_hasDistanceEffect || k_hasVorticeEffect)
+			{
+				_forceNormSquared = _force.squaredNorm();
+				if constexpr (k_hasDistanceEffect)
+				{
+					_forceNorm = std::sqrtf(_forceNormSquared);
+				}
 			}
 		}
 
@@ -246,6 +277,7 @@ namespace Storm
 		const Storm::Vector3 _srcForce;
 
 		float _forceNorm;
+		float _forceNormSquared;
 
 		Storm::BlowerState _state;
 	};

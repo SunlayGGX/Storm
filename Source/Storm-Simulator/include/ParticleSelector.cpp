@@ -535,6 +535,11 @@ void Storm::ParticleSelector::setSelectedParticlePressureVelocityIntermediaryFor
 	_selectedParticleData->_intermediaryVelocityPressureForce = intermediaryPressureForce;
 }
 
+void Storm::ParticleSelector::setSelectedParticleBlowerForce(const Storm::Vector3 &blowerForce)
+{
+	_selectedParticleData->_blowerForce = blowerForce;
+}
+
 void Storm::ParticleSelector::setSelectedParticleSumForce(const Storm::Vector3 &sumForce)
 {
 	_selectedParticleData->_externalSumForces = sumForce;

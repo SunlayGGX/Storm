@@ -29,5 +29,8 @@ namespace Storm
 		Storm::Vector3 _blowerPosition;
 
 		Storm::Vector3 _blowerForce;
+
+		float _vorticeCoeff;
+		bool _applyVortice;
 	};
 }

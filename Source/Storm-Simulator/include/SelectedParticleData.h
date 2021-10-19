@@ -19,6 +19,7 @@ namespace Storm
 		Storm::Vector3 _coendaForce;
 		Storm::Vector3 _intermediaryDensityPressureForce;
 		Storm::Vector3 _intermediaryVelocityPressureForce;
+		Storm::Vector3 _blowerForce;
 		Storm::Vector3 _externalSumForces;
 		Storm::Vector3 _totalEngineForce;
 

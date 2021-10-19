@@ -272,6 +272,7 @@ namespace
 				Storm::FluidParticleSystem &currentPSystemAsFluid = static_cast<Storm::FluidParticleSystem &>(currentPSystem);
 				std::vector<float> &allDensities = currentPSystemAsFluid.getDensities();
 				std::vector<float> &allPressures = currentPSystemAsFluid.getPressures();
+				std::vector<Storm::Vector3> &allBlowerForces = currentPSystemAsFluid.getTmpBlowerForces();
 
 
 #define STORM_MAKE_PARALLEL_FLUID_LERPS																					\
@@ -290,6 +291,7 @@ namespace
 		STORM_LAUNCH_LERP_ARRAY_FUTURE(_coendaForces, allCoendaForce),													\
 		STORM_LAUNCH_LERP_ARRAY_FUTURE(_intermediaryPressureDensityComponentForces, allIntermediaryDensityPressures),	\
 		STORM_LAUNCH_LERP_ARRAY_FUTURE(_intermediaryPressureVelocityComponentForces, allIntermediaryVelocityPressures),	\
+		STORM_LAUNCH_LERP_ARRAY_FUTURE(_blowerForces, allBlowerForces),													\
 	}
 
 				if constexpr (simdMode == Storm::SIMDUsageMode::AVX512)
@@ -319,6 +321,7 @@ namespace
 						lerp(frameBeforeElements._coendaForces[currentPIndex], frameAfterElements._coendaForces[currentPIndex], coefficient, allCoendaForce[currentPIndex]);
 						lerp(frameBeforeElements._intermediaryPressureDensityComponentForces[currentPIndex], frameAfterElements._intermediaryPressureDensityComponentForces[currentPIndex], coefficient, allIntermediaryDensityPressures[currentPIndex]);
 						lerp(frameBeforeElements._intermediaryPressureVelocityComponentForces[currentPIndex], frameAfterElements._intermediaryPressureVelocityComponentForces[currentPIndex], coefficient, allIntermediaryVelocityPressures[currentPIndex]);
+						lerp(frameBeforeElements._blowerForces[currentPIndex], frameAfterElements._blowerForces[currentPIndex], coefficient, allBlowerForces[currentPIndex]);
 					});
 				}
 #undef STORM_MAKE_PARALLEL_FLUID_LERPS
@@ -479,16 +482,19 @@ namespace
 					{
 						STORM_COPY_ARRAYS(avx512CpyLambda, _densities, pSystemRefAsFluid.getDensities());
 						STORM_COPY_ARRAYS(avx512CpyLambda, _pressures, pSystemRefAsFluid.getPressures());
+						STORM_COPY_ARRAYS(avx512CpyLambda, _blowerForces, pSystemRefAsFluid.getTmpBlowerForces());
 					}
 					else if constexpr (simdMode == Storm::SIMDUsageMode::SSE)
 					{
 						STORM_COPY_ARRAYS(sseCpyLambda, _densities, pSystemRefAsFluid.getDensities());
 						STORM_COPY_ARRAYS(sseCpyLambda, _pressures, pSystemRefAsFluid.getPressures());
+						STORM_COPY_ARRAYS(sseCpyLambda, _blowerForces, pSystemRefAsFluid.getTmpBlowerForces());
 					}
 					else
 					{
 						STORM_MAKE_SIMPLE_COPY_ARRAY(_densities, pSystemRefAsFluid.getDensities());
 						STORM_MAKE_SIMPLE_COPY_ARRAY(_pressures, pSystemRefAsFluid.getPressures());
+						STORM_MAKE_SIMPLE_COPY_ARRAY(_blowerForces, pSystemRefAsFluid.getTmpBlowerForces());
 					}
 
 					framePSystemElementData._wantedDensity = pSystemRefAsFluid.getRestDensity();
@@ -594,6 +600,7 @@ void Storm::ReplaySolver::transferFrameToParticleSystem_move(Storm::ParticleSyst
 		particleSystem.setTmpCoendaForces(std::move(currentFrameElement._coendaForces));
 		particleSystem.setTmpPressureDensityIntermediaryForces(std::move(currentFrameElement._intermediaryPressureDensityComponentForces));
 		particleSystem.setTmpPressureVelocityIntermediaryForces(std::move(currentFrameElement._intermediaryPressureVelocityComponentForces));
+		particleSystem.setTmpBlowerForces(std::move(currentFrameElement._blowerForces));
 		particleSystem.setTmpCoendaForces(std::move(currentFrameElement._coendaForces));
 		particleSystem.setParticleSystemTotalForceNonPhysX(currentFrameElement._pSystemTotalEngineForce);
 	}
@@ -624,10 +631,12 @@ void Storm::ReplaySolver::transferFrameToParticleSystem_copy(Storm::ParticleSyst
 			Storm::FluidParticleSystem &currentPSystemAsFluid = static_cast<Storm::FluidParticleSystem &>(currentPSystem);
 			std::vector<float> &allDensities = currentPSystemAsFluid.getDensities();
 			std::vector<float> &allPressures = currentPSystemAsFluid.getPressures();
+			std::vector<Storm::Vector3> &allBlowerForces = currentPSystemAsFluid.getTmpBlowerForces();
 
 			const std::size_t framePCount = frameElement._positions.size();
 			setNumUninitializedIfCountMismatch(frameElement._densities, framePCount);
 			setNumUninitializedIfCountMismatch(frameElement._pressures, framePCount);
+			setNumUninitializedIfCountMismatch(allBlowerForces, framePCount);
 
 			if (useSIMD)
 			{
@@ -649,6 +658,7 @@ void Storm::ReplaySolver::transferFrameToParticleSystem_copy(Storm::ParticleSyst
 		STORM_LAUNCH_CPY_ARRAY_FUTURE(_coendaForces, allCoendaForce),													\
 		STORM_LAUNCH_CPY_ARRAY_FUTURE(_intermediaryPressureDensityComponentForces, allIntermediaryDensityPressures),	\
 		STORM_LAUNCH_CPY_ARRAY_FUTURE(_intermediaryPressureVelocityComponentForces, allIntermediaryVelocityPressures),	\
+		STORM_LAUNCH_CPY_ARRAY_FUTURE(_blowerForces, allBlowerForces),													\
 	}
 
 				if (useAVX512)
@@ -680,6 +690,7 @@ void Storm::ReplaySolver::transferFrameToParticleSystem_copy(Storm::ParticleSyst
 					allCoendaForce[currentPIndex] = frameElement._coendaForces[currentPIndex];
 					allIntermediaryDensityPressures[currentPIndex] = frameElement._intermediaryPressureDensityComponentForces[currentPIndex];
 					allIntermediaryVelocityPressures[currentPIndex] = frameElement._intermediaryPressureVelocityComponentForces[currentPIndex];
+					allBlowerForces[currentPIndex] = frameElement._blowerForces[currentPIndex];
 				});
 			}
 		}
@@ -742,8 +753,8 @@ void Storm::ReplaySolver::transferFrameToParticleSystem_copy(Storm::ParticleSyst
 				});
 			}
 
-			currentPSystem.setParticleSystemPosition(frameElement._pSystemPosition);
-			currentPSystem.setParticleSystemTotalForce(frameElement._pSystemGlobalForce);
+			currentPSystemAsRb.setParticleSystemPosition(frameElement._pSystemPosition);
+			currentPSystemAsRb.setParticleSystemTotalForce(frameElement._pSystemGlobalForce);
 		}
 
 		currentPSystem.setParticleSystemTotalForceNonPhysX(frameElement._pSystemTotalEngineForce);

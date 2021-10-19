@@ -2,6 +2,7 @@
 
 #include "BlowerTimeHandler.h"
 #include "BlowerEffectArea.h"
+#include "BlowerVorticeArea.h"
 
 #include "BlowerType.h"
 
@@ -274,4 +275,17 @@ Storm::BlowerConeArea::BlowerConeArea(const Storm::SceneBlowerConfig &blowerConf
 
 	const float upRadiusSquared = blowerConfig._upRadius * blowerConfig._upRadius;
 	_diffRadiusSquared = upRadiusSquared - _downRadiusSquared;
+}
+
+Storm::NoVortice::NoVortice(const Storm::SceneBlowerConfig &) {}
+
+Storm::DefaultVorticeArea::DefaultVorticeArea(const Storm::SceneBlowerConfig &blowerConfig) :
+	_coeff{ blowerConfig._vorticeCoeff }
+{
+
+}
+
+Storm::Vector3 Storm::DefaultVorticeArea::applyVortice(const Storm::Vector3 &force, const float forceNormSquared, const Storm::Vector3 &posDiff) const
+{
+	return (posDiff - posDiff.dot(force) / forceNormSquared * force).cross(force);
 }

@@ -36,6 +36,7 @@ namespace Storm
 		void setSelectedParticleCoendaForce(const Storm::Vector3 &coendaForce);
 		void setSelectedParticlePressureDensityIntermediaryForce(const Storm::Vector3 &intermediaryPressureForce);
 		void setSelectedParticlePressureVelocityIntermediaryForce(const Storm::Vector3 &intermediaryPressureForce);
+		void setSelectedParticleBlowerForce(const Storm::Vector3 &blowerForce);
 		void setSelectedParticleSumForce(const Storm::Vector3 &sumForce);
 		void setTotalEngineSystemForce(const Storm::Vector3 &totalForce);
 		void setRbParticleNormals(const Storm::Vector3 &normals);

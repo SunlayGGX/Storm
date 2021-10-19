@@ -62,6 +62,7 @@ Storm::FluidParticleSystem::FluidParticleSystem(unsigned int particleSystemIndex
 	_masses.resize(particleCount, _particleVolume * _restDensity);
 	_densities.resize(particleCount);
 	_pressure.resize(particleCount);
+	_tmpBlowerForces.resize(particleCount, Storm::Vector3::Zero());
 	
 	_velocityPreTimestep.resize(particleCount);
 	
@@ -75,6 +76,7 @@ Storm::FluidParticleSystem::FluidParticleSystem(unsigned int particleSystemIndex
 {
 	_densities.resize(particleCount);
 	_pressure.resize(particleCount);
+	_tmpBlowerForces.resize(particleCount);
 
 	// It will be overwritten by the record afterward but just to make it non stupid in case we have an old record that did not support the feature at the time.
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
@@ -106,6 +108,7 @@ void Storm::FluidParticleSystem::onIterationStart()
 			_densities.size() == particleCount &&
 			_velocityPreTimestep.size() == particleCount &&
 			_pressure.size() == particleCount &&
+			_tmpBlowerForces.size() == particleCount &&
 			"Particle count mismatch detected! An array of particle property has not the same particle count than the other!"
 		);
 	}
@@ -271,6 +274,11 @@ void Storm::FluidParticleSystem::setTmpPressureVelocityIntermediaryForces(std::v
 	_tmpPressureVelocityIntermediaryForce = std::move(tmpPressuresIntermediaryForces);
 }
 
+void Storm::FluidParticleSystem::setTmpBlowerForces(std::vector<Storm::Vector3> &&tmpBlowerForces)
+{
+	_tmpBlowerForces = std::move(tmpBlowerForces);
+}
+
 void Storm::FluidParticleSystem::setParticleSystemPosition(const Storm::Vector3 &/*pSystemPosition*/)
 {
 
@@ -365,6 +373,16 @@ std::vector<Storm::Vector3>& Storm::FluidParticleSystem::getVelocityPreTimestep(
 const std::vector<Storm::Vector3>& Storm::FluidParticleSystem::getVelocityPreTimestep() const noexcept
 {
 	return _velocityPreTimestep;
+}
+
+std::vector<Storm::Vector3>& Storm::FluidParticleSystem::getTmpBlowerForces() noexcept
+{
+	return _tmpBlowerForces;
+}
+
+const std::vector<Storm::Vector3>& Storm::FluidParticleSystem::getTmpBlowerForces() const noexcept
+{
+	return _tmpBlowerForces;
 }
 
 void Storm::FluidParticleSystem::setGravityEnabled(bool enabled) noexcept
@@ -602,11 +620,16 @@ void Storm::FluidParticleSystem::internalInitializeForce(const Storm::Vector3 &g
 	const float currentPMass = _masses[currentPIndex];
 	force = currentPMass * gravityAccel;
 
+	Storm::Vector3 &currentPBlowerForce = _tmpBlowerForces[currentPIndex];
+	currentPBlowerForce.setZero();
+
 	const Storm::Vector3 &currentPPosition = _positions[currentPIndex];
 	for (const std::unique_ptr<Storm::IBlower> &blowerUPtr : blowers)
 	{
-		blowerUPtr->applyForce(currentPPosition, force);
+		blowerUPtr->applyForce(currentPPosition, currentPBlowerForce);
 	}
+
+	force += currentPBlowerForce;
 
 	this->resetParticleTemporaryForces(currentPIndex);
 }

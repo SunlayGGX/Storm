@@ -236,7 +236,9 @@ Storm::SceneBlowerConfig::SceneBlowerConfig() :
 	_upRadius{ -1.f },
 	_height{ 0.f },
 	_blowerPosition{ Storm::Vector3::Zero() },
-	_blowerForce{ Storm::Vector3::Zero() }
+	_blowerForce{ Storm::Vector3::Zero() },
+	_vorticeCoeff{ 1.f },
+	_applyVortice{ false }
 {
 
 }

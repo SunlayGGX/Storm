@@ -557,6 +557,11 @@ void Storm::RigidBodyParticleSystem::setTmpPressureVelocityIntermediaryForces(st
 	}
 }
 
+void Storm::RigidBodyParticleSystem::setTmpBlowerForces(std::vector<Storm::Vector3> &&/*tmpBlowerForces*/)
+{
+	// Exists only for fluids. Blowers don't apply to rigid bodies.
+}
+
 void Storm::RigidBodyParticleSystem::setParticleSystemPosition(const Storm::Vector3 &rbPosition)
 {
 	_cachedTrackedRbPosition = rbPosition;
