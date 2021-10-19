@@ -59,6 +59,7 @@ case Storm::ParticleSelectionMode::Case:					\
 			STORM_PARSE_CASE(Coenda,						"Coenda",							supportedFeatures._hasCoendaForces);
 			STORM_PARSE_CASE(IntermediaryDensityPressure,	"Intermediary Density Pressure",	supportedFeatures._hasIntermediaryDensityPressureForces);
 			STORM_PARSE_CASE(IntermediaryVelocityPressure,	"Intermediary Velocity Pressure",	supportedFeatures._hasIntermediaryVelocityPressureForces);
+			STORM_PARSE_CASE(Blower,						"Blower",							supportedFeatures._hasBlowerForces);
 			STORM_PARSE_CASE(TotalEngineForce,				"All On System (Engine)",			supportedFeatures._hasPSystemTotalEngineForce);
 			STORM_PARSE_CASE(Normal,						"Normal",							supportedFeatures._hasNormals);
 			STORM_PARSE_CASE(RbForce,						"Rb Total force",					supportedFeatures._hasPSystemGlobalForce);
@@ -97,6 +98,7 @@ case Storm::ParticleSelectionMode::Case:					\
 	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Coenda)							\
 	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, IntermediaryDensityPressure)		\
 	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, IntermediaryVelocityPressure)	\
+	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Blower)							\
 	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, AllOnParticle)					\
 	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, TotalEngineForce)				\
 	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Custom)							\
@@ -144,6 +146,27 @@ case Storm::ParticleSelectionMode::Case:					\
 		default:																											\
 			return static_cast<Storm::ParticleSelectionMode>(0);															\
 		};																													\
+	}
+
+	STORM_XMACRO_SELECTION_MODE
+#undef STORM_XMACRO_ELEM_SELECTION_MODE
+#undef STORM_XMACRO_ELEM_SELECTION_BINDING
+
+	template<class UsedSelectionMode> uint8_t cycleSpecificSelectionModeAgnostic(Storm::ParticleSelectionMode selectionModeAgnostic);
+
+#define STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, BindingValueName) case Storm::ParticleSelectionMode::BindingValueName: return static_cast<uint8_t>(SelectionMode::BindingValueName);
+#define STORM_XMACRO_ELEM_SELECTION_MODE(SelectionMode, ...) \
+	template<> uint8_t cycleSpecificSelectionModeAgnostic<SelectionMode>(Storm::ParticleSelectionMode selectionMode)														\
+	{																																										\
+		Storm::ParticleSelectionMode nextMode =																																\
+			static_cast<Storm::ParticleSelectionMode>((static_cast<uint8_t>(selectionMode) + 1) % static_cast<uint8_t>(Storm::ParticleSelectionMode::SelectionModeCount));	\
+		switch (nextMode)																																					\
+		{																																									\
+			__VA_ARGS__																																						\
+																																											\
+		default:																																							\
+			return cycleSpecificSelectionModeAgnostic<SelectionMode>(nextMode);																								\
+		};																																									\
 	}
 
 	STORM_XMACRO_SELECTION_MODE
@@ -215,6 +238,9 @@ case Storm::ParticleSelectionMode::Case:					\
 		case Storm::ParticleSelectionMode::Coenda:
 			return STORM_UNSUPPORTED_CONDITION(supportedFeatures._hasCoendaForces);
 
+		case Storm::ParticleSelectionMode::Blower:
+			return STORM_UNSUPPORTED_CONDITION(supportedFeatures._hasBlowerForces);
+
 		case Storm::ParticleSelectionMode::Drag:
 			return STORM_UNSUPPORTED_CONDITION(supportedFeatures._hasDragComponentforces);
 
@@ -247,11 +273,13 @@ case Storm::ParticleSelectionMode::Case:					\
 	{
 		do
 		{
-			const uint8_t cycledValue = (static_cast<uint8_t>(currentSelectionMode) + 1) % static_cast<uint8_t>(Storm::ParticleSelectionMode::SelectionModeCount);
+			// cycled Value is on UsedSelectionMode space (it was rebound to the UsedSelectionMode value representing the next currentSelectionMode).
+			const uint8_t cycledValue = cycleSpecificSelectionModeAgnostic<UsedSelectionMode>(currentSelectionMode);
+			// Convert back UsedSelectionMode into ParticleSelectionMode
 			currentSelectionMode = retrieveSelectionMode<UsedSelectionMode>(cycledValue);
 
 		} while (!checkSkippedSelectionMode<UsedSelectionMode>(particleSelector, currentSelectionMode));
-
+		
 		return currentSelectionMode;
 	}
 
@@ -585,6 +613,7 @@ const Storm::Vector3& Storm::ParticleSelector::getSelectedVectorToDisplay() cons
 	case Storm::ParticleSelectionMode::DynamicPressure:					return _selectedParticleData->_dynamicPressureForce;
 	case Storm::ParticleSelectionMode::NoStick:							return _selectedParticleData->_noStickForce;
 	case Storm::ParticleSelectionMode::Coenda:							return _selectedParticleData->_coendaForce;
+	case Storm::ParticleSelectionMode::Blower:							return _selectedParticleData->_blowerForce;
 	case Storm::ParticleSelectionMode::IntermediaryDensityPressure:		return _selectedParticleData->_intermediaryDensityPressureForce;
 	case Storm::ParticleSelectionMode::IntermediaryVelocityPressure:	return _selectedParticleData->_intermediaryVelocityPressureForce;
 	case Storm::ParticleSelectionMode::AllOnParticle:					return _selectedParticleData->_externalSumForces;
@@ -625,6 +654,7 @@ const Storm::Vector3& Storm::ParticleSelector::getSelectedVectorPosition(const S
 	case Storm::ParticleSelectionMode::DynamicPressure:
 	case Storm::ParticleSelectionMode::NoStick:
 	case Storm::ParticleSelectionMode::Coenda:
+	case Storm::ParticleSelectionMode::Blower:
 	case Storm::ParticleSelectionMode::IntermediaryDensityPressure:
 	case Storm::ParticleSelectionMode::IntermediaryVelocityPressure:
 	case Storm::ParticleSelectionMode::AllOnParticle:
@@ -776,7 +806,7 @@ void Storm::ParticleSelector::logForceComponents() const
 		customStr += " N.\n";
 	}
 
-	std::string rbSpecificInfosStr;
+	std::string specificInfosStr;
 	if (selectedParticleDataRef._hasRbTotalForce)
 	{
 		const Storm::Vector3 &averageTotalForce = selectedParticleDataRef._averageForcesOnRb.getAverage();
@@ -788,21 +818,28 @@ void Storm::ParticleSelector::logForceComponents() const
 		const std::string rbAverageForceStr = Storm::toStdString(averageTotalForce);
 		const std::string rbAverageForceNormStr = Storm::toStdString(averageTotalForce.norm());
 		
-		rbSpecificInfosStr.reserve(64 + rbForceStr.size() + rbForceNormStr.size() + rbAverageForceStr.size() + rbAverageForceNormStr.size());
+		specificInfosStr.reserve(64 + rbForceStr.size() + rbForceNormStr.size() + rbAverageForceStr.size() + rbAverageForceNormStr.size());
 
 #define STORM_SUPPORT_STR(supported) (supported ? "" : "  (NOT SUPPORTED)")
 
-#define STORM_APPEND_RB_VECTOR_DATA(vectorName, vectorStr, vectorNormStr, unit, supported)	\
-	rbSpecificInfosStr += "\n" vectorName ": ";												\
-	rbSpecificInfosStr += vectorStr;														\
-	rbSpecificInfosStr += ". Norm: ";														\
-	rbSpecificInfosStr += vectorNormStr;													\
-	rbSpecificInfosStr += " " unit ".";														\
-	rbSpecificInfosStr += STORM_SUPPORT_STR(supported)										\
+#define STORM_APPEND_VECTOR_DATA(vectorName, vectorStr, vectorNormStr, unit, supported)	\
+	specificInfosStr += "\n" vectorName ": ";												\
+	specificInfosStr += vectorStr;															\
+	specificInfosStr += ". Norm: ";															\
+	specificInfosStr += vectorNormStr;														\
+	specificInfosStr += " " unit ".";														\
+	specificInfosStr += STORM_SUPPORT_STR(supported)										\
 
-		STORM_APPEND_RB_VECTOR_DATA("Rigidbody P normal", rbNormalStr, rbNormalNormStr, "", _supportedFeatures->_hasNormals);
-		STORM_APPEND_RB_VECTOR_DATA("Complete Forces (with PhysX)", rbForceStr, rbForceNormStr, "N", _supportedFeatures->_hasPSystemGlobalForce);
-		STORM_APPEND_RB_VECTOR_DATA("Average", rbAverageForceStr, rbAverageForceNormStr, "N", true);
+		STORM_APPEND_VECTOR_DATA("Rigidbody P normal", rbNormalStr, rbNormalNormStr, "", _supportedFeatures->_hasNormals);
+		STORM_APPEND_VECTOR_DATA("Complete Forces (with PhysX)", rbForceStr, rbForceNormStr, "N", _supportedFeatures->_hasPSystemGlobalForce);
+		STORM_APPEND_VECTOR_DATA("Average", rbAverageForceStr, rbAverageForceNormStr, "N", true);
+	}
+	else
+	{
+		const std::string blowerForceStr = Storm::toStdString(selectedParticleDataRef._rbNormals);
+		const std::string blowerForceNormStr = Storm::toStdString(selectedParticleDataRef._rbNormals.norm());
+
+		STORM_APPEND_VECTOR_DATA("Blower force", blowerForceStr, blowerForceNormStr, "N", _supportedFeatures->_hasBlowerForces);
 	}
 
 #define STORM_APPEND_DATA_TO_STREAM(name, memberName, unit, supported) \
@@ -822,10 +859,10 @@ void Storm::ParticleSelector::logForceComponents() const
 		STORM_APPEND_DATA_TO_STREAM("Sum", _externalSumForces, "N", true)
 		STORM_APPEND_DATA_TO_STREAM("Total system force", _totalEngineForce, "N", _supportedFeatures->_hasPSystemTotalEngineForce) <<
 		customStr <<
-		rbSpecificInfosStr
+		specificInfosStr
 		;
 
-#undef STORM_APPEND_RB_VECTOR_DATA
+#undef STORM_APPEND_VECTOR_DATA
 #undef STORM_APPEND_DATA_TO_STREAM
 #undef STORM_SUPPORT_STR
 }
@@ -871,6 +908,10 @@ void Storm::ParticleSelector::logForceComponentsContributionToVector(const Storm
 	if (_supportedFeatures->_hasIntermediaryVelocityPressureForces)
 	{
 		logContribution(alwaysLogger, "Intermediary Velocity Pressure", dataRef._intermediaryVelocityPressureForce, vecNormalized);
+	}
+	if (!dataRef._hasRbTotalForce && _supportedFeatures->_hasBlowerForces)
+	{
+		logContribution(alwaysLogger, "Blower force", dataRef._blowerForce, vecNormalized);
 	}
 
 	logContribution(alwaysLogger, "Sum", dataRef._externalSumForces, vecNormalized);
