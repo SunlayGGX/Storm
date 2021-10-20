@@ -106,6 +106,8 @@ namespace Storm
 		ComPtr<ID3D11BlendState> _alphaBlendEnable;
 		ComPtr<ID3D11BlendState> _alphaBlendDisable;
 
+		bool _usePrepass;
+
 		Storm::RenderModeState _currentRenderModeState;
 
 		// 2D

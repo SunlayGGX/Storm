@@ -15,6 +15,7 @@
 
 #include "GeneralGraphicConfig.h"
 #include "GeneralDebugConfig.h"
+#include "SceneGraphicConfig.h"
 
 #include "MemoryHelper.h"
 #include "DirectXHardwareInfo.h"
@@ -111,6 +112,10 @@ namespace
 
 void Storm::DirectXController::initialize(HWND hwnd)
 {
+	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
+
+	_usePrepass = configMgr.getSceneGraphicConfig()._showRbCompleteOnPrePass;
+
 	this->internalCreateDXDevices(hwnd);
 	this->internalCreateRenderView();
 	this->internalInitializeDepthBuffer();
@@ -122,7 +127,7 @@ void Storm::DirectXController::initialize(HWND hwnd)
 	this->internalCreateDirect2DDevices(hwnd);
 	this->internalCreateDirectWrite();
 
-	_logDeviceMessage = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().getGeneralDebugConfig()._shouldLogGraphicDeviceMessage;
+	_logDeviceMessage = configMgr.getGeneralDebugConfig()._shouldLogGraphicDeviceMessage;
 	_uiFieldWriteInfoEnabled = true;
 }
 
