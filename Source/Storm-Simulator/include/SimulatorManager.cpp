@@ -1482,13 +1482,17 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 			recordJumpCount = 1;
 		}
 
-		if (shouldBeRecording)
+		if (shouldBeRecording && currentPhysicsTime >= nextRecordTime)
 		{
-			if (currentPhysicsTime >= nextRecordTime && (sentRecordCount % recordJumpCount) == 0)
+			if ((sentRecordCount % recordJumpCount) == 0)
 			{
 				this->pushRecord(currentPhysicsTime, false);
 				Storm::ReplaySolver::computeNextRecordTime(nextRecordTime, currentPhysicsTime, sceneRecordConfig._recordFps);
 				++sentRecordCount;
+			}
+			else
+			{
+				LOG_DEBUG << "Record frame skipped because simulation is not in an interesting state.";
 			}
 		}
 
