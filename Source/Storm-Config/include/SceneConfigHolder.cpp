@@ -699,7 +699,8 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 			if (
 				!Storm::XmlReader::handleXml(recordXmlElement, "recordFps", recordConfig._recordFps) &&
 				!Storm::XmlReader::handleXml(recordXmlElement, "recordFile", recordConfig._recordFilePath) &&
-				!Storm::XmlReader::handleXml(recordXmlElement, "replayRealTime", recordConfig._replayRealTime)
+				!Storm::XmlReader::handleXml(recordXmlElement, "replayRealTime", recordConfig._replayRealTime) &&
+				!Storm::XmlReader::handleXml(recordXmlElement, "leanStartJump", recordConfig._leanStartJump)
 				)
 			{
 				LOG_ERROR << "tag '" << recordXmlElement.first << "' (inside Scene.Record) is unknown, therefore it cannot be handled";
@@ -709,6 +710,10 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 		if (recordConfig._recordFps <= 0.f && recordConfig._recordFps != -1.f)
 		{
 			Storm::throwException<Storm::Exception>("Record fps should remain unset or should be a positive value (currently " + std::to_string(recordConfig._recordFps) + ")");
+		}
+		else if (recordConfig._leanStartJump == 0)
+		{
+			recordConfig._leanStartJump = 1;
 		}
 
 		// The other validations will be done later.

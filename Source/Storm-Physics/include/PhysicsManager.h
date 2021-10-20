@@ -4,6 +4,7 @@
 #include "Singleton.h"
 #include "IPhysicsManager.h"
 #include "DeclareScriptableItem.h"
+#include "MultiCallback.h"
 
 
 namespace Storm
@@ -63,6 +64,12 @@ namespace Storm
 		void fixDynamicRigidBodyTranslation(const unsigned int rbId, const bool fixed);
 		void setRigidBodiesFixed(const bool shouldFix) final override;
 
+		unsigned short bindOnRigidbodyFixedCallback(Storm::OnRigidbodyFixedDelegate &&callback) final override;
+		void unbindOnRigidbodyFixedCallback(unsigned short callbackId) final override;
+
+	private:
+		void notifyOnRigidbodyFixed();
+
 	private:
 		void setRigidbodiesFixedInternalImpl(bool shouldFix);
 
@@ -91,5 +98,8 @@ namespace Storm
 		bool _rigidBodiesFixated;
 
 		std::unique_ptr<Storm::PhysicsStaticsRigidBody> _optionalCageBody;
+
+		std::mutex _callbackMutex;
+		Storm::MultiCallback<Storm::OnRigidbodyFixedDelegate> _onRbfixedListeners;
 	};
 }

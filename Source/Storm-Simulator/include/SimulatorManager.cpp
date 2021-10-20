@@ -1352,6 +1352,7 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 	const Storm::SceneRecordConfig &sceneRecordConfig = configMgr.getSceneRecordConfig();
 	const bool shouldBeRecording = sceneRecordConfig._recordMode == Storm::RecordMode::Record;
 	float nextRecordTime = -1.f;
+	unsigned int sentRecordCount = 0;
 	if (shouldBeRecording)
 	{
 		this->beginRecord();
@@ -1360,6 +1361,25 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 		const float currentPhysicsTime = timeMgr.getCurrentPhysicsElapsedTime();
 		this->pushRecord(currentPhysicsTime, true);
 		Storm::ReplaySolver::computeNextRecordTime(nextRecordTime, currentPhysicsTime, sceneRecordConfig._recordFps);
+		++sentRecordCount;
+	}
+
+	unsigned int recordJumpCount;
+	bool shouldUnfixRbAutomatically = sceneSimulationConfig._freeRbAtPhysicsTime != -1.f;
+	if (shouldUnfixRbAutomatically)
+	{
+		recordJumpCount = sceneRecordConfig._leanStartJump;
+		if (recordJumpCount > 1)
+		{
+			physicsMgr.bindOnRigidbodyFixedCallback([&recordJumpCount, leanStartJump = sceneRecordConfig._leanStartJump](const bool fixed)
+			{
+				recordJumpCount = fixed ? leanStartJump : 1;
+			});
+		}
+	}
+	else
+	{
+		recordJumpCount = 1;
 	}
 
 	const bool autoEndSimulation = sceneSimulationConfig._endSimulationPhysicsTimeInSeconds != -1.f;
@@ -1368,8 +1388,6 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 	bool firstFrame = true;
 
 	const bool noWait = sceneSimulationConfig._simulationNoWait || !hasUI;
-
-	bool shouldUnfixRbAutomatically = sceneSimulationConfig._freeRbAtPhysicsTime != -1.f;
 
 	float lastKernelValue = _kernelHandler.getKernelValue();
 
@@ -1461,14 +1479,16 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 		{
 			physicsMgr.setRigidBodiesFixed(false);
 			shouldUnfixRbAutomatically = false;
+			recordJumpCount = 1;
 		}
 
 		if (shouldBeRecording)
 		{
-			if (currentPhysicsTime >= nextRecordTime)
+			if (currentPhysicsTime >= nextRecordTime && (sentRecordCount % recordJumpCount) == 0)
 			{
 				this->pushRecord(currentPhysicsTime, false);
 				Storm::ReplaySolver::computeNextRecordTime(nextRecordTime, currentPhysicsTime, sceneRecordConfig._recordFps);
+				++sentRecordCount;
 			}
 		}
 

@@ -15,5 +15,6 @@ namespace Storm
 		float _recordFps;
 		std::string _recordFilePath;
 		bool _replayRealTime;
+		unsigned int _leanStartJump;
 	};
 }

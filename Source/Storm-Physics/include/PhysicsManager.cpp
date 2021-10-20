@@ -21,6 +21,8 @@
 #include "IAssetLoaderManager.h"
 
 #include "ThreadEnumeration.h"
+#include "ThreadingSafety.h"
+
 #include "SpecialKey.h"
 
 #include "SerializeConstraintLayout.h"
@@ -82,6 +84,11 @@ void Storm::PhysicsManager::initialize_Implementation()
 void Storm::PhysicsManager::cleanUp_Implementation()
 {
 	LOG_COMMENT << "PhysX cleanup requested";
+
+	{
+		std::lock_guard<std::mutex> lock{ _callbackMutex };
+		_onRbfixedListeners.clear();
+	}
 
 	_constraints.clear();
 
@@ -399,10 +406,36 @@ void Storm::PhysicsManager::setRigidBodiesFixed(const bool shouldFix)
 	});
 }
 
+unsigned short Storm::PhysicsManager::bindOnRigidbodyFixedCallback(Storm::OnRigidbodyFixedDelegate &&callback)
+{
+	std::lock_guard<std::mutex> lock{ _callbackMutex };
+	return _onRbfixedListeners.add(std::move(callback));
+}
+
+void Storm::PhysicsManager::unbindOnRigidbodyFixedCallback(unsigned short callbackId)
+{
+	std::lock_guard<std::mutex> lock{ _callbackMutex };
+	_onRbfixedListeners.remove(callbackId);
+}
+
+void Storm::PhysicsManager::notifyOnRigidbodyFixed()
+{
+	std::lock_guard<std::mutex> lock{ _callbackMutex };
+	Storm::prettyCallMultiCallback(_onRbfixedListeners, _rigidBodiesFixated);
+}
+
 void Storm::PhysicsManager::setRigidbodiesFixedInternalImpl(bool shouldFix)
 {
-	_rigidBodiesFixated = shouldFix;
-	LOG_DEBUG << "Rigidbodies " << (_rigidBodiesFixated ? "fixed" : "unfixed");
+	if (_rigidBodiesFixated != shouldFix)
+	{
+		_rigidBodiesFixated = shouldFix;
+		this->notifyOnRigidbodyFixed();
+		LOG_DEBUG << "Rigidbodies " << (_rigidBodiesFixated ? "fixed" : "unfixed");
+	}
+	else
+	{
+		LOG_DEBUG_WARNING << "Ignoring rigidbody fixed order to change since it is already in the requested state.";
+	}
 }
 
 void Storm::PhysicsManager::pushPhysicsVisualizationData() const

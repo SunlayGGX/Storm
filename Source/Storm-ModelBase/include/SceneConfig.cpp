@@ -263,7 +263,8 @@ Storm::SceneRecordConfig::SceneRecordConfig() :
 	_recordMode{ Storm::RecordMode::None },
 	_recordFps{ -1.f },
 	_recordFilePath{},
-	_replayRealTime{ true }
+	_replayRealTime{ true },
+	_leanStartJump{ 1 }
 {
 
 }

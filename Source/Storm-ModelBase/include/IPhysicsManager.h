@@ -12,6 +12,8 @@ namespace Storm
 	struct SerializeConstraintLayout;
 	struct SerializeRecordContraintsData;
 
+	using OnRigidbodyFixedDelegate = std::function<void(bool)>;
+
 	class IPhysicsManager : public Storm::ISingletonHeldInterface<IPhysicsManager>
 	{
 	public:
@@ -49,5 +51,9 @@ namespace Storm
 		virtual void reconnectPhysicsDebugger() = 0;
 
 		virtual void setRigidBodiesFixed(const bool shouldFix) = 0;
+
+		// Listen to rigid body fixed callback.
+		virtual unsigned short bindOnRigidbodyFixedCallback(Storm::OnRigidbodyFixedDelegate &&callback) = 0;
+		virtual void unbindOnRigidbodyFixedCallback(unsigned short callbackId) = 0;
 	};
 }
