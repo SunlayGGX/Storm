@@ -23,5 +23,8 @@ namespace Storm
 		virtual bool operator<(const std::size_t id) const = 0;
 
 		virtual void tweakEnabling() = 0;
+
+		virtual const Storm::Vector3& getPosition() const = 0;
+		virtual const Storm::Vector3& getForce() const = 0;
 	};
 }

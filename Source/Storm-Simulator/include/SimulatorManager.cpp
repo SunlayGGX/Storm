@@ -3408,6 +3408,49 @@ void Storm::SimulatorManager::logForceParticipationOnVector(const unsigned int i
 	});
 }
 
+void Storm::SimulatorManager::logForceParticipationToEnterBlower(const unsigned int rbId, const unsigned int blowerId, const Storm::CustomForceSelect force, const int pressureMode) const
+{
+	validateCustomSelectForceSelectedByUser(force, pressureMode);
+
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::MainThread, [this, rbId, blowerId, force, pressureMode]()
+	{
+		if (const auto pSystemFound = _particleSystem.find(rbId); pSystemFound != std::end(_particleSystem))
+		{
+			const Storm::ParticleSystem &pSystem = *pSystemFound->second;
+			if (pSystem.isFluids())
+			{
+				LOG_ERROR << "logForceParticipationToEnterBlower should only be called for rigidbodies particle system!";
+				return;
+			}
+
+			if (const auto found = std::ranges::find_if(_blowers, [bwId = static_cast<std::size_t>(blowerId)](const auto &iblower) { return *iblower == bwId; }); found != std::end(_blowers))
+			{
+				const Storm::IBlower &blower = *found->get();
+				const Storm::Vector3 &blowerInstantForce = blower.getForce();
+				if (blowerInstantForce.isZero())
+				{
+					LOG_ERROR << "The blower instant force is zero, we cannot compute its contribution.";
+					return;
+				}
+
+				const Storm::RigidBodyParticleSystem &pSystemAsRb = static_cast<const Storm::RigidBodyParticleSystem &>(pSystem);
+				const Storm::Vector3 rbToBw = blower.getPosition() - pSystemAsRb.getRbPosition();
+
+				logSelectedParticleContributionToVectorImpl(pSystem, force, pressureMode, rbToBw - (rbToBw.dot(blowerInstantForce) / blowerInstantForce.squaredNorm()) * blowerInstantForce);
+			}
+			else
+			{
+				LOG_ERROR << "The blower " << blowerId << " didn't exist!";
+			}
+		}
+		else
+		{
+			LOG_ERROR << "The particle system " << rbId << " didn't exist!";
+		}
+	});
+}
+
 void Storm::SimulatorManager::forceRefreshParticleNeighborhood(const unsigned int pSystemId, const std::size_t particleIndex)
 {
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();

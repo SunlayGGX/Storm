@@ -257,6 +257,17 @@ namespace Storm
 		}
 
 	public:
+		const Storm::Vector3& getPosition() const final override
+		{
+			return _blowerPosition;
+		}
+
+		const Storm::Vector3& getForce() const final override
+		{
+			return _force;
+		}
+
+	public:
 		bool operator==(const std::size_t id) const final override
 		{
 			return _id == id;

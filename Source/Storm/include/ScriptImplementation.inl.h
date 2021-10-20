@@ -111,6 +111,7 @@ void STORM_CURRENT_REGISTERED_TYPE::registerCurrentOnScript(IScriptWrapperInterf
 		STORM_DECLARE_SCRIPTED_METHOD(logSelectedParticleContributionToVector),
 		STORM_DECLARE_SCRIPTED_METHOD(logForceParticipationOnTotalForce),
 		STORM_DECLARE_SCRIPTED_METHOD(logForceParticipationOnVector),
+		STORM_DECLARE_SCRIPTED_METHOD(logForceParticipationToEnterBlower),
 		STORM_DECLARE_SCRIPTED_METHOD(writeCurrentFrameSystemForcesToCsv),
 		STORM_DECLARE_SCRIPTED_METHOD(writeParticleNeighborhood),
 		STORM_DECLARE_SCRIPTED_METHOD(writeRbEmptiness),
