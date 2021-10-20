@@ -40,5 +40,7 @@ namespace Storm
 
 		std::size_t _rbWatchId;
 		bool _trackTranslation;
+
+		bool _showRbCompleteOnPrePass;
 	};
 }

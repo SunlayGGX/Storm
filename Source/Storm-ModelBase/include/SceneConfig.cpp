@@ -152,7 +152,8 @@ Storm::SceneGraphicConfig::SceneGraphicConfig() :
 	_forceColor{ 0.f, 1.f, 1.f, 0.8f },
 	_normalsColor{ 1.f, 0.f, 1.f, 0.8f },
 	_rbWatchId{ std::numeric_limits<std::size_t>::max() },
-	_trackTranslation{ false }
+	_trackTranslation{ false },
+	_showRbCompleteOnPrePass{ false }
 {
 
 }
