@@ -1371,9 +1371,10 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 		recordJumpCount = sceneRecordConfig._leanStartJump;
 		if (recordJumpCount > 1)
 		{
-			physicsMgr.bindOnRigidbodyFixedCallback([&recordJumpCount, leanStartJump = sceneRecordConfig._leanStartJump](const bool fixed)
+			physicsMgr.bindOnRigidbodyFixedCallback([&recordJumpCount, leanStartJump = sceneRecordConfig._leanStartJump, &nextRecordTime, &timeMgr](const bool fixed)
 			{
 				recordJumpCount = fixed ? leanStartJump : 1;
+				nextRecordTime = timeMgr.getCurrentPhysicsElapsedTime(); // To record the first frame of what is deemed interesting
 			});
 		}
 	}
@@ -1487,13 +1488,14 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 			if ((sentRecordCount % recordJumpCount) == 0)
 			{
 				this->pushRecord(currentPhysicsTime, false);
-				Storm::ReplaySolver::computeNextRecordTime(nextRecordTime, currentPhysicsTime, sceneRecordConfig._recordFps);
-				++sentRecordCount;
 			}
 			else
 			{
 				LOG_DEBUG << "Record frame skipped because simulation is not in an interesting state.";
 			}
+
+			++sentRecordCount;
+			Storm::ReplaySolver::computeNextRecordTime(nextRecordTime, currentPhysicsTime, sceneRecordConfig._recordFps);
 		}
 
 		hasAutoEndSimulation = autoEndSimulation && currentPhysicsTime > sceneSimulationConfig._endSimulationPhysicsTimeInSeconds;
