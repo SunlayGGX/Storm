@@ -1107,7 +1107,8 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "rotation", rbConfig._rotation, parseRotationElement) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "geometry", rbConfig._geometry, parseGeometryType) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "scale", rbConfig._scale, parseVector3Element) ||
-			Storm::XmlReader::handleXml(rigidBodyConfigXml, "color", rbConfig._color, parseColor4Element)
+			Storm::XmlReader::handleXml(rigidBodyConfigXml, "color", rbConfig._color, parseColor4Element) ||
+			Storm::XmlReader::handleXml(rigidBodyConfigXml, "separateColor", rbConfig._separateColoring)
 			;
 	}, [&, rbWatchedId = graphicConfig._rbWatchId](Storm::SceneRigidBodyConfig &rbConfig)
 	{

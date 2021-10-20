@@ -27,6 +27,7 @@ namespace Storm
 		Storm::CollisionType _collisionShape;
 
 		Storm::Vector4 _color;
+		bool _separateColoring;
 
 		float _mass;
 

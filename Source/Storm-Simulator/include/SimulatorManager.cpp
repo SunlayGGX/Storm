@@ -936,6 +936,17 @@ void Storm::SimulatorManager::initialize_Implementation()
 		"- Dynamic rigid bodies particles count : " << particleInfo._dynamicRigidbodiesParticleCount
 		;
 
+	/* Register rigid bodies to the graphic pipe. */
+	Storm::IGraphicsManager &graphicMgr = singletonHolder.getSingleton<Storm::IGraphicsManager>();
+	for (const auto &pSystemPair : _particleSystem)
+	{
+		const Storm::ParticleSystem &pSystem = *pSystemPair.second;
+		if (!pSystem.isFluids())
+		{
+			graphicMgr.registerRigidbodiesParticleSystem(pSystemPair.first, pSystem.getParticleCount());
+		}
+	}
+
 	/* initialize the Selector */
 
 	_kernelHandler.initialize();

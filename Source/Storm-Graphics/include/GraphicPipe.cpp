@@ -10,6 +10,7 @@
 #include "SingletonHolder.h"
 #include "IConfigManager.h"
 #include "ISimulatorManager.h"
+#include "IRandomManager.h"
 
 #include "SceneGraphicConfig.h"
 #include "SceneRigidBodyConfig.h"
@@ -30,12 +31,15 @@ namespace
 		return { 0.3f, 0.5f, 0.85f, 1.f };
 	}
 
-	DirectX::XMVECTOR getRbColor(unsigned int rbId)
+	DirectX::XMVECTOR getRbColor(unsigned int rbId, bool &outShouldRandomize)
 	{
-		STORM_STATIC_ASSERT(sizeof(DirectX::XMFLOAT4) == sizeof(Storm::Vector4), "The folowing lines is an optimization that works only if the type have the same layout.");
+		STORM_STATIC_ASSERT(sizeof(DirectX::XMFLOAT4) == sizeof(Storm::Vector4), "The following lines are an optimization that work only if the type have the same layout.");
 
 		const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
-		const Storm::Vector4 &colorRGBA = configMgr.getSceneRigidBodyConfig(rbId)._color;
+		const Storm::SceneRigidBodyConfig &rbConfig = configMgr.getSceneRigidBodyConfig(rbId);
+
+		const Storm::Vector4 &colorRGBA = rbConfig._color;
+		outShouldRandomize = rbConfig._separateColoring;
 
 		return DirectX::XMLoadFloat4(reinterpret_cast<const DirectX::XMFLOAT4*>(&colorRGBA.x()));
 	}
@@ -62,26 +66,31 @@ namespace
 	}
 
 	template<bool isFluid, Storm::ColoredSetting coloredSetting = Storm::ColoredSetting::Velocity>
-	void fastTransCopyImpl(const Storm::PushedParticleSystemDataParameter &param, const Storm::GraphicPipe::ColorSetting &colorSetting, std::vector<Storm::GraphicParticleData> &inOutDxParticlePosDataTmp)
+	void fastTransCopyImpl(/*const*/ std::map<unsigned int, std::vector<DirectX::XMVECTOR>> &rbsPrecomputedColors, const Storm::PushedParticleSystemDataParameter &param, const Storm::GraphicPipe::ColorSetting &colorSetting, std::vector<Storm::GraphicParticleData> &inOutDxParticlePosDataTmp)
 	{
-		DirectX::XMVECTOR defaultColor = isFluid ? getDefaultFluidParticleColor() : getRbColor(param._particleSystemId);
+		DirectX::XMVECTOR defaultColor = getDefaultFluidParticleColor();
 
 		const float deltaColorRChan = 1.f - defaultColor.m128_f32[0];
 		const float deltaValueForColor = colorSetting._maxValue - colorSetting._minValue;
 
 		const std::vector<Storm::Vector3> &particlePosData = *param._positionsData;
+		const std::vector<DirectX::XMVECTOR> &cachedColor = rbsPrecomputedColors[param._particleSystemId];
 
-		const auto copyLambda = [&particlePosData, &param, &defaultColor, &colorSetting, deltaColorRChan, deltaValueForColor](Storm::GraphicParticleData &current, const std::size_t iter)
+		const std::size_t particleCount = particlePosData.size();
+
+		assert(!cachedColor.empty() && "We should have registered the rigid body before before the simulation started! This will crash!");
+		assert(cachedColor.size() == particleCount && "Size mismatch!");
+
+		const auto copyLambda = [&particlePosData, &cachedColor, &param, &defaultColor, &colorSetting, deltaColorRChan, deltaValueForColor](Storm::GraphicParticleData &current, const std::size_t iter)
 		{
 			memcpy(&current._pos, &particlePosData[iter], sizeof(Storm::Vector3));
 			reinterpret_cast<float*>(&current._pos)[3] = 1.f;
 
 			if constexpr (isFluid)
 			{
-				float coeff = getColoredMonoDimensionUsedData<coloredSetting>(param, iter) - colorSetting._minValue;
-
 				current._color = defaultColor;
 
+				float coeff = getColoredMonoDimensionUsedData<coloredSetting>(param, iter) - colorSetting._minValue;
 				if (coeff > 0.f)
 				{
 					coeff = coeff / deltaValueForColor;
@@ -98,13 +107,11 @@ namespace
 			}
 			else // Rigidbody
 			{
-				current._color = defaultColor;
+				current._color = cachedColor[iter];
 			}
 		};
 
 		const std::size_t thresholdMultiThread = std::thread::hardware_concurrency() * 1500;
-
-		const std::size_t particleCount = particlePosData.size();
 		if (particleCount > thresholdMultiThread)
 		{
 			Storm::runParallel(inOutDxParticlePosDataTmp, copyLambda);
@@ -197,18 +204,15 @@ std::vector<Storm::GraphicParticleData> Storm::GraphicPipe::fastOptimizedTransCo
 
 #if _WIN32
 
-	const Storm::VectorHijackerMakeBelieve hijacker{ param._positionsData->size() };
-	dxParticlePosDataTmp.reserve(hijacker._newSize);
-
 	// Huge optimization that completely destroys resize method... Cannot be much faster than this, it is like Unreal technology (TArray provides a SetNumUninitialized).
 	// (Except that Unreal implemented their own TArray instead of using std::vector. Since I'm stuck with this, I didn't have much choice than to hijack... Note that this code isn't portable because it relies heavily on how Microsoft implemented std::vector (to find out the breach in the armor, we must know whose armor it is ;) )).
-	Storm::setNumUninitialized_hijack(dxParticlePosDataTmp, hijacker);
+	Storm::setNumUninitialized_safeHijack(dxParticlePosDataTmp, Storm::VectorHijackerMakeBelieve{ param._positionsData->size() });
 
 	const Storm::GraphicPipe::ColorSetting &usedColorSetting = this->getUsedColorSetting();
 	if (enableDifferentColoring)
 	{
 #define STORM_CASE_FAST_TRANSFER_WITH_COLORED_SETTING(ColoredSettingValue) case ColoredSettingValue: \
-		fastTransCopyImpl<true, ColoredSettingValue>(param, usedColorSetting, dxParticlePosDataTmp); \
+		fastTransCopyImpl<true, ColoredSettingValue>(_rbsPrecomputedColors, param, usedColorSetting, dxParticlePosDataTmp); \
 		break
 
 		switch (_selectedColoredSetting)
@@ -226,7 +230,7 @@ std::vector<Storm::GraphicParticleData> Storm::GraphicPipe::fastOptimizedTransCo
 	}
 	else
 	{
-		fastTransCopyImpl<false>(param, usedColorSetting, dxParticlePosDataTmp);
+		fastTransCopyImpl<false>(_rbsPrecomputedColors, param, usedColorSetting, dxParticlePosDataTmp);
 	}
 
 #else
@@ -357,6 +361,38 @@ void Storm::GraphicPipe::changeMaxColorationValue(float deltaValue, const Storm:
 			LOG_DEBUG_WARNING << "Field Coloration max value change ignored because we cannot go under min value.";
 		}
 	}
+}
+
+void Storm::GraphicPipe::registerRb(const unsigned int rbPSystem, const std::size_t pCount)
+{
+	if (pCount == 0)
+	{
+		Storm::throwException<Storm::Exception>("Please, register a rigid body with at least one particle!");
+	}
+
+	bool shouldRandomize;
+	std::vector<DirectX::XMVECTOR> precomputedColor(pCount, getRbColor(rbPSystem, shouldRandomize));
+
+	if (shouldRandomize)
+	{
+		const DirectX::XMVECTOR baseColor = precomputedColor.front();
+
+		constexpr float k_range = 0.2f;
+		float min[3] = { std::max(0.f, baseColor.m128_f32[0] - k_range), std::max(0.f, baseColor.m128_f32[1] - k_range), std::max(0.f, baseColor.m128_f32[2] - k_range) };
+		float max[3] = { std::min(1.f, baseColor.m128_f32[0] + k_range), std::min(1.f, baseColor.m128_f32[1] + k_range), std::min(1.f, baseColor.m128_f32[2] + k_range) };;
+
+		const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+		Storm::IRandomManager &randMgr = singletonHolder.getSingleton<Storm::IRandomManager>();
+		for (std::size_t iter = 0; iter < pCount; ++iter)
+		{
+			DirectX::XMVECTOR &color = precomputedColor[iter];
+			color.m128_f32[0] = randMgr.randomizeFloat(min[0], max[0]);
+			color.m128_f32[1] = randMgr.randomizeFloat(min[1], max[1]);
+			color.m128_f32[2] = randMgr.randomizeFloat(min[2], max[2]);
+		}
+	}
+
+	_rbsPrecomputedColors.emplace(rbPSystem, std::move(precomputedColor));
 }
 
 void Storm::GraphicPipe::changeMinColorationValue(float deltaValue)

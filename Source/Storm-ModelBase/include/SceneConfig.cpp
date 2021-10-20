@@ -109,6 +109,7 @@ Storm::SceneRigidBodyConfig::SceneRigidBodyConfig() :
 	_rotation{ Storm::Rotation::Identity() },
 	_scale{ 1.f, 1.f, 1.f },
 	_color{ 0.3f, 0.5f, 0.5f, 1.f },
+	_separateColoring{ false },
 	_collisionShape{ Storm::CollisionType::None },
 	_insideRbFluidDetectionMethodEnum{ Storm::InsideParticleRemovalTechnique::None },
 	_staticFrictionCoefficient{ 0.1f },

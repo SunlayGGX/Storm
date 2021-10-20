@@ -381,6 +381,17 @@ void Storm::GraphicManager::bindParentRbToMesh(unsigned int meshId, const std::s
 	}
 }
 
+void Storm::GraphicManager::registerRigidbodiesParticleSystem(unsigned int rbId, const std::size_t pCount)
+{
+	if (this->isActive())
+	{
+		assert(Storm::isSimulationThread() && "This method should be called from simulation thread!");
+		_pipe->registerRb(rbId, pCount);
+
+		LOG_DEBUG << "Rb particle system " << rbId << " registered to graphic pipe with " << pCount << " particles.";
+	}
+}
+
 void Storm::GraphicManager::loadBlower(const Storm::SceneBlowerConfig &blowerConfig, const std::vector<Storm::Vector3> &vertexes, const std::vector<unsigned int> &indexes)
 {
 	if (this->isActive())

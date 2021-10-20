@@ -45,10 +45,15 @@ namespace Storm
 		void changeMinColorationValue(float deltaValue);
 		void changeMaxColorationValue(float deltaValue);
 
+	public:
+		void registerRb(const unsigned int rbPSystem, const std::size_t pCount);
+
 	private:
 		void notifyCurrentGraphicPipeColorationSettingChanged() const;
 
 	private:
+		std::map<unsigned int, std::vector<DirectX::XMVECTOR>> _rbsPrecomputedColors;
+
 		Storm::ColoredSetting _selectedColoredSetting;
 
 		Storm::GraphicPipe::ColorSetting _velocitySetting;
