@@ -65,52 +65,9 @@ namespace
 		return (*param._densityData)[iter];
 	}
 
-	template<bool isFluid, Storm::ColoredSetting coloredSetting = Storm::ColoredSetting::Velocity>
-	void fastTransCopyImpl(/*const*/ std::map<unsigned int, std::vector<DirectX::XMVECTOR>> &rbsPrecomputedColors, const Storm::PushedParticleSystemDataParameter &param, const Storm::GraphicPipe::ColorSetting &colorSetting, std::vector<Storm::GraphicParticleData> &inOutDxParticlePosDataTmp)
+	template<class Lambda>
+	void runCpyLambda(std::vector<Storm::GraphicParticleData> &inOutDxParticlePosDataTmp, Lambda &&copyLambda, const std::size_t particleCount)
 	{
-		DirectX::XMVECTOR defaultColor = getDefaultFluidParticleColor();
-
-		const float deltaColorRChan = 1.f - defaultColor.m128_f32[0];
-		const float deltaValueForColor = colorSetting._maxValue - colorSetting._minValue;
-
-		const std::vector<Storm::Vector3> &particlePosData = *param._positionsData;
-		const std::vector<DirectX::XMVECTOR> &cachedColor = rbsPrecomputedColors[param._particleSystemId];
-
-		const std::size_t particleCount = particlePosData.size();
-
-		assert(!cachedColor.empty() && "We should have registered the rigid body before before the simulation started! This will crash!");
-		assert(cachedColor.size() == particleCount && "Size mismatch!");
-
-		const auto copyLambda = [&particlePosData, &cachedColor, &param, &defaultColor, &colorSetting, deltaColorRChan, deltaValueForColor](Storm::GraphicParticleData &current, const std::size_t iter)
-		{
-			memcpy(&current._pos, &particlePosData[iter], sizeof(Storm::Vector3));
-			reinterpret_cast<float*>(&current._pos)[3] = 1.f;
-
-			if constexpr (isFluid)
-			{
-				current._color = defaultColor;
-
-				float coeff = getColoredMonoDimensionUsedData<coloredSetting>(param, iter) - colorSetting._minValue;
-				if (coeff > 0.f)
-				{
-					coeff = coeff / deltaValueForColor;
-
-					if (coeff > 1.f)
-					{
-						current._color.m128_f32[0] = 1.f;
-					}
-					else
-					{
-						current._color.m128_f32[0] = defaultColor.m128_f32[0] + deltaColorRChan * coeff;
-					}
-				}
-			}
-			else // Rigidbody
-			{
-				current._color = cachedColor[iter];
-			}
-		};
-
 		const std::size_t thresholdMultiThread = std::thread::hardware_concurrency() * 1500;
 		if (particleCount > thresholdMultiThread)
 		{
@@ -123,6 +80,63 @@ namespace
 				copyLambda(inOutDxParticlePosDataTmp[iter], iter);
 			}
 		}
+	}
+
+	template<Storm::ColoredSetting coloredSetting = Storm::ColoredSetting::Velocity>
+	void fastTransCopyImpl_Fluid(const Storm::PushedParticleSystemDataParameter &param, const Storm::GraphicPipe::ColorSetting &colorSetting, std::vector<Storm::GraphicParticleData> &inOutDxParticlePosDataTmp)
+	{
+		DirectX::XMVECTOR defaultColor = getDefaultFluidParticleColor();
+
+		const float deltaColorRChan = 1.f - defaultColor.m128_f32[0];
+		const float deltaValueForColor = colorSetting._maxValue - colorSetting._minValue;
+
+		const std::vector<Storm::Vector3> &particlePosData = *param._positionsData;
+
+		const auto copyLambda = [&particlePosData, &param, &defaultColor, &colorSetting, deltaColorRChan, deltaValueForColor](Storm::GraphicParticleData &current, const std::size_t iter)
+		{
+			memcpy(&current._pos, &particlePosData[iter], sizeof(Storm::Vector3));
+			reinterpret_cast<float*>(&current._pos)[3] = 1.f;
+
+			current._color = defaultColor;
+
+			float coeff = getColoredMonoDimensionUsedData<coloredSetting>(param, iter) - colorSetting._minValue;
+			if (coeff > 0.f)
+			{
+				coeff = coeff / deltaValueForColor;
+
+				if (coeff > 1.f)
+				{
+					current._color.m128_f32[0] = 1.f;
+				}
+				else
+				{
+					current._color.m128_f32[0] = defaultColor.m128_f32[0] + deltaColorRChan * coeff;
+				}
+			}
+		};
+
+		runCpyLambda(inOutDxParticlePosDataTmp, copyLambda, particlePosData.size());
+	}
+
+	void fastTransCopyImpl_Solids(/*const*/ std::map<unsigned int, std::vector<DirectX::XMVECTOR>> &rbsPrecomputedColors, const Storm::PushedParticleSystemDataParameter &param, std::vector<Storm::GraphicParticleData> &inOutDxParticlePosDataTmp)
+	{
+		const std::vector<Storm::Vector3> &particlePosData = *param._positionsData;
+		const std::vector<DirectX::XMVECTOR> &cachedColor = rbsPrecomputedColors[param._particleSystemId];
+
+		const std::size_t particleCount = particlePosData.size();
+
+		assert(!cachedColor.empty() && "We should have registered the rigid body before before the simulation started! This will crash!");
+		assert(cachedColor.size() == particleCount && "Size mismatch!");
+
+		const auto copyLambda = [&particlePosData, &cachedColor, &param](Storm::GraphicParticleData &current, const std::size_t iter)
+		{
+			memcpy(&current._pos, &particlePosData[iter], sizeof(Storm::Vector3));
+			reinterpret_cast<float*>(&current._pos)[3] = 1.f;
+
+			current._color = cachedColor[iter];
+		};
+
+		runCpyLambda(inOutDxParticlePosDataTmp, copyLambda, particleCount);
 	}
 
 	std::wstring_view parseColoredSetting(const Storm::ColoredSetting setting)
@@ -200,19 +214,19 @@ std::vector<Storm::GraphicParticleData> Storm::GraphicPipe::fastOptimizedTransCo
 {
 	std::vector<Storm::GraphicParticleData> dxParticlePosDataTmp;
 
-	const bool enableDifferentColoring = param._isFluids;
+	const Storm::VectorHijacker hijacker{ param._positionsData->size() };
 
 #if _WIN32
 
 	// Huge optimization that completely destroys resize method... Cannot be much faster than this, it is like Unreal technology (TArray provides a SetNumUninitialized).
 	// (Except that Unreal implemented their own TArray instead of using std::vector. Since I'm stuck with this, I didn't have much choice than to hijack... Note that this code isn't portable because it relies heavily on how Microsoft implemented std::vector (to find out the breach in the armor, we must know whose armor it is ;) )).
-	Storm::setNumUninitialized_safeHijack(dxParticlePosDataTmp, Storm::VectorHijackerMakeBelieve{ param._positionsData->size() });
+	Storm::setNumUninitialized_safeHijack(dxParticlePosDataTmp, hijacker);
 
 	const Storm::GraphicPipe::ColorSetting &usedColorSetting = this->getUsedColorSetting();
-	if (enableDifferentColoring)
+	if (param._isFluids)
 	{
 #define STORM_CASE_FAST_TRANSFER_WITH_COLORED_SETTING(ColoredSettingValue) case ColoredSettingValue: \
-		fastTransCopyImpl<true, ColoredSettingValue>(_rbsPrecomputedColors, param, usedColorSetting, dxParticlePosDataTmp); \
+		fastTransCopyImpl_Fluid<ColoredSettingValue>(param, usedColorSetting, dxParticlePosDataTmp); \
 		break
 
 		switch (_selectedColoredSetting)
@@ -230,7 +244,7 @@ std::vector<Storm::GraphicParticleData> Storm::GraphicPipe::fastOptimizedTransCo
 	}
 	else
 	{
-		fastTransCopyImpl<false>(_rbsPrecomputedColors, param, usedColorSetting, dxParticlePosDataTmp);
+		fastTransCopyImpl_Solids(_rbsPrecomputedColors, param, dxParticlePosDataTmp);
 	}
 
 #else
@@ -238,10 +252,26 @@ std::vector<Storm::GraphicParticleData> Storm::GraphicPipe::fastOptimizedTransCo
 
 	const std::vector<Storm::Vector3> &particlePosData = *param._positionsData;
 	
-	const DirectX::XMVECTOR defaultColor = enableDifferentColoring ? getDefaultParticleColor<true>() : getDefaultParticleColor<false>();
-	for (const Storm::Vector3 &pos : particlePosData)
+	if (param._isFluids)
 	{
-		dxParticlePosDataTmp.emplace_back(pos, defaultColor);
+		STORM_TODO("Fix Me : Add different coloring.");
+
+		const DirectX::XMVECTOR defaultColor = getDefaultFluidParticleColor();
+		for (const Storm::Vector3 &pos : particlePosData)
+		{
+			dxParticlePosDataTmp.emplace_back(pos, defaultColor);
+		}
+	}
+	else
+	{
+		const std::vector<DirectX::XMVECTOR> &cachedColor = rbsPrecomputedColors[param._particleSystemId];
+
+		assert(!cachedColor.empty() && "We should have registered the rigid body before before the simulation started! This will crash!");
+		assert(cachedColor.size() == hijacker._newSize && "Size mismatch!");
+		for (std::size_t iter = 0; iter < hijacker._newSize; ++iter)
+		{
+			dxParticlePosDataTmp.emplace_back(particlePosData[iter], cachedColor[iter]);
+		}
 	}
 
 #endif
