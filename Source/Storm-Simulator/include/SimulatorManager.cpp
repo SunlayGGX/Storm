@@ -1491,7 +1491,7 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 			}
 			else
 			{
-				LOG_DEBUG << "Record frame skipped because simulation is not in an interesting state.";
+				LOG_DEBUG << "Record frame skipped because simulation isn't at an interesting state.";
 			}
 
 			++sentRecordCount;
