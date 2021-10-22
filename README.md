@@ -135,6 +135,7 @@ It is the application to see logs in a more friendly and clear manner. Command l
 - **LogFilePath (string, facultative, accept macros)**: This is the log file to display. If left unset, we will select the latest inside the default Log folder (located inside the default temporary folder). By not setting it, we’ll also allow the LogViewer to parse the next log when the day change...
 - **NoInitialRead (no value, facultative)**: We’ll just read and display the log after the time the log viewer started... Otherwise, we would display all logs.
 - **ReadLast (no value, facultative)**: Read and display the last log file found. This flag is ignored if we specified a log file to read with LogFilePath...
+- **NoKeepUp (no value, facultative)**: We should only read the file that was provided and nothing else. We won't keep up to date with new logs... This flag should only be called if we have provided a log file and it must not be used if we specified ReadLast flag.
 
 
 

@@ -177,7 +177,10 @@ namespace Storm_LogViewer.Source.Log
                 List<string> newModuleAddedThisFrame = new List<string>(12);
                 List<uint> newPIDsAddedThisFrame = new List<uint>(2);
 
-                this.FillNewWatchedFiles();
+				if (!ConfigManager.Instance.NoKeepUp)
+				{
+					this.FillNewWatchedFiles();
+				}
 
                 List<LogFileHandler> toExecute = new List<LogFileHandler>(_watchedLogFiles.Count);
                 toExecute.AddRange(_watchedLogFiles);

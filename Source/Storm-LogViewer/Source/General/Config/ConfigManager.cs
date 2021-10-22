@@ -48,9 +48,15 @@ namespace Storm_LogViewer.Source.General.Config
         public bool ReadLast
         {
             get => _readLast;
-        }
+		}
 
-        private bool _filterStrictEquality = true;
+		private bool _noKeepUp = false;
+		public bool NoKeepUp
+		{
+			get => _noKeepUp;
+		}
+
+		private bool _filterStrictEquality = true;
         public bool FilterStrictEquality
         {
             get => _filterStrictEquality;
@@ -78,7 +84,7 @@ namespace Storm_LogViewer.Source.General.Config
             }
         }
 
-        public bool _autoScrollEnabled = true;
+		private bool _autoScrollEnabled = true;
         public bool AutoScrollEnabled
         {
             get => _autoScrollEnabled;
@@ -93,9 +99,10 @@ namespace Storm_LogViewer.Source.General.Config
         }
 
 
-        #region Events
 
-        public delegate void OnFilterCheckboxChanged();
+		#region Events
+
+		public delegate void OnFilterCheckboxChanged();
         public event OnFilterCheckboxChanged _onFilterCheckboxChanged;
 
         public delegate void OnShowEssentialCheckboxChanged(bool showEssential);
@@ -177,8 +184,12 @@ namespace Storm_LogViewer.Source.General.Config
                 else if (ConfigManager.IsCommandLine(arg, "ReadLast"))
                 {
                     _readLast = true;
-                }
-            }
+				}
+				else if (ConfigManager.IsCommandLine(arg, "NoKeepUp"))
+				{
+					_noKeepUp = true;
+				}
+			}
         }
 
         private void ApplyDefaultSettingToRemainingConfig()
@@ -200,7 +211,19 @@ namespace Storm_LogViewer.Source.General.Config
                     throw new Exception("log file to parse should be an xml file : current is " + _logFilePath);
                 }
             }
-        }
+
+			if (NoKeepUp)
+			{
+				if (ReadLast)
+				{
+					throw new Exception("We must not set NoKeepUp and ReadLast flags together!");
+				}
+				if (!HasLogFilePath)
+				{
+					throw new Exception("We must have a log file path set if we want to use NoKeepUp flag!");
+				}
+			}
+		}
 
         #endregion
     }
