@@ -71,6 +71,12 @@ Storm::RecordArchiver::RecordArchiver() :
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
 
+	const Storm::GeneralArchiveConfig &generalArchiveConfig = configMgr.getGeneralArchiveConfig();
+	if (!generalArchiveConfig._enabled)
+	{
+		return;
+	}
+
 	if (!configMgr.isInRecordMode())
 	{
 		Storm::throwException<Storm::Exception>("Record archiver cannot be created outside record mode!");
