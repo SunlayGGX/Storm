@@ -741,6 +741,7 @@ Here the list of available commands :
 - **void advanceOneFrame()**: Advance the simulation to the next frame. Available only if the simulation is paused. This is the same method bound to the key inputs.
 - **void advanceByFrame(int64_t frameCount)**: Advance the paused simulation by frameCount frames. The frameCount value must be positive !
 - **void advanceToFrame(int64_t frameNumber)**: Advance the paused simulation to a specific frame. The frameNumber value must be positive !
+- **void seekReplay(const float seekPhysicsTimeSec)**: Seek to a specified time ! This method can only be used in replay mode. 
 - **void selectSpecificParticle(const unsigned int pSystemId, const std::size_t particleIndex)**: Select the particleIndex-th particle from the particle system refered by pSystemId.
 - **void printRigidBodyMoment(const unsigned int id)**: Compute and print the total moment of the rigid body specified by id. It serves at debugging the rigid body rotation (how it spins). Note that this method is to be used only for dynamic rigid bodies.
 - **void printRigidBodyGlobalDensity(const unsigned int id)**: Print the rigid body density evaluated from a predicted volume and its mass set in the config file. Disabled if the volume wasn’t computed.

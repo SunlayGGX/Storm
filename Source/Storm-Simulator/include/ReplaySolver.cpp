@@ -871,6 +871,110 @@ bool Storm::ReplaySolver::replayCurrentNextFrame(Storm::ParticleSystemContainer 
 	return true;
 }
 
+bool Storm::ReplaySolver::seekFrame(const float toFrameTime, Storm::ParticleSystemContainer &particleSystems, Storm::SerializeRecordPendingData &frameBefore, Storm::SerializeRecordPendingData &frameAfter, std::vector<Storm::SerializeRecordContraintsData> &outFrameConstraintData, float &outKernelValue)
+{
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	Storm::ISerializerManager &serializerMgr = singletonHolder.getSingleton<Storm::ISerializerManager>();
+
+	bool skipAdvance = false;
+
+	assert(frameBefore._physicsTime <= toFrameTime && "We mustn't have the frameBefore after the toFrameTime before entering this method!");
+
+	if (frameAfter._physicsTime > toFrameTime)
+	{
+		const float lerpRatio = (frameAfter._physicsTime - toFrameTime) / (frameAfter._physicsTime - frameBefore._physicsTime);
+
+		// To frame time is not between before and after, then we need to change them.
+		if (lerpRatio > 1.f)
+		{
+			frameAfter = frameBefore;
+		}
+		else
+		{
+			skipAdvance = true;
+		}
+	}
+
+	if (!skipAdvance)
+	{
+		// Advance until the right frame.
+		// TODO : Optimize with a real seek, but right now, this will do the job since the record files we dump weren't designed to be seekable easily.
+		do
+		{
+			if (!serializerMgr.obtainNextFrame(frameAfter))
+			{
+				return false;
+			}
+
+			if (frameAfter._physicsTime < toFrameTime)
+			{
+				frameBefore = std::move(frameAfter);
+			}
+			else
+			{
+				break;
+			}
+
+		} while (true);
+	}
+
+	const float frameDiffTime = frameAfter._physicsTime - frameBefore._physicsTime;
+
+	// Lerp coeff
+	const float coefficient = 1.f - ((frameAfter._physicsTime - toFrameTime) / frameDiffTime);
+
+	const bool useSIMD = Storm::InstructionSet::SSE() && Storm::InstructionSet::SSE2();
+	const bool useAVX512 = useSIMD && Storm::InstructionSet::AVX512F();
+
+	// The first frame is different because it contains static rigid bodies while the other frames doesn't contains them.
+	// It results in a mismatch of index when reading the frames element by their index in the array. Therefore, we should remap in case of a size mismatch.
+	if (frameBefore._particleSystemElements.size() == frameAfter._particleSystemElements.size())
+	{
+		if (useSIMD)
+		{
+			if (useAVX512)
+			{
+				lerpParticleSystemsFrames<false, Storm::SIMDUsageMode::AVX512>(particleSystems, frameBefore, frameAfter, coefficient);
+			}
+			else
+			{
+				lerpParticleSystemsFrames<false, Storm::SIMDUsageMode::SSE>(particleSystems, frameBefore, frameAfter, coefficient);
+			}
+		}
+		else
+		{
+			lerpParticleSystemsFrames<false, Storm::SIMDUsageMode::SISD>(particleSystems, frameBefore, frameAfter, coefficient);
+		}
+	}
+	else
+	{
+		if (useSIMD)
+		{
+			if (useAVX512)
+			{
+				lerpParticleSystemsFrames<true, Storm::SIMDUsageMode::AVX512>(particleSystems, frameBefore, frameAfter, coefficient);
+			}
+			else
+			{
+				lerpParticleSystemsFrames<true, Storm::SIMDUsageMode::SSE>(particleSystems, frameBefore, frameAfter, coefficient);
+			}
+		}
+		else
+		{
+			lerpParticleSystemsFrames<true, Storm::SIMDUsageMode::SISD>(particleSystems, frameBefore, frameAfter, coefficient);
+		}
+	}
+
+	lerpConstraintsFrames(frameBefore, frameAfter, coefficient, outFrameConstraintData);
+
+	lerp(frameBefore._kernelLength, frameAfter._kernelLength, coefficient, outKernelValue);
+
+	Storm::ITimeManager &timeMgr = singletonHolder.getSingleton<Storm::ITimeManager>();
+	timeMgr.setCurrentPhysicsElapsedTime(toFrameTime);
+
+	return true;
+}
+
 void Storm::ReplaySolver::fillRecordFromSystems(const bool pushStatics, const Storm::ParticleSystemContainer &particleSystems, Storm::SerializeRecordPendingData &currentFrameData)
 {
 	const bool useSIMD = Storm::InstructionSet::SSE() && Storm::InstructionSet::SSE2();

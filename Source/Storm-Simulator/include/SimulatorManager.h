@@ -145,7 +145,7 @@ namespace Storm
 		void resetReplay();
 
 	private:
-		void resetReplay_SimulationThread();
+		void resetReplay_SimulationThread(const bool pushData = true);
 
 	public:
 		void saveSimulationState() const final override;
@@ -199,6 +199,8 @@ namespace Storm
 		// When replaying
 		void refreshReplayNeighborhood();
 
+		void seekReplay(const float seekPhysicsTimeSec);
+
 	private:
 		Storm::ParticleSystemContainer _particleSystem;
 		std::vector<std::unique_ptr<Storm::IBlower>> _blowers;
@@ -224,8 +226,10 @@ namespace Storm
 
 		// For replay
 		std::unique_ptr<Storm::SerializeRecordPendingData> _frameBefore;
+		std::unique_ptr<Storm::SerializeRecordPendingData> _frameAfter;
 		bool _reinitFrameAfter;
 		bool _replayNeedNeighborhoodRefresh;
+		float _expectedReplayFps;
 
 		std::shared_ptr<Storm::SerializeSupportedFeatureLayout> _supportedFeature;
 

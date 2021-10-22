@@ -1152,29 +1152,30 @@ Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 	const bool autoEndSimulation = sceneSimulationConfig._endSimulationPhysicsTimeInSeconds != -1.f;
 	bool hasAutoEndSimulation = false;
 
+	_frameAfter = std::make_unique<Storm::SerializeRecordPendingData>();
+
 	Storm::SerializeRecordPendingData &frameBefore = *_frameBefore;
-	Storm::SerializeRecordPendingData frameAfter;
+	Storm::SerializeRecordPendingData &frameAfter = *_frameAfter;
 
 	this->refreshParticlePartition(false);
 
-	float expectedReplayFps;
 	if (sceneRecordConfig._replayRealTime)
 	{
-		expectedReplayFps = serializerMgr.getRecordHeader()._recordFrameRate;
-		if (timeMgr.getExpectedFrameFPS() != expectedReplayFps)
+		_expectedReplayFps = serializerMgr.getRecordHeader()._recordFrameRate;
+		if (timeMgr.getExpectedFrameFPS() != _expectedReplayFps)
 		{
 			frameAfter = frameBefore;
 		}
 	}
 	else
 	{
-		expectedReplayFps = timeMgr.getExpectedFrameFPS();
+		_expectedReplayFps = timeMgr.getExpectedFrameFPS();
 	}
 
-	const float physicsFixedDeltaTime = 1.f / expectedReplayFps;
+	const float physicsFixedDeltaTime = 1.f / _expectedReplayFps;
 	timeMgr.setCurrentPhysicsDeltaTime(physicsFixedDeltaTime);
 
-	const std::chrono::microseconds fullFrameWaitTime{ static_cast<std::chrono::microseconds::rep>(std::roundf(1000000.f / expectedReplayFps)) };
+	const std::chrono::microseconds fullFrameWaitTime{ static_cast<std::chrono::microseconds::rep>(std::roundf(1000000.f / _expectedReplayFps)) };
 	auto startFrame = std::chrono::high_resolution_clock::now();
 
 	std::vector<Storm::SerializeRecordContraintsData> recordedConstraintsData;
@@ -1242,7 +1243,7 @@ Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 
 		if (_reinitFrameAfter)
 		{
-			if (timeMgr.getExpectedFrameFPS() != expectedReplayFps)
+			if (timeMgr.getExpectedFrameFPS() != _expectedReplayFps)
 			{
 				frameAfter = frameBefore;
 			}
@@ -1251,7 +1252,7 @@ Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 		}
 
 		float currentKernelValue;
-		if (Storm::ReplaySolver::replayCurrentNextFrame(_particleSystem, frameBefore, frameAfter, expectedReplayFps, recordedConstraintsData, currentKernelValue))
+		if (Storm::ReplaySolver::replayCurrentNextFrame(_particleSystem, frameBefore, frameAfter, _expectedReplayFps, recordedConstraintsData, currentKernelValue))
 		{
 			this->pushParticlesToGraphicModule(false);
 
@@ -2588,7 +2589,7 @@ void Storm::SimulatorManager::resetReplay()
 	});
 }
 
-void Storm::SimulatorManager::resetReplay_SimulationThread()
+void Storm::SimulatorManager::resetReplay_SimulationThread(const bool pushData /*= true*/)
 {
 	assert(Storm::isSimulationThread() && "This method should only be executed inside the simulation thread!");
 
@@ -2600,7 +2601,7 @@ void Storm::SimulatorManager::resetReplay_SimulationThread()
 		if (serializerMgr.resetReplay())
 		{
 			Storm::SerializeRecordPendingData &frameBefore = *_frameBefore;
-			if (serializerMgr.obtainNextFrame(frameBefore))
+			if (serializerMgr.obtainNextFrame(frameBefore) && pushData)
 			{
 				const Storm::SceneRecordConfig &sceneRecordConfig = configMgr.getSceneRecordConfig();
 				this->applyReplayFrame(frameBefore, *_supportedFeature, sceneRecordConfig._recordFps, false);
@@ -3648,5 +3649,82 @@ void Storm::SimulatorManager::refreshReplayNeighborhood()
 	{
 		Storm::ParticleSystem &pSystem = *particleSystem.second;
 		pSystem.buildNeighborhood(_particleSystem);
+	}
+}
+
+void Storm::SimulatorManager::seekReplay(const float seekPhysicsTimeSec)
+{
+	if (seekPhysicsTimeSec < 0.f)
+	{
+		Storm::throwException<Storm::Exception>("We cannot seek to a negative frame!");
+	}
+
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
+
+	if (!configMgr.isInReplayMode())
+	{
+		Storm::throwException<Storm::Exception>("Seeking is only available when replaying!");
+	}
+	
+	const Storm::SceneSimulationConfig &sceneSimulationConfig = configMgr.getSceneSimulationConfig();
+	if (sceneSimulationConfig._endSimulationPhysicsTimeInSeconds != -1.f && seekPhysicsTimeSec > sceneSimulationConfig._endSimulationPhysicsTimeInSeconds)
+	{
+		Storm::throwException<Storm::Exception>("We cannot seek to after the user set end time!");
+	}
+
+	Storm::ISerializerManager &serializerMgr = singletonHolder.getSingleton<Storm::ISerializerManager>();
+	const Storm::SerializeRecordHeader &header = serializerMgr.getRecordHeader();
+
+	if (header._realEndPhysicsTime == std::numeric_limits<float>::quiet_NaN())
+	{
+		Storm::throwException<Storm::Exception>("Seeking feature is not supported for this version of the recording!");
+	}
+	else if (seekPhysicsTimeSec > header._realEndPhysicsTime)
+	{
+		Storm::throwException<Storm::Exception>("We cannot seek after the last frame of the replay!");
+	}
+
+	// This is not a seek but a reset the user wants instead
+	if (seekPhysicsTimeSec == 0.f)
+	{
+		this->resetReplay();
+	}
+	else
+	{
+		singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::MainThread, [this, &singletonHolder, seekPhysicsTimeSec]()
+		{
+			Storm::SerializeRecordPendingData &frameBefore = *_frameBefore;
+			Storm::SerializeRecordPendingData &frameAfter = *_frameAfter;
+
+			// We need to go back in time
+			if (seekPhysicsTimeSec <= frameBefore._physicsTime)
+			{
+				this->resetReplay_SimulationThread(false);
+				frameAfter = frameBefore;
+			}
+
+			std::vector<Storm::SerializeRecordContraintsData> recordedConstraintsData;
+			float currentKernelValue;
+
+			if (Storm::ReplaySolver::seekFrame(seekPhysicsTimeSec, _particleSystem, frameBefore, frameAfter, recordedConstraintsData, currentKernelValue))
+			{
+				this->pushParticlesToGraphicModule(false);
+
+				Storm::IPhysicsManager &physicsMgr = singletonHolder.getSingleton<Storm::IPhysicsManager>();
+				physicsMgr.pushConstraintsRecordedFrame(recordedConstraintsData);
+
+				for (const std::unique_ptr<Storm::IBlower> &blowerUPtr : _blowers)
+				{
+					blowerUPtr->setTime(seekPhysicsTimeSec);
+				}
+
+				if (_kernelHandler.getKernelValue() != currentKernelValue)
+				{
+					_kernelHandler.setKernelValue(currentKernelValue);
+					_replayNeedNeighborhoodRefresh = true;
+				}
+			}
+		});
 	}
 }
