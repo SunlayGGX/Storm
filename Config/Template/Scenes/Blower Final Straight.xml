@@ -15,7 +15,7 @@
 		<fluidParticleRemovalMode>Cube</fluidParticleRemovalMode>
 		<removeFluidForVolumeConsistency>true</removeFluidForVolumeConsistency>
 		<freeRbAtTime>0.75</freeRbAtTime>
-		<noStickConstraint>true</noStickConstraint>
+		<noStickConstraint>false</noStickConstraint>
 		<useCoendaEffect>true</useCoendaEffect>
 		<floorExitLevelY>0.0</floorExitLevelY>
 	</General>
