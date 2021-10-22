@@ -9,7 +9,6 @@
 #include "ISerializerManager.h"
 
 #include "GeneralDebugConfig.h"
-#include "GeneralArchiveConfig.h"
 
 #include "ThreadHelper.h"
 #include "ThreadEnumeration.h"
@@ -307,8 +306,7 @@ void Storm::LoggerManager::cleanUp_Implementation()
 
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
 
-	const Storm::GeneralArchiveConfig &generalArchiveConfig = configMgr.getGeneralArchiveConfig();
-	if (generalArchiveConfig._enabled)
+	if (configMgr.shouldArchive())
 	{
 		const Storm::ISerializerManager &serializerMgr = singletonHolder.getSingleton<Storm::ISerializerManager>();
 		std::filesystem::path archiveFolderPath{ serializerMgr.getArchivePath() };

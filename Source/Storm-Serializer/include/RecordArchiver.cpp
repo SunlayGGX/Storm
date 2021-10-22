@@ -62,6 +62,25 @@ namespace
 	{
 		return std::filesystem::path{ configMgr.makeMacroKey(Storm::MacroTags::k_builtInMacroKey_StormArchive) } / "Records";
 	}
+
+	template<std::size_t requestCount>
+	void processRequests(FilesystemRequest(&requests)[requestCount], const std::filesystem::path &endFolder)
+	{
+		for (const auto &request : requests)
+		{
+			const std::filesystem::path finalDst = endFolder / request._toFilename;
+			if (request._move)
+			{
+				std::filesystem::rename(request._from, finalDst);
+				LOG_DEBUG << "Moved " << request._from << " to " << finalDst;
+			}
+			else
+			{
+				std::filesystem::copy_file(request._from, finalDst, std::filesystem::copy_options::overwrite_existing);
+				LOG_DEBUG << "Copied " << request._from << " to " << finalDst;
+			}
+		}
+	}
 }
 
 
@@ -152,6 +171,35 @@ Storm::RecordArchiver::RecordArchiver() :
 	}
 }
 
+void Storm::RecordArchiver::preArchive()
+{
+
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
+
+	const Storm::GeneralArchiveConfig &generalArchiveConfig = configMgr.getGeneralArchiveConfig();
+	if (generalArchiveConfig._enabled)
+	{
+		LOG_DEBUG << "Starting pre-archiving.";
+		const std::string versionAppendStr = " v" + std::to_string(_version);
+
+		FilesystemRequest requests[] =
+		{
+			computeCopyRequest(versionAppendStr,  configMgr.getSceneConfigFilePath(), false),
+		};
+
+		const std::filesystem::path endFolder{ _archivePath };
+		processRequests(requests, endFolder);
+
+		LOG_DEBUG << "Generating runner launcher.";
+
+		const std::filesystem::path endFolderNormalizedWithMacros = std::filesystem::path{ retrieveMacroizedRecordArchiveFolder(configMgr) } / endFolder.filename();
+		generateLauncherRunner(requests[0], requests[1], endFolder, endFolderNormalizedWithMacros);
+
+		LOG_COMMENT << "Pre-archiving finished successfully.";
+	}
+}
+
 void Storm::RecordArchiver::execute()
 {
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
@@ -160,7 +208,7 @@ void Storm::RecordArchiver::execute()
 	const Storm::GeneralArchiveConfig &generalArchiveConfig = configMgr.getGeneralArchiveConfig();
 	if (generalArchiveConfig._enabled)
 	{
-		LOG_DEBUG << "Archiving start.";
+		LOG_DEBUG << "Starting archiving.";
 
 		const std::string versionAppendStr = " v" + std::to_string(_version);
 
@@ -171,30 +219,10 @@ void Storm::RecordArchiver::execute()
 
 		FilesystemRequest requests[] =
 		{
-			computeCopyRequest(versionAppendStr,  configMgr.getSceneConfigFilePath(), false),
 			computeCopyRequest(versionAppendStr, configMgr.getSceneRecordConfig()._recordFilePath, canMoveFiles),
 		};
 
-		const std::filesystem::path endFolder{ _archivePath };
-		for (const auto &request : requests)
-		{
-			const std::filesystem::path finalDst = endFolder / request._toFilename;
-			if (request._move)
-			{
-				std::filesystem::rename(request._from, finalDst);
-				LOG_DEBUG << "Moved " << request._from << " to " << finalDst;
-			}
-			else
-			{
-				std::filesystem::copy_file(request._from, finalDst, std::filesystem::copy_options::overwrite_existing);
-				LOG_DEBUG << "Copied " << request._from << " to " << finalDst;
-			}
-		}
-
-		LOG_DEBUG << "Generating runner launcher.";
-
-		const std::filesystem::path endFolderNormalizedWithMacros = std::filesystem::path{ retrieveMacroizedRecordArchiveFolder(configMgr) } / endFolder.filename();
-		generateLauncherRunner(requests[0], requests[1], endFolder, endFolderNormalizedWithMacros);
+		processRequests(requests, _archivePath);
 
 		LOG_COMMENT << "Archiving finished successfully.";
 	}

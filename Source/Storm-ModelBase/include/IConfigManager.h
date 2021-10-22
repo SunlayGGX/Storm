@@ -91,6 +91,7 @@ namespace Storm
 		virtual const std::string& getScriptFilePath() const = 0;
 		virtual const std::string& getRestartCommandline() const = 0;
 		virtual bool hasWall() const = 0;
+		virtual bool shouldArchive() const = 0;
 
 		virtual void getUnsafeMacroizedConvertedValue(std::string &inOutValue) const = 0;
 		virtual bool getMaybeMacroizedConvertedValue(std::string &inOutValue) const = 0;

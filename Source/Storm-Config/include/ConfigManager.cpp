@@ -629,6 +629,11 @@ bool Storm::ConfigManager::hasWall() const
 	return std::ranges::any_of(rbConfigs, [](const Storm::SceneRigidBodyConfig &rbConfig) { return rbConfig._isWall; });
 }
 
+bool Storm::ConfigManager::shouldArchive() const
+{
+	return this->isInRecordMode() && this->getGeneralArchiveConfig()._enabled;
+}
+
 void Storm::ConfigManager::getUnsafeMacroizedConvertedValue(std::string &inOutValue) const
 {
 	_macroConfig(inOutValue);

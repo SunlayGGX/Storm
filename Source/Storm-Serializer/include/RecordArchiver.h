@@ -9,6 +9,7 @@ namespace Storm
 		RecordArchiver();
 
 	public:
+		void preArchive();
 		void execute();
 
 	public:

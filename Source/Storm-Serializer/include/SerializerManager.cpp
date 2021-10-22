@@ -73,6 +73,22 @@ void Storm::SerializerManager::initialize_Implementation()
 {
 	LOG_COMMENT << "Starting Serializer module initialization";
 
+	const Storm::IConfigManager &configMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>();
+	if (configMgr.shouldArchive())
+	{
+		LOG_COMMENT << "Creating Archiver.";
+
+		_archiver = std::make_unique<Storm::RecordArchiver>();
+
+		std::string archivePathCpy = _archiver->_archivePath;
+		{
+			std::lock_guard<std::mutex> lock{ _mutex };
+			std::swap(archivePathCpy, _archivePathCachedNoCleanUp);
+		}
+
+		_archiver->preArchive();
+	}
+
 	_serializeThread = std::thread{ [this]()
 	{
 		STORM_REGISTER_THREAD(SerializerThread);
@@ -208,19 +224,6 @@ void Storm::SerializerManager::recordFrame(Storm::SerializeRecordPendingData &&f
 
 void Storm::SerializerManager::beginRecord(Storm::SerializeRecordHeader &&recordHeader)
 {
-	executeOnSerializerThread([this]()
-	{
-		if (!_archiver)
-		{
-			_archiver = std::make_unique<Storm::RecordArchiver>();
-
-			std::string archivePathCpy = _archiver->_archivePath;
-
-			std::lock_guard<std::mutex> lock{ _mutex };
-			std::swap(archivePathCpy, _archivePathCachedNoCleanUp);
-		}
-	});
-
 	executeOnSerializerThread([this, rec = Storm::FuncMovePass<Storm::SerializeRecordHeader>{ std::move(recordHeader) }]() mutable
 	{
 		assert(Storm::isSerializerThread() && "This method should only be executed inside the serializer thread!");

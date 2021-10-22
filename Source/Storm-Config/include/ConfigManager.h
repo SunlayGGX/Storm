@@ -75,6 +75,7 @@ namespace Storm
 		const std::string& getScriptFilePath() const final override;
 		const std::string& getRestartCommandline() const final override;
 		bool hasWall() const final override;
+		bool shouldArchive() const final override;
 
 		void getUnsafeMacroizedConvertedValue(std::string &inOutValue) const final override;
 		bool getMaybeMacroizedConvertedValue(std::string &inOutValue) const final override;
