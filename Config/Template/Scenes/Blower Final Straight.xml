@@ -1,0 +1,122 @@
+<Scene>
+	<General>
+		<fps>90</fps>
+		<gravity x="0.0" y="-9.8" z="0.0" />
+		<particleRadius>0.03</particleRadius>
+		<kernelCoeff>4.0</kernelCoeff>
+		<simulation>DFSPH</simulation>
+		<kernel>CubicSpline</kernel>
+		<physicsTime>0.0002</physicsTime>
+		<startPaused>true</startPaused>
+		<neighborCheckStep>1</neighborCheckStep>
+		<simulationNoWait>true</simulationNoWait>
+		<endPhysicsTime>12</endPhysicsTime>
+		<startFixRigidBodies>true</startFixRigidBodies>
+		<fluidParticleRemovalMode>Cube</fluidParticleRemovalMode>
+		<removeFluidForVolumeConsistency>true</removeFluidForVolumeConsistency>
+		<freeRbAtTime>0.75</freeRbAtTime>
+		<noStickConstraint>true</noStickConstraint>
+		<useCoendaEffect>true</useCoendaEffect>
+		<floorExitLevelY>0.0</floorExitLevelY>
+	</General>
+	<Graphic>
+		<cameraPosition x="0.0" y="1.0" z="-3.0" />
+		<cameraLookAt x="0.0" y="1.0" z="0.0" />
+		<zNear>2.98</zNear>
+		<zFar>20.0</zFar>
+		<particleDisplay>true</particleDisplay>
+		<maxColorValue>5.0</maxColorValue>
+		<watchRbId trackTranslation="true" >2</watchRbId>
+	</Graphic>
+	<Physics>
+		<enableEnhancedDeterminism>true</enableEnhancedDeterminism>
+	</Physics>
+	<Record>
+		<recordFps>60</recordFps>
+		<replayRealTime>true</replayRealTime>
+		<recordFile>$[StormIntermediate]/Record/$[SceneName].stormRec</recordFile>
+		<leanStartJump>5</leanStartJump>
+	</Record>
+	<Cage>
+		<boxMin x="-1.1" y="0.0" z="-1.1" />
+		<boxMax x="1.1" y="4.5" z="1.1" />
+		<infiniteDomain>false</infiniteDomain>
+	</Cage>
+	<Fluid>
+		<id>0</id>
+		<fluidBlock>
+			<firstPoint x="-1.1" y="0.0" z="-1.1" />
+			<secondPoint x="1.1" y="4.5" z="1.1" />
+			<denseMode>SplishSplash</denseMode>
+		</fluidBlock>
+		<DFSPH>
+			<maxDensityError>1.0</maxDensityError>
+			<maxPressureError>0.001</maxPressureError>
+			<maxPredictIteration>500</maxPredictIteration>
+			<enableDensitySolve>false</enableDensitySolve>
+			<enableThresholdDensity>true</enableThresholdDensity>
+		</DFSPH>
+		<density>250</density>
+		<reducedMassCoeff>0.95</reducedMassCoeff>
+		<smoothDensity0>false</smoothDensity0>
+		<viscosity>0.001</viscosity>
+		<pressureK1>5000.0</pressureK1>
+		<pressureK2>2.5</pressureK2>
+		<soundSpeed>1480</soundSpeed>
+		<uniformDragCoeff>0.0</uniformDragCoeff>
+	</Fluid> 
+	<RigidBodies>
+		<RigidBody>
+			<id>1</id>
+			<meshFile>$[StormResource]/Meshes/UnitBox.obj</meshFile>
+			<isStatic>true</isStatic>
+			<wall>true</wall>
+			<collisionType>Custom</collisionType>
+			<mass>1.0</mass>
+			<layerCount>2</layerCount>
+			<layeringGeneration>Uniform</layeringGeneration>
+			<geometry>Cube</geometry>
+			<translation x="0.0" y="2.25" z="0.0"/>
+			<scale x="2.2" y="4.5" z="2.2"/>
+			<noStickCoeff>0.0</noStickCoeff>
+			<coendaCoeff>0.0</coendaCoeff>
+		</RigidBody>
+		<RigidBody>
+			<id>2</id>
+			<meshFile>$[StormResource]/Meshes/sphere.obj</meshFile>
+			<separateColor>true</separateColor>
+			<isStatic>false</isStatic>
+			<wall>false</wall>
+			<collisionType>Sphere</collisionType>
+			<mass>65</mass>
+			<translation x="0.0" y="1.4" z="0.0"/>
+			<scale x="0.15" y="0.15" z="0.15"/>
+			<pInsideRemovalTechnique>Normals</pInsideRemovalTechnique>
+			<layeringGeneration>Uniform</layeringGeneration>
+			<geometry sampleCountMDeserno="10" >EquiSphereMDeserno</geometry>
+			<layerCount>1</layerCount>
+			<viscosity>0.45</viscosity>
+			<restitutionCoeff>1.0</restitutionCoeff>
+			<dynamicFrictionCoeff>10</dynamicFrictionCoeff>
+			<angularDamping>0.0025</angularDamping>
+			<dragCoeff>1.0</dragCoeff>
+			<volumeComputation>TriangleIntegration</volumeComputation>
+			<fixedVolume>false</fixedVolume>
+			<noStickCoeff>0.0</noStickCoeff>
+			<coendaCoeff>0.00001</coendaCoeff>
+		</RigidBody>
+	</RigidBodies>
+	<Blowers>
+		<Blower>
+			<id>5</id>
+			<type>Cylinder</type>
+			<startTime>0.4</startTime>
+			<fadeInTime>0.5</fadeInTime>
+			<position x="0.0" y="0.3" z="0.0" />
+			<radius>0.31</radius>
+			<height>0.2</height>
+			<force x="0.0" y="10.0" z="0.0" />
+			<vorticeCoeff>0.5</vorticeCoeff>
+		</Blower>
+	</Blowers>
+</Scene>
