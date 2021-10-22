@@ -275,6 +275,7 @@ Note that the maximum value you can set is Fatal, it means that no matter what l
 
 #### - Archive (facultative)
 - **enabled (boolean, facultative)**: If true, we’ll try to empacket the recording in a new folder when the application finishes recording. Default is false. Records will be archived inside "$[StormArchive]/Records" folder.
+- **strictVersionning (boolean, facultative)**: If true, we'll enable strictness in the record versionning parsing. Vor example, if false, the versionning parser for an archive named "yy_v12x" would returns 12, then the next archive would be incremented and will return 13. If true, then v12x won't be recognized and therefore, it will be ignored. The next Archive would be "yy_v12". Default is true.
 
 
 #### Network (facultative)

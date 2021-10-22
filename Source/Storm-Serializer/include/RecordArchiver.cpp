@@ -88,6 +88,8 @@ Storm::RecordArchiver::RecordArchiver() :
 
 	constexpr std::string_view versionStrIdentifier = "_v";
 
+	const bool looseVersionning = !generalArchiveConfig._strictVersionning;
+
 	// Research a new record folder to write to.
 	for (const auto dirIter : std::filesystem::directory_iterator{ archivePathFilesystem })
 	{
@@ -105,9 +107,16 @@ Storm::RecordArchiver::RecordArchiver() :
 
 					if (nameNoComputerName == sceneName)
 					{
-						const std::string_view existingArchiveDirVersionStr{ existingArchiveDirName.c_str() + versionPos + 1, existingArchiveDirName.c_str() + existingArchiveDirName.size() };
+						const char*const end = existingArchiveDirName.c_str() + existingArchiveDirName.size();
+						const std::string_view existingArchiveDirVersionStr{ existingArchiveDirName.c_str() + versionPos + 1, end };
 
-						_version = std::max(static_cast<decltype(_version)>(std::strtoul(existingArchiveDirVersionStr.data(), nullptr, 10)), _version);
+						decltype(_version) parsedExistingVersionValue;
+						char* endParsing;
+						parsedExistingVersionValue = static_cast<decltype(parsedExistingVersionValue)>(std::strtoul(existingArchiveDirVersionStr.data(), &endParsing, 10));
+						if (looseVersionning || endParsing == end)
+						{
+							_version = std::max(parsedExistingVersionValue, _version);
+						}
 					}
 				}
 			}

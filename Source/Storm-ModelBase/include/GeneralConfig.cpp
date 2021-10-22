@@ -73,7 +73,8 @@ Storm::GeneralApplicationConfig::GeneralApplicationConfig() :
 }
 
 Storm::GeneralArchiveConfig::GeneralArchiveConfig() :
-	_enabled{ false }
+	_enabled{ false },
+	_strictVersionning{ true }
 {
 
 }

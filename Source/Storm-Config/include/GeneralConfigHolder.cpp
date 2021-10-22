@@ -359,7 +359,8 @@ bool Storm::GeneralConfigHolder::read(const std::string &generalConfigFilePathSt
 				for (const auto &archiveXmlElement : archiveTree)
 				{
 					if (!(
-						Storm::XmlReader::handleXml(archiveXmlElement, "enabled", generalArchiveConfig._enabled)
+						Storm::XmlReader::handleXml(archiveXmlElement, "enabled", generalArchiveConfig._enabled) ||
+						Storm::XmlReader::handleXml(archiveXmlElement, "strictVersionning", generalArchiveConfig._strictVersionning)
 						))
 					{
 						LOG_ERROR << archiveXmlElement.first << " (inside General.Archive) is unknown, therefore it cannot be handled";
