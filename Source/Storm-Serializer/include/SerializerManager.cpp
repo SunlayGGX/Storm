@@ -255,7 +255,11 @@ void Storm::SerializerManager::endRecordInternal()
 
 	if (_recordWriter)
 	{
-		_recordWriter->endWrite();
+		const Storm::ITimeManager &timeMgr = Storm::SingletonHolder::instance().getSingleton<Storm::ITimeManager>();
+
+		assert(!timeMgr.isRunning() && "This method should be called after the simulation ended!");
+
+		_recordWriter->endWrite(timeMgr.getCurrentPhysicsElapsedTime());
 		LOG_COMMENT << "Recording ended";
 
 		_recordWriter.reset();

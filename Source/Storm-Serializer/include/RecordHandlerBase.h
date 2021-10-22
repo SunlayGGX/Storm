@@ -28,7 +28,7 @@ namespace Storm
 		void serializeHeader();
 		const Storm::SerializeRecordHeader& getHeader() const noexcept;
 
-		void endWriteHeader(uint64_t headerPos, uint64_t frameCount);
+		void endWriteHeader(uint64_t headerPos, uint64_t frameCount, float realPhysicsTime);
 
 	protected:
 		Storm::SerializePackage _package;

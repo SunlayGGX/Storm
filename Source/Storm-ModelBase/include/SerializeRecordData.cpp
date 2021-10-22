@@ -14,7 +14,8 @@ Storm::SerializeSupportedFeatureLayout::SerializeSupportedFeatureLayout()
 }
 
 Storm::SerializeRecordHeader::SerializeRecordHeader() :
-	_supportedFeaturesLayout{ std::make_shared<Storm::SerializeSupportedFeatureLayout>() }
+	_supportedFeaturesLayout{ std::make_shared<Storm::SerializeSupportedFeatureLayout>() },
+	_realEndPhysicsTime{ std::numeric_limits<float>::quiet_NaN() }
 {}
 
 Storm::SerializeRecordHeader::SerializeRecordHeader(Storm::SerializeRecordHeader &&) = default;

@@ -20,6 +20,7 @@ namespace Storm
 		float _recordFrameRate;
 		uint8_t _infiniteDomain;
 		uint64_t _frameCount;
+		float _realEndPhysicsTime;
 		std::vector<Storm::SerializeParticleSystemLayout> _particleSystemLayouts;
 		std::vector<Storm::SerializeConstraintLayout> _contraintLayouts;
 		std::shared_ptr<Storm::SerializeSupportedFeatureLayout> _supportedFeaturesLayout;

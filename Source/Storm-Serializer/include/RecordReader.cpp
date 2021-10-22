@@ -86,7 +86,7 @@ namespace
 				frameData._intermediaryPressureVelocityComponentForces.resize(framePCount, Storm::Vector3::Zero());
 			}
 
-			if constexpr (currentVersion < Storm::Version{ 1, 14, 0 })
+			if constexpr (currentVersion < Storm::Version{ 1, 15, 0 })  // Version 15 has only changes in the header.
 			{
 				frameData._blowerForces.resize(framePCount, Storm::Vector3::Zero());
 			}
@@ -155,7 +155,7 @@ Storm::RecordReader::RecordReader() :
 	{
 		_readMethodToUse = &Storm::RecordReader::readNextFrame_v1_13_0;
 	}
-	else if (currentRecordVersion == Storm::Version{ 1, 14, 0 })
+	else if (currentRecordVersion <= Storm::Version{ 1, 15, 0 }) // Version 15 has only changes in the header.
 	{
 		_readMethodToUse = &Storm::RecordReader::readNextFrame_v1_14_0;
 	}
@@ -275,7 +275,7 @@ void Storm::RecordReader::correctVersionMismatch(Storm::SerializeRecordPendingDa
 	{
 		correctVersionMismatchImpl<1, 13, 0>(outPendingData);
 	}
-	else if (currentRecordVersion <= Storm::Version{ 1, 14, 0 })
+	else if (currentRecordVersion <= Storm::Version{ 1, 15, 0 }) // Version 15 has only changes in the header.
 	{
 		correctVersionMismatchImpl<1, 14, 0>(outPendingData);
 	}

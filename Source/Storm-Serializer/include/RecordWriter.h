@@ -19,7 +19,7 @@ namespace Storm
 	public:
 		void write(/*const*/ Storm::SerializeRecordPendingData &data);
 
-		void endWrite();
+		void endWrite(float realEndPhysicsTime);
 
 		void flush();
 
