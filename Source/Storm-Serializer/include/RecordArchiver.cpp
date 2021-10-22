@@ -38,7 +38,7 @@ namespace
 		return result;
 	}
 
-	void generateLauncherRunner(const FilesystemRequest &sceneConfigRequest, const FilesystemRequest &recordRequest, const std::filesystem::path &endFolder, const std::filesystem::path &endFolderUniformMacroized)
+	void generateLauncherRunner(const FilesystemRequest &sceneConfigRequest, const std::filesystem::path &recordFilename, const std::filesystem::path &endFolder, const std::filesystem::path &endFolderUniformMacroized)
 	{
 		std::filesystem::path runnerFileName = sceneConfigRequest._toFilename;
 		runnerFileName.replace_extension(".bat");
@@ -55,7 +55,7 @@ namespace
 
 		batFile << 
 			"--scene=" << endFolderUniformMacroized / sceneConfigRequest._toFilename << " "
-			"--recordFile=" << endFolderUniformMacroized / recordRequest._toFilename << " ";
+			"--recordFile=" << endFolderUniformMacroized / recordFilename << " ";
 	}
 
 	std::filesystem::path retrieveMacroizedRecordArchiveFolder(const Storm::IConfigManager &configMgr)
@@ -194,7 +194,7 @@ void Storm::RecordArchiver::preArchive()
 		LOG_DEBUG << "Generating runner launcher.";
 
 		const std::filesystem::path endFolderNormalizedWithMacros = std::filesystem::path{ retrieveMacroizedRecordArchiveFolder(configMgr) } / endFolder.filename();
-		generateLauncherRunner(requests[0], requests[1], endFolder, endFolderNormalizedWithMacros);
+		generateLauncherRunner(requests[0], std::filesystem::path{ configMgr.getSceneRecordConfig()._recordFilePath }.filename(), endFolder, endFolderNormalizedWithMacros);
 
 		LOG_COMMENT << "Pre-archiving finished successfully.";
 	}
