@@ -581,5 +581,8 @@
     <ClInclude Include="..\include\GeometryConfig.h">
       <Filter>Header Files\Modules\Config\Misc</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\GeneralArchiveConfig.h">
+      <Filter>Header Files\Modules\Config\General</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

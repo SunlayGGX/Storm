@@ -233,7 +233,6 @@ Unless explicited, the following settings do not accept macros.
 
 - **displayBranch (boolean, facultative)**: If true, the branch the application was built upon will be displayed as part as its title when starting the application. It is useful for when we want to compare runs built from many branches and we want to know which is which. Default is false (because it is not really graceful if I want the application to be a proper application in the future).
 - **beepOnFinish (boolean, facultative)**: If true, we’ll signal the user the end of the application with some Beep noise in case the simulation should stop automatically (i.e has an end time). Default is false.
-- **empacketRecord (boolean, facultative)**: If true, we’ll try to empacket the recording in a new folder when the application finishes recording. Default is false. Records will be archived inside "$[StormArchive]/Records" folder.
 - **language (string, facultative)**: Specify manually the language of the operating system. This is needed for some feature like the generation of Csv data since excel keyword formulas are bound to the OS locality language. We retrieve automatically the current user OS language by default. Accepted values are "English" and "French".
 
 
@@ -274,8 +273,12 @@ Note that the maximum value you can set is Fatal, it means that no matter what l
 - **keepUnsupported (boolean, facultative)**: True if we should cycle on unsupported force when selecting a particle (legacy behavior), otherwise we'll skip all unsupported. Default is false.
 
 
+#### - Archive (facultative)
+- **enabled (boolean, facultative)**: If true, we’ll try to empacket the recording in a new folder when the application finishes recording. Default is false. Records will be archived inside "$[StormArchive]/Records" folder.
+
+
 #### Network (facultative)
-- **enable (boolean, facultative)**: If false, the network module communication with Storm tools will be disabled. Default is false. Note that even if it is disabled, processes start/stop and web logic are still enabled.
+- **enabled (boolean, facultative)**: If false, the network module communication with Storm tools will be disabled. Default is false. Note that even if it is disabled, processes start/stop and web logic are still enabled.
 - **scriptSender (SocketSetting, facultative)**: The socket settings referring to the communication with the Script sender tool. Ignored if the network module is disabled. The default used port is 5007.
 
 

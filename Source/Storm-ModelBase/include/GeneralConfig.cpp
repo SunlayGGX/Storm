@@ -6,6 +6,7 @@
 #include "GeneralWebConfig.h"
 #include "GeneralDebugConfig.h"
 #include "GeneralApplicationConfig.h"
+#include "GeneralArchiveConfig.h"
 
 #include "PreferredBrowser.h"
 #include "VectoredExceptionDisplayMode.h"
@@ -66,8 +67,13 @@ Storm::GeneralDebugConfig::GeneralDebugConfig() :
 Storm::GeneralApplicationConfig::GeneralApplicationConfig() :
 	_showBranchInTitle{ false },
 	_bipSoundOnFinish{ false },
-	_language{ Storm::retrieveDefaultOSLanguage() },
-	_empacketRecord{ false }
+	_language{ Storm::retrieveDefaultOSLanguage() }
+{
+
+}
+
+Storm::GeneralArchiveConfig::GeneralArchiveConfig() :
+	_enabled{ false }
 {
 
 }

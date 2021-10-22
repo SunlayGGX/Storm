@@ -3,7 +3,7 @@
 #include "SingletonHolder.h"
 #include "IConfigManager.h"
 
-#include "GeneralApplicationConfig.h"
+#include "GeneralArchiveConfig.h"
 #include "SceneRecordConfig.h"
 
 #include "Config/MacroTags.cs"
@@ -142,8 +142,8 @@ void Storm::RecordArchiver::execute()
 	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
 	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
 
-	const Storm::GeneralApplicationConfig &generalApplicationConfig = configMgr.getGeneralApplicationConfig();
-	if (generalApplicationConfig._empacketRecord)
+	const Storm::GeneralArchiveConfig &generalArchiveConfig = configMgr.getGeneralArchiveConfig();
+	if (generalArchiveConfig._enabled)
 	{
 		LOG_DEBUG << "Archiving start.";
 

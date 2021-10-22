@@ -149,7 +149,6 @@ bool Storm::GeneralConfigHolder::read(const std::string &generalConfigFilePathSt
 					if (
 						!Storm::XmlReader::handleXml(applicationXmlElement, "displayBranch", generalApplicationConfig._showBranchInTitle) &&
 						!Storm::XmlReader::handleXml(applicationXmlElement, "beepOnFinish", generalApplicationConfig._bipSoundOnFinish) &&
-						!Storm::XmlReader::handleXml(applicationXmlElement, "empacketRecord", generalApplicationConfig._empacketRecord) &&
 						!Storm::XmlReader::handleXml(applicationXmlElement, "language", generalApplicationConfig._language, Storm::parseLanguage)
 						)
 					{
@@ -351,6 +350,22 @@ bool Storm::GeneralConfigHolder::read(const std::string &generalConfigFilePathSt
 				}
 			}
 
+			/* Archive */
+			Storm::GeneralArchiveConfig &generalArchiveConfig = _generalConfig->_generalArchiveConfig;
+			const auto &archiveTreeOpt = generalTree.get_child_optional("Archive");
+			if (archiveTreeOpt.has_value())
+			{
+				const auto &archiveTree = archiveTreeOpt.value();
+				for (const auto &archiveXmlElement : archiveTree)
+				{
+					if (!(
+						Storm::XmlReader::handleXml(archiveXmlElement, "enabled", generalArchiveConfig._enabled)
+						))
+					{
+						LOG_ERROR << archiveXmlElement.first << " (inside General.Archive) is unknown, therefore it cannot be handled";
+					}
+				}
+			}
 
 			/* Network */
 			Storm::GeneralNetworkConfig &generalNetworkConfig = _generalConfig->_generalNetworkConfig;
@@ -362,7 +377,7 @@ bool Storm::GeneralConfigHolder::read(const std::string &generalConfigFilePathSt
 				for (const auto &netXmlElement : netTree)
 				{
 					if (
-						!Storm::XmlReader::handleXml(netXmlElement, "enable", generalNetworkConfig._enableNetwork) &&
+						!Storm::XmlReader::handleXml(netXmlElement, "enabled", generalNetworkConfig._enableNetwork) &&
 						!Storm::XmlReader::handleXml(netXmlElement, "scriptSender", generalNetworkConfig._scriptSenderSocket, parseSocketSettings)
 						)
 					{
