@@ -193,8 +193,11 @@ void Storm::RecordArchiver::preArchive()
 
 		LOG_DEBUG << "Generating runner launcher.";
 
+		// This is a dummy just to get the filename of the expected recording file we would get later.
+		const auto dummyRecordFilesystemRequest = computeCopyRequest(versionAppendStr, configMgr.getSceneRecordConfig()._recordFilePath, false);
+
 		const std::filesystem::path endFolderNormalizedWithMacros = std::filesystem::path{ retrieveMacroizedRecordArchiveFolder(configMgr) } / endFolder.filename();
-		generateLauncherRunner(requests[0], std::filesystem::path{ configMgr.getSceneRecordConfig()._recordFilePath }.filename(), endFolder, endFolderNormalizedWithMacros);
+		generateLauncherRunner(requests[0], dummyRecordFilesystemRequest._toFilename, endFolder, endFolderNormalizedWithMacros);
 
 		LOG_COMMENT << "Pre-archiving finished successfully.";
 	}
