@@ -50,6 +50,9 @@ namespace Storm
 		void saveState(Storm::StateSavingOrders &&savingOrder) final override;
 		void loadState(Storm::StateLoadingOrders &inOutLoadingOrder) final override;
 
+	public:
+		std::string getArchivePath() const final override;
+
 	private:
 		std::thread _serializeThread;
 
@@ -63,6 +66,7 @@ namespace Storm
 
 		// Archiver
 		std::unique_ptr<Storm::RecordArchiver> _archiver;
+		std::string _archivePathCachedNoCleanUp; // This must survive cleanUp
 
 		mutable std::mutex _mutex;
 	};

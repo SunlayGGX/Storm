@@ -14,6 +14,7 @@ namespace Storm
 
 	public:
 		// Logs
+		std::string _srcLogFolderPath; // The macroized
 		std::string _logFolderPath;
 		std::string _logFileName;
 		Storm::LogLevel _logLevel;

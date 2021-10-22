@@ -34,6 +34,8 @@ namespace Storm
 
 		virtual bool resetReplay() = 0;
 
+		virtual std::string getArchivePath() const = 0;
+
 	public:
 		virtual void saveState(Storm::StateSavingOrders &&savingOrder) = 0;
 		virtual void loadState(Storm::StateLoadingOrders &inOutLoadingOrder) = 0;

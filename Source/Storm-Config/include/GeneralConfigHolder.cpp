@@ -213,7 +213,7 @@ bool Storm::GeneralConfigHolder::read(const std::string &generalConfigFilePathSt
 						for (const auto &logXmlElement : debugXmlElement.second)
 						{
 							if (
-								!Storm::XmlReader::handleXml(logXmlElement, "logFolderPath", generalDebugConfig._logFolderPath) &&
+								!Storm::XmlReader::handleXml(logXmlElement, "logFolderPath", generalDebugConfig._srcLogFolderPath) &&
 								!Storm::XmlReader::handleXml(logXmlElement, "logFileName", generalDebugConfig._logFileName) &&
 								!Storm::XmlReader::handleXml(logXmlElement, "logLevel", generalDebugConfig._logLevel, logLevelFromString) &&
 								!Storm::XmlReader::handleXml(logXmlElement, "override", generalDebugConfig._overrideLogs) &&
@@ -227,6 +227,7 @@ bool Storm::GeneralConfigHolder::read(const std::string &generalConfigFilePathSt
 							}
 						}
 
+						generalDebugConfig._logFolderPath = generalDebugConfig._srcLogFolderPath;
 						if (!generalDebugConfig._logFileName.empty() && generalDebugConfig._logFileName.find("$[PID]") == std::string::npos)
 						{
 							LOG_WARNING << "Log filename doesn't contain $[PID] macro, this could lead to unexpected behavior in case many instance of the application is run at the same time.";

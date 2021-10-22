@@ -6,8 +6,10 @@
 #include "SingletonHolder.h"
 #include "IConfigManager.h"
 #include "IThreadManager.h"
+#include "ISerializerManager.h"
 
 #include "GeneralDebugConfig.h"
+#include "GeneralArchiveConfig.h"
 
 #include "ThreadHelper.h"
 #include "ThreadEnumeration.h"
@@ -15,6 +17,8 @@
 #include "ThreadingSafety.h"
 
 #include "LeanWindowsInclude.h"
+
+#include "Config/MacroTags.cs"
 
 #include <iostream>
 #include <fstream>
@@ -33,6 +37,15 @@ namespace
 		outFolderPath = std::filesystem::path{ logFolderPathStr.empty() ? configMgr->getTemporaryPath() : logFolderPathStr };
 		std::filesystem::create_directories(outFolderPath);
 
+		std::filesystem::path logFilePath = outFolderPath / logFileName;
+		return std::filesystem::path{ logFilePath }.replace_extension(xmlLogExtension);
+	}
+
+	std::filesystem::path computeXmlMacroizedLogFilePath(const Storm::IConfigManager &configMgr, const Storm::GeneralDebugConfig &generalDebugConfig, const std::string &logFileName, const std::filesystem::path &xmlLogExtension)
+	{
+		const std::string &logFolderPathStr = generalDebugConfig._srcLogFolderPath;
+		const std::filesystem::path outFolderPath{ logFolderPathStr.empty() ? configMgr.makeMacroKey(Storm::MacroTags::k_builtInMacroKey_StormTmp) : logFolderPathStr };
+		
 		std::filesystem::path logFilePath = outFolderPath / logFileName;
 		return std::filesystem::path{ logFilePath }.replace_extension(xmlLogExtension);
 	}
@@ -57,7 +70,9 @@ Storm::LoggerManager::~LoggerManager()
 	{
 		if (Storm::SingletonHolder::isAlive())
 		{
-			const Storm::IConfigManager* configMgr = Storm::SingletonHolder::instance().getFacet<Storm::IConfigManager>();
+			const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+
+			const Storm::IConfigManager* configMgr = singletonHolder.getFacet<Storm::IConfigManager>();
 			if (configMgr != nullptr)
 			{
 				if (_currentPID == 0)
@@ -279,13 +294,50 @@ void Storm::LoggerManager::cleanUp_Implementation()
 	{
 		std::lock_guard<std::mutex> lock{ _loggerMutex };
 		_isRunning = false;
-
-		_loggerCV.notify_all();
 	}
+
+	_loggerCV.notify_all();
 
 	Storm::join(_loggerThread);
 
 	STORM_DECLARE_THIS_THREAD_IS << Storm::ThreadFlagEnum::LoggingThread;
+
+	// Archive the logs if needed.
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+
+	const Storm::IConfigManager &configMgr = singletonHolder.getSingleton<Storm::IConfigManager>();
+
+	const Storm::GeneralArchiveConfig &generalArchiveConfig = configMgr.getGeneralArchiveConfig();
+	if (generalArchiveConfig._enabled)
+	{
+		const Storm::ISerializerManager &serializerMgr = singletonHolder.getSingleton<Storm::ISerializerManager>();
+		std::filesystem::path archiveFolderPath{ serializerMgr.getArchivePath() };
+		if (!archiveFolderPath.empty())
+		{
+			const std::filesystem::path xmlLogFilePath{ _xmlLogFilePath };
+			const std::filesystem::path xmlLogFileName = xmlLogFilePath.filename();
+
+			try
+			{
+				std::filesystem::copy_file(xmlLogFilePath, archiveFolderPath / xmlLogFileName);
+			}
+			catch (...)
+			{
+
+			}
+
+			const Storm::GeneralDebugConfig &generalDebugConfig = configMgr.getGeneralDebugConfig();
+			const std::filesystem::path xmlLogExtension{ ".xml" };
+
+			std::ofstream batFile{ archiveFolderPath / "LoggerReader.bat" };
+			batFile <<
+				"echo off\n"
+				"cd %~dp0\n\n"
+				"cd ../../../../bin/Release\n\n\n"
+
+				"call \"Storm-LogViewer.exe\" NoKeepUp LogFilePath=" << computeXmlMacroizedLogFilePath(configMgr, generalDebugConfig, Storm::toStdString(xmlLogFileName), xmlLogFileName.extension());
+		}
+	}
 }
 
 void Storm::LoggerManager::log(const std::string_view &moduleName, Storm::LogLevel level, const std::string_view &function, const int line, std::string &&msg)

@@ -213,6 +213,11 @@ void Storm::SerializerManager::beginRecord(Storm::SerializeRecordHeader &&record
 		if (!_archiver)
 		{
 			_archiver = std::make_unique<Storm::RecordArchiver>();
+
+			std::string archivePathCpy = _archiver->_archivePath;
+
+			std::lock_guard<std::mutex> lock{ _mutex };
+			std::swap(archivePathCpy, _archivePathCachedNoCleanUp);
 		}
 	});
 
@@ -340,4 +345,10 @@ void Storm::SerializerManager::loadState(Storm::StateLoadingOrders &inOutLoading
 	assert(Storm::isSimulationThread() && "this method should only be called from simulation thread.");
 
 	Storm::StateReader::execute(inOutLoadingOrder);
+}
+
+std::string Storm::SerializerManager::getArchivePath() const
+{
+	std::lock_guard<std::mutex> lock{ _mutex };
+	return _archivePathCachedNoCleanUp;
 }
