@@ -71,7 +71,7 @@ namespace Storm_ScriptSender
 
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
         {
-            Console.WriteLine("Ending Storm Log Reader Application");
+            Console.WriteLine("Ending Storm Script Sender Application");
 
             NetworkManager.Instance.Close();
 
