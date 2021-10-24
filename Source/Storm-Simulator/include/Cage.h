@@ -20,6 +20,8 @@ namespace Storm
 		Storm::Vector3 _boxMin;
 		Storm::Vector3 _boxMax;
 
+		const float _killY;
+
 		const bool _infiniteDomain;
 		const Storm::Vector3 _velocityCoeffsLeftBottomFront;
 		const Storm::Vector3 _passthroughVelReduceCoeffRightTopBack;

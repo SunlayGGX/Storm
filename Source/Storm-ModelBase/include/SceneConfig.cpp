@@ -280,6 +280,7 @@ Storm::SceneScriptConfig::SceneScriptConfig() :
 Storm::SceneCageConfig::SceneCageConfig() :
 	_boxMin{ dummyMandatoryVector3ForMin() },
 	_boxMax{ dummyMandatoryVector3ForMax() },
+	_rbSimulKillY{ std::numeric_limits<float>::quiet_NaN() },
 	_infiniteDomain{ false },
 	_passthroughVelReduceCoeffLeftBottomFront{ 1.f, 1.f, 1.f },
 	_passthroughVelReduceCoeffRightTopBack{ 1.f, 1.f, 1.f }

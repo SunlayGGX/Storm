@@ -12,6 +12,8 @@ namespace Storm
 		Storm::Vector3 _boxMin;
 		Storm::Vector3 _boxMax;
 
+		float _rbSimulKillY;
+
 		bool _infiniteDomain;
 		Storm::Vector3 _passthroughVelReduceCoeffLeftBottomFront;
 		Storm::Vector3 _passthroughVelReduceCoeffRightTopBack;

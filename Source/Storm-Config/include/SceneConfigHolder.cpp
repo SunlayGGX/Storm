@@ -732,6 +732,7 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 			if (
 				!Storm::XmlReader::handleXml(cageXmlElement, "boxMin", cageConfig._boxMin, parseVector3Element) &&
 				!Storm::XmlReader::handleXml(cageXmlElement, "boxMax", cageConfig._boxMax, parseVector3Element) &&
+				!Storm::XmlReader::handleXml(cageXmlElement, "rbSimulKillY", cageConfig._rbSimulKillY) &&
 				!Storm::XmlReader::handleXml(cageXmlElement, "infiniteDomain", cageConfig._infiniteDomain) &&
 				!Storm::XmlReader::handleXml(cageXmlElement, "passthroughVelReduceCoeff", cageConfig, parseCagePassthrough)
 				)

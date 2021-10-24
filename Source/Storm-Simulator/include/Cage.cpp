@@ -1,5 +1,6 @@
 #include "Cage.h"
 
+#include "ITimeManager.h"
 #include "IRandomManager.h"
 #include "SingletonHolder.h"
 #include "SimulatorManager.h"
@@ -50,6 +51,7 @@ namespace
 Storm::Cage::Cage(const Storm::SceneCageConfig &sceneCageConfig) :
 	_boxMin{ sceneCageConfig._boxMin },
 	_boxMax{ sceneCageConfig._boxMax },
+	_killY{ sceneCageConfig._rbSimulKillY },
 	_infiniteDomain{ sceneCageConfig._infiniteDomain },
 	_velocityCoeffsLeftBottomFront{ sceneCageConfig._passthroughVelReduceCoeffLeftBottomFront },
 	_passthroughVelReduceCoeffRightTopBack{ sceneCageConfig._passthroughVelReduceCoeffRightTopBack }
@@ -137,6 +139,26 @@ void Storm::Cage::doEnclose(Storm::ParticleSystemContainer &pSystems) const
 						allPVelocities[currentPIndex].setZero();
 					}
 				});
+			}
+		}
+	}
+
+	if (!std::isnan(_killY))
+	{
+		for (const auto &pSystemPair : pSystems)
+		{
+			const Storm::ParticleSystem &pSystem = *pSystemPair.second;
+			if (!pSystem.isFluids() && !pSystem.isStatic())
+			{
+				const std::vector<Storm::Vector3> &positions = pSystem.getPositions();
+				if (std::any_of(std::execution::par, std::begin(positions), std::end(positions), [killY = _killY](const Storm::Vector3 &currentPPosition)
+				{
+					return currentPPosition.y() < killY;
+				}))
+				{
+					LOG_COMMENT << "At least one particle went below " << _killY << " y and killY was enabled, therefore as expected, the simulation will stop because we consider this is useless to pursue it further.";
+					Storm::SingletonHolder::instance().getSingleton<Storm::ITimeManager>().quit();
+				}
 			}
 		}
 	}
