@@ -733,6 +733,8 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 				!Storm::XmlReader::handleXml(cageXmlElement, "boxMin", cageConfig._boxMin, parseVector3Element) &&
 				!Storm::XmlReader::handleXml(cageXmlElement, "boxMax", cageConfig._boxMax, parseVector3Element) &&
 				!Storm::XmlReader::handleXml(cageXmlElement, "rbSimulKillY", cageConfig._rbSimulKillY) &&
+				!Storm::XmlReader::handleXml(cageXmlElement, "deterministic", cageConfig._deterministic) &&
+				!Storm::XmlReader::handleXml(cageXmlElement, "reboundPenalty", cageConfig._reboundPenalty, parseVector3Element) &&
 				!Storm::XmlReader::handleXml(cageXmlElement, "infiniteDomain", cageConfig._infiniteDomain) &&
 				!Storm::XmlReader::handleXml(cageXmlElement, "passthroughVelReduceCoeff", cageConfig, parseCagePassthrough)
 				)
@@ -761,7 +763,14 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 			Storm::throwException<Storm::Exception>(
 				"When enabled, all values for the velocity pass through coefficients for right/top/back of the cage should be positive or zero on each axis!\n"
 				"Current value was : " + Storm::toStdString(cageConfig._passthroughVelReduceCoeffRightTopBack)
-				);
+			);
+		}
+		else if (cageConfig._deterministic && (cageConfig._reboundPenalty.x() < 0.f || cageConfig._reboundPenalty.y() < 0.f || cageConfig._reboundPenalty.z() < 0.f))
+		{
+			Storm::throwException<Storm::Exception>(
+				"When enabled, all values for the rebound penalty of the cage should be positive or zero on each axis!\n"
+				"Current value was : " + Storm::toStdString(cageConfig._reboundPenalty)
+			);
 		}
 	}
 

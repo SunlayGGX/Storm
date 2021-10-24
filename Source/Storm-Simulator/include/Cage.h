@@ -20,6 +20,9 @@ namespace Storm
 		Storm::Vector3 _boxMin;
 		Storm::Vector3 _boxMax;
 
+		const bool _deterministic;
+		const Storm::Vector3 _reboundPenalty;
+
 		const float _killY;
 
 		const bool _infiniteDomain;

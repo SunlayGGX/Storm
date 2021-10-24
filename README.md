@@ -543,6 +543,8 @@ This element is completely optional. Not declaring it prevents to create a cage 
 - **boxMin (vector3, mandatory)**: The lower point of the cage spatial domain. All its components must be lower than boxMax.
 - **boxMax (vector3, mandatory)**: The higher point of the cage spatial domain. All its components must be greater than boxMin.
 - **rbSimulKillY (float, facultative)**: If set, the simulation will exit when any dynamic rigidbodies particle goes below this point. Default is unset (the feature is disabled).
+- **deterministic (boolean, facultative)**: Specify if the particle stop should be deterministic (if it should rebound). Otherwise we'll teleport the particle at random inside the domain. This flag does not apply if infinite domain is enabled since there are no random. Default is true.
+- **reboundPenalty (vector3, facultative)**: Specify the rebound coefficient on each axis of the cage domain. Ignored if we are not on deterministic mode. Each coefficient must be positive. Default is { x=1.0, y=1.0, z=1.0 }.
 - **infiniteDomain (boolean, facultative)**: Specify if the cage should allow particle to pass through its borders. If true, then particle will be moved to the opposite side of the cage when they pass one side of the border. Default is false.
 - **passthroughVelReduceCoeff (tag, facultative)**: When infinite domain is true. This coefficient is the velocity reduction coefficient happening for all particles that crosses the border on each face defined individualy. All values should be positive. Attributes are : 
  + **x (float, facultative)**: The coefficient of the lowest and highest x faces of the cage (left and right). It should not be used with xLeft or xRight attributes. Default is 1.0.

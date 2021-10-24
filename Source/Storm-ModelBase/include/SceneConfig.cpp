@@ -282,6 +282,8 @@ Storm::SceneCageConfig::SceneCageConfig() :
 	_boxMax{ dummyMandatoryVector3ForMax() },
 	_rbSimulKillY{ std::numeric_limits<float>::quiet_NaN() },
 	_infiniteDomain{ false },
+	_deterministic{ true },
+	_reboundPenalty{ 1.f, 1.f, 1.f },
 	_passthroughVelReduceCoeffLeftBottomFront{ 1.f, 1.f, 1.f },
 	_passthroughVelReduceCoeffRightTopBack{ 1.f, 1.f, 1.f }
 {

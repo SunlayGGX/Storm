@@ -14,6 +14,9 @@ namespace Storm
 
 		float _rbSimulKillY;
 
+		bool _deterministic;
+		Storm::Vector3 _reboundPenalty;
+
 		bool _infiniteDomain;
 		Storm::Vector3 _passthroughVelReduceCoeffLeftBottomFront;
 		Storm::Vector3 _passthroughVelReduceCoeffRightTopBack;
