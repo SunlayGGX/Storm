@@ -118,6 +118,7 @@ namespace Storm
 	public:
 		void lockNearPlaneOnWatchedRb(unsigned int watchedRbId) final override;
 		void unlockNearPlaneOnWatchedRb() final override;
+		void stopTrackingTranslationOnWatchedRb();
 
 		void checkUserCanChangeNearPlane() const;
 
