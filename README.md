@@ -362,6 +362,7 @@ Unlike the other config files, it can be named as you want. Here the xml tags yo
 - **zNear (float, facultative)**: This is the initial distance in meter from the camera which everything that is nearer than this distance won’t be rendered. Default value is 0.01.
 - **zFar (float, facultative)**: Same as zNear except that we skip displaying all objects farther than this distance value. Default value is 20.0.
 - **watchRbId (positive integer tag, facultative)**: Specify which rigid body we should lock the near plane on. Default value is unset (no rigid body locked). It can be accompanied by one attribute :
+ + **showGridFloor (boolean, facultative)**: true if the grid floor should be visible. Default is true.
  + **trackTranslation (boolean, facultative)**: Flag specifying if we should also translate the camera to keep the watched rb translation moves inside the our field of view. Default is false.
 - **minVelocityColorValue (float, facultative)**: Set the minimum velocity value for the watched value to display the coldest colour. This is to be expressed as a squared norm. Default value is 0.01.
 - **maxVelocityColorValue (float, facultative)**: Set the maximum velocity value for the watched value to display the hottest colour. This is to be expressed as a squared norm. Default value is 100.
@@ -795,6 +796,7 @@ Here the list of available commands :
 - **void setColorSettingMinMaxValue(float minValue, float maxValue)**: Set the min and max values for the observed particles colour fields.
 - **void setUseColorSetting(const ColoredSetting selectedColoredSetting)**: Set the setting to display.
 - **void showCoordinateSystemAxis(const bool shouldShow)**: Display the axis coordinate system if true, hide it otherwise.
+- **void showGridVisibility(const bool shouldShow)**: Display the grid floor if true, hide it otherwise.
 - **void setUIFieldEnabled(bool enable)**: Set if we should display the UI fields (enabled to true) or hide it (enabled to false).
 - **void lockNearPlaneOnWatchedRb(unsigned int rbId)**: Set (or change) the rigid body specified by its id (rbId) to lock the near plane on.
 - **void unlockNearPlaneOnWatchedRb()**: Clear the near-plane lock to a rigid body. The near plane will be freed for the user to move it manually.

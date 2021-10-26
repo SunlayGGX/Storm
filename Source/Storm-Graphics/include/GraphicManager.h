@@ -12,6 +12,7 @@ namespace Storm
 	class Camera;
 	class GeneralReadOnlyUIDisplay;
 	class IRenderedElement;
+	class Grid;
 	class GraphicRigidBody;
 	class GraphicParticleSystem;
 	class GraphicBlower;
@@ -111,6 +112,7 @@ namespace Storm
 
 	public:
 		void showCoordinateSystemAxis(const bool shouldShow);
+		void showGridVisibility(const bool shouldShow);
 
 	public:
 		void setKernelAreaRadius(const float radius) final override;
@@ -169,5 +171,6 @@ namespace Storm
 
 		Storm::GraphicCoordinateSystem* _coordSystemNonOwningPtr;
 		Storm::GraphicGravity* _gravityNonOwningPtr;
+		Storm::Grid* _gridNonOwningPtr;
 	};
 }

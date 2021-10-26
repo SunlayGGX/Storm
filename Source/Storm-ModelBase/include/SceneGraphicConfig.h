@@ -16,6 +16,8 @@ namespace Storm
 		float _zNear;
 		float _zFar;
 
+		bool _showGridFloor;
+
 		bool _displaySolidAsParticles;
 
 		float _velocityNormMinColor;

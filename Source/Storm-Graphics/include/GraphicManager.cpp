@@ -160,7 +160,7 @@ void Storm::GraphicManager::initialize_Implementation(void* hwnd)
 	const auto &device = _directXController->getDirectXDevice();
 	const Storm::SceneGraphicConfig &sceneGraphicConfig = configMgr.getSceneGraphicConfig();
 
-	_renderedElements.emplace_back(std::make_unique<Storm::Grid>(device, sceneGraphicConfig._grid));
+	_gridNonOwningPtr = static_cast<Storm::Grid*>(_renderedElements.emplace_back(std::make_unique<Storm::Grid>(device, sceneGraphicConfig._grid, sceneGraphicConfig._showGridFloor)).get());
 	_coordSystemNonOwningPtr = static_cast<Storm::GraphicCoordinateSystem*>(_renderedElements.emplace_back(std::make_unique<Storm::GraphicCoordinateSystem>(device)).get());
 	_gravityNonOwningPtr = static_cast<Storm::GraphicGravity*>(_renderedElements.emplace_back(std::make_unique<Storm::GraphicGravity>(device, _directXController->getUIRenderTarget())).get());
 
@@ -711,6 +711,20 @@ void Storm::GraphicManager::showCoordinateSystemAxis(const bool shouldShow)
 		{
 			_coordSystemNonOwningPtr->show(shouldShow);
 			_dirty = true;
+		});
+	}
+}
+
+void Storm::GraphicManager::showGridVisibility(const bool shouldShow)
+{
+	if (this->isActive())
+	{
+		Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::GraphicsThread, [this, shouldShow]()
+		{
+			if (_gridNonOwningPtr->setVisibility(shouldShow))
+			{
+				_dirty = true;
+			}
 		});
 	}
 }

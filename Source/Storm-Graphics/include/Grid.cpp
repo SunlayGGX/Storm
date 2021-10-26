@@ -20,7 +20,8 @@ namespace
 }
 
 
-Storm::Grid::Grid(const ComPtr<ID3D11Device> &device, Storm::Vector3 maxPt)
+Storm::Grid::Grid(const ComPtr<ID3D11Device> &device, Storm::Vector3 maxPt, bool showGrid) :
+	_visible{ showGrid }
 {
 	constexpr float epsilon = 0.000001f;
 	maxPt.x() = static_cast<float>(fabs(static_cast<int>(ceilf(maxPt.x()) + epsilon)));
@@ -109,13 +110,18 @@ Storm::Grid::Grid(const ComPtr<ID3D11Device> &device, Storm::Vector3 maxPt)
 
 void Storm::Grid::render(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera)
 {
-	_gridShader->setup(device, deviceContext, currentCamera);
-	this->setupGrid(deviceContext);
-	_gridShader->draw(deviceContext);
+	if (_visible)
+	{
+		_gridShader->setup(device, deviceContext, currentCamera);
+		this->setupGrid(deviceContext);
+		_gridShader->draw(deviceContext);
+	}
 }
 
 void Storm::Grid::setupGrid(const ComPtr<ID3D11DeviceContext> &deviceContext)
 {
+	assert(_visible && "We should have tested for visibility before entering this method!");
+
 	constexpr UINT stride = sizeof(GridVertexType);
 	constexpr UINT offset = 0;
 
@@ -125,4 +131,14 @@ void Storm::Grid::setupGrid(const ComPtr<ID3D11DeviceContext> &deviceContext)
 
 	ID3D11Buffer*const tmpVertexBuffer = _vertexBuffer.Get();
 	deviceContext->IASetVertexBuffers(0, 1, &tmpVertexBuffer, &stride, &offset);
+}
+
+bool Storm::Grid::setVisibility(const bool visible)
+{
+	if (_visible != visible)
+	{
+		_visible = visible;
+		return true;
+	}
+	return false;
 }
