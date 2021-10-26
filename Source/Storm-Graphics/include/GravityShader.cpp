@@ -86,9 +86,6 @@ void Storm::GravityShader::setup(const ComPtr<ID3D11Device> &/*device*/, const C
 
 		ressourceDataPtr->_viewProjMatrix = currentCamera.getTransposedViewProjMatrix();
 
-		// Since screen space coordinate are between -1,-1 (bottom-left) and 1,1 (top-right).
-		// We'll set the axis coordinate system to the bottom right of the screen.
-		// Then, the axis will be displayed in a R² domain between { x C [-0.75, -0.95], y C [0.75, 0.95] }
 		const std::pair<float, float> drawLocation{ this->getDrawLocation() };
 		ressourceDataPtr->_screenSpaceXOffset = drawLocation.first;
 		ressourceDataPtr->_screenSpaceYOffset = drawLocation.second;
@@ -104,10 +101,11 @@ void Storm::GravityShader::setup(const ComPtr<ID3D11Device> &/*device*/, const C
 
 std::pair<float, float> Storm::GravityShader::getDrawLocation() const
 {
-	return { -0.85f, 0.85f };
+	// Since screen space coordinate are between -1,-1 (bottom-left) and 1,1 (top-right).
+	return { -0.8f, 0.8f };
 }
 
 float Storm::GravityShader::getAxisLengthUnit() const
 {
-	return 0.1f;
+	return 0.25f;
 }
