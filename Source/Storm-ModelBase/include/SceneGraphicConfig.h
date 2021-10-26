@@ -17,6 +17,7 @@ namespace Storm
 		float _zFar;
 
 		bool _showGridFloor;
+		bool _showCoordinateAxis;
 
 		bool _displaySolidAsParticles;
 

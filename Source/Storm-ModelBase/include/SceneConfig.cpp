@@ -140,6 +140,7 @@ Storm::SceneGraphicConfig::SceneGraphicConfig() :
 	_zFar{ 20.f },
 	_grid{ 10.f, 0.f, 10.f },
 	_showGridFloor{ true },
+	_showCoordinateAxis{ true },
 	_displaySolidAsParticles{ false },
 	_velocityNormMinColor{ 0.01f },
 	_velocityNormMaxColor{ 100.f },

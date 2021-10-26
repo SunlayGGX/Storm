@@ -363,6 +363,7 @@ Unlike the other config files, it can be named as you want. Here the xml tags yo
 - **zFar (float, facultative)**: Same as zNear except that we skip displaying all objects farther than this distance value. Default value is 20.0.
 - **watchRbId (positive integer tag, facultative)**: Specify which rigid body we should lock the near plane on. Default value is unset (no rigid body locked). It can be accompanied by one attribute :
  + **showGridFloor (boolean, facultative)**: true if the grid floor should be visible. Default is true.
+ + **showCoordinateAxis (boolean, facultative)**: true if the coordinate axis system should be visible. Default is true.
  + **trackTranslation (boolean, facultative)**: Flag specifying if we should also translate the camera to keep the watched rb translation moves inside the our field of view. Default is false.
 - **minVelocityColorValue (float, facultative)**: Set the minimum velocity value for the watched value to display the coldest colour. This is to be expressed as a squared norm. Default value is 0.01.
 - **maxVelocityColorValue (float, facultative)**: Set the maximum velocity value for the watched value to display the hottest colour. This is to be expressed as a squared norm. Default value is 100.

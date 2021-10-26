@@ -40,8 +40,8 @@ namespace
 }
 
 
-Storm::GraphicCoordinateSystem::GraphicCoordinateSystem(const ComPtr<ID3D11Device> &device) :
-	_shouldShow{ true }
+Storm::GraphicCoordinateSystem::GraphicCoordinateSystem(const ComPtr<ID3D11Device> &device, const bool visible) :
+	_shouldShow{ visible }
 {
 	enum : std::size_t
 	{

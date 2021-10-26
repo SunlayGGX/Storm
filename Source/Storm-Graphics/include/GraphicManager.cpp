@@ -161,7 +161,7 @@ void Storm::GraphicManager::initialize_Implementation(void* hwnd)
 	const Storm::SceneGraphicConfig &sceneGraphicConfig = configMgr.getSceneGraphicConfig();
 
 	_gridNonOwningPtr = static_cast<Storm::Grid*>(_renderedElements.emplace_back(std::make_unique<Storm::Grid>(device, sceneGraphicConfig._grid, sceneGraphicConfig._showGridFloor)).get());
-	_coordSystemNonOwningPtr = static_cast<Storm::GraphicCoordinateSystem*>(_renderedElements.emplace_back(std::make_unique<Storm::GraphicCoordinateSystem>(device)).get());
+	_coordSystemNonOwningPtr = static_cast<Storm::GraphicCoordinateSystem*>(_renderedElements.emplace_back(std::make_unique<Storm::GraphicCoordinateSystem>(device, sceneGraphicConfig._showCoordinateAxis)).get());
 	_gravityNonOwningPtr = static_cast<Storm::GraphicGravity*>(_renderedElements.emplace_back(std::make_unique<Storm::GraphicGravity>(device, _directXController->getUIRenderTarget())).get());
 
 	_graphicParticlesSystem = std::make_unique<Storm::GraphicParticleSystem>(device);

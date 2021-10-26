@@ -10,7 +10,7 @@ namespace Storm
 	class GraphicCoordinateSystem : public Storm::IRenderedElement
 	{
 	public:
-		GraphicCoordinateSystem(const ComPtr<ID3D11Device> &device);
+		GraphicCoordinateSystem(const ComPtr<ID3D11Device> &device, const bool visible);
 
 	public:
 		void render(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera) final override;

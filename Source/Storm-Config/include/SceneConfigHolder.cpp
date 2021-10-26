@@ -601,6 +601,7 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 			!Storm::XmlReader::handleXml(graphicXmlElement, "zNear", graphicConfig._zNear) &&
 			!Storm::XmlReader::handleXml(graphicXmlElement, "zFar", graphicConfig._zFar) &&
 			!Storm::XmlReader::handleXml(graphicXmlElement, "showGridFloor", graphicConfig._showGridFloor) &&
+			!Storm::XmlReader::handleXml(graphicXmlElement, "showCoordinateAxis", graphicConfig._showCoordinateAxis) &&
 			!Storm::XmlReader::handleXml(graphicXmlElement, "particleDisplay", graphicConfig._displaySolidAsParticles) &&
 			!Storm::XmlReader::handleXml(graphicXmlElement, "minVelocityColorValue", graphicConfig._velocityNormMinColor) &&
 			!Storm::XmlReader::handleXml(graphicXmlElement, "maxVelocityColorValue", graphicConfig._velocityNormMaxColor) &&
