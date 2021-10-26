@@ -782,6 +782,17 @@ void Storm::GraphicManager::unlockNearPlaneOnWatchedRb()
 	}
 }
 
+void Storm::GraphicManager::stopTrackingTranslationOnWatchedRb()
+{
+	if (this->isActive())
+	{
+		Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::GraphicsThread, [this]()
+		{
+			_shouldTrackRbTranslation = false;
+		});
+	}
+}
+
 void Storm::GraphicManager::checkUserCanChangeNearPlane() const
 {
 	if (_watchedRbNonOwningPtr != nullptr)

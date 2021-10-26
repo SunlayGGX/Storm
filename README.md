@@ -801,6 +801,7 @@ Here the list of available commands :
 - **void setUIFieldEnabled(bool enable)**: Set if we should display the UI fields (enabled to true) or hide it (enabled to false).
 - **void lockNearPlaneOnWatchedRb(unsigned int rbId)**: Set (or change) the rigid body specified by its id (rbId) to lock the near plane on.
 - **void unlockNearPlaneOnWatchedRb()**: Clear the near-plane lock to a rigid body. The near plane will be freed for the user to move it manually.
+- **void stopTrackingTranslationOnWatchedRb()**: Stop tracking the rigidbody translation. This does not clear the rigidbody tracking (we would still move the near plane).
 - **void setVectMultiplicatorCoeff(const float newCoeff)**: Change the multplicator coefficient for the norm of the displayed vectors. Note that the multiplicator coefficient is only visual and has no impact on the actual norm of those vectors (only to be able to visualize better vectors that are too little to be displayed).
 - **void makeCutAroundWatchedRb(const Storm::GraphicCutMode cutMode)**: Apply a cut around the center of the watched rb if any.
 - **void makeCutAroundRigidbody(const unsigned int rbId, const Storm::GraphicCutMode cutMode)**: Apply a cut around the center of the specified rb. This method cannot be executed if we have a watched rb.
