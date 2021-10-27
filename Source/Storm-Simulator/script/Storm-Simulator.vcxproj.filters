@@ -138,6 +138,9 @@
     <ClCompile Include="..\include\SPHSolverPrivateLogic.cpp">
       <Filter>Source Files\Solver\SPHSolvers\Base</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\MassCoeffHandler.cpp">
+      <Filter>Source Files\General</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-SimulatorPCH.h">
@@ -265,6 +268,9 @@
     </ClInclude>
     <ClInclude Include="..\include\BlowerVorticeArea.h">
       <Filter>Header Files\Blowers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\MassCoeffHandler.h">
+      <Filter>Header Files\General</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

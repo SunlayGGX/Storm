@@ -59,6 +59,7 @@
     <ClInclude Include="..\include\INetworkManager.h" />
     <ClInclude Include="..\include\InternalReferenceConfig.h" />
     <ClInclude Include="..\include\ISafetyManager.h" />
+    <ClInclude Include="..\include\MassCoeffConfig.h" />
     <ClInclude Include="..\include\MemoryInfos.h" />
     <ClInclude Include="..\include\OutReflectedModality.h" />
     <ClInclude Include="..\include\ParticleRemovalMode.h" />

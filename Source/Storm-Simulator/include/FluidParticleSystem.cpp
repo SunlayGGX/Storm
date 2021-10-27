@@ -16,6 +16,8 @@
 
 #include "IBlower.h"
 
+#include "MassCoeffHandler.h"
+
 #include "RunnerHelper.h"
 #include "FastOperation.h"
 
@@ -50,9 +52,17 @@ Storm::FluidParticleSystem::FluidParticleSystem(unsigned int particleSystemIndex
 
 	const float particleDiameter = sceneSimulationConfig._particleRadius * 2.f;
 
-	if (fluidConfig._particleVolume == -1.f)
+	if (!std::isnan(fluidConfig._particleVolume))
 	{
-		_particleVolume = fluidConfig._reducedMassCoefficient * particleDiameter * particleDiameter * particleDiameter;
+		const float baseV = particleDiameter * particleDiameter * particleDiameter;
+
+		_massCoeffControlHandler = std::make_unique<Storm::MassCoeffHandler>();
+		_massCoeffControlHandler->bindListenerToReducedMassCoefficientChanged([this, baseV](const float newMassCoeff)
+		{
+			_particleVolume = newMassCoeff * baseV;
+		});
+
+		_particleVolume = _massCoeffControlHandler->getReducedMassCoeff() * baseV;
 	}
 	else
 	{
@@ -113,6 +123,11 @@ void Storm::FluidParticleSystem::onIterationStart()
 		);
 	}
 #endif
+
+	if (_massCoeffControlHandler)
+	{
+		_massCoeffControlHandler->update();
+	}
 }
 
 void Storm::FluidParticleSystem::onSubIterationStart(const Storm::ParticleSystemContainer &allParticleSystems, const std::vector<std::unique_ptr<Storm::IBlower>> &blowers)

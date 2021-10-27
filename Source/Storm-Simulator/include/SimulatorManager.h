@@ -21,6 +21,7 @@ namespace Storm
 	class ISPHBaseSolver;
 	class UIFieldContainer;
 	class Cage;
+	class MassCoeffHandler;
 	struct SceneSimulationConfig;
 	struct SerializeRecordPendingData;
 	struct SerializeSupportedFeatureLayout;

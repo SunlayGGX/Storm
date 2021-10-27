@@ -6,6 +6,7 @@
 namespace Storm
 {
 	class UIFieldContainer;
+	class MassCoeffHandler;
 
 	class FluidParticleSystem : public Storm::ParticleSystem
 	{
@@ -95,6 +96,8 @@ namespace Storm
 
 		bool _gravityEnabled;
 		
+		std::unique_ptr<Storm::MassCoeffHandler> _massCoeffControlHandler;
+
 		std::unique_ptr<Storm::UIFieldContainer> _fields;
 	};
 }

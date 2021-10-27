@@ -584,5 +584,8 @@
     <ClInclude Include="..\include\GeneralArchiveConfig.h">
       <Filter>Header Files\Modules\Config\General</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\MassCoeffConfig.h">
+      <Filter>Header Files\Modules\Config\Misc</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

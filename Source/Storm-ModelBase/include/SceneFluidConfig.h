@@ -1,5 +1,7 @@
 #pragma once
 
+#include "MassCoeffConfig.h"
+
 
 namespace Storm
 {
@@ -51,7 +53,7 @@ namespace Storm
 
 		float _uniformDragCoefficient; // F = 1/2 rho * |vj - vi|(vj - vi) * Cd * Ai => _uniformDragCoefficient = 1/2 * Cd * Ai
 
-		float _reducedMassCoefficient; // Apply reduced mass coefficient like SPlisHSPlasH does to prevent pressure spikes.
+		Storm::MassCoeffConfig _massCoeffControlConfig;
 
 		std::unique_ptr<Storm::SceneFluidDefaultCustomConfig> _customSimulationSettings;
 	};

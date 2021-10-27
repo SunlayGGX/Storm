@@ -161,6 +161,14 @@ Storm::SceneGraphicConfig::SceneGraphicConfig() :
 
 }
 
+Storm::MassCoeffConfig::MassCoeffConfig() :
+	_reducedMassCoefficient{ 0.8f },
+	_startReducedMassCoeff{ std::numeric_limits<float>::quiet_NaN() },
+	_fadeInTimeSec{ 1.f }
+{
+
+}
+
 Storm::SceneFluidBlockConfig::SceneFluidBlockConfig() :
 	_firstPoint{ Vector3::Zero() },
 	_secondPoint{ Vector3::Zero() }, 
@@ -211,7 +219,7 @@ Storm::SceneFluidConfig::SceneFluidConfig() :
 	_density{ 1.2754f }, // Dry air density at 0 °C degrees and normal ATM pressure. https://en.wikipedia.org/wiki/Density_of_air.
 	_dynamicViscosity{ 0.00001715f }, // Dry air dynamic viscosity at 0 °C degrees and normal ATM pressure. https://www.engineeringtoolbox.com/air-absolute-kinematic-viscosity-d_601.html.
 	_soundSpeed{ 331.4f }, // Sound speed in air at 0 °C degrees and normal ATM pressure. https://www.engineeringtoolbox.com/air-speed-sound-d_603.html,
-	_particleVolume{ -1.f },
+	_particleVolume{ std::numeric_limits<float>::quiet_NaN() },
 	_kPressureStiffnessCoeff{ -1.f },
 	_kPressureExponentCoeff{ 7.f },
 	_relaxationCoefficient{ 0.5f },
@@ -222,8 +230,7 @@ Storm::SceneFluidConfig::SceneFluidConfig() :
 	_removeOutDomainParticles{ true },
 	_customSimulationSettings{ nullptr }, // This will be filled when we'll read the config file to the right settings structure depending on our simulation mode.
 	_cinematicViscosity{ 0.f }, // Computed automatically once final _dynamicViscosity value will be determined.
-	_uniformDragCoefficient{ 0.f },
-	_reducedMassCoefficient{ 0.8f }
+	_uniformDragCoefficient{ 0.f }
 {
 
 }

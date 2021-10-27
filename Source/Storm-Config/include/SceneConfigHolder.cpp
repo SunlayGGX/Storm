@@ -396,6 +396,30 @@ if (blowerTypeStr == BlowerTypeXmlName) return Storm::BlowerType::BlowerTypeName
 		return result;
 	}
 
+	void parseMassCoeffControl(const boost::property_tree::ptree &tree, Storm::MassCoeffConfig &massCoeffControlConfig)
+	{
+		try
+		{
+			massCoeffControlConfig._reducedMassCoefficient = tree.get_value<decltype(massCoeffControlConfig._reducedMassCoefficient)>();
+		}
+		catch (const std::exception &ex)
+		{
+			Storm::throwException<Storm::Exception>("Error occurred when parsing mass coefficient tag value : " + Storm::toStdString(ex));
+		}
+
+		constexpr std::string_view k_startValueTag{ "startValue" };
+		constexpr std::string_view k_fadeInTag{ "fadeInTime" };
+
+		if (Storm::XmlReader::readXmlAttribute(tree, massCoeffControlConfig._startReducedMassCoeff, k_startValueTag))
+		{
+			Storm::XmlReader::readXmlAttribute(tree, massCoeffControlConfig._fadeInTimeSec, k_fadeInTag);
+		}
+		else if (Storm::XmlReader::readXmlAttribute(tree, massCoeffControlConfig._fadeInTimeSec, k_fadeInTag))
+		{
+			LOG_WARNING << "Fade in time was set but no start time, therefore it will be ignored!";
+		}
+	}
+
 	void parseWatchedRb(const boost::property_tree::ptree &tree, Storm::SceneGraphicConfig &graphicConfig)
 	{
 		graphicConfig._rbWatchId = tree.get_value<decltype(graphicConfig._rbWatchId)>();
@@ -1005,7 +1029,7 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 				!Storm::XmlReader::handleXml(fluidXmlElement, "removeCollidingParticles", fluidConfig._removeParticlesCollidingWithRb) &&
 				!Storm::XmlReader::handleXml(fluidXmlElement, "removeOutDomainParticles", fluidConfig._removeOutDomainParticles) &&
 				!Storm::XmlReader::handleXml(fluidXmlElement, "uniformDragCoeff", fluidConfig._uniformDragCoefficient) &&
-				!Storm::XmlReader::handleXml(fluidXmlElement, "reducedMassCoeff", fluidConfig._reducedMassCoefficient) &&
+				!Storm::XmlReader::handleXml(fluidXmlElement, "reducedMassCoeff", fluidConfig._massCoeffControlConfig, parseMassCoeffControl) &&
 				!Storm::XmlReader::handleXml(fluidXmlElement, "smoothDensity0", fluidConfig._smoothingRestDensity) &&
 				!Storm::XmlReader::handleXml(fluidXmlElement, "density", fluidConfig._density)
 				)
@@ -1026,13 +1050,9 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 		{
 			Storm::throwException<Storm::Exception>("Fluid " + std::to_string(fluidConfig._fluidId) + " density of " + std::to_string(fluidConfig._density) + "kg.m^-3 is invalid!");
 		}
-		else if (fluidConfig._particleVolume != -1.f && fluidConfig._particleVolume <= 0.f)
+		else if (!std::isnan(fluidConfig._particleVolume) && fluidConfig._particleVolume <= 0.f)
 		{
 			Storm::throwException<Storm::Exception>("Fluid " + std::to_string(fluidConfig._fluidId) + " particle volume should be left unset or should be strictly greater than 0.0! Value was " + std::to_string(fluidConfig._particleVolume) + "m^3.");
-		}
-		else if (fluidConfig._reducedMassCoefficient <= 0.f)
-		{
-			Storm::throwException<Storm::Exception>("Fluid " + std::to_string(fluidConfig._fluidId) + " reduced mass coeff must be a positive non nullable float! Value was " + std::to_string(fluidConfig._reducedMassCoefficient) + ".");
 		}
 		else if (fluidConfig._kPressureExponentCoeff < 0.f)
 		{
@@ -1071,6 +1091,29 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 			}
 		}
 
+		Storm::MassCoeffConfig &massCoeffControlConfig = fluidConfig._massCoeffControlConfig;
+		if (!std::isnan(fluidConfig._particleVolume))
+		{
+			LOG_WARNING << "User set the particle volume manually, therefore we won't use the starting reduced mass coefficient.";
+			massCoeffControlConfig._startReducedMassCoeff = std::numeric_limits<decltype(massCoeffControlConfig._startReducedMassCoeff)>::quiet_NaN();
+		}
+
+		if (massCoeffControlConfig._reducedMassCoefficient <= 0.f)
+		{
+			Storm::throwException<Storm::Exception>("Fluid " + std::to_string(fluidConfig._fluidId) + " reduced mass coeff must be a positive non nullable float! Value was " + std::to_string(massCoeffControlConfig._reducedMassCoefficient) + ".");
+		}
+		else if (!std::isnan(massCoeffControlConfig._startReducedMassCoeff))
+		{
+			if (massCoeffControlConfig._fadeInTimeSec < 0.f)
+			{
+				Storm::throwException<Storm::Exception>("Fluid " + std::to_string(fluidConfig._fluidId) + " reduced mass coeff fade in time must be greater or equal than 0! Value was " + std::to_string(massCoeffControlConfig._fadeInTimeSec) + " seconds.");
+			}
+			else if (massCoeffControlConfig._startReducedMassCoeff <= 0.f)
+			{
+				Storm::throwException<Storm::Exception>("Fluid " + std::to_string(fluidConfig._fluidId) + " start reduced mass coeff must be a positive non nullable float! Value was " + std::to_string(massCoeffControlConfig._startReducedMassCoeff) + ".");
+			}
+		}
+
 		fluidConfig._cinematicViscosity = fluidConfig._dynamicViscosity / fluidConfig._density;
 	}
 	else if (generalConfigHolder.getConfig()._generalSimulationConfig._allowNoFluid)
@@ -1090,7 +1133,8 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 	
 	bool foundWatchedRb = graphicConfig._rbWatchId == std::numeric_limits<decltype(graphicConfig._rbWatchId)>::max();
 
-	float tmpVolumeReducedCoeff = fluidConfig._reducedMassCoefficient;
+	const float initReducedMassCoeff = fluidConfig._massCoeffControlConfig._reducedMassCoefficient;
+	float tmpVolumeReducedCoeff = initReducedMassCoeff;
 
 	Storm::XmlReader::readDataInList(srcTree, "RigidBodies", "RigidBody", rigidBodiesConfigArray,
 		[&rbAngulVelDampingTmp, &tmpVolumeReducedCoeff](const auto &rigidBodyConfigXml, Storm::SceneRigidBodyConfig &rbConfig)
@@ -1215,7 +1259,7 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 		}
 
 		rbConfig._reducedVolumeCoeff = tmpVolumeReducedCoeff;
-		tmpVolumeReducedCoeff = fluidConfig._reducedMassCoefficient; // For the next one.
+		tmpVolumeReducedCoeff = initReducedMassCoeff; // For the next one.
 		
 		if (rbConfig._isTranslationFixed && (rbConfig._isWall || rbConfig._static))
 		{
