@@ -45,7 +45,7 @@ void Storm::MassCoeffHandler::update()
 
 		if (currentTime < massCoeffControlConfig._fadeInTimeSec)
 		{
-			const float alphaCoeff = 1.f - (currentTime - massCoeffControlConfig._fadeInTimeSec) / massCoeffControlConfig._fadeInTimeSec;
+			const float alphaCoeff = currentTime / massCoeffControlConfig._fadeInTimeSec;
 
 			this->setReducedMassCoeff(
 				std::lerp(massCoeffControlConfig._startReducedMassCoeff, massCoeffControlConfig._reducedMassCoefficient, alphaCoeff)
