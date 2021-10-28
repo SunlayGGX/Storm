@@ -31,7 +31,7 @@ namespace
 		k_areaVertexDataLayoutDescCount = 2
 	};
 
-	inline D3D11_INPUT_ELEMENT_DESC* retrieveBlowerInputLayoutElementDesc()
+	inline D3D11_INPUT_ELEMENT_DESC* retrieveAreaInputLayoutElementDesc()
 	{
 		static D3D11_INPUT_ELEMENT_DESC areaVertexDataLayoutDesc[k_areaVertexDataLayoutDescCount];
 
@@ -79,7 +79,7 @@ namespace
 }
 
 Storm::AreaShader::AreaShader(const ComPtr<ID3D11Device> &device, const std::span<const std::string_view> macros) :
-	Storm::VPShaderBase{ device, k_areaShaderFilePath, k_areaVertexShaderFuncName, k_areaShaderFilePath, k_areaPixelShaderFuncName, retrieveBlowerInputLayoutElementDesc(), k_areaVertexDataLayoutDescCount, convertMacros(macros) },
+	Storm::VPShaderBase{ device, k_areaShaderFilePath, k_areaVertexShaderFuncName, k_areaShaderFilePath, k_areaPixelShaderFuncName, retrieveAreaInputLayoutElementDesc(), k_areaVertexDataLayoutDescCount, convertMacros(macros) },
 	_worldMat{ Storm::makeTransform(Storm::Vector3::Zero(), Storm::Quaternion::Identity()) } // By default, we won't use the world matrix.
 {
 	Storm::ConstantBufferHolder::initialize<ConstantBuffer>(device);
