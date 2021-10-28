@@ -23,6 +23,7 @@ namespace Storm
 	class GraphicGravity;
 	class GraphicKernelEffectArea;
 	class GraphicNormals;
+	class GraphicTextureMergerDepth;
 	class UIFieldContainer;
 	enum class GraphicCutMode;
 
@@ -154,6 +155,7 @@ namespace Storm
 		std::unique_ptr<Storm::GraphicConstraintSystem> _graphicConstraintsSystem;
 		std::unique_ptr<Storm::ParticleForceRenderer> _forceRenderer;
 		std::unique_ptr<Storm::GraphicKernelEffectArea> _kernelEffectArea;
+		std::unique_ptr<Storm::GraphicTextureMergerDepth> _textureOutputMergerDepth;
 
 		std::unique_ptr<Storm::GraphicNormals> _graphicNormals;
 		bool _displayNormals;

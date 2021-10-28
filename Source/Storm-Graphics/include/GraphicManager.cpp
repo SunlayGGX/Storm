@@ -16,6 +16,7 @@
 #include "ParticleForceRenderer.h"
 #include "GraphicKernelEffectArea.h"
 #include "GraphicNormals.h"
+#include "GraphicTextureMergerDepth.h"
 
 #include "RenderedElementProxy.h"
 
@@ -173,6 +174,8 @@ void Storm::GraphicManager::initialize_Implementation(void* hwnd)
 	_kernelEffectArea = std::make_unique<Storm::GraphicKernelEffectArea>(device);
 
 	_graphicNormals = std::make_unique<Storm::GraphicNormals>(device);
+
+	_textureOutputMergerDepth = std::make_unique<Storm::GraphicTextureMergerDepth>(device);
 
 	for (auto &meshesPair : _meshesMap)
 	{

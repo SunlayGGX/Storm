@@ -165,6 +165,12 @@
     <ClCompile Include="..\include\GraphicParameters.cpp">
       <Filter>Source Files\GraphicComponent</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\TextureMergerDepthShader.cpp">
+      <Filter>Source Files\Shaders\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\GraphicTextureMergerDepth.cpp">
+      <Filter>Source Files\Rendered</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-GraphicsPCH.h">
@@ -289,6 +295,12 @@
     </ClInclude>
     <ClInclude Include="..\include\GraphicCutMode.h">
       <Filter>Header Files\GraphicComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\TextureMergerDepthShader.h">
+      <Filter>Header Files\Shaders\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\GraphicTextureMergerDepth.h">
+      <Filter>Header Files\Rendered</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

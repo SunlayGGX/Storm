@@ -36,6 +36,7 @@
     <ClCompile Include="..\include\GraphicParticleSystem.cpp" />
     <ClCompile Include="..\include\GraphicPipe.cpp" />
     <ClCompile Include="..\include\GraphicRigidBody.cpp" />
+    <ClCompile Include="..\include\GraphicTextureMergerDepth.cpp" />
     <ClCompile Include="..\include\GravityShader.cpp" />
     <ClCompile Include="..\include\Grid.cpp" />
     <ClCompile Include="..\include\GridShader.cpp" />
@@ -51,6 +52,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\include\TextureMergerDepthShader.cpp" />
     <ClCompile Include="..\include\VPShader.cpp" />
     <ClCompile Include="..\include\XMStormHelpers.cpp" />
   </ItemGroup>
@@ -79,6 +81,7 @@
     <ClInclude Include="..\include\GraphicPipe.h" />
     <ClInclude Include="..\include\GraphicRigidBody.h" />
     <ClInclude Include="..\include\GraphicBlower.h" />
+    <ClInclude Include="..\include\GraphicTextureMergerDepth.h" />
     <ClInclude Include="..\include\GravityShader.h" />
     <ClInclude Include="..\include\Grid.h" />
     <ClInclude Include="..\include\GridShader.h" />
@@ -92,6 +95,7 @@
     <ClInclude Include="..\include\RenderModeState.h" />
     <ClInclude Include="..\include\ResourceMapperGuard.h" />
     <ClInclude Include="..\include\ShaderManager.h" />
+    <ClInclude Include="..\include\TextureMergerDepthShader.h" />
     <ClInclude Include="..\include\ThrowIfFailed.h" />
     <ClInclude Include="..\include\VPShader.h" />
     <ClInclude Include="..\include\Storm-GraphicsPCH.h" />
