@@ -52,7 +52,7 @@ Storm::FluidParticleSystem::FluidParticleSystem(unsigned int particleSystemIndex
 
 	const float particleDiameter = sceneSimulationConfig._particleRadius * 2.f;
 
-	if (!std::isnan(fluidConfig._particleVolume))
+	if (std::isnan(fluidConfig._particleVolume))
 	{
 		const float baseV = particleDiameter * particleDiameter * particleDiameter;
 
