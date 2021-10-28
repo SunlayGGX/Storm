@@ -513,9 +513,6 @@ void Storm::DirectXController::internalCreateDXDevices(HWND hwnd)
 
 	swapChainDesc.BufferDesc.Format = DXGI_FORMAT::DXGI_FORMAT_B8G8R8A8_UNORM;
 
-	swapChainDesc.SampleDesc.Count = 1;
-	swapChainDesc.SampleDesc.Quality = 0;
-
 	swapChainDesc.BufferCount = 1;
 
 	swapChainDesc.BufferDesc.RefreshRate.Numerator = k_wantedFPS;
@@ -525,9 +522,6 @@ void Storm::DirectXController::internalCreateDXDevices(HWND hwnd)
 
 	swapChainDesc.SampleDesc.Count = 1;
 	swapChainDesc.SampleDesc.Quality = 0;
-
-	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-	swapChainDesc.BufferCount = 1;
 
 	swapChainDesc.OutputWindow = hwnd;
 
