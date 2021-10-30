@@ -16,7 +16,7 @@ namespace Storm
 	public:
 		void initializeRendering(const ComPtr<ID3D11Device> &device);
 
-		void render(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera);
+		void render(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera, bool firstPass);
 
 	private:
 		void setupForRender(const ComPtr<ID3D11DeviceContext> &deviceContext);

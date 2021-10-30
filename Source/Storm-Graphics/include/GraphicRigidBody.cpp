@@ -89,7 +89,7 @@ void Storm::GraphicRigidBody::initializeRendering(const ComPtr<ID3D11Device> &de
 	_shader = std::make_unique<Storm::MeshShader>(device);
 }
 
-void Storm::GraphicRigidBody::render(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera)
+void Storm::GraphicRigidBody::render(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera, bool firstPass)
 {
 	Storm::Vector3 trans;
 	Storm::Quaternion rot;
@@ -99,7 +99,7 @@ void Storm::GraphicRigidBody::render(const ComPtr<ID3D11Device> &device, const C
 
 	DirectX::XMMATRIX worldTransform = Storm::makeTransform(trans, rot);
 
-	_shader->setup(device, deviceContext, currentCamera, worldTransform);
+	_shader->setup(device, deviceContext, currentCamera, worldTransform, firstPass);
 	this->setupForRender(deviceContext);
 	_shader->draw(_indexesCount, deviceContext);
 }
