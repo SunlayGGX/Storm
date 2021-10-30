@@ -78,7 +78,7 @@ Storm::ParticleShader::ParticleShader(const ComPtr<ID3D11Device> &device) :
 	Storm::ConstantBufferHolder::initialize<ConstantBuffer>(device);
 }
 
-void Storm::ParticleShader::setup(const ComPtr<ID3D11Device> &/*device*/, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera)
+void Storm::ParticleShader::setup(const ComPtr<ID3D11Device> &/*device*/, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera, const bool firstPass)
 {
 	// Setup the device context
 	this->setupDeviceContext(deviceContext);
@@ -91,9 +91,9 @@ void Storm::ParticleShader::setup(const ComPtr<ID3D11Device> &/*device*/, const 
 		ConstantBuffer*const ressourceDataPtr = static_cast<ConstantBuffer*>(particleConstantBufferRessource.pData);
 
 		ressourceDataPtr->_viewMatrix = currentCamera.getTransposedViewMatrix();
-		ressourceDataPtr->_projMatrix = currentCamera.getTransposedProjectionMatrix();
+		ressourceDataPtr->_projMatrix = firstPass ? currentCamera.getTransposedProjectionMatrix() : currentCamera.getSecondPassTransposedProjectionMatrix();
 		ressourceDataPtr->_pointSize = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().getSceneSimulationConfig()._particleRadius;
-		ressourceDataPtr->_nearPlaneDist = currentCamera.getNearPlane();
+		ressourceDataPtr->_nearPlaneDist = firstPass ? currentCamera.getNearPlane() : std::numeric_limits<float>::epsilon();
 	}
 
 	ID3D11Buffer*const constantBufferTmp = _constantBuffer.Get();

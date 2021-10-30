@@ -32,7 +32,7 @@ namespace Storm
 		const ComPtr<ID2D1RenderTarget>& getUIRenderTarget() const noexcept;
 
 	public:
-		void renderElements(const Storm::Camera &currentCamera, const Storm::RenderedElementProxy &paramToRender) const;
+		void renderElements(const Storm::Camera &currentCamera, const Storm::RenderedElementProxy &paramToRender);
 
 	public:
 		float getViewportWidth() const noexcept;
@@ -119,6 +119,8 @@ namespace Storm
 		ComPtr<IDWriteTextFormat> _textFormat;
 
 		// Misc
+		bool _zBufferStateEnabled;
+
 		float _viewportWidth;
 		float _viewportHeight;
 

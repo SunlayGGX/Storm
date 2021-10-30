@@ -23,7 +23,6 @@ namespace Storm
 	class GraphicGravity;
 	class GraphicKernelEffectArea;
 	class GraphicNormals;
-	class GraphicTextureMergerDepth;
 	class UIFieldContainer;
 	enum class GraphicCutMode;
 
@@ -133,12 +132,17 @@ namespace Storm
 		void makeCutAroundRigidbody(const unsigned int rbId, const Storm::GraphicCutMode cutMode);
 		void makeCutAroundSelectedParticle(const Storm::GraphicCutMode cutMode);
 
+	public:
+		void displayDynamicRbInFull(bool enable);
+
 	private:
 		unsigned char _renderCounter;
 
 		bool _hasUI;
 		bool _dirty;
 		bool _userMovedCameraThisFrame;
+
+		bool _rbNoNearPlaneCut;
 
 		Storm::GraphicRigidBody* _watchedRbNonOwningPtr;
 		bool _shouldTrackRbTranslation;
@@ -155,7 +159,6 @@ namespace Storm
 		std::unique_ptr<Storm::GraphicConstraintSystem> _graphicConstraintsSystem;
 		std::unique_ptr<Storm::ParticleForceRenderer> _forceRenderer;
 		std::unique_ptr<Storm::GraphicKernelEffectArea> _kernelEffectArea;
-		std::unique_ptr<Storm::GraphicTextureMergerDepth> _textureOutputMergerDepth;
 
 		std::unique_ptr<Storm::GraphicNormals> _graphicNormals;
 		bool _displayNormals;

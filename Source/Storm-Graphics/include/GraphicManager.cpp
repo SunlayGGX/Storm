@@ -16,7 +16,6 @@
 #include "ParticleForceRenderer.h"
 #include "GraphicKernelEffectArea.h"
 #include "GraphicNormals.h"
-#include "GraphicTextureMergerDepth.h"
 
 #include "RenderedElementProxy.h"
 
@@ -69,7 +68,8 @@ Storm::GraphicManager::GraphicManager() :
 	_dirty{ true },
 	_watchedRbNonOwningPtr{ nullptr },
 	_displayNormals{ false },
-	_userMovedCameraThisFrame{ true }
+	_userMovedCameraThisFrame{ true },
+	_rbNoNearPlaneCut{ false }
 {
 
 }
@@ -161,6 +161,8 @@ void Storm::GraphicManager::initialize_Implementation(void* hwnd)
 	const auto &device = _directXController->getDirectXDevice();
 	const Storm::SceneGraphicConfig &sceneGraphicConfig = configMgr.getSceneGraphicConfig();
 
+	_rbNoNearPlaneCut = sceneGraphicConfig._displayRbInFull;
+
 	_gridNonOwningPtr = static_cast<Storm::Grid*>(_renderedElements.emplace_back(std::make_unique<Storm::Grid>(device, sceneGraphicConfig._grid, sceneGraphicConfig._showGridFloor)).get());
 	_coordSystemNonOwningPtr = static_cast<Storm::GraphicCoordinateSystem*>(_renderedElements.emplace_back(std::make_unique<Storm::GraphicCoordinateSystem>(device, sceneGraphicConfig._showCoordinateAxis)).get());
 	_gravityNonOwningPtr = static_cast<Storm::GraphicGravity*>(_renderedElements.emplace_back(std::make_unique<Storm::GraphicGravity>(device, _directXController->getUIRenderTarget())).get());
@@ -174,8 +176,6 @@ void Storm::GraphicManager::initialize_Implementation(void* hwnd)
 	_kernelEffectArea = std::make_unique<Storm::GraphicKernelEffectArea>(device);
 
 	_graphicNormals = std::make_unique<Storm::GraphicNormals>(device);
-
-	_textureOutputMergerDepth = std::make_unique<Storm::GraphicTextureMergerDepth>(device);
 
 	for (auto &meshesPair : _meshesMap)
 	{
@@ -337,7 +337,8 @@ void Storm::GraphicManager::update()
 				._constraintSystem = *_graphicConstraintsSystem,
 				._selectedParticleForce = *_forceRenderer,
 				._kernelEffectArea = *_kernelEffectArea,
-				._graphicNormals = _displayNormals ? _graphicNormals.get() : nullptr
+				._graphicNormals = _displayNormals ? _graphicNormals.get() : nullptr,
+				._multiPass = _rbNoNearPlaneCut
 			});
 
 			_directXController->drawUI(_renderedElements, _fieldsMap);
@@ -960,5 +961,17 @@ void Storm::GraphicManager::makeCutAroundSelectedParticle(const Storm::GraphicCu
 			});
 			break;
 		}
+	}
+}
+
+void Storm::GraphicManager::displayDynamicRbInFull(bool enable)
+{
+	if (this->isActive())
+	{
+		Storm::SingletonHolder::instance().getSingleton<Storm::IThreadManager>().executeOnThread(Storm::ThreadEnumeration::GraphicsThread, [this, enable]()
+		{
+			_rbNoNearPlaneCut = enable;
+			_dirty = true;
+		});
 	}
 }

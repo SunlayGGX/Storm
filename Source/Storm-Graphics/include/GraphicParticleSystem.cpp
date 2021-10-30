@@ -87,9 +87,9 @@ void Storm::GraphicParticleSystem::refreshParticleSystemData(const ComPtr<ID3D11
 	}
 }
 
-void Storm::GraphicParticleSystem::render(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera, Storm::RenderModeState currentRenderModeState)
+void Storm::GraphicParticleSystem::render(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera, Storm::RenderModeState currentRenderModeState, bool forceNoRb)
 {
-	_shader->setup(device, deviceContext, currentCamera);
+	_shader->setup(device, deviceContext, currentCamera, true);
 
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
 
@@ -103,11 +103,18 @@ void Storm::GraphicParticleSystem::render(const ComPtr<ID3D11Device> &device, co
 			break;
 
 		case Storm::GraphicParticleSystemModality::RbNoWall:
-			shouldRender = 
-				currentRenderModeState == Storm::RenderModeState::AllParticle ||
-				currentRenderModeState == Storm::RenderModeState::NoWallParticles ||
-				currentRenderModeState == Storm::RenderModeState::SolidOnly
-				;
+			if (forceNoRb)
+			{
+				shouldRender = false;
+			}
+			else
+			{
+				shouldRender =
+					currentRenderModeState == Storm::RenderModeState::AllParticle ||
+					currentRenderModeState == Storm::RenderModeState::NoWallParticles ||
+					currentRenderModeState == Storm::RenderModeState::SolidOnly
+					;
+			}
 			break;
 
 		case Storm::GraphicParticleSystemModality::RbWall:
@@ -127,6 +134,32 @@ void Storm::GraphicParticleSystem::render(const ComPtr<ID3D11Device> &device, co
 		{
 			this->setupForRender(deviceContext, particleSystemBuffer.second);
 			_shader->draw(static_cast<unsigned int>(particleSystemBuffer.second._vertexCount), deviceContext);
+		}
+	}
+}
+
+void Storm::GraphicParticleSystem::renderRbSecondPass(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera, Storm::RenderModeState currentRenderModeState)
+{
+	_shader->setup(device, deviceContext, currentCamera, false);
+
+	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
+
+	for (const auto &particleSystemBuffer : _particleSystemVBuffer)
+	{
+		switch (particleSystemBuffer.second._modality)
+		{
+		case Storm::GraphicParticleSystemModality::RbNoWall:
+			this->setupForRender(deviceContext, particleSystemBuffer.second);
+			_shader->draw(static_cast<unsigned int>(particleSystemBuffer.second._vertexCount), deviceContext);
+			break;
+
+		case Storm::GraphicParticleSystemModality::Fluid:
+		case Storm::GraphicParticleSystemModality::RbWall:
+			break;
+
+		default:
+			assert(false && "Unknown particle system type");
+			break;
 		}
 	}
 }

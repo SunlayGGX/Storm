@@ -25,5 +25,7 @@ namespace Storm
 		Storm::ParticleForceRenderer &_selectedParticleForce;
 		Storm::GraphicKernelEffectArea &_kernelEffectArea;
 		Storm::GraphicNormals*const _graphicNormals;
+
+		bool _multiPass;
 	};
 }

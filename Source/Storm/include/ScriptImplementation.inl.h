@@ -180,7 +180,9 @@ void STORM_CURRENT_REGISTERED_TYPE::registerCurrentOnScript(IScriptWrapperInterf
 
 		STORM_DECLARE_SCRIPTED_METHOD(makeCutAroundWatchedRb),
 		STORM_DECLARE_SCRIPTED_METHOD(makeCutAroundRigidbody),
-		STORM_DECLARE_SCRIPTED_METHOD(makeCutAroundSelectedParticle)
+		STORM_DECLARE_SCRIPTED_METHOD(makeCutAroundSelectedParticle),
+
+		STORM_DECLARE_SCRIPTED_METHOD(displayDynamicRbInFull)
 
 	).registerCurrentInstance("graphicMgr");
 }

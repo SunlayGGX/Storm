@@ -15,6 +15,6 @@ namespace Storm
 		ParticleShader(const ComPtr<ID3D11Device> &device);
 
 	public:
-		void setup(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera);
+		void setup(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera, const bool firstPass);
 	};
 }

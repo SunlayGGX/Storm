@@ -20,6 +20,7 @@
 #include "DirectXHardwareInfo.h"
 #include "GraphicNormals.h"
 #include "ResourceMapperGuard.h"
+#include "RAII.h"
 
 #include "RenderModeState.h"
 
@@ -261,30 +262,36 @@ const ComPtr<ID2D1RenderTarget>& Storm::DirectXController::getUIRenderTarget() c
 	return _direct2DRenderTarget;
 }
 
-void Storm::DirectXController::renderElements(const Storm::Camera &currentCamera, const Storm::RenderedElementProxy &paramToRender) const
+void Storm::DirectXController::renderElements(const Storm::Camera &currentCamera, const Storm::RenderedElementProxy &paramToRender)
 {
 	for (const auto &renderedElement : paramToRender._renderedElementArrays)
 	{
 		renderedElement->render(_device, _immediateContext, currentCamera);
 	}
 
-	switch (_currentRenderModeState)
-	{
-	case Storm::RenderModeState::Solid:
-	//case Storm::RenderModeState::SolidOnly:
-	case Storm::RenderModeState::SolidCullNone:
-	case Storm::RenderModeState::Wireframe:
-	case Storm::RenderModeState::NoWallSolid:
-		for (const auto &rbElementPair : paramToRender._rbElementArrays)
-		{
-			rbElementPair.second->render(_device, _immediateContext, currentCamera);
-		}
-		break;
+	const bool multiPass = paramToRender._multiPass;// paramToRender._graphicTextureMergerDepth == nullptr;
 
-	case Storm::RenderModeState::NoWallParticles:
-	case Storm::RenderModeState::AllParticle:
-	default:
-		break;
+	// If we render the rb on the first pass (affected by the near plane)
+	if (!multiPass)
+	{
+		switch (_currentRenderModeState)
+		{
+		case Storm::RenderModeState::Solid:
+			//case Storm::RenderModeState::SolidOnly:
+		case Storm::RenderModeState::SolidCullNone:
+		case Storm::RenderModeState::Wireframe:
+		case Storm::RenderModeState::NoWallSolid:
+			for (const auto &rbElementPair : paramToRender._rbElementArrays)
+			{
+				rbElementPair.second->render(_device, _immediateContext, currentCamera);
+			}
+			break;
+
+		case Storm::RenderModeState::NoWallParticles:
+		case Storm::RenderModeState::AllParticle:
+		default:
+			break;
+		}
 	}
 
 	// This one is facultative
@@ -295,7 +302,7 @@ void Storm::DirectXController::renderElements(const Storm::Camera &currentCamera
 
 	paramToRender._selectedParticleForce.render(_device, _immediateContext, currentCamera);
 
-	paramToRender._particleSystem.render(_device, _immediateContext, currentCamera, _currentRenderModeState);
+	paramToRender._particleSystem.render(_device, _immediateContext, currentCamera, _currentRenderModeState, multiPass);
 
 	for (const auto &graphicBlower : paramToRender._blowersMap)
 	{
@@ -305,6 +312,48 @@ void Storm::DirectXController::renderElements(const Storm::Camera &currentCamera
 	paramToRender._constraintSystem.render(_device, _immediateContext, currentCamera);
 
 	paramToRender._kernelEffectArea.render(_device, _immediateContext, currentCamera);
+
+	if (multiPass)
+	{
+		// Set the other render target...
+		//this->initView(1);
+
+		switch (_currentRenderModeState)
+		{
+		case Storm::RenderModeState::Solid:
+			//case Storm::RenderModeState::SolidOnly:
+		case Storm::RenderModeState::SolidCullNone:
+		case Storm::RenderModeState::Wireframe:
+		case Storm::RenderModeState::NoWallSolid:
+			for (const auto &rbElementPair : paramToRender._rbElementArrays)
+			{
+				rbElementPair.second->render(_device, _immediateContext, currentCamera);
+			}
+			break;
+
+		case Storm::RenderModeState::NoWallParticles:
+		case Storm::RenderModeState::AllParticle:
+		default:
+			break;
+		}
+
+		// FIXME : We need to disable Z Buffer testing to render the 2nd pass because somehow, ZBuffer prevent to draw the rb even though the rb Z is obviously nearer of the camera than everything else.
+		// Since this mode is just some hack asked to make better videos for my own personal presentation, I won't fix it unless this is really needed.
+		const bool exZBufferEnabled = _zBufferStateEnabled;
+		auto revertZBufferEnablingState = Storm::makeLazyRAIIObject([this, exZBufferEnabled]()
+		{
+			if (exZBufferEnabled != _zBufferStateEnabled)
+			{
+				this->setEnableZBuffer(exZBufferEnabled);
+			}
+		});
+
+		if (_zBufferStateEnabled != false)
+		{
+			this->setEnableZBuffer(false);
+		}
+		paramToRender._particleSystem.renderRbSecondPass(_device, _immediateContext, currentCamera, _currentRenderModeState);
+	}
 }
 
 float Storm::DirectXController::getViewportWidth() const noexcept
@@ -359,6 +408,7 @@ void Storm::DirectXController::setRenderSolidOnly()
 void Storm::DirectXController::setEnableZBuffer(bool enable)
 {
 	_immediateContext->OMSetDepthStencilState(enable ? _zBufferEnable.Get() : _zBufferDisable.Get(), 0);
+	_zBufferStateEnabled = enable;
 }
 
 void Storm::DirectXController::setEnableBlendAlpha(bool enable)

@@ -434,6 +434,11 @@ const DirectX::XMMATRIX& Storm::Camera::getTransposedOrthoMatrix() const noexcep
 	return _transposedOrthoMatrix;
 }
 
+const DirectX::XMMATRIX& Storm::Camera::getSecondPassTransposedProjectionMatrix() const noexcept
+{
+	return _transposedSecondPassProjectionMatrix;
+}
+
 const DirectX::XMFLOAT3& Storm::Camera::getPosition() const noexcept
 {
 	return _position;
@@ -840,6 +845,9 @@ void Storm::Camera::buildProjectionMatrix()
 	const float screenRatio = _screenWidth / _screenHeight;
 	_projectionMatrix = DirectX::XMMatrixPerspectiveFovLH(_fieldOfView, screenRatio, _nearPlane, _farPlane);
 	_transposedProjectionMatrix = DirectX::XMMatrixTranspose(_projectionMatrix);
+
+	_secondPassProjectionMatrix = DirectX::XMMatrixPerspectiveFovLH(_fieldOfView, screenRatio, std::numeric_limits<float>::epsilon(), _farPlane);
+	_transposedSecondPassProjectionMatrix = DirectX::XMMatrixTranspose(_secondPassProjectionMatrix);
 
 	this->buildViewProjectionMatrix();
 }
