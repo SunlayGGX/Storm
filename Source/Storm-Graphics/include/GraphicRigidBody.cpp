@@ -95,13 +95,16 @@ void Storm::GraphicRigidBody::render(const ComPtr<ID3D11Device> &device, const C
 	Storm::Quaternion rot;
 
 	const std::shared_ptr<Storm::IRigidBody> &boundRbParent = this->getRbParent();
-	boundRbParent->getRigidBodyTransform(trans, rot);
+	if (firstPass || !boundRbParent->isWall())
+	{
+		boundRbParent->getRigidBodyTransform(trans, rot);
 
-	DirectX::XMMATRIX worldTransform = Storm::makeTransform(trans, rot);
+		DirectX::XMMATRIX worldTransform = Storm::makeTransform(trans, rot);
 
-	_shader->setup(device, deviceContext, currentCamera, worldTransform, firstPass);
-	this->setupForRender(deviceContext);
-	_shader->draw(_indexesCount, deviceContext);
+		_shader->setup(device, deviceContext, currentCamera, worldTransform, firstPass);
+		this->setupForRender(deviceContext);
+		_shader->draw(_indexesCount, deviceContext);
+	}
 }
 
 void Storm::GraphicRigidBody::setupForRender(const ComPtr<ID3D11DeviceContext> &deviceContext)

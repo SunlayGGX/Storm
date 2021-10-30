@@ -22,5 +22,7 @@ namespace Storm
 		virtual std::vector<Storm::Vector3> getRigidBodyObjectSpaceNormals() const = 0;
 
 		virtual float getRigidBodyVolume() const = 0;
+
+		virtual bool isWall() const = 0;
 	};
 }

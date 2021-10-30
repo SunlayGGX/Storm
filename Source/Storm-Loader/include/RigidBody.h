@@ -30,6 +30,8 @@ namespace Storm
 
 		float getRigidBodyVolume() const final override;
 
+		bool isWall() const final override;
+
 	public:
 		static std::filesystem::path retrieveParticleDataCacheFolder();
 
@@ -47,5 +49,7 @@ namespace Storm
 		unsigned int _rbId;
 
 		float _rbVolume;
+
+		const bool _isWall;
 	};
 }

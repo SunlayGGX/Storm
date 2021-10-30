@@ -151,7 +151,8 @@ namespace
 Storm::RigidBody::RigidBody(const Storm::SceneRigidBodyConfig &rbSceneConfig) :
 	_meshPath{ rbSceneConfig._meshFilePath },
 	_rbId{ rbSceneConfig._rigidBodyID },
-	_rbVolume{ -1.f }
+	_rbVolume{ -1.f },
+	_isWall{ rbSceneConfig._isWall }
 {
 	this->load(rbSceneConfig);
 }
@@ -159,7 +160,8 @@ Storm::RigidBody::RigidBody(const Storm::SceneRigidBodyConfig &rbSceneConfig) :
 Storm::RigidBody::RigidBody(const Storm::SceneRigidBodyConfig &rbSceneConfig, Storm::SystemSimulationStateObject &&state) :
 	_meshPath{ rbSceneConfig._meshFilePath },
 	_rbId{ rbSceneConfig._rigidBodyID },
-	_rbVolume{ -1.f }
+	_rbVolume{ -1.f },
+	_isWall{ rbSceneConfig._isWall }
 {
 	this->loadFromState(rbSceneConfig, std::move(state));
 }
@@ -167,7 +169,8 @@ Storm::RigidBody::RigidBody(const Storm::SceneRigidBodyConfig &rbSceneConfig, St
 Storm::RigidBody::RigidBody(const Storm::SceneRigidBodyConfig &rbSceneConfig, ReplayMode) :
 	_meshPath{ rbSceneConfig._meshFilePath },
 	_rbId{ rbSceneConfig._rigidBodyID },
-	_rbVolume{ -1.f }
+	_rbVolume{ -1.f },
+	_isWall{ rbSceneConfig._isWall }
 {
 	this->loadForReplay(rbSceneConfig);
 }
@@ -218,6 +221,11 @@ std::vector<Storm::Vector3> Storm::RigidBody::getRigidBodyObjectSpaceNormals() c
 float Storm::RigidBody::getRigidBodyVolume() const
 {
 	return _rbVolume;
+}
+
+bool Storm::RigidBody::isWall() const
+{
+	return _isWall;
 }
 
 std::filesystem::path Storm::RigidBody::retrieveParticleDataCacheFolder()
