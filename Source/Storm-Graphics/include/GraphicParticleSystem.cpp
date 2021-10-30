@@ -140,26 +140,31 @@ void Storm::GraphicParticleSystem::render(const ComPtr<ID3D11Device> &device, co
 
 void Storm::GraphicParticleSystem::renderRbSecondPass(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera, Storm::RenderModeState currentRenderModeState)
 {
-	_shader->setup(device, deviceContext, currentCamera, false);
-
-	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
-
-	for (const auto &particleSystemBuffer : _particleSystemVBuffer)
+	if (currentRenderModeState == Storm::RenderModeState::AllParticle ||
+		currentRenderModeState == Storm::RenderModeState::NoWallParticles ||
+		currentRenderModeState == Storm::RenderModeState::SolidOnly)
 	{
-		switch (particleSystemBuffer.second._modality)
+		_shader->setup(device, deviceContext, currentCamera, false);
+
+		deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
+
+		for (const auto &particleSystemBuffer : _particleSystemVBuffer)
 		{
-		case Storm::GraphicParticleSystemModality::RbNoWall:
-			this->setupForRender(deviceContext, particleSystemBuffer.second);
-			_shader->draw(static_cast<unsigned int>(particleSystemBuffer.second._vertexCount), deviceContext);
-			break;
+			switch (particleSystemBuffer.second._modality)
+			{
+			case Storm::GraphicParticleSystemModality::RbNoWall:
+				this->setupForRender(deviceContext, particleSystemBuffer.second);
+				_shader->draw(static_cast<unsigned int>(particleSystemBuffer.second._vertexCount), deviceContext);
+				break;
 
-		case Storm::GraphicParticleSystemModality::Fluid:
-		case Storm::GraphicParticleSystemModality::RbWall:
-			break;
+			case Storm::GraphicParticleSystemModality::Fluid:
+			case Storm::GraphicParticleSystemModality::RbWall:
+				break;
 
-		default:
-			assert(false && "Unknown particle system type");
-			break;
+			default:
+				assert(false && "Unknown particle system type");
+				break;
+			}
 		}
 	}
 }
