@@ -65,37 +65,40 @@ void particleGeometryShader(point GeometryInputType inputRaw[1], inout TriangleS
 	// The minus is because w is inverted.
 	const float4 nearPlane = float4(0.0, 0.0, 1.0, -_nearPlaneDist);
 
+	// Everyone has the same since in view space coordinate, the vertex would become a plane that faces the camera. Therefore, we could assume that if one vertex of the plane is before the clipping plane then all vertexes are, and if one is after then everyone are after.
+	const float clipDistEveryone = dot(input._position, nearPlane);
+
 	PixelInputType corner1;
 	corner1._position = float4(input._position.x + _particleRadius, input._position.y + _particleRadius, input._position.zw);
-	corner1._clipDist = dot(corner1._position, nearPlane);
 	corner1._position = mul(corner1._position, _projMatrix);
 	corner1._color = input._color;
 	corner1._miscData.x = 1.f;
 	corner1._miscData.y = 1.f;
+	corner1._clipDist = clipDistEveryone;
 
 	PixelInputType corner2;
 	corner2._position = float4(input._position.x - _particleRadius, input._position.y + _particleRadius, input._position.zw);
-	corner2._clipDist = dot(corner2._position, nearPlane);
 	corner2._position = mul(corner2._position, _projMatrix);
 	corner2._color = input._color;
 	corner2._miscData.x = -1.f;
 	corner2._miscData.y = 1.f;
+	corner2._clipDist = clipDistEveryone;
 
 	PixelInputType corner3;
 	corner3._position = float4(input._position.x + _particleRadius, input._position.y - _particleRadius, input._position.zw);
-	corner3._clipDist = dot(corner3._position, nearPlane);
 	corner3._position = mul(corner3._position, _projMatrix);
 	corner3._color = input._color;
 	corner3._miscData.x = 1.f;
 	corner3._miscData.y = -1.f;
+	corner3._clipDist = clipDistEveryone;
 
 	PixelInputType corner4;
 	corner4._position = float4(input._position.x - _particleRadius, input._position.y - _particleRadius, input._position.zw);
-	corner4._clipDist = dot(corner4._position, nearPlane);
 	corner4._position = mul(corner4._position, _projMatrix);
 	corner4._color = input._color;
 	corner4._miscData.x = -1.f;
 	corner4._miscData.y = -1.f;
+	corner4._clipDist = clipDistEveryone;
 
 	outputStream.Append(corner2);
 	outputStream.Append(corner1);
