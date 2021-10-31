@@ -28,6 +28,7 @@ struct PixelInputType
 	float4 _color : COLOR;
 
 	float2 _miscData : TEXCOORD0;
+	float _clipDist : SV_ClipDistance0;
 };
 
 
@@ -57,8 +58,16 @@ void particleGeometryShader(point GeometryInputType inputRaw[1], inout TriangleS
 {
 	GeometryInputType input = inputRaw[0];
 
+	// A plane is given by a vector and a point. xyz are the vector coordinate (here in view space coordinate since I'll be applying it on the position multiplied by matView).
+	// w is the offset from the origin given by the xyz vector (plane vector). Therefore, since I'm in view coordinate, this is camPos + w * xyz.
+	// => Since in view space coordinate, the look vector is { 0, 0, 1 }, we have :
+	// Near plane is therefore given by the point P = camPos + _nearPlaneDist * lookVect, and the plane normal is given by lookVect.
+	// The minus is because w is inverted.
+	const float4 nearPlane = float4(0.0, 0.0, 1.0, -_nearPlaneDist);
+
 	PixelInputType corner1;
 	corner1._position = float4(input._position.x + _particleRadius, input._position.y + _particleRadius, input._position.zw);
+	corner1._clipDist = dot(corner1._position, nearPlane);
 	corner1._position = mul(corner1._position, _projMatrix);
 	corner1._color = input._color;
 	corner1._miscData.x = 1.f;
@@ -66,6 +75,7 @@ void particleGeometryShader(point GeometryInputType inputRaw[1], inout TriangleS
 
 	PixelInputType corner2;
 	corner2._position = float4(input._position.x - _particleRadius, input._position.y + _particleRadius, input._position.zw);
+	corner2._clipDist = dot(corner2._position, nearPlane);
 	corner2._position = mul(corner2._position, _projMatrix);
 	corner2._color = input._color;
 	corner2._miscData.x = -1.f;
@@ -73,6 +83,7 @@ void particleGeometryShader(point GeometryInputType inputRaw[1], inout TriangleS
 
 	PixelInputType corner3;
 	corner3._position = float4(input._position.x + _particleRadius, input._position.y - _particleRadius, input._position.zw);
+	corner3._clipDist = dot(corner3._position, nearPlane);
 	corner3._position = mul(corner3._position, _projMatrix);
 	corner3._color = input._color;
 	corner3._miscData.x = 1.f;
@@ -80,6 +91,7 @@ void particleGeometryShader(point GeometryInputType inputRaw[1], inout TriangleS
 
 	PixelInputType corner4;
 	corner4._position = float4(input._position.x - _particleRadius, input._position.y - _particleRadius, input._position.zw);
+	corner4._clipDist = dot(corner4._position, nearPlane);
 	corner4._position = mul(corner4._position, _projMatrix);
 	corner4._color = input._color;
 	corner4._miscData.x = -1.f;

@@ -14,6 +14,8 @@ namespace
 		DirectX::XMMATRIX _projectionMatrix;
 
 		DirectX::XMVECTOR _meshColor;
+
+		DirectX::XMVECTOR _nearPlane;
 	};
 
 	static const std::string k_meshShaderFilePath = "Shaders/MeshDraw.hlsl";
@@ -62,9 +64,17 @@ void Storm::MeshShader::setup(const ComPtr<ID3D11Device> &/*device*/, const ComP
 
 		ressourceDataPtr->_worldMatrix = transposedTransform;
 		ressourceDataPtr->_viewMatrix = currentCamera.getTransposedViewMatrix();
-		ressourceDataPtr->_projectionMatrix = firstPass ? currentCamera.getTransposedProjectionMatrix() : currentCamera.getSecondPassTransposedProjectionMatrix();
+		ressourceDataPtr->_projectionMatrix = currentCamera.getTransposedProjectionMatrix();
 
 		ressourceDataPtr->_meshColor = DirectX::XMVECTOR{ 0.2f, 0.6f, 0.6f, 1.f };
+
+
+		// A plane is given by a vector and a point. xyz are the vector coordinate (here in view space coordinate since I'll be applying it on the position multiplied by matView).
+		// w is the offset from the origin given by the xyz vector (plane vector). Therefore, since I'm in view coordinate, this is camPos + w * xyz.
+		// => Since in view space coordinate, the look vector is { 0, 0, 1 }, we have :
+		// Near plane is therefore given by the point P = camPos + _nearPlaneDist * lookVect, and the plane normal is given by lookVect.
+		// The minus is because w is inverted.
+		ressourceDataPtr->_nearPlane = DirectX::XMVECTOR{ 0.0f, 0.0f, 1.f, firstPass ? -currentCamera.getNearPlane() : 100.f };
 	}
 
 	ID3D11Buffer*const constantBufferTmp = _constantBuffer.Get();

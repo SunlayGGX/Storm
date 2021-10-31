@@ -5,6 +5,8 @@ cbuffer ConstantBuffer
 	matrix _projectionMatrix;
 
 	float4 _meshColor;
+
+	float _nearPlane;
 };
 
 struct VertexInputType
@@ -15,6 +17,7 @@ struct VertexInputType
 struct PixelInputType
 {
 	float4 _position : SV_POSITION;
+	float _clipDist : SV_ClipDistance0;
 };
 
 PixelInputType meshVertexShader(VertexInputType input)
@@ -27,6 +30,9 @@ PixelInputType meshVertexShader(VertexInputType input)
 	// Calculate the position of the vertex against the world, view, and projection matrices.
 	output._position = mul(input._position, _worldMatrix);
 	output._position = mul(output._position, _viewMatrix);
+
+	output._clipDist = dot(output._position, _nearPlane);
+
 	output._position = mul(output._position, _projectionMatrix);
 
 	return output;

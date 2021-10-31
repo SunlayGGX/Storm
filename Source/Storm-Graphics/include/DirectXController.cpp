@@ -315,22 +315,6 @@ void Storm::DirectXController::renderElements(const Storm::Camera &currentCamera
 
 	if (multiPass)
 	{
-		// FIXME : We need to disable Z Buffer testing to render the 2nd pass because somehow, ZBuffer prevent to draw the rb even though the rb Z is obviously nearer of the camera than everything else.
-		// Since this mode is just some hack asked to make better videos for my own personal presentation, I won't fix it unless this is really needed.
-		const bool exZBufferEnabled = _zBufferStateEnabled;
-		auto revertZBufferEnablingState = Storm::makeLazyRAIIObject([this, exZBufferEnabled]()
-		{
-			if (exZBufferEnabled != _zBufferStateEnabled)
-			{
-				this->setEnableZBuffer(exZBufferEnabled);
-			}
-		});
-
-		if (_zBufferStateEnabled != false)
-		{
-			this->setEnableZBuffer(false);
-		}
-
 		switch (_currentRenderModeState)
 		{
 		case Storm::RenderModeState::Solid:

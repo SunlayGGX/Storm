@@ -32,8 +32,6 @@ namespace Storm
 		const DirectX::XMMATRIX& getTransposedViewProjMatrix() const noexcept;
 		const DirectX::XMMATRIX& getTransposedOrthoMatrix() const noexcept;
 
-		const DirectX::XMMATRIX& getSecondPassTransposedProjectionMatrix() const noexcept;
-
 		const DirectX::XMFLOAT3& getPosition() const noexcept;
 		const DirectX::XMFLOAT3& getTarget() const noexcept;
 
@@ -109,9 +107,6 @@ namespace Storm
 		DirectX::XMMATRIX _transposedViewMatrix;
 		DirectX::XMMATRIX _transposedViewProjMatrix; // For 2D HUD
 		DirectX::XMMATRIX _transposedOrthoMatrix; // For 2D HUD
-
-		DirectX::XMMATRIX _secondPassProjectionMatrix;
-		DirectX::XMMATRIX _transposedSecondPassProjectionMatrix;
 
 		DirectX::XMVECTOR _up;
 		DirectX::XMFLOAT3 _position;

@@ -434,11 +434,6 @@ const DirectX::XMMATRIX& Storm::Camera::getTransposedOrthoMatrix() const noexcep
 	return _transposedOrthoMatrix;
 }
 
-const DirectX::XMMATRIX& Storm::Camera::getSecondPassTransposedProjectionMatrix() const noexcept
-{
-	return _transposedSecondPassProjectionMatrix;
-}
-
 const DirectX::XMFLOAT3& Storm::Camera::getPosition() const noexcept
 {
 	return _position;
@@ -843,11 +838,15 @@ void Storm::Camera::translateRelative(const Storm::Vector3 &deltaTranslation)
 void Storm::Camera::buildProjectionMatrix()
 {
 	const float screenRatio = _screenWidth / _screenHeight;
-	_projectionMatrix = DirectX::XMMatrixPerspectiveFovLH(_fieldOfView, screenRatio, _nearPlane, _farPlane);
-	_transposedProjectionMatrix = DirectX::XMMatrixTranspose(_projectionMatrix);
 
-	_secondPassProjectionMatrix = DirectX::XMMatrixPerspectiveFovLH(_fieldOfView, screenRatio, std::numeric_limits<float>::epsilon(), _farPlane);
-	_transposedSecondPassProjectionMatrix = DirectX::XMMatrixTranspose(_secondPassProjectionMatrix);
+	// Near plane will be handled inside the shader since we have multiple pass with different near plane.
+	// The reason we're not using the near plane here (or making 2 different projection matrix) is because since we'll be using the same depth buffer
+	// both near plane would be used as a ratio coefficient for the depth value.
+	// For example, a vertex located at { 0, 0, 1 } from the camera, when rendered with the 1st near plane at 1m distance (from the camera) (and far plane at 2m), then the resulting depth would be 0
+	// For the second pass, since we would render everything with no clipping, the near plane would be set to 0m distance (from the camera) with same far plane, we'll get a depth of 0.5 (1m is halfway between 0m (new near plane) and 2m (far plane)), therefore the detph retrieve from the 2 pass would be different while no object changed their position, depth culling would then introduce graphic artifacts where object we render on the 2nd pass would be entirely culled by object located farther but rendered in the 1st pass.
+	// Finally, do not reduce the near plane hard coded value unless you have a good reason because the depth buffer is mapped from 0 to 1 with this near plane, and reducing it would reduce the accuracy since it would map more floating values to its [0, 1] range => Since our particle systems are planes, artifact where one frame could render a particle on top of another and the other frame, this order is inverted, could appear because the mapping is not enough and particles could be set roughly around the same depth...
+	_projectionMatrix = DirectX::XMMatrixPerspectiveFovLH(_fieldOfView, screenRatio, 0.001f, _farPlane);
+	_transposedProjectionMatrix = DirectX::XMMatrixTranspose(_projectionMatrix);
 
 	this->buildViewProjectionMatrix();
 }
