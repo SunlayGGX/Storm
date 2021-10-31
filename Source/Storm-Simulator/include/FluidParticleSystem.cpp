@@ -57,9 +57,16 @@ Storm::FluidParticleSystem::FluidParticleSystem(unsigned int particleSystemIndex
 		const float baseV = particleDiameter * particleDiameter * particleDiameter;
 
 		_massCoeffControlHandler = std::make_unique<Storm::MassCoeffHandler>();
-		_massCoeffControlHandler->bindListenerToReducedMassCoefficientChanged([this, baseV](const float newMassCoeff)
+		_massCoeffControlHandler->bindListenerToReducedMassCoefficientChanged([this, baseV, updateMasses = fluidConfig._massCoeffControlConfig._updateMasses](const float newMassCoeff)
 		{
 			_particleVolume = newMassCoeff * baseV;
+			if (updateMasses)
+			{
+				Storm::runParallel(_masses, [this](float &currentPMass)
+				{
+					currentPMass = _particleVolume * _wantedDensity;
+				});
+			}
 		});
 
 		_particleVolume = _massCoeffControlHandler->getReducedMassCoeff() * baseV;

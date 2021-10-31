@@ -164,7 +164,8 @@ Storm::SceneGraphicConfig::SceneGraphicConfig() :
 Storm::MassCoeffConfig::MassCoeffConfig() :
 	_reducedMassCoefficient{ 0.8f },
 	_startReducedMassCoeff{ std::numeric_limits<float>::quiet_NaN() },
-	_fadeInTimeSec{ 1.f }
+	_fadeInTimeSec{ 1.f },
+	_updateMasses{ false }
 {
 
 }
