@@ -409,14 +409,23 @@ if (blowerTypeStr == BlowerTypeXmlName) return Storm::BlowerType::BlowerTypeName
 
 		constexpr std::string_view k_startValueTag{ "startValue" };
 		constexpr std::string_view k_fadeInTag{ "fadeInTime" };
+		constexpr std::string_view k_updateMassTag{ "updateMass" };
 
 		if (Storm::XmlReader::readXmlAttribute(tree, massCoeffControlConfig._startReducedMassCoeff, k_startValueTag))
 		{
 			Storm::XmlReader::readXmlAttribute(tree, massCoeffControlConfig._fadeInTimeSec, k_fadeInTag);
+			Storm::XmlReader::readXmlAttribute(tree, massCoeffControlConfig._updateMasses, k_updateMassTag);
 		}
-		else if (Storm::XmlReader::readXmlAttribute(tree, massCoeffControlConfig._fadeInTimeSec, k_fadeInTag))
+		else
 		{
-			LOG_WARNING << "Fade in time was set but no start time, therefore it will be ignored!";
+			if (Storm::XmlReader::readXmlAttribute(tree, massCoeffControlConfig._fadeInTimeSec, k_fadeInTag))
+			{
+				LOG_WARNING << "Fade in time was set but not start time, therefore it will be ignored!";
+			}
+			if (Storm::XmlReader::readXmlAttribute(tree, massCoeffControlConfig._updateMasses, k_updateMassTag))
+			{
+				LOG_WARNING << "Update mass on mass coefficient variation was set without start time value, therefore it will be ignored!";
+			}
 		}
 	}
 

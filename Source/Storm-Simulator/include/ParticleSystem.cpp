@@ -134,12 +134,10 @@ std::vector<Storm::Vector3>& Storm::ParticleSystem::getForces() noexcept
 	return _force;
 }
 
-
 const std::vector<Storm::Vector3>& Storm::ParticleSystem::getTemporaryNoStickForces() const noexcept
 {
 	return _tmpNoStickForce;
 }
-
 
 std::vector<Storm::Vector3>& Storm::ParticleSystem::getTemporaryNoStickForces() noexcept
 {
