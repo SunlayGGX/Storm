@@ -43,9 +43,9 @@ Storm::LoggerObject::~LoggerObject()
 {
 	if (_enabled)
 	{
-		retrieveLoggerManager().log(_module, _level, _function, _line, _stream.str());
-		Storm::BaseLoggerObject::clearStream();
+		retrieveLoggerManager().log(_module, _level, _function, _line, std::move(_stream).str());
 	}
+	Storm::BaseLoggerObject::clearStream();
 }
 
 
@@ -57,6 +57,6 @@ Storm::FileLoggerObject::FileLoggerObject(std::string filename) :
 
 Storm::FileLoggerObject::~FileLoggerObject()
 {
-	retrieveLoggerManager().logToTempFile(_filename, _stream.str());
+	retrieveLoggerManager().logToTempFile(_filename, std::move(_stream).str());
 	Storm::BaseLoggerObject::clearStream();
 }
