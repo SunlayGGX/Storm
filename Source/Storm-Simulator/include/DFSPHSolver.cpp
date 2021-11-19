@@ -1098,8 +1098,6 @@ void Storm::DFSPHSolver::pressureSolve(const Storm::IterationParameter &iteratio
 
 			const float density0 = fluidPSystem.getRestDensity();
 
-			float densityError = 0.f;
-
 			const std::vector<float> &masses = fluidPSystem.getMasses();
 			const std::vector<Storm::ParticleNeighborhoodArray> &neighborhoodArrays = fluidPSystem.getNeighborhoodArrays();
 			std::vector<Storm::Vector3> &temporaryVelocityPressureForces = fluidPSystem.getTemporaryPressureVelocityIntermediaryForces();
@@ -1186,6 +1184,8 @@ void Storm::DFSPHSolver::pressureSolve(const Storm::IterationParameter &iteratio
 					lambda.template operator()<false>(currentPData, currentPIndex, ki);
 				}
 			});
+
+			std::atomic<float> densityError = 0.f;
 
 			//////////////////////////////////////////////////////////////////////////
 			// Update rho_adv and density error
