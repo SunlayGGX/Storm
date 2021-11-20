@@ -283,12 +283,13 @@ namespace
 		return result;
 	}
 
-	Storm::Vector3 produceCoendaForces(const Storm::IterationParameter &iterationParameter, const Storm::FluidParticleSystem &/*fluidParticleSystem*/, const Storm::Vector3 &/*vi*/, const float currentPMass, const Storm::ParticleNeighborhoodArray &currentPNeighborhood)
+	Storm::Vector3 produceCoendaForces(const Storm::IterationParameter &iterationParameter, const Storm::FluidParticleSystem &fluidParticleSystem, const Storm::Vector3 &/*vi*/, const float currentPMass, const Storm::ParticleNeighborhoodArray &currentPNeighborhood)
 	{
 		Storm::Vector3 result = Storm::Vector3::Zero();
 
-		const float toForceCoeff = currentPMass / (iterationParameter._deltaTime * iterationParameter._deltaTime);
-		const float finalConstCoeff = toForceCoeff / 2.f;
+		const float restDensity = fluidParticleSystem.getRestDensity();
+		const float deltaTimeSquaredCoeff = 2.f * iterationParameter._deltaTime * iterationParameter._deltaTime;
+		const float toForceICoeff = currentPMass / deltaTimeSquaredCoeff;
 		for (const Storm::NeighborParticleInfo &neighbor : currentPNeighborhood)
 		{
 			if (!neighbor._isFluidParticle)
@@ -298,9 +299,11 @@ namespace
 				const float coendaCoeff = pSystemAsRb.getCoendaCoefficient();
 				if (coendaCoeff > 0.f)
 				{
+					const float toForceJCoeff = pSystemAsRb.getVolumes()[neighbor._particleIndex] * restDensity / deltaTimeSquaredCoeff;
+
 					// Make it the component that removes the normal component of the velocity.
 					// Note : we suppose the rigid body normal at neighbor particle (rbPNormal) is normalized.
-					const Storm::Vector3 addedForce = (finalConstCoeff * coendaCoeff) * neighbor._xij;
+					const Storm::Vector3 addedForce = ((toForceICoeff + toForceJCoeff) * coendaCoeff) * neighbor._xij;
 					result -= addedForce;
 
 					// Mirror the force on the boundary solid following the 3rd newton law
