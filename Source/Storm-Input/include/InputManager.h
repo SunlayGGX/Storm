@@ -26,7 +26,7 @@ namespace Storm
 		void cleanUp_Implementation(const Storm::NoUI &);
 
 	public:
-		void update() override;
+		void update() final override;
 
 	private:
 		void refreshMouseState();
@@ -45,7 +45,7 @@ namespace Storm
 		Storm::CallbackIdType bindMouseRightClick(Storm::MouseBinding &&binding) final override;
 		void unbindMouseRightClick(Storm::CallbackIdType callbackId) final override;
 		Storm::CallbackIdType bindMouseLeftClick(Storm::MouseBinding &&binding) final override;
-		void unbindMouseLeftClick(Storm::CallbackIdType callbackId);
+		void unbindMouseLeftClick(Storm::CallbackIdType callbackId) final override;
 		Storm::CallbackIdType bindMouseMiddleClick(Storm::MouseBinding &&binding) final override;
 		void unbindMouseMiddleClick(Storm::CallbackIdType callbackId) final override;
 		Storm::CallbackIdType bindMouseWheel(Storm::WheelBinding &&binding) final override;
