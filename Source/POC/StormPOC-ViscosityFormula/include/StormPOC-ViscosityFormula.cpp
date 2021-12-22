@@ -376,6 +376,7 @@ namespace
 	{
 		std::filesystem::path _currentTempPath;
 		Storm::Language _language;
+		bool _coenda;
 	};
 
 	POCInitArgs initPOC(int argc, char* argv[])
@@ -396,10 +397,12 @@ namespace
 		if (argc > 1)
 		{
 			args._language = Storm::parseLanguage(argv[1]);
+			args._coenda = argc > 2 && std::strcmp(argv[2], "true") == 0;
 		}
 		else
 		{
 			args._language = Storm::retrieveDefaultOSLanguage();
+			args._coenda = true;
 		}
 
 		return args;
@@ -439,17 +442,37 @@ namespace
 			pj._position._x += _xStep;
 		}
 	}
+
+	void execCoenda(const POCInitArgs &initArgs, const std::string &csvName, const float h)
+	{
+		Storm::CSVWriter csv{ (initArgs._currentTempPath / csvName).string(), initArgs._language };
+
+		const float step = h / 200.f;
+		for (unsigned int iter = 0; iter < 250; ++iter)
+		{
+			const float rij = static_cast<float>(iter) * step;
+			csv("rij", rij);
+			const float fcoendaCoeff = 0.00002f / (0.0002f * 0.0002f) * 0.00002f;
+			csv("F_coenda", fcoendaCoeff * (rij < h ? rij : 0.f));
+		}
+	}
 }
 
 int main(int argc, char* argv[])
 {
 	const POCInitArgs initArgs = initPOC(argc, argv);
-
-	for (unsigned int iter = 0; iter < 3; ++iter)
+	if (initArgs._coenda)
 	{
+		execCoenda(initArgs, "Coenda.csv", 0.12f);
+	}
+	else
+	{
+		for (unsigned int iter = 0; iter < 3; ++iter)
+		{
 #define STORM_POC_XMACRO_KERNEL_ELEM(Mode, Func, PrecoeffInit) exec(initArgs, "visco" #Mode "_" + std::to_string(iter) + ".csv", KernelFunc::Mode, iter);
-		STORM_POC_XMACRO_KERNELS
+			STORM_POC_XMACRO_KERNELS
 #undef STORM_POC_XMACRO_KERNEL_ELEM
+		}
 	}
 
 	return 0;
