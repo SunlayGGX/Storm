@@ -146,7 +146,7 @@ namespace
 		return totalViscosityForceOnParticle;
 	}
 
-	Storm::Vector3 computeBernouilliPrinciple(const Storm::FluidParticleSystem &fluidParticleSystem, const std::size_t currentPIndex, const Storm::ParticleNeighborhoodArray &currentPNeighborhood)
+	Storm::Vector3 computeBernoulliPrinciple(const Storm::FluidParticleSystem &fluidParticleSystem, const std::size_t currentPIndex, const Storm::ParticleNeighborhoodArray &currentPNeighborhood)
 	{
 		// Explanation :
 		// SPH computes static pressure in the fluids. But total pressure is given by the sum between static and dynamic pressure.
@@ -829,7 +829,7 @@ void Storm::DFSPHSolver::computeNonPressureForces_Internal(const Storm::Iteratio
 				if (dfsphFluidConfig._useBernoulliPrinciple)
 				{
 					Storm::Vector3 &dynamicPressureForce = fluidParticleSystem.getTemporaryBernoulliDynamicPressureForces()[currentPIndex];
-					dynamicPressureForce = computeBernouilliPrinciple(fluidParticleSystem, currentPIndex, currentPNeighborhood);
+					dynamicPressureForce = computeBernoulliPrinciple(fluidParticleSystem, currentPIndex, currentPNeighborhood);
 					currentPForce += dynamicPressureForce;
 				}
 
