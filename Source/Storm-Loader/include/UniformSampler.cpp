@@ -285,8 +285,7 @@ namespace
 		const std::size_t expectedCount = static_cast<std::size_t>(std::ceilf(2.f * (dimensions.x() * dimensions.y() + dimensions.y() * dimensions.z() + dimensions.z() * dimensions.x()) / (separationDistance * separationDistance)) + 0.000001f) * layerCount;
 		result._position.reserve(expectedCount);
 		result._normals.reserve(expectedCount);
-
-		const float midSepDist = separationDistance / 2.f;
+		
 		const float offsetLayerCoord = separationDistance * 2.f;
 
 		const bool shouldScanPlaneXZ = yUpClosed || yDownClosed || zBackClosed || zFrontClosed;

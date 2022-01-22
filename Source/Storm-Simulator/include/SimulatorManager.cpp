@@ -368,8 +368,6 @@ namespace
 	template<Storm::ParticleRemovalMode removalMode>
 	void removeParticleInsideRbPosition(std::vector<Storm::Vector3> &inOutParticlePositions, const Storm::ParticleSystemContainer &allParticleSystem, const float particleRadius, std::pair<Storm::Vector3, Storm::Vector3> &outDomainBoundingBox, RemovedIndexesParam* outRemovedIndexes)
 	{
-		const std::size_t particleSystemCount = allParticleSystem.size();
-
 		const auto computeBoxCoordinate = [particleRadiusPlusMargin = particleRadius + 0.0000001f](std::pair<Storm::Vector3, Storm::Vector3> &box, const std::vector<Storm::Vector3> &currentPSystemPositions, const auto &getterCoordFunc)
 		{
 			const auto minMaxElems = std::minmax_element(std::execution::par, std::begin(currentPSystemPositions), std::end(currentPSystemPositions), [&getterCoordFunc](const Storm::Vector3 &vect1, const Storm::Vector3 &vect2)
@@ -1605,7 +1603,6 @@ bool Storm::SimulatorManager::applyCFLIfNeeded(const Storm::SceneSimulationConfi
 			currentStepMaxVelocityNorm = std::sqrtf(currentStepMaxVelocityNorm);
 
 			/* Compute the CFL Coefficient */
-			const float maxDistanceAllowed = sceneSimulationConfig._particleRadius * 2.f;
 			newDeltaTimeStep = computeCFLDistance(sceneSimulationConfig) / currentStepMaxVelocityNorm;
 		}
 		else if (std::isinf(currentStepMaxVelocityNorm) || std::isnan(currentStepMaxVelocityNorm))

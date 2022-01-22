@@ -226,9 +226,7 @@ void Storm::BasicMeshGenerator::generateSphere(const Storm::Vector3 &position, c
 
 	inOutVertexes.reserve(inOutVertexes.size() + k_vertexCount);
 	inOutIndexes.reserve(inOutIndexes.size() + k_indexCount);
-
-	const float diameter = 2.f * radius;
-
+	
 	const Storm::Vector3 upVect{ 0.f, radius, 0.f };
 	const Storm::Vector3 upCorner = position + upVect;
 	const Storm::Vector3 downCorner = position - upVect;

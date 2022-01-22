@@ -257,9 +257,7 @@ void Storm::WCSPHSolver::execute(const Storm::IterationParameter &iterationParam
 		if (currentParticleSystem.isFluids())
 		{
 			Storm::FluidParticleSystem &fluidParticleSystem = static_cast<Storm::FluidParticleSystem &>(currentParticleSystem);
-
-			const float density0 = fluidParticleSystem.getRestDensity();
-			const float density0Squared = density0 * density0;
+			
 			const std::vector<Storm::ParticleNeighborhoodArray> &neighborhoodArrays = currentParticleSystem.getNeighborhoodArrays();
 			std::vector<float> &masses = fluidParticleSystem.getMasses();
 			const std::vector<float> &densities = fluidParticleSystem.getDensities();

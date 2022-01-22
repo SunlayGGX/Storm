@@ -141,7 +141,6 @@ Storm::AnimationObject::AnimationObject(const Storm::SceneRigidBodyConfig &rbSce
 			const float angularTimeDivision = 1.f / (static_cast<float>(angularTurnDivision) * std::fabs(rotateSpeed));
 
 			constexpr float angularStep = static_cast<float>(2.0 * M_PI / static_cast<double>(angularTurnDivision));
-			constexpr float radToDegrees = static_cast<float>(180.0 / M_PI);
 
 			Storm::Rotation rotationAxisDescription = rotationAxis;
 			rotationAxisDescription.angle() = angularStep;

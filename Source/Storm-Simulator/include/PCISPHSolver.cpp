@@ -69,7 +69,6 @@ namespace
 		Storm::Vector3 totalViscosityForceOnParticle = Storm::Vector3::Zero();
 
 		const float density0 = fluidParticleSystem.getRestDensity();
-		const float restMassDensity = currentPMass * density0;
 
 		for (const Storm::NeighborParticleInfo &neighbor : currentPNeighborhood)
 		{
@@ -87,7 +86,6 @@ namespace
 				const float neighborMass = neighborPSystemAsFluid->getMasses()[neighbor._particleIndex];
 				const float neighborRawDensity = neighborPSystemAsFluid->getDensities()[neighbor._particleIndex];
 				const float neighborDensity = neighborRawDensity * density0 / neighborDensity0;
-				const float neighborVolume = neighborPSystemAsFluid->getParticleVolume();
 
 				if constexpr (viscosityMethodOnFluid == Storm::ViscosityMethod::Standard)
 				{
@@ -328,8 +326,7 @@ void Storm::PCISPHSolver::execute(const Storm::IterationParameter &iterationPara
 		if (currentParticleSystem.isFluids())
 		{
 			Storm::FluidParticleSystem &fluidParticleSystem = static_cast<Storm::FluidParticleSystem &>(currentParticleSystem);
-
-			const float density0 = fluidParticleSystem.getRestDensity();
+			
 			const std::vector<Storm::ParticleNeighborhoodArray> &neighborhoodArrays = currentParticleSystem.getNeighborhoodArrays();
 			const std::vector<float> &masses = fluidParticleSystem.getMasses();
 			const std::vector<float> &densities = fluidParticleSystem.getDensities();
@@ -657,9 +654,9 @@ void Storm::PCISPHSolver::execute(const Storm::IterationParameter &iterationPara
 			return;
 		}
 
-	} while (currentPredictionIter < scenePcisphFluidConfig._minPredictIteration || (currentPredictionIter < scenePcisphFluidConfig._maxPredictIteration && averageDensityError > scenePcisphFluidConfig._maxError));
+	} while (currentPredictionIter < scenePcisphFluidConfig._minPredictIteration || (currentPredictionIter < scenePcisphFluidConfig._maxPredictIteration && averageDensityError > k_maxDensityError));
 
-	this->updateCurrentPredictionIter(currentPredictionIter, scenePcisphFluidConfig._maxPredictIteration, averageDensityError, scenePcisphFluidConfig._maxError, 0);
+	this->updateCurrentPredictionIter(currentPredictionIter, scenePcisphFluidConfig._maxPredictIteration, averageDensityError, k_maxDensityError, 0);
 	this->transfertEndDataToSystems(particleSystems, iterationParameter, &_data, [](void* data, const unsigned int pSystemId, Storm::FluidParticleSystem &fluidParticleSystem, const Storm::IterationParameter &iterationParameter)
 	{
 		auto &dataField = reinterpret_cast<decltype(_data)*>(data)->find(pSystemId)->second;
@@ -673,8 +670,11 @@ void Storm::PCISPHSolver::execute(const Storm::IterationParameter &iterationPara
 		std::vector<Storm::Vector3> &tmpPressureForces = fluidParticleSystem.getTemporaryPressureForces();
 
 		std::atomic<bool> dirtyTmp = false;
+#pragma warning (push)
+#pragma warning (disable: 4189) // It is being used, but the compiler cannot see it before it compiles for real
 		constexpr const float minForceDirtyEpsilon = 0.0001f;
-
+#pragma warning (push)
+		
 		Storm::runParallel(dataField, [&](const Storm::PCISPHSolverData &currentPData, const std::size_t currentPIndex)
 		{
 			densities[currentPIndex] = currentPData._predictedDensity;
@@ -688,7 +688,6 @@ void Storm::PCISPHSolver::execute(const Storm::IterationParameter &iterationPara
 			Storm::Vector3 &currentPPositions = positions[currentPIndex];
 
 			// Euler integration
-			const float forceToVelocityCoeff = iterationParameter._deltaTime / currentPMass;
 			currentPVelocity += currentPData._predictedAcceleration * iterationParameter._deltaTime;
 			currentPPositions += currentPVelocity * iterationParameter._deltaTime;
 

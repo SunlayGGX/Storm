@@ -62,7 +62,6 @@ namespace
 		Storm::Vector3 totalViscosityForceOnParticle = Storm::Vector3::Zero();
 
 		const float density0 = fluidParticleSystem.getRestDensity();
-		const float restMassDensity = currentPMass * density0;
 
 		for (const Storm::NeighborParticleInfo &neighbor : currentPNeighborhood)
 		{
@@ -80,7 +79,6 @@ namespace
 				const float neighborMass = neighborPSystemAsFluid->getMasses()[neighbor._particleIndex];
 				const float neighborRawDensity = neighborPSystemAsFluid->getDensities()[neighbor._particleIndex];
 				const float neighborDensity = neighborRawDensity * density0 / neighborDensity0;
-				const float neighborVolume = neighborPSystemAsFluid->getParticleVolume();
 
 				if constexpr (viscosityMethodOnFluid == Storm::ViscosityMethod::Standard)
 				{
@@ -184,8 +182,7 @@ void Storm::IISPHSolver::execute(const Storm::IterationParameter &iterationParam
 	Storm::SimulatorManager &simulMgr = Storm::SimulatorManager::instance();
 
 	const float k_kernelZero = Storm::retrieveKernelZeroValue(sceneSimulationConfig._kernelMode);
-
-	const float k_maxDensityError = sceneIisphFluidConfig._maxError;
+	
 	unsigned int currentPredictionIter = 0;
 
 	const float deltaTimeSquared = iterationParameter._deltaTime * iterationParameter._deltaTime;
@@ -257,8 +254,6 @@ void Storm::IISPHSolver::execute(const Storm::IterationParameter &iterationParam
 		{
 			Storm::FluidParticleSystem &fluidParticleSystem = static_cast<Storm::FluidParticleSystem &>(currentParticleSystem);
 
-			const float density0 = fluidParticleSystem.getRestDensity();
-			const float particleVolume = fluidParticleSystem.getParticleVolume();
 			const std::vector<Storm::ParticleNeighborhoodArray> &neighborhoodArrays = currentParticleSystem.getNeighborhoodArrays();
 			std::vector<float> &masses = fluidParticleSystem.getMasses();
 			const std::vector<float> &densities = fluidParticleSystem.getDensities();
@@ -698,7 +693,10 @@ void Storm::IISPHSolver::execute(const Storm::IterationParameter &iterationParam
 		std::vector<Storm::Vector3> &tmpPressureForces = fluidParticleSystem.getTemporaryPressureForces();
 
 		std::atomic<bool> dirtyTmp = false;
+#pragma warning (push)
+#pragma warning (disable: 4189) // It is being used, but the compiler isn't able to tell until it compiles it
 		constexpr const float minForceDirtyEpsilon = 0.0001f;
+#pragma warning (pop)
 
 		Storm::runParallel(dataField, [&](const Storm::IISPHSolverData &currentPData, const std::size_t currentPIndex)
 		{

@@ -409,8 +409,7 @@ namespace Storm
 			if (param._remainingSize > 0)
 			{
 				PredicateSearchOutParam<StringType> additionalSearchRes;
-
-				const std::size_t maxPredicateSize = pred.getMaxPredicateSize();
+				
 				const std::size_t minPredicateSize = pred.getMinPredicateSize();
 
 				const std::size_t replacementSize = Storm::StringAlgo::extractReplacingSize(replacement, 0);

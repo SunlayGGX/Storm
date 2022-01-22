@@ -65,7 +65,6 @@ namespace
 		Storm::Vector3 totalViscosityForceOnParticle = Storm::Vector3::Zero();
 
 		const float density0 = fluidParticleSystem.getRestDensity();
-		const float restMassDensity = currentPMass * density0;
 
 		// Even though reflected particle are real particle inside the domain, they are in fact dummies to represent the notion of outside of domain particle
 		// And we consider out of domain particle to be still air (or at least, we don't care about their velocity).
@@ -89,7 +88,6 @@ namespace
 				const float neighborMass = neighborPSystemAsFluid->getMasses()[neighbor._particleIndex];
 				const float neighborRawDensity = neighborPSystemAsFluid->getDensities()[neighbor._particleIndex];
 				const float neighborDensity = neighborRawDensity * density0 / neighborDensity0;
-				const float neighborVolume = neighborPSystemAsFluid->getParticleVolume();
 
 				if constexpr (viscosityMethodOnFluid == Storm::ViscosityMethod::Standard)
 				{
@@ -176,7 +174,6 @@ namespace
 			{
 				const Storm::FluidParticleSystem* neighborPSystemAsFluid = static_cast<Storm::FluidParticleSystem*>(neighbor._containingParticleSystem);
 				const float neighborDensity0 = neighborPSystemAsFluid->getRestDensity();
-				const float neighborMass = neighborPSystemAsFluid->getMasses()[neighbor._particleIndex];
 				const float neighborRawDensity = neighborPSystemAsFluid->getDensities()[neighbor._particleIndex];
 				const float neighborDensity = neighborRawDensity * (density0 / neighborDensity0);
 				const float neighborVolume = neighborPSystemAsFluid->getParticleVolume();
@@ -513,7 +510,10 @@ void Storm::DFSPHSolver::execute(const Storm::IterationParameter &iterationParam
 		const std::vector<Storm::Vector3> &velocityPreTimestep = fluidParticleSystem.getVelocityPreTimestep();
 
 		std::atomic<bool> dirtyTmp = false;
+#pragma warning (push)
+#pragma warning (disable: 4189) // It is being used, but the compiler cannot see it before it compiles for real
 		constexpr const float minForceDirtyEpsilon = 0.0001f;
+#pragma warning (push)
 
 		Storm::runParallel(dataField, [&](const Storm::DFSPHSolverData &currentPData, const std::size_t currentPIndex)
 		{
@@ -746,8 +746,7 @@ void Storm::DFSPHSolver::computeNonPressureForces_Internal(const Storm::Iteratio
 		if (currentParticleSystem.isFluids())
 		{
 			Storm::FluidParticleSystem &fluidParticleSystem = static_cast<Storm::FluidParticleSystem &>(currentParticleSystem);
-
-			const float particleVolume = fluidParticleSystem.getParticleVolume();
+			
 			const std::vector<Storm::ParticleNeighborhoodArray> &neighborhoodArrays = currentParticleSystem.getNeighborhoodArrays();
 			std::vector<float> &masses = fluidParticleSystem.getMasses();
 			const std::vector<float> &densities = fluidParticleSystem.getDensities();

@@ -136,9 +136,7 @@ void Storm::Cage::doEnclose(Storm::ParticleSystemContainer &pSystems) const
 			{
 				std::vector<Storm::Vector3> &allPPositions = pSystem.getPositions();
 				std::vector<Storm::Vector3> &allPVelocities = pSystem.getVelocity();
-
-				const float maxDisplacement = Storm::SimulatorManager::instance().getKernelLength();
-
+				
 				Storm::runParallel(allPPositions, [this, &diff, &allPVelocities, &xSelector, &ySelector, &zSelector](Storm::Vector3 &currentPPosition, const std::size_t currentPIndex)
 				{
 					reflectWithPenalty(_boxMin, _boxMax, diff, _velocityCoeffsLeftBottomFront, _passthroughVelReduceCoeffRightTopBack, currentPPosition, allPVelocities[currentPIndex], xSelector);
