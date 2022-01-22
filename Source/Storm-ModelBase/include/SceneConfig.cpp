@@ -80,7 +80,7 @@ Storm::SceneSimulationConfig::SceneSimulationConfig() :
 	_freeRbAtPhysicsTime{ -1.f },
 	_noStickConstraint{ false },
 	_applyDragEffect{ false },
-	_useCoendaEffect{ false },
+	_useCoandaEffect{ false },
 	_exitSimulationFloorLevel{ std::numeric_limits<float>::quiet_NaN() }
 {
 
@@ -123,7 +123,7 @@ Storm::SceneRigidBodyConfig::SceneRigidBodyConfig() :
 	_viscosity{ 0.f },
 	_noStickCoeff{ 1.f },
 	_dragCoefficient{ 0.f },
-	_coendaCoefficient{ 0.f },
+	_coandaCoefficient{ 0.f },
 	_layerCount{ 1 },
 	_layerGenerationMode{ Storm::LayeringGenerationTechnique::Scaling },
 	_volumeComputationTechnique{ Storm::VolumeComputationTechnique::None },

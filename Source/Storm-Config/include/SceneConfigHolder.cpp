@@ -539,7 +539,8 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 			!Storm::XmlReader::handleXml(generalXmlElement, "startFixRigidBodies", sceneSimulationConfig._fixRigidBodyAtStartTime) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "freeRbAtTime", sceneSimulationConfig._freeRbAtPhysicsTime) &&
 			!Storm::XmlReader::handleXml(generalXmlElement, "noStickConstraint", sceneSimulationConfig._noStickConstraint) &&
-			!Storm::XmlReader::handleXml(generalXmlElement, "useCoendaEffect", sceneSimulationConfig._useCoendaEffect) &&
+			!Storm::XmlReader::handleXml(generalXmlElement, "useCoandaEffect", sceneSimulationConfig._useCoandaEffect) &&
+			!Storm::XmlReader::handleXml(generalXmlElement, "useCoendaEffect", sceneSimulationConfig._useCoandaEffect) && // legacy
 			!Storm::XmlReader::handleXml(generalXmlElement, "floorExitLevelY", sceneSimulationConfig._exitSimulationFloorLevel)
 			)
 		{
@@ -1163,7 +1164,8 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "viscosity", rbConfig._viscosity) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "noStickCoeff", rbConfig._noStickCoeff) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "dragCoeff", rbConfig._dragCoefficient) ||
-			Storm::XmlReader::handleXml(rigidBodyConfigXml, "coendaCoeff", rbConfig._coendaCoefficient) ||
+			Storm::XmlReader::handleXml(rigidBodyConfigXml, "coandaCoeff", rbConfig._coandaCoefficient) ||
+			Storm::XmlReader::handleXml(rigidBodyConfigXml, "coendaCoeff", rbConfig._coandaCoefficient) || // legacy
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "layerCount", rbConfig._layerCount) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "normalsCoherency", rbConfig._enforceNormalsCoherency) ||
 			Storm::XmlReader::handleXml(rigidBodyConfigXml, "layeringGeneration", rbConfig._layerGenerationMode, parseLayeringGenerationTechnique) ||
@@ -1222,9 +1224,9 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 		{
 			Storm::throwException<Storm::Exception>("drag coefficient value " + std::to_string(rbConfig._dragCoefficient) + " is invalid (rigid body " + std::to_string(rbConfig._rigidBodyID) + "). This should be positive or zero!");
 		}
-		else if (rbConfig._coendaCoefficient < 0.f)
+		else if (rbConfig._coandaCoefficient < 0.f)
 		{
-			Storm::throwException<Storm::Exception>("Coenda coefficient value " + std::to_string(rbConfig._coendaCoefficient) + " is invalid (rigid body " + std::to_string(rbConfig._rigidBodyID) + "). This should be positive or zero!");
+			Storm::throwException<Storm::Exception>("Coanda coefficient value " + std::to_string(rbConfig._coandaCoefficient) + " is invalid (rigid body " + std::to_string(rbConfig._rigidBodyID) + "). This should be positive or zero!");
 		}
 		else if (rbConfig._isWall && rbConfig._insideRbFluidDetectionMethodEnum != Storm::InsideParticleRemovalTechnique::None)
 		{

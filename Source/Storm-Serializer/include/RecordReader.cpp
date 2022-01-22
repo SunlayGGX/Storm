@@ -76,7 +76,7 @@ namespace
 
 			if constexpr (currentVersion < Storm::Version{ 1, 11, 0 })
 			{
-				frameData._coendaForces.resize(framePCount, Storm::Vector3::Zero());
+				frameData._coandaForces.resize(framePCount, Storm::Vector3::Zero());
 			}
 
 			// skip 1.12 because there is nothing worth correcting
@@ -214,7 +214,7 @@ void Storm::RecordReader::fillSupportedFeature(const Storm::Version &currentVers
 	missingFeatures._hasPSystemTotalEngineForce = currentVersion >= Storm::Version{ 1, 8, 0 };
 	missingFeatures._hasIntermediaryDensityPressureForces = currentVersion >= Storm::Version{ 1, 9, 0 };
 	missingFeatures._hasWantedDensity = currentVersion >= Storm::Version{ 1, 10, 0 };
-	missingFeatures._hasCoendaForces = currentVersion >= Storm::Version{ 1, 11, 0 };
+	missingFeatures._hasCoandaForces = currentVersion >= Storm::Version{ 1, 11, 0 };
 	missingFeatures._hasKernelLength = currentVersion >= Storm::Version{ 1, 12, 0 };
 	missingFeatures._hasIntermediaryVelocityPressureForces = currentVersion >= Storm::Version{ 1, 13, 0 };
 	missingFeatures._hasBlowerForces = currentVersion >= Storm::Version{ 1, 14, 0 };
@@ -920,7 +920,7 @@ bool Storm::RecordReader::readNextFrame_v1_11_0(Storm::SerializeRecordPendingDat
 			frameData._dragComponentforces <<
 			frameData._dynamicPressureQForces <<
 			frameData._noStickForces <<
-			frameData._coendaForces <<
+			frameData._coandaForces <<
 			frameData._intermediaryPressureDensityComponentForces
 			;
 	}
@@ -984,7 +984,7 @@ bool Storm::RecordReader::readNextFrame_v1_12_0(Storm::SerializeRecordPendingDat
 			frameData._dragComponentforces <<
 			frameData._dynamicPressureQForces <<
 			frameData._noStickForces <<
-			frameData._coendaForces <<
+			frameData._coandaForces <<
 			frameData._intermediaryPressureDensityComponentForces
 			;
 	}
@@ -1048,7 +1048,7 @@ bool Storm::RecordReader::readNextFrame_v1_13_0(Storm::SerializeRecordPendingDat
 			frameData._dragComponentforces <<
 			frameData._dynamicPressureQForces <<
 			frameData._noStickForces <<
-			frameData._coendaForces <<
+			frameData._coandaForces <<
 			frameData._intermediaryPressureDensityComponentForces <<
 			frameData._intermediaryPressureVelocityComponentForces
 			;
@@ -1113,7 +1113,7 @@ bool Storm::RecordReader::readNextFrame_v1_14_0(Storm::SerializeRecordPendingDat
 			frameData._dragComponentforces <<
 			frameData._dynamicPressureQForces <<
 			frameData._noStickForces <<
-			frameData._coendaForces <<
+			frameData._coandaForces <<
 			frameData._intermediaryPressureDensityComponentForces <<
 			frameData._intermediaryPressureVelocityComponentForces <<
 			frameData._blowerForces

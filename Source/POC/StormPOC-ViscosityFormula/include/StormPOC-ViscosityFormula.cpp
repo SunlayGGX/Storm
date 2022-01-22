@@ -376,7 +376,7 @@ namespace
 	{
 		std::filesystem::path _currentTempPath;
 		Storm::Language _language;
-		bool _coenda;
+		bool _coanda;
 	};
 
 	POCInitArgs initPOC(int argc, char* argv[])
@@ -397,12 +397,12 @@ namespace
 		if (argc > 1)
 		{
 			args._language = Storm::parseLanguage(argv[1]);
-			args._coenda = argc > 2 && std::strcmp(argv[2], "true") == 0;
+			args._coanda = argc > 2 && std::strcmp(argv[2], "true") == 0;
 		}
 		else
 		{
 			args._language = Storm::retrieveDefaultOSLanguage();
-			args._coenda = false;
+			args._coanda = false;
 		}
 
 		return args;
@@ -443,7 +443,7 @@ namespace
 		}
 	}
 
-	void execCoenda(const POCInitArgs &initArgs, const std::string &csvName, const float h)
+	void execCoanda(const POCInitArgs &initArgs, const std::string &csvName, const float h)
 	{
 		Storm::CSVWriter csv{ (initArgs._currentTempPath / csvName).string(), initArgs._language };
 
@@ -452,8 +452,8 @@ namespace
 		{
 			const float rij = static_cast<float>(iter) * step;
 			csv("rij", rij);
-			const float fcoendaCoeff = 0.00002f / (0.0002f * 0.0002f) * 0.00002f;
-			csv("F_coenda", fcoendaCoeff * (rij < h ? rij : 0.f));
+			const float fcoandaCoeff = 0.00002f / (0.0002f * 0.0002f) * 0.00002f;
+			csv("F_coanda", fcoandaCoeff * (rij < h ? rij : 0.f));
 		}
 	}
 }
@@ -461,9 +461,9 @@ namespace
 int main(int argc, char* argv[])
 {
 	const POCInitArgs initArgs = initPOC(argc, argv);
-	if (initArgs._coenda)
+	if (initArgs._coanda)
 	{
-		execCoenda(initArgs, "Coenda.csv", 0.12f);
+		execCoanda(initArgs, "Coanda.csv", 0.12f);
 	}
 	else
 	{

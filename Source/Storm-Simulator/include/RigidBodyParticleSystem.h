@@ -38,7 +38,7 @@ namespace Storm
 		void setTmpDragForces(std::vector<Storm::Vector3> &&tmpDragForces) final override;
 		void setTmpBernoulliDynamicPressureForces(std::vector<Storm::Vector3> &&tmpDynamicQForces) final override;
 		void setTmpNoStickForces(std::vector<Storm::Vector3> &&tmpNoStickForces) final override;
-		void setTmpCoendaForces(std::vector<Storm::Vector3> &&tmpCoendaForces) final override;
+		void setTmpCoandaForces(std::vector<Storm::Vector3> &&tmpCoandaForces) final override;
 		void setTmpPressureDensityIntermediaryForces(std::vector<Storm::Vector3> &&tmpPressuresIntermediaryForces) final override;
 		void setTmpPressureVelocityIntermediaryForces(std::vector<Storm::Vector3> &&tmpPressuresIntermediaryForces) final override;
 		void setTmpBlowerForces(std::vector<Storm::Vector3> &&tmpBlowerForces) final override;
@@ -56,7 +56,7 @@ namespace Storm
 		float getViscosity() const noexcept;
 		float getNoStickCoefficient() const noexcept;
 		float getDragCoefficient() const noexcept;
-		float getCoendaCoefficient() const noexcept;
+		float getCoandaCoefficient() const noexcept;
 
 		const Storm::Vector3& getRbPosition() const noexcept;
 		const Storm::Vector3& getRbTotalForce() const noexcept;
@@ -88,7 +88,7 @@ namespace Storm
 		float _viscosity;
 		float _noStickCoefficient;
 		float _dragCoefficient;
-		float _coendaCoefficient;
+		float _coandaCoefficient;
 
 		// Those are particle global position and rotation that serves to update particles using the rigid body position and rotation owned by the physics engine.
 		// Beware because they are made to track the changes of position and rotation, it means that they are not forcefully up to date.

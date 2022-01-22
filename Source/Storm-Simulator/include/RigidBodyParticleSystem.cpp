@@ -102,7 +102,7 @@ void Storm::RigidBodyParticleSystem::loadRigidbodyConfig()
 	_viscosity = currentRbConfig._viscosity;
 	_noStickCoefficient = currentRbConfig._noStickCoeff;
 	_dragCoefficient = currentRbConfig._dragCoefficient;
-	_coendaCoefficient = currentRbConfig._coendaCoefficient;
+	_coandaCoefficient = currentRbConfig._coandaCoefficient;
 
 	_volumeFixed = currentRbConfig._fixedSimulationVolume;
 
@@ -393,9 +393,9 @@ float Storm::RigidBodyParticleSystem::getDragCoefficient() const noexcept
 	return _dragCoefficient;
 }
 
-float Storm::RigidBodyParticleSystem::getCoendaCoefficient() const noexcept
+float Storm::RigidBodyParticleSystem::getCoandaCoefficient() const noexcept
 {
-	return _coendaCoefficient;
+	return _coandaCoefficient;
 }
 
 const std::vector<float>& Storm::RigidBodyParticleSystem::getVolumes() const noexcept
@@ -533,11 +533,11 @@ void Storm::RigidBodyParticleSystem::setTmpNoStickForces(std::vector<Storm::Vect
 	}
 }
 
-void Storm::RigidBodyParticleSystem::setTmpCoendaForces(std::vector<Storm::Vector3> &&tmpCoendaForces)
+void Storm::RigidBodyParticleSystem::setTmpCoandaForces(std::vector<Storm::Vector3> &&tmpCoandaForces)
 {
 	if (!this->isStatic())
 	{
-		_tmpCoendaForce = std::move(tmpCoendaForces);
+		_tmpCoandaForce = std::move(tmpCoandaForces);
 	}
 }
 

@@ -105,7 +105,7 @@ void Storm::RecordWriter::write(/*const*/ Storm::SerializeRecordPendingData &dat
 			frameData._dragComponentforces <<
 			frameData._dynamicPressureQForces <<
 			frameData._noStickForces <<
-			frameData._coendaForces <<
+			frameData._coandaForces <<
 			frameData._intermediaryPressureDensityComponentForces <<
 			frameData._intermediaryPressureVelocityComponentForces <<
 			frameData._blowerForces

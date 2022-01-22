@@ -14,7 +14,7 @@ namespace Storm
 		Drag,
 		DynamicPressure,
 		NoStick,
-		Coenda,
+		Coanda,
 		IntermediaryDensityPressure,
 		IntermediaryVelocityPressure,
 		Blower,

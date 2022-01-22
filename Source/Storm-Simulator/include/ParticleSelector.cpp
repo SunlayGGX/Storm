@@ -56,7 +56,7 @@ case Storm::ParticleSelectionMode::Case:					\
 			STORM_PARSE_CASE(Drag,							"Drag",								supportedFeatures._hasDragComponentforces);
 			STORM_PARSE_CASE(DynamicPressure,				"DynamicQ",							supportedFeatures._hasDynamicPressureQForces);
 			STORM_PARSE_CASE(NoStick,						"NoStick",							supportedFeatures._hasNoStickForces);
-			STORM_PARSE_CASE(Coenda,						"Coenda",							supportedFeatures._hasCoendaForces);
+			STORM_PARSE_CASE(Coanda,						"Coanda",							supportedFeatures._hasCoandaForces);
 			STORM_PARSE_CASE(IntermediaryDensityPressure,	"Intermediary Density Pressure",	supportedFeatures._hasIntermediaryDensityPressureForces);
 			STORM_PARSE_CASE(IntermediaryVelocityPressure,	"Intermediary Velocity Pressure",	supportedFeatures._hasIntermediaryVelocityPressureForces);
 			STORM_PARSE_CASE(Blower,						"Blower",							supportedFeatures._hasBlowerForces);
@@ -95,7 +95,7 @@ case Storm::ParticleSelectionMode::Case:					\
 	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Drag)							\
 	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, DynamicPressure)					\
 	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, NoStick)							\
-	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Coenda)							\
+	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Coanda)							\
 	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, IntermediaryDensityPressure)		\
 	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, IntermediaryVelocityPressure)	\
 	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Blower)							\
@@ -110,7 +110,7 @@ case Storm::ParticleSelectionMode::Case:					\
 	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Drag)							\
 	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, DynamicPressure)					\
 	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, NoStick)							\
-	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Coenda)							\
+	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, Coanda)							\
 	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, IntermediaryDensityPressure)		\
 	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, IntermediaryVelocityPressure)	\
 	STORM_XMACRO_ELEM_SELECTION_BINDING(SelectionMode, AllOnParticle)					\
@@ -235,8 +235,8 @@ case Storm::ParticleSelectionMode::Case:					\
 		case Storm::ParticleSelectionMode::NoStick:
 			return STORM_UNSUPPORTED_CONDITION(supportedFeatures._hasNoStickForces);
 
-		case Storm::ParticleSelectionMode::Coenda:
-			return STORM_UNSUPPORTED_CONDITION(supportedFeatures._hasCoendaForces);
+		case Storm::ParticleSelectionMode::Coanda:
+			return STORM_UNSUPPORTED_CONDITION(supportedFeatures._hasCoandaForces);
 
 		case Storm::ParticleSelectionMode::Blower:
 			return STORM_UNSUPPORTED_CONDITION(supportedFeatures._hasBlowerForces);
@@ -355,7 +355,7 @@ case Storm::ParticleSelectionMode::Case:					\
 		STORM_RETURN_IF_PARSED(Bernouilli, "dynamicq");
 		STORM_RETURN_IF_PARSED(Bernouilli, "dynamicpressure");
 		STORM_RETURN_IF_PARSED(NoStick, "nostick");
-		STORM_RETURN_IF_PARSED(Coenda, "coenda");
+		STORM_RETURN_IF_PARSED(Coanda, "coanda");
 		STORM_RETURN_IF_PARSED(AllPressure, "allpressure");
 		STORM_RETURN_IF_PARSED(AllViscosity, "allviscosity");
 		STORM_RETURN_IF_PARSED(AllDrag, "alldrag");
@@ -363,7 +363,7 @@ case Storm::ParticleSelectionMode::Case:					\
 		STORM_RETURN_IF_PARSED(AllBernouilli, "alldynamicq");
 		STORM_RETURN_IF_PARSED(AllBernouilli, "alldynamicpressure");
 		STORM_RETURN_IF_PARSED(AllNoStick, "allnostick");
-		STORM_RETURN_IF_PARSED(AllCoenda, "allcoenda");
+		STORM_RETURN_IF_PARSED(AllCoanda, "allcoanda");
 
 #undef STORM_RETURN_IF_PARSED
 
@@ -395,13 +395,13 @@ if (std::any_of(start, end, [](const Storm::CustomForceSelect otherForceSelect) 
 		case Storm::CustomForceSelect::Drag:			STORM_CHECK_INCOMPATIBILITY_WITH(AllDrag); break;
 		case Storm::CustomForceSelect::Bernouilli:		STORM_CHECK_INCOMPATIBILITY_WITH(AllBernouilli); break;
 		case Storm::CustomForceSelect::NoStick:			STORM_CHECK_INCOMPATIBILITY_WITH(AllNoStick); break;
-		case Storm::CustomForceSelect::Coenda:			STORM_CHECK_INCOMPATIBILITY_WITH(AllCoenda); break;
+		case Storm::CustomForceSelect::Coanda:			STORM_CHECK_INCOMPATIBILITY_WITH(AllCoanda); break;
 		case Storm::CustomForceSelect::AllPressure:		STORM_CHECK_INCOMPATIBILITY_WITH(Pressure); break;
 		case Storm::CustomForceSelect::AllViscosity:	STORM_CHECK_INCOMPATIBILITY_WITH(Viscosity); break;
 		case Storm::CustomForceSelect::AllDrag:			STORM_CHECK_INCOMPATIBILITY_WITH(Drag); break;
 		case Storm::CustomForceSelect::AllBernouilli:	STORM_CHECK_INCOMPATIBILITY_WITH(Bernouilli); break;
 		case Storm::CustomForceSelect::AllNoStick:		STORM_CHECK_INCOMPATIBILITY_WITH(NoStick); break;
-		case Storm::CustomForceSelect::AllCoenda:		STORM_CHECK_INCOMPATIBILITY_WITH(Coenda); break;
+		case Storm::CustomForceSelect::AllCoanda:		STORM_CHECK_INCOMPATIBILITY_WITH(Coanda); break;
 
 		case Storm::CustomForceSelect::Count:
 		default:
@@ -548,9 +548,9 @@ void Storm::ParticleSelector::setSelectedParticleNoStickForce(const Storm::Vecto
 	_selectedParticleData->_noStickForce = noStickForce;
 }
 
-void Storm::ParticleSelector::setSelectedParticleCoendaForce(const Storm::Vector3 &coendaForce)
+void Storm::ParticleSelector::setSelectedParticleCoandaForce(const Storm::Vector3 &coandaForce)
 {
-	_selectedParticleData->_coendaForce = coendaForce;
+	_selectedParticleData->_coandaForce = coandaForce;
 }
 
 void Storm::ParticleSelector::setSelectedParticlePressureDensityIntermediaryForce(const Storm::Vector3 &intermediaryPressureForce)
@@ -612,7 +612,7 @@ const Storm::Vector3& Storm::ParticleSelector::getSelectedVectorToDisplay() cons
 	case Storm::ParticleSelectionMode::Drag:							return _selectedParticleData->_dragForce;
 	case Storm::ParticleSelectionMode::DynamicPressure:					return _selectedParticleData->_dynamicPressureForce;
 	case Storm::ParticleSelectionMode::NoStick:							return _selectedParticleData->_noStickForce;
-	case Storm::ParticleSelectionMode::Coenda:							return _selectedParticleData->_coendaForce;
+	case Storm::ParticleSelectionMode::Coanda:							return _selectedParticleData->_coandaForce;
 	case Storm::ParticleSelectionMode::Blower:							return _selectedParticleData->_blowerForce;
 	case Storm::ParticleSelectionMode::IntermediaryDensityPressure:		return _selectedParticleData->_intermediaryDensityPressureForce;
 	case Storm::ParticleSelectionMode::IntermediaryVelocityPressure:	return _selectedParticleData->_intermediaryVelocityPressureForce;
@@ -653,7 +653,7 @@ const Storm::Vector3& Storm::ParticleSelector::getSelectedVectorPosition(const S
 	case Storm::ParticleSelectionMode::Drag:
 	case Storm::ParticleSelectionMode::DynamicPressure:
 	case Storm::ParticleSelectionMode::NoStick:
-	case Storm::ParticleSelectionMode::Coenda:
+	case Storm::ParticleSelectionMode::Coanda:
 	case Storm::ParticleSelectionMode::Blower:
 	case Storm::ParticleSelectionMode::IntermediaryDensityPressure:
 	case Storm::ParticleSelectionMode::IntermediaryVelocityPressure:
@@ -767,14 +767,14 @@ void Storm::ParticleSelector::computeCustomSelection()
 		case Storm::CustomForceSelect::Drag:		data._customCached += data._dragForce; break;
 		case Storm::CustomForceSelect::Bernouilli:	data._customCached += data._dynamicPressureForce; break;
 		case Storm::CustomForceSelect::NoStick:		data._customCached += data._noStickForce; break;
-		case Storm::CustomForceSelect::Coenda:		data._customCached += data._coendaForce; break;
+		case Storm::CustomForceSelect::Coanda:		data._customCached += data._coandaForce; break;
 
 		case Storm::CustomForceSelect::AllPressure:	
 		case Storm::CustomForceSelect::AllViscosity:
 		case Storm::CustomForceSelect::AllDrag:		
 		case Storm::CustomForceSelect::AllBernouilli:
 		case Storm::CustomForceSelect::AllNoStick:
-		case Storm::CustomForceSelect::AllCoenda:
+		case Storm::CustomForceSelect::AllCoanda:
 		{
 			const Storm::SimulatorManager &simulMgr = Storm::SimulatorManager::instance();
 			simulMgr.accumulateAllForcesFromParticleSystem(data._selectedParticle.first, *iter, data._customCached);
@@ -853,7 +853,7 @@ void Storm::ParticleSelector::logForceComponents() const
 		STORM_APPEND_DATA_TO_STREAM("Drag", _dragForce, "N", _supportedFeatures->_hasDragComponentforces)
 		STORM_APPEND_DATA_TO_STREAM("DynamicPressure", _dynamicPressureForce, "N", _supportedFeatures->_hasDynamicPressureQForces)
 		STORM_APPEND_DATA_TO_STREAM("NoStick", _noStickForce, "N", _supportedFeatures->_hasNoStickForces)
-		STORM_APPEND_DATA_TO_STREAM("Coenda", _coendaForce, "N", _supportedFeatures->_hasCoendaForces)
+		STORM_APPEND_DATA_TO_STREAM("Coanda", _coandaForce, "N", _supportedFeatures->_hasCoandaForces)
 		STORM_APPEND_DATA_TO_STREAM("Intermediary Density Pressure", _intermediaryDensityPressureForce, "N", _supportedFeatures->_hasIntermediaryDensityPressureForces)
 		STORM_APPEND_DATA_TO_STREAM("Intermediary Velocity Pressure", _intermediaryVelocityPressureForce, "N", _supportedFeatures->_hasIntermediaryVelocityPressureForces)
 		STORM_APPEND_DATA_TO_STREAM("Sum", _externalSumForces, "N", true)
@@ -897,9 +897,9 @@ void Storm::ParticleSelector::logForceComponentsContributionToVector(const Storm
 	{
 		logContribution(alwaysLogger, "NoStick", dataRef._noStickForce, vecNormalized);
 	}
-	if (_supportedFeatures->_hasCoendaForces)
+	if (_supportedFeatures->_hasCoandaForces)
 	{
-		logContribution(alwaysLogger, "Coenda", dataRef._coendaForce, vecNormalized);
+		logContribution(alwaysLogger, "Coanda", dataRef._coandaForce, vecNormalized);
 	}
 	if (_supportedFeatures->_hasIntermediaryDensityPressureForces)
 	{

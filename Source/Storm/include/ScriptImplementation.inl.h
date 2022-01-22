@@ -67,13 +67,13 @@ void STORM_CURRENT_REGISTERED_TYPE::registerCurrentOnScript(IScriptWrapperInterf
 			STORM_DECLARE_SCRIPTED_ENUM(Storm::CustomForceSelect::Drag),
 			STORM_DECLARE_SCRIPTED_ENUM(Storm::CustomForceSelect::Bernouilli),
 			STORM_DECLARE_SCRIPTED_ENUM(Storm::CustomForceSelect::NoStick),
-			STORM_DECLARE_SCRIPTED_ENUM(Storm::CustomForceSelect::Coenda),
+			STORM_DECLARE_SCRIPTED_ENUM(Storm::CustomForceSelect::Coanda),
 			STORM_DECLARE_SCRIPTED_ENUM(Storm::CustomForceSelect::AllPressure),
 			STORM_DECLARE_SCRIPTED_ENUM(Storm::CustomForceSelect::AllViscosity),
 			STORM_DECLARE_SCRIPTED_ENUM(Storm::CustomForceSelect::AllDrag),
 			STORM_DECLARE_SCRIPTED_ENUM(Storm::CustomForceSelect::AllBernouilli),
 			STORM_DECLARE_SCRIPTED_ENUM(Storm::CustomForceSelect::AllNoStick),
-			STORM_DECLARE_SCRIPTED_ENUM(Storm::CustomForceSelect::AllCoenda)
+			STORM_DECLARE_SCRIPTED_ENUM(Storm::CustomForceSelect::AllCoanda)
 		).registerCurrentType(
 		
 		STORM_DECLARE_SCRIPTED_METHOD(resetReplay),

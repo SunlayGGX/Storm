@@ -10,7 +10,7 @@ namespace Storm
 		Drag,
 		Bernouilli,
 		NoStick,
-		Coenda,
+		Coanda,
 
 		// All Compositions
 		AllPressure,
@@ -18,7 +18,7 @@ namespace Storm
 		AllDrag,
 		AllBernouilli,
 		AllNoStick,
-		AllCoenda,
+		AllCoanda,
 
 		// Do not use like the others. Should remain the last one.
 		Count

@@ -281,9 +281,9 @@ void Storm::FluidParticleSystem::setTmpNoStickForces(std::vector<Storm::Vector3>
 	_tmpNoStickForce = std::move(tmpNoStickForces);
 }
 
-void Storm::FluidParticleSystem::setTmpCoendaForces(std::vector<Storm::Vector3> &&tmpCoendaForces)
+void Storm::FluidParticleSystem::setTmpCoandaForces(std::vector<Storm::Vector3> &&tmpCoandaForces)
 {
-	_tmpCoendaForce = std::move(tmpCoendaForces);
+	_tmpCoandaForce = std::move(tmpCoandaForces);
 }
 
 void Storm::FluidParticleSystem::setTmpPressureDensityIntermediaryForces(std::vector<Storm::Vector3> &&tmpPressuresIntermediaryForces)

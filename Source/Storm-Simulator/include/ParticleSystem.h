@@ -36,8 +36,8 @@ namespace Storm
 		std::vector<Storm::Vector3>& getTemporaryBernoulliDynamicPressureForces() noexcept;
 		const std::vector<Storm::Vector3>& getTemporaryNoStickForces() const noexcept;
 		std::vector<Storm::Vector3>& getTemporaryNoStickForces() noexcept;
-		const std::vector<Storm::Vector3>& getTemporaryCoendaForces() const noexcept;
-		std::vector<Storm::Vector3>& getTemporaryCoendaForces() noexcept;
+		const std::vector<Storm::Vector3>& getTemporaryCoandaForces() const noexcept;
+		std::vector<Storm::Vector3>& getTemporaryCoandaForces() noexcept;
 		const std::vector<Storm::Vector3>& getTemporaryPressureDensityIntermediaryForces() const noexcept;
 		std::vector<Storm::Vector3>& getTemporaryPressureDensityIntermediaryForces() noexcept;
 		const std::vector<Storm::Vector3>& getTemporaryPressureVelocityIntermediaryForces() const noexcept;
@@ -73,7 +73,7 @@ namespace Storm
 		virtual void setTmpDragForces(std::vector<Storm::Vector3> &&tmpDragForces) = 0;
 		virtual void setTmpBernoulliDynamicPressureForces(std::vector<Storm::Vector3> &&tmpDynamicQForces) = 0;
 		virtual void setTmpNoStickForces(std::vector<Storm::Vector3> &&tmpNoStickForces) = 0;
-		virtual void setTmpCoendaForces(std::vector<Storm::Vector3> &&coendaForces) = 0;
+		virtual void setTmpCoandaForces(std::vector<Storm::Vector3> &&coandaForces) = 0;
 		virtual void setTmpPressureDensityIntermediaryForces(std::vector<Storm::Vector3> &&tmpPressuresIntermediaryForces) = 0;
 		virtual void setTmpPressureVelocityIntermediaryForces(std::vector<Storm::Vector3> &&tmpPressuresIntermediaryForces) = 0;
 		virtual void setTmpBlowerForces(std::vector<Storm::Vector3> &&tmpBlowerForces) = 0;
@@ -136,7 +136,7 @@ namespace Storm
 		std::vector<Storm::Vector3> _tmpDragForce;
 		std::vector<Storm::Vector3> _tmpBernoulliDynamicPressureForce;
 		std::vector<Storm::Vector3> _tmpNoStickForce;
-		std::vector<Storm::Vector3> _tmpCoendaForce;
+		std::vector<Storm::Vector3> _tmpCoandaForce;
 
 		Storm::Vector3 _totalForceNonPhysX;
 

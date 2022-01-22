@@ -38,7 +38,7 @@ namespace Storm
 		void setTmpDragForces(std::vector<Storm::Vector3> &&tmpDragForces) final override;
 		void setTmpBernoulliDynamicPressureForces(std::vector<Storm::Vector3> &&tmpDynamicQForces) final override;
 		void setTmpNoStickForces(std::vector<Storm::Vector3> &&tmpNoStickForces) final override;
-		void setTmpCoendaForces(std::vector<Storm::Vector3> &&tmpCoendaForces) final override;
+		void setTmpCoandaForces(std::vector<Storm::Vector3> &&tmpCoandaForces) final override;
 		void setTmpPressureDensityIntermediaryForces(std::vector<Storm::Vector3> &&tmpPressuresIntermediaryForces) final override;
 		void setTmpPressureVelocityIntermediaryForces(std::vector<Storm::Vector3> &&tmpPressuresIntermediaryForces) final override;
 		void setTmpBlowerForces(std::vector<Storm::Vector3> &&tmpBlowerForces) final override;

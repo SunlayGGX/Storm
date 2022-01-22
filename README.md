@@ -352,7 +352,7 @@ Unlike the other config files, it can be named as you want. Here the xml tags yo
 - **rbViscosityMethod (string, facultative)**: Specify what method to use when computing viscosity force of a fluid particle on a rigid body particle. This setting is case insensitive. Allowed values are “Standard” (default) and “XSPH”.
 - **fluidParticleRemovalMode (string, facultative)**: Specify what method formula to use to detect a fluid particle overlaps a rigid body particle, therefore should be eliminated at initialization time. This setting is case insensitive. Allowed values are “Sphere” (default) and “Cube”.
 - **noStickConstraint (boolean, facultative)**: Enforce the no-stick constraint as explicited in R. Bridson book. Since it is experimental, default is false. For now, the setting is only implemented for DFSPH.
-- **useCoendaEffect (boolean, facultative)**: Use Coenda effect penalty forces. Since it is experimental, default is false. For now, the setting is only implemented for DFSPH.
+- **useCoandaEffect (boolean, facultative)**: Use Coanda effect penalty forces. Since it is experimental, default is false. For now, the setting is only implemented for DFSPH.
 - **floorExitLevelY (float, facultative)**: If set, the simulation will exit when any dynamic rigidbodies hit the floor below this point. Default is unset (the feature is disabled).
 
 
@@ -485,7 +485,7 @@ Inside this element should be put all rigid bodies. Each rigid body should be sp
 - **viscosity (positive float, facultative)**: The viscosity of the rigid body in Pa.s (???). This has to be strictly positive (> 0.0).
 - **noStickCoeff (positive zero-able float, facultative)**: This is a coefficient made to modulate the norm of the force produced to ensure the no-stick constraint. Default is 1.0, set it to 0.0 to disable the no-stick constraint for the specific rigidbody.
 - **dragCoeff (positive zero-able float, facultative)**: This is the drag coefficient of the rigid body object with the fluid. Default is 0.0 (drag effect disabled for the current rigid body). See uniformDragCoeff on fluids.
-- **coendaCoeff (positive zero-able float, facultative)**: This is the coenda penalty force coefficient of the rigid body object with the fluid. Because it is experimental, default is 0.0 (coenda effect disabled for the current rigid body). See uniformDragCoeff on fluids.
+- **coandaCoeff (positive zero-able float, facultative)**: This is the coanda penalty force coefficient of the rigid body object with the fluid. Because it is experimental, default is 0.0 (coanda effect disabled for the current rigid body). See uniformDragCoeff on fluids.
 - **normalsCoherency (boolean, facultative)**: if true, a second pass will be made to ensure rigid bodies particles normals are coherents (point to the same way (to the interior if it is a wall, or to the exterior if it is an non-wall object)). It is better to keep this setting to false for concave or miscellaneous objects. Default is true. Note that this is to correct normals from object that are correctly made, we cannot fix objects those triangles are in a mess. Besides, this settings ensure normals point to the inside for a wall and outside for any other rigid body.
 - **sampleCountMDeserno (positive integer, semi-facultative)**: This is the input sample count of M. Deserno sampling algorithm of a sphere. It should be greater than 0. It is mandatory if specified geometry is "EquiSphereMDeserno" and the layeringGeneration is "Uniform".
 - **layerCount (positive integer, facultative)**: The boundary particles layer to generate along the rigid body surface. Should be a non-zero positive integer. Default is 1.
@@ -731,13 +731,13 @@ Here the list of available commands :
 - **Drag**: To specify the drag force. This flag specifies the force of a particle alone.
 - **Bernouilli**: To specify the bernouilli dynamic Q force. This flag specifies the force of a particle alone.
 - **NoStick**: To specify the no-stick force. This flag specifies the force of a particle alone.
-- **Coenda**: To specify the coenda effect force. This flag specifies the force of a particle alone.
+- **Coanda**: To specify the coanda effect force. This flag specifies the force of a particle alone.
 - **AllPressure**: To specify the final pressure force. This flag specifies the sum of all forces from all particles of a system.
 - **AllViscosity**: To specify the viscosity force. This flag specifies the sum of all forces from all particles of a system.
 - **AllDrag**: To specify the drag force. This flag specifies the sum of all forces from all particles of a system.
 - **AllBernouilli**: To specify the bernouilli dynamic Q force. This flag specifies the sum of all forces from all particles of a system.
 - **AllNoStick**: To specify the no-stick force. This flag specifies the sum of all forces from all particles of a system.
-- **AllCoenda**: To specify the coenda effect force. This flag specifies the sum of all forces from all particles of a system.
+- **AllCoanda**: To specify the coanda effect force. This flag specifies the sum of all forces from all particles of a system.
 
 
 ### Exposed Instance
@@ -779,13 +779,13 @@ Here the list of available commands :
   * "Drag" : refers to the drag force. It shouldn't be used with its "All" setting flag counterpart.
   * "Bernouilli" / "DynamicQ" / "DynamicPressure" : refer to the dynamic pressure force. It shouldn't be used with its "All" setting flag counterpart.
   * "NoStick" : refers to the no stick constraint penalty force. It shouldn't be used with its "All" setting flag counterpart.
-  * "Coenda" : refers to the coenda penalty force. It shouldn't be used with its "All" setting flag counterpart.
+  * "Coanda" : refers to the coanda penalty force. It shouldn't be used with its "All" setting flag counterpart.
   * "AllPressure" : refers to all pressure forces from the particle system the selected particle is a part of. It shouldn't be used with its individual setting flag counterpart.
   * "AllViscosity" : refers to all viscosity forces from the particle system the selected particle is a part of. It shouldn't be used with its individual setting flag counterpart.
   * "AllDrag" : refers to all drag forces from the particle system the selected particle is a part of. It shouldn't be used with its individual setting flag counterpart.
   * "AllBernouilli" / "AllDynamicQ" / "AllDynamicPressure" : refer to all dynamic pressure forces from the particle system the selected particle is a part of. It shouldn't be used with its individual setting flag counterpart.
   * "AllNoStick" : refers to all no stick constraint penalty forces from the particle system the selected particle is a part of. It shouldn't be used with its individual setting flag counterpart.
-  * "AllCoenda" : refers to all coenda penalty forces from the particle system the selected particle is a part of. It shouldn't be used with its individual setting flag counterpart.
+  * "AllCoanda" : refers to all coanda penalty forces from the particle system the selected particle is a part of. It shouldn't be used with its individual setting flag counterpart.
 
 
 #### - TimeManager (timeMgr)
