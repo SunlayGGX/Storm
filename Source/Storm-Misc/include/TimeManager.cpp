@@ -321,7 +321,7 @@ bool Storm::TimeManager::changeSimulationPauseState()
 Storm::TimeWaitResult Storm::TimeManager::waitImpl(std::condition_variable &usedSynchronizer, std::chrono::microseconds timeToWait)
 {
 	std::unique_lock<std::mutex> lock{ _mutex };
-	if (_isRunning)
+	if (_isRunning) STORM_LIKELY
 	{
 		if (_shouldLogFPSWatching)
 		{
