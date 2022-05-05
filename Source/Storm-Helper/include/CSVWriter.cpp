@@ -280,9 +280,18 @@ Storm::CSVWriter::~CSVWriter()
 	}
 }
 
-void Storm::CSVWriter::append(const std::string &keyName, const std::string &value)
+void Storm::CSVWriter::append(const std::string_view keyName, const std::string& value)
 {
-	std::string &elem = _elements[keyName].emplace_back();
+	auto found = _elements.find(keyName);
+	if (found == std::end(_elements))
+	{
+		std::vector<std::string> tmp{};
+		tmp.reserve(_elements.empty() ? 16 : std::begin(_elements)->second.capacity());
+
+		found = _elements.try_emplace(found, std::string{ keyName }, std::move(tmp));
+	}
+
+	std::string &elem = found->second.emplace_back();
 
 	const std::size_t valueStrLength = value.size();
 	if (valueStrLength > 0)
@@ -293,6 +302,11 @@ void Storm::CSVWriter::append(const std::string &keyName, const std::string &val
 		elem += value;
 		elem += '"';
 	}
+}
+
+void Storm::CSVWriter::append(const std::string &keyName, const std::string &value)
+{
+	this->append(std::string_view{ keyName }, value);
 }
 
 void Storm::CSVWriter::addFormula(const std::string &keyName, Storm::CSVFormulaType formula)

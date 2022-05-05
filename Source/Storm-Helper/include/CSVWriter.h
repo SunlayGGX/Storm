@@ -25,8 +25,14 @@ namespace Storm
 		~CSVWriter();
 
 	private:
+		void append(const std::string_view keyName, const std::string &value);
 		void append(const std::string &keyName, const std::string &value);
 
+		template<class KeyType, std::size_t count>
+		void append(const KeyType(&keyName)[count], const std::string &value)
+		{
+			this->append(std::string_view{ keyName, count }, value);
+		}
 	public:
 		template<class Type, class TransferFunctor = decltype(CSVWriter::makeDefaultTransferFunctor<Type>())>
 		void operator()(const std::string &keyName, Type &&value, const TransferFunctor &functor = CSVWriter::makeDefaultTransferFunctor<Type>())
@@ -52,7 +58,7 @@ namespace Storm
 		bool empty() const;
 
 	private:
-		std::map<std::string, std::vector<std::string>> _elements;
+		std::map<std::string, std::vector<std::string>, std::less<void>> _elements;
 		const std::string _filePath;
 		const Storm::CSVMode _mode;
 		std::map<std::string, Storm::CSVFormulaType> _formulas;
