@@ -33,15 +33,16 @@ namespace Storm
 		{
 			this->append(std::string_view{ keyName, count }, value);
 		}
+
 	public:
-		template<class Type, class TransferFunctor = decltype(CSVWriter::makeDefaultTransferFunctor<Type>())>
-		void operator()(const std::string &keyName, Type &&value, const TransferFunctor &functor = CSVWriter::makeDefaultTransferFunctor<Type>())
+		template<class KeyType, class Type, class TransferFunctor = decltype(CSVWriter::makeDefaultTransferFunctor<Type>())>
+		void operator()(const KeyType &keyName, Type &&value, const TransferFunctor &functor = CSVWriter::makeDefaultTransferFunctor<Type>())
 		{
 			this->append(keyName, Storm::toStdString(functor(std::forward<Type>(value))));
 		}
 
-		template<class Type, class TransferFunctor = decltype(CSVWriter::makeDefaultTransferFunctor<Type>())>
-		void operator()(const std::string &keyName, const std::vector<Type> &values, const TransferFunctor &functor = CSVWriter::makeDefaultTransferFunctor<Type>())
+		template<class KeyType, class Type, class TransferFunctor = decltype(CSVWriter::makeDefaultTransferFunctor<Type>())>
+		void operator()(const KeyType &keyName, const std::vector<Type> &values, const TransferFunctor &functor = CSVWriter::makeDefaultTransferFunctor<Type>())
 		{
 			for (const Type &element : values)
 			{
@@ -56,6 +57,15 @@ namespace Storm
 		void clear(const bool keepKeys = false);
 		void reserve(const std::size_t count);
 		bool empty() const;
+
+	public:
+		std::string_view fetchAxeName() const noexcept;
+
+		template<class Type, class TransferFunctor = decltype(CSVWriter::makeDefaultTransferFunctor<Type>())>
+		void defineRowAxeValue(Type &&value, const TransferFunctor &functor = CSVWriter::makeDefaultTransferFunctor<Type>())
+		{
+			(*this)(this->fetchAxeName(), std::forward<Type>(value), functor);
+		}
 
 	private:
 		std::map<std::string, std::vector<std::string>, std::less<void>> _elements;
