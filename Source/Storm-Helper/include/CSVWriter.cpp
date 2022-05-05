@@ -242,7 +242,7 @@ Storm::CSVWriter::~CSVWriter()
 			}
 		}
 
-#define STORM_WRITE_LANGUAGE_CASE(modeName, languageName, ...) case languageName: write<modeName, languageName, __VA_ARGS__>(_elements, _formulas, _filePath, maxElementCount)
+#define STORM_WRITE_LANGUAGE_CASE(modeName, languageName, ...) case languageName: write<modeName, languageName, __VA_ARGS__>(_elements, _formulas, _filePath, maxElementCount); break
 
 #define STORM_WRITE_MODE_CASE(modeName)														\
 	case modeName:																			\
@@ -264,7 +264,7 @@ Storm::CSVWriter::~CSVWriter()
 				STORM_WRITE_LANGUAGE_CASE(modeName, Storm::Language::English, false);		\
 			}																				\
 		}																					\
-		break;
+		break
 
 		switch (_mode)
 		{
