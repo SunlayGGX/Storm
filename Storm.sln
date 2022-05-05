@@ -137,6 +137,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Storm-Safety", "Source\Storm-Safety\script\Storm-Safety.vcxproj", "{683B9632-A1B4-411C-9E3B-716D3573F4F0}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "StormPOC-NegativePressure", "Source\POC\StormPOC-NegativePressure\script\StormPOC-NegativePressure.vcxproj", "{14CB6D06-71DF-47BB-8D07-94141EAC179E}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Source\Storm-CsCppShared\script\Storm-CsCppShared.projitems*{30ae641c-fdd2-49b8-abd0-19ea070978d3}*SharedItemsImports = 13
@@ -523,6 +525,22 @@ Global
 		{683B9632-A1B4-411C-9E3B-716D3573F4F0}.ReleaseNoPackager|Any CPU.Build.0 = Release|x64
 		{683B9632-A1B4-411C-9E3B-716D3573F4F0}.ReleaseNoPackager|x64.ActiveCfg = Release|x64
 		{683B9632-A1B4-411C-9E3B-716D3573F4F0}.ReleaseNoPackager|x64.Build.0 = Release|x64
+		{14CB6D06-71DF-47BB-8D07-94141EAC179E}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{14CB6D06-71DF-47BB-8D07-94141EAC179E}.Debug|Any CPU.Build.0 = Debug|x64
+		{14CB6D06-71DF-47BB-8D07-94141EAC179E}.Debug|x64.ActiveCfg = Debug|x64
+		{14CB6D06-71DF-47BB-8D07-94141EAC179E}.Debug|x64.Build.0 = Debug|x64
+		{14CB6D06-71DF-47BB-8D07-94141EAC179E}.Profile|Any CPU.ActiveCfg = Profile|x64
+		{14CB6D06-71DF-47BB-8D07-94141EAC179E}.Profile|Any CPU.Build.0 = Profile|x64
+		{14CB6D06-71DF-47BB-8D07-94141EAC179E}.Profile|x64.ActiveCfg = Profile|x64
+		{14CB6D06-71DF-47BB-8D07-94141EAC179E}.Profile|x64.Build.0 = Profile|x64
+		{14CB6D06-71DF-47BB-8D07-94141EAC179E}.Release|Any CPU.ActiveCfg = Release|x64
+		{14CB6D06-71DF-47BB-8D07-94141EAC179E}.Release|Any CPU.Build.0 = Release|x64
+		{14CB6D06-71DF-47BB-8D07-94141EAC179E}.Release|x64.ActiveCfg = Release|x64
+		{14CB6D06-71DF-47BB-8D07-94141EAC179E}.Release|x64.Build.0 = Release|x64
+		{14CB6D06-71DF-47BB-8D07-94141EAC179E}.ReleaseNoPackager|Any CPU.ActiveCfg = Debug|x64
+		{14CB6D06-71DF-47BB-8D07-94141EAC179E}.ReleaseNoPackager|Any CPU.Build.0 = Debug|x64
+		{14CB6D06-71DF-47BB-8D07-94141EAC179E}.ReleaseNoPackager|x64.ActiveCfg = Release|x64
+		{14CB6D06-71DF-47BB-8D07-94141EAC179E}.ReleaseNoPackager|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -570,6 +588,7 @@ Global
 		{F19CC26F-2518-4126-A199-423A268A3191} = {F98F7CDA-1DB8-439B-9673-B8C23D38E1F7}
 		{59673C98-FC2D-4393-8B1C-C08B694CDE22} = {F79A0D9C-2055-4FD3-89F6-A901CD582DBD}
 		{683B9632-A1B4-411C-9E3B-716D3573F4F0} = {71FDD4FA-5CB7-4461-A3FD-A8818CF6C865}
+		{14CB6D06-71DF-47BB-8D07-94141EAC179E} = {7410768D-6BA0-4898-B2E0-0AE483393E88}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {AC48B795-9776-4952-84E0-CE8AB938B72B}
