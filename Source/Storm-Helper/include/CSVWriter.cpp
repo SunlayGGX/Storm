@@ -95,6 +95,8 @@ namespace
 
 		std::ofstream file{ filePath };
 
+		file << "sep=,\n";
+
 		const std::size_t allElementsCount = allElements.size();
 		assert(allElementsCount > 0 && "All Elements count check for emptiness should have been made outside this method!");
 
