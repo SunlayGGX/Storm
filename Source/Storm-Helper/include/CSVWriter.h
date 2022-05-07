@@ -67,11 +67,14 @@ namespace Storm
 			(*this)(this->fetchAxeName(), std::forward<Type>(value), functor);
 		}
 
+		void setNumeric(bool isNumeric);
+
 	private:
 		std::map<std::string, std::vector<std::string>, std::less<void>> _elements;
 		const std::string _filePath;
 		const Storm::CSVMode _mode;
-		std::map<std::string, Storm::CSVFormulaType> _formulas;
+		std::map<std::string, Storm::CSVFormulaType, std::less<void>> _formulas;
 		Storm::Language _language;
+		bool _shouldSortNumerically; // Only for 3D
 	};
 }

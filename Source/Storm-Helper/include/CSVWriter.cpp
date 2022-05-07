@@ -5,6 +5,7 @@
 #include "CSVMode.h"
 
 #include "Language.h"
+#include "StormMacro.h"
 
 #include <fstream>
 
@@ -12,6 +13,19 @@
 namespace
 {
 	constexpr std::string_view k_axeName = "Axe";
+
+	struct NumericLessConvertor
+	{
+	public:
+		using is_transparent = int;
+
+	public:
+		template<class StrType, class OtherStrType>
+		bool operator()(StrType &&left, OtherStrType &&right) const
+		{
+			return std::strtod(left.data(), nullptr) < std::strtod(right.data(), nullptr);
+		}
+	};
 	
 	template<const char skipChar, const char returnChar>
 	void csvBlankSkip(std::ofstream &file, std::size_t allElementsCount)
@@ -103,8 +117,47 @@ namespace
 		Storm::throwException<Storm::Exception>("Unhandled formula type! We should have not come here!");
 	}
 
-	template<Storm::CSVMode mode, Storm::Language language, bool mismatch, class ElementMapType>
-	void write(ElementMapType &allElements, std::map<std::string, Storm::CSVFormulaType> &allFormulasRequests, const std::string &filePath, const std::size_t maxElementCount)
+	template <Storm::CSVMode mode, Storm::Language language, bool hasFormula, bool noAxis, class ElementMapType, class FormulaMapType>
+	void writeAsRow(STORM_MAY_BE_UNUSED FormulaMapType &allFormulasRequests, const std::size_t maxElementCount, std::ofstream &file, const ElementMapType &elementMap)
+	{
+		STORM_MAY_BE_UNUSED std::size_t rowIter = 0;
+		for (const auto &elements : elementMap)
+		{
+			if constexpr (noAxis)
+			{
+				if (elements.first == k_axeName) STORM_UNLIKELY
+				{
+					continue;
+				}
+			}
+
+			file << elements.first;
+
+			for (const auto &element : elements.second)
+			{
+				file << ',' << element;
+			}
+
+			if constexpr (hasFormula)
+			{
+				csvBlankSkip<',', ','>(file, maxElementCount - elements.second.size());
+
+				if (auto found = allFormulasRequests.find(elements.first); found != std::end(allFormulasRequests))
+				{
+					// Csv cells start at index 1 (isn't 0-based index)
+					writeFormula<mode, language>(file, found->second, maxElementCount + 1, rowIter);
+					allFormulasRequests.erase(found);
+				}
+
+				++rowIter;
+			}
+
+			file << '\n';
+		}
+	}
+
+	template<Storm::CSVMode mode, Storm::Language language, bool mismatch, class ElementMapType, class FormulaMapType>
+	void write(ElementMapType &allElements, FormulaMapType &allFormulasRequests, const std::string &filePath, const std::size_t maxElementCount, STORM_MAY_BE_UNUSED const bool shouldNumericallySort)
 	{
 		std::filesystem::create_directories(std::filesystem::path{ filePath }.parent_path());
 
@@ -122,31 +175,13 @@ namespace
 
 		if constexpr (mode == Storm::CSVMode::Row)
 		{
-			std::size_t rowIter = 0;
-			for (const auto &elements : allElements)
+			if (allFormulasRequests.empty())
 			{
-				file << elements.first;
-
-				for (const auto &element : elements.second)
-				{
-					file << ',' << element;
-				}
-
-				if (!allFormulasRequests.empty())
-				{
-					csvBlankSkip<',', ','>(file, maxElementCount - elements.second.size());
-
-					if (auto found = allFormulasRequests.find(elements.first); found != std::end(allFormulasRequests))
-					{
-						// Csv cells start at index 1 (isn't 0-based index)
-						writeFormula<mode, language>(file, found->second, maxElementCount + 1, rowIter);
-						allFormulasRequests.erase(found);
-					}
-
-					++rowIter;
-				}
-
-				file << '\n';
+				writeAsRow<mode, language, false, false>(allFormulasRequests, maxElementCount, file, allElements);
+			}
+			else
+			{
+				writeAsRow<mode, language, true, false>(allFormulasRequests, maxElementCount, file, allElements);
 			}
 		}
 		else if constexpr (mode == Storm::CSVMode::Columns)
@@ -217,33 +252,36 @@ namespace
 
 				file << '\n';
 
-				std::size_t rowIter = 0;
-				for (const auto &elements : allElements)
+				if (!shouldNumericallySort)
 				{
-					if (elements.first != k_axeName)
+					if (allFormulasRequests.empty())
 					{
-						file << elements.first;
+						writeAsRow<mode, language, false, true>(allFormulasRequests, maxElementCount, file, allElements);
+					}
+					else
+					{
+						writeAsRow<mode, language, true, true>(allFormulasRequests, maxElementCount, file, allElements);
+					}
+				}
+				else
+				{
+					std::map<std::string_view, std::vector<std::string>, NumericLessConvertor> resortedElement;
 
-						for (const auto &element : elements.second)
+					for (auto &elements : allElements)
+					{
+						if (elements.first != k_axeName)
 						{
-							file << ',' << element;
+							resortedElement.try_emplace(elements.first, std::move(elements.second));
 						}
+					}
 
-						if (!allFormulasRequests.empty())
-						{
-							csvBlankSkip<',', ','>(file, maxElementCount - elements.second.size());
-
-							if (auto found = allFormulasRequests.find(elements.first); found != std::end(allFormulasRequests))
-							{
-								// Csv cells start at index 1 (isn't 0-based index)
-								writeFormula<mode, language>(file, found->second, maxElementCount + 1, rowIter);
-								allFormulasRequests.erase(found);
-							}
-
-							++rowIter;
-						}
-
-						file << '\n';
+					if (allFormulasRequests.empty())
+					{
+						writeAsRow<mode, language, false, false>(allFormulasRequests, maxElementCount, file, resortedElement);
+					}
+					else
+					{
+						writeAsRow<mode, language, true, false>(allFormulasRequests, maxElementCount, file, resortedElement);
 					}
 				}
 			}
@@ -278,7 +316,8 @@ Storm::CSVWriter::CSVWriter(const std::string_view filePath, const Storm::Langua
 Storm::CSVWriter::CSVWriter(const std::string_view filePath, const Storm::Language language, const Storm::CSVMode mode) :
 	_filePath{ Storm::toStdString(std::filesystem::path{ filePath }.replace_extension(".csv")) },
 	_mode{ mode },
-	_language{ language }
+	_language{ language },
+	_shouldSortNumerically{ false }
 {
 	
 }
@@ -336,7 +375,7 @@ Storm::CSVWriter::~CSVWriter()
 			}
 		}
 
-#define STORM_WRITE_LANGUAGE_CASE(modeName, languageName, ...) case languageName: write<modeName, languageName, __VA_ARGS__>(_elements, _formulas, _filePath, maxElementCount); break
+#define STORM_WRITE_LANGUAGE_CASE(modeName, languageName, ...) case languageName: write<modeName, languageName, __VA_ARGS__>(_elements, _formulas, _filePath, maxElementCount, _shouldSortNumerically); break
 
 #define STORM_WRITE_MODE_CASE(modeName)														\
 	case modeName:																			\
@@ -438,4 +477,10 @@ bool Storm::CSVWriter::empty() const
 std::string_view Storm::CSVWriter::fetchAxeName() const noexcept
 {
 	return k_axeName;
+}
+
+void Storm::CSVWriter::setNumeric(bool isNumeric)
+{
+	assert(_mode == CSVMode::ThreeDimensional && "Numerical sort is only valid when we're creating axes value for a csv, therefore in 3D mode.");
+	_shouldSortNumerically = isNumeric;
 }
