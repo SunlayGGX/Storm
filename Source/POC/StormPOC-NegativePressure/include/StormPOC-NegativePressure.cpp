@@ -20,12 +20,12 @@
 #include "LogLevel.h"
 
 #include "Language.h"
+#include "TemplateTraitsTransfer.h"
 
 #include <fstream>
 #include <filesystem>
 #include <string>
 #include <cmath>
-#include <corecrt_math_defines.h>
 #include <iostream>
 
 
@@ -149,14 +149,26 @@ namespace
 	constexpr ScalarValue k_restDensity = 2.0;
 	constexpr ScalarValue k_minDensity = k_restDensity / 2.0;
 	constexpr ScalarValue k_maxDensity = k_restDensity + (k_restDensity - k_minDensity);
-	constexpr ScalarValue k_densitySpread = k_maxDensity - k_minDensity;
+	constexpr ScalarValue k_densityStep = (k_maxDensity - k_minDensity) / k_sampleCountLineFl;
+
+	constexpr ScalarValue k_minPressure = -2.0;
+	constexpr ScalarValue k_maxPressure = 2.0;
+	constexpr ScalarValue k_pressureStep = (k_maxPressure - k_minPressure) / k_sampleCountLineFl;
+
 	constexpr ScalarValue k_kCoeff = 5000.0;
+	constexpr ScalarValue k_epsilon = 0.000001;
 
 	enum class KernelFunc
 	{
 #define STORM_POC_XMACRO_KERNEL_ELEM(Mode, Func, PrecoeffInit) Mode,
 		STORM_POC_XMACRO_KERNELS
 #undef STORM_POC_XMACRO_KERNEL_ELEM
+	};
+
+	enum class AxisValueType
+	{
+		Density,
+		Pressure,
 	};
 
 	class Kernel
@@ -332,22 +344,36 @@ namespace
 	class Pressure
 	{
 	public:
-		Pressure(const std::filesystem::path &csvFileName, ScalarValue h, KernelFunc func, Storm::Language language) :
+		template<AxisValueType valueType>
+		Pressure(const std::filesystem::path &csvFileName, ScalarValue h, KernelFunc func, Storm::Language language, const Storm::TemplateTraitsTransfer<valueType>) :
 			_kernel{ h, func },
 			_csv{ csvFileName.string(), language, Storm::CSVMode::ThreeDimensional },
 			_monaghanStdOffset{ static_cast<ScalarValue>(0.01) * h * h }
 		{
-			const ScalarValue step = (k_maxDensity - k_minDensity) / k_sampleCountLineFl;
+			_csv.setNumeric(true);
+
 			for (int iter = 0; iter < k_sampleCountLine; ++iter)
 			{
-				const ScalarValue rho = k_minDensity + step * static_cast<ScalarValue>(iter);
-				_csv.defineRowAxeValue(std::to_string(rho));
+				if constexpr (valueType == AxisValueType::Density)
+				{
+					const ScalarValue rho = k_minDensity + k_densityStep * static_cast<ScalarValue>(iter);
+					_csv.defineRowAxeValue(std::to_string(rho));
+				}
+				else if constexpr (valueType == AxisValueType::Pressure)
+				{
+					const ScalarValue p = k_minPressure + k_pressureStep * static_cast<ScalarValue>(iter);
+					_csv.defineRowAxeValue(std::to_string(p));
+				}
+				else
+				{
+					STORM_COMPILE_ERROR("Unhandled valueType.");
+				}
 			}
 		}
 
 	public:
 		template<class Formula>
-		void operator()(ScalarValue rhoi, ScalarValue rhoj, const Particle &pi, const Particle &pj, const Formula &formula)
+		void operator()(ScalarValue vali, ScalarValue valj, const Particle &pi, const Particle &pj, const Formula &formula)
 		{
 			const Vector xij = pi._position - pj._position;
 			const ScalarValue xijNormSquared = xij.normSquared();
@@ -355,9 +381,9 @@ namespace
 
 			const Vector gradValue = _kernel.gradient(static_cast<ScalarValue>(-1.0) * xij, xijNorm);
 
-			const Vector pressureVect = formula(rhoi, rhoj, gradValue);
+			const Vector pressureVect = formula(vali, valj, gradValue);
 
-			_csv(std::to_string(rhoj), pressureVect.dot(gradValue / gradValue.norm()));
+			_csv(std::to_string(valj), pressureVect.dot(gradValue / gradValue.norm()));
 		}
 
 	public:
@@ -370,6 +396,11 @@ namespace
 	ScalarValue computePressure(const ScalarValue rho)
 	{
 		return k_kCoeff * (rho - k_restDensity);
+	}
+
+	ScalarValue computeDensity(const ScalarValue p)
+	{
+		return p / k_kCoeff + k_restDensity;
 	}
 
 	struct POCInitArgs
@@ -408,31 +439,47 @@ namespace
 		return args;
 	}
 
-	template<class Formula>
+	template<AxisValueType valueType, class Formula>
 	void exec(const POCInitArgs &initArgs, const std::string &csvName, const Formula &func)
 	{
 		constexpr ScalarValue h = static_cast<ScalarValue>(1.0);
 		
-		Pressure pressure{ initArgs._currentTempPath / csvName, h, KernelFunc::SplishSplashCubicSpline, initArgs._language };
+		Pressure pressure{ initArgs._currentTempPath / csvName, h, KernelFunc::SplishSplashCubicSpline, initArgs._language, Storm::TemplateTraitsTransfer<valueType>{} };
 
 		// Origin particle set at { 0.f, 0.f, 0.f }
-		const Particle pi{ 0.0, 0.0, 0.0 };
-		const Particle pj{ 0.0, 0.8, 0.0 };
+		const Particle posi{ 0.0, 0.0, 0.0 };
+		const Particle posj{ 0.0, 0.8, 0.0 };
 
-		constexpr auto computeDensityLambda = [](const int iter)
+		constexpr auto computeValueLambda = [](const int iter)
 		{
-			return k_minDensity + static_cast<ScalarValue>(iter) * k_densitySpread / k_sampleCountLineFl;
+			if constexpr (valueType == AxisValueType::Density)
+			{
+				return k_minDensity + static_cast<ScalarValue>(iter) * k_densityStep;
+			}
+			else if constexpr (valueType == AxisValueType::Pressure)
+			{
+				return k_minPressure + static_cast<ScalarValue>(iter) * k_pressureStep;
+			}
+			else
+			{
+				STORM_COMPILE_ERROR("Unhandled valueType.");
+			}
 		};
 
 		for (int iter = 0; iter < k_sampleCountLine; ++iter)
 		{
-			const ScalarValue rhoi = computeDensityLambda(iter);
+			const ScalarValue vali = computeValueLambda(iter);
 			for (int jiter = 0; jiter < k_sampleCountLine; ++jiter)
 			{
-				const ScalarValue rhoj = computeDensityLambda(jiter);
-				pressure(rhoi, rhoj, pi, pj, func);
+				const ScalarValue valj = computeValueLambda(jiter);
+				pressure(vali, valj, posi, posj, func);
 			}
 		}
+	}
+
+	ScalarValue excelInfGuard(ScalarValue value)
+	{
+		return isfinite(value) ? value : (static_cast<ScalarValue>(9.99E307 * (signbit(value) ? -1.0 : 1.0)));
 	}
 }
 
@@ -442,20 +489,34 @@ int main(int argc, char* argv[])
 
 	constexpr ScalarValue mass = 1.0;
 
-	exec(initArgs, "pressure_diffFormula.csv", [](ScalarValue rhoi, ScalarValue rhoj, const Vector &gradValue)
+	exec<AxisValueType::Density>(initArgs, "pressure_diffFormula_densityAxis.csv", [](ScalarValue rhoi, ScalarValue rhoj, const Vector &gradValue)
 	{
 		const ScalarValue pi = computePressure(rhoi);
 		const ScalarValue pj = computePressure(rhoj);
 
-		return (mass / rhoj * (pj - pi)) * gradValue;
+		return excelInfGuard(mass / (rhoj * rhoj) * (pj - pi)) * gradValue;
 	});
 
-	exec(initArgs, "pressure_symmetryFormula.csv", [](ScalarValue rhoi, ScalarValue rhoj, const Vector &gradValue)
+	exec<AxisValueType::Density>(initArgs, "pressure_symmetryFormula_densityAxis.csv", [](const ScalarValue rhoi, const ScalarValue rhoj, const Vector &gradValue)
 	{
 		const ScalarValue pi = computePressure(rhoi);
 		const ScalarValue pj = computePressure(rhoj);
 
-		return (rhoi * mass * (pi / (rhoi * rhoi) + pj / (rhoj * rhoj))) * gradValue;
+		return excelInfGuard(mass * (pi / (rhoi * rhoi) + pj / (rhoj * rhoj))) * gradValue;
+	});
+
+	exec<AxisValueType::Pressure>(initArgs, "pressure_diffFormula_pressureAxis.csv", [](const ScalarValue pi, const ScalarValue pj, const Vector &gradValue)
+	{
+		const ScalarValue rhoj = computeDensity(pj);
+		return excelInfGuard(mass / (rhoj * rhoj) * (pj - pi)) * gradValue;
+	});
+
+	exec<AxisValueType::Pressure>(initArgs, "pressure_symmetryFormula_pressureAxis.csv", [](const ScalarValue pi, const ScalarValue pj, const Vector &gradValue)
+	{
+		const ScalarValue rhoi = computeDensity(pi);
+		const ScalarValue rhoj = computeDensity(pj);
+
+		return excelInfGuard(mass * (pi / (rhoi * rhoi) + pj / (rhoj * rhoj))) * gradValue;
 	});
 
 	return 0;
