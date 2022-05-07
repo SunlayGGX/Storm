@@ -392,5 +392,8 @@
     <ClInclude Include="..\include\TypeIdGenerator.h">
       <Filter>Header Files\General\Facets</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\TemplateTraitsTransfer.h">
+      <Filter>Header Files\MetaP</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

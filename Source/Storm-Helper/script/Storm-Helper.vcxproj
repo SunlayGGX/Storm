@@ -94,6 +94,7 @@
     <ClInclude Include="..\include\StringAlgo.h" />
     <ClInclude Include="..\include\StringHijack.h" />
     <ClInclude Include="..\include\StringOperator.h" />
+    <ClInclude Include="..\include\TemplateTraitsTransfer.h" />
     <ClInclude Include="..\include\ThreadHelper.h" />
     <ClInclude Include="..\include\ThrowException.h" />
     <ClInclude Include="..\include\TimeHelper.h" />
