@@ -19,6 +19,8 @@ namespace Storm
 
 		const std::string& getRawCommandline() const noexcept;
 
+		static std::string constructResetArgs(int argc, const char* argv[]);
+
 		// Getters
 
 		std::string getSceneFilePath() const;

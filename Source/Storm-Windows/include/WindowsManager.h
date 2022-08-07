@@ -75,6 +75,7 @@ namespace Storm
 
 	public:
 		void restartApplication(const std::string_view &additionalArgs);
+		void resetApplication();
 
 	private:
 		void* /*HWND*/ _windowVisuHandle;
