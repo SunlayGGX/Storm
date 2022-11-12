@@ -192,7 +192,7 @@ bool Storm::StormProcessOpener::openStormRestarter(const Storm::StormProcessOpen
 	const std::filesystem::path exeFolderPath = std::filesystem::path{ configMgr.getExePath() }.parent_path();
 
 	const std::string stormRestarterPath = STORM_EXECUTABLE_NAME("Storm-Restarter");
-	const std::string &restartCommandline = configMgr.getRestartCommandline();
+	const std::string &restartCommandline = param._reset ? configMgr.getResetCommandline() : configMgr.getRestartCommandline();
 
 	const std::size_t additionalArgsSize = param._additionalParameterStr.size();
 

@@ -74,6 +74,7 @@ namespace Storm
 		const std::string& getSceneConfigFilePath() const final override;
 		const std::string& getScriptFilePath() const final override;
 		const std::string& getRestartCommandline() const final override;
+		const std::string& getResetCommandline() const final override;
 		bool hasWall() const final override;
 		bool shouldArchive() const final override;
 
@@ -110,6 +111,7 @@ namespace Storm
 		std::string _computerName;
 
 		std::string _commandLineForRestart;
+		std::string _commandLineForReset;
 
 		// Configs
 		Storm::MacroConfigHolder _macroConfig;

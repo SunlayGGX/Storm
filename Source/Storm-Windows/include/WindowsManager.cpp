@@ -157,6 +157,10 @@ namespace
 				windowsMgr.restartApplication("");
 				break;
 
+			case ID_FILE_RESET:
+				windowsMgr.resetApplication();
+				break;
+
 			default:
 				if (!windowsMgr.getMenuBuilderHandler()(wmId))
 				{
@@ -802,7 +806,20 @@ void Storm::WindowsManager::restartApplication(const std::string_view &additiona
 	std::size_t outProcessUID;
 	if (Storm::StormProcessOpener::openStormRestarter(Storm::StormProcessOpener::OpenParameter{
 			._failureQuit = false,
+			._reset = false,
 			._additionalParameterStr = additionalArgs
+		}, outProcessUID))
+	{
+		this->callQuitCallback();
+	}
+}
+
+void Storm::WindowsManager::resetApplication()
+{
+	std::size_t outProcessUID;
+	if (Storm::StormProcessOpener::openStormRestarter(Storm::StormProcessOpener::OpenParameter{
+			._failureQuit = false,
+			._reset = true
 		}, outProcessUID))
 	{
 		this->callQuitCallback();

@@ -53,6 +53,8 @@ void Storm::ConfigManager::initialize_Implementation(int argc, const char* argv[
 		_commandLineForRestart = "--stormPath=";
 		_commandLineForRestart += Storm::OSHelper::getRawQuotedCommandline();
 
+		_commandLineForReset = Storm::CommandLineParser::constructResetArgs(argc, argv);
+
 		Storm::IOSManager &iosMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IOSManager>();
 		_currentPID = iosMgr.obtainCurrentPID();
 		_computerName = iosMgr.getComputerName();
@@ -621,6 +623,11 @@ const std::string& Storm::ConfigManager::getScriptFilePath() const
 const std::string& Storm::ConfigManager::getRestartCommandline() const
 {
 	return _commandLineForRestart;
+}
+
+const std::string& Storm::ConfigManager::getResetCommandline() const
+{
+	return _commandLineForReset;
 }
 
 bool Storm::ConfigManager::hasWall() const

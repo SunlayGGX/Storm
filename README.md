@@ -12,9 +12,9 @@ Note :
 
 
 # Prerequisite
-- **Visual Studio Community 2019 v16.8.1 with C++20** (or latest draft). Later version of visual studio are not tested.
+- **Visual Studio Community 2022 v17.1.6 with C++20** (or latest draft). Later version of visual studio are not tested. Used Windows SDK version is 10.0.22000.0
 - **Python 2.7.6 or later** (to build PhysX, see “Dependencies list” section). To know your current installed version if you have one, type python in a cmd console.
-- **Visual Studio 2017 toolsets (v141) and 2019 toolsets (v142)**
+- **Visual Studio 2022 toolsets (v143)** (maybe you'll need the old toolset : 2017 toolsets (v141), 2019 toolsets (v142) because I developped with those at some point).
 - **cmake_gui 3.15.0-rc1 or later**. (We used 3.15.0-rc1. We can’t guarantee an earlier version would work)...
 - Because we rely a lot on junctions and hardlinks to setup the project, we advise you to use an NTFS disk (or at least a disk format that supports it).
 - **.NET Framework 4.7.2** If you want to compile and use the “log viewer” or “script sender” tools.

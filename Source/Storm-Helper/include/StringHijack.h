@@ -12,14 +12,15 @@ namespace
 #endif
 
 #if defined(_WIN32)
-// We hijack std::string _Construct
+// We hijack std::string append
 template<>
 template<>
-void std::string::_Construct<StdHijackerProxy>(StdHijackerProxy hijacker, const StdHijackerProxy, input_iterator_tag)
+std::string& std::string::append<StdHijackerProxy, 0>(const StdHijackerProxy &hijacker)
 {
 	this->reserve(hijacker._newAskedSize + 1);
 	_Mypair._Myval2._Mysize = hijacker._newAskedSize;
 	*(this->data() + _Mypair._Myval2._Mysize) = static_cast<std::string::value_type>('\0');
+	return *this;
 }
 
 #endif
@@ -33,7 +34,7 @@ namespace Storm
 		{
 #if defined(_WIN32)
 			StdHijackerProxy hijacker{ newSize };
-			inOutStr._Construct(hijacker, hijacker, std::input_iterator_tag{});
+			inOutStr.append<StdHijackerProxy, 0>(hijacker);
 #else
 			// Linux or any other platform could not have been developped their std::string the same way Windows did (variable naming, method naming, ...)
 			// Since I don't have the time to check on those platform how to hijack it, I use the old resize... But this could lead to a huge overhead since
