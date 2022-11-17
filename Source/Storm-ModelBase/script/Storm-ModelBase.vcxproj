@@ -93,6 +93,7 @@
     <ClInclude Include="..\include\RecordMode.h" />
     <ClInclude Include="..\include\SceneScriptConfig.h" />
     <ClInclude Include="..\include\SceneFluidDefaultCustomConfig.h" />
+    <ClInclude Include="..\include\SceneSmokeEmitterConfig.h" />
     <ClInclude Include="..\include\SerializeConstraintLayout.h" />
     <ClInclude Include="..\include\SerializeSupportedFeatureLayout.h" />
     <ClInclude Include="..\include\SerializeParticleSystemLayout.h" />

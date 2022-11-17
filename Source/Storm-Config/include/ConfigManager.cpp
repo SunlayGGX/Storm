@@ -8,6 +8,7 @@
 #include "GeneralConfig.h"
 #include "SceneConfig.h"
 #include "SceneRigidBodyConfig.h"
+#include "SceneSmokeEmitterConfig.h"
 
 #include "ConfigReadParam.h"
 
@@ -531,6 +532,27 @@ const Storm::SceneRigidBodyConfig& Storm::ConfigManager::getSceneRigidBodyConfig
 const Storm::SceneScriptConfig& Storm::ConfigManager::getSceneScriptConfig() const
 {
 	return _sceneConfigHolder.getConfig()._scriptConfig;
+}
+
+const std::vector<Storm::SceneSmokeEmitterConfig>& Storm::ConfigManager::getSceneSmokeEmittersConfig() const
+{
+	return _sceneConfigHolder.getConfig()._smokeEmittersConfig;
+}
+
+const Storm::SceneSmokeEmitterConfig& Storm::ConfigManager::getSceneSmokeEmitter(unsigned int emitterId) const
+{
+	const std::vector<Storm::SceneSmokeEmitterConfig> &smokeEmitterConfigArrays = this->getSceneSmokeEmittersConfig();
+	if (const auto currentEmitterConfigIter = std::find_if(std::begin(smokeEmitterConfigArrays), std::end(smokeEmitterConfigArrays), [emitterId](const auto &emitter)
+	{
+		return emitter._emitterId == emitterId;
+	}); currentEmitterConfigIter != std::end(smokeEmitterConfigArrays))
+	{
+		return *currentEmitterConfigIter;
+	}
+	else
+	{
+		Storm::throwException<Storm::Exception>("Cannot find smoke emitter data with index " + std::to_string(emitterId));
+	}
 }
 
 const Storm::SceneCageConfig* Storm::ConfigManager::getSceneOptionalCageConfig() const

@@ -28,6 +28,7 @@ namespace Storm
 	struct SceneRecordConfig;
 	struct SceneScriptConfig;
 	struct SceneCageConfig;
+	struct SceneSmokeEmitterConfig;
 
 	enum class ThreadPriority;
 	enum class VectoredExceptionDisplayMode;
@@ -75,6 +76,8 @@ namespace Storm
 		virtual const std::vector<Storm::SceneConstraintConfig>& getSceneConstraintsConfig() const = 0;
 		virtual const Storm::SceneRigidBodyConfig& getSceneRigidBodyConfig(unsigned int rbId) const = 0;
 		virtual const Storm::SceneScriptConfig& getSceneScriptConfig() const = 0;
+		virtual const std::vector<Storm::SceneSmokeEmitterConfig>& getSceneSmokeEmittersConfig() const = 0;
+		virtual const Storm::SceneSmokeEmitterConfig& getSceneSmokeEmitter(unsigned int emitterId) const = 0;
 
 		virtual const Storm::SceneCageConfig* getSceneOptionalCageConfig() const = 0;
 

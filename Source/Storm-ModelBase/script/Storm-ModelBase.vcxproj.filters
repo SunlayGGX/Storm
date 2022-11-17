@@ -587,5 +587,8 @@
     <ClInclude Include="..\include\MassCoeffConfig.h">
       <Filter>Header Files\Modules\Config\Misc</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\SceneSmokeEmitterConfig.h">
+      <Filter>Header Files\Modules\Config\Scene</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -15,6 +15,7 @@
 #include "SceneRecordConfig.h"
 #include "SceneScriptConfig.h"
 #include "SceneCageConfig.h"
+#include "SceneSmokeEmitterConfig.h"
 #include "SceneFluidCustomDFSPHConfig.h"
 #include "SceneFluidCustomIISPHConfig.h"
 #include "SceneFluidCustomPCISPHConfig.h"
@@ -53,6 +54,51 @@
 
 namespace
 {
+	struct InvalidityChecker
+	{
+	private:
+		template<class VectorType>
+		static auto isInvalid(const VectorType &vect, int) -> decltype(vect.x(), bool())
+		{
+			if (InvalidityChecker::isInvalid(vect.x()) ||
+				InvalidityChecker::isInvalid(vect.y()))
+			{
+				return true;
+			}
+
+			if constexpr (Storm::Vector3::RowsAtCompileTime > 2)
+			{
+				if (InvalidityChecker::isInvalid(vect.z()))
+				{
+					return true;
+				}
+			}
+
+			if constexpr (Storm::Vector3::RowsAtCompileTime > 3)
+			{
+				if (InvalidityChecker::isInvalid(vect.w()))
+				{
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		template<class Type>
+		static auto isInvalid(const Type &val, void*) -> decltype(std::isnan(val), bool())
+		{
+			return std::isnan(val) || std::isinf(val);
+		}
+
+	public:
+		template<class Type>
+		static bool isInvalid(const Type &val)
+		{
+			return InvalidityChecker::isInvalid(val, 0);
+		}
+	};
+
 	Storm::Vector3 parseVector3Element(const boost::property_tree::ptree &tree)
 	{
 		Storm::Vector3 result;
@@ -1489,7 +1535,6 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 
 	/* Blowers */
 	auto &blowersConfigArray = _sceneConfig->_blowersConfig;
-
 	Storm::XmlReader::readDataInList(srcTree, "Blowers", "Blower", blowersConfigArray,
 		[](const auto &blowerConfigXml, Storm::SceneBlowerConfig &blowerConfig)
 	{
@@ -1755,6 +1800,55 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 
 		default:
 			Storm::throwException<Storm::Exception>("Blower " + std::to_string(blowerConfig._blowerId) + " check wasn't implemented!");
+		}
+	});
+
+	/* Emitters */
+	auto &emittersConfigArray = _sceneConfig->_smokeEmittersConfig;
+	Storm::XmlReader::readDataInList(srcTree, "SmokeEmitters", "SmokeEmitter", emittersConfigArray,
+		[](const auto &smokeConfigXml, Storm::SceneSmokeEmitterConfig &smokeConfig)
+	{
+		return
+			Storm::XmlReader::handleXml(smokeConfigXml, "id", smokeConfig._emitterId) ||
+			Storm::XmlReader::handleXml(smokeConfigXml, "position", smokeConfig._position, parseVector3Element) ||
+			Storm::XmlReader::handleXml(smokeConfigXml, "debitCount", smokeConfig._emitCountPerSeconds) ||
+			Storm::XmlReader::handleXml(smokeConfigXml, "aliveTime", smokeConfig._smokeAliveTimeSeconds) ||
+			Storm::XmlReader::handleXml(smokeConfigXml, "color", smokeConfig._color, parseColor4Element)
+			;
+	},
+		[&emittersConfigArray](Storm::SceneSmokeEmitterConfig &smokeConfig)
+	{
+		if (smokeConfig._emitterId == std::numeric_limits<decltype(smokeConfig._emitterId)>::max())
+		{
+			Storm::throwException<Storm::Exception>("Emitter id should be set using 'id' tag!");
+		}
+
+		if (std::any_of(std::begin(emittersConfigArray), std::end(emittersConfigArray), [id = smokeConfig._emitterId](const auto &registeredEmitter)
+		{
+			return registeredEmitter._emitterId == id;
+		}))
+		{
+			Storm::throwException<Storm::Exception>("Emitter with id " + std::to_string(smokeConfig._emitterId) + " shares the same id than an already registered emitter. It is forbidden!");
+		}
+
+		if (InvalidityChecker::isInvalid(smokeConfig._position))
+		{
+			Storm::throwException<Storm::Exception>("Emitter with id " + std::to_string(smokeConfig._emitterId) + " does not specify a valid position!");
+		}
+
+		if (ColorCheckerHelper::isInvalid(smokeConfig._color))
+		{
+			Storm::throwException<Storm::Exception>("Emitter with id " + std::to_string(smokeConfig._emitterId) + " does not specify a valid color (" + Storm::toStdString(smokeConfig._color) + "). All channels must be between 0.0 and 1.0 included!");
+		}
+
+		if (smokeConfig._emitCountPerSeconds <= 0.f)
+		{
+			Storm::throwException<Storm::Exception>("Emitter with id " + std::to_string(smokeConfig._emitterId) + " does not specify a valid debitCount value (" + Storm::toStdString(smokeConfig._emitCountPerSeconds) + "). It should be strictly greater than 0.0!");
+		}
+
+		if (smokeConfig._smokeAliveTimeSeconds <= 0.f)
+		{
+			Storm::throwException<Storm::Exception>("Emitter with id " + std::to_string(smokeConfig._smokeAliveTimeSeconds) + " does not specify a valid smoke alive time value (" + Storm::toStdString(smokeConfig._smokeAliveTimeSeconds) + "). It should be strictly greater than 0.0!");
 		}
 	});
 

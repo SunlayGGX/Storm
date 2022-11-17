@@ -14,6 +14,7 @@ namespace Storm
 	struct SceneBlowerConfig;
 	struct SceneConstraintConfig;
 	struct SceneCageConfig;
+	struct SceneSmokeEmitterConfig;
 
 	struct SceneConfig
 	{
@@ -34,5 +35,6 @@ namespace Storm
 		std::vector<Storm::SceneRigidBodyConfig> _rigidBodiesConfig;
 		std::vector<Storm::SceneBlowerConfig> _blowersConfig;
 		std::vector<Storm::SceneConstraintConfig> _contraintsConfig;
+		std::vector<Storm::SceneSmokeEmitterConfig> _smokeEmittersConfig;
 	};
 }

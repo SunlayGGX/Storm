@@ -522,6 +522,15 @@ Inside this element should be put all rigid bodies. Each rigid body should be sp
 - **noRotation (boolean, facultative)**: If true, the constraint won’t rotate along the constraint normal axis (rotation along the constraint axis will still be allowed). Default is “true”.
 - **visualize (boolean, facultative)**: If true, the constraint will be displayed. Default is “true”.
 
+#### SmokeEmitters
+
+##### SmokeEmitter
+- **id (positive integer, mandatory)**: This is the emitter id. This setting is mandatory.
+- **position (vector3, mandatory)**: This defines the position (all coordinates are meters) of the origin center of the emitter. This setting is mandatory...
+- **color (RGBAColor, facultative)**: The color of the smoke. Default value is { r=0.9f, g=0.9f, b=0.9f a=0.6f }.
+- **debitCount (positive float, facultative)**: This defines how many billboard of smoke would spawn per seconds. Default value is 10.0. Must be strictly greater than 0.0.
+- **aliveTime (positive float, facultative)**: This defines the duration (in seconds) the billboard should be alive and visible. Default value is 1.0s. Must be strictly greater than 0.0.
+
 
 #### Blowers
 

@@ -9,6 +9,7 @@
 #include "SceneConstraintConfig.h"
 #include "SceneRecordConfig.h"
 #include "SceneScriptConfig.h"
+#include "SceneSmokeEmitterConfig.h"
 #include "SceneFluidCustomDFSPHConfig.h"
 #include "SceneFluidCustomPCISPHConfig.h"
 #include "SceneFluidCustomIISPHConfig.h"
@@ -45,6 +46,15 @@ namespace
 			std::numeric_limits<Storm::Vector3::Scalar>::max(),
 			std::numeric_limits<Storm::Vector3::Scalar>::max(),
 			std::numeric_limits<Storm::Vector3::Scalar>::max()
+		};
+	}
+
+	inline Storm::Vector3 invalidVector3()
+	{
+		return Storm::Vector3{
+			std::numeric_limits<Storm::Vector3::Scalar>::quiet_NaN(),
+			std::numeric_limits<Storm::Vector3::Scalar>::quiet_NaN(),
+			std::numeric_limits<Storm::Vector3::Scalar>::quiet_NaN()
 		};
 	}
 }
@@ -299,6 +309,14 @@ Storm::SceneCageConfig::SceneCageConfig() :
 {
 
 }
+
+Storm::SceneSmokeEmitterConfig::SceneSmokeEmitterConfig() :
+	_emitterId{ std::numeric_limits<decltype(_emitterId)>::max() },
+	_position{ invalidVector3() },
+	_emitCountPerSeconds{ 10.f },
+	_smokeAliveTimeSeconds{ 1.f },
+	_color{ 0.9f, 0.9f, 0.9f, 0.6f }
+{}
 
 Storm::SceneConfig::SceneConfig() = default;
 

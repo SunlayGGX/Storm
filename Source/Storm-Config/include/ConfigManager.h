@@ -60,6 +60,8 @@ namespace Storm
 		const std::vector<Storm::SceneConstraintConfig>& getSceneConstraintsConfig() const final override;
 		const Storm::SceneRigidBodyConfig& getSceneRigidBodyConfig(unsigned int rbId) const final override;
 		const Storm::SceneScriptConfig& getSceneScriptConfig() const final override;
+		const std::vector<Storm::SceneSmokeEmitterConfig>& getSceneSmokeEmittersConfig() const final override;
+		const Storm::SceneSmokeEmitterConfig& getSceneSmokeEmitter(unsigned int emitterId) const final override;
 
 		const Storm::SceneCageConfig* getSceneOptionalCageConfig() const final override;
 
