@@ -522,6 +522,7 @@ Inside this element should be put all rigid bodies. Each rigid body should be sp
 - **noRotation (boolean, facultative)**: If true, the constraint won’t rotate along the constraint normal axis (rotation along the constraint axis will still be allowed). Default is “true”.
 - **visualize (boolean, facultative)**: If true, the constraint will be displayed. Default is “true”.
 
+
 #### SmokeEmitters
 
 ##### SmokeEmitter
