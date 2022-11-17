@@ -6,7 +6,8 @@
 
 namespace
 {
-	enum class RecordMagicWord : decltype(Storm::RecordPreHeader::_magicWordChecksum)
+	using ChecksumNativeType = decltype(Storm::RecordPreHeader::_magicWordChecksum);
+	enum class RecordMagicWord : ChecksumNativeType
 	{
 		k_badMagicWord = 0x11223399,
 		k_goodMagicWord = 0xABCDE7F0
