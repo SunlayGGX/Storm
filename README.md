@@ -472,7 +472,7 @@ Inside this element should be put all rigid bodies. Each rigid body should be sp
 - **translation (vector3, facultative)**: The initial position in meters of the object. Default value is { x=0.0, y=0.0, z=0.0 }.
 - **rotation (rotation, facultative)**: The initial rotation in degrees of the object. Default value is { angle=0.0, x=1.0, y=0.0, z=0.0 }.
 - **scale (vector3, facultative)**: The initial scale of the object. Default value is { x=1.0, y=1.0, z=1.0 }.
-- **color (RGBAColor, facultative)**: The colour of the rigid body. Default value is { r=0.3, g=0.5, b=0.5 a=1.0 }.
+- **color (RGBAColor, facultative)**: The color of the rigid body. Default value is { r=0.3, g=0.5, b=0.5 a=1.0 }.
 - **separateColor (boolean, facultative)**: This flag specifies if we should randomize a little around the chosen color to make each rb particle stand out. Default value is false.
 - **staticFrictionCoeff (float, facultative)**: The static friction coefficient of the object, it should be larger than 0.0. PhysX needs it but physically speaking I don’t know what to set. This is the minimum force norm threshold that makes our object move. See http://docs.garagegames.com/torque-3d/reference/classPxMaterial.html.
 - **dynamicFrictionCoeff (float, facultative)**: The dynamic friction coefficient of the object, it should be positive. PhysX needs it but physically speaking I don’t know what to set. This is the velocity reduction when a rigid body moves with a contact with another. See http://docs.garagegames.com/torque-3d/reference/classPxMaterial.html.
