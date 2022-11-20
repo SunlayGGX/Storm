@@ -139,15 +139,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Storm-Safety", "Source\Stor
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "StormPOC-NegativePressure", "Source\POC\StormPOC-NegativePressure\script\StormPOC-NegativePressure.vcxproj", "{14CB6D06-71DF-47BB-8D07-94141EAC179E}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Storm-Emitter", "Source\Storm-Emitter\script\Storm-Emitter.vcxproj", "{88DCEAC5-9A36-4DC8-BEB4-A918C9D7DC36}"
+EndProject
 Global
-	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		Source\Storm-CsCppShared\script\Storm-CsCppShared.projitems*{30ae641c-fdd2-49b8-abd0-19ea070978d3}*SharedItemsImports = 13
-		Source\Storm-CsCppShared\script\Storm-CsCppShared.projitems*{5b489712-203d-4e22-817c-89244dcf9434}*SharedItemsImports = 4
-		Source\Storm-CsHelper\Storm-CsHelper.projitems*{5b489712-203d-4e22-817c-89244dcf9434}*SharedItemsImports = 4
-		Source\Storm-CsCppShared\script\Storm-CsCppShared.projitems*{a1dc8dd9-aebe-49c5-9530-ca4eba5681cf}*SharedItemsImports = 4
-		Source\Storm-CsHelper\Storm-CsHelper.projitems*{a1dc8dd9-aebe-49c5-9530-ca4eba5681cf}*SharedItemsImports = 4
-		Source\Storm-CsHelper\Storm-CsHelper.projitems*{f19cc26f-2518-4126-a199-423a268a3191}*SharedItemsImports = 13
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|x64 = Debug|x64
@@ -541,6 +535,22 @@ Global
 		{14CB6D06-71DF-47BB-8D07-94141EAC179E}.ReleaseNoPackager|Any CPU.Build.0 = Debug|x64
 		{14CB6D06-71DF-47BB-8D07-94141EAC179E}.ReleaseNoPackager|x64.ActiveCfg = Release|x64
 		{14CB6D06-71DF-47BB-8D07-94141EAC179E}.ReleaseNoPackager|x64.Build.0 = Release|x64
+		{88DCEAC5-9A36-4DC8-BEB4-A918C9D7DC36}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{88DCEAC5-9A36-4DC8-BEB4-A918C9D7DC36}.Debug|Any CPU.Build.0 = Debug|x64
+		{88DCEAC5-9A36-4DC8-BEB4-A918C9D7DC36}.Debug|x64.ActiveCfg = Debug|x64
+		{88DCEAC5-9A36-4DC8-BEB4-A918C9D7DC36}.Debug|x64.Build.0 = Debug|x64
+		{88DCEAC5-9A36-4DC8-BEB4-A918C9D7DC36}.Profile|Any CPU.ActiveCfg = Profile|x64
+		{88DCEAC5-9A36-4DC8-BEB4-A918C9D7DC36}.Profile|Any CPU.Build.0 = Profile|x64
+		{88DCEAC5-9A36-4DC8-BEB4-A918C9D7DC36}.Profile|x64.ActiveCfg = Profile|x64
+		{88DCEAC5-9A36-4DC8-BEB4-A918C9D7DC36}.Profile|x64.Build.0 = Profile|x64
+		{88DCEAC5-9A36-4DC8-BEB4-A918C9D7DC36}.Release|Any CPU.ActiveCfg = Release|x64
+		{88DCEAC5-9A36-4DC8-BEB4-A918C9D7DC36}.Release|Any CPU.Build.0 = Release|x64
+		{88DCEAC5-9A36-4DC8-BEB4-A918C9D7DC36}.Release|x64.ActiveCfg = Release|x64
+		{88DCEAC5-9A36-4DC8-BEB4-A918C9D7DC36}.Release|x64.Build.0 = Release|x64
+		{88DCEAC5-9A36-4DC8-BEB4-A918C9D7DC36}.ReleaseNoPackager|Any CPU.ActiveCfg = Release|x64
+		{88DCEAC5-9A36-4DC8-BEB4-A918C9D7DC36}.ReleaseNoPackager|Any CPU.Build.0 = Release|x64
+		{88DCEAC5-9A36-4DC8-BEB4-A918C9D7DC36}.ReleaseNoPackager|x64.ActiveCfg = Release|x64
+		{88DCEAC5-9A36-4DC8-BEB4-A918C9D7DC36}.ReleaseNoPackager|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -589,8 +599,17 @@ Global
 		{59673C98-FC2D-4393-8B1C-C08B694CDE22} = {F79A0D9C-2055-4FD3-89F6-A901CD582DBD}
 		{683B9632-A1B4-411C-9E3B-716D3573F4F0} = {71FDD4FA-5CB7-4461-A3FD-A8818CF6C865}
 		{14CB6D06-71DF-47BB-8D07-94141EAC179E} = {7410768D-6BA0-4898-B2E0-0AE483393E88}
+		{88DCEAC5-9A36-4DC8-BEB4-A918C9D7DC36} = {71FDD4FA-5CB7-4461-A3FD-A8818CF6C865}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {AC48B795-9776-4952-84E0-CE8AB938B72B}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Source\Storm-CsCppShared\script\Storm-CsCppShared.projitems*{30ae641c-fdd2-49b8-abd0-19ea070978d3}*SharedItemsImports = 13
+		Source\Storm-CsCppShared\script\Storm-CsCppShared.projitems*{5b489712-203d-4e22-817c-89244dcf9434}*SharedItemsImports = 4
+		Source\Storm-CsHelper\Storm-CsHelper.projitems*{5b489712-203d-4e22-817c-89244dcf9434}*SharedItemsImports = 4
+		Source\Storm-CsCppShared\script\Storm-CsCppShared.projitems*{a1dc8dd9-aebe-49c5-9530-ca4eba5681cf}*SharedItemsImports = 4
+		Source\Storm-CsHelper\Storm-CsHelper.projitems*{a1dc8dd9-aebe-49c5-9530-ca4eba5681cf}*SharedItemsImports = 4
+		Source\Storm-CsHelper\Storm-CsHelper.projitems*{f19cc26f-2518-4126-a199-423a268a3191}*SharedItemsImports = 13
 	EndGlobalSection
 EndGlobal

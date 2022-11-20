@@ -25,6 +25,7 @@
 #include "BibliographyManager.h"
 #include "AnimationManager.h"
 #include "SafetyManager.h"
+#include "EmitterManager.h"
 
 #include "ScriptImplementation.inl.h"
 
@@ -63,6 +64,7 @@ namespace
 		Storm::SpacePartitionerManager,
 		Storm::RaycastManager,
 		Storm::AnimationManager,
+		Storm::EmitterManager,
 		Storm::SimulatorManager
 	>;
 
@@ -132,6 +134,8 @@ namespace
 
 			Storm::ShaderManager::instance().initialize();
 
+			Storm::EmitterManager::instance().initialize();
+
 			if (hasUI)
 			{
 				Storm::GraphicManager::instance().initialize(Storm::WithUI{});
@@ -197,6 +201,7 @@ namespace
 				Storm::GraphicManager::instance().cleanUp(Storm::NoUI{});
 			}
 
+			Storm::EmitterManager::instance().cleanUp();
 			Storm::ProfilerManager::instance().cleanUp();
 			Storm::AssetLoaderManager::instance().cleanUp();
 			Storm::ShaderManager::instance().cleanUp();

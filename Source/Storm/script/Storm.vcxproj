@@ -37,6 +37,9 @@
     <ProjectReference Include="..\..\Storm-Config\script\Storm-Config.vcxproj">
       <Project>{8004df4f-e94e-4c58-8c6b-1042a461ed62}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\..\Storm-Emitter\script\Storm-Emitter.vcxproj">
+      <Project>{88dceac5-9a36-4dc8-beb4-a918c9d7dc36}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\..\Storm-Graphics\script\Storm-Graphics.vcxproj">
       <Project>{cc6dfc68-e28a-4c11-a168-fbe234335bc7}</Project>
     </ProjectReference>
@@ -160,7 +163,7 @@
       <PrecompiledHeaderFile>StormPCH.h</PrecompiledHeaderFile>
       <ForcedIncludeFiles>%(PrecompiledHeaderFile);%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <LanguageStandard>stdcpplatest</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)../../Storm-ModelBase/include;$(ProjectDir)../../Storm-Animation/include;$(ProjectDir)../../Storm-Loader/include;$(ProjectDir)../../Storm-Logger/include;$(ProjectDir)../../Storm-Config/include;$(ProjectDir)../../Storm-Windows/include;$(ProjectDir)../../Storm-Input/include;$(ProjectDir)../../Storm-Graphics/include;$(ProjectDir)../../Storm-Network/include;$(ProjectDir)../../Storm-Physics/include;$(ProjectDir)../../Storm-Profiler/include;$(ProjectDir)../../Storm-Misc/include;$(ProjectDir)../../Storm-Safety/include;$(ProjectDir)../../Storm-Script/include;$(ProjectDir)../../Storm-Serializer/include;$(ProjectDir)../../Storm-Space/include;$(ProjectDir)../../Storm-Simulator/include;$(ProjectDir)../../../Dependencies\Lua\include;$(ProjectDir)../../../Dependencies\Sol2\single/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)../../Storm-ModelBase/include;$(ProjectDir)../../Storm-Animation/include;$(ProjectDir)../../Storm-Loader/include;$(ProjectDir)../../Storm-Logger/include;$(ProjectDir)../../Storm-Config/include;$(ProjectDir)../../Storm-Windows/include;$(ProjectDir)../../Storm-Input/include;$(ProjectDir)../../Storm-Graphics/include;$(ProjectDir)../../Storm-Network/include;$(ProjectDir)../../Storm-Physics/include;$(ProjectDir)../../Storm-Profiler/include;$(ProjectDir)../../Storm-Misc/include;$(ProjectDir)../../Storm-Safety/include;$(ProjectDir)../../Storm-Script/include;$(ProjectDir)../../Storm-Emitter/include;$(ProjectDir)../../Storm-Serializer/include;$(ProjectDir)../../Storm-Space/include;$(ProjectDir)../../Storm-Simulator/include;$(ProjectDir)../../../Dependencies\Lua\include;$(ProjectDir)../../../Dependencies\Sol2\single/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -186,7 +189,7 @@
       <PrecompiledHeaderFile>StormPCH.h</PrecompiledHeaderFile>
       <ForcedIncludeFiles>%(PrecompiledHeaderFile);%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <LanguageStandard>stdcpplatest</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)../../Storm-ModelBase/include;$(ProjectDir)../../Storm-Animation/include;$(ProjectDir)../../Storm-Loader/include;$(ProjectDir)../../Storm-Logger/include;$(ProjectDir)../../Storm-Config/include;$(ProjectDir)../../Storm-Windows/include;$(ProjectDir)../../Storm-Input/include;$(ProjectDir)../../Storm-Graphics/include;$(ProjectDir)../../Storm-Network/include;$(ProjectDir)../../Storm-Physics/include;$(ProjectDir)../../Storm-Profiler/include;$(ProjectDir)../../Storm-Misc/include;$(ProjectDir)../../Storm-Safety/include;$(ProjectDir)../../Storm-Script/include;$(ProjectDir)../../Storm-Serializer/include;$(ProjectDir)../../Storm-Space/include;$(ProjectDir)../../Storm-Simulator/include;$(ProjectDir)../../../Dependencies\Lua\include;$(ProjectDir)../../../Dependencies\Sol2\single/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)../../Storm-ModelBase/include;$(ProjectDir)../../Storm-Animation/include;$(ProjectDir)../../Storm-Loader/include;$(ProjectDir)../../Storm-Logger/include;$(ProjectDir)../../Storm-Config/include;$(ProjectDir)../../Storm-Windows/include;$(ProjectDir)../../Storm-Input/include;$(ProjectDir)../../Storm-Graphics/include;$(ProjectDir)../../Storm-Network/include;$(ProjectDir)../../Storm-Physics/include;$(ProjectDir)../../Storm-Profiler/include;$(ProjectDir)../../Storm-Misc/include;$(ProjectDir)../../Storm-Safety/include;$(ProjectDir)../../Storm-Script/include;$(ProjectDir)../../Storm-Emitter/include;$(ProjectDir)../../Storm-Serializer/include;$(ProjectDir)../../Storm-Space/include;$(ProjectDir)../../Storm-Simulator/include;$(ProjectDir)../../../Dependencies\Lua\include;$(ProjectDir)../../../Dependencies\Sol2\single/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -212,7 +215,7 @@
       <PrecompiledHeaderFile>StormPCH.h</PrecompiledHeaderFile>
       <ForcedIncludeFiles>%(PrecompiledHeaderFile);%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <LanguageStandard>stdcpplatest</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)../../Storm-ModelBase/include;$(ProjectDir)../../Storm-Animation/include;$(ProjectDir)../../Storm-Loader/include;$(ProjectDir)../../Storm-Logger/include;$(ProjectDir)../../Storm-Config/include;$(ProjectDir)../../Storm-Windows/include;$(ProjectDir)../../Storm-Input/include;$(ProjectDir)../../Storm-Graphics/include;$(ProjectDir)../../Storm-Network/include;$(ProjectDir)../../Storm-Physics/include;$(ProjectDir)../../Storm-Profiler/include;$(ProjectDir)../../Storm-Misc/include;$(ProjectDir)../../Storm-Safety/include;$(ProjectDir)../../Storm-Script/include;$(ProjectDir)../../Storm-Serializer/include;$(ProjectDir)../../Storm-Space/include;$(ProjectDir)../../Storm-Simulator/include;$(ProjectDir)../../../Dependencies\Lua\include;$(ProjectDir)../../../Dependencies\Sol2\single/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)../../Storm-ModelBase/include;$(ProjectDir)../../Storm-Animation/include;$(ProjectDir)../../Storm-Loader/include;$(ProjectDir)../../Storm-Logger/include;$(ProjectDir)../../Storm-Config/include;$(ProjectDir)../../Storm-Windows/include;$(ProjectDir)../../Storm-Input/include;$(ProjectDir)../../Storm-Graphics/include;$(ProjectDir)../../Storm-Network/include;$(ProjectDir)../../Storm-Physics/include;$(ProjectDir)../../Storm-Profiler/include;$(ProjectDir)../../Storm-Misc/include;$(ProjectDir)../../Storm-Safety/include;$(ProjectDir)../../Storm-Script/include;$(ProjectDir)../../Storm-Emitter/include;$(ProjectDir)../../Storm-Serializer/include;$(ProjectDir)../../Storm-Space/include;$(ProjectDir)../../Storm-Simulator/include;$(ProjectDir)../../../Dependencies\Lua\include;$(ProjectDir)../../../Dependencies\Sol2\single/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

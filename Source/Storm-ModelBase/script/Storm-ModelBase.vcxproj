@@ -51,6 +51,7 @@
     <ClInclude Include="..\include\GeometryType.h" />
     <ClInclude Include="..\include\IAnimationManager.h" />
     <ClInclude Include="..\include\IBibliographyManager.h" />
+    <ClInclude Include="..\include\IEmitterManager.h" />
     <ClInclude Include="..\include\InternalConfig.h" />
     <ClInclude Include="..\include\GeneratedGitConfig.h" />
     <ClInclude Include="..\include\GeneralGraphicConfig.h" />

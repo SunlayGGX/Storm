@@ -590,5 +590,8 @@
     <ClInclude Include="..\include\SceneSmokeEmitterConfig.h">
       <Filter>Header Files\Modules\Config\Scene</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\IEmitterManager.h">
+      <Filter>Header Files\Singleton</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
