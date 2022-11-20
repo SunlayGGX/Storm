@@ -16,6 +16,7 @@
 #include "ParticleForceRenderer.h"
 #include "GraphicKernelEffectArea.h"
 #include "GraphicNormals.h"
+#include "GraphicSmoke.h"
 
 #include "RenderedElementProxy.h"
 
@@ -177,6 +178,11 @@ void Storm::GraphicManager::initialize_Implementation(void* hwnd)
 
 	_graphicNormals = std::make_unique<Storm::GraphicNormals>(device);
 
+	if (!configMgr.getSceneSmokeEmittersConfig().empty())
+	{
+		_smokeOptional = std::make_unique<Storm::GraphicSmoke>(device);
+	}
+
 	for (auto &meshesPair : _meshesMap)
 	{
 		meshesPair.second->initializeRendering(device);
@@ -281,6 +287,7 @@ void Storm::GraphicManager::cleanUp_Implementation(const Storm::WithUI &)
 	_forceRenderer.reset();
 	_graphicConstraintsSystem.reset();
 	_graphicParticlesSystem.reset();
+	_smokeOptional.reset();
 	_meshesMap.clear();
 	_renderedElements.clear();
 	_fieldsMap.clear();

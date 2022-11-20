@@ -44,6 +44,7 @@
     <ClCompile Include="..\include\ParticleForceRenderer.cpp" />
     <ClCompile Include="..\include\ParticleForceShader.cpp" />
     <ClCompile Include="..\include\ParticleShader.cpp" />
+    <ClCompile Include="..\include\GraphicSmoke.cpp" />
     <ClCompile Include="..\include\ResourceMapperGuard.cpp" />
     <ClCompile Include="..\include\ShaderManager.cpp" />
     <ClCompile Include="..\include\Storm-GraphicsPCH.cpp">
@@ -88,6 +89,7 @@
     <ClInclude Include="..\include\ParticleForceRenderer.h" />
     <ClInclude Include="..\include\ParticleForceShader.h" />
     <ClInclude Include="..\include\ParticleShader.h" />
+    <ClInclude Include="..\include\GraphicSmoke.h" />
     <ClInclude Include="..\include\RenderedElementProxy.h" />
     <ClInclude Include="..\include\RenderModeState.h" />
     <ClInclude Include="..\include\ResourceMapperGuard.h" />
