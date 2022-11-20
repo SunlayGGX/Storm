@@ -1823,9 +1823,9 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 			Storm::throwException<Storm::Exception>("Emitter id should be set using 'id' tag!");
 		}
 
-		if (std::any_of(std::begin(emittersConfigArray), std::end(emittersConfigArray), [id = smokeConfig._emitterId](const auto &registeredEmitter)
+		if (std::any_of(std::begin(emittersConfigArray), std::end(emittersConfigArray), [&smokeConfig](const auto &registeredEmitter)
 		{
-			return registeredEmitter._emitterId == id;
+			return registeredEmitter._emitterId == smokeConfig._emitterId && &registeredEmitter != &smokeConfig;
 		}))
 		{
 			Storm::throwException<Storm::Exception>("Emitter with id " + std::to_string(smokeConfig._emitterId) + " shares the same id than an already registered emitter. It is forbidden!");
