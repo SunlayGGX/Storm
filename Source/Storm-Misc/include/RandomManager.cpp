@@ -56,6 +56,11 @@ int32_t Storm::RandomManager::randomizeInteger(int32_t max)
 	return Randomizer::computeRandom(retrieveRandomEngine(), static_cast<decltype(max)>(0), max);
 }
 
+void Storm::RandomManager::shuffle(std::vector<int> &container, std::size_t endIndex)
+{
+	std::shuffle(std::begin(container), std::begin(container) + endIndex, retrieveRandomEngine());
+}
+
 int64_t Storm::RandomManager::randomizeInteger(int64_t max)
 {
 	return Randomizer::computeRandom(retrieveRandomEngine(), static_cast<decltype(max)>(0), max);

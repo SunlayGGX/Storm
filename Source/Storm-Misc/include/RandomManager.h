@@ -25,5 +25,7 @@ namespace Storm
 		int32_t randomizeInteger(int32_t max) final override;
 		int64_t randomizeInteger(int64_t min, int64_t max) final override;
 		int64_t randomizeInteger(int64_t max) final override;
+
+		void shuffle(std::vector<int> &container, std::size_t endIndex) final override;
 	};
 }
