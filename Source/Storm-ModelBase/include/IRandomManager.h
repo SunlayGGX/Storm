@@ -33,6 +33,11 @@ namespace Storm
 		// Return a random 64 bits integer between 0 and max (both included)
 		virtual int64_t randomizeInteger(int64_t max) = 0;
 
+
+		// Randomize a vector between the null vector and max vector.
+		virtual Storm::Vector3 randomizeVector3(const Storm::Vector3 &max) = 0;
+
+
 		// Shuffle container from 0 index to endIndex index (not included).
 		virtual void shuffle(std::vector<int> &container, std::size_t endIndex) = 0;
 	};

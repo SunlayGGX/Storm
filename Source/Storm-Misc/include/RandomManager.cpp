@@ -1,5 +1,7 @@
 #include "RandomManager.h"
 
+#include <random>
+
 
 namespace
 {
@@ -54,6 +56,15 @@ float Storm::RandomManager::randomizeFloat(float min, float max)
 int32_t Storm::RandomManager::randomizeInteger(int32_t max)
 {
 	return Randomizer::computeRandom(retrieveRandomEngine(), static_cast<decltype(max)>(0), max);
+}
+
+Storm::Vector3 Storm::RandomManager::randomizeVector3(const Storm::Vector3 &max)
+{
+	return Storm::Vector3{
+		this->randomizeFloat(max.x()),
+		this->randomizeFloat(max.y()),
+		this->randomizeFloat(max.z())
+	};
 }
 
 void Storm::RandomManager::shuffle(std::vector<int> &container, std::size_t endIndex)
