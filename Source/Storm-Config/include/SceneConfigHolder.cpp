@@ -1803,7 +1803,7 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 		}
 	});
 
-	/* Emitters */
+	/* Smoke Emitters */
 	auto &emittersConfigArray = _sceneConfig->_smokeEmittersConfig;
 	Storm::XmlReader::readDataInList(srcTree, "SmokeEmitters", "SmokeEmitter", emittersConfigArray,
 		[](const auto &smokeConfigXml, Storm::SceneSmokeEmitterConfig &smokeConfig)
@@ -1813,6 +1813,8 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 			Storm::XmlReader::handleXml(smokeConfigXml, "position", smokeConfig._position, parseVector3Element) ||
 			Storm::XmlReader::handleXml(smokeConfigXml, "debitCount", smokeConfig._emitCountPerSeconds) ||
 			Storm::XmlReader::handleXml(smokeConfigXml, "aliveTime", smokeConfig._smokeAliveTimeSeconds) ||
+			Storm::XmlReader::handleXml(smokeConfigXml, "startTime", smokeConfig._emitterStartTimeSeconds) ||
+			Storm::XmlReader::handleXml(smokeConfigXml, "endTime", smokeConfig._emitterEndTimeSeconds) ||
 			Storm::XmlReader::handleXml(smokeConfigXml, "color", smokeConfig._color, parseColor4Element)
 			;
 	},
@@ -1848,7 +1850,25 @@ void Storm::SceneConfigHolder::read(const std::string &sceneConfigFilePathStr, c
 
 		if (smokeConfig._smokeAliveTimeSeconds <= 0.f)
 		{
-			Storm::throwException<Storm::Exception>("Emitter with id " + std::to_string(smokeConfig._smokeAliveTimeSeconds) + " does not specify a valid smoke alive time value (" + Storm::toStdString(smokeConfig._smokeAliveTimeSeconds) + "). It should be strictly greater than 0.0!");
+			Storm::throwException<Storm::Exception>("Emitter with id " + std::to_string(smokeConfig._emitterId) + " does not specify a valid smoke alive time value (" + Storm::toStdString(smokeConfig._smokeAliveTimeSeconds) + "). It should be strictly greater than 0.0!");
+		}
+
+		if (smokeConfig._emitterStartTimeSeconds < 0.f)
+		{
+			Storm::throwException<Storm::Exception>("Emitter with id " + std::to_string(smokeConfig._emitterId) + " start time should be greater or equal to 0.0 (value was " + Storm::toStdString(smokeConfig._emitterStartTimeSeconds) + ").");
+		}
+
+		if (!std::isnan(smokeConfig._emitterEndTimeSeconds))
+		{
+			if (smokeConfig._emitterEndTimeSeconds < 0.f)
+			{
+				Storm::throwException<Storm::Exception>("Emitter with id " + std::to_string(smokeConfig._emitterId) + " end time should be greater or equal to 0.0 (value was " + Storm::toStdString(smokeConfig._emitterEndTimeSeconds) + ").");
+			}
+
+			if (smokeConfig._emitterEndTimeSeconds <= smokeConfig._emitterStartTimeSeconds)
+			{
+				Storm::throwException<Storm::Exception>("Emitter with id " + std::to_string(smokeConfig._emitterId) + " start time (" + Storm::toStdString(smokeConfig._emitterStartTimeSeconds) + ") should be strictly less than end time (" + Storm::toStdString(smokeConfig._emitterEndTimeSeconds) + ").");
+			}
 		}
 	});
 

@@ -25,9 +25,18 @@ Storm::EmitterObject::EmitterObject(const SceneSmokeEmitterConfig &associatedCfg
 	_cfg{ associatedCfg },
 	_spawningTime{ 1.f / _cfg._emitCountPerSeconds },
 	_nextSpawnTime{ 0.f },
-	_currentEmitterTime{ 0.f }
+	_currentEmitterTime{ 0.f },
+	_hasAutoEndTime{ !std::isnan(associatedCfg._emitterEndTimeSeconds) }
 {
 
+}
+
+bool Storm::EmitterObject::isInOperatingRange(float deltaTime) const noexcept
+{
+	const auto advancedTime = _currentEmitterTime + deltaTime;
+	return
+		advancedTime > _cfg._emitterStartTimeSeconds &&
+		(!_hasAutoEndTime || advancedTime < _cfg._emitterEndTimeSeconds);
 }
 
 void Storm::EmitterObject::update(float deltaTime, Storm::PushedParticleEmitterData &appendDataThisFrame)
@@ -35,17 +44,22 @@ void Storm::EmitterObject::update(float deltaTime, Storm::PushedParticleEmitterD
 	assert(Storm::isSimulationThread() && "This method should only be used in simulation thread!");
 	assert(this->isEnabled() && "This method should be used after testing against enabling flag.");
 
-	appendDataThisFrame._id = _cfg._emitterId;
-
-	this->decreaseEmittedLife(deltaTime);
-	this->updateEmittedList(deltaTime);
-	this->emitNew(deltaTime);
-	_currentEmitterTime += deltaTime;
-
-	for (auto &emitted : _emitted)
+	if (this->isInOperatingRange(deltaTime))
 	{
-		appendDataThisFrame._positions.emplace_back(emitted._position);
+		appendDataThisFrame._id = _cfg._emitterId;
+
+		this->decreaseEmittedLife(deltaTime);
+		this->updateEmittedList(deltaTime);
+		this->emitNew(deltaTime);
+
+		appendDataThisFrame._positions.reserve(_emitted.size());
+		for (auto &emitted : _emitted)
+		{
+			appendDataThisFrame._positions.emplace_back(emitted._position);
+		}
 	}
+
+	_currentEmitterTime += deltaTime;
 }
 
 void Storm::EmitterObject::updateEmittedList(float deltaTime)

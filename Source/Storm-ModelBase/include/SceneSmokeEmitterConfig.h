@@ -13,6 +13,8 @@ namespace Storm
 		Storm::Vector3 _position;
 		float _emitCountPerSeconds;
 		float _smokeAliveTimeSeconds;
+		float _emitterStartTimeSeconds;
+		float _emitterEndTimeSeconds;
 		Storm::Vector4 _color;
 	};
 }

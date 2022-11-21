@@ -315,7 +315,9 @@ Storm::SceneSmokeEmitterConfig::SceneSmokeEmitterConfig() :
 	_position{ invalidVector3() },
 	_emitCountPerSeconds{ 10.f },
 	_smokeAliveTimeSeconds{ 1.f },
-	_color{ 0.9f, 0.9f, 0.9f, 0.6f }
+	_color{ 0.9f, 0.9f, 0.9f, 0.6f },
+	_emitterStartTimeSeconds{ 0.f },
+	_emitterEndTimeSeconds{ std::numeric_limits<decltype(_emitterEndTimeSeconds)>::quiet_NaN() }
 {}
 
 Storm::SceneConfig::SceneConfig() = default;

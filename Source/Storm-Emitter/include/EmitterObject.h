@@ -22,8 +22,10 @@ namespace Storm
 		EmitterObject(const SceneSmokeEmitterConfig &associatedCfg);
 
 	public:
-		std::size_t getEmittedCount() const noexcept { return _emitted.size(); }
 		bool isEnabled() const noexcept { return _enabled; }
+
+	private:
+		bool isInOperatingRange(float deltaTime) const noexcept;
 
 	public:
 		void update(float deltaTime, Storm::PushedParticleEmitterData &appendDataThisFrame);
@@ -36,6 +38,7 @@ namespace Storm
 
 	private:
 		bool _enabled;
+		bool _hasAutoEndTime;
 
 		const SceneSmokeEmitterConfig &_cfg;
 		float _spawningTime;

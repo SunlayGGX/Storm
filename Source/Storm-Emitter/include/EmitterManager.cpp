@@ -29,19 +29,17 @@ void Storm::EmitterManager::cleanUp_Implementation()
 
 void Storm::EmitterManager::update(float deltaTime)
 {
-	if (std::size_t expectedCount = _emitters.size();
-		expectedCount > 0)
+	if (std::size_t emittersCount = _emitters.size();
+		emittersCount > 0)
 	{
 		std::vector<Storm::PushedParticleEmitterData> data;
-		data.reserve(expectedCount);
+		data.reserve(emittersCount);
 
 		for (auto &emitter : _emitters)
 		{
 			if (emitter.isEnabled())
 			{
 				auto &newData = data.emplace_back();
-				newData._positions.reserve(emitter.getEmittedCount() + 1);
-
 				emitter.update(deltaTime, newData);
 			}
 		}
