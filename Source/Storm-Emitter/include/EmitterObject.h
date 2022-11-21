@@ -23,6 +23,7 @@ namespace Storm
 
 	public:
 		std::size_t getEmittedCount() const noexcept { return _emitted.size(); }
+		bool isEnabled() const noexcept { return _enabled; }
 
 	public:
 		void update(float deltaTime, Storm::PushedParticleEmitterData &appendDataThisFrame);

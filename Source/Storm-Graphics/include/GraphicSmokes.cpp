@@ -1,4 +1,4 @@
-#include "GraphicSmoke.h"
+#include "GraphicSmokes.h"
 
 #include "SmokeShader.h"
 
@@ -7,12 +7,15 @@
 
 #include "PushedParticleEmitterData.h"
 
+#include "SceneSmokeEmitterConfig.h"
+
 #define STORM_HIJACKED_TYPE Storm::Vector4
 #	include "VectHijack.h"
 #undef STORM_HIJACKED_TYPE
 #define STORM_HIJACKED_TYPE int
 #	include "VectHijack.h"
 #undef STORM_HIJACKED_TYPE
+
 #include "MemoryHelper.h"
 
 
@@ -132,8 +135,34 @@ namespace
 	};
 }
 
-Storm::GraphicSmoke::GraphicSmoke(const ComPtr<ID3D11Device> &device) :
-	_count{ 0 }
+Storm::GraphicSmokes::InternalOneSmokeEmit::InternalOneSmokeEmit(const Storm::SceneSmokeEmitterConfig &smokeCfg) :
+	_color{ smokeCfg._color.x(), smokeCfg._color.y(), smokeCfg._color.z(), smokeCfg._color.w() },
+	_count{ 0 },
+	_updated{ false }
+{
+
+}
+
+Storm::GraphicSmokes::GraphicSmokes(const ComPtr<ID3D11Device> &device, const std::vector<Storm::SceneSmokeEmitterConfig> &smokeCfgs)
+{
+	assert(!smokeCfgs.empty() && "Smoke emitter configs should posess at least one emitter to spawn.");
+
+	this->initPerlinNoiseTexture(device);
+	this->initSmokeShader(device);
+
+	for (const auto &smokeCfg : smokeCfgs)
+	{
+		if (auto emplaced = _emitObjects.try_emplace(smokeCfg._emitterId, smokeCfg);
+			!emplaced.second)
+		{
+			Storm::throwException<Storm::Exception>("Cannot emplace graphic smoke particle with id " + Storm::toStdString(smokeCfg._emitterId));
+		}
+	}
+}
+
+Storm::GraphicSmokes::~GraphicSmokes() = default;
+
+void Storm::GraphicSmokes::initPerlinNoiseTexture(const ComPtr<ID3D11Device> &device)
 {
 	CD3D11_TEXTURE2D_DESC desc{ DXGI_FORMAT::DXGI_FORMAT_R32G32B32A32_FLOAT, 128, 128 };
 	desc.MipLevels = 1;
@@ -147,7 +176,10 @@ Storm::GraphicSmoke::GraphicSmoke(const ComPtr<ID3D11Device> &device) :
 	initialData.SysMemPitch = desc.Width * sizeof(decltype(*perlinData.data()));
 
 	Storm::throwIfFailed(device->CreateTexture2D(&desc, &initialData, &_perlinNoiseTexture));
+}
 
+void Storm::GraphicSmokes::initSmokeShader(const ComPtr<ID3D11Device> &device)
+{
 	CD3D11_SHADER_RESOURCE_VIEW_DESC resourceView{ D3D11_SRV_DIMENSION::D3D11_SRV_DIMENSION_TEXTURE2D };
 
 	ComPtr<ID3D11ShaderResourceView> perlinNoiseTextureSRV = nullptr;
@@ -156,72 +188,107 @@ Storm::GraphicSmoke::GraphicSmoke(const ComPtr<ID3D11Device> &device) :
 	_shader = std::make_unique<Storm::SmokeShader>(device, std::move(perlinNoiseTextureSRV));
 }
 
-Storm::GraphicSmoke::~GraphicSmoke() = default;
-
-void Storm::GraphicSmoke::updateData(const ComPtr<ID3D11Device> &device, const Storm::PushedParticleEmitterData &data)
+void Storm::GraphicSmokes::prepareUpdate()
 {
-	const auto smokeCount = data._positions.size();
-	assert(smokeCount > 0 && "We should have emitted smokes to render.");
-
-	const bool shouldRegenIndexBuffer = _indexBuffer == nullptr || _count != smokeCount;
-
-	// In case it has a vertex buffer set (most of the time)
-	_vertexBuffer = nullptr;
-
-	// Create Vertex data
-	D3D11_BUFFER_DESC vertexBufferDesc;
-	D3D11_SUBRESOURCE_DATA vertexData;
-	ZeroMemories(vertexBufferDesc, vertexData);
-
-	vertexBufferDesc.Usage = D3D11_USAGE::D3D11_USAGE_DEFAULT;
-	vertexBufferDesc.ByteWidth = sizeof(GraphicData) * static_cast<UINT>(smokeCount);
-	vertexBufferDesc.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_VERTEX_BUFFER;
-
-	vertexData.pSysMem = data._positions.data();
-
-	Storm::throwIfFailed(device->CreateBuffer(&vertexBufferDesc, &vertexData, &_vertexBuffer));
-
-	if (shouldRegenIndexBuffer)
+	for (auto &graphicSmokeEmitterElemPair : _emitObjects)
 	{
-		std::unique_ptr<uint32_t[]> indexes = std::make_unique<uint32_t[]>(smokeCount);
-		for (uint32_t iter = 0; iter < smokeCount; ++iter)
+		graphicSmokeEmitterElemPair.second._updated = false;
+	}
+}
+
+void Storm::GraphicSmokes::handlePushedData(const ComPtr<ID3D11Device> &device, const Storm::PushedParticleEmitterData &pushedData)
+{
+	if (auto found = _emitObjects.find(pushedData._id);
+		found != std::end(_emitObjects))
+	{
+		auto &graphicSmokeEmitterElem = found->second;
+		assert(graphicSmokeEmitterElem._updated == false && "We should prepare to update before coming in this method!");
+
+		const auto smokeCount = pushedData._positions.size();
+		assert(smokeCount > 0 && "We should have emitted smokes to render.");
+
+		const bool shouldRegenIndexBuffer = graphicSmokeEmitterElem._indexBuffer == nullptr || graphicSmokeEmitterElem._count != smokeCount;
+
+		// In case it has a vertex buffer set (most of the time)
+		graphicSmokeEmitterElem._vertexBuffer = nullptr;
+
+		// Create Vertex data
+		D3D11_BUFFER_DESC vertexBufferDesc;
+		D3D11_SUBRESOURCE_DATA vertexData;
+		ZeroMemories(vertexBufferDesc, vertexData);
+
+		vertexBufferDesc.Usage = D3D11_USAGE::D3D11_USAGE_DEFAULT;
+		vertexBufferDesc.ByteWidth = sizeof(GraphicData) * static_cast<UINT>(smokeCount);
+		vertexBufferDesc.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_VERTEX_BUFFER;
+
+		vertexData.pSysMem = pushedData._positions.data();
+
+		Storm::throwIfFailed(device->CreateBuffer(&vertexBufferDesc, &vertexData, &graphicSmokeEmitterElem._vertexBuffer));
+
+		if (shouldRegenIndexBuffer)
 		{
-			indexes[iter] = iter;
+			std::unique_ptr<uint32_t[]> indexes = std::make_unique<uint32_t[]>(smokeCount);
+			for (uint32_t iter = 0; iter < smokeCount; ++iter)
+			{
+				indexes[iter] = iter;
+			}
+
+			// Create Indexes data
+			D3D11_BUFFER_DESC indexBufferDesc;
+			D3D11_SUBRESOURCE_DATA indexData;
+			ZeroMemories(indexBufferDesc, indexData);
+
+			indexBufferDesc.Usage = D3D11_USAGE::D3D11_USAGE_DEFAULT;
+			indexBufferDesc.ByteWidth = static_cast<UINT>(sizeof(uint32_t) * smokeCount);
+			indexBufferDesc.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_INDEX_BUFFER;
+
+			indexData.pSysMem = indexes.get();
+
+			Storm::throwIfFailed(device->CreateBuffer(&indexBufferDesc, &indexData, &graphicSmokeEmitterElem._indexBuffer));
 		}
 
-		// Create Indexes data
-		D3D11_BUFFER_DESC indexBufferDesc;
-		D3D11_SUBRESOURCE_DATA indexData;
-		ZeroMemories(indexBufferDesc, indexData);
-
-		indexBufferDesc.Usage = D3D11_USAGE::D3D11_USAGE_DEFAULT;
-		indexBufferDesc.ByteWidth = static_cast<UINT>(sizeof(uint32_t) * smokeCount);
-		indexBufferDesc.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_INDEX_BUFFER;
-
-		indexData.pSysMem = indexes.get();
-
-		Storm::throwIfFailed(device->CreateBuffer(&indexBufferDesc, &indexData, &_indexBuffer));
+		graphicSmokeEmitterElem._count = smokeCount;
+		graphicSmokeEmitterElem._updated = true;
 	}
-
-	_count = smokeCount;
+	else
+	{
+		Storm::throwException<Storm::Exception>("No graphic smoke emitter with id " + Storm::toStdString(pushedData._id) + " exists!");
+	}
 }
 
-void Storm::GraphicSmoke::render(const ComPtr<ID3D11Device> &/*device*/, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera)
+void Storm::GraphicSmokes::updateData(const ComPtr<ID3D11Device> &device, const std::vector<Storm::PushedParticleEmitterData> &data)
 {
-	_shader->setup(deviceContext, currentCamera);
-	this->setupForRender(deviceContext);
-	_shader->draw(static_cast<unsigned int>(_count), deviceContext);
+	this->prepareUpdate();
+
+	for (const auto &pushedData : data)
+	{
+		this->handlePushedData(device, pushedData);
+	}
 }
 
-void Storm::GraphicSmoke::setupForRender(const ComPtr<ID3D11DeviceContext> &deviceContext)
+void Storm::GraphicSmokes::render(const ComPtr<ID3D11Device> &/*device*/, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera)
+{
+	for (const auto &graphicSmokeEmitterPair : _emitObjects)
+	{
+		auto &graphicSmokeEmitterElem = graphicSmokeEmitterPair.second;
+		if (graphicSmokeEmitterElem._updated)
+		{
+			_shader->setup(deviceContext, currentCamera, graphicSmokeEmitterElem._color);
+			this->setupForRender(deviceContext, graphicSmokeEmitterElem);
+			_shader->draw(static_cast<unsigned int>(graphicSmokeEmitterElem._count), deviceContext);
+		}
+	}
+}
+
+void Storm::GraphicSmokes::setupForRender(const ComPtr<ID3D11DeviceContext> &deviceContext, const InternalOneSmokeEmit &graphicSmokeEmitterElem)
 {
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
 
 	constexpr UINT stride = sizeof(GraphicData);
 	constexpr UINT offset = 0;
 
-	deviceContext->IASetIndexBuffer(_indexBuffer.Get(), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
+	deviceContext->IASetIndexBuffer(graphicSmokeEmitterElem._indexBuffer.Get(), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
 
-	ID3D11Buffer*const tmpVertexBuffer = _vertexBuffer.Get();
+	ID3D11Buffer*const tmpVertexBuffer = graphicSmokeEmitterElem._vertexBuffer.Get();
 	deviceContext->IASetVertexBuffers(0, 1, &tmpVertexBuffer, &stride, &offset);
 }

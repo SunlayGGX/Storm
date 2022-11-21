@@ -65,7 +65,7 @@ Storm::SmokeShader::SmokeShader(const ComPtr<ID3D11Device> &device, ComPtr<ID3D1
 	Storm::ConstantBufferHolder::initialize<ConstantBuffer>(device);
 }
 
-void Storm::SmokeShader::setup(const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera)
+void Storm::SmokeShader::setup(const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera, const DirectX::XMVECTOR &color)
 {
 	// Setup the device context
 	this->setupDeviceContext(deviceContext);
@@ -80,8 +80,7 @@ void Storm::SmokeShader::setup(const ComPtr<ID3D11DeviceContext> &deviceContext,
 		ressourceDataPtr->_viewMatrix = currentCamera.getTransposedViewMatrix();
 		ressourceDataPtr->_projectionMatrix = currentCamera.getTransposedProjectionMatrix();
 
-		// FIXME TODO : replace by a real given color.
-		ressourceDataPtr->_color = DirectX::XMVECTOR{ 1.f, 1.f, 1.f, 1.f };
+		ressourceDataPtr->_color = color;
 
 		ressourceDataPtr->_nearPlaneDist = currentCamera.getNearPlane();
 

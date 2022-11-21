@@ -36,7 +36,7 @@ namespace Storm
 		virtual void pushConstraintData(const std::vector<Storm::Vector3> &constraintsVisuData) = 0;
 		virtual void pushParticleSelectionForceData(const Storm::Vector3 &selectedParticlePos, const Storm::Vector3 &selectedParticleForce) = 0;
 		virtual void pushNormalsData(const std::vector<Storm::Vector3> &positions, const std::vector<Storm::Vector3> &normals) = 0;
-		virtual void pushSmokeEmittedData(Storm::PushedParticleEmitterData &&param) = 0;
+		virtual void pushSmokeEmittedData(std::vector<Storm::PushedParticleEmitterData> &&param) = 0;
 
 	public:
 		virtual void createGraphicsField(const std::wstring_view &fieldName, std::wstring &&fieldValueStr) = 0;

@@ -29,24 +29,24 @@ void Storm::EmitterManager::cleanUp_Implementation()
 
 void Storm::EmitterManager::update(float deltaTime)
 {
-	// we start at _emitters.size() because maybe each emitter would spawn 1 smoke particle. It's just an heuristic to not realloc all the time.
 	if (std::size_t expectedCount = _emitters.size();
 		expectedCount > 0)
 	{
-		Storm::PushedParticleEmitterData data;
-
-		for (const auto &emitter : _emitters)
-		{
-			expectedCount += emitter.getEmittedCount();
-		}
-		data._positions.reserve(expectedCount);
+		std::vector<Storm::PushedParticleEmitterData> data;
+		data.reserve(expectedCount);
 
 		for (auto &emitter : _emitters)
 		{
-			emitter.update(deltaTime, data);
+			if (emitter.isEnabled())
+			{
+				auto &newData = data.emplace_back();
+				newData._positions.reserve(emitter.getEmittedCount() + 1);
+
+				emitter.update(deltaTime, newData);
+			}
 		}
 
-		if (!data._positions.empty())
+		if (!data.empty())
 		{
 			Storm::IGraphicsManager &graphicMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IGraphicsManager>();
 			graphicMgr.pushSmokeEmittedData(std::move(data));

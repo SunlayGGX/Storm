@@ -16,7 +16,7 @@
 #include "ParticleForceRenderer.h"
 #include "GraphicKernelEffectArea.h"
 #include "GraphicNormals.h"
-#include "GraphicSmoke.h"
+#include "GraphicSmokes.h"
 
 #include "RenderedElementProxy.h"
 
@@ -179,9 +179,10 @@ void Storm::GraphicManager::initialize_Implementation(void* hwnd)
 
 	_graphicNormals = std::make_unique<Storm::GraphicNormals>(device);
 
-	if (!configMgr.getSceneSmokeEmittersConfig().empty())
+	if (const auto &smokeEmitterCfgs = configMgr.getSceneSmokeEmittersConfig();
+		!smokeEmitterCfgs.empty())
 	{
-		_smokeOptional = std::make_unique<Storm::GraphicSmoke>(device);
+		_graphicSmokes = std::make_unique<Storm::GraphicSmokes>(device, smokeEmitterCfgs);
 	}
 
 	for (auto &meshesPair : _meshesMap)
@@ -288,12 +289,13 @@ void Storm::GraphicManager::cleanUp_Implementation(const Storm::WithUI &)
 	_forceRenderer.reset();
 	_graphicConstraintsSystem.reset();
 	_graphicParticlesSystem.reset();
-	_smokeOptional.reset();
+	_graphicSmokes.reset();
 	_meshesMap.clear();
 	_renderedElements.clear();
 	_fieldsMap.clear();
 
 	_directXController->cleanUp();
+	_directXController.reset();
 }
 
 void Storm::GraphicManager::cleanUp_Implementation(const Storm::NoUI &)
@@ -346,7 +348,7 @@ void Storm::GraphicManager::update()
 				._selectedParticleForce = *_forceRenderer,
 				._kernelEffectArea = *_kernelEffectArea,
 				._graphicNormals = _displayNormals ? _graphicNormals.get() : nullptr,
-				._graphicSmoke = _smokeOptional.get(),
+				._graphicSmokesOptional = _graphicSmokes.get(),
 				._multiPass = _rbNoNearPlaneCut
 			});
 
@@ -487,7 +489,7 @@ void Storm::GraphicManager::pushNormalsData(const std::vector<Storm::Vector3>& p
 	}
 }
 
-void Storm::GraphicManager::pushSmokeEmittedData(Storm::PushedParticleEmitterData &&param)
+void Storm::GraphicManager::pushSmokeEmittedData(std::vector<Storm::PushedParticleEmitterData> &&param)
 {
 	if (this->isActive())
 	{
@@ -495,9 +497,9 @@ void Storm::GraphicManager::pushSmokeEmittedData(Storm::PushedParticleEmitterDat
 		singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(ThreadEnumeration::GraphicsThread,
 			[this, dataParam = Storm::FuncMovePass{ std::move(param) }]()
 		{
-			if (_smokeOptional)
+			if (_graphicSmokes)
 			{
-				_smokeOptional->updateData(_directXController->getDirectXDevice(), dataParam._object);
+				_graphicSmokes->updateData(_directXController->getDirectXDevice(), dataParam._object);
 				_dirty = true;
 			}
 		});

@@ -8,7 +8,7 @@
 #include "ParticleForceRenderer.h"
 #include "GraphicKernelEffectArea.h"
 #include "GraphicNormals.h"
-#include "GraphicSmoke.h"
+#include "GraphicSmokes.h"
 #include "RenderedElementProxy.h"
 
 #include "SingletonHolder.h"
@@ -305,9 +305,9 @@ void Storm::DirectXController::renderElements(const Storm::Camera &currentCamera
 
 	paramToRender._particleSystem.render(_device, _immediateContext, currentCamera, _currentRenderModeState, multiPass);
 
-	if (paramToRender._graphicSmoke)
+	if (paramToRender._graphicSmokesOptional)
 	{
-		paramToRender._graphicSmoke->render(_device, _immediateContext, currentCamera);
+		paramToRender._graphicSmokesOptional->render(_device, _immediateContext, currentCamera);
 	}
 
 	for (const auto &graphicBlower : paramToRender._blowersMap)

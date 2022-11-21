@@ -32,19 +32,19 @@ Storm::EmitterObject::EmitterObject(const SceneSmokeEmitterConfig &associatedCfg
 
 void Storm::EmitterObject::update(float deltaTime, Storm::PushedParticleEmitterData &appendDataThisFrame)
 {
-	if (_enabled)
+	assert(Storm::isSimulationThread() && "This method should only be used in simulation thread!");
+	assert(this->isEnabled() && "This method should be used after testing against enabling flag.");
+
+	appendDataThisFrame._id = _cfg._emitterId;
+
+	this->decreaseEmittedLife(deltaTime);
+	this->updateEmittedList(deltaTime);
+	this->emitNew(deltaTime);
+	_currentEmitterTime += deltaTime;
+
+	for (auto &emitted : _emitted)
 	{
-		assert(Storm::isSimulationThread() && "This method should only be used in simulation thread!");
-
-		this->decreaseEmittedLife(deltaTime);
-		this->updateEmittedList(deltaTime);
-		this->emitNew(deltaTime);
-		_currentEmitterTime += deltaTime;
-
-		for (auto &emitted : _emitted)
-		{
-			appendDataThisFrame._positions.emplace_back(emitted._position);
-		}
+		appendDataThisFrame._positions.emplace_back(emitted._position);
 	}
 }
 

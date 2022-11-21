@@ -23,7 +23,7 @@ namespace Storm
 	class GraphicGravity;
 	class GraphicKernelEffectArea;
 	class GraphicNormals;
-	class GraphicSmoke;
+	class GraphicSmokes;
 	class UIFieldContainer;
 	enum class GraphicCutMode;
 
@@ -66,7 +66,7 @@ namespace Storm
 		void pushConstraintData(const std::vector<Storm::Vector3> &constraintsVisuData) final override;
 		void pushParticleSelectionForceData(const Storm::Vector3 &selectedParticlePos, const Storm::Vector3 &selectedParticleForce) final override;
 		void pushNormalsData(const std::vector<Storm::Vector3> &positions, const std::vector<Storm::Vector3> &normals) final override;
-		void pushSmokeEmittedData(Storm::PushedParticleEmitterData &&param) final override;
+		void pushSmokeEmittedData(std::vector<Storm::PushedParticleEmitterData> &&param) final override;
 
 	public:
 		void createGraphicsField(const std::wstring_view &fieldName, std::wstring &&fieldValueStr) final override;
@@ -161,7 +161,7 @@ namespace Storm
 		std::unique_ptr<Storm::GraphicConstraintSystem> _graphicConstraintsSystem;
 		std::unique_ptr<Storm::ParticleForceRenderer> _forceRenderer;
 		std::unique_ptr<Storm::GraphicKernelEffectArea> _kernelEffectArea;
-		std::unique_ptr<Storm::GraphicSmoke> _smokeOptional;
+		std::unique_ptr<Storm::GraphicSmokes> _graphicSmokes;
 
 		std::unique_ptr<Storm::GraphicNormals> _graphicNormals;
 		bool _displayNormals;
