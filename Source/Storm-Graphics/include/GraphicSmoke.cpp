@@ -65,8 +65,8 @@ namespace
 
 	float makePerlinNoise(const float x, const float y)
 	{
-		const int x_floor = static_cast<int>(std::floor(x)) & 255;
-		const int y_floor = static_cast<int>(std::floor(y)) & 255;
+		const int x_floor = static_cast<int>(x) & 255;
+		const int y_floor = static_cast<int>(y) & 255;
 
 		const Storm::Vector2 bottomLeft{ x - std::floor(x), y - std::floor(y) };
 		const Storm::Vector2 topRight{ bottomLeft.x() - 1.f, bottomLeft.y() - 1.f};
