@@ -14,6 +14,7 @@
 #include "IAssetLoaderManager.h"
 #include "IOSManager.h"
 #include "ISafetyManager.h"
+#include "IEmitterManager.h"
 
 #include "TimeWaitResult.h"
 
@@ -37,6 +38,7 @@
 #include "CustomForceSelect.h"
 
 #include "ParticleCountInfo.h"
+#include "NeighborParticleReferral.h"
 
 #include "Kernel.h"
 
@@ -109,6 +111,7 @@
 
 #include <fstream>
 #include <future>
+#include <string>
 
 #define STORM_PROGRESS_REMAINING_TIME_NAME "Remaining time"
 #define STORM_FRAME_NUMBER_FIELD_NAME "Frame No"
@@ -883,6 +886,35 @@ namespace
 		const float normSquared = baseForceVectToCheckContribAgainst.squaredNorm();
 		LOG_ALWAYS << "The participation of " << reducedSelectedPair.first << " force to the total is " << reducedSelectedPair.second.dot(baseForceVectToCheckContribAgainst) / (normSquared / 100.f) << "%";
 	}
+
+	void interpolateVelocityAtPositionPerBundle(const Storm::ParticleSystemContainer &particleSystem, const std::vector<Storm::NeighborParticleReferral> &allReferrals, std::size_t &totalReferralsCount, const Storm::Vector3 &position, const float k_kernelSquared, Storm::Vector3 &inOutResult, const Storm::ParticleSystem* &lastPSystem, const std::vector<Storm::Vector3>* &lastPSystemPositions, const std::vector<Storm::Vector3>* &lastPSystemVelocities)
+	{
+		const auto interpolator = [&inOutResult]<class Selector>(const Storm::Vector3 & currentPVelocity, const float alpha, const Selector & selector)
+		{
+			selector(inOutResult) += std::lerp(0.f, selector(currentPVelocity), alpha);
+		};
+
+		for (const auto &referrals : allReferrals)
+		{
+			++totalReferralsCount;
+
+			if (lastPSystem->getId() != referrals._systemId)
+			{
+				lastPSystem = particleSystem.find(referrals._systemId)->second.get();
+				lastPSystemPositions = &lastPSystem->getPositions();
+				lastPSystemVelocities = &lastPSystem->getVelocity();
+			}
+
+			const Storm::Vector3 &currentPVelocity = (*lastPSystemVelocities)[referrals._particleIndex];
+			const Storm::Vector3 &currentPPosition = (*lastPSystemPositions)[referrals._particleIndex];
+
+			const float alpha = (currentPPosition - position).squaredNorm() / k_kernelSquared;
+
+			interpolator(currentPVelocity, alpha, [](auto &vect) -> auto& { return vect.x(); });
+			interpolator(currentPVelocity, alpha, [](auto &vect) -> auto& { return vect.y(); });
+			interpolator(currentPVelocity, alpha, [](auto &vect) -> auto& { return vect.z(); });
+		}
+	}
 }
 
 Storm::SimulatorManager::SimulatorManager() :
@@ -1141,6 +1173,7 @@ Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 	Storm::IThreadManager &threadMgr = singletonHolder.getSingleton<Storm::IThreadManager>();
 	Storm::IProfilerManager* profilerMgrNullablePtr = configMgr.getGeneralDebugConfig()._profileSimulationSpeed ? singletonHolder.getFacet<Storm::IProfilerManager>() : nullptr;
 	Storm::ISafetyManager &safetyMgr = singletonHolder.getSingleton<Storm::ISafetyManager>();
+	Storm::IEmitterManager &emitterMgr = singletonHolder.getSingleton<Storm::IEmitterManager>();
 
 	safetyMgr.notifySimulationThreadAlive();
 
@@ -1172,6 +1205,7 @@ Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 
 	const float physicsFixedDeltaTime = 1.f / _expectedReplayFps;
 	timeMgr.setCurrentPhysicsDeltaTime(physicsFixedDeltaTime);
+	float lastPhysicsElapsedTime = 0.f;
 
 	const std::chrono::microseconds fullFrameWaitTime{ static_cast<std::chrono::microseconds::rep>(std::roundf(1000000.f / _expectedReplayFps)) };
 	auto startFrame = std::chrono::high_resolution_clock::now();
@@ -1293,6 +1327,10 @@ Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 		}
 		else
 		{
+			const float elapsedTime = timeMgr.getCurrentPhysicsElapsedTime();
+			emitterMgr.update(elapsedTime - lastPhysicsElapsedTime);
+			lastPhysicsElapsedTime = elapsedTime;
+
 			this->refreshParticleSelection();
 			this->pushNormalsToGraphicModuleIfNeeded(false);
 
@@ -1302,7 +1340,7 @@ Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 					_progressRemainingTime,
 					simulationSpeedProfile.getCurrentSpeed(),
 					sceneSimulationConfig._endSimulationPhysicsTimeInSeconds,
-					timeMgr.getCurrentPhysicsElapsedTime()
+					elapsedTime
 				);
 
 				_uiFields->pushField(STORM_PROGRESS_REMAINING_TIME_NAME);
@@ -1325,6 +1363,7 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 	Storm::IThreadManager &threadMgr = singletonHolder.getSingleton<Storm::IThreadManager>();
 	Storm::ISpacePartitionerManager &spacePartitionerMgr = singletonHolder.getSingleton<Storm::ISpacePartitionerManager>();
 	Storm::ISafetyManager &safetyMgr = singletonHolder.getSingleton<Storm::ISafetyManager>();
+	Storm::IEmitterManager &emitterMgr = singletonHolder.getSingleton<Storm::IEmitterManager>();
 
 	safetyMgr.notifySimulationThreadAlive();
 
@@ -1390,6 +1429,7 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 	const bool noWait = sceneSimulationConfig._simulationNoWait || !hasUI;
 
 	float lastKernelValue = _kernelHandler.getKernelValue();
+	float lastPhysicsElapsedTime = 0.f;
 
 	do
 	{
@@ -1481,6 +1521,9 @@ Storm::ExitCode Storm::SimulatorManager::runSimulation_Internal()
 			shouldUnfixRbAutomatically = false;
 			recordJumpCount = 1;
 		}
+
+		emitterMgr.update(currentPhysicsTime - lastPhysicsElapsedTime);
+		lastPhysicsElapsedTime = currentPhysicsTime;
 
 		if (shouldBeRecording && currentPhysicsTime >= nextRecordTime)
 		{
@@ -2185,6 +2228,44 @@ const std::vector<Storm::Vector3>& Storm::SimulatorManager::getParticleSystemPos
 {
 	assert(Storm::isSimulationThread() && "this method should only be called from simulation thread!");
 	return this->getParticleSystem(id).getPositions();
+}
+
+Storm::Vector3 Storm::SimulatorManager::interpolateVelocityAtPosition(const Storm::Vector3 &position) const
+{
+	Storm::Vector3 result = Storm::Vector3::Zero();
+
+	const std::vector<Storm::NeighborParticleReferral>* bundleContainingPtr;
+	const std::vector<Storm::NeighborParticleReferral>* outLinkedNeighborBundle[Storm::k_neighborLinkedBunkCount];
+
+	const auto &partitionerMgr = Storm::SingletonHolder::instance().getSingleton<Storm::ISpacePartitionerManager>();
+	const Storm::OutReflectedModality* reflectModality;
+
+	partitionerMgr.getAllBundlesInfinite(bundleContainingPtr, outLinkedNeighborBundle, position, Storm::PartitionSelection::Fluid, reflectModality);
+	
+	const float k_kernelSquared = _kernelHandler.getKernelValue() * _kernelHandler.getKernelValue();
+
+	std::size_t totalReferralsCount = 0;
+
+	const Storm::ParticleSystem* lastPSystem = _particleSystem.begin()->second.get();
+	const std::vector<Storm::Vector3>* lastPSystemPositions = &lastPSystem->getPositions();
+	const std::vector<Storm::Vector3>* lastPSystemVelocities = &lastPSystem->getVelocity();
+
+	interpolateVelocityAtPositionPerBundle(_particleSystem, *bundleContainingPtr, totalReferralsCount, position, k_kernelSquared, result, lastPSystem, lastPSystemPositions, lastPSystemVelocities);
+
+	for (const auto*const* bundleIter = outLinkedNeighborBundle; *bundleIter != nullptr; ++bundleIter)
+	{
+		interpolateVelocityAtPositionPerBundle(_particleSystem, **bundleIter, totalReferralsCount, position, k_kernelSquared, result, lastPSystem, lastPSystemPositions, lastPSystemVelocities);
+	}
+
+	if (totalReferralsCount > 0)
+	{
+		const double totalReferralsCountDb = static_cast<double>(totalReferralsCount);
+		result.x() = static_cast<float>(static_cast<double>(result.x()) / totalReferralsCountDb);
+		result.y() = static_cast<float>(static_cast<double>(result.y()) / totalReferralsCountDb);
+		result.z() = static_cast<float>(static_cast<double>(result.z()) / totalReferralsCountDb);
+	}
+
+	return result;
 }
 
 void Storm::SimulatorManager::loadBlower(const Storm::SceneBlowerConfig &blowerConfig)

@@ -64,6 +64,7 @@
     <ClInclude Include="..\include\MemoryInfos.h" />
     <ClInclude Include="..\include\OutReflectedModality.h" />
     <ClInclude Include="..\include\ParticleRemovalMode.h" />
+    <ClInclude Include="..\include\PushedParticleEmitterData.h" />
     <ClInclude Include="..\include\SceneBlowerConfig.h" />
     <ClInclude Include="..\include\BlowerDef.h" />
     <ClInclude Include="..\include\BlowerState.h" />

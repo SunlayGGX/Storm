@@ -593,5 +593,8 @@
     <ClInclude Include="..\include\IEmitterManager.h">
       <Filter>Header Files\Singleton</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\PushedParticleEmitterData.h">
+      <Filter>Header Files\Modules\Graphics\General</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

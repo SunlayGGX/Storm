@@ -10,5 +10,8 @@ namespace Storm
 	{
 	public:
 		virtual ~IEmitterManager() = default;
+
+	public:
+		virtual void update(float deltaTime) = 0;
 	};
 }

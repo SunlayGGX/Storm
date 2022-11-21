@@ -7,6 +7,8 @@
 
 namespace Storm
 {
+	class EmitterObject;
+
 	class EmitterManager final :
 		private Storm::Singleton<Storm::EmitterManager>,
 		public Storm::IEmitterManager
@@ -16,5 +18,11 @@ namespace Storm
 	private:
 		void initialize_Implementation();
 		void cleanUp_Implementation();
+
+	public:
+		void update(float deltaTime) final override;
+
+	private:
+		std::vector<Storm::EmitterObject> _emitters;
 	};
 }

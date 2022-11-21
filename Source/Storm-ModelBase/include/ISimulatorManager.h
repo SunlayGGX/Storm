@@ -34,6 +34,9 @@ namespace Storm
 		virtual const std::vector<Storm::Vector3>& getParticleSystemPositionsReferences(unsigned int id) const = 0;
 
 	public:
+		virtual Storm::Vector3 interpolateVelocityAtPosition(const Storm::Vector3 &position) const = 0;
+
+	public:
 		virtual void refreshParticlesPosition() = 0;
 		
 		virtual void onGraphicParticleSettingsChanged() = 0;

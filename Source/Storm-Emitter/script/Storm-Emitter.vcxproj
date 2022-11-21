@@ -16,6 +16,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\EmitterManager.cpp" />
+    <ClCompile Include="..\include\EmitterObject.cpp" />
     <ClCompile Include="..\include\Storm-EmitterPCH.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
@@ -24,6 +25,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\EmitterManager.h" />
+    <ClInclude Include="..\include\EmitterObject.h" />
     <ClInclude Include="..\include\Storm-EmitterPCH.h" />
   </ItemGroup>
   <ItemGroup>
