@@ -135,7 +135,7 @@ namespace
 Storm::GraphicSmoke::GraphicSmoke(const ComPtr<ID3D11Device> &device) :
 	_count{ 0 }
 {
-	CD3D11_TEXTURE2D_DESC desc{ DXGI_FORMAT::DXGI_FORMAT_R32G32B32A32_FLOAT, 64, 64 };
+	CD3D11_TEXTURE2D_DESC desc{ DXGI_FORMAT::DXGI_FORMAT_R32G32B32A32_FLOAT, 128, 128 };
 	desc.MipLevels = 1;
 	desc.Usage = D3D11_USAGE::D3D11_USAGE_IMMUTABLE;
 
