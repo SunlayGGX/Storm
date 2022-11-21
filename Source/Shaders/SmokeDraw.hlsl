@@ -6,14 +6,19 @@ cbuffer ConstantBuffer
 
 	float4 _generalColor;
 	
-	float2 _textureDimension;
-	
+	float _dimension;
 	float _nearPlaneDist;
 	
-	float _padding;
+	float2 _padding;
 };
 
 Texture2D perlinTexture : register(t0);
+SamplerState perlinTextureSampler
+{
+	Filter = MIN_MAG_MIP_LINEAR;
+	AddressU = Wrap;
+	AddressV = Wrap;
+};
 
 struct VertexInputType
 {
@@ -62,28 +67,28 @@ void smokeGeometryShader(point GeometryInputType inputRaw[1], inout TriangleStre
 	const float clipDistEveryone = dot(input._position, nearPlane);
 
 	PixelInputType corner1;
-	corner1._position = float4(input._position.x + _textureDimension.x, input._position.y + _textureDimension.y, input._position.zw);
+	corner1._position = float4(input._position.x + _dimension, input._position.y + _dimension, input._position.zw);
 	corner1._position = mul(corner1._position, _projMatrix);
 	corner1._miscData.x = 1.f;
 	corner1._miscData.y = 1.f;
 	corner1._clipDist = clipDistEveryone;
 
 	PixelInputType corner2;
-	corner2._position = float4(input._position.x - _textureDimension.x, input._position.y + _textureDimension.y, input._position.zw);
+	corner2._position = float4(input._position.x - _dimension, input._position.y + _dimension, input._position.zw);
 	corner2._position = mul(corner2._position, _projMatrix);
 	corner2._miscData.x = -1.f;
 	corner2._miscData.y = 1.f;
 	corner2._clipDist = clipDistEveryone;
 
 	PixelInputType corner3;
-	corner3._position = float4(input._position.x + _textureDimension.x, input._position.y - _textureDimension.y, input._position.zw);
+	corner3._position = float4(input._position.x + _dimension, input._position.y - _dimension, input._position.zw);
 	corner3._position = mul(corner3._position, _projMatrix);
 	corner3._miscData.x = 1.f;
 	corner3._miscData.y = -1.f;
 	corner3._clipDist = clipDistEveryone;
 
 	PixelInputType corner4;
-	corner4._position = float4(input._position.x - _textureDimension.x, input._position.y - _textureDimension.y, input._position.zw);
+	corner4._position = float4(input._position.x - _dimension, input._position.y - _dimension, input._position.zw);
 	corner4._position = mul(corner4._position, _projMatrix);
 	corner4._miscData.x = -1.f;
 	corner4._miscData.y = -1.f;
@@ -107,5 +112,5 @@ float4 smokePixelShader(PixelInputType input) : SV_TARGET
 	
 	// TODO : Blend
 	
-	return _generalColor;
+	return perlinTexture.Sample(perlinTextureSampler, input._miscData) *  _generalColor;
 }

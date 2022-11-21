@@ -1,5 +1,11 @@
 #include "SmokeShader.h"
 #include "Camera.h"
+
+#include "IConfigManager.h"
+#include "SingletonHolder.h"
+
+#include "SceneSimulationConfig.h"
+
 #include "ResourceMapperGuard.h"
 #include "MemoryHelper.h"
 
@@ -13,11 +19,10 @@ namespace
 
 		DirectX::XMVECTOR _color;
 
-		DirectX::XMFLOAT2 _textureDimension;
-
+		float _dimension;
 		float _nearPlaneDist;
 
-		const float _padding = 0.f;
+		const DirectX::XMFLOAT2 _padding;
 	};
 
 	static const std::string k_smokeShaderFilePath = "Shaders/SmokeDraw.hlsl";
@@ -80,8 +85,7 @@ void Storm::SmokeShader::setup(const ComPtr<ID3D11DeviceContext> &deviceContext,
 
 		ressourceDataPtr->_nearPlaneDist = currentCamera.getNearPlane();
 
-		ressourceDataPtr->_textureDimension.x = 64;
-		ressourceDataPtr->_textureDimension.y = 64;
+		ressourceDataPtr->_dimension = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().getSceneSimulationConfig()._particleRadius * 2.f;
 	}
 
 	ID3D11Buffer*const constantBufferTmp = _constantBuffer.Get();
