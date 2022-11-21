@@ -47,6 +47,7 @@
     <ClCompile Include="..\include\GraphicSmoke.cpp" />
     <ClCompile Include="..\include\ResourceMapperGuard.cpp" />
     <ClCompile Include="..\include\ShaderManager.cpp" />
+    <ClCompile Include="..\include\SmokeShader.cpp" />
     <ClCompile Include="..\include\Storm-GraphicsPCH.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
@@ -94,6 +95,7 @@
     <ClInclude Include="..\include\RenderModeState.h" />
     <ClInclude Include="..\include\ResourceMapperGuard.h" />
     <ClInclude Include="..\include\ShaderManager.h" />
+    <ClInclude Include="..\include\SmokeShader.h" />
     <ClInclude Include="..\include\TextureMergerDepthShader.h" />
     <ClInclude Include="..\include\ThrowIfFailed.h" />
     <ClInclude Include="..\include\VPShader.h" />

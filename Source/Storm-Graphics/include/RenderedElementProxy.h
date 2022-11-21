@@ -11,6 +11,7 @@ namespace Storm
 	class ParticleForceRenderer;
 	class GraphicConstraintSystem;
 	class GraphicNormals;
+	class GraphicSmoke;
 
 	// Pointers are facultative elements. They are nullptr if we shouldn't render them.
 	// References are mandatory elements.
@@ -25,6 +26,7 @@ namespace Storm
 		Storm::ParticleForceRenderer &_selectedParticleForce;
 		Storm::GraphicKernelEffectArea &_kernelEffectArea;
 		Storm::GraphicNormals*const _graphicNormals;
+		Storm::GraphicSmoke*const _graphicSmoke;
 
 		bool _multiPass;
 	};

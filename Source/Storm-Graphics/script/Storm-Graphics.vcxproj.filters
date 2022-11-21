@@ -168,6 +168,9 @@
     <ClCompile Include="..\include\GraphicSmoke.cpp">
       <Filter>Source Files\Rendered</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\SmokeShader.cpp">
+      <Filter>Source Files\Shaders\Component</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-GraphicsPCH.h">
@@ -298,6 +301,9 @@
     </ClInclude>
     <ClInclude Include="..\include\GraphicSmoke.h">
       <Filter>Header Files\Rendered</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SmokeShader.h">
+      <Filter>Header Files\Shaders\Component</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

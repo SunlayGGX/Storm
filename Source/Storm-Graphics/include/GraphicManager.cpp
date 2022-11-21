@@ -21,6 +21,7 @@
 #include "RenderedElementProxy.h"
 
 #include "PushedParticleSystemData.h"
+#include "PushedParticleEmitterData.h"
 #include "GraphicPipe.h"
 
 #include "SceneBlowerConfig.h"
@@ -345,6 +346,7 @@ void Storm::GraphicManager::update()
 				._selectedParticleForce = *_forceRenderer,
 				._kernelEffectArea = *_kernelEffectArea,
 				._graphicNormals = _displayNormals ? _graphicNormals.get() : nullptr,
+				._graphicSmoke = _smokeOptional.get(),
 				._multiPass = _rbNoNearPlaneCut
 			});
 
@@ -481,6 +483,23 @@ void Storm::GraphicManager::pushNormalsData(const std::vector<Storm::Vector3>& p
 			_graphicNormals->updateNormalsData(_directXController->getDirectXDevice(), _parameters, positions, normals);
 			_displayNormals = true;
 			_dirty = true;
+		});
+	}
+}
+
+void Storm::GraphicManager::pushSmokeEmittedData(Storm::PushedParticleEmitterData &&param)
+{
+	if (this->isActive())
+	{
+		const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+		singletonHolder.getSingleton<Storm::IThreadManager>().executeOnThread(ThreadEnumeration::GraphicsThread,
+			[this, dataParam = Storm::FuncMovePass{ std::move(param) }]()
+		{
+			if (_smokeOptional)
+			{
+				_smokeOptional->updateData(_directXController->getDirectXDevice(), dataParam._object);
+				_dirty = true;
+			}
 		});
 	}
 }

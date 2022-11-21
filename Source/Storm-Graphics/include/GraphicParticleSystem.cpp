@@ -38,7 +38,6 @@ void Storm::GraphicParticleSystem::refreshParticleSystemData(const ComPtr<ID3D11
 	assert(newParticleCount != 0 && "particle count should be strictly greater than 0 when entering this method");
 
 	const bool shouldRegenIndexBuffer = currentPBuffer._indexBuffer == nullptr || currentPBuffer._vertexCount != newParticleCount;
-	currentPBuffer._vertexCount = newParticleCount;
 
 	// In case it has a vertex buffer set (most of the time)
 	currentPBuffer._vertexBuffer = nullptr;
@@ -85,6 +84,8 @@ void Storm::GraphicParticleSystem::refreshParticleSystemData(const ComPtr<ID3D11
 
 		Storm::throwIfFailed(device->CreateBuffer(&indexBufferDesc, &indexData, &currentPBuffer._indexBuffer));
 	}
+
+	currentPBuffer._vertexCount = newParticleCount;
 }
 
 void Storm::GraphicParticleSystem::render(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera, Storm::RenderModeState currentRenderModeState, bool forceNoRb)

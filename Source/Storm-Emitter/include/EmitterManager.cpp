@@ -1,6 +1,7 @@
 #include "EmitterManager.h"
 #include "EmitterObject.h"
 
+#include "IGraphicsManager.h"
 #include "IConfigManager.h"
 #include "SingletonHolder.h"
 
@@ -47,7 +48,8 @@ void Storm::EmitterManager::update(float deltaTime)
 
 		if (!data._positions.empty())
 		{
-			// TODO : push to graphics
+			Storm::IGraphicsManager &graphicMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IGraphicsManager>();
+			graphicMgr.pushSmokeEmittedData(std::move(data));
 		}
 	}
 }
