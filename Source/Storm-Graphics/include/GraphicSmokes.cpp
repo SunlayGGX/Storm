@@ -121,17 +121,23 @@ namespace
 			"the difference in frequency divider should be a multiple of the step!"
 		);
 
+		constexpr float k_interpolCoeff = ((1.f / static_cast<float>(k_diffFrequencyDivider)) - 1.f) / static_cast<float>(k_diffFrequencyDivider);
+
 		for (std::size_t y = 0; y < height; ++y)
 		{
 			const std::size_t yoffset = y * width;
 			for (std::size_t x = 0; x < width; ++x)
 			{
 				float noise = 0.f;
+				float coeffSum = 0.f;
 				for (int divider = k_minFrequencyDivider; divider < k_maxFrequencyDivider; divider += k_frequencyIncrement)
 				{
-					noise += makePerlinNoise(static_cast<float>(x), static_cast<float>(y), 1.f / static_cast<float>(divider));
+					const float dividerFl = static_cast<float>(divider);
+					const float coeff = (static_cast<float>(divider - k_minFrequencyDivider) * k_interpolCoeff) + 1.f;
+					coeffSum += coeff;
+					noise += makePerlinNoise(static_cast<float>(x), static_cast<float>(y), 1.f / dividerFl) * coeff;
 				}
-				noise = (noise + static_cast<float>(k_diffFrequencyDivider)) / static_cast<float>(k_normalizerFrequencyDivider);
+				noise = (noise + coeffSum) / (2.f * coeffSum);
 
 				auto &color = result[yoffset + x];
 				color.x() = noise;
