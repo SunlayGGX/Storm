@@ -23,41 +23,35 @@ namespace
 {
 	// https://rtouti.github.io/graphics/perlin-noise-algorithm
 
-	std::vector<int>& getShuffled()
+	std::vector<int> makeShuffled()
 	{
-		static std::vector<int> shuffled = []
+		enum : std::size_t
 		{
-			static std::vector<int> result;
-			Storm::setNumUninitialized_safeHijack(result, Storm::VectorHijacker{ 512 });
+			k_indexSz = 256,
+			k_fullSz = k_indexSz * 2,
+		};
 
-			for (int iter = 0; iter < 256; ++iter)
-			{
-				result[iter] = iter;
-			}
+		std::vector<int> result;
+		Storm::setNumUninitialized_safeHijack(result, Storm::VectorHijacker{ k_fullSz });
 
-			Storm::SingletonHolder::instance().getSingleton<Storm::IRandomManager>().shuffle(result, 256);
-			std::copy(std::begin(result), std::begin(result) + 256, std::begin(result) + 256);
+		for (int iter = 0; iter < k_indexSz; ++iter)
+		{
+			result[iter] = iter;
+		}
 
-			return result;
-		}();
+		Storm::SingletonHolder::instance().getSingleton<Storm::IRandomManager>().shuffle(result, k_indexSz);
+		const auto midVectIter = std::begin(result) + k_indexSz;
+		std::copy(std::begin(result), midVectIter, midVectIter);
 
-		return shuffled;
+		return result;
 	}
 
-	// destroy shuffle once and for all to save memory. Operation cannot be undoed once done. Unsafe to call getShuffled afterward.
-	void purgeShuffled()
-	{
-		auto &shuffled = getShuffled();
-		shuffled.clear();
-		shuffled.shrink_to_fit();
-	}
-
-	float fade(float val)
+	constexpr float fade(const float val)
 	{
 		return ((6.f * val - 15.f) * val + 10.f) * val * val * val;
 	}
 
-	Storm::Vector2 getConstantVector(int shuffledVal)
+	Storm::Vector2 getConstantVector(const int shuffledVal)
 	{
 		const auto index3bits = shuffledVal & 3;
 		switch (index3bits)
@@ -70,7 +64,7 @@ namespace
 		}
 	}
 
-	float makePerlinNoise(float x, float y, const float frequency)
+	float makePerlinNoise(const std::vector<int> &shuffled, float x, float y, const float frequency)
 	{
 		x *= frequency;
 		y *= frequency;
@@ -82,8 +76,6 @@ namespace
 		const Storm::Vector2 topRight{ bottomLeft.x() - 1.f, bottomLeft.y() - 1.f};
 		const Storm::Vector2 topLeft{ bottomLeft.x(), bottomLeft.y() - 1.0 };
 		const Storm::Vector2 bottomRight{ bottomLeft.x() - 1.0, bottomLeft.y() };
-
-		const auto &shuffled = getShuffled();
 
 		//Select a value in the array for each of the 4 corners
 		const auto valueTopRight = shuffled[shuffled[x_floor + 1] + y_floor + 1];
@@ -121,6 +113,8 @@ namespace
 			"the difference in frequency divider should be a multiple of the step!"
 		);
 
+		const auto shuffled = makeShuffled();
+
 		constexpr float k_interpolCoeff = ((1.f / static_cast<float>(k_diffFrequencyDivider)) - 1.f) / static_cast<float>(k_diffFrequencyDivider);
 
 		for (std::size_t y = 0; y < height; ++y)
@@ -135,7 +129,7 @@ namespace
 					const float dividerFl = static_cast<float>(divider);
 					const float coeff = (static_cast<float>(divider - k_minFrequencyDivider) * k_interpolCoeff) + 1.f;
 					coeffSum += coeff;
-					noise += makePerlinNoise(static_cast<float>(x), static_cast<float>(y), 1.f / dividerFl) * coeff;
+					noise += makePerlinNoise(shuffled, static_cast<float>(x), static_cast<float>(y), 1.f / dividerFl) * coeff;
 				}
 				noise = (noise + coeffSum) / (2.f * coeffSum);
 
@@ -146,8 +140,6 @@ namespace
 				color.w() = 1.f;
 			}
 		}
-
-		purgeShuffled();
 
 		return result;
 	}
