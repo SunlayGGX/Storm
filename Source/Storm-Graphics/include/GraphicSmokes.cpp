@@ -70,8 +70,11 @@ namespace
 		}
 	}
 
-	float makePerlinNoise(const float x, const float y)
+	float makePerlinNoise(float x, float y, const float frequency)
 	{
+		x *= frequency;
+		y *= frequency;
+
 		const int x_floor = static_cast<int>(x) & 255;
 		const int y_floor = static_cast<int>(y) & 255;
 
@@ -104,13 +107,31 @@ namespace
 		std::vector<Storm::Vector4> result;
 		Storm::setNumUninitialized_safeHijack(result, Storm::VectorHijacker{ width * height });
 
+		enum
+		{
+			k_minFrequencyDivider = 10,
+			k_maxFrequencyDivider = 40,
+			k_frequencyIncrement = 10,
+			k_diffFrequencyDivider = (k_maxFrequencyDivider - k_minFrequencyDivider) / k_frequencyIncrement,
+			k_normalizerFrequencyDivider = k_diffFrequencyDivider * 2,
+		};
+
+		STORM_STATIC_ASSERT(
+			((k_maxFrequencyDivider - k_minFrequencyDivider) % k_frequencyIncrement) == 0,
+			"the difference in frequency divider should be a multiple of the step!"
+		);
+
 		for (std::size_t y = 0; y < height; ++y)
 		{
 			const std::size_t yoffset = y * width;
 			for (std::size_t x = 0; x < width; ++x)
 			{
-				float noise = makePerlinNoise(static_cast<float>(x) * 0.01f, static_cast<float>(y) * 0.01f);
-				noise = (noise + 1.f) / 2.f;
+				float noise = 0.f;
+				for (int divider = k_minFrequencyDivider; divider < k_maxFrequencyDivider; divider += k_frequencyIncrement)
+				{
+					noise += makePerlinNoise(static_cast<float>(x), static_cast<float>(y), 1.f / static_cast<float>(divider));
+				}
+				noise = (noise + static_cast<float>(k_diffFrequencyDivider)) / static_cast<float>(k_normalizerFrequencyDivider);
 
 				auto &color = result[yoffset + x];
 				color.x() = noise;
