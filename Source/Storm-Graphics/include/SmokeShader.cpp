@@ -84,10 +84,10 @@ void Storm::SmokeShader::setup(const ComPtr<ID3D11DeviceContext> &deviceContext,
 
 	// Write shaders parameters
 	{
-		D3D11_MAPPED_SUBRESOURCE particleConstantBufferRessource;
-		Storm::ResourceMapperGuard mapGuard{ deviceContext, _constantBuffer.Get(), 0, D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, particleConstantBufferRessource };
+		D3D11_MAPPED_SUBRESOURCE smokeConstantBufferRessource;
+		Storm::ResourceMapperGuard mapGuard{ deviceContext, _constantBuffer.Get(), 0, D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, smokeConstantBufferRessource };
 
-		ConstantBuffer*const ressourceDataPtr = static_cast<ConstantBuffer*>(particleConstantBufferRessource.pData);
+		ConstantBuffer*const ressourceDataPtr = static_cast<ConstantBuffer*>(smokeConstantBufferRessource.pData);
 
 		ressourceDataPtr->_viewMatrix = currentCamera.getTransposedViewMatrix();
 		ressourceDataPtr->_projectionMatrix = currentCamera.getTransposedProjectionMatrix();
