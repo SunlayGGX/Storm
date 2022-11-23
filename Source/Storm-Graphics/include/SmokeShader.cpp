@@ -94,9 +94,9 @@ void Storm::SmokeShader::setup(const ComPtr<ID3D11DeviceContext> &deviceContext,
 
 		ressourceDataPtr->_color = color;
 
-		ressourceDataPtr->_dimension = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().getSceneSimulationConfig()._particleRadius * 2.f;
+		ressourceDataPtr->_dimension = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().getSceneSimulationConfig()._particleRadius * 2.6f;
 
-		ressourceDataPtr->_persistentReduce = 0.7f;
+		ressourceDataPtr->_persistentReduce = 0.96f;
 	}
 
 	ID3D11Buffer*const constantBufferTmp = _constantBuffer.Get();

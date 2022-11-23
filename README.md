@@ -528,7 +528,7 @@ Inside this element should be put all rigid bodies. Each rigid body should be sp
 ##### SmokeEmitter
 - **id (positive integer, mandatory)**: This is the emitter id. This setting is mandatory.
 - **position (vector3, mandatory)**: This defines the position (all coordinates are meters) of the origin center of the emitter. This setting is mandatory...
-- **color (RGBAColor, facultative)**: The color of the smoke. Default value is { r=0.9f, g=0.9f, b=0.9f a=0.6f }.
+- **color (RGBAColor, facultative)**: The color of the smoke. Default value is { r=0.9f, g=0.9f, b=0.9f, a=0.9f }.
 - **debitCount (positive float, facultative)**: This defines how many billboard of smoke would spawn per seconds. Default value is 10.0. It should be a positive non-zero value.
 - **startTime (positive float, facultative)**: From when (in simulation seconds) the emitter should start to emit. Default value is 0.0. It should be a positive value.
 - **endTime (positive float, facultative)**: When (in simulation seconds) this emitter should definitively stop. It isn't defined by default (the emitter would never stop). It should be a positive value strictly greater than startTime.
