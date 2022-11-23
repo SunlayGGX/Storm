@@ -9,7 +9,7 @@ cbuffer ConstantBuffer
 	float _dimension;
 	float _persistentReduce;
 
-	float _padding;
+	float2 _padding;
 };
 
 Texture2D perlinTexture : register(t0);

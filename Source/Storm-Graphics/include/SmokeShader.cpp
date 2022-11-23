@@ -22,7 +22,7 @@ namespace
 		float _dimension;
 		float _persistentReduce;
 
-		const float _padding;
+		const DirectX::XMFLOAT2 _padding;
 	};
 
 	static const std::string k_smokeShaderFilePath = "Shaders/SmokeDraw.hlsl";
