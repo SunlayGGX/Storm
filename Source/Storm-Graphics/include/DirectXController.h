@@ -126,6 +126,7 @@ namespace Storm
 		ComPtr<IDWriteTextFormat> _textFormat;
 
 		// Specific smokes
+		ComPtr<ID3D11BlendState> _smokeBlendState;
 		ComPtr<ID3D11RasterizerState> _rasterSmokeEmitterBlend;
 
 		// Misc

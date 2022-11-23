@@ -143,6 +143,7 @@ void Storm::DirectXController::cleanUp()
 	_solidCullNoneRS.Reset();
 	_wireframeCullNoneRS.Reset();
 
+	_smokeBlendState.Reset();
 	_rasterSmokeEmitterBlend.Reset();
 
 	_zBufferEnable.Reset();
@@ -450,21 +451,15 @@ void Storm::DirectXController::renderSmokePass(const Storm::Camera &currentCamer
 	auto oldStateAutoReset = makeLazyRAIIObject([this, oldRenderModeState = _currentRenderModeState, oldZBufferEnable = _zBufferStateEnabled, oldBlendAlphaEnable = _alphaBlendStateEnabled]()
 	{
 		this->setRenderModeState(oldRenderModeState);
+		this->setEnableBlendAlpha(oldBlendAlphaEnable);
 		if (oldZBufferEnable != _zBufferStateEnabled)
 		{
 			this->setEnableZBuffer(oldZBufferEnable);
 		}
-		if (oldBlendAlphaEnable != _alphaBlendStateEnabled)
-		{
-			this->setEnableBlendAlpha(oldBlendAlphaEnable);
-		}
 	});
 
 	_immediateContext->RSSetState(_rasterSmokeEmitterBlend.Get());
-	if (!_alphaBlendStateEnabled)
-	{
-		this->setEnableBlendAlpha(true);
-	}
+	_immediateContext->OMSetBlendState(_smokeBlendState.Get(), nullptr, 0xFFFFFFFF);
 	if (_zBufferStateEnabled)
 	{
 		this->setEnableZBuffer(false);
@@ -724,9 +719,10 @@ void Storm::DirectXController::internalConfigureStates()
 		D3D11_BLEND_DESC blendDesc;
 		Storm::ZeroMemories(blendDesc);
 
-		blendDesc.IndependentBlendEnable = FALSE;
-
 		auto &currentRTSetup = blendDesc.RenderTarget[0];
+
+		// enable
+		blendDesc.IndependentBlendEnable = FALSE;
 		currentRTSetup.BlendEnable = TRUE;
 		currentRTSetup.SrcBlend = D3D11_BLEND::D3D11_BLEND_SRC_ALPHA;
 		currentRTSetup.DestBlend = D3D11_BLEND::D3D11_BLEND_INV_SRC_ALPHA;
@@ -738,9 +734,21 @@ void Storm::DirectXController::internalConfigureStates()
 
 		Storm::throwIfFailed(_device->CreateBlendState(&blendDesc, &_alphaBlendEnable));
 
+		// disable
 		currentRTSetup.BlendEnable = FALSE;
-
 		Storm::throwIfFailed(_device->CreateBlendState(&blendDesc, &_alphaBlendDisable));
+
+		// smoke
+		blendDesc.AlphaToCoverageEnable = TRUE;
+		blendDesc.IndependentBlendEnable = TRUE;
+		currentRTSetup.BlendEnable = TRUE;
+		currentRTSetup.SrcBlend = D3D11_BLEND::D3D11_BLEND_SRC_ALPHA;
+		currentRTSetup.DestBlend = D3D11_BLEND::D3D11_BLEND_INV_SRC_ALPHA;
+		currentRTSetup.BlendOp = D3D11_BLEND_OP::D3D11_BLEND_OP_ADD;
+		currentRTSetup.SrcBlendAlpha = D3D11_BLEND::D3D11_BLEND_SRC_ALPHA;
+		currentRTSetup.DestBlendAlpha = D3D11_BLEND::D3D11_BLEND_INV_SRC_ALPHA;
+		currentRTSetup.BlendOpAlpha = D3D11_BLEND_OP::D3D11_BLEND_OP_ADD;
+		Storm::throwIfFailed(_device->CreateBlendState(&blendDesc, &_smokeBlendState));
 	}
 
 	this->setEnableBlendAlpha(true);
