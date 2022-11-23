@@ -887,7 +887,7 @@ namespace
 		LOG_ALWAYS << "The participation of " << reducedSelectedPair.first << " force to the total is " << reducedSelectedPair.second.dot(baseForceVectToCheckContribAgainst) / (normSquared / 100.f) << "%";
 	}
 
-	void interpolateVelocityAtPositionPerBundle(const Storm::ParticleSystemContainer &particleSystem, const std::vector<Storm::NeighborParticleReferral> &allReferrals, const Storm::Vector3 &position, const float k_kernelSquared, Storm::Vector3 &inOutResult, const Storm::ParticleSystem* &lastPSystem, const std::vector<Storm::Vector3>* &lastPSystemPositions, const std::vector<Storm::Vector3>* &lastPSystemVelocities)
+	void interpolateVelocityAtPositionPerBundle(const Storm::ParticleSystemContainer &particleSystem, const std::vector<Storm::NeighborParticleReferral> &allReferrals, const Storm::Vector3 &position, const float k_kernelSquared, std::size_t &inOutTotalPCount, Storm::Vector3 &inOutResult, const Storm::ParticleSystem* &lastPSystem, const std::vector<Storm::Vector3>* &lastPSystemPositions, const std::vector<Storm::Vector3>* &lastPSystemVelocities)
 	{
 		const auto interpolator = [&inOutResult]<class Selector>(const Storm::Vector3 & currentPVelocity, const float alpha, const Selector & selector)
 		{
@@ -914,6 +914,8 @@ namespace
 				interpolator(currentPVelocity, alpha, [](auto &vect) -> auto& { return vect.x(); });
 				interpolator(currentPVelocity, alpha, [](auto &vect) -> auto& { return vect.y(); });
 				interpolator(currentPVelocity, alpha, [](auto &vect) -> auto& { return vect.z(); });
+
+				++inOutTotalPCount;
 			}
 		}
 	}
@@ -2259,11 +2261,21 @@ Storm::Vector3 Storm::SimulatorManager::interpolateVelocityAtPosition(const Stor
 	const std::vector<Storm::Vector3>* lastPSystemPositions = &lastPSystem->getPositions();
 	const std::vector<Storm::Vector3>* lastPSystemVelocities = &lastPSystem->getVelocity();
 
-	interpolateVelocityAtPositionPerBundle(_particleSystem, *bundleContainingPtr, position, k_kernelSquared, result, lastPSystem, lastPSystemPositions, lastPSystemVelocities);
+	std::size_t totalPCount = 0;
+
+	interpolateVelocityAtPositionPerBundle(_particleSystem, *bundleContainingPtr, position, k_kernelSquared, totalPCount, result, lastPSystem, lastPSystemPositions, lastPSystemVelocities);
 
 	for (const auto*const* bundleIter = outLinkedNeighborBundle; *bundleIter != nullptr; ++bundleIter)
 	{
-		interpolateVelocityAtPositionPerBundle(_particleSystem, **bundleIter, position, k_kernelSquared, result, lastPSystem, lastPSystemPositions, lastPSystemVelocities);
+		interpolateVelocityAtPositionPerBundle(_particleSystem, **bundleIter, position, k_kernelSquared, totalPCount, result, lastPSystem, lastPSystemPositions, lastPSystemVelocities);
+	}
+
+	if (totalPCount > 0)
+	{
+		const float totalPCountFl = static_cast<float>(totalPCount);
+		result.x() /= totalPCountFl;
+		result.y() /= totalPCountFl;
+		result.z() /= totalPCountFl;
 	}
 
 	return result;
