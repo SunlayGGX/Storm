@@ -121,5 +121,5 @@ float4 smokePixelShader(PixelInputType input) : SV_TARGET
 	}
 
 	float4 colorCoeff = float4(_generalColor.rgb, _generalColor.a * input._alphaCoeff * alphaEdge);
-	return (perlinTexture.Sample(perlinTextureSampler, input._uv) + persistentSmoke) * colorCoeff;
+	return perlinTexture.Sample(perlinTextureSampler, input._uv) * colorCoeff + persistentSmoke;
 }
