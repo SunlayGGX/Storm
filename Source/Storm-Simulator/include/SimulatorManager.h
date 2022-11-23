@@ -155,6 +155,7 @@ namespace Storm
 
 	private:
 		void refreshParticlePartition(bool ignoreStatics = true) const;
+		template<bool fluid, bool dynamic, bool statics> void refreshSpecificParticlePartition() const;
 
 	public:
 		// Not from interface because they are intended to be used within simulation only (non thread safe)!

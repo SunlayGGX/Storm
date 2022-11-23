@@ -36,6 +36,8 @@ namespace Storm
 		void decreaseEmittedLife(float deltaTime);
 		void emitNew(float deltaTime);
 
+		void pushData(Storm::PushedParticleEmitterData &appendDataThisFrame) const;
+
 	private:
 		bool _enabled;
 		bool _hasAutoEndTime;

@@ -7,7 +7,6 @@ cbuffer ConstantBuffer
 	float4 _generalColor;
 	
 	float _dimension;
-	float _nearPlaneDist;
 	
 	float2 _padding;
 };
@@ -23,19 +22,22 @@ SamplerState perlinTextureSampler
 struct VertexInputType
 {
 	float3 _position : POSITION;
+	float _alphaCoeff : BLENDWEIGHT0;
 };
 
 struct GeometryInputType
 {
 	float4 _position : POSITION;
+	float _alphaCoeff : TEXCOORD0;
 };
 
 struct PixelInputType
 {
 	float4 _position : SV_POSITION;
 
-	float2 _miscData : TEXCOORD0;
-	float _clipDist : SV_ClipDistance0;
+	float2 _uv : TEXCOORD0;
+	float2 _truePos : TEXCOORD1;
+	float _alphaCoeff : TEXCOORD2;
 };
 
 
@@ -47,6 +49,7 @@ GeometryInputType smokeVertexShader(VertexInputType input)
 	// Change the position vector to be 4 units for proper matrix calculations.
 	//output._position = input._position;
 	output._position = mul(float4(input._position.xyz, 1.f), _viewMatrix);
+	output._alphaCoeff = input._alphaCoeff;
 
 	return output;
 }
@@ -56,43 +59,37 @@ void smokeGeometryShader(point GeometryInputType inputRaw[1], inout TriangleStre
 {
 	GeometryInputType input = inputRaw[0];
 
-	// A plane is given by a vector and a point. xyz are the vector coordinate (here in view space coordinate since I'll be applying it on the position multiplied by matView).
-	// w is the offset from the origin given by the xyz vector (plane vector). Therefore, since I'm in view coordinate, this is camPos + w * xyz.
-	// => Since in view space coordinate, the look vector is { 0, 0, 1 }, we have :
-	// Near plane is therefore given by the point P = camPos + _nearPlaneDist * lookVect, and the plane normal is given by lookVect.
-	// The minus is because w is inverted.
-	const float4 nearPlane = float4(0.0, 0.0, 1.0, -_nearPlaneDist);
-
-	// Everyone has the same since in view space coordinate, the vertex would become a plane that faces the camera. Therefore, we could assume that if one vertex of the plane is before the clipping plane then all vertexes are, and if one is after then everyone are after.
-	const float clipDistEveryone = dot(input._position, nearPlane);
-
 	PixelInputType corner1;
 	corner1._position = float4(input._position.x + _dimension, input._position.y + _dimension, input._position.zw);
 	corner1._position = mul(corner1._position, _projMatrix);
-	corner1._miscData.x = 1.f;
-	corner1._miscData.y = 1.f;
-	corner1._clipDist = clipDistEveryone;
+	corner1._uv.x = 1.f;
+	corner1._uv.y = 1.f;
+	corner1._truePos = input._position;
+	corner1._alphaCoeff = input._alphaCoeff;
 
 	PixelInputType corner2;
 	corner2._position = float4(input._position.x - _dimension, input._position.y + _dimension, input._position.zw);
 	corner2._position = mul(corner2._position, _projMatrix);
-	corner2._miscData.x = -1.f;
-	corner2._miscData.y = 1.f;
-	corner2._clipDist = clipDistEveryone;
+	corner2._uv.x = 0.f;
+	corner2._uv.y = 1.f;
+	corner2._truePos = input._position;
+	corner2._alphaCoeff = input._alphaCoeff;
 
 	PixelInputType corner3;
 	corner3._position = float4(input._position.x + _dimension, input._position.y - _dimension, input._position.zw);
 	corner3._position = mul(corner3._position, _projMatrix);
-	corner3._miscData.x = 1.f;
-	corner3._miscData.y = -1.f;
-	corner3._clipDist = clipDistEveryone;
+	corner3._uv.x = 1.f;
+	corner3._uv.y = 0.f;
+	corner3._truePos = input._position;
+	corner3._alphaCoeff = input._alphaCoeff;
 
 	PixelInputType corner4;
 	corner4._position = float4(input._position.x - _dimension, input._position.y - _dimension, input._position.zw);
 	corner4._position = mul(corner4._position, _projMatrix);
-	corner4._miscData.x = -1.f;
-	corner4._miscData.y = -1.f;
-	corner4._clipDist = clipDistEveryone;
+	corner4._uv.x = 0.f;
+	corner4._uv.y = 0.f;
+	corner4._truePos = input._position;
+	corner4._alphaCoeff = input._alphaCoeff;
 
 	outputStream.Append(corner2);
 	outputStream.Append(corner1);
@@ -108,9 +105,14 @@ void smokeGeometryShader(point GeometryInputType inputRaw[1], inout TriangleStre
 // Pixel shader
 float4 smokePixelShader(PixelInputType input) : SV_TARGET
 {
-	//const float uvLength = length(input._miscData.xy);
-	
-	// TODO : Blend
-	
-	return perlinTexture.Sample(perlinTextureSampler, input._miscData) *  _generalColor;
+	//float2 resolution(_dimension, _dimension);
+	//
+	//float2 t = input.xy / resolution;
+	//float2 p = input.xy / resolution.y;
+	//float2 m = input._truePos / resolution.y;
+
+	float alphaEdge = (1.f - abs(input._uv.x - 0.5f) * 2.f) * (1.f - abs(input._uv.y - 0.5f) * 2.f);
+
+	float4 colorCoeff = float4(_generalColor.rgb, _generalColor.a * input._alphaCoeff * alphaEdge);
+	return perlinTexture.Sample(perlinTextureSampler, input._uv) * colorCoeff;
 }

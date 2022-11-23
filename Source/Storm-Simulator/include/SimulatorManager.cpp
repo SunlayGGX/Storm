@@ -887,17 +887,15 @@ namespace
 		LOG_ALWAYS << "The participation of " << reducedSelectedPair.first << " force to the total is " << reducedSelectedPair.second.dot(baseForceVectToCheckContribAgainst) / (normSquared / 100.f) << "%";
 	}
 
-	void interpolateVelocityAtPositionPerBundle(const Storm::ParticleSystemContainer &particleSystem, const std::vector<Storm::NeighborParticleReferral> &allReferrals, std::size_t &totalReferralsCount, const Storm::Vector3 &position, const float k_kernelSquared, Storm::Vector3 &inOutResult, const Storm::ParticleSystem* &lastPSystem, const std::vector<Storm::Vector3>* &lastPSystemPositions, const std::vector<Storm::Vector3>* &lastPSystemVelocities)
+	void interpolateVelocityAtPositionPerBundle(const Storm::ParticleSystemContainer &particleSystem, const std::vector<Storm::NeighborParticleReferral> &allReferrals, const Storm::Vector3 &position, const float k_kernelSquared, Storm::Vector3 &inOutResult, const Storm::ParticleSystem* &lastPSystem, const std::vector<Storm::Vector3>* &lastPSystemPositions, const std::vector<Storm::Vector3>* &lastPSystemVelocities)
 	{
 		const auto interpolator = [&inOutResult]<class Selector>(const Storm::Vector3 & currentPVelocity, const float alpha, const Selector & selector)
 		{
-			selector(inOutResult) += std::lerp(0.f, selector(currentPVelocity), alpha);
+			selector(inOutResult) += std::lerp(selector(currentPVelocity), 0.f, alpha);
 		};
 
 		for (const auto &referrals : allReferrals)
 		{
-			++totalReferralsCount;
-
 			if (lastPSystem->getId() != referrals._systemId)
 			{
 				lastPSystem = particleSystem.find(referrals._systemId)->second.get();
@@ -905,14 +903,18 @@ namespace
 				lastPSystemVelocities = &lastPSystem->getVelocity();
 			}
 
-			const Storm::Vector3 &currentPVelocity = (*lastPSystemVelocities)[referrals._particleIndex];
 			const Storm::Vector3 &currentPPosition = (*lastPSystemPositions)[referrals._particleIndex];
 
-			const float alpha = (currentPPosition - position).squaredNorm() / k_kernelSquared;
+			float alpha = (currentPPosition - position).squaredNorm() / k_kernelSquared;
+			if (alpha < 1.f)
+			{
+				alpha = std::sqrtf(alpha);
 
-			interpolator(currentPVelocity, alpha, [](auto &vect) -> auto& { return vect.x(); });
-			interpolator(currentPVelocity, alpha, [](auto &vect) -> auto& { return vect.y(); });
-			interpolator(currentPVelocity, alpha, [](auto &vect) -> auto& { return vect.z(); });
+				const Storm::Vector3 &currentPVelocity = (*lastPSystemVelocities)[referrals._particleIndex];
+				interpolator(currentPVelocity, alpha, [](auto &vect) -> auto& { return vect.x(); });
+				interpolator(currentPVelocity, alpha, [](auto &vect) -> auto& { return vect.y(); });
+				interpolator(currentPVelocity, alpha, [](auto &vect) -> auto& { return vect.z(); });
+			}
 		}
 	}
 }
@@ -1190,6 +1192,9 @@ Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 
 	this->refreshParticlePartition(false);
 
+	// We need particle partitioning for smoke emitters, since they aren't recorded.
+	const bool needParticlePartitionFeature = !configMgr.getSceneSmokeEmittersConfig().empty();
+
 	if (sceneRecordConfig._replayRealTime)
 	{
 		_expectedReplayFps = serializerMgr.getRecordHeader()._recordFrameRate;
@@ -1287,6 +1292,12 @@ Storm::ExitCode Storm::SimulatorManager::runReplay_Internal()
 		if (Storm::ReplaySolver::replayCurrentNextFrame(_particleSystem, frameBefore, frameAfter, _expectedReplayFps, recordedConstraintsData, currentKernelValue))
 		{
 			this->pushParticlesToGraphicModule(false);
+
+			if (needParticlePartitionFeature)
+			{
+				// smoke emission only needs fluids partition
+				this->refreshSpecificParticlePartition<true, false, false>();
+			}
 
 			Storm::IPhysicsManager &physicsMgr = singletonHolder.getSingleton<Storm::IPhysicsManager>();
 			physicsMgr.pushConstraintsRecordedFrame(recordedConstraintsData);
@@ -2244,25 +2255,15 @@ Storm::Vector3 Storm::SimulatorManager::interpolateVelocityAtPosition(const Stor
 	
 	const float k_kernelSquared = _kernelHandler.getKernelValue() * _kernelHandler.getKernelValue();
 
-	std::size_t totalReferralsCount = 0;
-
 	const Storm::ParticleSystem* lastPSystem = _particleSystem.begin()->second.get();
 	const std::vector<Storm::Vector3>* lastPSystemPositions = &lastPSystem->getPositions();
 	const std::vector<Storm::Vector3>* lastPSystemVelocities = &lastPSystem->getVelocity();
 
-	interpolateVelocityAtPositionPerBundle(_particleSystem, *bundleContainingPtr, totalReferralsCount, position, k_kernelSquared, result, lastPSystem, lastPSystemPositions, lastPSystemVelocities);
+	interpolateVelocityAtPositionPerBundle(_particleSystem, *bundleContainingPtr, position, k_kernelSquared, result, lastPSystem, lastPSystemPositions, lastPSystemVelocities);
 
 	for (const auto*const* bundleIter = outLinkedNeighborBundle; *bundleIter != nullptr; ++bundleIter)
 	{
-		interpolateVelocityAtPositionPerBundle(_particleSystem, **bundleIter, totalReferralsCount, position, k_kernelSquared, result, lastPSystem, lastPSystemPositions, lastPSystemVelocities);
-	}
-
-	if (totalReferralsCount > 0)
-	{
-		const double totalReferralsCountDb = static_cast<double>(totalReferralsCount);
-		result.x() = static_cast<float>(static_cast<double>(result.x()) / totalReferralsCountDb);
-		result.y() = static_cast<float>(static_cast<double>(result.y()) / totalReferralsCountDb);
-		result.z() = static_cast<float>(static_cast<double>(result.z()) / totalReferralsCountDb);
+		interpolateVelocityAtPositionPerBundle(_particleSystem, **bundleIter, position, k_kernelSquared, result, lastPSystem, lastPSystemPositions, lastPSystemVelocities);
 	}
 
 	return result;
@@ -2750,48 +2751,80 @@ void Storm::SimulatorManager::saveSimulationState() const
 
 void Storm::SimulatorManager::refreshParticlePartition(bool ignoreStatics /*= true*/) const
 {
-	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
-	Storm::ISpacePartitionerManager &spacePartitionerMgr = singletonHolder.getSingleton<Storm::ISpacePartitionerManager>();
-
-	spacePartitionerMgr.clearSpaceReorderingNoStatic();
 	if (ignoreStatics)
 	{
-		for (auto &particleSystem : _particleSystem)
-		{
-			// We don't need to regenerate statics rigid bodies.
-			Storm::ParticleSystem &pSystem = *particleSystem.second;
-			if (!pSystem.isStatic())
-			{
-				spacePartitionerMgr.computeSpaceReordering(
-					pSystem.getPositions(),
-					pSystem.isFluids() ? Storm::PartitionSelection::Fluid : Storm::PartitionSelection::DynamicRigidBody,
-					pSystem.getId()
-				);
-			}
-		}
+		this->refreshSpecificParticlePartition<true, true, false>();
 	}
 	else
 	{
+		this->refreshSpecificParticlePartition<true, true, true>();
+	}
+}
+
+template<bool fluid, bool dynamic, bool statics>
+void Storm::SimulatorManager::refreshSpecificParticlePartition() const
+{
+	assert((fluid || dynamic || statics) && "We should refresh at least one specific partition!");
+
+	const Storm::SingletonHolder &singletonHolder = Storm::SingletonHolder::instance();
+	Storm::ISpacePartitionerManager &spacePartitionerMgr = singletonHolder.getSingleton<Storm::ISpacePartitionerManager>();
+
+	if constexpr (fluid && dynamic)
+	{
+		spacePartitionerMgr.clearSpaceReorderingNoStatic();
+	}
+	else if constexpr (fluid)
+	{
+		spacePartitionerMgr.clearSpaceReorderingForPartition(Storm::PartitionSelection::Fluid);
+	}
+	else if constexpr (dynamic)
+	{
+		spacePartitionerMgr.clearSpaceReorderingForPartition(Storm::PartitionSelection::DynamicRigidBody);
+	}
+
+	if constexpr (statics)
+	{
 		spacePartitionerMgr.clearSpaceReorderingForPartition(Storm::PartitionSelection::StaticRigidBody);
-		for (auto &particleSystem : _particleSystem)
+	}
+
+	for (auto &particleSystem : _particleSystem)
+	{
+		Storm::ParticleSystem &pSystem = *particleSystem.second;
+
+		const bool isFluid = pSystem.isFluids();
+		if constexpr (fluid)
 		{
-			Storm::ParticleSystem &pSystem = *particleSystem.second;
+			if (isFluid)
+			{
+				spacePartitionerMgr.computeSpaceReordering(pSystem.getPositions(), Storm::PartitionSelection::Fluid, pSystem.getId());
+				continue;
+			}
+		}
 
-			Storm::PartitionSelection selection;
-			if (pSystem.isFluids())
+		if constexpr (dynamic || statics)
+		{
+			if (!isFluid)
 			{
-				selection = Storm::PartitionSelection::Fluid;
-			}
-			else if (pSystem.isStatic())
-			{
-				selection = Storm::PartitionSelection::StaticRigidBody;
-			}
-			else
-			{
-				selection = Storm::PartitionSelection::DynamicRigidBody;
-			}
+				const bool isStatic = pSystem.isStatic();
 
-			spacePartitionerMgr.computeSpaceReordering(pSystem.getPositions(), selection, pSystem.getId());
+				if constexpr (dynamic)
+				{
+					if (!isStatic)
+					{
+						spacePartitionerMgr.computeSpaceReordering(pSystem.getPositions(), Storm::PartitionSelection::DynamicRigidBody, pSystem.getId());
+						continue;
+					}
+				}
+
+				if constexpr (statics)
+				{
+					if (isStatic)
+					{
+						spacePartitionerMgr.computeSpaceReordering(pSystem.getPositions(), Storm::PartitionSelection::StaticRigidBody, pSystem.getId());
+						continue;
+					}
+				}
+			}
 		}
 	}
 }

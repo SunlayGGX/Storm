@@ -9,6 +9,7 @@ namespace Storm
 	class IRenderedElement;
 	struct RenderedElementProxy;
 	class Camera;
+	class GraphicSmokes;
 	enum class RenderModeState;
 
 	class DirectXController
@@ -49,6 +50,12 @@ namespace Storm
 
 		void setEnableZBuffer(bool enable);
 		void setEnableBlendAlpha(bool enable);
+
+		void setRenderModeState(Storm::RenderModeState state);
+
+	private:
+		// This one is an internal pass modification. We should not stay on this state.
+		void renderSmokePass(const Storm::Camera &currentCamera, Storm::GraphicSmokes &smoke);
 
 	public:
 		void drawUI(const std::vector<std::unique_ptr<Storm::IRenderedElement>> &renderedElementArrays, const std::map<std::wstring_view, std::wstring> &texts);
@@ -118,8 +125,12 @@ namespace Storm
 		ComPtr<IDWriteFactory> _writeFactory;
 		ComPtr<IDWriteTextFormat> _textFormat;
 
+		// Specific smokes
+		ComPtr<ID3D11RasterizerState> _rasterSmokeEmitterBlend;
+
 		// Misc
 		bool _zBufferStateEnabled;
+		bool _alphaBlendStateEnabled;
 
 		float _viewportWidth;
 		float _viewportHeight;

@@ -143,6 +143,8 @@ void Storm::DirectXController::cleanUp()
 	_solidCullNoneRS.Reset();
 	_wireframeCullNoneRS.Reset();
 
+	_rasterSmokeEmitterBlend.Reset();
+
 	_zBufferEnable.Reset();
 	_zBufferDisable.Reset();
 
@@ -307,7 +309,7 @@ void Storm::DirectXController::renderElements(const Storm::Camera &currentCamera
 
 	if (paramToRender._graphicSmokesOptional)
 	{
-		paramToRender._graphicSmokesOptional->render(_device, _immediateContext, currentCamera);
+		this->renderSmokePass(currentCamera, *paramToRender._graphicSmokesOptional);
 	}
 
 	for (const auto &graphicBlower : paramToRender._blowersMap)
@@ -402,6 +404,73 @@ void Storm::DirectXController::setEnableBlendAlpha(bool enable)
 {
 	constexpr float k_blendFactor[] = { 0.f, 0.f, 0.f, 0.f };
 	_immediateContext->OMSetBlendState(enable ? _alphaBlendEnable.Get() : _alphaBlendDisable.Get(), k_blendFactor, 0xFFFFFFFF);
+	_alphaBlendStateEnabled = enable;
+}
+
+void Storm::DirectXController::setRenderModeState(Storm::RenderModeState state)
+{
+	switch (state)
+	{
+	case Storm::RenderModeState::Solid:
+		this->setSolidCullBackState();
+		break;
+
+	case Storm::RenderModeState::SolidCullNone:
+		this->setSolidCullNoneState();
+		break;
+
+	case Storm::RenderModeState::Wireframe:
+		this->setWireFrameState();
+		break;
+
+	case Storm::RenderModeState::AllParticle:
+		this->setAllParticleState();
+		break;
+
+	case Storm::RenderModeState::NoWallParticles:
+		this->setRenderNoWallParticle();
+		break;
+
+	case Storm::RenderModeState::NoWallSolid:
+		this->setRenderNoWallSolid();
+		break;
+
+	case Storm::RenderModeState::SolidOnly:
+		this->setRenderSolidOnly();
+		break;
+
+	default:
+		assert(false && "Unknown render mode state!");
+		__assume(false);
+	}
+}
+
+void Storm::DirectXController::renderSmokePass(const Storm::Camera &currentCamera, Storm::GraphicSmokes &smoke)
+{
+	auto oldStateAutoReset = makeLazyRAIIObject([this, oldRenderModeState = _currentRenderModeState, oldZBufferEnable = _zBufferStateEnabled, oldBlendAlphaEnable = _alphaBlendStateEnabled]()
+	{
+		this->setRenderModeState(oldRenderModeState);
+		if (oldZBufferEnable != _zBufferStateEnabled)
+		{
+			this->setEnableZBuffer(oldZBufferEnable);
+		}
+		if (oldBlendAlphaEnable != _alphaBlendStateEnabled)
+		{
+			this->setEnableBlendAlpha(oldBlendAlphaEnable);
+		}
+	});
+
+	_immediateContext->RSSetState(_rasterSmokeEmitterBlend.Get());
+	if (!_alphaBlendStateEnabled)
+	{
+		this->setEnableBlendAlpha(true);
+	}
+	if (_zBufferStateEnabled)
+	{
+		this->setEnableZBuffer(false);
+	}
+
+	smoke.render(_device, _immediateContext, currentCamera);
 }
 
 void Storm::DirectXController::drawUI(const std::vector<std::unique_ptr<Storm::IRenderedElement>> &renderedElementArrays, const std::map<std::wstring_view, std::wstring> &texts)
@@ -680,7 +749,15 @@ void Storm::DirectXController::internalConfigureStates()
 		//Rasterizer state creation
 		D3D11_RASTERIZER_DESC rsDesc;
 		Storm::ZeroMemories(rsDesc);
+		
+		// Smoke
+		rsDesc.FillMode = D3D11_FILL_MODE::D3D11_FILL_SOLID;
+		rsDesc.CullMode = D3D11_CULL_MODE::D3D11_CULL_NONE;
+		rsDesc.DepthClipEnable = FALSE;
 
+		Storm::throwIfFailed(_device->CreateRasterizerState(&rsDesc, &_rasterSmokeEmitterBlend));
+
+		// The solid states
 		rsDesc.FillMode = D3D11_FILL_MODE::D3D11_FILL_SOLID;
 		rsDesc.CullMode = D3D11_CULL_MODE::D3D11_CULL_BACK;
 		rsDesc.FrontCounterClockwise = FALSE;

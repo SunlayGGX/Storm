@@ -1,10 +1,12 @@
 #include "EmitterObject.h"
 
-#include "SceneSmokeEmitterConfig.h"
-
 #include "IRandomManager.h"
 #include "ISimulatorManager.h"
+#include "IConfigManager.h"
 #include "SingletonHolder.h"
+
+#include "SceneSmokeEmitterConfig.h"
+#include "SceneCageConfig.h"
 
 #include "PushedParticleEmitterData.h"
 
@@ -52,11 +54,7 @@ void Storm::EmitterObject::update(float deltaTime, Storm::PushedParticleEmitterD
 		this->updateEmittedList(deltaTime);
 		this->emitNew(deltaTime);
 
-		appendDataThisFrame._positions.reserve(_emitted.size());
-		for (auto &emitted : _emitted)
-		{
-			appendDataThisFrame._positions.emplace_back(emitted._position);
-		}
+		this->pushData(appendDataThisFrame);
 	}
 
 	_currentEmitterTime += deltaTime;
@@ -72,10 +70,35 @@ void Storm::EmitterObject::updateEmittedList(float deltaTime)
 
 void Storm::EmitterObject::updateEmittedData(float deltaTime, EmitParticleData &emitted) const
 {
-	const auto &simulatorMgr = Storm::SingletonHolder::instance().getSingleton<Storm::ISimulatorManager>();
+	const auto &singletonHolder = Storm::SingletonHolder::instance();
+	const auto &simulatorMgr = singletonHolder.getSingleton<Storm::ISimulatorManager>();
 	const Storm::Vector3 interpolatedVelocity = simulatorMgr.interpolateVelocityAtPosition(emitted._position);
 
 	emitted._position += interpolatedVelocity * deltaTime;
+
+	// TODO : Use Cage object existing in Simulator Manager instead
+	const Storm::SceneCageConfig*const sceneOptionalCageConfig = singletonHolder.getSingleton<Storm::IConfigManager>().getSceneOptionalCageConfig();
+	if (sceneOptionalCageConfig)
+	{
+		const auto clamper = [&emitted, sceneOptionalCageConfig]<class Selector>(const Selector &selector)
+		{
+			auto &emitPosCoord = selector(emitted._position);
+			if (const auto &minCoord = selector(sceneOptionalCageConfig->_boxMin);
+				emitPosCoord < minCoord)
+			{
+				emitPosCoord = minCoord;
+			}
+			if (const auto &maxCoord = selector(sceneOptionalCageConfig->_boxMax);
+				emitPosCoord > maxCoord)
+			{
+				emitPosCoord = maxCoord;
+			}
+		};
+
+		clamper([](auto &vect) -> auto& { return vect.x(); });
+		clamper([](auto &vect) -> auto& { return vect.y(); });
+		clamper([](auto &vect) -> auto& { return vect.z(); });
+	}
 }
 
 void Storm::EmitterObject::decreaseEmittedLife(float deltaTime)
@@ -113,5 +136,14 @@ void Storm::EmitterObject::emitNew(float deltaTime)
 		auto &newEmitted = _emitted.emplace_back(_cfg._position, _cfg._smokeAliveTimeSeconds);
 		newEmitted._position += randomMgr.randomizeVector3(deltaDisplacment);
 		--toSpawnCount;
+	}
+}
+
+void Storm::EmitterObject::pushData(Storm::PushedParticleEmitterData &appendDataThisFrame) const
+{
+	appendDataThisFrame._data.reserve(_emitted.size());
+	for (auto &emitted : _emitted)
+	{
+		appendDataThisFrame._data.emplace_back(emitted._position, emitted._remainingTime / _cfg._smokeAliveTimeSeconds);
 	}
 }

@@ -20,7 +20,6 @@ namespace
 		DirectX::XMVECTOR _color;
 
 		float _dimension;
-		float _nearPlaneDist;
 
 		const DirectX::XMFLOAT2 _padding;
 	};
@@ -32,21 +31,33 @@ namespace
 
 	enum : unsigned int
 	{
-		k_smokeVertexDataLayoutDescCount = 1
+		k_smokeVertexDataLayoutDescCount = 2
 	};
 
 	inline D3D11_INPUT_ELEMENT_DESC* retrieveSmokeInputLayoutElementDesc()
 	{
 		static D3D11_INPUT_ELEMENT_DESC smokeVertexDataLayoutDesc[k_smokeVertexDataLayoutDescCount];
 
-		D3D11_INPUT_ELEMENT_DESC &currentVertexDataLayoutDesc = smokeVertexDataLayoutDesc[0];
-		currentVertexDataLayoutDesc.SemanticName = "POSITION";
-		currentVertexDataLayoutDesc.SemanticIndex = 0;
-		currentVertexDataLayoutDesc.Format = DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT;
-		currentVertexDataLayoutDesc.InputSlot = 0;
-		currentVertexDataLayoutDesc.AlignedByteOffset = 0;
-		currentVertexDataLayoutDesc.InputSlotClass = D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA;
-		currentVertexDataLayoutDesc.InstanceDataStepRate = 0;
+		{
+			D3D11_INPUT_ELEMENT_DESC &currentVertexDataLayoutDesc = smokeVertexDataLayoutDesc[0];
+			currentVertexDataLayoutDesc.SemanticName = "POSITION";
+			currentVertexDataLayoutDesc.SemanticIndex = 0;
+			currentVertexDataLayoutDesc.Format = DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT;
+			currentVertexDataLayoutDesc.InputSlot = 0;
+			currentVertexDataLayoutDesc.AlignedByteOffset = 0;
+			currentVertexDataLayoutDesc.InputSlotClass = D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA;
+			currentVertexDataLayoutDesc.InstanceDataStepRate = 0;
+		}
+		{
+			D3D11_INPUT_ELEMENT_DESC &currentVertexDataLayoutDesc = smokeVertexDataLayoutDesc[1];
+			currentVertexDataLayoutDesc.SemanticName = "BLENDWEIGHT";
+			currentVertexDataLayoutDesc.SemanticIndex = 0;
+			currentVertexDataLayoutDesc.Format = DXGI_FORMAT::DXGI_FORMAT_R32_FLOAT;
+			currentVertexDataLayoutDesc.InputSlot = 0;
+			currentVertexDataLayoutDesc.AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+			currentVertexDataLayoutDesc.InputSlotClass = D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA;
+			currentVertexDataLayoutDesc.InstanceDataStepRate = 0;
+		}
 
 		return smokeVertexDataLayoutDesc;
 	}
@@ -81,8 +92,6 @@ void Storm::SmokeShader::setup(const ComPtr<ID3D11DeviceContext> &deviceContext,
 		ressourceDataPtr->_projectionMatrix = currentCamera.getTransposedProjectionMatrix();
 
 		ressourceDataPtr->_color = color;
-
-		ressourceDataPtr->_nearPlaneDist = currentCamera.getNearPlane();
 
 		ressourceDataPtr->_dimension = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().getSceneSimulationConfig()._particleRadius * 2.f;
 	}

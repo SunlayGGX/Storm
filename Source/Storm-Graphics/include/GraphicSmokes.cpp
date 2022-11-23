@@ -151,6 +151,7 @@ namespace
 
 	public:
 		PointType _position;
+		float _alphaCoeff;
 	};
 }
 
@@ -223,7 +224,7 @@ void Storm::GraphicSmokes::handlePushedData(const ComPtr<ID3D11Device> &device, 
 		auto &graphicSmokeEmitterElem = found->second;
 		assert(graphicSmokeEmitterElem._updated == false && "We should prepare to update before coming in this method!");
 
-		const auto smokeCount = pushedData._positions.size();
+		const auto smokeCount = pushedData._data.size();
 		assert(smokeCount > 0 && "We should have emitted smokes to render.");
 
 		const bool shouldRegenIndexBuffer = graphicSmokeEmitterElem._indexBuffer == nullptr || graphicSmokeEmitterElem._count != smokeCount;
@@ -240,7 +241,7 @@ void Storm::GraphicSmokes::handlePushedData(const ComPtr<ID3D11Device> &device, 
 		vertexBufferDesc.ByteWidth = sizeof(GraphicData) * static_cast<UINT>(smokeCount);
 		vertexBufferDesc.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_VERTEX_BUFFER;
 
-		vertexData.pSysMem = pushedData._positions.data();
+		vertexData.pSysMem = pushedData._data.data();
 
 		Storm::throwIfFailed(device->CreateBuffer(&vertexBufferDesc, &vertexData, &graphicSmokeEmitterElem._vertexBuffer));
 
