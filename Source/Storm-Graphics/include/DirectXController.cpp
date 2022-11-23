@@ -619,7 +619,7 @@ void Storm::DirectXController::internalCreateDXDevices(HWND hwnd)
 
 	swapChainDesc.BufferDesc.Format = DXGI_FORMAT::DXGI_FORMAT_B8G8R8A8_UNORM;
 
-	swapChainDesc.BufferCount = 1;
+	swapChainDesc.BufferCount = 2;
 
 	swapChainDesc.BufferDesc.RefreshRate.Numerator = k_wantedFPS;
 	swapChainDesc.BufferDesc.RefreshRate.Denominator = 1;

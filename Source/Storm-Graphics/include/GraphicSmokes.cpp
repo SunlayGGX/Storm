@@ -1,9 +1,11 @@
 #include "GraphicSmokes.h"
 
 #include "SmokeShader.h"
+#include "TextureOMBlendShader.h"
 
 #include "SingletonHolder.h"
 #include "IRandomManager.h"
+#include "IGraphicsManager.h"
 
 #include "PushedParticleEmitterData.h"
 
@@ -17,10 +19,14 @@
 #undef STORM_HIJACKED_TYPE
 
 #include "MemoryHelper.h"
+#include "RAII.h"
 
 
 namespace
 {
+	enum { k_outputMergerVertexCount = 4 };
+
+
 	// https://rtouti.github.io/graphics/perlin-noise-algorithm
 
 	std::vector<int> makeShuffled()
@@ -144,7 +150,16 @@ namespace
 		return result;
 	}
 
-	struct GraphicData
+	void setRenderTarget(const ComPtr<ID3D11DeviceContext> &immediateCtx, const ComPtr<ID3D11RenderTargetView> &rt, const ComPtr<ID3D11DepthStencilView> &stencilV)
+	{
+		ComPtr<ID3D11RenderTargetView> voidTargetView;
+		immediateCtx->OMSetRenderTargets(1, &voidTargetView, nullptr);
+
+		ID3D11RenderTargetView*const tmpRTV = rt.Get();
+		immediateCtx->OMSetRenderTargets(1, &tmpRTV, stencilV.Get());
+	}
+
+	struct SmokeGraphicData
 	{
 	public:
 		using PointType = DirectX::XMFLOAT3;
@@ -152,6 +167,12 @@ namespace
 	public:
 		PointType _position;
 		float _alphaCoeff;
+	};
+
+	struct OutputMergeGraphicData
+	{
+	public:
+		DirectX::XMFLOAT4 _position;
 	};
 }
 
@@ -163,12 +184,53 @@ Storm::GraphicSmokes::InternalOneSmokeEmit::InternalOneSmokeEmit(const Storm::Sc
 
 }
 
-Storm::GraphicSmokes::GraphicSmokes(const ComPtr<ID3D11Device> &device, const std::vector<Storm::SceneSmokeEmitterConfig> &smokeCfgs)
+Storm::GraphicSmokes::SmokeRTTargets::SmokeRTTargets(const ComPtr<ID3D11Device> &device)
 {
-	assert(!smokeCfgs.empty() && "Smoke emitter configs should posess at least one emitter to spawn.");
+	UINT width;
+	UINT height;
+	{
+		float widthFl;
+		float heightFl;
+		SingletonHolder::instance().getSingleton<Storm::IGraphicsManager>().getViewportTextureResolution(widthFl, heightFl);
+		width = static_cast<decltype(width)>(widthFl);
+		height = static_cast<decltype(height)>(heightFl);
+	}
+
+	CD3D11_TEXTURE2D_DESC desc{ DXGI_FORMAT::DXGI_FORMAT_R32G32B32A32_FLOAT, width, height };
+	desc.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_FLAG::D3D11_BIND_RENDER_TARGET;
+	desc.MipLevels = 1;
+	desc.Usage = D3D11_USAGE::D3D11_USAGE_DEFAULT;
+
+	std::vector<Storm::Vector4> initialTextureData;
+	Storm::setNumUninitialized_safeHijack(initialTextureData, Storm::VectorHijacker{ static_cast<std::size_t>(width * height) });
+	memset(initialTextureData.data(), 0, initialTextureData.size() * sizeof(Storm::Vector4));
+
+	D3D11_SUBRESOURCE_DATA initialData;
+	ZeroMemories(initialData);
+	initialData.pSysMem = initialTextureData.data();
+	initialData.SysMemPitch = desc.Width * sizeof(decltype(*initialTextureData.data()));
+
+	Storm::throwIfFailed(device->CreateTexture2D(&desc, &initialData, &_renderTargetTexture));
+	Storm::throwIfFailed(device->CreateRenderTargetView(_renderTargetTexture.Get(), nullptr, &_renderTargetView));
+
+
+	desc.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_SHADER_RESOURCE;
+	Storm::throwIfFailed(device->CreateTexture2D(&desc, &initialData, &_saveTexture));
+	Storm::throwIfFailed(device->CreateShaderResourceView(_saveTexture.Get(), nullptr, &_saveTextureView));
+
+	const CD3D11_SHADER_RESOURCE_VIEW_DESC resourceView{ D3D11_SRV_DIMENSION::D3D11_SRV_DIMENSION_TEXTURE2D };
+	Storm::throwIfFailed(device->CreateShaderResourceView(_renderTargetTexture.Get(), &resourceView, &_renderTargetTextureView));
+}
+
+Storm::GraphicSmokes::GraphicSmokes(const ComPtr<ID3D11Device> &device, const std::vector<Storm::SceneSmokeEmitterConfig> &smokeCfgs) :
+	_frameBefore{ device },
+	_outputMergerShader{ std::make_unique<std::remove_cvref_t<decltype(*_outputMergerShader)>>(device) }
+{
+	assert(!smokeCfgs.empty() && "Smoke emitter configs should possess at least one emitter to spawn.");
 
 	this->initPerlinNoiseTexture(device);
 	this->initSmokeShader(device);
+	this->initOutputMergerShader(device);
 
 	for (const auto &smokeCfg : smokeCfgs)
 	{
@@ -200,12 +262,51 @@ void Storm::GraphicSmokes::initPerlinNoiseTexture(const ComPtr<ID3D11Device> &de
 
 void Storm::GraphicSmokes::initSmokeShader(const ComPtr<ID3D11Device> &device)
 {
-	CD3D11_SHADER_RESOURCE_VIEW_DESC resourceView{ D3D11_SRV_DIMENSION::D3D11_SRV_DIMENSION_TEXTURE2D };
+	const CD3D11_SHADER_RESOURCE_VIEW_DESC resourceView{ D3D11_SRV_DIMENSION::D3D11_SRV_DIMENSION_TEXTURE2D };
 
 	ComPtr<ID3D11ShaderResourceView> perlinNoiseTextureSRV = nullptr;
 	Storm::throwIfFailed(device->CreateShaderResourceView(_perlinNoiseTexture.Get(), &resourceView, &perlinNoiseTextureSRV));
 
-	_shader = std::make_unique<Storm::SmokeShader>(device, std::move(perlinNoiseTextureSRV));
+	_smokeShader = std::make_unique<Storm::SmokeShader>(device, std::move(perlinNoiseTextureSRV));
+}
+
+void Storm::GraphicSmokes::initOutputMergerShader(const ComPtr<ID3D11Device> &device)
+{
+	// Create Vertex data
+	D3D11_BUFFER_DESC vertexBufferDesc;
+	D3D11_SUBRESOURCE_DATA vertexData;
+	ZeroMemories(vertexBufferDesc, vertexData);
+
+	vertexBufferDesc.Usage = D3D11_USAGE::D3D11_USAGE_DEFAULT;
+	vertexBufferDesc.ByteWidth = sizeof(OutputMergeGraphicData) * k_outputMergerVertexCount;
+	vertexBufferDesc.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_VERTEX_BUFFER;
+
+	constexpr const OutputMergeGraphicData k_screenSpaceVertexData[k_outputMergerVertexCount] =
+	{
+		{ ._position = { 1.f, 0.f, 0.f, 0.f } },
+		{ ._position = { 0.f, 1.f, 0.f, 0.f } },
+		{ ._position = { 0.f, 0.f, 1.f, 0.f } },
+		{ ._position = { 0.f, 0.f, 0.f, 0.f } },
+	};
+
+	vertexData.pSysMem = k_screenSpaceVertexData;
+
+	Storm::throwIfFailed(device->CreateBuffer(&vertexBufferDesc, &vertexData, &_outputMergerVertexBuffer));
+
+	
+	// Create Indexes data
+	D3D11_BUFFER_DESC indexBufferDesc;
+	D3D11_SUBRESOURCE_DATA indexData;
+	ZeroMemories(indexBufferDesc, indexData);
+
+	indexBufferDesc.Usage = D3D11_USAGE::D3D11_USAGE_DEFAULT;
+	indexBufferDesc.ByteWidth = sizeof(uint32_t) * k_outputMergerVertexCount;
+	indexBufferDesc.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_INDEX_BUFFER;
+
+	constexpr uint32_t k_indexData[k_outputMergerVertexCount] = { 0, 1, 2, 3 };
+	indexData.pSysMem = k_indexData;
+
+	Storm::throwIfFailed(device->CreateBuffer(&indexBufferDesc, &indexData, &_outputMergerIndexBuffer));
 }
 
 void Storm::GraphicSmokes::prepareUpdate()
@@ -238,7 +339,7 @@ void Storm::GraphicSmokes::handlePushedData(const ComPtr<ID3D11Device> &device, 
 		ZeroMemories(vertexBufferDesc, vertexData);
 
 		vertexBufferDesc.Usage = D3D11_USAGE::D3D11_USAGE_DEFAULT;
-		vertexBufferDesc.ByteWidth = sizeof(GraphicData) * static_cast<UINT>(smokeCount);
+		vertexBufferDesc.ByteWidth = sizeof(SmokeGraphicData) * static_cast<UINT>(smokeCount);
 		vertexBufferDesc.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_VERTEX_BUFFER;
 
 		vertexData.pSysMem = pushedData._data.data();
@@ -288,23 +389,67 @@ void Storm::GraphicSmokes::updateData(const ComPtr<ID3D11Device> &device, const 
 
 void Storm::GraphicSmokes::render(const ComPtr<ID3D11Device> &/*device*/, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera)
 {
+	if (!_emitObjects.empty())
+	{
+		this->renderFirstPass(deviceContext, currentCamera);
+
+		// Second pass render in a separate texture, that would be used in the first pass of the next frame...
+		this->renderSecondPass(deviceContext, currentCamera);
+	}
+}
+
+void Storm::GraphicSmokes::renderFirstPass(const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera)
+{
+	deviceContext->CopyResource(_frameBefore._saveTexture.Get(), _frameBefore._renderTargetTexture.Get());
+	constexpr float k_noColor[4] = { 0.f, 0.f, 0.f, 0.f };
+	deviceContext->ClearRenderTargetView(_frameBefore._renderTargetView.Get(), k_noColor);
+
+	_outputMergerShader->setup(deviceContext, currentCamera, _frameBefore._saveTextureView.Get());
+	this->setupForFirstPassRender(deviceContext);
+	_outputMergerShader->draw(k_outputMergerVertexCount, deviceContext);
+}
+
+void Storm::GraphicSmokes::renderSecondPass(const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera)
+{
+	ComPtr<ID3D11RenderTargetView> oldRT;
+	ComPtr<ID3D11DepthStencilView> oldStencilV;
+	deviceContext->OMGetRenderTargets(1, &oldRT, &oldStencilV);
+	auto rtResetToOld = Storm::makeLazyRAIIObject([&deviceContext, &oldRT, &oldStencilV]()
+	{
+		setRenderTarget(deviceContext, oldRT, oldStencilV);
+	});
+	setRenderTarget(deviceContext, _frameBefore._renderTargetView, oldStencilV);
+
 	for (const auto &graphicSmokeEmitterPair : _emitObjects)
 	{
 		auto &graphicSmokeEmitterElem = graphicSmokeEmitterPair.second;
 		if (graphicSmokeEmitterElem._updated)
 		{
-			_shader->setup(deviceContext, currentCamera, graphicSmokeEmitterElem._color);
-			this->setupForRender(deviceContext, graphicSmokeEmitterElem);
-			_shader->draw(static_cast<unsigned int>(graphicSmokeEmitterElem._count), deviceContext);
+			_smokeShader->setup(deviceContext, currentCamera, graphicSmokeEmitterElem._color, _frameBefore._saveTextureView.Get());
+			this->setupForSecondPassRender(deviceContext, graphicSmokeEmitterElem);
+			_smokeShader->draw(static_cast<unsigned int>(graphicSmokeEmitterElem._count), deviceContext);
 		}
 	}
 }
 
-void Storm::GraphicSmokes::setupForRender(const ComPtr<ID3D11DeviceContext> &deviceContext, const InternalOneSmokeEmit &graphicSmokeEmitterElem)
+void Storm::GraphicSmokes::setupForFirstPassRender(const ComPtr<ID3D11DeviceContext> &deviceContext)
+{
+	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	constexpr UINT stride = sizeof(OutputMergeGraphicData);
+	constexpr UINT offset = 0;
+
+	deviceContext->IASetIndexBuffer(_outputMergerIndexBuffer.Get(), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
+
+	ID3D11Buffer*const tmpVertexBuffer = _outputMergerVertexBuffer.Get();
+	deviceContext->IASetVertexBuffers(0, 1, &tmpVertexBuffer, &stride, &offset);
+}
+
+void Storm::GraphicSmokes::setupForSecondPassRender(const ComPtr<ID3D11DeviceContext> &deviceContext, const InternalOneSmokeEmit &graphicSmokeEmitterElem)
 {
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
 
-	constexpr UINT stride = sizeof(GraphicData);
+	constexpr UINT stride = sizeof(SmokeGraphicData);
 	constexpr UINT offset = 0;
 
 	deviceContext->IASetIndexBuffer(graphicSmokeEmitterElem._indexBuffer.Get(), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);

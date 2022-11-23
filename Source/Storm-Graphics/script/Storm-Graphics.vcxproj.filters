@@ -171,6 +171,9 @@
     <ClCompile Include="..\include\SmokeShader.cpp">
       <Filter>Source Files\Shaders\Component</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\TextureOMBlendShader.cpp">
+      <Filter>Source Files\Shaders\Component</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Storm-GraphicsPCH.h">
@@ -303,6 +306,9 @@
       <Filter>Header Files\Rendered</Filter>
     </ClInclude>
     <ClInclude Include="..\include\SmokeShader.h">
+      <Filter>Header Files\Shaders\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\TextureOMBlendShader.h">
       <Filter>Header Files\Shaders\Component</Filter>
     </ClInclude>
   </ItemGroup>

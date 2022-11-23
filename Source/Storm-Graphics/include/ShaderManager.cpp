@@ -80,7 +80,7 @@ namespace
 				const std::size_t errorBufferSize = errorMsg->GetBufferSize();
 				if (errorBufferSize > 0)
 				{
-					compileErrorMsg += "Compile error are ";
+					compileErrorMsg += "Compile error are\n";
 					compileErrorMsg.append(static_cast<const char*>(errorMsg->GetBufferPointer()), errorBufferSize);
 
 					while (compileErrorMsg.back() == '\0')

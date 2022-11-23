@@ -1003,3 +1003,9 @@ void Storm::GraphicManager::displayDynamicRbInFull(bool enable)
 		});
 	}
 }
+
+void Storm::GraphicManager::getViewportTextureResolution(float &outWidth, float &outHeight) const
+{
+	outWidth = _directXController->getViewportWidth();
+	outHeight = _directXController->getViewportHeight();
+}

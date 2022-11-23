@@ -137,6 +137,9 @@ namespace Storm
 	public:
 		void displayDynamicRbInFull(bool enable);
 
+	public:
+		void getViewportTextureResolution(float &outWidth, float &outHeight) const final override;
+
 	private:
 		unsigned char _renderCounter;
 

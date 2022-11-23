@@ -20,8 +20,9 @@ namespace
 		DirectX::XMVECTOR _color;
 
 		float _dimension;
+		float _persistentReduce;
 
-		const DirectX::XMFLOAT2 _padding;
+		const float _padding;
 	};
 
 	static const std::string k_smokeShaderFilePath = "Shaders/SmokeDraw.hlsl";
@@ -76,7 +77,7 @@ Storm::SmokeShader::SmokeShader(const ComPtr<ID3D11Device> &device, ComPtr<ID3D1
 	Storm::ConstantBufferHolder::initialize<ConstantBuffer>(device);
 }
 
-void Storm::SmokeShader::setup(const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera, const DirectX::XMVECTOR &color)
+void Storm::SmokeShader::setup(const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera, const DirectX::XMVECTOR &color, ID3D11ShaderResourceView* frameBeforeTexture)
 {
 	// Setup the device context
 	this->setupDeviceContext(deviceContext);
@@ -94,14 +95,16 @@ void Storm::SmokeShader::setup(const ComPtr<ID3D11DeviceContext> &deviceContext,
 		ressourceDataPtr->_color = color;
 
 		ressourceDataPtr->_dimension = Storm::SingletonHolder::instance().getSingleton<Storm::IConfigManager>().getSceneSimulationConfig()._particleRadius * 2.f;
+
+		ressourceDataPtr->_persistentReduce = 0.7f;
 	}
 
 	ID3D11Buffer*const constantBufferTmp = _constantBuffer.Get();
-	
 	deviceContext->VSSetConstantBuffers(0, 1, &constantBufferTmp);
 	deviceContext->GSSetConstantBuffers(0, 1, &constantBufferTmp);
 	deviceContext->PSSetConstantBuffers(0, 1, &constantBufferTmp);
 
 	ID3D11ShaderResourceView*const perlinTextureSRV = _perlinNoiseTextureSRV.Get();
 	deviceContext->PSSetShaderResources(0, 1, &perlinTextureSRV);
+	deviceContext->PSSetShaderResources(1, 1, &frameBeforeTexture);
 }

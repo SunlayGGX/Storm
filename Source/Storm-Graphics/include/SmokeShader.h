@@ -15,7 +15,7 @@ namespace Storm
 		SmokeShader(const ComPtr<ID3D11Device> &device, ComPtr<ID3D11ShaderResourceView> &&perlinNoiseTextureSRV);
 
 	public:
-		void setup(const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera, const DirectX::XMVECTOR &color);
+		void setup(const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera, const DirectX::XMVECTOR &color, ID3D11ShaderResourceView* frameBeforeTexture);
 
 	private:
 		ComPtr<ID3D11ShaderResourceView> _perlinNoiseTextureSRV;

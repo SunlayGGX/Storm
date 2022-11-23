@@ -7,11 +7,14 @@ cbuffer ConstantBuffer
 	float4 _generalColor;
 	
 	float _dimension;
-	
-	float2 _padding;
+	float _persistentReduce;
+
+	float _padding;
 };
 
 Texture2D perlinTexture : register(t0);
+Texture2D frameBeforeTexture : register(t1);
+
 SamplerState perlinTextureSampler
 {
 	Filter = MIN_MAG_MIP_LINEAR;
@@ -113,6 +116,16 @@ float4 smokePixelShader(PixelInputType input) : SV_TARGET
 
 	float alphaEdge = (1.f - abs(input._uv.x - 0.5f) * 2.f) * (1.f - abs(input._uv.y - 0.5f) * 2.f);
 
+	float4 persistentSmoke = frameBeforeTexture.Sample(perlinTextureSampler, input._uv) * _persistentReduce;
+
+	float4 threshold = step(persistentSmoke, float4(0.05f, 0.05f, 0.05f, 0.05f));
+	persistentSmoke = persistentSmoke * (threshold.r * threshold.g * threshold.b * threshold.a);
+
+	/*if ((persistentSmoke.r * persistentSmoke.g * persistentSmoke.b * persistentSmoke.a) < 0.00005f)
+	{
+		persistentSmoke = float4(0.f, 0.f, 0.f, 0.f);
+	}*/
+
 	float4 colorCoeff = float4(_generalColor.rgb, _generalColor.a * input._alphaCoeff * alphaEdge);
-	return perlinTexture.Sample(perlinTextureSampler, input._uv) * colorCoeff;
+	return (perlinTexture.Sample(perlinTextureSampler, input._uv) + persistentSmoke) * colorCoeff;
 }

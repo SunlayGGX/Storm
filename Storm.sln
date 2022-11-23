@@ -42,6 +42,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shaders", "Shaders", "{1C8B
 		Source\Shaders\GravityArrow.hlsl = Source\Shaders\GravityArrow.hlsl
 		Source\Shaders\Grid.hlsl = Source\Shaders\Grid.hlsl
 		Source\Shaders\MeshDraw.hlsl = Source\Shaders\MeshDraw.hlsl
+		Source\Shaders\OutputBlend.hlsl = Source\Shaders\OutputBlend.hlsl
 		Source\Shaders\ParticleDraw.hlsl = Source\Shaders\ParticleDraw.hlsl
 		Source\Shaders\ParticleForceDraw.hlsl = Source\Shaders\ParticleForceDraw.hlsl
 		Source\Shaders\SmokeDraw.hlsl = Source\Shaders\SmokeDraw.hlsl
