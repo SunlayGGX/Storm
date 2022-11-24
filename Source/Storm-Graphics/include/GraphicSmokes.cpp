@@ -391,48 +391,65 @@ void Storm::GraphicSmokes::render(const ComPtr<ID3D11Device> &/*device*/, const 
 {
 	if (!_emitObjects.empty())
 	{
-		this->renderFirstPass(deviceContext, currentCamera);
+		this->saveHiddenFrameBeforeBeforeClearing(deviceContext);
 
-		// Second pass render in a separate texture, that would be used in the first pass of the next frame...
-		this->renderSecondPass(deviceContext, currentCamera);
+		{
+			// Change Render target to a separate, hidden frame that is not the one directly bound to the viewport.
+			ComPtr<ID3D11RenderTargetView> oldRT;
+			ComPtr<ID3D11DepthStencilView> oldStencilV;
+			deviceContext->OMGetRenderTargets(1, &oldRT, &oldStencilV);
+			auto rtResetToOld = Storm::makeLazyRAIIObject([&deviceContext, &oldRT, &oldStencilV]()
+			{
+				setRenderTarget(deviceContext, oldRT, oldStencilV);
+			});
+			setRenderTarget(deviceContext, _frameBefore._renderTargetView, oldStencilV);
+
+			// gather/blend old (reduced by a certain amout) and new into an hidden frame to make trailing, persistent effects.
+			this->renderOldPersistentFrameReduced(deviceContext, currentCamera);
+			this->renderNewSmokeEmission(deviceContext, currentCamera);
+		}
+
+		this->renderHiddenFrameToFinalOutput(deviceContext, currentCamera);
 	}
 }
 
-void Storm::GraphicSmokes::renderFirstPass(const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera)
+void Storm::GraphicSmokes::renderOldPersistentFrameReduced(const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera)
 {
-	deviceContext->CopyResource(_frameBefore._saveTexture.Get(), _frameBefore._renderTargetTexture.Get());
-	constexpr float k_noColor[4] = { 0.f, 0.f, 0.f, 0.f };
-	deviceContext->ClearRenderTargetView(_frameBefore._renderTargetView.Get(), k_noColor);
-
-	_outputMergerShader->setup(deviceContext, currentCamera, _frameBefore._saveTextureView.Get());
-	this->setupForFirstPassRender(deviceContext);
+	// Lose 5% each frame
+	_outputMergerShader->setup(deviceContext, currentCamera, _frameBefore._saveTextureView.Get(), 0.95f);
+	this->setupForMerger(deviceContext);
 	_outputMergerShader->draw(k_outputMergerVertexCount, deviceContext);
 }
 
-void Storm::GraphicSmokes::renderSecondPass(const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera)
+void Storm::GraphicSmokes::renderHiddenFrameToFinalOutput(const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera)
 {
-	ComPtr<ID3D11RenderTargetView> oldRT;
-	ComPtr<ID3D11DepthStencilView> oldStencilV;
-	deviceContext->OMGetRenderTargets(1, &oldRT, &oldStencilV);
-	auto rtResetToOld = Storm::makeLazyRAIIObject([&deviceContext, &oldRT, &oldStencilV]()
-	{
-		setRenderTarget(deviceContext, oldRT, oldStencilV);
-	});
-	setRenderTarget(deviceContext, _frameBefore._renderTargetView, oldStencilV);
+	_outputMergerShader->setup(deviceContext, currentCamera, _frameBefore._saveTextureView.Get(), 1.f);
+	this->setupForMerger(deviceContext);
+	_outputMergerShader->draw(k_outputMergerVertexCount, deviceContext);
+}
 
+void Storm::GraphicSmokes::renderNewSmokeEmission(const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera)
+{
 	for (const auto &graphicSmokeEmitterPair : _emitObjects)
 	{
 		auto &graphicSmokeEmitterElem = graphicSmokeEmitterPair.second;
 		if (graphicSmokeEmitterElem._updated)
 		{
-			_smokeShader->setup(deviceContext, currentCamera, graphicSmokeEmitterElem._color, _frameBefore._saveTextureView.Get());
-			this->setupForSecondPassRender(deviceContext, graphicSmokeEmitterElem);
+			_smokeShader->setup(deviceContext, currentCamera, graphicSmokeEmitterElem._color);
+			this->setupForSmoke(deviceContext, graphicSmokeEmitterElem);
 			_smokeShader->draw(static_cast<unsigned int>(graphicSmokeEmitterElem._count), deviceContext);
 		}
 	}
 }
 
-void Storm::GraphicSmokes::setupForFirstPassRender(const ComPtr<ID3D11DeviceContext> &deviceContext)
+void Storm::GraphicSmokes::saveHiddenFrameBeforeBeforeClearing(const ComPtr<ID3D11DeviceContext> &deviceContext)
+{
+	deviceContext->CopyResource(_frameBefore._saveTexture.Get(), _frameBefore._renderTargetTexture.Get());
+	constexpr float k_noColor[4] = { 0.f, 0.f, 0.f, 0.f };
+	deviceContext->ClearRenderTargetView(_frameBefore._renderTargetView.Get(), k_noColor);
+}
+
+void Storm::GraphicSmokes::setupForMerger(const ComPtr<ID3D11DeviceContext> &deviceContext)
 {
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
@@ -445,7 +462,7 @@ void Storm::GraphicSmokes::setupForFirstPassRender(const ComPtr<ID3D11DeviceCont
 	deviceContext->IASetVertexBuffers(0, 1, &tmpVertexBuffer, &stride, &offset);
 }
 
-void Storm::GraphicSmokes::setupForSecondPassRender(const ComPtr<ID3D11DeviceContext> &deviceContext, const InternalOneSmokeEmit &graphicSmokeEmitterElem)
+void Storm::GraphicSmokes::setupForSmoke(const ComPtr<ID3D11DeviceContext> &deviceContext, const InternalOneSmokeEmit &graphicSmokeEmitterElem)
 {
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
 

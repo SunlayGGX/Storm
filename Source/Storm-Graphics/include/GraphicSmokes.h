@@ -59,12 +59,14 @@ namespace Storm
 		void render(const ComPtr<ID3D11Device> &device, const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera) final override;
 
 	private:
-		void renderFirstPass(const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera);
-		void renderSecondPass(const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera);
+		void renderOldPersistentFrameReduced(const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera);
+		void renderHiddenFrameToFinalOutput(const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera);
+		void renderNewSmokeEmission(const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera);
 
 	private:
-		void setupForFirstPassRender(const ComPtr<ID3D11DeviceContext> &deviceContext);
-		void setupForSecondPassRender(const ComPtr<ID3D11DeviceContext> &deviceContext, const InternalOneSmokeEmit &graphicSmokeEmitterElem);
+		void saveHiddenFrameBeforeBeforeClearing(const ComPtr<ID3D11DeviceContext> &deviceContext);
+		void setupForMerger(const ComPtr<ID3D11DeviceContext> &deviceContext);
+		void setupForSmoke(const ComPtr<ID3D11DeviceContext> &deviceContext, const InternalOneSmokeEmit &graphicSmokeEmitterElem);
 
 	private:
 		ComPtr<ID3D11Texture2D> _perlinNoiseTexture;

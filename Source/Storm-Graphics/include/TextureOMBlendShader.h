@@ -15,6 +15,6 @@ namespace Storm
 		TextureOMBlendShader(const ComPtr<ID3D11Device> &device);
 
 	public:
-		void setup(const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera, ID3D11ShaderResourceView* toBlend);
+		void setup(const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &currentCamera, ID3D11ShaderResourceView* toBlend, float persistentReduce);
 	};
 }

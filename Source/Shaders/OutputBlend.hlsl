@@ -1,3 +1,10 @@
+cbuffer ConstantBuffer
+{
+	float _persistentReduce;
+
+	float3 _padding;
+};
+
 Texture2D toBlend : register(t0);
 
 SamplerState textureSampler
@@ -33,6 +40,17 @@ PixelInputType blendVertexShader(uint vertexID : SV_VertexID)
 float4 blendPixelShader(PixelInputType input) : SV_TARGET
 {
 	// We'll let the output merger blend with the render target.
-	float4 outColor = toBlend.Sample(textureSampler, input._uv);
+	float4 outColor = toBlend.Sample(textureSampler, input._uv) * _persistentReduce;
+
+#if true
+	float4 threshold = step(outColor, float4(0.005f, 0.005f, 0.005f, 0.005f));
+	outColor *= (threshold.x * threshold.y * threshold.z * threshold.w);
+#else
+	if ((outColor.r * outColor.g * outColor.b * outColor.a) < 0.0000005f)
+	{
+		outColor = float4(0.f, 0.f, 0.f, 0.f);
+	}
+#endif
+
 	return outColor;
 }

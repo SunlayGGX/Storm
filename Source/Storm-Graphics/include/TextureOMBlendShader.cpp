@@ -8,7 +8,8 @@ namespace
 {
 	struct ConstantBuffer
 	{
-
+		float _persistentReduce;
+		const DirectX::XMFLOAT3 _padding;
 	};
 
 	static const std::string k_blendShaderFilePath = "Shaders/OutputBlend.hlsl";
@@ -44,12 +45,22 @@ namespace
 Storm::TextureOMBlendShader::TextureOMBlendShader(const ComPtr<ID3D11Device> &device) :
 	Storm::VPShaderBase{ device, k_blendShaderFilePath, k_blendVertexShaderFuncName, k_blendShaderFilePath, k_blendPixelShaderFuncName, retrieveBlendInputLayoutElementDesc(), k_blendVertexDataLayoutDescCount }
 {
-	//Storm::ConstantBufferHolder::initialize<ConstantBuffer>(device);
+	Storm::ConstantBufferHolder::initialize<ConstantBuffer>(device);
 }
 
-void Storm::TextureOMBlendShader::setup(const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &/*currentCamera*/, ID3D11ShaderResourceView* toBlend)
+void Storm::TextureOMBlendShader::setup(const ComPtr<ID3D11DeviceContext> &deviceContext, const Storm::Camera &/*currentCamera*/, ID3D11ShaderResourceView* toBlend, float persistentReduce)
 {
 	this->setupDeviceContext(deviceContext);
+
+	// Write shaders parameters
+	{
+		D3D11_MAPPED_SUBRESOURCE blendConstantBufferRessource;
+		Storm::ResourceMapperGuard mapGuard{ deviceContext, _constantBuffer.Get(), 0, D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, blendConstantBufferRessource };
+
+		ConstantBuffer*const ressourceDataPtr = static_cast<ConstantBuffer*>(blendConstantBufferRessource.pData);
+
+		ressourceDataPtr->_persistentReduce = persistentReduce;
+	}
 
 	ID3D11Buffer*const constantBufferTmp = _constantBuffer.Get();
 	deviceContext->VSSetConstantBuffers(0, 1, &constantBufferTmp);
