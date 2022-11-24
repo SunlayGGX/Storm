@@ -245,6 +245,26 @@ void STORM_CURRENT_REGISTERED_TYPE::registerCurrentOnScript(IScriptWrapperInterf
 #undef STORM_CURRENT_REGISTERED_TYPE
 
 
+//---------------------------------------------------------------------
+
+#define STORM_CURRENT_REGISTERED_TYPE Storm::EmitterManager
+
+template<class IScriptWrapperInterface>
+void STORM_CURRENT_REGISTERED_TYPE::registerCurrentOnScript(IScriptWrapperInterface &script) const
+{
+	script.registerCurrentType(
+
+		STORM_DECLARE_SCRIPTED_METHOD(setEmitterEnabled),
+		STORM_DECLARE_SCRIPTED_METHOD(setEmitterPauseEmission)
+
+	).registerCurrentInstance("emitterMgr");
+}
+
+#undef STORM_CURRENT_REGISTERED_TYPE
+
+
+
+
 
 /////////////////////////////////////////////////
 //////////// UNDEFINITIONS CLEANUP //////////////

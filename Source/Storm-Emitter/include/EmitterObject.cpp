@@ -24,6 +24,7 @@ Storm::EmitParticleData::EmitParticleData(const Storm::Vector3 &position, float 
 
 Storm::EmitterObject::EmitterObject(const SceneSmokeEmitterConfig &associatedCfg) :
 	_enabled{ true },
+	_canEmit{ true },
 	_cfg{ associatedCfg },
 	_spawningTime{ 1.f / _cfg._emitCountPerSeconds },
 	_nextSpawnTime{ 0.f },
@@ -31,6 +32,16 @@ Storm::EmitterObject::EmitterObject(const SceneSmokeEmitterConfig &associatedCfg
 	_hasAutoEndTime{ !std::isnan(associatedCfg._emitterEndTimeSeconds) }
 {
 
+}
+
+unsigned int Storm::EmitterObject::getID() const noexcept
+{
+	return _cfg._emitterId;
+}
+
+void Storm::EmitterObject::setEmissionPaused(bool pauseNewEmission)
+{
+	_canEmit = !pauseNewEmission;
 }
 
 bool Storm::EmitterObject::isInOperatingRange(float deltaTime) const noexcept
@@ -48,7 +59,7 @@ void Storm::EmitterObject::update(float deltaTime, Storm::PushedParticleEmitterD
 
 	if (this->isInOperatingRange(deltaTime))
 	{
-		appendDataThisFrame._id = _cfg._emitterId;
+		appendDataThisFrame._id = this->getID();
 
 		this->decreaseEmittedLife(deltaTime);
 		this->updateEmittedList(deltaTime);
@@ -124,18 +135,21 @@ void Storm::EmitterObject::emitNew(float deltaTime)
 	const float lastSpawnTime = _nextSpawnTime - _spawningTime;
 	const float deltaTimeSinceLastSpawn = _currentEmitterTime - lastSpawnTime + deltaTime;
 
-	Storm::IRandomManager &randomMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IRandomManager>();
-
-	const Storm::Vector3 deltaDisplacment{ 0.001f, 0.001f, 0.001f };
-
 	std::size_t toSpawnCount = static_cast<std::size_t>(deltaTimeSinceLastSpawn / _spawningTime);
 	_nextSpawnTime += static_cast<float>(toSpawnCount + 1) * _spawningTime;
 
-	while (toSpawnCount != 0)
+	if (_canEmit)
 	{
-		auto &newEmitted = _emitted.emplace_back(_cfg._position, _cfg._smokeAliveTimeSeconds);
-		newEmitted._position += randomMgr.randomizeVector3(deltaDisplacment);
-		--toSpawnCount;
+		Storm::IRandomManager &randomMgr = Storm::SingletonHolder::instance().getSingleton<Storm::IRandomManager>();
+
+		const Storm::Vector3 deltaDisplacment{ 0.001f, 0.001f, 0.001f };
+
+		while (toSpawnCount != 0)
+		{
+			auto &newEmitted = _emitted.emplace_back(_cfg._position, _cfg._smokeAliveTimeSeconds);
+			newEmitted._position += randomMgr.randomizeVector3(deltaDisplacment);
+			--toSpawnCount;
+		}
 	}
 }
 

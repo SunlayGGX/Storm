@@ -23,6 +23,9 @@ namespace Storm
 
 	public:
 		bool isEnabled() const noexcept { return _enabled; }
+		void setEnabled(bool enable) noexcept { _enabled = enable; }
+		void setEmissionPaused(bool pauseNewEmission);
+		unsigned int getID() const noexcept;
 
 	private:
 		bool isInOperatingRange(float deltaTime) const noexcept;
@@ -40,6 +43,7 @@ namespace Storm
 
 	private:
 		bool _enabled;
+		bool _canEmit;
 		bool _hasAutoEndTime;
 
 		const SceneSmokeEmitterConfig &_cfg;
