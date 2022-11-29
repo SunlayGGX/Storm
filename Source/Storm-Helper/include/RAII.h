@@ -14,7 +14,7 @@ namespace Storm
 		template<class Lambda>
 		static auto makeLazyRAIIObject_Internal(Lambda &&lambda)
 		{
-			class ProtectedUPtr : protected std::unique_ptr<void, std::remove_cvref_t<Lambda>>
+			class ProtectedUPtr : private std::unique_ptr<void, std::remove_cvref_t<Lambda>>
 			{
 			private:
 				using Parent = std::unique_ptr<void, Lambda>;
@@ -22,7 +22,11 @@ namespace Storm
 			public:
 				using Parent::Parent;
 				using Parent::release;
-				using Parent::reset;
+
+				void reset()
+				{
+					Parent::reset();
+				}
 
 				// Never have a get because this object is a lie. It references a local variable that will be gone.
 				// It is ok since it is a pointer, the pointer can point to something that doesn't exist anymore (like when we point to nullptr)
