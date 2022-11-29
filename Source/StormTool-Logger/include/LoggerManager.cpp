@@ -11,16 +11,16 @@
 #include <iostream>
 
 
-StormPackager::LoggerManager::LoggerManager() = default;
-StormPackager::LoggerManager::~LoggerManager() = default;
+StormTool::LoggerManager::LoggerManager() = default;
+StormTool::LoggerManager::~LoggerManager() = default;
 
-void StormPackager::LoggerManager::log(const std::string_view &moduleName, Storm::LogLevel level, const std::string_view &function, const int line, std::string &&msg)
+void StormTool::LoggerManager::log(const std::string_view &moduleName, Storm::LogLevel level, const std::string_view &function, const int line, std::string &&msg)
 {
 	const std::string_view levelStr = Storm::parseLogLevel(level);
 
 	std::string totalMsg;
 	totalMsg.reserve(16 + function.size() + moduleName.size() + msg.size() + levelStr.size());
-	
+
 	totalMsg += "[";
 	totalMsg += levelStr;
 	totalMsg += "][";
@@ -41,13 +41,13 @@ void StormPackager::LoggerManager::log(const std::string_view &moduleName, Storm
 	}
 }
 
-Storm::LogLevel StormPackager::LoggerManager::getLogLevel() const
+Storm::LogLevel StormTool::LoggerManager::getLogLevel() const
 {
 	// No log level, we will log everything.
 	return Storm::LogLevel::Debug;
 }
 
-void StormPackager::LoggerManager::logToTempFile(const std::string &/*fileName*/, const std::string &/*msg*/) const
+void StormTool::LoggerManager::logToTempFile(const std::string &/*fileName*/, const std::string &/*msg*/) const
 {
 	STORM_NOT_IMPLEMENTED;
 }

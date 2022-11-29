@@ -2,12 +2,15 @@
 
 #include "Singleton.h"
 #include "ILoggerManager.h"
+#include "SingletonDefaultImplementation.h"
 
 
-namespace StormPackager
+namespace StormTool
 {
+	enum class LogLevel;
+
 	class LoggerManager final :
-		private Storm::Singleton<StormPackager::LoggerManager>,
+		private Storm::Singleton<LoggerManager, Storm::DefineDefaultInitAndCleanupImplementation>,
 		public Storm::ILoggerManager
 	{
 		STORM_DECLARE_SINGLETON(LoggerManager);

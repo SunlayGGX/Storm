@@ -14,7 +14,7 @@ namespace
 {
 	using SingletonAllocatorAlias = Storm::SingletonAllocator<
 		Storm::SingletonHolder,
-		StormPackager::LoggerManager,
+		StormTool::LoggerManager,
 		StormPackager::ConfigManager,
 		StormPackager::BuildManager,
 		StormPackager::PackagerManager
@@ -27,6 +27,7 @@ namespace
 		g_singletonMaker = std::make_unique<SingletonAllocatorAlias>();
 
 		StormPackager::ConfigManager::instance().initialize(argc, argv);
+		StormTool::LoggerManager::instance().initialize();
 		StormPackager::BuildManager::instance().initialize();
 		StormPackager::PackagerManager::instance().initialize();
 	}
@@ -37,6 +38,7 @@ namespace
 		{
 			StormPackager::PackagerManager::instance().cleanUp();
 			StormPackager::BuildManager::instance().cleanUp();
+			StormTool::LoggerManager::instance().cleanUp();
 			StormPackager::ConfigManager::instance().cleanUp();
 
 			g_singletonMaker.reset();
