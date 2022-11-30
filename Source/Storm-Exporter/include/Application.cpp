@@ -4,7 +4,7 @@
 #include "SerializerManager.h"
 #include "LoggerManager.h"
 #include "ExporterConfigManager.h"
-#include "PatioExporterManager.h"
+#include "PartioExporterManager.h"
 
 #include "SingletonHolder.h"
 #include "SingletonAllocator.h"
@@ -25,8 +25,8 @@ namespace
 	>> g_baseAlloc;
 
 	std::unique_ptr<Storm::SingletonAllocator<
-		StormExporter::PatioExporterManager
-	>> g_patioAlloc;
+		StormExporter::PartioExporterManager
+	>> g_partioAlloc;
 
 	template<class AllocPtr>
 	void allocate(AllocPtr &ptr)
@@ -48,9 +48,9 @@ namespace
 		const auto exportMode = StormExporter::ExporterConfigManager::instance().getExportType();
 		switch (exportMode)
 		{
-		case StormExporter::ExportType::Patio:
+		case StormExporter::ExportType::Partio:
 		{
-			allocate(g_patioAlloc);
+			allocate(g_partioAlloc);
 			break;
 		}
 		default:
@@ -68,7 +68,7 @@ namespace
 		{
 			optionalExporterMgr->doCleanUp();
 
-			g_patioAlloc.reset();
+			g_partioAlloc.reset();
 		}
 
 		if (g_baseAlloc)

@@ -43,7 +43,7 @@
     <ProjectReference Include="..\..\StormExporter-Config\script\StormExporter-Config.vcxproj">
       <Project>{b4826dea-a4f9-4783-a3be-77457bcb42f5}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\..\StormExporter-Patio\script\StormExporter-Patio.vcxproj">
+    <ProjectReference Include="..\..\StormExporter-Partio\script\StormExporter-Partio.vcxproj">
       <Project>{4b636ff3-e649-41f6-9170-4aef06698a46}</Project>
     </ProjectReference>
     <ProjectReference Include="..\..\StormTool-Logger\script\StormTool-Logger.vcxproj">
@@ -123,7 +123,7 @@
       <PrecompiledHeaderFile>Storm-ExporterPCH.h</PrecompiledHeaderFile>
       <ForcedIncludeFiles>%(PrecompiledHeaderFile);%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(ProjectDir)../../Storm-ModelBase/include;$(ProjectDir)../../StormExporter-Base/include;$(ProjectDir)../../StormExporter-Config/include;$(ProjectDir)../../StormExporter-Patio/include;$(ProjectDir)../../StormTool-Logger/include;$(ProjectDir)../../Storm-Serializer/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)../../Storm-ModelBase/include;$(ProjectDir)../../StormExporter-Base/include;$(ProjectDir)../../StormExporter-Config/include;$(ProjectDir)../../StormExporter-Partio/include;$(ProjectDir)../../StormTool-Logger/include;$(ProjectDir)../../Storm-Serializer/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -142,7 +142,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Storm-ExporterPCH.h</PrecompiledHeaderFile>
       <ForcedIncludeFiles>%(PrecompiledHeaderFile);%(ForcedIncludeFiles)</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>$(ProjectDir)../../Storm-ModelBase/include;$(ProjectDir)../../StormExporter-Base/include;$(ProjectDir)../../StormExporter-Config/include;$(ProjectDir)../../StormExporter-Patio/include;$(ProjectDir)../../StormTool-Logger/include;$(ProjectDir)../../Storm-Serializer/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)../../Storm-ModelBase/include;$(ProjectDir)../../StormExporter-Base/include;$(ProjectDir)../../StormExporter-Config/include;$(ProjectDir)../../StormExporter-Partio/include;$(ProjectDir)../../StormTool-Logger/include;$(ProjectDir)../../Storm-Serializer/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -163,7 +163,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Storm-ExporterPCH.h</PrecompiledHeaderFile>
       <ForcedIncludeFiles>%(PrecompiledHeaderFile);%(ForcedIncludeFiles)</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>$(ProjectDir)../../Storm-ModelBase/include;$(ProjectDir)../../StormExporter-Base/include;$(ProjectDir)../../StormExporter-Config/include;$(ProjectDir)../../StormExporter-Patio/include;$(ProjectDir)../../StormTool-Logger/include;$(ProjectDir)../../Storm-Serializer/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)../../Storm-ModelBase/include;$(ProjectDir)../../StormExporter-Base/include;$(ProjectDir)../../StormExporter-Config/include;$(ProjectDir)../../StormExporter-Partio/include;$(ProjectDir)../../StormTool-Logger/include;$(ProjectDir)../../Storm-Serializer/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

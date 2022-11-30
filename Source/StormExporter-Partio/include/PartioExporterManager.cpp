@@ -1,10 +1,10 @@
-#include "PatioExporterManager.h"
+#include "PartioExporterManager.h"
 
 #include "IExporterConfigManager.h"
 #include "ISerializerManager.h"
 #include "SingletonHolder.h"
 
-#include "PatioWriter.h"
+#include "PartioWriter.h"
 
 #include "ExporterEventCallbacks.h"
 
@@ -12,25 +12,25 @@
 
 
 
-StormExporter::PatioExporterManager::PatioExporterManager() = default;
-StormExporter::PatioExporterManager::~PatioExporterManager() = default;
+StormExporter::PartioExporterManager::PartioExporterManager() = default;
+StormExporter::PartioExporterManager::~PartioExporterManager() = default;
 
-void StormExporter::PatioExporterManager::initialize_Implementation()
+void StormExporter::PartioExporterManager::initialize_Implementation()
 {
 
 }
 
-void StormExporter::PatioExporterManager::doInitialize()
+void StormExporter::PartioExporterManager::doInitialize()
 {
 	this->initialize();
 }
 
-void StormExporter::PatioExporterManager::doCleanUp()
+void StormExporter::PartioExporterManager::doCleanUp()
 {
 	this->cleanUp();
 }
 
-Storm::ExitCode StormExporter::PatioExporterManager::run()
+Storm::ExitCode StormExporter::PartioExporterManager::run()
 {
 	const auto &singletonHolder = Storm::SingletonHolder::instance();
 	const auto &configMgr = singletonHolder.getSingleton<StormExporter::IExporterConfigManager>();
@@ -45,18 +45,18 @@ Storm::ExitCode StormExporter::PatioExporterManager::run()
 	return Storm::ExitCode::k_success;
 }
 
-bool StormExporter::PatioExporterManager::onStartExport(const Storm::SerializeRecordHeader &header)
+bool StormExporter::PartioExporterManager::onStartExport(const Storm::SerializeRecordHeader &header)
 {
-	_writer = std::make_unique<StormExporter::PatioWriter>(header);
+	_writer = std::make_unique<StormExporter::PartioWriter>(header);
 	return true;
 }
 
-bool StormExporter::PatioExporterManager::onFrameExport(const Storm::SerializeRecordPendingData &frame)
+bool StormExporter::PartioExporterManager::onFrameExport(const Storm::SerializeRecordPendingData &frame)
 {
 	return _writer->onFrameExport(frame);
 }
 
-void StormExporter::PatioExporterManager::onExportClose()
+void StormExporter::PartioExporterManager::onExportClose()
 {
 	_writer->onExportClose();
 	_writer.reset();

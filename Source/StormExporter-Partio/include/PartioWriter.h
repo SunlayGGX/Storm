@@ -11,11 +11,11 @@ namespace Storm
 
 namespace StormExporter
 {
-	class PatioWriter
+	class PartioWriter
 	{
 	public:
-		PatioWriter(const Storm::SerializeRecordHeader &header);
-		~PatioWriter();
+		PartioWriter(const Storm::SerializeRecordHeader &header);
+		~PartioWriter();
 
 	public:
 		bool onFrameExport(const Storm::SerializeRecordPendingData &frame);
@@ -27,6 +27,6 @@ namespace StormExporter
 
 	private:
 		std::vector<unsigned int> _targetIds;
-		std::ofstream _patioFile;
+		std::ofstream _partioFile;
 	};
 }

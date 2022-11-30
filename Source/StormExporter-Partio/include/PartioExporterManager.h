@@ -12,13 +12,13 @@ namespace Storm
 
 namespace StormExporter
 {
-	class PatioWriter;
+	class PartioWriter;
 
-	class PatioExporterManager final :
-		private Storm::Singleton<PatioExporterManager, Storm::DefineDefaultCleanupImplementationOnly>,
+	class PartioExporterManager final :
+		private Storm::Singleton<PartioExporterManager, Storm::DefineDefaultCleanupImplementationOnly>,
 		public StormExporter::IExporterManager
 	{
-		STORM_DECLARE_SINGLETON(PatioExporterManager);
+		STORM_DECLARE_SINGLETON(PartioExporterManager);
 
 	private:
 		void initialize_Implementation();
@@ -34,6 +34,6 @@ namespace StormExporter
 		void onExportClose();
 
 	private:
-		std::unique_ptr<StormExporter::PatioWriter> _writer;
+		std::unique_ptr<StormExporter::PartioWriter> _writer;
 	};
 }

@@ -7,5 +7,5 @@
 #include "UniversalString.h"
 
 
-#define STORM_MODULE_NAME "PatioExporter"
+#define STORM_MODULE_NAME "PartioExporter"
 #include "Logging.h"

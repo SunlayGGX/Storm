@@ -21,25 +21,25 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\include\StormExporter-PatioPCH.cpp">
+    <ClCompile Include="..\include\PartioExporterManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\include\PatioExporterManager.cpp">
+    <ClCompile Include="..\include\PartioWriter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\include\PatioWriter.cpp">
-      <Filter>Source Files\Writer</Filter>
+    <ClCompile Include="..\include\StormExporter-PartioPCH.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\include\StormExporter-PatioPCH.h">
+    <ClInclude Include="..\include\PartioExporterManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\PatioExporterManager.h">
+    <ClInclude Include="..\include\PartioWriter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\PatioWriter.h">
-      <Filter>Header Files\Writer</Filter>
+    <ClInclude Include="..\include\StormExporter-PartioPCH.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
