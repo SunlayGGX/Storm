@@ -33,6 +33,9 @@
     <ProjectReference Include="..\..\Storm-ModelBase\script\Storm-ModelBase.vcxproj">
       <Project>{bb52fd96-f795-463d-8ad1-392b37344a7d}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\..\StormExporter-Base\script\StormExporter-Base.vcxproj">
+      <Project>{4bbd5239-5f35-479b-991e-ec8b939218f2}</Project>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -106,7 +109,7 @@
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <ForcedIncludeFiles>%(PrecompiledHeaderFile);%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(ProjectDir)../../StormExporter-Base/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)../../StormExporter-Base/include;$(ProjectDir)../../Storm-ModelBase/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -124,7 +127,7 @@
       <PrecompiledHeaderFile>StormExporter-PatioPCH.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <ForcedIncludeFiles>%(PrecompiledHeaderFile);%(ForcedIncludeFiles)</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>$(ProjectDir)../../StormExporter-Base/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)../../StormExporter-Base/include;$(ProjectDir)../../Storm-ModelBase/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -144,7 +147,7 @@
       <PrecompiledHeaderFile>StormExporter-PatioPCH.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <ForcedIncludeFiles>%(PrecompiledHeaderFile);%(ForcedIncludeFiles)</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>$(ProjectDir)../../StormExporter-Base/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)../../StormExporter-Base/include;$(ProjectDir)../../Storm-ModelBase/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
