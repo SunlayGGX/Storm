@@ -39,7 +39,7 @@ namespace
 	{
 		boost::to_lower(val);
 
-#define STORMEXPORTER_IF_RETURN(EnumVal, Text) if (val == STORM_STRINGIFY(Text)) return StormExporter::ExportType::EnumVal
+#define STORMEXPORTER_IF_RETURN(EnumVal, Text) if (val == Text) return StormExporter::ExportType::EnumVal
 		STORMEXPORTER_IF_RETURN(Patio, "patio");
 #undef STORMEXPORTER_IF_RETURN
 
@@ -118,7 +118,14 @@ void StormExporter::ExporterConfigManager::initialize_Implementation(int argc, c
 	const bool needHelp = commandlineMap.count("help");
 	if (!needHelp)
 	{
-		if (!extractIfExist(commandlineMap, "file", _recordToExport))
+		if (extractIfExist(commandlineMap, "file", _recordToExport))
+		{
+			if (!std::filesystem::is_regular_file(_recordToExport))
+			{
+				Storm::throwException<Storm::Exception>(_recordToExport + " is not a file, we cannot export it!");
+			}
+		}
+		else
 		{
 			Storm::throwException<Storm::Exception>("File to export was not specified!");
 		}
