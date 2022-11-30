@@ -44,6 +44,8 @@ Note that I chose “vc15win64” settings. If you use another Visual Studio, be
 - **Lua v5.4.0 release 2 (24/08/2020)** (link: http://luabinaries.sourceforge.net/). Take the static binaries for Windows 64 platform, or you are free to build them from scratch. Normally, it should be named “lua-5.4.0_Win64_vc16_lib”. I took the vc16 library since I’m using Visual Studio 2019, and Win64 because I’m working with a x64 workstation and project.
  + Ensure that the .lib file is inside a folder named “bin” beside “include” folder. Move it inside if not.
 - **Sol2 v3.2.2** (link: https://github.com/ThePhD/sol2/tree/v3.2.2). Just download the zip and extract it.
+- **Partio v1.14.6** (link: https://github.com/wdas/partio/releases/tag/v1.14.6). Clone the repo, use CMake and build only the partio project on release and debug.
+Note : If you don't have Glut, we don't need it because we use the library just as an exporter, therefore you can comment every line related to Opengl or Glut on CMakeList.txt. That is not mandatory and if you have those lib already installed, don't bother, you can build with or without.
 - **Catch2 v2.12.2**. Not mandatory, but it is used for unit testing. (link: https://github.com/catchorg/catch2/releases ). If you choose to skip it, then unload all Automation projects from Storm.sln...
 
 

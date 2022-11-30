@@ -46,6 +46,7 @@ echo Make dependency junctions
 %makeFolderLink% "%STORM_DEPENDENCIES%\Eigen" "%EIGEN_DEPENDENCIES_PATH%"
 %makeFolderLink% "%STORM_DEPENDENCIES%\Lua" "%LUA_BASE_LIB_DEPENDENCIES_PATH%"
 %makeFolderLink% "%STORM_DEPENDENCIES%\Sol2" "%LUA_WRAPPER_DEPENDENCIES_PATH%"
+%makeFolderLink% "%STORM_DEPENDENCIES%\Partio" "%PARTIO_DEPENDENCIES_PATH%"
 
 :: This one is not mandatory...
 if exist "%CATCH2_DEPENDENCIES_PATH%" (

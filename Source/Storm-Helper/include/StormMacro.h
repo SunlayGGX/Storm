@@ -36,6 +36,16 @@
 #	define STORM_PLUGIN_NAME(plugin) plugin
 #endif
 
+#if defined(DEBUG) || defined(_DEBUG)
+#	define STORM_EXT_CONFIGURATION_FOLDER "Debug"
+#elif defined(NDEBUG)
+#	define STORM_EXT_CONFIGURATION_FOLDER "Release"
+#else
+#	error Undefined configuration folder!
+#endif
+
+#define STORM_EXT_RELATIVE_LIB(lib) STORM_EXT_CONFIGURATION_FOLDER "/" STORM_STRINGIFY(lib)
+
 
 #define STORM_STATIC_LIBRARY_NAME(name) STORM_PLUGIN_NAME(name) ".lib"
 #define STORM_DYNAMIC_LIBRARY_NAME(name) STORM_PLUGIN_NAME(name) ".dll"
