@@ -147,7 +147,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Storm-Exporter", "Storm-Exp
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Storm-Exporter", "Source\Storm-Exporter\script\Storm-Exporter.vcxproj", "{D021A61D-D7B9-40A3-A6FA-F438C3AF82DD}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "General", "General", "{4BD0EC94-BDEF-4D3F-97AE-9CCD18A50719}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{4BD0EC94-BDEF-4D3F-97AE-9CCD18A50719}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "StormTool-Logger", "Source\StormTool-Logger\script\StormTool-Logger.vcxproj", "{23ED98C8-6EC3-41E0-9DF0-F762795CE48F}"
 EndProject
