@@ -1,10 +1,15 @@
 #include "Application.h"
 
+#include "IExporterManager.h"
 #include "SerializerManager.h"
 #include "LoggerManager.h"
 #include "ExporterConfigManager.h"
-#include "SingletonAllocator.h"
+#include "PatioExporterManager.h"
+
 #include "SingletonHolder.h"
+#include "SingletonAllocator.h"
+
+#include "ExportType.h"
 
 #include "ExitCode.h"
 #include "RAII.h"
@@ -12,14 +17,16 @@
 
 namespace
 {
-	using BaseSingletonAllocatorAlias = Storm::SingletonAllocator<
+	std::unique_ptr<Storm::SingletonAllocator<
 		Storm::SingletonHolder,
 		StormTool::LoggerManager,
 		StormExporter::ExporterConfigManager,
 		Storm::SerializerManager
-	>;
+	>> g_baseAlloc;
 
-	std::unique_ptr<BaseSingletonAllocatorAlias> g_baseAlloc;
+	std::unique_ptr<Storm::SingletonAllocator<
+		StormExporter::PatioExporterManager
+	>> g_patioAlloc;
 
 	template<class AllocPtr>
 	void allocate(AllocPtr &ptr)
@@ -37,10 +44,33 @@ namespace
 		StormTool::LoggerManager::instance().initialize();
 		StormExporter::ExporterConfigManager::instance().initialize(argc, argv);
 		Storm::SerializerManager::instance().initialize(Storm::SerializerManager::ExporterToolTag{});
+
+		const auto exportMode = StormExporter::ExporterConfigManager::instance().getExportType();
+		switch (exportMode)
+		{
+		case StormExporter::ExportType::Patio:
+		{
+			allocate(g_patioAlloc);
+			break;
+		}
+		default:
+			assert(false && "Unhandled Export Type!");
+			__assume(false);
+		}
+
+		Storm::SingletonHolder::instance().getSingleton<StormExporter::IExporterManager>().doInitialize();
 	}
 
 	void shutdown() noexcept
 	{
+		if (auto*const optionalExporterMgr = Storm::SingletonHolder::instance().getFacet<StormExporter::IExporterManager>(); 
+			optionalExporterMgr)
+		{
+			optionalExporterMgr->doCleanUp();
+
+			g_patioAlloc.reset();
+		}
+
 		if (g_baseAlloc)
 		{
 			Storm::SerializerManager::instance().cleanUp(Storm::SerializerManager::ExporterToolTag{});
@@ -75,7 +105,7 @@ Storm::ExitCode StormExporter::Application::run()
 		return Storm::ExitCode::k_success;
 	}
 
-	return Storm::ExitCode::k_success;
+	return Storm::SingletonHolder::instance().getSingleton<StormExporter::IExporterManager>().run();
 }
 
 void StormExporter::Application::staticForceShutdown()

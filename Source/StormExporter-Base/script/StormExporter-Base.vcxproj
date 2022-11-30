@@ -25,6 +25,7 @@
     <ClInclude Include="..\include\ExportMode.h" />
     <ClInclude Include="..\include\ExportType.h" />
     <ClInclude Include="..\include\IExporterConfigManager.h" />
+    <ClInclude Include="..\include\IExporterManager.h" />
     <ClInclude Include="..\include\StormExporter-BasePCH.h" />
   </ItemGroup>
   <ItemGroup>
