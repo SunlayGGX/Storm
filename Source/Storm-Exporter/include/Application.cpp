@@ -12,21 +12,27 @@
 
 namespace
 {
-	using SingletonAllocatorAlias = Storm::SingletonAllocator<
+	using BaseSingletonAllocatorAlias = Storm::SingletonAllocator<
 		Storm::SingletonHolder,
 		StormTool::LoggerManager,
 		StormExporter::ExporterConfigManager,
 		Storm::SerializerManager
 	>;
 
-	std::unique_ptr<SingletonAllocatorAlias> g_alloc;
+	std::unique_ptr<BaseSingletonAllocatorAlias> g_baseAlloc;
+
+	template<class AllocPtr>
+	void allocate(AllocPtr &ptr)
+	{
+		if (!ptr)
+		{
+			ptr = std::make_unique<std::remove_cvref_t<decltype(*ptr)>>();
+		}
+	}
 
 	void initialize(int argc, const char*const argv[])
 	{
-		if (!g_alloc)
-		{
-			g_alloc = std::make_unique<SingletonAllocatorAlias>();
-		}
+		allocate(g_baseAlloc);
 
 		StormTool::LoggerManager::instance().initialize();
 		StormExporter::ExporterConfigManager::instance().initialize(argc, argv);
@@ -35,13 +41,13 @@ namespace
 
 	void shutdown() noexcept
 	{
-		if (g_alloc)
+		if (g_baseAlloc)
 		{
 			Storm::SerializerManager::instance().cleanUp(Storm::SerializerManager::ExporterToolTag{});
 			StormExporter::ExporterConfigManager::instance().cleanUp();
 			StormTool::LoggerManager::instance().cleanUp();
 
-			g_alloc.reset();
+			g_baseAlloc.reset();
 		}
 	}
 
