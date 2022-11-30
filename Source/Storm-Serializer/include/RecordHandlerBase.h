@@ -13,6 +13,7 @@ namespace Storm
 	{
 	protected:
 		// Reading
+		RecordHandlerBase(Storm::SerializeRecordHeader &&header, const std::string &recordFilePath);
 		RecordHandlerBase(Storm::SerializeRecordHeader &&header);
 
 		// Writing

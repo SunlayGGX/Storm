@@ -6,15 +6,21 @@
 
 namespace
 {
-	Storm::ILoggerManager& retrieveLoggerManager()
+	Storm::ILoggerManager* retrieveLoggerManager()
 	{
-		return Storm::SingletonHolder::instance().getSingleton<Storm::ILoggerManager>();
+		return Storm::SingletonHolder::instance().getFacet<Storm::ILoggerManager>();
 	}
 
 	std::stringstream& retrieveThreadLocalStream()
 	{
 		static thread_local std::stringstream stream;
 		return stream;
+	}
+
+	__forceinline bool isEnabled(const Storm::LogLevel level)
+	{
+		const auto*const optionalLoggerMgr = retrieveLoggerManager();
+		return optionalLoggerMgr && optionalLoggerMgr->getLogLevel() <= level;
 	}
 }
 
@@ -34,7 +40,7 @@ Storm::LoggerObject::LoggerObject(const std::string_view &moduleName, const Stor
 	_level{ level },
 	_function{ function },
 	_line{ line },
-	_enabled{ level >= retrieveLoggerManager().getLogLevel() }
+	_enabled{ isEnabled(level) }
 {
 
 }
@@ -43,7 +49,7 @@ Storm::LoggerObject::~LoggerObject()
 {
 	if (_enabled)
 	{
-		retrieveLoggerManager().log(_module, _level, _function, _line, std::move(_stream).str());
+		retrieveLoggerManager()->log(_module, _level, _function, _line, std::move(_stream).str());
 	}
 	Storm::BaseLoggerObject::clearStream();
 }
@@ -57,6 +63,10 @@ Storm::FileLoggerObject::FileLoggerObject(std::string filename) :
 
 Storm::FileLoggerObject::~FileLoggerObject()
 {
-	retrieveLoggerManager().logToTempFile(_filename, std::move(_stream).str());
+	const auto*const optionalLoggerMgr = retrieveLoggerManager();
+	if (optionalLoggerMgr)
+	{
+		optionalLoggerMgr->logToTempFile(_filename, std::move(_stream).str());
+	}
 	Storm::BaseLoggerObject::clearStream();
 }

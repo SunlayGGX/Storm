@@ -26,13 +26,19 @@ namespace
 }
 
 // Reading
-Storm::RecordHandlerBase::RecordHandlerBase(Storm::SerializeRecordHeader &&header) :
+Storm::RecordHandlerBase::RecordHandlerBase(Storm::SerializeRecordHeader &&header, const std::string &recordFilePath) :
 	_header{ std::move(header) },
-	_package{ Storm::SerializePackageCreationModality::LoadingManual, retrieveRecordFilePath() },
+	_package{ Storm::SerializePackageCreationModality::LoadingManual, recordFilePath },
 	_movingSystemCount{ 0 },
 	_preheaderSerializer{ std::make_unique<Storm::RecordPreHeaderSerializer>() }
 {
 	_package << *_preheaderSerializer;
+}
+
+Storm::RecordHandlerBase::RecordHandlerBase(Storm::SerializeRecordHeader &&header) :
+	Storm::RecordHandlerBase::RecordHandlerBase{ std::move(header), retrieveRecordFilePath() }
+{
+
 }
 
 // Writing

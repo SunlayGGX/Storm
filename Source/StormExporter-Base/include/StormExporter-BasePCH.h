@@ -7,5 +7,5 @@
 #include "UniversalString.h"
 
 
+#define STORM_MODULE_NAME "ExporterBase"
 #include "Logging.h"
-#define STORM_MODULE_NAME "ToolLogger"

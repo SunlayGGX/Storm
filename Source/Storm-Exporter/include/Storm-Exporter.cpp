@@ -15,13 +15,13 @@ catch (const Storm::Exception &ex)
 {
 	std::cerr <<
 		"Unhandled storm exception happened!\n"
-		"Message was " << ex.what() << ".\n" << ex.stackTrace()
+		"Message was : " << ex.what() << ".\n" << ex.stackTrace()
 		;
 	return static_cast<int>(Storm::ExitCode::k_stdException);
 }
 catch (const std::exception &ex)
 {
-	std::cerr << "Unhandled std exception happened! Message was " << ex.what();
+	std::cerr << "Unhandled std exception happened! Message was : " << ex.what();
 	StormExporter::Application::staticForceShutdown();
 	return static_cast<int>(Storm::ExitCode::k_stdException);
 }

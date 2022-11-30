@@ -16,9 +16,15 @@ namespace Storm
 	{
 		STORM_DECLARE_SINGLETON(SerializerManager);
 
+	public:
+		struct ExporterToolTag{};
+
 	private:
 		void initialize_Implementation();
 		void cleanUp_Implementation();
+
+		void initialize_Implementation(ExporterToolTag);
+		void cleanUp_Implementation(ExporterToolTag);
 
 	private:
 		void run();
@@ -53,6 +59,12 @@ namespace Storm
 	public:
 		std::string getArchivePath() const final override;
 
+	public:
+		void exportRecord(const std::string &recordFile, const ExporterEventCallbacks &exporter) final override;
+
+	private:
+		void checkExporterCallbackValidity(const ExporterEventCallbacks &exporter) const;
+
 	private:
 		std::thread _serializeThread;
 
@@ -67,6 +79,9 @@ namespace Storm
 		// Archiver
 		std::unique_ptr<Storm::RecordArchiver> _archiver;
 		std::string _archivePathCachedNoCleanUp; // This must survive cleanUp
+
+		// Exporter
+		bool _initForExport;
 
 		mutable std::mutex _mutex;
 	};

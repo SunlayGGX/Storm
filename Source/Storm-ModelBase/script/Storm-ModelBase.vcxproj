@@ -42,6 +42,7 @@
     <ClInclude Include="..\include\AsyncAction.h" />
     <ClInclude Include="..\include\ConfigConstants.h" />
     <ClInclude Include="..\include\ConstraintType.h" />
+    <ClInclude Include="..\include\ExporterEventCallbacks.h" />
     <ClInclude Include="..\include\GeneralArchiveConfig.h" />
     <ClInclude Include="..\include\GeneralConfig.h" />
     <ClInclude Include="..\include\GeneralDebugConfig.h" />

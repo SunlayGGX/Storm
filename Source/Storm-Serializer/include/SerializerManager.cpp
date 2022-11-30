@@ -20,6 +20,8 @@
 
 #include "RecordArchiver.h"
 
+#include "ExporterEventCallbacks.h"
+
 #include "ThreadingSafety.h"
 #include "ThreadHelper.h"
 #include "ThreadFlaggerObject.h"
@@ -66,7 +68,12 @@ namespace
 }
 
 
-Storm::SerializerManager::SerializerManager() = default;
+Storm::SerializerManager::SerializerManager() :
+	_initForExport{ false }
+{
+
+}
+
 Storm::SerializerManager::~SerializerManager() = default;
 
 void Storm::SerializerManager::initialize_Implementation()
@@ -101,6 +108,12 @@ void Storm::SerializerManager::initialize_Implementation()
 
 void Storm::SerializerManager::cleanUp_Implementation()
 {
+	if (_initForExport)
+	{
+		this->cleanUp_Implementation(ExporterToolTag{});
+		return;
+	}
+
 	LOG_COMMENT << "Serializer module Cleanup";
 	Storm::join(_serializeThread);
 
@@ -115,6 +128,17 @@ void Storm::SerializerManager::cleanUp_Implementation()
 		_archiver->execute();
 		_archiver.reset();
 	}
+}
+
+void Storm::SerializerManager::initialize_Implementation(ExporterToolTag)
+{
+	_initForExport = true;
+}
+
+void Storm::SerializerManager::cleanUp_Implementation(ExporterToolTag)
+{
+	_initForExport = false;
+	_recordReader.reset();
 }
 
 void Storm::SerializerManager::run()
@@ -358,4 +382,39 @@ std::string Storm::SerializerManager::getArchivePath() const
 {
 	std::lock_guard<std::mutex> lock{ _mutex };
 	return _archivePathCachedNoCleanUp;
+}
+
+void Storm::SerializerManager::exportRecord(const std::string &recordFile, const ExporterEventCallbacks &exporter)
+{
+	this->checkExporterCallbackValidity(exporter);
+
+	_recordReader = std::make_unique<Storm::RecordReader>(recordFile);
+
+	if (exporter._onStartRecordRead(_recordReader->getHeader()))
+	{
+		Storm::SerializeRecordPendingData frameData;
+		while (_recordReader->readNextFrame(frameData))
+		{
+			if (!exporter._onNewFrameReceive(frameData))
+			{
+				break;
+			}
+		}
+	}
+
+	exporter._onRecordClose();
+}
+
+void Storm::SerializerManager::checkExporterCallbackValidity(const ExporterEventCallbacks &exporter) const
+{
+	if (!_initForExport)
+	{
+		Storm::throwException<Storm::Exception>("We call methods for exporter but are not initialized for export!");
+	}
+
+#define STORM_CHECK_CALLBACK(CallbackName) if (!exporter.CallbackName) Storm::throwException<Storm::Exception>(STORM_STRINGIFY(CallbackName) " was not set!")
+	STORM_CHECK_CALLBACK(_onStartRecordRead);
+	STORM_CHECK_CALLBACK(_onNewFrameReceive);
+	STORM_CHECK_CALLBACK(_onRecordClose);
+#undef STORM_CHECK_CALLBACK
 }

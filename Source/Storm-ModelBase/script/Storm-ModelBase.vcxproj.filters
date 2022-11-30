@@ -175,6 +175,9 @@
     <Filter Include="Source Files\Modules\Config\Misc">
       <UniqueIdentifier>{a432cf04-dfe1-4bb5-a6fe-5928f6f30616}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Modules\Serializer\Exporter">
+      <UniqueIdentifier>{bb1a769a-dbef-4470-aa8a-c601a85d338f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Storm-ModelBasePCH.cpp">
@@ -595,6 +598,9 @@
     </ClInclude>
     <ClInclude Include="..\include\PushedParticleEmitterData.h">
       <Filter>Header Files\Modules\Graphics\General</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ExporterEventCallbacks.h">
+      <Filter>Header Files\Modules\Serializer\Exporter</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

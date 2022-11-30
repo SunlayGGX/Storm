@@ -155,6 +155,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Module", "Module", "{6036BA
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "StormExporter-Base", "Source\StormExporter-Base\script\StormExporter-Base.vcxproj", "{4BBD5239-5F35-479B-991E-EC8B939218F2}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "StormExporter-Config", "Source\StormExporter-Config\script\StormExporter-Config.vcxproj", "{B4826DEA-A4F9-4783-A3BE-77457BCB42F5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -613,6 +615,22 @@ Global
 		{4BBD5239-5F35-479B-991E-EC8B939218F2}.ReleaseNoPackager|Any CPU.Build.0 = Release|x64
 		{4BBD5239-5F35-479B-991E-EC8B939218F2}.ReleaseNoPackager|x64.ActiveCfg = Release|x64
 		{4BBD5239-5F35-479B-991E-EC8B939218F2}.ReleaseNoPackager|x64.Build.0 = Release|x64
+		{B4826DEA-A4F9-4783-A3BE-77457BCB42F5}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{B4826DEA-A4F9-4783-A3BE-77457BCB42F5}.Debug|Any CPU.Build.0 = Debug|x64
+		{B4826DEA-A4F9-4783-A3BE-77457BCB42F5}.Debug|x64.ActiveCfg = Debug|x64
+		{B4826DEA-A4F9-4783-A3BE-77457BCB42F5}.Debug|x64.Build.0 = Debug|x64
+		{B4826DEA-A4F9-4783-A3BE-77457BCB42F5}.Profile|Any CPU.ActiveCfg = Profile|x64
+		{B4826DEA-A4F9-4783-A3BE-77457BCB42F5}.Profile|Any CPU.Build.0 = Profile|x64
+		{B4826DEA-A4F9-4783-A3BE-77457BCB42F5}.Profile|x64.ActiveCfg = Profile|x64
+		{B4826DEA-A4F9-4783-A3BE-77457BCB42F5}.Profile|x64.Build.0 = Profile|x64
+		{B4826DEA-A4F9-4783-A3BE-77457BCB42F5}.Release|Any CPU.ActiveCfg = Release|x64
+		{B4826DEA-A4F9-4783-A3BE-77457BCB42F5}.Release|Any CPU.Build.0 = Release|x64
+		{B4826DEA-A4F9-4783-A3BE-77457BCB42F5}.Release|x64.ActiveCfg = Release|x64
+		{B4826DEA-A4F9-4783-A3BE-77457BCB42F5}.Release|x64.Build.0 = Release|x64
+		{B4826DEA-A4F9-4783-A3BE-77457BCB42F5}.ReleaseNoPackager|Any CPU.ActiveCfg = Release|x64
+		{B4826DEA-A4F9-4783-A3BE-77457BCB42F5}.ReleaseNoPackager|Any CPU.Build.0 = Release|x64
+		{B4826DEA-A4F9-4783-A3BE-77457BCB42F5}.ReleaseNoPackager|x64.ActiveCfg = Release|x64
+		{B4826DEA-A4F9-4783-A3BE-77457BCB42F5}.ReleaseNoPackager|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -668,6 +686,7 @@ Global
 		{23ED98C8-6EC3-41E0-9DF0-F762795CE48F} = {4BD0EC94-BDEF-4D3F-97AE-9CCD18A50719}
 		{6036BAD0-5D88-423E-811D-4F3976C7F93B} = {D7A9452A-553F-4394-ADF2-D155D2724B54}
 		{4BBD5239-5F35-479B-991E-EC8B939218F2} = {6036BAD0-5D88-423E-811D-4F3976C7F93B}
+		{B4826DEA-A4F9-4783-A3BE-77457BCB42F5} = {6036BAD0-5D88-423E-811D-4F3976C7F93B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {AC48B795-9776-4952-84E0-CE8AB938B72B}

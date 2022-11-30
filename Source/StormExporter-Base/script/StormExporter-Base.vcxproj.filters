@@ -13,6 +13,15 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\Interface">
+      <UniqueIdentifier>{15424f8a-65ee-4954-a0a9-92dc4ca5fa70}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Module">
+      <UniqueIdentifier>{f5356db3-751b-4468-9f6f-216ce1ddc165}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Module\Config">
+      <UniqueIdentifier>{5c4f5c7c-3462-41b1-8274-a4c86972ce32}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\StormExporter-BasePCH.cpp">
@@ -22,6 +31,15 @@
   <ItemGroup>
     <ClInclude Include="..\include\StormExporter-BasePCH.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\IExporterConfigManager.h">
+      <Filter>Header Files\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ExportType.h">
+      <Filter>Header Files\Module\Config</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ExportMode.h">
+      <Filter>Header Files\Module\Config</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

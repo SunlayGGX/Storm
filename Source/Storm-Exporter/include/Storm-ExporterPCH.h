@@ -6,3 +6,6 @@
 
 #include "StormHelperPrerequisite.h"
 
+
+#define STORM_MODULE_NAME "Exporter"
+#include "Logging.h"

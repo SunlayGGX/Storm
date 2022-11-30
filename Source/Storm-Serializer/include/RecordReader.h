@@ -15,7 +15,11 @@ namespace Storm
 
 	public:
 		RecordReader();
+		RecordReader(const std::string &recordFilePath);
 		~RecordReader();
+
+	private:
+		void init();
 
 	public:
 		bool resetToBeginning();

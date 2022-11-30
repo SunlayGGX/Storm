@@ -13,6 +13,8 @@ namespace Storm
 	struct StateSavingOrders;
 	struct StateLoadingOrders;
 
+	struct ExporterEventCallbacks;
+
 	class ISerializerManager : public Storm::ISingletonHeldInterface<Storm::ISerializerManager>
 	{
 	public:
@@ -35,6 +37,9 @@ namespace Storm
 		virtual bool resetReplay() = 0;
 
 		virtual std::string getArchivePath() const = 0;
+
+	public:
+		virtual void exportRecord(const std::string &recordFile, const ExporterEventCallbacks &exporter) = 0;
 
 	public:
 		virtual void saveState(Storm::StateSavingOrders &&savingOrder) = 0;

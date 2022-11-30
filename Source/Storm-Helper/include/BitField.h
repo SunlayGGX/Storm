@@ -55,13 +55,13 @@ namespace Storm
 		};
 	};
 
-	template<class ValueType, ValueType val, class BitsType>
+	template<auto val, class BitsType>
 	__forceinline constexpr bool isBitEnabled(const BitsType bits)
 	{
 		enum 
 		{
 			bitCount1 = sizeof(BitsType) * 8,
-			bitCount2 = sizeof(ValueType) * 8,
+			bitCount2 = sizeof(val) * 8,
 		};
 
 		using NumericType1 = Storm::ByteValueType<bitCount1>::template Type;
@@ -72,7 +72,7 @@ namespace Storm
 	}
 
 
-	template<class ValueType, ValueType val, class BitsType>
+	template<auto val, class BitsType>
 	__forceinline void addBitFlag(BitsType &bits)
 	{
 		enum
@@ -83,13 +83,13 @@ namespace Storm
 		using NumericType = Storm::ByteValueType<bitCount>::template Type;
 
 		STORM_STATIC_ASSERT(
-			sizeof(NumericType) >= sizeof(Storm::ByteValueType<sizeof(ValueType) * 8>::template Type),
+			sizeof(NumericType) >= sizeof(Storm::ByteValueType<sizeof(val)>::template Type),
 			"Cannot set bits with a bigger flag that the BitsType can hold."
 		);
 
 		bits = static_cast<BitsType>(static_cast<NumericType>(bits) | static_cast<NumericType>(val));
 	}
 
-#define STORM_IS_BIT_ENABLED(flag, bitValueVar) Storm::isBitEnabled<decltype(bitValueVar), bitValueVar>(flag)
-#define STORM_ADD_BIT_ENABLED(flag, bitValueVar) Storm::addBitFlag<decltype(bitValueVar), bitValueVar>(flag)
+#define STORM_IS_BIT_ENABLED(flag, bitValueVar) Storm::isBitEnabled<bitValueVar>(flag)
+#define STORM_ADD_BIT_ENABLED(flag, bitValueVar) Storm::addBitFlag<bitValueVar>(flag)
 }

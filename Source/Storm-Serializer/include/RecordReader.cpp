@@ -98,6 +98,19 @@ namespace
 Storm::RecordReader::RecordReader() :
 	Storm::RecordHandlerBase{ Storm::SerializeRecordHeader{} }
 {
+	this->init();
+}
+
+Storm::RecordReader::RecordReader(const std::string &recordFilePath) :
+	Storm::RecordHandlerBase{ Storm::SerializeRecordHeader{}, recordFilePath }
+{
+	this->init();
+}
+
+Storm::RecordReader::~RecordReader() = default;
+
+void Storm::RecordReader::init()
+{
 	const Storm::Version &currentRecordVersion = _preheaderSerializer->getRecordVersion();
 	if (currentRecordVersion < Storm::Version{ 1, 1, 0 })
 	{
@@ -171,8 +184,6 @@ Storm::RecordReader::RecordReader() :
 
 	_noMoreFrame = _header._frameCount == 0;
 }
-
-Storm::RecordReader::~RecordReader() = default;
 
 bool Storm::RecordReader::resetToBeginning()
 {
