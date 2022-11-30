@@ -15,6 +15,7 @@ namespace StormExporter
 
 	public:
 		virtual const std::string& getRecordToExport() const = 0;
+		virtual const std::string& getOutExportPath() const = 0;
 		virtual ExportMode getExportMode() const = 0;
 		virtual ExportType getExportType() const = 0;
 	};

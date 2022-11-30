@@ -4,6 +4,8 @@
 #include "ISerializerManager.h"
 #include "SingletonHolder.h"
 
+#include "PatioWriter.h"
+
 #include "ExporterEventCallbacks.h"
 
 #include "ExitCode.h"
@@ -45,15 +47,17 @@ Storm::ExitCode StormExporter::PatioExporterManager::run()
 
 bool StormExporter::PatioExporterManager::onStartExport(const Storm::SerializeRecordHeader &header)
 {
+	_writer = std::make_unique<StormExporter::PatioWriter>(header);
 	return true;
 }
 
 bool StormExporter::PatioExporterManager::onFrameExport(const Storm::SerializeRecordPendingData &frame)
 {
-	return true;
+	return _writer->onFrameExport(frame);
 }
 
 void StormExporter::PatioExporterManager::onExportClose()
 {
-
+	_writer->onExportClose();
+	_writer.reset();
 }

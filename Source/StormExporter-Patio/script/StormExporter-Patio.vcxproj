@@ -16,6 +16,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\PatioExporterManager.cpp" />
+    <ClCompile Include="..\include\PatioWriter.cpp" />
     <ClCompile Include="..\include\StormExporter-PatioPCH.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
@@ -24,6 +25,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\PatioExporterManager.h" />
+    <ClInclude Include="..\include\PatioWriter.h" />
     <ClInclude Include="..\include\StormExporter-PatioPCH.h" />
   </ItemGroup>
   <ItemGroup>

@@ -28,6 +28,7 @@ namespace StormExporter
 
 	public:
 		const std::string& getRecordToExport() const final override;
+		const std::string& getOutExportPath() const final override;
 		ExportMode getExportMode() const final override;
 		ExportType getExportType() const final override;
 
@@ -35,6 +36,7 @@ namespace StormExporter
 		ExportMode _exportMode;
 		ExportType _exportType;
 		std::string _recordToExport;
+		std::string _exportPath;
 
 		std::unique_ptr<boost::program_options::options_description> _desc;
 	};

@@ -386,6 +386,8 @@ std::string Storm::SerializerManager::getArchivePath() const
 
 void Storm::SerializerManager::exportRecord(const std::string &recordFile, const ExporterEventCallbacks &exporter)
 {
+	LOG_COMMENT << "Exporting record " << recordFile;
+
 	this->checkExporterCallbackValidity(exporter);
 
 	_recordReader = std::make_unique<Storm::RecordReader>(recordFile);

@@ -4,6 +4,7 @@
 #include "ExportType.h"
 
 #include "StringAlgo.h"
+#include "StormPathHelper.h"
 
 #include <boost\program_options.hpp>
 #include <boost\algorithm\string\case_conv.hpp>
@@ -102,7 +103,8 @@ void StormExporter::ExporterConfigManager::initialize_Implementation(int argc, c
 		("help,h", "Command line help")
 		("mode", boost::program_options::value<std::string>(), "Mode (case insensitive) to export. Combine values with | symbol. Accepted values are : 'Fluid' and 'RigidBodies'.")
 		("type", boost::program_options::value<std::string>(), "Type (case insensitive) to export into. Accepted values are : 'Patio'.")
-		("file", boost::program_options::value<std::string>(), "The record file path.")
+		("in", boost::program_options::value<std::string>(), "The record file path.")
+		("out", boost::program_options::value<std::string>(), "The outputted export file path.")
 		;
 
 	boost::program_options::variables_map commandlineMap;
@@ -118,7 +120,7 @@ void StormExporter::ExporterConfigManager::initialize_Implementation(int argc, c
 	const bool needHelp = commandlineMap.count("help");
 	if (!needHelp)
 	{
-		if (extractIfExist(commandlineMap, "file", _recordToExport))
+		if (extractIfExist(commandlineMap, "in", _recordToExport))
 		{
 			if (!std::filesystem::is_regular_file(_recordToExport))
 			{
@@ -128,6 +130,19 @@ void StormExporter::ExporterConfigManager::initialize_Implementation(int argc, c
 		else
 		{
 			Storm::throwException<Storm::Exception>("File to export was not specified!");
+		}
+
+		if (!extractIfExist(commandlineMap, "out", _exportPath))
+		{
+			const std::filesystem::path inRecordPath{ _recordToExport };
+			const auto stormRoot = Storm::StormPathHelper::findStormRootPath(std::filesystem::path{ argv[0] }.parent_path());
+			
+			auto pathToExportOutput = stormRoot / "Intermediate" / "Exporter" / inRecordPath.parent_path().stem() / inRecordPath.filename();
+			pathToExportOutput.replace_extension("patio");
+
+			std::filesystem::create_directories(pathToExportOutput.parent_path());
+			
+			_exportPath = pathToExportOutput.string();
 		}
 
 		if (!extractIfExist(commandlineMap, "mode", _exportMode, parseExportMode))
@@ -159,6 +174,11 @@ bool StormExporter::ExporterConfigManager::printHelpAndShouldExit()
 const std::string& StormExporter::ExporterConfigManager::getRecordToExport() const
 {
 	return _recordToExport;
+}
+
+const std::string& StormExporter::ExporterConfigManager::getOutExportPath() const
+{
+	return _exportPath;
 }
 
 StormExporter::ExportMode StormExporter::ExporterConfigManager::getExportMode() const

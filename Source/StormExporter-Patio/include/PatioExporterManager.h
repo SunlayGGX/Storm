@@ -12,6 +12,8 @@ namespace Storm
 
 namespace StormExporter
 {
+	class PatioWriter;
+
 	class PatioExporterManager final :
 		private Storm::Singleton<PatioExporterManager, Storm::DefineDefaultCleanupImplementationOnly>,
 		public StormExporter::IExporterManager
@@ -30,5 +32,8 @@ namespace StormExporter
 		bool onStartExport(const Storm::SerializeRecordHeader &header);
 		bool onFrameExport(const Storm::SerializeRecordPendingData &frame);
 		void onExportClose();
+
+	private:
+		std::unique_ptr<StormExporter::PatioWriter> _writer;
 	};
 }

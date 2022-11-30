@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\Writer">
+      <UniqueIdentifier>{0002e1c9-5bef-43aa-9538-ce598bfa3d6c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Writer">
+      <UniqueIdentifier>{bc82eaa4-7ea4-4e54-956e-5a8811c4ee46}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\StormExporter-PatioPCH.cpp">
@@ -21,6 +27,9 @@
     <ClCompile Include="..\include\PatioExporterManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\PatioWriter.cpp">
+      <Filter>Source Files\Writer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\StormExporter-PatioPCH.h">
@@ -28,6 +37,9 @@
     </ClInclude>
     <ClInclude Include="..\include\PatioExporterManager.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\PatioWriter.h">
+      <Filter>Header Files\Writer</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
