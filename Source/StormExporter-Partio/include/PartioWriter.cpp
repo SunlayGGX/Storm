@@ -12,20 +12,38 @@
 
 #include "ExportMode.h"
 
+#include <Partio.h>
 
-StormExporter::PartioWriter::PartioWriter(const Storm::SerializeRecordHeader &header)
+
+namespace PartioWriterPImplDetails
+{
+	struct PartioDataWriterBlackboard
+	{
+	public:
+		void init(Partio::ParticlesDataMutable &data)
+		{
+			_position = data.addAttribute("position", Partio::VECTOR, 3);
+			_time = data.addAttribute("time", Partio::FLOAT, 1);
+			_id = data.addAttribute("id", Partio::INT, 1);
+		}
+
+	public:
+		Partio::ParticleAttribute _id;
+		Partio::ParticleAttribute _time;
+		Partio::ParticleAttribute _position;
+	};
+}
+
+
+StormExporter::PartioWriter::PartioWriter(const Storm::SerializeRecordHeader &header) :
+	_particleInstance{ Partio::create(), [](auto* instance) { instance->release(); } },
+	_blackboard{ std::make_unique<std::remove_cvref_t<decltype(*_blackboard)>>() }
 {
 	LOG_COMMENT << "Record header parsed. We'll start writing to Partio.";
-	
+
+	_blackboard->init(*_particleInstance);
+
 	const auto &configMgr = Storm::SingletonHolder::instance().getSingleton<StormExporter::IExporterConfigManager>();
-
-	const std::string &outFile = configMgr.getOutExportPath();
-	_partioFile.open(outFile, std::ios_base::out | std::ios_base::binary);
-	if (!_partioFile.is_open())
-	{
-		Storm::throwException<Storm::Exception>("Cannot open file " + outFile + " to write into!");
-	}
-
 	const StormExporter::ExportMode mode = configMgr.getExportMode();
 
 	const bool targetFluids = STORM_IS_BIT_ENABLED(mode, StormExporter::ExportMode::Fluid);
@@ -57,7 +75,7 @@ bool StormExporter::PartioWriter::onFrameExport(const Storm::SerializeRecordPend
 	{
 		if (this->shouldWriteData(data))
 		{
-			this->writeData(data);
+			this->writeData(frame._physicsTime, data);
 		}
 	}
 	return true;
@@ -65,7 +83,19 @@ bool StormExporter::PartioWriter::onFrameExport(const Storm::SerializeRecordPend
 
 void StormExporter::PartioWriter::onExportClose()
 {
-	LOG_COMMENT << "Finished exporting data to partio file.";
+	const auto &configMgr = Storm::SingletonHolder::instance().getSingleton<StormExporter::IExporterConfigManager>();
+	const std::string &fileToExport = configMgr.getOutExportPath();
+
+	LOG_COMMENT << "Finished transferring data to partio.\nWriting partio file at '" << fileToExport << '\'';
+
+	std::stringstream errorStreamRedirect;
+	Partio::write(fileToExport.c_str(), *_particleInstance, false, true, errorStreamRedirect);
+
+	if (const std::string_view errorMsg = errorStreamRedirect.view();
+		!errorMsg.empty())
+	{
+		LOG_ERROR << "Error when writing partio file :\n" << std::move(errorStreamRedirect).str();
+	}
 }
 
 bool StormExporter::PartioWriter::shouldWriteData(const Storm::SerializeRecordParticleSystemData &pSystemData) const
@@ -76,8 +106,28 @@ bool StormExporter::PartioWriter::shouldWriteData(const Storm::SerializeRecordPa
 	});
 }
 
-void StormExporter::PartioWriter::writeData(const Storm::SerializeRecordParticleSystemData &pSystemData)
+void StormExporter::PartioWriter::writeData(const float time, const Storm::SerializeRecordParticleSystemData &pSystemData)
 {
-	const auto &pPositions = pSystemData._positions;
-	_partioFile.write(reinterpret_cast<const char*>(pPositions.data()), sizeof(Storm::Vector3) * pPositions.size());
+	const std::vector<Storm::Vector3> &pPositions = pSystemData._positions;
+	const std::size_t particleCount = pPositions.size();
+
+	auto pIterator = _particleInstance->addParticles(static_cast<int>(particleCount));
+
+	Partio::ParticleAccessor idAccessor{ _blackboard->_id };
+	pIterator.addAccessor(idAccessor);
+
+	Partio::ParticleAccessor timeAccessor{ _blackboard->_time };
+	pIterator.addAccessor(timeAccessor);
+	
+	Partio::ParticleAccessor positionAccessor{ _blackboard->_position };
+	pIterator.addAccessor(positionAccessor);
+
+	for (std::size_t iter = 0; iter < particleCount; ++iter)
+	{
+		*idAccessor.raw<int>(pIterator) = pSystemData._systemId;
+		*timeAccessor.raw<float>(pIterator) = time;
+		memcpy(positionAccessor.raw<float>(pIterator), &pPositions[iter], sizeof(Storm::Vector3));
+
+		++pIterator;
+	}
 }

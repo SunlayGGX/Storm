@@ -9,6 +9,16 @@ namespace Storm
 	struct SerializeRecordParticleSystemData;
 }
 
+namespace Partio
+{
+	class ParticlesDataMutable;
+}
+
+namespace PartioWriterPImplDetails
+{
+	struct PartioDataWriterBlackboard;
+}
+
 namespace StormExporter
 {
 	class PartioWriter
@@ -23,10 +33,11 @@ namespace StormExporter
 
 	private:
 		bool shouldWriteData(const Storm::SerializeRecordParticleSystemData &pSystemData) const;
-		void writeData(const Storm::SerializeRecordParticleSystemData &pSystemData);
+		void writeData(const float time, const Storm::SerializeRecordParticleSystemData &pSystemData);
 
 	private:
 		std::vector<unsigned int> _targetIds;
-		std::ofstream _partioFile;
+		std::shared_ptr<Partio::ParticlesDataMutable> _particleInstance;
+		std::unique_ptr<PartioWriterPImplDetails::PartioDataWriterBlackboard> _blackboard;
 	};
 }
