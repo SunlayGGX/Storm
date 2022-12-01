@@ -37,14 +37,13 @@
 #endif
 
 #if defined(DEBUG) || defined(_DEBUG)
-#	define STORM_EXT_CONFIGURATION_FOLDER "Debug"
+#	define STORM_EXT_RELATIVE_LIB(lib) "Debug/" STORM_STRINGIFY(lib)
 #elif defined(NDEBUG)
-#	define STORM_EXT_CONFIGURATION_FOLDER "Release"
+#	define STORM_EXT_RELATIVE_LIB(lib) "Release/" STORM_STRINGIFY(lib)
 #else
 #	error Undefined configuration folder!
 #endif
 
-#define STORM_EXT_RELATIVE_LIB(lib) STORM_EXT_CONFIGURATION_FOLDER "/" STORM_STRINGIFY(lib)
 
 
 #define STORM_STATIC_LIBRARY_NAME(name) STORM_PLUGIN_NAME(name) ".lib"
