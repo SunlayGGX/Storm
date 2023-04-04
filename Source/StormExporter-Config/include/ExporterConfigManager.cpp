@@ -138,7 +138,7 @@ void StormExporter::ExporterConfigManager::initialize_Implementation(int argc, c
 			const auto stormRoot = Storm::StormPathHelper::findStormRootPath(std::filesystem::path{ argv[0] }.parent_path());
 			
 			auto pathToExportOutput = stormRoot / "Intermediate" / "Exporter" / inRecordPath.parent_path().stem() / inRecordPath.filename();
-			pathToExportOutput.replace_extension("pcf");
+			pathToExportOutput.replace_extension("pdb");
 
 			std::filesystem::create_directories(pathToExportOutput.parent_path());
 			

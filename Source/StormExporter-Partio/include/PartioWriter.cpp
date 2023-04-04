@@ -22,16 +22,54 @@ namespace PartioWriterPImplDetails
 	public:
 		void init(Partio::ParticlesDataMutable &data)
 		{
+			//_time = data.addAttribute("time", Partio::FLOAT, 1);
 			_position = data.addAttribute("position", Partio::VECTOR, 3);
-			_time = data.addAttribute("time", Partio::FLOAT, 1);
+			_velocity = data.addAttribute("velocity", Partio::VECTOR, 3);
 			_id = data.addAttribute("id", Partio::INT, 1);
 		}
 
 	public:
 		Partio::ParticleAttribute _id;
-		Partio::ParticleAttribute _time;
+		//Partio::ParticleAttribute _time;
 		Partio::ParticleAttribute _position;
+		Partio::ParticleAttribute _velocity;
 	};
+}
+
+namespace
+{
+	Partio::ParticlesDataMutable::iterator resizeForThisFrame(Partio::ParticlesDataMutable &instance, const Storm::SerializeRecordPendingData &frame)
+	{
+		Partio::ParticlesDataMutable::iterator pIterator;
+
+		std::size_t particleCountThisFrame = 0;
+		bool firstAdd = false;
+		for (const auto &data : frame._particleSystemElements)
+		{
+			std::size_t toAdd = data._positions.size();
+			particleCountThisFrame += toAdd;
+
+			// Because of the int cast when adding particles, which limits to 2*10^9 particles...
+			if (particleCountThisFrame > std::numeric_limits<int>::max())
+			{
+				if (auto tmpIter = instance.addParticles(std::numeric_limits<int>::max());
+					!firstAdd)
+				{
+					pIterator = tmpIter;
+					firstAdd = true;
+				}
+				particleCountThisFrame -= std::numeric_limits<int>::max();
+			}
+		}
+
+		auto tmpIter = instance.addParticles(static_cast<int>(particleCountThisFrame));
+		if (!firstAdd)
+		{
+			pIterator = tmpIter;
+		}
+
+		return pIterator;
+	}
 }
 
 
@@ -71,13 +109,43 @@ StormExporter::PartioWriter::~PartioWriter() = default;
 
 bool StormExporter::PartioWriter::onFrameExport(const Storm::SerializeRecordPendingData &frame)
 {
+	auto pIterator = resizeForThisFrame(*_particleInstance, frame);
+
+	Partio::ParticleAccessor positionAccessor{ _blackboard->_position };
+	pIterator.addAccessor(positionAccessor);
+
+	Partio::ParticleAccessor idAccessor{ _blackboard->_id };
+	pIterator.addAccessor(idAccessor);
+
+	Partio::ParticleAccessor velocityAccessor{ _blackboard->_velocity };
+	pIterator.addAccessor(velocityAccessor);
+
+	/*Partio::ParticleAccessor timeAccessor{ _blackboard->_time };
+	pIterator.addAccessor(timeAccessor);*/
+
+	int uniformId = 0;
+
 	for (const auto &data : frame._particleSystemElements)
 	{
 		if (this->shouldWriteData(data))
 		{
-			this->writeData(frame._physicsTime, data);
+			const std::vector<Storm::Vector3> &pPositions = data._positions;
+			const std::vector<Storm::Vector3> &pVelocity = data._velocities;
+			const std::size_t particleCount = pPositions.size();
+
+			for (std::size_t iter = 0; iter < particleCount; ++iter)
+			{
+				//*timeAccessor.raw<float>(pIterator) = frame._physicsTime;
+				memcpy(positionAccessor.raw<float>(pIterator), &pPositions[iter], sizeof(Storm::Vector3));
+				*idAccessor.raw<int>(pIterator) = uniformId;
+				memcpy(positionAccessor.raw<float>(pIterator), &pVelocity[iter], sizeof(Storm::Vector3));
+
+				++uniformId;
+				++pIterator;
+			}
 		}
 	}
+
 	return true;
 }
 
@@ -106,28 +174,3 @@ bool StormExporter::PartioWriter::shouldWriteData(const Storm::SerializeRecordPa
 	});
 }
 
-void StormExporter::PartioWriter::writeData(const float time, const Storm::SerializeRecordParticleSystemData &pSystemData)
-{
-	const std::vector<Storm::Vector3> &pPositions = pSystemData._positions;
-	const std::size_t particleCount = pPositions.size();
-
-	auto pIterator = _particleInstance->addParticles(static_cast<int>(particleCount));
-
-	Partio::ParticleAccessor idAccessor{ _blackboard->_id };
-	pIterator.addAccessor(idAccessor);
-
-	Partio::ParticleAccessor timeAccessor{ _blackboard->_time };
-	pIterator.addAccessor(timeAccessor);
-	
-	Partio::ParticleAccessor positionAccessor{ _blackboard->_position };
-	pIterator.addAccessor(positionAccessor);
-
-	for (std::size_t iter = 0; iter < particleCount; ++iter)
-	{
-		*idAccessor.raw<int>(pIterator) = pSystemData._systemId;
-		*timeAccessor.raw<float>(pIterator) = time;
-		memcpy(positionAccessor.raw<float>(pIterator), &pPositions[iter], sizeof(Storm::Vector3));
-
-		++pIterator;
-	}
-}

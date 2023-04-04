@@ -392,14 +392,38 @@ void Storm::SerializerManager::exportRecord(const std::string &recordFile, const
 
 	_recordReader = std::make_unique<Storm::RecordReader>(recordFile);
 
-	if (exporter._onStartRecordRead(_recordReader->getHeader()))
+	const auto &header = _recordReader->getHeader();
+	if (exporter._onStartRecordRead(header))
 	{
+		auto lastLogTimePoint = std::chrono::high_resolution_clock::now();
+		const float recordMaxTime = header._realEndPhysicsTime;
+		std::size_t frameTransferredSinceLast = 0;
+		const bool shouldLogProgressPercent = !(std::isnan(recordMaxTime) || recordMaxTime == 0.f);
+
 		Storm::SerializeRecordPendingData frameData;
 		while (_recordReader->readNextFrame(frameData))
 		{
-			if (!exporter._onNewFrameReceive(frameData))
+			if (!exporter._onNewFrameReceive(frameData)) STORM_UNLIKELY
 			{
 				break;
+			}
+
+			++frameTransferredSinceLast;
+
+			const auto timeNow = std::chrono::high_resolution_clock::now();
+			if (timeNow - lastLogTimePoint > std::chrono::seconds{ 1 })
+			{
+				lastLogTimePoint = timeNow;
+
+				if (shouldLogProgressPercent)
+				{
+					LOG_DEBUG << "Export transfer progress : " << std::min(frameData._physicsTime / recordMaxTime, 1.f) * 100.f << '%';
+				}
+				else
+				{
+					LOG_DEBUG << "Transferred " << frameTransferredSinceLast << " frames since last log.";
+					frameTransferredSinceLast = 0;
+				}
 			}
 		}
 	}

@@ -33,7 +33,6 @@ namespace StormExporter
 
 	private:
 		bool shouldWriteData(const Storm::SerializeRecordParticleSystemData &pSystemData) const;
-		void writeData(const float time, const Storm::SerializeRecordParticleSystemData &pSystemData);
 
 	private:
 		std::vector<unsigned int> _targetIds;
