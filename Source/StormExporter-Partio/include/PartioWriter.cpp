@@ -158,6 +158,7 @@ void StormExporter::PartioWriter::onExportClose()
 
 	std::stringstream errorStreamRedirect;
 	Partio::write(fileToExport.c_str(), *_particleInstance, false, true, errorStreamRedirect);
+	_particleInstance->release();
 
 	if (const std::string_view errorMsg = errorStreamRedirect.view();
 		!errorMsg.empty())
