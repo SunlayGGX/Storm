@@ -52,3 +52,5 @@ Intermediate/**
 **/[Gg]enerated/**
 *.generated.h
 Source/Storm-CsCppShared/include/**
+
+**/JSON/**
