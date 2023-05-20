@@ -1,6 +1,7 @@
 import bpy
 import struct
 
+
 class ParticleImportPanel(bpy.types.Panel):
     bl_label = "Particle Import"
     bl_idname = "OBJECT_PT_particle_import"
@@ -24,65 +25,74 @@ class OBJECT_OT_ImportParticles(bpy.types.Operator):
         scene = context.scene
 
         filepath = scene.particle_filepath
-        particles = read_particle_system(filepath)
+        frames = read_particle_frames(filepath)
 
-        if particles:
-            create_particles(particles)
+        if frames:
+            create_particle_animation(frames)
 
         return {'FINISHED'}
 
 
-    
-def read_particle_system(filepath):
-    particles = []
+def read_particle_frames(filepath):
+    frames = []
 
     with open(filepath, "rb") as file:
         # Read header
         magic_word = struct.unpack("<I", file.read(4))[0]
         version = struct.unpack("<f", file.read(4))[0]
-        particle_count = struct.unpack("<Q", file.read(8))[0]
+        frame_count = struct.unpack("<Q", file.read(8))[0]
 
-        print(f"Magic Word: {magic_word}")
-        print(f"Version: {version}")
-        print(f"Particle Count: {particle_count}")
+        for _ in range(frame_count):
+            particles = read_particle_frame(file)
+            frames.append(particles)
 
-        for _ in range(particle_count):
-            # Read particle data
-            particle_id = struct.unpack("<I", file.read(4))[0]
-            time = struct.unpack("<f", file.read(4))[0]
-            position = struct.unpack("<3f", file.read(12))
+    return frames
 
-            print(f"Particle ID: {particle_id}")
-            print(f"Time: {time}")
-            print(f"Position: {position}")
 
-            # Append particle data to the list
-            particles.append((particle_id, time, position))
+def read_particle_frame(file):
+    particles = []
+
+    # Read frame header
+    particle_count = struct.unpack("<Q", file.read(8))[0]
+
+    for _ in range(particle_count):
+        # Read particle data
+        particle_id = struct.unpack("<I", file.read(4))[0]
+        time = struct.unpack("<f", file.read(4))[0]
+        position = struct.unpack("<3f", file.read(12))
+
+        # Append particle data to the list
+        particles.append((particle_id, time, position))
 
     return particles
 
 
-def create_particles(particles):
+def create_particle_animation(frames):
     # Create particles in Blender
-    for particle_id, time, position in particles:
-        obj = bpy.data.objects.new("Particle", None)
-        bpy.context.collection.objects.link(obj)
-        obj.location = position
+    for frame_idx, particles in enumerate(frames):
+        for particle_id, time, position in particles:
+            obj = bpy.data.objects.get(f"Particle_{particle_id}")
+            if obj is None:
+                obj = bpy.data.objects.new(f"Particle_{particle_id}", None)
+                bpy.context.collection.objects.link(obj)
 
-        # Create animation keyframes
-        obj.animation_data_create()
-        obj.animation_data.action = bpy.data.actions.new(name="ParticleAnimation")
-        obj.keyframe_insert(data_path="location", frame=round(time))
+            # Set particle position
+            obj.location = position
 
-        # Check if the particle has previous keyframes
-        if obj.animation_data.action.fcurves.find("location", index=0) is not None:
-            # Interpolate position with previous keyframe
-            obj.keyframe_insert(data_path="location", frame=round(time) - 1)
-            obj.animation_data.action.fcurves.find("location", index=0).keyframe_points[-1].interpolation = 'LINEAR'
-            obj.animation_data.action.fcurves.find("location", index=1).keyframe_points[-1].interpolation = 'LINEAR'
-            obj.animation_data.action.fcurves.find("location", index=2).keyframe_points[-1].interpolation = 'LINEAR'
+            # Create animation keyframe for current frame
+            obj.animation_data_create()
+            obj.animation_data.action = bpy.data.actions.new(name=f"ParticleAnimation_{particle_id}")
+            obj.keyframe_insert(data_path="location", frame=frame_idx)
 
-    # Set the current frame to the first keyframe
+            # Check if the particle has previous keyframes
+            if frame_idx > 0 and obj.animation_data.action.fcurves.find("location", index=0) is not None:
+                # Interpolate position with previous keyframe
+                obj.keyframe_insert(data_path="location", frame=frame_idx - 1)
+                obj.animation_data.action.fcurves.find("location", index=0).keyframe_points[-1].interpolation = 'LINEAR'
+                obj.animation_data.action.fcurves.find("location", index=1).keyframe_points[-1].interpolation = 'LINEAR'
+                obj.animation_data.action.fcurves.find("location", index=2).keyframe_points[-1].interpolation = 'LINEAR'
+
+    # Set the current frame to the first frame
     bpy.context.scene.frame_set(0)
 
 

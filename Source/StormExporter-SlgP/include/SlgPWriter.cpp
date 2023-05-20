@@ -124,7 +124,7 @@ void StormExporter::SlgPWriter::onExportClose()
 
 	LOG_COMMENT << "Finished transferring data to slgP.\nWriting slgP file at '" << fileToExport << '\'';
 
-	Storm::SerializePackage package{ Storm::SerializePackageCreationModality::SavingNew, fileToExport };
+	Storm::SerializePackage package{ Storm::SerializePackageCreationModality::SavingNewPreheaderProvidedAfter, fileToExport };
 
 	uint32_t magicWord = k_badMagicWord;
 	package << magicWord;
