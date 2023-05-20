@@ -7,5 +7,6 @@ namespace StormExporter
 	{
 		None = 0,
 		Partio,
+		SlgP,
 	};
 }

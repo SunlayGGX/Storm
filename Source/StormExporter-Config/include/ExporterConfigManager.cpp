@@ -42,6 +42,7 @@ namespace
 
 #define STORMEXPORTER_IF_RETURN(EnumVal, Text) if (val == Text) return StormExporter::ExportType::EnumVal
 		STORMEXPORTER_IF_RETURN(Partio, "partio");
+		STORMEXPORTER_IF_RETURN(SlgP, "slgp");
 #undef STORMEXPORTER_IF_RETURN
 
 		Storm::throwException<Storm::Exception>("Unhandled export type! Value was " + val);
@@ -102,7 +103,7 @@ void StormExporter::ExporterConfigManager::initialize_Implementation(int argc, c
 	_desc->add_options()
 		("help,h", "Command line help")
 		("mode", boost::program_options::value<std::string>(), "Mode (case insensitive) to export. Combine values with | symbol. Accepted values are : 'Fluid' and 'RigidBodies'.")
-		("type", boost::program_options::value<std::string>(), "Type (case insensitive) to export into. Accepted values are : 'Partio'.")
+		("type", boost::program_options::value<std::string>(), "Type (case insensitive) to export into. Accepted values are : 'Partio', 'SlgP'.")
 		("in", boost::program_options::value<std::string>(), "The record file path.")
 		("out", boost::program_options::value<std::string>(), "The outputted export file path.")
 		;
@@ -132,19 +133,6 @@ void StormExporter::ExporterConfigManager::initialize_Implementation(int argc, c
 			Storm::throwException<Storm::Exception>("File to export was not specified!");
 		}
 
-		if (!extractIfExist(commandlineMap, "out", _exportPath))
-		{
-			const std::filesystem::path inRecordPath{ _recordToExport };
-			const auto stormRoot = Storm::StormPathHelper::findStormRootPath(std::filesystem::path{ argv[0] }.parent_path());
-			
-			auto pathToExportOutput = stormRoot / "Intermediate" / "Exporter" / inRecordPath.parent_path().stem() / inRecordPath.filename();
-			pathToExportOutput.replace_extension("pdb");
-
-			std::filesystem::create_directories(pathToExportOutput.parent_path());
-			
-			_exportPath = pathToExportOutput.string();
-		}
-
 		if (!extractIfExist(commandlineMap, "mode", _exportMode, parseExportMode))
 		{
 			Storm::throwException<Storm::Exception>("Export mode was not specified!");
@@ -153,6 +141,33 @@ void StormExporter::ExporterConfigManager::initialize_Implementation(int argc, c
 		if (!extractIfExist(commandlineMap, "type", _exportType, parseExportType))
 		{
 			Storm::throwException<Storm::Exception>("Export type was not specified!");
+		}
+
+		if (!extractIfExist(commandlineMap, "out", _exportPath))
+		{
+			const std::filesystem::path inRecordPath{ _recordToExport };
+			const auto stormRoot = Storm::StormPathHelper::findStormRootPath(std::filesystem::path{ argv[0] }.parent_path());
+
+			auto pathToExportOutput = stormRoot / "Intermediate" / "Exporter" / inRecordPath.parent_path().stem();
+			std::filesystem::create_directories(pathToExportOutput);
+
+			pathToExportOutput /= inRecordPath.filename();
+
+			switch (_exportType)
+			{
+			case ExportType::Partio:
+				pathToExportOutput.replace_extension("partio");
+				break;
+			case ExportType::SlgP:
+				pathToExportOutput.replace_extension("slgp");
+				break;
+
+			default:
+				assert(false && "Unhandled export type.");
+				__assume(false);
+			}
+
+			_exportPath = pathToExportOutput.string();
 		}
 
 		_desc.reset();

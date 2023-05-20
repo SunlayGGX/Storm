@@ -5,6 +5,7 @@
 #include "LoggerManager.h"
 #include "ExporterConfigManager.h"
 #include "PartioExporterManager.h"
+#include "SlgPExporterManager.h"
 
 #include "SingletonHolder.h"
 #include "SingletonAllocator.h"
@@ -28,6 +29,10 @@ namespace
 		StormExporter::PartioExporterManager
 	>> g_partioAlloc;
 
+	std::unique_ptr<Storm::SingletonAllocator<
+		StormExporter::SlgPExporterManager
+	>> g_slgPAlloc;
+
 	template<class AllocPtr>
 	void allocate(AllocPtr &ptr)
 	{
@@ -49,10 +54,13 @@ namespace
 		switch (exportMode)
 		{
 		case StormExporter::ExportType::Partio:
-		{
 			allocate(g_partioAlloc);
 			break;
-		}
+
+		case StormExporter::ExportType::SlgP:
+			allocate(g_slgPAlloc);
+			break;
+
 		default:
 			assert(false && "Unhandled Export Type!");
 			__assume(false);

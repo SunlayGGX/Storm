@@ -159,6 +159,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "StormExporter-Config", "Sou
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "StormExporter-Partio", "Source\StormExporter-Partio\script\StormExporter-Partio.vcxproj", "{4B636FF3-E649-41F6-9170-4AEF06698A46}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "StormExporter-SlgP", "Source\StormExporter-SlgP\script\StormExporter-SlgP.vcxproj", "{AEF62B43-0D7D-4F62-A1ED-E84BCEE64157}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -649,6 +651,22 @@ Global
 		{4B636FF3-E649-41F6-9170-4AEF06698A46}.ReleaseNoPackager|Any CPU.Build.0 = Release|x64
 		{4B636FF3-E649-41F6-9170-4AEF06698A46}.ReleaseNoPackager|x64.ActiveCfg = Release|x64
 		{4B636FF3-E649-41F6-9170-4AEF06698A46}.ReleaseNoPackager|x64.Build.0 = Release|x64
+		{AEF62B43-0D7D-4F62-A1ED-E84BCEE64157}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{AEF62B43-0D7D-4F62-A1ED-E84BCEE64157}.Debug|Any CPU.Build.0 = Debug|x64
+		{AEF62B43-0D7D-4F62-A1ED-E84BCEE64157}.Debug|x64.ActiveCfg = Debug|x64
+		{AEF62B43-0D7D-4F62-A1ED-E84BCEE64157}.Debug|x64.Build.0 = Debug|x64
+		{AEF62B43-0D7D-4F62-A1ED-E84BCEE64157}.Profile|Any CPU.ActiveCfg = Profile|x64
+		{AEF62B43-0D7D-4F62-A1ED-E84BCEE64157}.Profile|Any CPU.Build.0 = Profile|x64
+		{AEF62B43-0D7D-4F62-A1ED-E84BCEE64157}.Profile|x64.ActiveCfg = Profile|x64
+		{AEF62B43-0D7D-4F62-A1ED-E84BCEE64157}.Profile|x64.Build.0 = Profile|x64
+		{AEF62B43-0D7D-4F62-A1ED-E84BCEE64157}.Release|Any CPU.ActiveCfg = Release|x64
+		{AEF62B43-0D7D-4F62-A1ED-E84BCEE64157}.Release|Any CPU.Build.0 = Release|x64
+		{AEF62B43-0D7D-4F62-A1ED-E84BCEE64157}.Release|x64.ActiveCfg = Release|x64
+		{AEF62B43-0D7D-4F62-A1ED-E84BCEE64157}.Release|x64.Build.0 = Release|x64
+		{AEF62B43-0D7D-4F62-A1ED-E84BCEE64157}.ReleaseNoPackager|Any CPU.ActiveCfg = Release|x64
+		{AEF62B43-0D7D-4F62-A1ED-E84BCEE64157}.ReleaseNoPackager|Any CPU.Build.0 = Release|x64
+		{AEF62B43-0D7D-4F62-A1ED-E84BCEE64157}.ReleaseNoPackager|x64.ActiveCfg = Release|x64
+		{AEF62B43-0D7D-4F62-A1ED-E84BCEE64157}.ReleaseNoPackager|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -706,6 +724,7 @@ Global
 		{4BBD5239-5F35-479B-991E-EC8B939218F2} = {6036BAD0-5D88-423E-811D-4F3976C7F93B}
 		{B4826DEA-A4F9-4783-A3BE-77457BCB42F5} = {6036BAD0-5D88-423E-811D-4F3976C7F93B}
 		{4B636FF3-E649-41F6-9170-4AEF06698A46} = {6036BAD0-5D88-423E-811D-4F3976C7F93B}
+		{AEF62B43-0D7D-4F62-A1ED-E84BCEE64157} = {6036BAD0-5D88-423E-811D-4F3976C7F93B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {AC48B795-9776-4952-84E0-CE8AB938B72B}
