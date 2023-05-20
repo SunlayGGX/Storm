@@ -20,14 +20,12 @@ namespace
 	struct ParticleData
 	{
 	public:
-		ParticleData(float time, uint32_t id, const Storm::Vector3 &position) :
-			_time{ time },
+		ParticleData(uint32_t id, const Storm::Vector3 &position) :
 			_id{ id },
 			_position{ position }
 		{}
 
 	public:
-		float _time;
 		uint32_t _id;
 		Storm::Vector3 _position;
 	};
@@ -46,7 +44,7 @@ namespace SlgPWriterPImplDetails
 	public:
 		std::size_t _particleCount;
 
-		std::list<std::vector<ParticleData>> _data;
+		std::list<std::pair<float, std::vector<ParticleData>>> _data;
 	};
 }
 
@@ -94,9 +92,16 @@ StormExporter::SlgPWriter::~SlgPWriter() = default;
 
 bool StormExporter::SlgPWriter::onFrameExport(const Storm::SerializeRecordPendingData &frame)
 {
+	if (const auto &exporterMgr = Storm::SingletonHolder::instance().getSingleton<StormExporter::IExporterConfigManager>();
+		_blackboard->_data.size() > exporterMgr.getSliceOutFrames())
+	{
+		return false;
+	}
+
 	auto &thisFrameData = _blackboard->_data.emplace_back();
 
-	thisFrameData.reserve(_blackboard->_particleCount);
+	thisFrameData.first = frame._physicsTime;
+	thisFrameData.second.reserve(_blackboard->_particleCount);
 
 	for (const auto &data : frame._particleSystemElements)
 	{
@@ -107,7 +112,7 @@ bool StormExporter::SlgPWriter::onFrameExport(const Storm::SerializeRecordPendin
 
 			for (std::size_t iter = 0; iter < particleCount; ++iter)
 			{
-				thisFrameData.emplace_back(frame._physicsTime, static_cast<uint32_t>(iter), pPositions[iter]);
+				thisFrameData.second.emplace_back(static_cast<uint32_t>(iter), pPositions[iter]);
 			}
 		}
 	}
@@ -132,22 +137,26 @@ void StormExporter::SlgPWriter::onExportClose()
 	float currentVersion = 1.0;
 	package << currentVersion;
 
+	uint64_t frameCount = _blackboard->_data.size();
+	package << frameCount;
+
 	uint64_t pCount = _blackboard->_particleCount;
 	package << pCount;
 
 	for (auto &dataThisFrame : _blackboard->_data)
 	{
-		for (ParticleData &pData : dataThisFrame)
+		package << dataThisFrame.first;
+
+		for (ParticleData &pData : dataThisFrame.second)
 		{
 			package <<
 				pData._id <<
-				pData._time <<
 				pData._position;
 		}
 	}
 
-	magicWord = k_goodMagicWord;
 	package.seekAbsolute(0);
+	magicWord = k_goodMagicWord;
 	package << magicWord;
 
 	package.flush();

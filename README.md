@@ -170,6 +170,7 @@ Command line arguments should be used like this : --key=value or --key. Macros a
 - **type (string, mandatory, case-unsensitive)**: The type of the export. Accepted values are : Partio and SlgP :
   + Partio : export to a partio file that could be read by the partio library.
   + SlgP : our custom file format since Partio library is such a mess to setup with Blender or Touch Designer. You only need the script given inside that repository as a Blender add-on to make it works.
+- **sliceOut (64-bits unsigned integer, faculative)**: The sliced out frame number (included) from which we stop the export.
 
 
 ## Config file

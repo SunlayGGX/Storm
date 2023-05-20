@@ -38,5 +38,7 @@ namespace StormExporter
 		std::vector<unsigned int> _targetIds;
 		std::shared_ptr<Partio::ParticlesDataMutable> _particleInstance;
 		std::unique_ptr<PartioWriterPImplDetails::PartioDataWriterBlackboard> _blackboard;
+
+		std::size_t _frameCount;
 	};
 }

@@ -87,7 +87,8 @@ namespace
 
 StormExporter::ExporterConfigManager::ExporterConfigManager() :
 	_exportMode{ StormExporter::ExportMode::None },
-	_exportType{ StormExporter::ExportType::None }
+	_exportType{ StormExporter::ExportType::None },
+	_sliceOutFrames{ std::numeric_limits<decltype(_sliceOutFrames)>::max()}
 {
 
 }
@@ -106,6 +107,7 @@ void StormExporter::ExporterConfigManager::initialize_Implementation(int argc, c
 		("type", boost::program_options::value<std::string>(), "Type (case insensitive) to export into. Accepted values are : 'Partio', 'SlgP'.")
 		("in", boost::program_options::value<std::string>(), "The record file path.")
 		("out", boost::program_options::value<std::string>(), "The outputted export file path.")
+		("sliceOut", boost::program_options::value<std::size_t>(), "slice out frame number after which the export animation should stop.")
 		;
 
 	boost::program_options::variables_map commandlineMap;
@@ -170,6 +172,8 @@ void StormExporter::ExporterConfigManager::initialize_Implementation(int argc, c
 			_exportPath = pathToExportOutput.string();
 		}
 
+		extractIfExist(commandlineMap, "sliceOut", _sliceOutFrames);
+
 		_desc.reset();
 	}
 }
@@ -204,4 +208,9 @@ StormExporter::ExportMode StormExporter::ExporterConfigManager::getExportMode() 
 StormExporter::ExportType StormExporter::ExporterConfigManager::getExportType() const
 {
 	return _exportType;
+}
+
+std::size_t StormExporter::ExporterConfigManager::getSliceOutFrames() const
+{
+	return _sliceOutFrames;
 }

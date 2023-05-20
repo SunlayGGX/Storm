@@ -18,5 +18,6 @@ namespace StormExporter
 		virtual const std::string& getOutExportPath() const = 0;
 		virtual ExportMode getExportMode() const = 0;
 		virtual ExportType getExportType() const = 0;
+		virtual std::size_t getSliceOutFrames() const = 0;
 	};
 }

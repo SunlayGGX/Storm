@@ -75,7 +75,8 @@ namespace
 
 StormExporter::PartioWriter::PartioWriter(const Storm::SerializeRecordHeader &header) :
 	_particleInstance{ Partio::create(), [](auto* instance) { instance->release(); } },
-	_blackboard{ std::make_unique<std::remove_cvref_t<decltype(*_blackboard)>>() }
+	_blackboard{ std::make_unique<std::remove_cvref_t<decltype(*_blackboard)>>() },
+	_frameCount{ 0 }
 {
 	LOG_COMMENT << "Record header parsed. We'll start writing to Partio.";
 
@@ -109,6 +110,14 @@ StormExporter::PartioWriter::~PartioWriter() = default;
 
 bool StormExporter::PartioWriter::onFrameExport(const Storm::SerializeRecordPendingData &frame)
 {
+	if (const auto &exporterMgr = Storm::SingletonHolder::instance().getSingleton<StormExporter::IExporterConfigManager>();
+		_frameCount > exporterMgr.getSliceOutFrames())
+	{
+		return false;
+	}
+
+	++_frameCount;
+
 	auto pIterator = resizeForThisFrame(*_particleInstance, frame);
 
 	Partio::ParticleAccessor positionAccessor{ _blackboard->_position };

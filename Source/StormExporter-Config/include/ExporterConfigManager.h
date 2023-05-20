@@ -31,12 +31,15 @@ namespace StormExporter
 		const std::string& getOutExportPath() const final override;
 		ExportMode getExportMode() const final override;
 		ExportType getExportType() const final override;
+		std::size_t getSliceOutFrames() const final override;
 
 	private:
 		ExportMode _exportMode;
 		ExportType _exportType;
 		std::string _recordToExport;
 		std::string _exportPath;
+
+		std::size_t _sliceOutFrames;
 
 		std::unique_ptr<boost::program_options::options_description> _desc;
 	};
