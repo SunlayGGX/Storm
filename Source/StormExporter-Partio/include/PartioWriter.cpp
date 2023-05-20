@@ -138,7 +138,7 @@ bool StormExporter::PartioWriter::onFrameExport(const Storm::SerializeRecordPend
 				//*timeAccessor.raw<float>(pIterator) = frame._physicsTime;
 				memcpy(positionAccessor.raw<float>(pIterator), &pPositions[iter], sizeof(Storm::Vector3));
 				*idAccessor.raw<int>(pIterator) = uniformId;
-				memcpy(positionAccessor.raw<float>(pIterator), &pVelocity[iter], sizeof(Storm::Vector3));
+				memcpy(velocityAccessor.raw<float>(pIterator), &pVelocity[iter], sizeof(Storm::Vector3));
 
 				++uniformId;
 				++pIterator;
