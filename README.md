@@ -92,6 +92,7 @@ Some tools were developed to ease our life. The main tools are :
 - **Storm-ScriptSender**: Like the log viewer, it is a UI C#/WPF tool made in a weekend. It was made to send, save and sort easily scripts. It is an alternative to the shared script file.
 - **Storm-Packager**: This tool packages the minimum needed to run Storm and/or any other tools. Then you can deploy the resulting zip folder and run any Storm application on another station. It is also able to request to package automatically for another branch (it will switch branches, build the solution, package it and revert to the old branch afterward).
 - **Storm-MaterialAvailability**: This tool prints the availabilities of the materials found on the current station it is runned on.
+- **Storm-Exporter**: This tool bake and export record files to file which could be read by external applications. We provides Blender adds-on.
 
 
 
@@ -159,6 +160,16 @@ It is not a professional application though. It does not intend to replace huge 
 When you start it, wait for it to finish or some nasty bugs could happen. The allowed commands are :
 - **build (string, facultative)**: When specifying it with the branch name to build (i.e --build=develop), the packager will build the specified branch before packaging it (in the example, it will checkout develop, then build Storm.sln, package the result. And finally, it will revert to the branch we were before checking out develop).
 
+
+### Storm-Exporter.exe
+This application was made to bake and export a storm record into a file that could be read from our python script into Blender.
+Command line arguments should be used like this : --key=value or --key. Macros are not accepted.
+- **in (string, mandatory)**: the path to the record file to bake and export.
+- **out (string, facultative)**: the path of the resulting exported file. Extension should be specified. By default, it would output to $[StormIntermediate]/Exporter/$[inFileFolder]/$[inFileStem].$[autoExtension]; with $[inFileFolder] the folder containing the in record file, $[inFileStem] the file name without extension of the in record file, and $[autoExtension] an extension given automatically depending on the "type" command line argument.
+- **mode (string, mandatory, case-unsensitive)**: the type of particle system to export into the export file. All other are ignored. You need to compose values with | between 'Fluid' and 'Rigidbosies', i.e : Fluid|RigidBodies would export fluids particle systems as well as rigidbodies while Fluid would export only fluid particle system and ignore rigidbodies.
+- **type (string, mandatory, case-unsensitive)**: The type of the export. Accepted values are : Partio and SlgP :
+  + Partio : export to a partio file that could be read by the partio library.
+  + SlgP : our custom file format since Partio library is such a mess to setup with Blender or Touch Designer. You only need the script given inside that repository as a Blender add-on to make it works.
 
 
 ## Config file
