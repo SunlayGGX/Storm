@@ -117,9 +117,9 @@ def create_particle_animation(frames):
             keyframe_points_x = fcurves.find("location", index=0).keyframe_points
             keyframe_points_y = fcurves.find("location", index=1).keyframe_points
             keyframe_points_z = fcurves.find("location", index=2).keyframe_points
-            keyframe_points_x.insert(frame_idx, time, options={'FAST'})
-            keyframe_points_y.insert(frame_idx, position[0], options={'FAST'})
-            keyframe_points_z.insert(frame_idx, position[1], options={'FAST'})
+            keyframe_points_x.insert(frame_idx, position[0], options={'FAST'})
+            keyframe_points_y.insert(frame_idx, position[1], options={'FAST'})
+            keyframe_points_z.insert(frame_idx, position[2], options={'FAST'})
 
             # Check if the particle has previous keyframes
             if frame_idx > 0 and keyframe_points_x[-2] is not None:
