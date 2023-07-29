@@ -103,7 +103,7 @@ void StormExporter::ExporterConfigManager::initialize_Implementation(int argc, c
 	_desc = std::make_unique<boost::program_options::options_description>("Options");
 	_desc->add_options()
 		("help,h", "Command line help")
-		("mode", boost::program_options::value<std::string>(), "Mode (case insensitive) to export. Combine values with | symbol. Accepted values are : 'Fluid' and 'RigidBodies'.")
+		("mode", boost::program_options::value<std::string>(), "Mode (case insensitive) to export. Combine values with | symbol. Accepted values are : 'Fluid' and 'RigidBody'.")
 		("type", boost::program_options::value<std::string>(), "Type (case insensitive) to export into. Accepted values are : 'Partio', 'SlgP'.")
 		("in", boost::program_options::value<std::string>(), "The record file path.")
 		("out", boost::program_options::value<std::string>(), "The outputted export file path.")
