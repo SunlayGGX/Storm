@@ -161,6 +161,13 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "StormExporter-Partio", "Sou
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "StormExporter-SlgP", "Source\StormExporter-SlgP\script\StormExporter-SlgP.vcxproj", "{AEF62B43-0D7D-4F62-A1ED-E84BCEE64157}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scripts", "Scripts", "{81983BA0-65D9-4144-81EB-D3F92099DB2C}"
+	ProjectSection(SolutionItems) = preProject
+		Source\Blender\StormImporter_partio_Blender.py = Source\Blender\StormImporter_partio_Blender.py
+		Source\Blender\StormImporter_slgp_Blender.py = Source\Blender\StormImporter_slgp_Blender.py
+		Source\Blender\StormImporter_slgp_TouchDesigner.py = Source\Blender\StormImporter_slgp_TouchDesigner.py
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -725,6 +732,7 @@ Global
 		{B4826DEA-A4F9-4783-A3BE-77457BCB42F5} = {6036BAD0-5D88-423E-811D-4F3976C7F93B}
 		{4B636FF3-E649-41F6-9170-4AEF06698A46} = {6036BAD0-5D88-423E-811D-4F3976C7F93B}
 		{AEF62B43-0D7D-4F62-A1ED-E84BCEE64157} = {6036BAD0-5D88-423E-811D-4F3976C7F93B}
+		{81983BA0-65D9-4144-81EB-D3F92099DB2C} = {D7A9452A-553F-4394-ADF2-D155D2724B54}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {AC48B795-9776-4952-84E0-CE8AB938B72B}
